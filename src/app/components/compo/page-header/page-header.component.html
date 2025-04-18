@@ -14,10 +14,12 @@
     <div class="d-flex align-items-end justify-content-between">
       <div>
         <h2>{{ title }}</h2>
+        <ng-container *ngIf="hasSubinfo">
+          <div class="parag">
+            <ng-content select="[subinfo]"></ng-content>
+          </div>
+        </ng-container>
         
-        <div class="parag">
-          <ng-content select="[subinfo]"></ng-content>
-        </div>
       </div>
   
       <div class="d-flex gap-2">

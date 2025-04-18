@@ -1,6 +1,6 @@
 .body {
-    width: calc(100% - 300px);
-    margin-inline-start: 300px;
+    width: calc(100% - 17.5rem);
+    margin-inline-start: 17.5rem;
     z-index: 0;
     height: 100vh;
     position: relative;
@@ -20,8 +20,8 @@
 }
 
 .body-trimmed {
-    width: calc(100% - 300px);
-    margin-inline-start: 300px;
+    width: calc(100% - 17.5rem);
+    margin-inline-start: 17.5rem;
 }
 
 .body-md-screen {
