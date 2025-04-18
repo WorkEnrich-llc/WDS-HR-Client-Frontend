@@ -1,4 +1,122 @@
-body{
-    font-family: var(--font-family) !important;
+body {
+  font-family: var(--font-family) !important;
 }
 
+/* form input with icons */
+.form-outline {
+  position: relative;
+}
+
+.form-outline .form-control {
+  padding: 0.6rem;
+}
+
+.form-outline svg {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  stroke: var(--color-secondary-300);
+}
+
+/* all buttons */
+.btn {
+  border-radius: 0.7rem !important;
+  -webkit-border-radius: 0.7rem !important;
+  -moz-border-radius: 0.7rem !important;
+  -ms-border-radius: 0.7rem !important;
+  -o-border-radius: 0.7rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+}
+
+.btn-lg {
+  font-size: var(--font-size-b3) !important;
+  font-weight: 600 !important;
+  padding: 0.75rem var(--spacing-32) !important;
+  width: 12rem;
+}
+.btn-lg span{
+  text-wrap: nowrap !important;
+}
+
+@media (max-width:991px) {
+  .btn-lg {
+    width: 8rem;
+  }
+}
+@media (max-width:767px) {
+  .btn-lg{
+    width: auto;
+    padding: 0.75rem var(--spacing-12) !important;
+  }
+  .btn-lg svg{
+    display: none;
+  }
+}
+
+/* main blue button */
+.btn-primary {
+  background-color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+  color: var(--color-white) !important;
+
+}
+
+.btn-primary svg {
+  stroke: var(--color-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-600) !important;
+  border-color: var(--color-primary-600) !important;
+}
+
+.btn-outline-primary {
+  color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary svg {
+  stroke: var(--color-primary-500) !important;
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  -o-transition: 0.3s;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primary-500) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-outline-primary:hover svg {
+  stroke: var(--color-white) !important;
+}
+
+/* red buttons */
+.btn-danger {
+  background-color: var(--color-danger-500) !important;
+  border-color: var(--color-danger-500) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-danger-700) !important;
+  border-color: var(--color-danger-700) !important;
+}
+
+.btn-outline-danger {
+  color: var(--color-danger-700) !important;
+  border-color: var(--color-danger-500) !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--color-danger-500) !important;
+  color: var(--color-white) !important;
+}

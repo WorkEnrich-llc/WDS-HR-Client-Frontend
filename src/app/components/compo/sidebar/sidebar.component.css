@@ -148,7 +148,7 @@
 }
 
 .sidenav-collapsed .sidenav-nav-item,
-.sidenav-collapsed .admin .sidenav-nav-item {
+.sidenav-collapsed .admin .sidenav-nav-item ,.sidenav-collapsed .bottom-nav .sidenav-nav-item{
     padding: var(--spacing-16) var(--spacing-24);
     display: block;
     cursor: pointer;

@@ -1,25 +1,192 @@
 <!-- start page header -->
-<app-page-header
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Operations Development', link: '/' },
     { label: 'Branches' }
-  ]"
-  title="All Branches"
->
-  
+  ]" title="All Branches">
+
   <!-- <div subinfo>
     Created at 13/06/2023 &nbsp; | &nbsp; Updated At 03/12/2024
   </div>
 
-  <button actions class="btn btn-primary">
-    <i class="bi bi-pencil"></i> Edit
+  <button actions class="btn btn-lg btn-primary">
+    <i class="fas fa-pen"></i> Edit
   </button>
-  <button actions class="btn btn-outline-danger">
-    <i class="bi bi-power"></i> Deactivate
-  </button> -->
+  
+  <button actions class="btn btn-lg btn-outline-danger">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke-linecap="round" stroke-width="1.5" d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294"/></svg> Deactivate
+  </button>
+   -->
 </app-page-header>
 <!-- end page header -->
- 
+
 <div class="content-hug">
-    <p class="h1 bold">all-branches works!</p>
+  <div class="content-box d-flex flex-column gap-3">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+        <!-- Search input -->
+        <div data-mdb-input-init class="form-outline w-75">
+          <input type="text" class="form-control" placeholder="Search" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <circle cx="11.5" cy="11.5" r="9.5" />
+              <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Filter button -->
+        <button class="btn btn-lg btn-outline-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke-width="1.5"
+              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+          </svg>
+          <span>Filter</span>
+        </button>
+
+      </div>
+
+      <!-- New Branch button -->
+      <button class="btn btn-lg btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <g fill="none" stroke="#ffffff" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>New Branch</span>
+      </button>
+
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th (click)="sortBy('id')" style="cursor: pointer;">
+              <div class="d-flex align-items-center justify-content-between">
+                <span>Branch</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                    <path d="M4 8h9m-7 5h7m-5 5h5" />
+                    <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                  </g>
+                </svg>
+              </div>
+            </th>
+            <th>Branch Location</th>
+            <th>Max. No. of Employees</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let branch of paginatedBranches | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+            <td>
+              <span class="d-block text-gray-sm">{{ branch.id.toString().padStart(4, '0') }}</span>
+              <span class="d-block text-truncate" style="max-width: 200px;">
+                {{ branch.name }}
+              </span>
+            </td>
+            <td>{{ branch.location }}</td>
+            <td>{{ branch.maxEmployees }}</td>
+            <td>{{ branch.createdAt }}</td>
+            <td>{{ branch.updatedAt }}</td>
+            <td>
+              <span class="badge-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                  </g>
+                </svg>
+                <span>Active</span>
+              </span>
+              <!-- <span class="badge-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                  viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                  </g>
+                </svg>
+                <span>Not Active</span>
+              </span> -->
+            </td>
+            <td>
+              <a href="#" class="view-btn d-inline-flex align-items-center gap-1 me-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path
+                      d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                    <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+                  </g>
+                </svg>
+                <span>View</span>
+              </a>
+              <a href="#" class="edit-btn d-inline-flex align-items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                  viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round"
+                      d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                    <path
+                      d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+                  </g>
+                </svg>
+                <span>Edit</span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex  flex-column flex-lg-row justify-content-between align-items-center ">
+      <div class="d-flex  align-items-center gap-2">
+        <div class="text-gray-sm custom-border-padding ">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–{{ currentPage * itemsPerPage > branches.length ?
+          branches.length : currentPage * itemsPerPage }}
+          from {{ branches.length }}
+        </div>
+        <div class="d-flex align-items-center gap-2 ps-3">
+          View
+          <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage">
+            <option *ngFor="let option of [5, 10, 25, 50]" [value]="option">{{ option }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Ngx Pagination Controls -->
+      <div class="d-flex align-items-center justify-content-center gap-2">
+        <!-- Previous Button -->
+        <button class="prev p-0 btn" (click)="currentPage = currentPage - 1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="none" stroke="#2c435d" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="m15 5l-6 7l6 7" />
+          </svg>
+        </button>
+
+        <!-- Pagination Controls -->
+        <pagination-controls class="mb-0 ms-0" (pageChange)="currentPage = $event" [directionLinks]="true"
+          [autoHide]="false">
+        </pagination-controls>
+
+        <!-- Next Button -->
+        <button class="next p-0 btn" (click)="currentPage = currentPage + 1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="none" stroke="#2c435d" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="m9 5l6 7l-6 7" />
+          </svg>
+        </button>
+      </div>
+
+
+    </div>
+
+
+  </div>
 </div>
