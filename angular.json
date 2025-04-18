@@ -28,6 +28,8 @@
               }
             ],
             "styles": [
+              "src/styles/variables.css",
+              "src/styles/component.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
@@ -90,6 +92,8 @@
               }
             ],
             "styles": [
+              "src/styles/variables.css",
+              "src/styles/component.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],

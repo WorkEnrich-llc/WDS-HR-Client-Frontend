@@ -1,0 +1,35 @@
+.body {
+    width: calc(100% - 300px);
+    margin-inline-start: 300px;
+    z-index: 0;
+    height: 100vh;
+    position: relative;
+    transition: all 0.5s ease;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    background-color: var(--color-neutral-100);
+}
+
+@media (max-width:768px) {
+    .body {
+        width: calc(100% - 78px);
+        margin-inline-start: 78px;
+    }
+}
+
+.body-trimmed {
+    width: calc(100% - 300px);
+    margin-inline-start: 300px;
+}
+
+.body-md-screen {
+    width: calc(100% - 78px);
+    margin-inline-start: 78px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 0;
+}

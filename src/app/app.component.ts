@@ -1,15 +1,19 @@
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { Component } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NavbarComponent } from './components/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports:[NavbarComponent,TranslateModule],
+  imports:[TranslateModule,RouterOutlet,RouterModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+ 
+
+
+  // translate service 
   title = 'multi-lang-site';
 
   constructor(private translate: TranslateService) {

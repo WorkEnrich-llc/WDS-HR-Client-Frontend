@@ -1,0 +1,256 @@
+.sidenav {
+    position    : fixed;
+    top         : 0;
+    z-index     : 999;
+    width       : 78px;
+    height      : 100vh;
+    padding     : var(--spacing-36) 0 0 0;
+    background  : var(--color-white);
+    border-right: 1px solid var(--color-neutral-200);
+    transition  : all 0.5s ease;
+}
+.svg-active-accordion{
+    fill: var(--color-primary-500) !important;
+}
+.sidenav-nav {
+    margin-bottom: 0;
+}
+
+.sidenav-collapsed {
+    width: 300px !important;
+}
+
+.sidenav ul {
+    padding   : 0;
+    list-style: none;
+}
+
+.sidenav svg {
+    width            : 24px;
+    height           : 24px;
+    flex-shrink      : 0;
+    margin-inline-end: var(--spacing-8);
+}
+
+.sidenav svg:not(.stroke) {
+    fill: var(--color-secondary-500);
+}
+
+
+.sidenav svg.stroke {
+    fill  : none;
+    stroke: var(--color-secondary-500) !important;
+}
+
+.sidebar-text,
+.accordion .accordion-button span,
+.sidenav .bottom-nav .sidenav-nav-item span {
+    opacity    : 0;
+    max-width  : 0;
+    overflow   : hidden;
+    white-space: nowrap;
+    transition : opacity 0.3s ease-in-out, max-width 0.3s ease-in-out;
+    display    : inline-block;
+}
+
+.sidenav-collapsed .sidebar-text,
+.sidenav-collapsed .accordion .accordion-button span,
+.sidenav-collapsed .bottom-nav .sidenav-nav-item span {
+    opacity  : 1;
+    max-width: 200px;
+}
+
+.logo-container {
+    text-align     : center;
+    justify-content: center;
+}
+
+.sidenav-collapsed .logo-container {
+    display    : flex;
+    align-items: center;
+    width      : 100%;
+    padding    : 0 var(--spacing-24) var(--spacing-12);
+}
+
+.logo-inner {
+    padding        : var(--spacing-8) 0 var(--spacing-20);
+    justify-content: center;
+}
+
+.sidenav-collapsed .logo-inner {
+    padding: var(--spacing-8) var(--spacing-8) var(--spacing-8) 0;
+}
+
+.logo {
+    width            : var(--spacing-36);
+    height           : var(--spacing-36);
+    margin-inline-end: var(--spacing-4);
+    border-radius    : 5px;
+    overflow         : hidden;
+}
+
+.logo img {
+    width     : 100%;
+    height    : 100%;
+    object-fit: cover;
+}
+
+.logo-container button {
+    background: transparent;
+    padding   : 0;
+    border    : none;
+}
+
+.logo-container button.close {
+    width : 50px;
+    height: 50px;
+}
+
+.logo-container button.close:hover svg {
+    fill: var(--color-primary-500);
+}
+
+.company-name {
+    font-size     : var(--font-size-b3);
+    line-height   : var(--line-height-xxs);
+    font-weight   : bold;
+    color         : var(--color-secondary-800);
+    white-space   : nowrap;
+    text-transform: capitalize;
+}
+
+.company-info {
+    font-size  : var(--font-size-b4);
+    line-height: var(--line-height-xxs);
+    font-weight: 500;
+    opacity    : 0.7;
+}
+
+.sidenav-nav-item {
+    padding        : var(--spacing-16);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    border-top     : 1px solid var(--color-secondary-100);
+    border-bottom  : 1px solid var(--color-secondary-100);
+}
+
+.admin .sidenav-nav-item {
+    padding        : var(--spacing-16) var(--spacing-12);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    border-top     : 1px solid var(--color-secondary-100);
+    border-bottom  : 1px solid var(--color-secondary-100);
+}
+
+.sidenav-collapsed .sidenav-nav-item,
+.sidenav-collapsed .admin .sidenav-nav-item {
+    padding   : var(--spacing-16) var(--spacing-24);
+    display   : block;
+    cursor    : pointer;
+    transition: all 0.3s;
+}
+
+.sidenav-nav-item a,
+.bottom-nav .sidenav-nav-item a,
+.accordion .accordion-body a {
+    text-decoration: none;
+    font-size      : var(--font-size-b2);
+    color          : var(--color-secondary-700);
+}
+
+.sidenav-nav-item:hover,
+.bottom-nav .sidenav-nav-item:hover,
+.accordion .accordion-button:hover {
+    background-color: var(--color-secondary-100);
+}
+
+.admin .sidenav-nav-item:hover {
+    cursor          : default;
+    background-color: white;
+}
+
+.accordion .accordion-button:not(.collapsed) svg:not(.stroke) {
+    fill: var(--color-primary-500);
+}
+
+.accordion .accordion-button:not(.collapsed) svg.stroke {
+    fill  : none;
+    stroke: var(--color-primary-500);
+}
+
+.sidenav-nav-item.active a span {
+    color      : var(--color-primary-500);
+    font-weight: bold;
+}
+
+.sidenav-nav-item.active {
+    position        : relative;
+    background-color: var(--color-primary-50);
+}
+
+.sidenav-nav-item.active::before {
+    content         : '';
+    position        : absolute;
+    right           : 0;
+    top             : 50%;
+    transform       : translateY(-50%);
+    width           : 4px;
+    height          : 30px;
+    background-color: var(--color-primary-500);
+    border-radius   : 4px;
+}
+
+.sidenav-nav-item.active svg:not(.stroke) {
+    fill: var(--color-primary-500);
+
+}
+
+.sidenav-nav-item.active svg.stroke {
+    stroke: var(--color-primary-500);
+}
+
+.accordion .accordion-item {
+    border       : none;
+    border-bottom: 1px solid var(--color-secondary-100);
+}
+
+.accordion-button {
+    padding   : var(--spacing-16) var(--spacing-12);
+    background: none;
+    border    : none;
+}
+
+.sidenav-collapsed .accordion-button {
+    padding      : var(--spacing-16) var(--spacing-24);
+    font-size    : var(--font-size-b2);
+    line-height  : var(--line-height-xss);
+    border-radius: 0;
+}
+
+.accordion-button::after {
+    transform       : rotate(0deg) scale(0.6);
+    transition      : transform 0.3s ease;
+    transform-origin: center;
+}
+
+.accordion-button:not(.collapsed)::after {
+    transform: rotate(180deg) scale(0.6);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+.accordion-body {
+    padding: 0;
+}
+
+.sidenav .admin .sidenav-nav-item {
+    justify-content: start;
+}
+
+.sidenav-collapsed .sidenav-nav-item {
+    padding: var(--spacing-16) var(--spacing-48);
+}

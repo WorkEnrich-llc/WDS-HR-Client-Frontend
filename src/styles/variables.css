@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+:root {
+    /* -- Base Integers (Spacing & Sizing) -- */
+    --spacing-4: 4px;
+    --spacing-8: 8px;
+    --spacing-12: 12px;
+    --spacing-16: 16px;
+    --spacing-20: 20px;
+    --spacing-24: 24px;
+    --spacing-28: 28px;
+    --spacing-32: 32px;
+    --spacing-36: 36px;
+    --spacing-40: 40px;
+    --spacing-44: 44px;
+    --spacing-48: 48px;
+    --spacing-52: 52px;
+    --spacing-56: 56px;
+    --spacing-60: 60px;
+    --spacing-64: 64px;
+    --spacing-68: 68px;
+    --spacing-72: 72px;
+  
+    /* -- Border Radius -- */
+    --border-radius-25: 25px;
+    --border-radius-45: 45px;
+    --border-radius-70: 70px;
+    --border-radius-95: 95px;
+  
+    /* -- Primary Colors -- */
+    --color-primary-50: #eef5ff;
+    --color-primary-100: #e0ebff;
+    --color-primary-200: #b3ccff;
+    --color-primary-300: #80aaff;
+    --color-primary-400: #599dfe;
+    --color-primary-500: #377afd;
+    --color-primary-600: #2c63cc;
+    --color-primary-700: #204c99;
+    --color-primary-800: #153366;
+    --color-primary-900: #0a1a33;
+  
+    /* -- Secondary Colors -- */
+    --color-secondary-50: #f0f3f8;
+    --color-secondary-100: #dde3eb;
+    --color-secondary-200: #b8c5d6;
+    --color-secondary-300: #93a7c1;
+    --color-secondary-400: #6e89ac;
+    --color-secondary-500: #4a6d97;
+    --color-secondary-600: #3b587a;
+    --color-secondary-700: #2c435d;
+    --color-secondary-800: #1e2e40;
+    --color-secondary-900: #0f171f;
+  
+    /* -- Success Colors -- */
+    --color-success-100: #e6faf0;
+    --color-success-200: #c2eed9;
+    --color-success-300: #98dfc0;
+    --color-success-400: #76d0aa;
+    --color-success-500: #4ca883;
+    --color-success-600: #3f9870;
+    --color-success-700: #2d7353;
+    --color-success-800: #1e523a;
+    --color-success-900: #123426;
+  
+    /* -- Warning Colors -- */
+    --color-warning-100: #fff1e5;
+    --color-warning-200: #fcd5b5;
+    --color-warning-300: #f9b47d;
+    --color-warning-400: #f79957;
+    --color-warning-500: #f28c38;
+    --color-warning-600: #c86d2a;
+    --color-warning-700: #9b521f;
+    --color-warning-800: #66320b;
+    --color-warning-900: #331905;
+  
+    /* -- Danger Colors -- */
+    --color-danger-100: #feeaea;
+    --color-danger-200: #ffbfbf;
+    --color-danger-300: #ff8f8f;
+    --color-danger-400: #ff5f5f;
+    --color-danger-500: #e04f5f;
+    --color-danger-600: #b83d4a;
+    --color-danger-700: #85252d;
+    --color-danger-800: #53151a;
+    --color-danger-900: #330909;
+  
+    /* -- Neutral Colors -- */
+    --color-neutral-100: #f5f5f5;
+    --color-neutral-200: #e0e0e0;
+    --color-neutral-300: #c2c2c2;
+    --color-neutral-400: #a3a3a3;
+    --color-neutral-500: #858585;
+    --color-neutral-600: #686868;
+    --color-neutral-700: #4a4a4a;
+    --color-neutral-800: #2d2d2d;
+    --color-neutral-900: #0f0f0f;
+    --color-white: #ffffff;
+    --color-black: #000000;
+  
+    /* -- Typography -- */
+    --font-family: 'Poppins', sans-serif;
+    --font-family2: 'Open Sans', sans-serif;
+    --font-size-b4: 12px;
+    --font-size-b3: 14px;
+    --font-size-b2: 16px;
+    --font-size-b1: 20px;
+    --font-size-h3: 24px;
+    --font-size-h2: 32px;
+    --font-size-h1: 40px;
+  
+    /* -- Line Height -- */
+    --line-height-xxs: 16px;
+    --line-height-xss: 18px;
+    --line-height-sm: 20px;
+    --line-height-md: 24px;
+    --line-height-lg: 28px;
+    --line-height-xl: 32px;
+  }
+  
