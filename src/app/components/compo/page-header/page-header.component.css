@@ -25,6 +25,14 @@ h2{
     font-size: var(--font-size-h3);
     margin: 0 !important;
 }
-.parag{
-    margin-top: var(--spacing-16);
+.date-cre{
+    font-size: var(--font-size-b3);
+    color: var(--color-secondary-600);
+    line-height: var(--line-height-xss);
+}
+.text-show{
+    font-size: var(--font-size-b3);
+    font-weight: 600;
+    line-height: var(--line-height-xss);
+    color: var(--color-secondary-700);
 }

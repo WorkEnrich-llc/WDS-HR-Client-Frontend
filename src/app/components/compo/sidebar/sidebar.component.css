@@ -1,7 +1,7 @@
 .sidenav {
     position: fixed;
     top: 0;
-    z-index: 999;
+    /* z-index: 999 !important; */
     width: 78px;
     height: 100vh;
     padding: var(--spacing-36) 0 0 0;
@@ -9,7 +9,11 @@
     border-right: 1px solid var(--color-neutral-200);
     transition: all 0.5s ease;
 }
-
+@media (max-width:768px) {
+    .sidenav{
+        z-index: 999;
+    }
+}
 .svg-active-accordion {
     fill: var(--color-primary-500) !important;
 }

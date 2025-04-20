@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, ContentChild, ElementRef, Input } from '@angular/core';
+import { AfterContentInit, Component, ContentChild, Input, TemplateRef, OnInit, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-page-header',
   imports: [CommonModule, RouterLink],
   templateUrl: './page-header.component.html',
-  styleUrl: './page-header.component.css'
+  styleUrls: ['./page-header.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
-export class PageHeaderComponent {
+export class PageHeaderComponent implements OnInit {
   @Input() breadcrumbs: { label: string; link?: string }[] = [];
   @Input() title: string = '';
-  @ContentChild('subinfo', { static: false }) subinfoContent!: ElementRef;
+  @Input() create!: string;
+  @Input() update!: string;
+  ngOnInit(): void {
 
-  hasSubinfo: boolean = false;
-
-  ngAfterContentInit() {
-    this.hasSubinfo = this.subinfoContent?.nativeElement?.innerHTML.trim().length > 0;
   }
+
 }

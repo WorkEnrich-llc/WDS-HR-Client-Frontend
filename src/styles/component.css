@@ -2,14 +2,61 @@ body {
   font-family: var(--font-family) !important;
 }
 
+/* links styles */
+a {
+  text-decoration: none !important;
+}
+
+/* links actions button */
+a.text-danger-dark {
+  color: var(--color-danger-700);
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  -o-transition: 0.3s;
+  cursor: pointer;
+}
+
+a.text-danger-dark:hover {
+  color: var(--color-danger-500);
+}
+
 /* form input with icons */
+.input {
+  margin-bottom: var(--spacing-16);
+}
+
+.input label {
+  font-size: var(--font-size-b2);
+  color: var(--color-secondary-700);
+  line-height: var(--line-height-xss);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  color: var(--color-secondary-300);
+}
+
 .form-outline {
   position: relative;
 }
 
-.form-outline .form-control {
+.form-outline .form-control, .form-outline .form-select {
   padding: 0.6rem;
+  border-radius: 0.9rem !important;
+  -webkit-border-radius: 0.9rem !important;
+  -moz-border-radius: 0.9rem !important;
+  -ms-border-radius: 0.9rem !important;
+  -o-border-radius: 0.9rem !important;
+  font-size: var(--font-size-b2);
+  color: var(--color-secondary-700);
 }
+
+.form-outline .form-control::placeholder, .form-outline .form-select::placeholder {
+  color: var(--color-secondary-700);
+}
+
 
 .form-outline svg {
   position: absolute;
@@ -18,7 +65,9 @@ body {
   transform: translateY(-50%);
   pointer-events: none;
   stroke: var(--color-secondary-300);
+  fill: var(--color-secondary-300);
 }
+
 
 /* all buttons */
 .btn {
@@ -37,9 +86,10 @@ body {
   font-size: var(--font-size-b3) !important;
   font-weight: 600 !important;
   padding: 0.75rem var(--spacing-32) !important;
-  width: 12rem;
+  width: 13rem;
 }
-.btn-lg span{
+
+.btn-lg span {
   text-wrap: nowrap !important;
 }
 
@@ -48,12 +98,14 @@ body {
     width: 8rem;
   }
 }
+
 @media (max-width:767px) {
-  .btn-lg{
+  .btn-lg {
     width: auto;
     padding: 0.75rem var(--spacing-12) !important;
   }
-  .btn-lg svg{
+
+  .btn-lg svg {
     display: none;
   }
 }

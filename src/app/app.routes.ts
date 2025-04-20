@@ -7,29 +7,49 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
- 
   // start OD layout
   {
     path: '',
     loadComponent: () => import('./layouts/od-layout/od-layout.component').then(m => m.OdLayoutComponent),
     children: [
-       // branches
+      // Branch routes
       {
         path: 'branches',
-        loadComponent: () => import('./components/OD/Branches/all-branches/all-branches.component').then(m => m.AllBranchesComponent),
-        title: 'Branches'
+        children: [
+          {
+            path: '',
+            redirectTo:'all-branches',
+            pathMatch: 'full'
+          },
+          {
+            path: 'all-branches',
+            loadComponent: () => import('./components/OD/Branches/all-branches/all-branches.component').then(m => m.AllBranchesComponent),
+            title: 'Branches',
+          },
+          {
+            path: 'view-branch',
+            loadComponent: () => import('./components/OD/Branches/view-branches/view-branches.component').then(m => m.ViewBranchesComponent),
+            title: 'View Branch'
+          },
+        ]
       },
 
-
-      // job titles
+      // Job routes
       {
-        path: 'job-titles',
-        loadComponent: () => import('./components/OD/Job-Titles/all-job-titles/all-job-titles.component').then(m => m.AllJobTitlesComponent),
-        title: 'Job Titles'
-      },
+        path: 'jobs',
+        children: [
+          {
+            path: '',
+            redirectTo:'job-titles',
+            pathMatch: 'full'
+          },
+          {
+            path: 'job-titles',
+            loadComponent: () => import('./components/OD/Job-Titles/all-job-titles/all-job-titles.component').then(m => m.AllJobTitlesComponent),
+            title: 'Job Titles'
+          }
+        ]
+      }
     ]
-  },
-
-
-
+  }
 ];

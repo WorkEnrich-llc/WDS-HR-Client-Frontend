@@ -15,11 +15,9 @@ interface SideNavToggle {
 })
 export class SidebarComponent implements OnInit {
   currentRoute: string = '';
-  constructor(private router: Router) {
-    this.router.events.subscribe(() => {
-      this.currentRoute = this.router.url;
-    });
-  }
+  constructor(private router: Router) { }
+
+
 
   @Output() onToggleSideNav: EventEmitter<SideNavToggle> = new EventEmitter();
   collapsed = true;
@@ -42,9 +40,14 @@ export class SidebarComponent implements OnInit {
     });
   }
 
-// screen responsive in start page
+  // screen responsive in start page
   ngOnInit(): void {
-   console.log(this.currentRoute)
+    // route contain to active icon 
+    this.currentRoute = this.router.url;
+    this.router.events.subscribe(() => {
+      this.currentRoute = this.router.url;
+    });
+    // open responsive
     this.screenWidth = window.innerWidth;
     if (this.screenWidth <= 768) {
       this.collapsed = false;
@@ -67,7 +70,7 @@ export class SidebarComponent implements OnInit {
       this.showText = false;
     }
   }
-// close sidenav 
+  // close sidenav 
   closeSidenav(): void {
     this.collapsed = false;
     this.onToggleSideNav.emit({ collapsed: this.collapsed, screenWidth: this.screenWidth });
