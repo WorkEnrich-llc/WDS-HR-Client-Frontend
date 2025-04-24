@@ -75,7 +75,7 @@
 <!-- step 1 -->
 <div class="content-hug" *ngIf="currentStep === 1">
     <div class="content-box d-flex flex-column gap-3">
-
+        <h2>Main Information</h2>
         <form action="" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="branchCode">Branch Code (Optional)</label>
@@ -213,9 +213,6 @@
                             <span>Edit Sections</span>
                         </a>
                     </div>
-                    <button class="btn btn-outline-danger border-0">
-
-                    </button>
                 </td>
             </ng-template>
 
@@ -408,10 +405,10 @@
 
 
 <!-- Discard popup  -->
-<app-popup [title]="'Discard Branch'" [paragraph1]="'Are you sure you want to discard all changes done to the Branch?'"
+<app-popup [title]="'Discard Branch'" [paragraph1]="'Are you sure you want to discard creating the new branch?'"
     [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
     <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Changes
+        Discard Branch
     </button>
     <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
         Cancel

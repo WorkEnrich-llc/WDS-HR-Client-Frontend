@@ -18,6 +18,8 @@ export class TableComponent {
   @Input() headerTemplate!: TemplateRef<any>;
   @Input() rowTemplate!: TemplateRef<any>;
   @Input() emptyTemplate!: TemplateRef<any>;
+  @Input() disablePagination: boolean = false;
+
   onItemsPerPageChange() {
     this.currentPage = 1; 
   }

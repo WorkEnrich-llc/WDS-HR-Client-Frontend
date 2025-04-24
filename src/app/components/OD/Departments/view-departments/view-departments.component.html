@@ -1,9 +1,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Operations Development', link: '/' },
-    { label: 'Branches', link: '/branches' },
-    { label: 'View Branch 1234' }
-  ]" title="View Branch - 1234" create="13/06/2023" update="03/12/2024">
-    <button class="btn btn-lg btn-primary" [routerLink]="['/branches/edit']">
+    { label: 'Departments', link: '/departments' },
+    { label: 'View Department 1234' }
+  ]" title="View Department - 1234" create="13/06/2023" update="03/12/2024">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/departments/edit']">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -29,33 +29,35 @@
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
         <div class="info">
-            <h6>Branch Code</h6>
+            <h6>Department Code</h6>
             <span>0001</span>
         </div>
         <div class="info">
-            <h6>Branch Name</h6>
-            <p>Silver Lake Branch</p>
+            <h6>Department Name</h6>
+            <p>Recruitment</p>
         </div>
         <div class="info">
-            <h6>Branch Location</h6>
-            <p>Cairo</p>
-        </div>
-        <div class="info">
-            <h6>Max No. Employees</h6>
-            <p>30 Employees</p>
+            <h6>Department Objectives</h6>
+            <ul>
+                <li>Clarify Responsibilities – Define the department’s core functions and key deliverables.</li>
+                <li>Set Measurable Goals – Establish clear performance indicators to track progress and success.</li>
+                <li>Enhance Collaboration – Ensure seamless coordination with other teams to achieve company-wide efficiency.</li>
+                <li>Drive Growth & Innovation – Encourage continuous learning, process improvements, and strategic development.</li>
+            </ul>
         </div>
     </div>
+    
     <div class="content-box">
-        <h2 class="mb-3">Departments</h2>
+        <h2 class="mb-3">Sections</h2>
 
 
-        <app-table [data]="departments" [itemsPerPage]="10" [headerTemplate]="departmentTableHeader"
-      [rowTemplate]="departmentTableRow"></app-table>
+        <app-table [data]="sections" [itemsPerPage]="10" [headerTemplate]="sectionsTableHeader"
+      [rowTemplate]="sectionsTableRow"></app-table>
 
-    <ng-template #departmentTableHeader>
+    <ng-template #sectionsTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;">
         <div class="d-flex align-items-center justify-content-between">
-          <span>Department</span>
+          <span>Section</span>
           <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
             viewBox="0 0 24 24">
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
@@ -72,25 +74,19 @@
         </div>
       </th>
 
-      <th>Created at</th>
-      <th>Updated at</th>
-      <th>Sections</th>
       <th>Status</th>
   
     </ng-template>
 
-    <ng-template #departmentTableRow let-department let-i="index">
+    <ng-template #sectionsTableRow let-section let-i="index">
       <td class="width-fix">
-        <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-gray-sm">{{ section.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 200px;">
-          {{ department.name }}
+          {{ section.name }}
         </span>
       </td>
-      <td>{{ department.createdAt }}</td>
-      <td>{{ department.updatedAt }}</td>
-      <td>{{ department.sections }}</td>
       <td>
-        <span class="badge-success" *ngIf="department.status ==='Active'">
+        <span class="badge-success" *ngIf="section.status ==='Active'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -99,7 +95,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="department.status ==='Not Active'">
+        <span class="badge-danger" *ngIf="section.status ==='Not Active'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -117,8 +113,8 @@
 
 <!-- deactivate popup  -->
 <app-popup
-  [title]="'Deactivate Branch'"
-  [paragraph1]="'Are you sure you want to Deactivate the Branch “Cairo” ?'"
+  [title]="'Deactivate Department'"
+  [paragraph1]="'Are you sure you want to deactivate the Department “Recruitment” ?'"
   [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
   [isOpen]="isModalOpen"
   (close)="closeModal()"

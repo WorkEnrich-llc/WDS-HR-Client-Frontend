@@ -85,7 +85,7 @@ table.table tbody tr:last-of-type td:last-of-type{
     color: var(--color-danger-700);
     width: max-content;
 }
-.view-btn,.edit-btn,.remove-btn{
+.view-btn,.edit-btn,.remove-btn,.success-btn{
     text-decoration: none !important;
     font-size: var(--font-size-b3);
     font-weight: 600;
@@ -96,7 +96,7 @@ table.table tbody tr:last-of-type td:last-of-type{
     -ms-transition: 0.3s;
     -o-transition: 0.3s;
 }
-.view-btn:hover,.edit-btn:hover,.remove-btn:hover{
+.view-btn:hover,.edit-btn:hover,.remove-btn:hover,.success-btn:hover{
     transform: scale(1.05);
     -webkit-transform: scale(1.05);
     -moz-transform: scale(1.05);
@@ -113,6 +113,9 @@ table.table tbody tr:last-of-type td:last-of-type{
 .edit-btn{
     color: var(--color-secondary-700);
 }
+.success-btn{
+    color: var(--color-success-700);
+}
 .remove-btn svg{
     color: var(--color-danger-400);
 }
@@ -121,6 +124,9 @@ table.table tbody tr:last-of-type td:last-of-type{
 }
 .edit-btn svg{
     color: var(--color-secondary-500);
+}
+.success-btn svg{
+    color: var(--color-success-500);
 }
 .no-data{
     font-size: var(--font-size-b2) !important;

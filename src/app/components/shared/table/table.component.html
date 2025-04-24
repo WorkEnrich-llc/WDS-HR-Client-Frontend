@@ -9,7 +9,7 @@
 
     <tbody>
       <ng-container *ngIf="data.length > 0; else innerEmptyTemplate">
-        <tr *ngFor="let row of data | paginate: { itemsPerPage, currentPage }; let i = index">
+        <tr *ngFor="let row of (disablePagination ? data : (data | paginate: { itemsPerPage, currentPage })); let i = index">
           <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row, index: i }"></ng-container>
         </tr>
       </ng-container>
@@ -23,7 +23,7 @@
 
 
 <!-- Pagination Section -->
-<div class="d-flex flex-column flex-lg-row justify-content-between align-items-center" *ngIf="data.length > 0">
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-center"  *ngIf="!disablePagination && data.length > 0">
   <div class="d-flex align-items-center gap-2">
     <div class="text-gray-sm pe-3">
       Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–

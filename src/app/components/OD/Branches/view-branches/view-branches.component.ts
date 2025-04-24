@@ -3,6 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { RouterLink } from '@angular/router';
 
 interface Department {
   id: number;
@@ -15,7 +16,7 @@ interface Department {
 
 @Component({
   selector: 'app-view-branches',
-  imports: [PageHeaderComponent,CommonModule,TableComponent,CommonModule,PopupComponent],
+  imports: [PageHeaderComponent,CommonModule,TableComponent,CommonModule,PopupComponent,RouterLink],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
 })

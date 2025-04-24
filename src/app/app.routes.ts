@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'branches',
+    redirectTo: 'departments',
     pathMatch: 'full'
   },
 
@@ -12,6 +12,38 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./layouts/od-layout/od-layout.component').then(m => m.OdLayoutComponent),
     children: [
+      // Deparments routes
+      {
+        path: 'departments',
+        children: [
+          {
+            path: '',
+            redirectTo:'all-departments',
+            pathMatch: 'full'
+          },
+          {
+            path: 'all-departments',
+            loadComponent: () => import('./components/OD/Departments/all-departments/all-departments.component').then(m => m.AllDepartmentsComponent),
+            title: 'Departments',
+          },
+          {
+            path: 'view-department',
+            loadComponent: () => import('./components/OD/Departments/view-departments/view-departments.component').then(m => m.ViewDepartmentsComponent),
+            title: 'View Department'
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./components/OD/Departments/create-departments/create-departments.component').then(m => m.CreateDepartmentsComponent),
+            title: 'Create Department'
+          },
+          {
+            path: 'edit',
+            loadComponent: () => import('./components/OD/Departments/edit-departments/edit-departments.component').then(m => m.EditDepartmentsComponent),
+            title: 'Edit Department'
+          },
+        ]
+      },
+
       // Branch routes
       {
         path: 'branches',

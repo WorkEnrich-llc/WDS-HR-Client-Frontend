@@ -1,14 +1,17 @@
+/* .zoom-wrapper {
+  zoom: 0.9 !important;
+} */
 .layout {
   display: flex;
 }
 
-.sidebar {
+/* .sidebar {
   width: 250px;
   background: #2c3e50;
   color: var(--color-white);
   padding: 20px;
   height: 100vh;
-}
+} */
 
 .content {
   flex: 1;
@@ -47,7 +50,7 @@
   color: var(--color-secondary-600);
 }
 
-.content-box .info p {
+.content-box .info p, .content-box .info ul li{
   margin-bottom: 0;
   font-size: var(--font-size-b3);
   line-height: var(--line-height-xss);
