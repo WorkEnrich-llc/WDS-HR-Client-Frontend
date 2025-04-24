@@ -2,7 +2,7 @@
     { label: 'Operations Development', link: '/' },
     { label: 'Branches', link: '/branches' },
     { label: 'View Branch 1234' }
-  ]" title="View Branches - 1234" create="13/06/2023" update="03/12/2024">
+  ]" title="View Department - 1234" create="13/06/2023" update="03/12/2024">
     <button class="btn btn-lg btn-primary">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -15,7 +15,7 @@
         <span>Edit</span>
     </button>
 
-    <button class="btn btn-lg btn-outline-danger">
+    <button class="btn btn-lg btn-outline-danger" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                 d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
@@ -23,3 +23,114 @@
         <span>Deactivate</span>
     </button>
 </app-page-header>
+
+
+<div class="content-hug d-flex flex-column gap-4">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <div class="info">
+            <h6>Branch Code</h6>
+            <span>0001</span>
+        </div>
+        <div class="info">
+            <h6>Branch Name</h6>
+            <p>Silver Lake Branch</p>
+        </div>
+        <div class="info">
+            <h6>Branch Location</h6>
+            <p>Cairo</p>
+        </div>
+        <div class="info">
+            <h6>Max No. Employees</h6>
+            <p>30 Employees</p>
+        </div>
+    </div>
+    <div class="content-box">
+        <h2 class="mb-3">Departments</h2>
+
+
+        <app-table [data]="departments" [itemsPerPage]="10" [headerTemplate]="departmentTableHeader"
+      [rowTemplate]="departmentTableRow"></app-table>
+
+    <ng-template #departmentTableHeader>
+      <th (click)="sortBy()" style="cursor: pointer;">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Department</span>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
+            viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
+            viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+      </th>
+
+      <th>Created at</th>
+      <th>Updated at</th>
+      <th>Sections</th>
+      <th>Status</th>
+  
+    </ng-template>
+
+    <ng-template #departmentTableRow let-department let-i="index">
+      <td class="width-fix">
+        <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 200px;">
+          {{ department.name }}
+        </span>
+      </td>
+      <td>{{ department.createdAt }}</td>
+      <td>{{ department.updatedAt }}</td>
+      <td>{{ department.sections }}</td>
+      <td>
+        <span class="badge-success" *ngIf="department.status ==='Active'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Active</span>
+        </span>
+        <span class="badge-danger" *ngIf="department.status ==='Not Active'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+          <span>Not Active</span>
+        </span>
+      </td>
+    </ng-template>
+    </div>
+
+
+</div>
+
+<!-- deactivate popup  -->
+<app-popup
+  [title]="'Deactivate Branch'"
+  [paragraph1]="'Are you sure you want to Deactivate the Branch “Cairo” ?'"
+  [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
+  [isOpen]="isModalOpen"
+  (close)="closeModal()"
+>
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+          d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Deactivate</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Cancel
+  </button>
+</app-popup>

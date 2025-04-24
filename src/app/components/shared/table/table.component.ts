@@ -17,7 +17,7 @@ export class TableComponent {
 
   @Input() headerTemplate!: TemplateRef<any>;
   @Input() rowTemplate!: TemplateRef<any>;
-
+  @Input() emptyTemplate!: TemplateRef<any>;
   onItemsPerPageChange() {
     this.currentPage = 1; 
   }

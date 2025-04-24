@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { PageHeaderComponent } from '../../../compo/page-header/page-header.component';
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
-import { TableComponent } from '../../../compo/table/table.component';
-import { OverlayFilterBoxComponent } from '../../../compo/overlay-filter-box/overlay-filter-box.component';
+import { TableComponent } from '../../../shared/table/table.component';
+import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { RouterLink } from '@angular/router';
 
 interface Branch {
@@ -58,8 +58,5 @@ export class AllBranchesComponent {
 
 
 
-  handleOverlayClose() {
-    console.log('تم إغلاق الـ Overlay');
-  }
 
 }

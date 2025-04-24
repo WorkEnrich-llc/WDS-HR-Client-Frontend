@@ -31,6 +31,16 @@ export const routes: Routes = [
             loadComponent: () => import('./components/OD/Branches/view-branches/view-branches.component').then(m => m.ViewBranchesComponent),
             title: 'View Branch'
           },
+          {
+            path: 'create',
+            loadComponent: () => import('./components/OD/Branches/create-new-branch/create-new-branch.component').then(m => m.CreateNewBranchComponent),
+            title: 'Create Branch'
+          },
+          {
+            path: 'edit',
+            loadComponent: () => import('./components/OD/Branches/edit-branch-info/edit-branch-info.component').then(m => m.EditBranchInfoComponent),
+            title: 'Edit Branch'
+          },
         ]
       },
 

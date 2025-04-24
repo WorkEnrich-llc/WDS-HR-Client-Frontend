@@ -23,16 +23,15 @@ a.text-danger-dark:hover {
 }
 
 /* form input with icons */
-.input {
-  margin-bottom: var(--spacing-16);
-}
 
 .input label {
   font-size: var(--font-size-b2);
   color: var(--color-secondary-700);
   line-height: var(--line-height-xss);
 }
-
+.input label span{
+  color: var(--color-danger-700);
+}
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   color: var(--color-secondary-300);
@@ -67,7 +66,37 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   stroke: var(--color-secondary-300);
   fill: var(--color-secondary-300);
 }
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 
+  width: 25px;
+  height: 25px;
+  border-radius: 0.4rem !important;
+  border: 1px solid var(--color-white);
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+.checkbox-light{
+  border: 1px solid var(--color-neutral-800);
+}
+.checkbox:checked {
+  background-color: var(--color-primary-500);
+}
+
+.checkbox:checked::after {
+  content: '✔';
+  color: var(--color-white);
+  font-size: 18px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
 /* all buttons */
 .btn {
@@ -86,7 +115,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: var(--font-size-b3) !important;
   font-weight: 600 !important;
   padding: 0.75rem var(--spacing-32) !important;
-  width: 13rem;
+  width: 14rem;
 }
 
 .btn-lg span {
@@ -170,5 +199,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .btn-outline-danger:hover {
   background-color: var(--color-danger-500) !important;
+  color: var(--color-white) !important;
+}
+/* green buttons */
+.btn-success {
+  background-color: var(--color-success-500) !important;
+  border-color: var(--color-success-500) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-success:hover {
+  background-color: var(--color-success-700) !important;
+  border-color: var(--color-success-700) !important;
+}
+
+.btn-outline-success {
+  color: var(--color-success-700) !important;
+  border-color: var(--color-success-500) !important;
+}
+
+.btn-outline-success:hover {
+  background-color: var(--color-success-500) !important;
+  color: var(--color-white) !important;
+}
+/* btn dark */
+.btn-dark {
+  background-color: var(--color-secondary-500) !important;
+  border-color: var(--color-secondary-500) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-dark:hover {
+  background-color: var(--color-secondary-700) !important;
+  border-color: var(--color-secondary-700) !important;
+}
+.btn-outline-dark {
+  color: var(--color-secondary-700) !important;
+  border-color: var(--color-secondary-700) !important;
+}
+.btn-outline-dark:hover {
+  background-color: var(--color-secondary-700) !important;
   color: var(--color-white) !important;
 }
