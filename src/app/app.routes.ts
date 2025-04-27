@@ -82,14 +82,29 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            redirectTo:'job-titles',
+            redirectTo:'all-job-titles',
             pathMatch: 'full'
           },
           {
-            path: 'job-titles',
+            path: 'all-job-titles',
             loadComponent: () => import('./components/OD/Job-Titles/all-job-titles/all-job-titles.component').then(m => m.AllJobTitlesComponent),
             title: 'Job Titles'
-          }
+          },
+          {
+            path: 'view-job',
+            loadComponent: () => import('./components/OD/Job-Titles/view-job/view-job.component').then(m => m.ViewJobComponent),
+            title: 'View Job'
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./components/OD/Job-Titles/create-new-job-title/create-new-job-title.component').then(m => m.CreateNewJobTitleComponent),
+            title: 'Create job'
+          },
+          {
+            path: 'edit',
+            loadComponent: () => import('./components/OD/Job-Titles/edit-job/edit-job.component').then(m => m.EditJobComponent),
+            title: 'Edit job'
+          },
         ]
       }
     ]

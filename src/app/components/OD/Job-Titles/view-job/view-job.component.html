@@ -1,1 +1,170 @@
-<p>view-job works!</p>
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/' },
+    { label: 'Job Titles', link: '/jobs' },
+    { label: 'View Job 12341245' }
+  ]" title="View Job - 12341245" create="13/06/2023" update="03/12/2024">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/jobs/edit']">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round"
+                    d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                    d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+            </g>
+        </svg>
+        <span>Edit</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-danger" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+</app-page-header>
+
+<!-- page content -->
+<div class="content-hug d-flex flex-column gap-4">
+
+    <!-- 3 cards -->
+    <div class="d-flex align-items-stretch gap-4">
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <h2>Main Information</h2>
+            <div class="info">
+                <h6>Job Title</h6>
+                <span>Chief Operating Officer (COO)</span>
+            </div>
+            <div class="info">
+                <h6>Employment Type</h6>
+                <span>Full-Time</span>
+            </div>
+            <div class="info">
+                <h6>Management Level</h6>
+                <span>80,000 - 100,000</span>
+            </div>
+            <div class="info">
+                <h6>Assigned Department</h6>
+                <span>Description</span>
+            </div>
+            <div class="info">
+                <h6>Assigned Section</h6>
+                <span>Description</span>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <h2>Salary Range</h2>
+            <div class="info">
+                <h6>Full-Time</h6>
+                <span>0001</span>
+            </div>
+            <div class="info">
+                <h6>Part-Time</h6>
+                <span>Chief Executive Officer (CEO)</span>
+            </div>
+            <div class="info">
+                <h6>Per Hour</h6>
+                <span>15 USD - 25 USD</span>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Direct Manager</h2>
+                <a class="view-btn h-100 d-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                            <path
+                                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                        </g>
+                    </svg>
+                    <span>View</span>
+                </a>
+            </div>
+
+            <div class="info">
+                <h6>Job Title Code</h6>
+                <span>Description</span>
+            </div>
+            <div class="info">
+                <h6>Job Title</h6>
+                <span>Description</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="info">
+                    <h6>Direct Manager</h6>
+                    <span>Description</span>
+                </div>
+                <a class="view-btn h-100 d-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                            <path
+                                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                        </g>
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- card -->
+    <div class="content-box d-flex flex-column gap-3 w-100">
+        <h2>Job Description</h2>
+        <p class="mb-0">The Chief Operating Officer (COO) is responsible for overseeing the day-to-day administrative and operational
+            functions of the company. Reporting directly to the Chief Executive Officer (CEO), the COO collaborates
+            closely with other executive leaders to implement strategies, improve organizational efficiency, and ensure
+            cross-departmental alignment. The COO plays a critical role in driving business growth, maintaining
+            operational excellence, and executing the company’s long-term vision.</p>
+    </div>
+
+    <!-- card with list -->
+    <div class="content-box d-flex flex-column gap-3 w-100">
+        <h2>Job Requirements</h2>
+        <ul>
+            <li>Proven experience as COO or in a similar executive role.</li>
+            <li>Strong understanding of business functions such as HR, Finance, IT, Marketing, and Operations.</li>
+            <li>Demonstrated leadership and people management skills.</li>
+            <li>Excellent communication and interpersonal abilities.</li>
+            <li>Strong strategic and analytical thinking</li>
+            <li>Bachelor’s degree in Business Administration, Management, or a related field (MBA preferred).</li>
+            <li>Experience in managing budgets, resources, and operational strategy.</li>
+            <li>Familiarity with performance metrics and reporting tools.</li>
+        </ul>
+    </div>
+
+
+
+
+</div>
+
+
+
+
+
+
+<!-- deactivate popup  -->
+<app-popup [title]="'Deactivate Job Title'" [paragraph1]="'Are you sure you want to Deactivate the Job title “CTO” ?'"
+    [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
+    [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

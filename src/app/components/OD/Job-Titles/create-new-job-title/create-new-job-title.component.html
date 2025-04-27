@@ -1,1 +1,463 @@
-<p>create-new-job-title works!</p>
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/' },
+    { label: 'Job Titles', link: '/jobs' },
+    { label: 'Create New Job Title' }
+  ]" title="Create New Job Title" create="13/06/2023">
+    <button class="btn btn-lg btn-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Create Job Title</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Job Title</span>
+    </button>
+</app-page-header>
+
+
+
+<!-- steps navigation -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 1,
+        'text-success': currentStep > 1, 
+        'bg-light-success': currentStep > 1  
+    }" (click)="currentStep = 1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Main Information</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    '#4CA883'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }" (click)="currentStep = 2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <= 2" viewBox="0 0 24 24">
+            d="M8.506 10.714c0-.92.755-1.666 1.686-1.666c.932 0 1.687.746 1.687 1.666s-.755 1.667-1.687 1.667a1.677
+            1.677 0 0 1-1.686-1.667" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M2 10.714c0-2.693 0-4.04.847-4.877S5.057 5 7.783 5h4.82c2.725 0 4.088 0 4.935.837s.847 2.184.847 4.877c0 2.694 0 4.041-.847 4.878s-2.21.837-4.936.837H7.783c-2.726 0-4.09 0-4.936-.837S2 13.408 2 10.714m5.06 0c0-1.71 1.402-3.095 3.132-3.095s3.133 1.386 3.133 3.095s-1.402 3.096-3.133 3.096c-1.73 0-3.132-1.386-3.132-3.096M4.168 12.62a.72.72 0 0 0 .723.715c.4 0 .723-.32.723-.715V8.81a.72.72 0 0 0-.723-.714a.72.72 0 0 0-.723.715zm11.326.715c-.4 0-.723-.32-.723-.715V8.81c0-.394.323-.714.723-.714s.722.32.722.715v3.81a.72.72 0 0 1-.722.714"
+                clip-rule="evenodd" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+                d="M4.065 16.225q.02.225.048.434c.117.857.366 1.579.946 2.152q.124.123.257.226c.566.514 1.266.742 2.09.851c.836.111 1.898.111 3.216.111h4.925c1.318 0 2.38 0 3.217-.111c.867-.115 1.598-.362 2.178-.935s.83-1.295.946-2.152c.112-.826.112-1.876.112-3.178v-.105c0-1.302 0-2.352-.112-3.178c-.117-.857-.366-1.579-.946-2.152a3 3 0 0 0-.257-.226c-.566-.514-1.266-.742-2.09-.851a9 9 0 0 0-.41-.045c.2.834.2 1.984.2 3.648c0 2.694 0 4.04-.847 4.878c-.846.836-2.21.836-4.936.836H7.783c-1.702 0-2.872 0-3.718-.203"
+                opacity=".5" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Salary Ranges</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    '#4CA883'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }" (click)="currentStep = 3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 3">
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12s0 5.657 1.172 6.828S6.229 20 10 20h4c3.771 0 5.657 0 6.828-1.172S22 15.771 22 12s0-5.657-1.172-6.828S17.771 4 14 4"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M13.25 9a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75m1 3a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1-.75-.75m1 3a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75M9 11a2 2 0 1 0 0-4a2 2 0 0 0 0 4m0 6c4 0 4-.895 4-2s-1.79-2-4-2s-4 .895-4 2s0 2 4 2" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Direct Manager</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 3 ? '#DDE3EB' :
+    currentStep === 4 ? '#377AFD' :
+    '#4CA883'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 4,
+        'text-success': currentStep > 4, 
+        'bg-light-success': currentStep > 4  
+    }" (click)="currentStep = 4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 4 ? '#007bff' : '#4A6D97'"
+                d="M21 15.998v-6c0-2.828 0-4.242-.879-5.121C19.353 4.109 18.175 4.012 16 4H8c-2.175.012-3.353.109-4.121.877C3 5.756 3 7.17 3 9.998v6c0 2.829 0 4.243.879 5.122c.878.878 2.293.878 5.121.878h6c2.828 0 4.243 0 5.121-.878c.879-.88.879-2.293.879-5.122"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 4 ? '#007bff' : '#4A6D97'"
+                d="M8 3.5A1.5 1.5 0 0 1 9.5 2h5A1.5 1.5 0 0 1 16 3.5v1A1.5 1.5 0 0 1 14.5 6h-5A1.5 1.5 0 0 1 8 4.5z" />
+            <path [style.fill]="currentStep === 4 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M6.25 10.5A.75.75 0 0 1 7 9.75h.5a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1-.75-.75m3.5 0a.75.75 0 0 1 .75-.75H17a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75M6.25 14a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1-.75-.75m3.5 0a.75.75 0 0 1 .75-.75H17a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75m-3.5 3.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1-.75-.75m3.5 0a.75.75 0 0 1 .75-.75H17a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 4" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Job Details</span>
+    </li>
+</ul>
+
+
+<!-- step 1 -->
+<div class="content-hug" *ngIf="currentStep === 1">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form action="" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="jobCode">Job Title Code (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="jobCode" class="form-control custom-date-input" placeholder="0050" />
+                </div>
+            </div>
+            <div class="input">
+                <label for="jobTitle">Job Title <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="jobTitle" class="form-control custom-date-input"
+                        placeholder="Enter Job Title" />
+                </div>
+            </div>
+            <div class="input">
+                <label for="level">Management Level</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="" id="level" class="form-select">
+                            <option value="">Select Level</option>
+                            <option value="">1</option>
+                            <option value="">2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between gap-3">
+                <div class="input w-100 opacity-50">
+                    <label for="depart">Assign Department</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="" id="depart" class="form-select" disabled>
+                                <option value="">Select Department</option>
+                                <option value="">1</option>
+                                <option value="">2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="input w-100 opacity-50">
+                    <label for="section">Assign Section</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="" id="section" class="form-select" disabled>
+                                <option value="">Select Section</option>
+                                <option value="">1</option>
+                                <option value="">2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+
+
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (1/4)</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<!-- step 2 -->
+<div class="content-hug" *ngIf="currentStep === 2">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Salary Ranges</h2>
+
+        <!-- start table -->
+        <div>
+            <app-table [headerTemplate]="empTypeTableHeader" [rowTemplate]="empTypeTableRow" [data]="sectionsData"
+                [disablePagination]="true">
+            </app-table>
+
+
+            <ng-template #empTypeTableHeader>
+                <th>Employment Type</th>
+                <th>Salary Minimum</th>
+                <th>Salary Maximum</th>
+                <th>Currency</th>
+                <th>Actions</th>
+            </ng-template>
+
+            <ng-template #empTypeTableRow let-item let-i="index">
+                <td>
+                    {{ item.employmentType }}
+                </td>
+                <td>
+                    <input type="text" class="form-control table-input" placeholder="Per Month">
+                </td>
+                <td>
+                    <input type="text" class="form-control table-input" placeholder="Per Month">
+                </td>
+                <td>
+                    <select class="form-control table-input" style="appearance: auto;">
+                        <option [selected]="item.currency === 'EGP'" value="EGP">EGP</option>
+                        <option [selected]="item.currency === 'USD'" value="USD">$</option>
+                    </select>
+                </td>
+                <td class="w-15">
+                    <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                        <a type="button" class="d-flex align-items-center gap-1"
+                            [ngClass]="item.isActive ? 'view-btn' : 'remove-btn'" (click)="toggleStatus(item)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                    d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                            </svg>
+                            <span>{{ item.isActive ? 'Deactivate' : 'Activate' }}</span>
+                        </a>
+                    </div>
+                </td>
+            </ng-template>
+
+        </div>
+
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (2/4)</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<!-- step 3 -->
+<div class="content-hug" *ngIf="currentStep === 3">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Assign a Job Title as Direct Manager</h2>
+
+        <!-- start table -->
+        <div>
+            <app-table [data]="jobTitles" [headerTemplate]="jobsTableHeader" [rowTemplate]="jobsTableRow"
+                [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="5">
+            </app-table>
+
+
+            <ng-template #jobsTableHeader>
+                <th (click)="sortBy()" style="cursor: pointer;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span>Job Title</span>
+                        <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                                <path d="M4 8h9m-7 5h7m-5 5h5" />
+                                <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                            </g>
+                        </svg>
+                        <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <path fill="#DDE3EB" fill-rule="evenodd"
+                                d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </th>
+                <th class="w-15">Action</th>
+            </ng-template>
+
+            <ng-template #jobsTableRow let-job let-i="index">
+                <td>
+                    <span class="d-block text-gray-sm">{{ job.id.toString().padStart(4, '0') }}</span>
+                    <span class="d-block text-truncate" style="max-width: 300px;">
+                        {{ job.name }}
+                    </span>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                        <a type="button" 
+                           class="d-flex align-items-center gap-1"
+                           [ngClass]="job.assigned ? 'view-btn' : 'remove-btn'"
+                           (click)="toggleAssignStatus(job)">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                  d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                          </svg>
+                          <span>{{ job.assigned ? 'Assigned' : 'Not Assigned' }}</span>
+                        </a>
+                      </div>
+                </td>
+
+            </ng-template>
+
+            <ng-template #jobsTableEmptyRow>
+                <tr>
+                    <td colspan="3" class="no-data py-4">No Job Titles Added Yet</td>
+                </tr>
+            </ng-template>
+
+        </div>
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (3/4)</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- step 4 -->
+<div class="content-hug" *ngIf="currentStep === 4">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Job Details</h2>
+        <form action="" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="jobDesc">Job Description</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <textarea type="text" id="jobDesc" class="form-control" placeholder="Enter the Job Description"></textarea>
+                </div>
+            </div>
+
+
+
+            <div class="input">
+                <label for="jobReq">Job Requirements</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="jobReq" class="form-control"/>
+                </div>
+            </div>
+
+
+            <div class="input">
+                <label for="jobDesc">Job Analysis</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <textarea type="text" id="jobDesc" class="form-control" placeholder="Enter the Job Analysis"></textarea>
+                </div>
+            </div>
+
+
+        </form>
+
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Create Job Title</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Job Title'" [paragraph1]="'Are you sure you want to discard creating the new Job Title?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Job Title
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

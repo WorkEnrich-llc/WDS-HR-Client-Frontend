@@ -1,0 +1,12 @@
+ul{
+    list-style: none;
+    padding: 0;
+}
+ul li:not(:last-of-type){
+    margin-bottom: var(--spacing-12);
+}
+p,ul li{
+    color: var(--color-secondary-700);
+    font-size: var(--font-size-b2);
+    line-height: var(--line-height-md);
+}
