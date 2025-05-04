@@ -3,8 +3,44 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'departments',
+    redirectTo: 'auth',
     pathMatch: 'full'
+  },
+
+  // Auth layout
+  {
+    path: '',
+    loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [
+      {
+        path: 'auth',
+        children: [
+          {
+            path: '',
+            redirectTo:'register',
+            pathMatch: 'full'
+          },
+          {
+            path: 'register',
+            loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent),
+            title: 'Register'
+          },
+          {
+            path: 'login',
+            loadComponent: () => import('./components/auth/login/login.component').then(m => m.LoginComponent),
+            title: 'Login',
+          },
+          {
+            path: 'reset-password',
+            loadComponent: () => import('./components/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+            title: 'Reset Password',
+          },
+          
+        ]
+      },
+
+      
+    ]
   },
 
   // start OD layout
@@ -106,7 +142,24 @@ export const routes: Routes = [
             title: 'Edit job'
           },
         ]
+      },
+
+      // Organizational Chart
+      {
+        path: 'organizational-Chart',
+        children: [
+          {
+            path: '',
+            redirectTo:'chart',
+            pathMatch: 'full'
+          },
+          {
+            path: 'chart',
+            loadComponent: () => import('./components/OD/Organizational-Chart/org-chart/org-chart.component').then(m => m.OrgChartComponent),
+            title: 'Organizational Chart'
+          },
+        ]
       }
     ]
-  }
+  },
 ];

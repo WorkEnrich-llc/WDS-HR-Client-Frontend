@@ -1,3 +1,44 @@
 textarea{
     resize: none;
 }
+.record{
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-600);
+    border-radius: 1rem;
+    -webkit-border-radius: 1rem;
+    -moz-border-radius: 1rem;
+    -ms-border-radius: 1rem;
+    -o-border-radius: 1rem;
+    margin-bottom: 0.7rem;
+    width: fit-content;
+    padding-right: 0.6rem;
+}
+.input-box{
+    padding: 0.6rem;
+    padding-right: 5.5rem !important;
+  border-radius: 0.9rem !important;
+  -webkit-border-radius: 0.9rem !important;
+  -moz-border-radius: 0.9rem !important;
+  -ms-border-radius: 0.9rem !important;
+  -o-border-radius: 0.9rem !important;
+  font-size: var(--font-size-b2);
+  color: var(--color-secondary-700);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+.add-btn{
+    background-color: var(--color-secondary-50) !important;
+    color: var(--color-secondary-700) !important;
+    border-radius: 1.5rem !important;
+    -webkit-border-radius: 1.5rem !important;
+    -moz-border-radius: 1.5rem !important;
+    -ms-border-radius: 1.5rem !important;
+    -o-border-radius: 1.5rem !important;
+}
+@media (min-width:991px) {
+    .width-fix{
+        width: 350px !important;
+    }    
+    .w-lg-50{
+        width: 50% !important;
+    }
+}

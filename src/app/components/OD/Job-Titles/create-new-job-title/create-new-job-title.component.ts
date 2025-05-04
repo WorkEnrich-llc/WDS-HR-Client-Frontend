@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -23,8 +23,25 @@ export class CreateNewJobTitleComponent {
 
   goPrev() {
     this.currentStep--;
-
   }
+  // selectedLevel step 1
+  selectedLevel: string = '';
+  isDepartmentSelected: boolean = false;
+  isSectionSelected: boolean = false;
+
+  onLevelChange() {
+    this.isDepartmentSelected = false;
+    this.isSectionSelected = false;
+
+    if (this.selectedLevel === 'DepartmentSelect') {
+      this.isDepartmentSelected = true;
+    } else if (this.selectedLevel === 'SectionSelect' || this.selectedLevel === 'NoneSelect') {
+      this.isDepartmentSelected = true;
+      this.isSectionSelected = true;
+    }
+  }
+
+
   // section array
   sectionsData = [
     { employmentType: 'Full-time', isActive: true },
@@ -74,6 +91,39 @@ export class CreateNewJobTitleComponent {
   // assign job tittle toggle
   toggleAssignStatus(job: any) {
     job.assigned = !job.assigned;
+  }
+
+
+
+  // input multibule data 
+  requirements: string[] = [
+    // "Proven experience as COO or in a similar executive role.",
+    // "Strong understanding of business functions such as HR, Finance, IT, Marketing, and Operations.",
+    // "Demonstrated leadership and people management skills.",
+    // "Excellent communication and interpersonal abilities.",
+    // "Strong strategic and analytical thinking.",
+    // "Bachelor’s degree in Business Administration, Management, or a related field (MBA preferred).",
+    // "Experience in managing budgets, resources, and operational strategy."
+  ];
+
+  showInput: boolean = false;
+  newRequirement: string = '';
+
+  showInputField() {
+    this.showInput = true;
+    this.newRequirement = '';
+  }
+
+  confirmRequirement() {
+    if (this.newRequirement.trim()) {
+      this.requirements.push(this.newRequirement.trim());
+    }
+    this.newRequirement = '';
+    this.showInput = false;
+  }
+
+  deleteRequirement(index: number) {
+    this.requirements.splice(index, 1);
   }
 
   // discard popup

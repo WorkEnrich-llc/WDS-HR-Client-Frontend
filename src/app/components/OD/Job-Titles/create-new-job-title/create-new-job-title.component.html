@@ -51,7 +51,8 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentStep === 1 ? '#DDE3EB' :
     currentStep === 2 ? '#377AFD' :
-    '#4CA883'
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
   ">
         <path
             d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
@@ -85,7 +86,8 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentStep === 2 ? '#DDE3EB' :
     currentStep === 3 ? '#377AFD' :
-    '#4CA883'
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
   ">
         <path
             d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
@@ -116,7 +118,8 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentStep === 3 ? '#DDE3EB' :
     currentStep === 4 ? '#377AFD' :
-    '#4CA883'
+    currentStep > 4 ? '#4CA883' :
+    '#DDE3EB'
   ">
         <path
             d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
@@ -170,40 +173,49 @@
                 <label for="level">Management Level</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="" id="level" class="form-select">
-                            <option value="">Select Level</option>
-                            <option value="">1</option>
-                            <option value="">2</option>
+                        <select name="level" id="level" class="form-select" [(ngModel)]="selectedLevel" (change)="onLevelChange()">
+                            <option value="" disabled selected>Select Level</option>  
+                            <option value="Company">Company</option>
+                            <option value="Branch">Branch</option>
+                            <option value="DepartmentSelect">Department</option>
+                            <option value="SectionSelect">Section</option>
+                            <option value="NoneSelect">None</option>
                         </select>
                     </div>
                 </div>
             </div>
+            
             <div class="d-flex justify-content-between gap-3">
-                <div class="input w-100 opacity-50">
+                <div class="input w-100" [ngClass]="{'opacity-50': !isDepartmentSelected}">
                     <label for="depart">Assign Department</label>
                     <div class="d-flex align-items-center gap-4">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="" id="depart" class="form-select" disabled>
+                            <select name="depart" id="depart" class="form-select" [disabled]="!isDepartmentSelected">
                                 <option value="">Select Department</option>
-                                <option value="">1</option>
-                                <option value="">2</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="input w-100 opacity-50">
+            
+                <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
                     <label for="section">Assign Section</label>
                     <div class="d-flex align-items-center gap-4">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="" id="section" class="form-select" disabled>
+                            <select name="section" id="section" class="form-select" [disabled]="!isSectionSelected">
                                 <option value="">Select Section</option>
-                                <option value="">1</option>
-                                <option value="">2</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            
+            
+            
         </form>
 
 
@@ -306,8 +318,19 @@
 <!-- step 3 -->
 <div class="content-hug" *ngIf="currentStep === 3">
     <div class="content-box d-flex flex-column gap-3">
+       
+  
         <h2>Assign a Job Title as Direct Manager</h2>
-
+        
+        <div data-mdb-input-init class="form-outline w-25">
+            <input type="text" class="form-control" placeholder="Search for a Job Title" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+              </g>
+            </svg>
+        </div>
         <!-- start table -->
         <div>
             <app-table [data]="jobTitles" [headerTemplate]="jobsTableHeader" [rowTemplate]="jobsTableRow"
@@ -346,17 +369,15 @@
                 </td>
                 <td>
                     <div class="d-flex align-items-center justify-content-start w-100 gap-3">
-                        <a type="button" 
-                           class="d-flex align-items-center gap-1"
-                           [ngClass]="job.assigned ? 'view-btn' : 'remove-btn'"
-                           (click)="toggleAssignStatus(job)">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                                  d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-                          </svg>
-                          <span>{{ job.assigned ? 'Assigned' : 'Not Assigned' }}</span>
+                        <a type="button" class="d-flex align-items-center gap-1"
+                            [ngClass]="job.assigned ? 'view-btn' : 'remove-btn'" (click)="toggleAssignStatus(job)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                    d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                            </svg>
+                            <span>{{ job.assigned ? 'Assigned' : 'Not Assigned' }}</span>
                         </a>
-                      </div>
+                    </div>
                 </td>
 
             </ng-template>
@@ -400,7 +421,8 @@
             <div class="input">
                 <label for="jobDesc">Job Description</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea type="text" id="jobDesc" class="form-control" placeholder="Enter the Job Description"></textarea>
+                    <textarea type="text" id="jobDesc" class="form-control"
+                        placeholder="Enter the Job Description"></textarea>
                 </div>
             </div>
 
@@ -408,16 +430,52 @@
 
             <div class="input">
                 <label for="jobReq">Job Requirements</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="jobReq" class="form-control"/>
+                <div class="input-box">
+                  <div *ngFor="let requirement of requirements; let i = index" class="record d-flex align-items-center">
+                    <button class="btn" (click)="deleteRequirement(i)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="#377AFD" d="M15 12.75a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5z" />
+                        <path fill="#377AFD" fill-rule="evenodd"
+                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                    <div>{{ requirement }}</div>
+                  </div>
+              
+                  <div *ngIf="showInput" class="position-relative mt-2">
+                    <input
+                      type="text"
+                      class="form-control w-100 mb-3"
+                      placeholder="Write Requirement"
+                      [(ngModel)]="newRequirement"
+                      (keydown.enter)="confirmRequirement()"
+                      (blur)="confirmRequirement()"
+                      #requirementInput
+                      autofocus
+                    >
+                  </div>
+              
+                  <button class="btn add-btn" type="button" (click)="showInputField()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor"
+                        d="M12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25z" />
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Add Requirement</span>
+                  </button>
                 </div>
-            </div>
-
+              </div>
+              
+              
 
             <div class="input">
                 <label for="jobDesc">Job Analysis</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea type="text" id="jobDesc" class="form-control" placeholder="Enter the Job Analysis"></textarea>
+                    <textarea type="text" id="jobDesc" class="form-control"
+                        placeholder="Enter the Job Analysis"></textarea>
                 </div>
             </div>
 

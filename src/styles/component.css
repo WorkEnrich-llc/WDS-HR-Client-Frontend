@@ -28,6 +28,7 @@ a.text-danger-dark:hover {
   font-size: var(--font-size-b2);
   color: var(--color-secondary-700);
   line-height: var(--line-height-xss);
+  margin-bottom: var(--spacing-4);
 }
 .input label span{
   color: var(--color-danger-700);
@@ -42,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .form-outline .form-control, .form-outline .form-select {
-  padding: 0.6rem;
+  padding: 0.8rem;
   border-radius: 0.9rem !important;
   -webkit-border-radius: 0.9rem !important;
   -moz-border-radius: 0.9rem !important;

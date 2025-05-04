@@ -1,0 +1,52 @@
+.body{
+    padding: 0 !important;
+}
+.chart-box {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  .content-hug {
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+  }
+.chart-box .content-hug {
+    position: relative;
+    z-index: 0 !important;
+}
+
+.chart-box.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-neutral-100);
+    z-index: 9999;
+    padding: 1rem;
+
+}
+
+
+
+.chart-box {
+    position: relative;
+}
+
+.btn-fixed {
+    bottom: var(--spacing-60);
+    right: var(--spacing-60);
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.btn-square {
+    width: 52px;
+    height: 52px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

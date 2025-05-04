@@ -1,0 +1,376 @@
+<div class="card-top">
+    <div class="row align-items-center g-3">
+        <div class="col-8">
+            <h2>Create Account</h2>
+            <p>Welcome to Workenrich Platform!
+                We need a little bit of information to create your account</p>
+            <p class="link">Do you already have an account? <a href="" routerLink="/auth/login">Log in</a></p>
+        </div>
+        <div class="col-4">
+            <img src="./images/WDS Logo.svg" alt="WDS logo">
+        </div>
+    </div>
+</div>
+
+
+<!-- steps navigation -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 1,
+        'text-success': currentStep > 1, 
+        'bg-light-success': currentStep > 1  
+    }" (click)="currentStep = 1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep == 1" viewBox="0 0 24 24">
+            <circle cx="12" cy="6" r="4" fill="#377AFD" />
+            <ellipse cx="12" cy="17" fill="#377AFD" opacity=".5" rx="7" ry="4" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">User Information</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }" (click)="currentStep = 2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep<=2" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M7 5h4c1.886 0 2.828 0 3.414.586S15 7.114 15 9v12.25h7a.75.75 0 0 1 0 1.5H2a.75.75 0 0 1 0-1.5h1V9c0-1.886 0-2.828.586-3.414S5.114 5 7 5M5.25 8A.75.75 0 0 1 6 7.25h6a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 5.25 8m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75M9 18.25a.75.75 0 0 1 .75.75v2.25h-1.5V19a.75.75 0 0 1 .75-.75"
+                clip-rule="evenodd" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+                d="M15 2h2c1.886 0 2.828 0 3.414.586S21 4.114 21 6v15.25h-6V9c0-1.886 0-2.828-.586-3.414C13.842 5.013 12.928 5 11.126 5V3.5c.084-.387.225-.68.46-.914C12.17 2 13.114 2 15 2"
+                opacity=".5" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Company</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }" (click)="currentStep = 3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <=3" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M13.11 13.5a1.71 1.71 0 0 0-2.22 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973a1.71 1.71 0 0 0 0 2.219a1.7 1.7 0 0 1 .403.973a1.71 1.71 0 0 0 1.57 1.57c.358.028.699.169.973.402a1.71 1.71 0 0 0 2.218 0a1.7 1.7 0 0 1 .973-.403a1.71 1.71 0 0 0 1.57-1.569c.028-.358.169-.7.402-.973a1.71 1.71 0 0 0 0-2.219a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403m.902 3.603a.75.75 0 1 0-1.024-1.097l-1.63 1.523l-.346-.323a.75.75 0 0 0-1.024 1.097l.857.8a.75.75 0 0 0 1.024 0z"
+                clip-rule="evenodd" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M2 12V8c0-2.828 0-4.243.879-5.121C3.757 2 5.172 2 8 2h8c2.828 0 4.243 0 5.121.879C22 3.757 22 5.172 22 8v4c0 2.828 0 4.243-.879 5.121c-.835.836-2.156.877-4.717.879a1.71 1.71 0 0 0-.35-1.555a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403a1.71 1.71 0 0 0-2.219 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973A1.71 1.71 0 0 0 7.595 18c-2.56-.002-3.88-.043-4.716-.879C2 16.243 2 14.828 2 12"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M8.25 6A.75.75 0 0 1 9 5.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 6M7 8.75a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5z" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Verify</span>
+    </li>
+
+
+</ul>
+
+<div class="card-bottom">
+    <!-- step1 -->
+    <div class="user-info" *ngIf="currentStep===1">
+        <div class="row align-items-center g-4">
+            <div class="col-6">
+                <div action="" class="w-100 d-flex flex-column gap-2">
+                    <div class="input">
+                        <label for="name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <circle cx="12" cy="6" r="4" />
+                                    <ellipse cx="12" cy="17" rx="7" ry="4" />
+                                </g>
+                            </svg> Name</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="text" id="name" class="form-control"
+                                    placeholder="What would you like us to call you?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input">
+                        <label for="email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <path
+                                        d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+                                    <path stroke-linecap="round"
+                                        d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+                                </g>
+                            </svg> Email</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="email" id="email" class="form-control"
+                                    placeholder="What’s your Business Email?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input">
+                        <label for="job"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <path
+                                        d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
+                                    <path
+                                        d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
+                                    <path stroke-linecap="round"
+                                        d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
+                                </g>
+                            </svg> Job Title</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <select name="" id="job" class="form-select">
+                                    <option value="" selected disabled>What’s your official Job Title?</option>
+                                    <option value="">1</option>
+                                    <option value="">2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input">
+                        <label for="password"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none">
+                                    <path stroke-width="1.5"
+                                        d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
+                                    <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16h.009m3.982 0H12m3.991 0H16" />
+                                </g>
+                            </svg> Password</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="password" id="password" class="form-control"
+                                    placeholder="Enter a strong Password">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input">
+                        <label for="repassword"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none">
+                                    <path stroke-width="1.5"
+                                        d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
+                                    <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16h.009m3.982 0H12m3.991 0H16" />
+                                </g>
+                            </svg> Confirm Password</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="password" id="repassword" class="form-control"
+                                    placeholder="Confirm your Password">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-lg btn-primary w-100" (click)="currentStep=2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                        </svg>
+                        <span>Next (1/3)</span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="col-6 text-center">
+                <img src="./images/userauth.svg" alt="WDS logo">
+            </div>
+        </div>
+    </div>
+
+    <!-- step 2 -->
+    <div class="company-info" *ngIf="currentStep===2">
+        <div class="row align-items-center g-4">
+            <div class="col-6">
+                <div class="w-100 d-flex flex-column gap-2">
+                    <div class="form-group">
+                        <label for="logoInput" class="upload-box w-100 text-center">
+                            <div class="upload-content" *ngIf="!previewUrl">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                                    <path fill="currentColor" fill-rule="evenodd"
+                                        d="M17.5 11c-2.121 0-3.182 0-3.841-.659S13 8.621 13 6.5s0-3.182.659-3.841S15.379 2 17.5 2s3.182 0 3.841.659S22 4.379 22 6.5s0 3.182-.659 3.841S19.621 11 17.5 11m.75-6.5a.75.75 0 0 0-1.5 0v1.25H15.5a.75.75 0 0 0 0 1.5h1.25V8.5a.75.75 0 0 0 1.5 0V7.25h1.25a.75.75 0 0 0 0-1.5h-1.25z"
+                                        clip-rule="evenodd" />
+                                    <path fill="currentColor"
+                                        d="M22 12.698c-.002 1.47-.013 2.718-.096 3.743c-.097 1.19-.296 2.184-.74 3.009a4.2 4.2 0 0 1-.73.983c-.833.833-1.893 1.21-3.237 1.39C15.884 22 14.2 22 12.053 22h-.106c-2.148 0-3.83 0-5.144-.177c-1.343-.18-2.404-.557-3.236-1.39c-.738-.738-1.12-1.656-1.322-2.795c-.2-1.12-.236-2.512-.243-4.241Q1.999 12.737 2 12v-.054c0-2.148 0-3.83.177-5.144c.18-1.343.557-2.404 1.39-3.236s1.893-1.21 3.236-1.39c1.168-.157 2.67-.175 4.499-.177a.697.697 0 1 1 0 1.396c-1.855.002-3.234.018-4.313.163c-1.189.16-1.906.464-2.436.994S3.72 5.8 3.56 6.99C3.397 8.2 3.395 9.788 3.395 12v.784l.932-.814a2.14 2.14 0 0 1 2.922.097l3.99 3.99a1.86 1.86 0 0 0 2.385.207l.278-.195a2.79 2.79 0 0 1 3.471.209l2.633 2.37c.265-.557.423-1.288.507-2.32c.079-.972.09-2.152.091-3.63a.698.698 0 0 1 1.396 0"
+                                        opacity=".5" />
+                                </svg>
+                                <div class="fw-bold">Company logo</div>
+                                <span>Upload a PNG file (1200x500) up to 5MB.</span>
+                            </div>
+
+                            <img *ngIf="previewUrl" [src]="previewUrl" class="preview-img" alt="Logo preview" />
+
+                            <input type="file" id="logoInput" accept="image/png" (change)="onFileSelected($event)"
+                                hidden />
+                        </label>
+                    </div>
+
+
+
+                    <div class="input">
+                        <label for="compName"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <path stroke-linecap="round" d="M22 22H2" />
+                                    <path
+                                        d="M21 22V6c0-1.886 0-2.828-.586-3.414S18.886 2 17 2h-2c-1.886 0-2.828 0-3.414.586c-.472.471-.564 1.174-.582 2.414" />
+                                    <path
+                                        d="M15 22V9c0-1.886 0-2.828-.586-3.414S12.886 5 11 5H7c-1.886 0-2.828 0-3.414.586S3 7.114 3 9v13" />
+                                    <path stroke-linecap="round" d="M9 22v-3M6 8h6m-6 3h6m-6 3h6" />
+                                </g>
+                            </svg> Company Name
+                        </label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="text" id="compName" class="form-control"
+                                    placeholder="What’s the name of your company?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input">
+                        <label for="noEmp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <circle cx="12" cy="6" r="4" />
+                                    <path stroke-linecap="round"
+                                        d="M18 9c1.657 0 3-1.12 3-2.5S19.657 4 18 4M6 9C4.343 9 3 7.88 3 6.5S4.343 4 6 4" />
+                                    <ellipse cx="12" cy="17" rx="6" ry="4" />
+                                    <path stroke-linecap="round"
+                                        d="M20 19c1.754-.385 3-1.359 3-2.5s-1.246-2.115-3-2.5M4 19c-1.754-.385-3-1.359-3-2.5s1.246-2.115 3-2.5" />
+                                </g>
+                            </svg> No. of Employees</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <select name="" id="noEmp" class="form-select">
+                                    <option value="" selected disabled>How many Employees do you have?</option>
+                                    <option value="">1</option>
+                                    <option value="">2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex align-items-stretch gap-2">
+                        <button class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
+                            (click)="goPrev()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-lg btn-primary w-100" (click)="goNext()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                            </svg>
+                            <span>Next (2/3)</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-6 text-center">
+                <img src="./images/companyauth.svg" alt="WDS logo">
+            </div>
+        </div>
+    </div>
+
+    <!-- step 3 -->
+    <div class="verify" *ngIf="currentStep===3">
+        <div class="row align-items-center g-4">
+            <div class="col-6">
+                <div class="w-100 d-flex flex-column gap-2">
+                    <p class="verify-text">We’ve just sent you an email with a Code.
+                        Please enter it below to Verify your Email.</p>
+
+
+                        <ng-otp-input
+                        [config]="{length: 6, inputClass: 'otp-input form-control m-auto my-3 rounded-3', isPasswordInput: true}"
+                        (onInputChange)="onOtpChange($event)">
+                      </ng-otp-input>         
+                          
+                          
+                    <div class="d-flex align-items-stretch gap-2">
+                        <button class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
+                            (click)="goPrev()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-lg btn-success w-100" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                            </svg>
+                            <span>Create Account</span>
+                        </button>
+                    </div>
+
+                    <p class="resend-otp">
+                        <a href="#" 
+                        type="button"
+                           (click)="resendEmail()" 
+                           [class.disabled]="!canResend"
+                           [style.pointer-events]="canResend ? 'auto' : 'none'">
+                           Resend Email
+                        </a>
+                        <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
+                      </p>
+                </div>
+
+            </div>
+            <div class="col-6 text-center">
+                <img src="./images/verify.svg" alt="WDS logo" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
