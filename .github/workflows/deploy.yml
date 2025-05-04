@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 144.91.79.174 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ssh -tt root@144.91.79.174 << 'EOF'
+            cd /var/www/WorkEnrich-Client-Front-End
+            git pull origin main
+            npm install
+            npm run build
+            exit
+          EOF
