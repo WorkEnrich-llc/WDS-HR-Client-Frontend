@@ -11,7 +11,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 60px 0;
+    padding: 20px 0;
     background-image: url('./../../../../public/images/authback.png');
     background-position: center center;
     background-size: cover;
@@ -43,7 +43,7 @@ label svg{
 }
 .card-auth{
     background-color: var(--color-white);
-    zoom: 0.85 !important;
+    zoom: 0.8 !important;
     padding: var(--spacing-36) 0;
     border-radius: var(--border-radius-25);
     -webkit-border-radius: var(--border-radius-25);
