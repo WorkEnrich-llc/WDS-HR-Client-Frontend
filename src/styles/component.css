@@ -33,6 +33,9 @@ a.text-danger-dark:hover {
 .input label span{
   color: var(--color-danger-700);
 }
+.input label svg{
+  fill: var(--color-secondary-500);
+}
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   color: var(--color-secondary-300);

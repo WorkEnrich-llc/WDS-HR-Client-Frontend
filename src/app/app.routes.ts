@@ -162,4 +162,49 @@ export const routes: Routes = [
       }
     ]
   },
+
+
+
+
+  // settings layout
+  {
+    path: '',
+    loadComponent: () => import('./layouts/settings/settings.component').then(m => m.SettingsComponent),
+    children: [
+      {
+        path: 'settings',
+        children: [
+          {
+            path: '',
+            redirectTo:'profile-settings',
+            pathMatch: 'full'
+          },
+          {
+            path: 'profile-settings',
+            loadComponent: () => import('./components/settings/profile-settings/profile-settings.component').then(m => m.ProfileSettingsComponent),
+            title: 'Profile Settings'
+          },
+          {
+            path: 'app-settings',
+            loadComponent: () => import('./components/settings/app-settings/app-settings.component').then(m => m.AppSettingsComponent),
+            title: 'App Settings'
+          },
+          {
+            path: 'notifications-settings',
+            loadComponent: () => import('./components/settings/notifications-settings/notifications-settings.component').then(m => m.NotificationsSettingsComponent),
+            title: 'Notifications Settings'
+          },
+          {
+            path: 'password-settings',
+            loadComponent: () => import('./components/settings/password-settings/password-settings.component').then(m => m.PasswordSettingsComponent),
+            title: 'Password Settings'
+          },
+          
+        ]
+      },
+
+      
+    ]
+  },
+  
 ];
