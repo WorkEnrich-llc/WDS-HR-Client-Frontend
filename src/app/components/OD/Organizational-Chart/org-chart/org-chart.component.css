@@ -3,12 +3,12 @@
 }
 .chart-box {
     width: 100%;
-    height: 100%;
-    overflow: auto;
+    min-height: calc(100vh - 1rem);
+    overflow-x: auto;
   }
   .content-hug {
     transition: transform 0.3s ease;
-    transform-origin: center center;
+    transform-origin: left center;
   }
 .chart-box .content-hug {
     position: relative;
@@ -26,8 +26,6 @@
     padding: 1rem;
 
 }
-
-
 
 .chart-box {
     position: relative;
@@ -50,3 +48,6 @@
     align-items: center;
     justify-content: center;
 }
+
+
+

@@ -1,17 +1,56 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgOtpInputComponent } from 'ng-otp-input';
+import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule,FormsModule,NgOtpInputComponent,RouterLink],
+  imports: [CommonModule, FormsModule, NgOtpInputComponent, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent implements OnDestroy{
-  
+export class RegisterComponent implements OnDestroy, OnInit {
+
+  errMsg: string = '';
+  jobTitleData: any = [];
+groupedJobs: { name: string, jobs: any[] }[] = [];
+
+  constructor(
+    private _AuthenticationService: AuthenticationService,
+  ) { }
+
+  ngOnInit(): void {
+    this.loadJobTitles();
+    
+  }
+
+
+  loadJobTitles(): void {
+  this._AuthenticationService.getJobTitles().subscribe({
+    next: (response) => {
+      this.jobTitleData = response.data.list_items;
+      // console.log("Job Titles Data:", this.jobTitleData);
+      let currentGroup: any = null;
+      this.groupedJobs = []; 
+      for (const item of this.jobTitleData) {
+        if (!item.available) {
+          currentGroup = { name: item.name, jobs: [] };
+          this.groupedJobs.push(currentGroup);
+        } else if (currentGroup) {
+          currentGroup.jobs.push(item);
+        }
+      }
+    },
+    error: (err) => {
+      this.errMsg = err.message;
+      console.error("Error:", this.errMsg);
+    }
+  });
+}
+
+
   private _currentStep = 1;
   get currentStep() {
     return this._currentStep;

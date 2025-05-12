@@ -158,10 +158,13 @@
                             </svg> Job Title</label>
                         <div class="d-flex align-items-center gap-4">
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <select name="" id="job" class="form-select">
+                                <select name="job" id="job" class="form-select">
                                     <option value="" selected disabled>What’s your official Job Title?</option>
-                                    <option value="">1</option>
-                                    <option value="">2</option>
+                                    <optgroup *ngFor="let group of groupedJobs" [label]="group.name">
+                                        <option *ngFor="let job of group.jobs" [value]="job.name">
+                                            {{ job.name }}
+                                        </option>
+                                    </optgroup>
                                 </select>
                             </div>
                         </div>
@@ -329,12 +332,12 @@
                         Please enter it below to Verify your Email.</p>
 
 
-                        <ng-otp-input
+                    <ng-otp-input
                         [config]="{length: 6, inputClass: 'otp-input form-control m-auto my-3 rounded-3', isPasswordInput: true}"
                         (onInputChange)="onOtpChange($event)">
-                      </ng-otp-input>         
-                          
-                          
+                    </ng-otp-input>
+
+
                     <div class="d-flex align-items-stretch gap-2">
                         <button class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
                             (click)="goPrev()">
@@ -344,8 +347,7 @@
                             </svg>
                         </button>
                         <button class="btn btn-lg btn-success w-100" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                viewBox="0 0 24 24">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <circle cx="12" cy="12" r="10" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -356,15 +358,12 @@
                     </div>
 
                     <p class="resend-otp">
-                        <a href="#" 
-                        type="button"
-                           (click)="resendEmail()" 
-                           [class.disabled]="!canResend"
-                           [style.pointer-events]="canResend ? 'auto' : 'none'">
-                           Resend Email
+                        <a href="#" type="button" (click)="resendEmail()" [class.disabled]="!canResend"
+                            [style.pointer-events]="canResend ? 'auto' : 'none'">
+                            Resend Email
                         </a>
                         <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
-                      </p>
+                    </p>
                 </div>
 
             </div>
