@@ -26,6 +26,7 @@ jobs:
         run: |
           ssh -tt root@144.91.79.174 << 'EOF'
             cd /var/www/WorkEnrich-Client-Front-End
+            git reset --hard
             git pull origin main
             npm install
             npm run build
