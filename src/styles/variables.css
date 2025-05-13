@@ -23,6 +23,7 @@
   
 
   /* -- Border Radius -- */
+  --border-radius-16: 1rem;  /* 25px */
   --border-radius-25: 1.5625rem;  /* 25px */
   --border-radius-45: 2.8125rem;  /* 45px */
   --border-radius-70: 4.375rem;   /* 70px */

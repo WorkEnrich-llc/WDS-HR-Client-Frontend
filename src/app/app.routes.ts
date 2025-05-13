@@ -1,3 +1,4 @@
+import { importProvidersFrom } from '@angular/core';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -156,7 +157,7 @@ export const routes: Routes = [
           {
             path: 'chart',
             loadComponent: () => import('./components/OD/Organizational-Chart/org-chart/org-chart.component').then(m => m.OrgChartComponent),
-            title: 'Organizational Chart'
+            title: 'Organizational Chart',
           },
         ]
       }

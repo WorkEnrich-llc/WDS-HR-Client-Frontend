@@ -1,15 +1,23 @@
-.body{
+.body {
     padding: 0 !important;
 }
+/* .body-full .chart-box.fullscreen{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+} */
 .chart-box {
     width: 100%;
     min-height: calc(100vh - 1rem);
     overflow-x: auto;
-  }
-  .content-hug {
+}
+
+.content-hug {
     transition: transform 0.3s ease;
     transform-origin: left center;
-  }
+    padding: var(--spacing-36) 0 0 0 !important;
+
+}
+
 .chart-box .content-hug {
     position: relative;
     z-index: 0 !important;
@@ -48,6 +56,236 @@
     align-items: center;
     justify-content: center;
 }
+
+
+.p-organizationchart-node-content {
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+}
+
+.p-organizationchart-node-content .p-person-content {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 2px !important;
+
+}
+.p-organizationchart .p-person  {
+  margin-bottom: 100px !important;
+}
+.p-organizationchart-line {
+    stroke: #aaa;
+}
+
+.p-organizationchart .p-organizationchart-toggler {
+    transition: transform 0.3s ease;
+    -webkit-transition: transform 0.3s ease;
+    -moz-transition: transform 0.3s ease;
+    -ms-transition: transform 0.3s ease;
+    -o-transition: transform 0.3s ease;
+}
+
+
+.p-organizationchart {
+    overflow-x: auto;
+}
+
+.custom-node {
+    padding: var(--spacing-16) var(--spacing-16) var(--spacing-36) var(--spacing-16) !important;
+    min-width: 300px;
+    border: 1px solid black;
+    border-radius: var(--border-radius-16);
+    background-color: #fff;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    -webkit-border-radius: var(--border-radius-16);
+    -moz-border-radius: var(--border-radius-16);
+    -ms-border-radius: var(--border-radius-16);
+    -o-border-radius: var(--border-radius-16);
+}
+
+.p-person-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px !important;
+}
+
+.p-organizationchart .p-organizationchart-node-content {
+  margin: 0 15px !important;
+}
+
+.p-organizationchart-node-toggle-button {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    -ms-border-radius: 50% !important;
+    -o-border-radius: 50% !important;
+    background-color: white !important;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid black !important;
+    color: black !important;
+    transform: translate(-50%, -50%) !important;
+    -webkit-transform: translate(-50%, -50%) !important;
+    -moz-transform: translate(-50%, -50%) !important;
+    -ms-transform: translate(-50%, -50%) !important;
+    -o-transform: translate(-50%, -50%) !important;
+    font-size: 20px !important;
+    transition: background 0.3s, color 0.3s !important;
+    -webkit-transition: background 0.3s, color 0.3s !important;
+    -moz-transition: background 0.3s, color 0.3s !important;
+    -ms-transition: background 0.3s, color 0.3s !important;
+    -o-transition: background 0.3s, color 0.3s !important;
+
+}
+
+/* ---------------- */
+.level-executive{
+    border-color: var(--color-danger-200) !important;
+}
+.level-executive .p-organizationchart-node-toggle-button{
+    border-color: var(--color-danger-400) !important;
+    color: var(--color-danger-400) !important;
+}
+.level-executive .level{
+    background-color: var(--color-danger-100);
+    width: fit-content;
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border: 1px solid var(--color-danger-200);
+    color: var(--color-danger-700);
+    padding: var(--spacing-8) var(--spacing-16);
+}
+/* ----------------- */
+.level-senior-management{
+    border-color: var(--color-warning-200) !important;
+}
+.level-senior-management .p-organizationchart-node-toggle-button{
+    border-color: var(--color-warning-400) !important;
+    color: var(--color-warning-400) !important;
+}
+.level-senior-management .level{
+    background-color: var(--color-warning-100);
+    width: fit-content;
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border: 1px solid var(--color-warning-200);
+    color: var(--color-warning-700);
+    padding: var(--spacing-8) var(--spacing-16);
+}
+/* ---------------------------- */
+.level-middle-management{
+    border-color: var(--color-primary-200) !important;
+}
+.level-middle-management .p-organizationchart-node-toggle-button{
+    border-color: var(--color-primary-400) !important;
+    color: var(--color-primary-400) !important;
+}
+.level-middle-management .level{
+    background-color: var(--color-primary-100);
+    width: fit-content;
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border: 1px solid var(--color-primary-200);
+    color: var(--color-primary-700);
+    padding: var(--spacing-8) var(--spacing-16);
+}
+/* --------------------------------- */
+.level-team-leadership{
+    border-color: var(--color-success-200) !important;
+}
+.level-team-leadership .p-organizationchart-node-toggle-button{
+    border-color: var(--color-success-400) !important;
+    color: var(--color-success-400) !important;
+}
+.level-team-leadership .level{
+    background-color: var(--color-success-100);
+    width: fit-content;
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border: 1px solid var(--color-success-200);
+    color: var(--color-success-700);
+    padding: var(--spacing-8) var(--spacing-16);
+}
+/* -------------------------------------------- */
+.level-non-managerial{
+    border-color: var(--color-secondary-200) !important;
+}
+.level-non-managerial .p-organizationchart-node-toggle-button{
+    border-color: var(--color-secondary-400) !important;
+    color: var(--color-secondary-400) !important;
+}
+.level-non-managerial .level{
+    background-color: var(--color-secondary-100);
+    width: fit-content;
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border: 1px solid var(--color-secondary-200);
+    color: var(--color-secondary-700);
+    padding: var(--spacing-8) var(--spacing-16);
+}
+
+.p-organizationchart-node-toggle-button:hover {
+    background-color: var(--color-neutral-100) !important;
+    color: var(--color-primary-500) !important;
+}
+.code{
+    margin-top: var(--spacing-8);
+    margin-bottom: var(--spacing-4);
+    color: var(--color-secondary-700) !important;
+    font-size: var(--font-size-b2) !important;
+    line-height: var(--line-height-xss) !important;
+}
+.position{
+    color: var(--color-secondary-900) !important;
+    font-size: var(--font-size-b1) !important;
+    line-height: var(--line-height-sm) !important;
+    margin-bottom: var(--spacing-4);
+}
+.name{
+    font-size: var(--font-size-b1) !important;
+    line-height: var(--line-height-sm) !important;
+    font-weight: 600 !important;
+}
+
+/*  ---------------------*/
+.level-executive .name{
+    color: var(--color-danger-700) !important;
+}
+.level-senior-management .name{
+    color: var(--color-warning-700) !important;
+}
+.level-middle-management .name{
+    color: var(--color-primary-700) !important;
+}
+.level-team-leadership .name{
+    color: var(--color-success-700) !important;
+}
+.level-non-managerial .name{
+    color: var(--color-secondary-700) !important;
+}
+
+
+
+
 
 
 

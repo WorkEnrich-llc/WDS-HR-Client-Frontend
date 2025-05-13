@@ -28,6 +28,8 @@
               }
             ],
             "styles": [
+
+              "node_modules/primeicons/primeicons.css",
               "src/styles/variables.css",
               "src/styles/component.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
@@ -98,6 +100,8 @@
               }
             ],
             "styles": [
+              
+              "node_modules/primeicons/primeicons.css",
               "src/styles/variables.css",
               "src/styles/component.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
