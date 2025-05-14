@@ -3,7 +3,46 @@ html {
   zoom:0.85!important;
   box-sizing: border-box;
   background-color: var(--color-neutral-100);
+  overflow-y: scroll;
 }
+
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-400) var(--color-neutral-700);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-700);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary-400);
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-600);
+}
+
+@media (max-width: 1024px) {
+  body {
+    scrollbar-width: none;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 
 .layout {
   display: flex;

@@ -138,9 +138,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 0.75rem var(--spacing-12) !important;
   }
 
-  .btn-lg svg {
+  /* .btn-lg svg {
     display: none;
-  }
+  } */
 }
 
 /* main blue button */

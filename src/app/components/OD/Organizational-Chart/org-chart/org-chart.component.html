@@ -3,7 +3,7 @@
     { label: 'Operations Development', link: '/' },
     { label: 'Organizational Chart' }
   ]" title="Organizational Chart">
-
+  <h2 class="h6 pt-3">Use Ctrl + Scroll to Zoom</h2>
   <!-- <div subinfo>
     Created at 13/06/2023 &nbsp; | &nbsp; Updated At 03/12/2024
   </div> -->
@@ -17,39 +17,27 @@
 </app-page-header>
 <!-- end page header -->
 
-
 <div class="chart-box" [ngClass]="{ 'fullscreen': isFullScreen }">
-  <div class="content-hug" [style.transform]="'scale(' + zoom + ')'">
-
-    <!-- chart -->
-    <div class="custom-chart">
-      <div class="chart-wrapper">
-        <p-organization-chart *ngIf="orgChartData?.length" [value]="orgChartData" selectionMode="multiple"
-          [collapsible]="true" [style]="{ 'width': 'auto' }"> 
-
-          <ng-template let-node pTemplate="person">
-            <div class="p-organizationchart-node-content p-person custom-node"
-              [ngClass]="getLevelClass(node.data.level)">
-              <div class="p-person-content">
-                <div class="level">{{ node.data.level }}</div>
-                <div class="code">{{ padJobTitleCode(node.data.jobTitleCode) }}</div>
-                <div class="position">{{ node.data.position }}</div>
-                <div class="name">{{ node.data.name }}</div>
-              </div>
-            </div>
-          </ng-template>
-
-        </p-organization-chart>
+  <div class="collapse-card p-2">
+    <div class="d-flex align-items-end logo-inner gap-2">
+      <img src="assets/images/Logo.png" alt="">
+      <div class="logo-text sidebar-text">
+        <span class="company-info"><span class="me-2">255</span><span>members</span></span>
+        <span class="d-block company-name">Lala company</span>
       </div>
     </div>
-
-
-
-
-
-
+    <button class="btn p-2 h-full btn-outline-dark" (click)="resetTreeToRoot()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="m19 15l-7-6l-7 6" />
+      </svg>
+      <span class="fw-semibold">Collapse All</span>
+    </button>
   </div>
 
+  <div class="content-hug text-center" #chartBox [style.transform]="'scale(' + zoom + ')'">
+    <div #chartContainer id="tree"></div>
+  </div>
 
 
 
@@ -87,7 +75,7 @@
       </svg>
     </button>
     <!-- question -->
-    <button class="btn btn-light shadow btn-square">
+    <button class="btn btn-light shadow btn-square" (click)="openfitChart()">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <g fill="none">
           <circle cx="12" cy="12" r="10" stroke="#4A6D97" stroke-width="1.5" />
@@ -98,4 +86,5 @@
       </svg>
     </button>
   </div>
+
 </div>
