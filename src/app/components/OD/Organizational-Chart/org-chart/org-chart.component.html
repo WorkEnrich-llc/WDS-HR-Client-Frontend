@@ -18,7 +18,7 @@
 <!-- end page header -->
 
 <div class="chart-box" [ngClass]="{ 'fullscreen': isFullScreen }">
-  <div class="collapse-card p-2">
+  <!-- <div class="collapse-card p-2">
     <div class="d-flex align-items-end logo-inner gap-2">
       <img src="assets/images/Logo.png" alt="">
       <div class="logo-text sidebar-text">
@@ -26,14 +26,14 @@
         <span class="d-block company-name">Lala company</span>
       </div>
     </div>
-    <button class="btn p-2 h-full btn-outline-dark" (click)="resetTreeToRoot()">
+    <button class="btn p-2 h-full btn-outline-dark" (click)="">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="m19 15l-7-6l-7 6" />
       </svg>
       <span class="fw-semibold">Collapse All</span>
     </button>
-  </div>
+  </div> -->
 
   <div class="content-hug text-center" #chartBox [style.transform]="'scale(' + zoom + ')'">
     <div #chartContainer id="tree"></div>
@@ -75,7 +75,7 @@
       </svg>
     </button>
     <!-- question -->
-    <button class="btn btn-light shadow btn-square" (click)="openfitChart()">
+    <button class="btn btn-light shadow btn-square" (click)="toggleChartView()">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <g fill="none">
           <circle cx="12" cy="12" r="10" stroke="#4A6D97" stroke-width="1.5" />
