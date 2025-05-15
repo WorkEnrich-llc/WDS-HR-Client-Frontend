@@ -101,6 +101,33 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+/* error message validation */
+.error-msg{
+  margin: 5px 0;
+  color: var(--color-danger-700) !important;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.success-msg{
+  margin: 5px 0;
+  color: var(--color-success-700) !important;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.error-input{
+  border-color: var(--color-danger-300) !important;
+  color: var(--color-danger-700) !important;
+}
+.error-input::placeholder{
+  color: var(--color-danger-700) !important;
+}
+.success-input{
+  border-color: var(--color-success-300) !important;
+  color: var(--color-success-700) !important;
+}
+select.success-input option,select.error-input option{
+  color: var(--color-secondary-700) !important;
+}
 
 /* all buttons */
 .btn {

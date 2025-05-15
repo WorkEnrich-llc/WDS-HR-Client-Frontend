@@ -16,7 +16,7 @@
     <div class="login-info">
         <div class="row align-items-center g-4">
             <div class="col-6">
-                <div action="" class="w-100 d-flex flex-column gap-2">
+                <form [formGroup]="loginForm" class="w-100 d-flex flex-column gap-2">
                     <div class="input">
                         <label for="email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 viewBox="0 0 24 24">
@@ -29,10 +29,22 @@
                             </svg> Email</label>
                         <div class="d-flex align-items-center gap-4">
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input type="email" id="email" class="form-control"
-                                    placeholder="Input Here">
+                                <input formControlName="email" type="email" id="email" class="form-control"
+                                    placeholder="Input Here" [ngClass]="{
+          'error-input': loginForm.get('email')?.touched && loginForm.get('email')?.invalid,
+          'success-input': loginForm.get('email')?.touched && loginForm.get('email')?.valid
+        }">
                             </div>
                         </div>
+
+                        <p class="error-msg"
+                            *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']">
+                            Email is required.
+                        </p>
+                        <p class="error-msg"
+                            *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']">
+                            Please enter a valid email address.
+                        </p>
                     </div>
 
                     
@@ -50,10 +62,17 @@
                             </svg> Password</label>
                         <div class="d-flex align-items-center gap-4">
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input type="password" id="password" class="form-control"
-                                    placeholder="Input Here">
+                                <input formControlName="password" type="password" id="password" class="form-control"
+                                    placeholder="Input Here" [ngClass]="{
+         'error-input': loginForm.get('password')?.touched && loginForm.get('password')?.invalid,
+         'success-input': loginForm.get('password')?.touched && loginForm.get('password')?.valid
+       }">
                             </div>
                         </div>
+                        <p class="error-msg"
+                            *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']">
+                            Password is required.
+                        </p>
                     </div>
 
                     <a href="" class="forgrt-pass ms-auto my-3" routerLink="/auth/reset-password">Forgot password?</a>
@@ -65,10 +84,10 @@
                         </svg>
                         <span>Login</span>
                     </button>
-                </div>
+                </form>
 
             </div>
-            <div class="col-6 text-center">
+            <div class="d-none d-md-block col-md-6 text-center">
                 <img src="./images/verify.svg" alt="WDS logo">
             </div>
         </div>

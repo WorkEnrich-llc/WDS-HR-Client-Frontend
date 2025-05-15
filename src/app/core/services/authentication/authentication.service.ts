@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 
@@ -9,7 +9,8 @@ import { Observable } from 'rxjs';
 export class AuthenticationService {
 
   private apiBaseUrl: string;
-
+  email:string = '';
+  domain:string = '';
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
@@ -23,6 +24,36 @@ export class AuthenticationService {
       throw new Error('API URL not found');
     }
   }
+
+   checkEmail(email: string): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/register/check-email`;
+
+      const body = new HttpParams().set('email', email);
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+
+      return this._HttpClient.put(url, body, { headers });
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
+
+
+checkDomain(domain: string): Observable<any> {
+  if (this.apiBaseUrl) {
+    const url = `${this.apiBaseUrl}main/authentication/register/check-domain`;
+
+    const params = new HttpParams().set('company_domain', domain);
+
+    return this._HttpClient.get(url, { params });
+  } else {
+    throw new Error('API URL not found');
+  }
+}
+
 
 
 

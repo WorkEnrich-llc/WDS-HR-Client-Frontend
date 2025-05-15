@@ -166,3 +166,15 @@ p{
     cursor: not-allowed;
     text-decoration: none;
   }
+
+
+  .nav .nav-item:hover,.nav .nav-item .nav-link:hover{
+    cursor: default !important;
+
+  }
+  .nav .nav-item .nav-link:hover,.nav .nav-item:hover .nav-link{
+    color: var(--color-secondary-700) !important;
+  }
+  .nav .nav-item.active .nav-link{
+    color: var(--color-primary-500) !important;
+  }

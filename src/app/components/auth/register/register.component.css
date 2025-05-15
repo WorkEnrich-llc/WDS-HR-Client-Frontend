@@ -1,0 +1,5 @@
+.domain-com{
+    font-size: var(--font-size-b1);
+    color: var(--color-secondary-700);
+    line-height: var(--line-height-xss);
+}
