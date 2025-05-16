@@ -9,12 +9,13 @@ import { Observable } from 'rxjs';
 export class AuthenticationService {
 
   private apiBaseUrl: string;
-  email:string = '';
-  domain:string = '';
+  email: string = '';
+  domain: string = '';
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
+  // get job titles
   getJobTitles(): Observable<any> {
     if (this.apiBaseUrl) {
       const url = `${this.apiBaseUrl}main/authentication/register/job-titles`;
@@ -24,8 +25,8 @@ export class AuthenticationService {
       throw new Error('API URL not found');
     }
   }
-
-   checkEmail(email: string): Observable<any> {
+  // check email avilable
+  checkEmail(email: string): Observable<any> {
     if (this.apiBaseUrl) {
       const url = `${this.apiBaseUrl}main/authentication/register/check-email`;
 
@@ -40,22 +41,37 @@ export class AuthenticationService {
     }
   }
 
+  // ceck domain available
+  checkDomain(domain: string): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/register/check-domain`;
 
+      const params = new HttpParams().set('company_domain', domain);
 
-checkDomain(domain: string): Observable<any> {
-  if (this.apiBaseUrl) {
-    const url = `${this.apiBaseUrl}main/authentication/register/check-domain`;
-
-    const body = new HttpParams().set('company_domain', domain);
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
-    });
-
-    return this._HttpClient.post(url, body.toString(), { headers });
-  } else {
-    throw new Error('API URL not found');
+      return this._HttpClient.get(url, { params });
+    } else {
+      throw new Error('API URL not found');
+    }
   }
-}
+
+  // otp to mail
+  
+  sendCode(email: string): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/register/send-code`;
+
+      const body = new HttpParams().set('email', email);
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+
+      return this._HttpClient.put(url, body, { headers });
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
+
 
 
 

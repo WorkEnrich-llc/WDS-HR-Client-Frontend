@@ -4,7 +4,7 @@ import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModul
 import { Router, RouterLink } from '@angular/router';
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -180,11 +180,11 @@ export class RegisterComponent implements OnDestroy, OnInit {
       },
       error: (err: HttpErrorResponse) => {
         const details = err.error?.details || '';
-       
-          this.emailMsg = 'Email is already registered';
-          this.emailAvailable = false;
-          emailControl.setErrors({ emailTaken: true });
-        
+
+        this.emailMsg = 'Email is already registered';
+        this.emailAvailable = false;
+        emailControl.setErrors({ emailTaken: true });
+
         console.error("Email check error:", err);
       }
     });
@@ -196,7 +196,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
   registerForm2: FormGroup = new FormGroup({
     logo: new FormControl('', [Validators.required]),
     companyName: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
-    domain: new FormControl('', [Validators.required, Validators.email]),
+    domain: new FormControl('', [Validators.required]),
     numOfEmployee: new FormControl('', [Validators.required]),
 
   });
@@ -245,40 +245,99 @@ export class RegisterComponent implements OnDestroy, OnInit {
   }
 
 
-domainMsg: string = '';
-domainAvailable: boolean = false;
+  domainMsg: string = '';
+  domainAvailable: boolean = false;
 
-checkDomain(): void {
-  const domainControl = this.registerForm2.get('domain');
-  if (!domainControl?.value) return;
+  checkDomain(): void {
+    const domainControl = this.registerForm2.get('domain');
+    if (!domainControl?.value) return;
 
-  this._AuthenticationService.checkDomain(domainControl.value).subscribe({
-    next: (response) => {
-      this.domainMsg = 'Domain is available';
-      this.domainAvailable = true;
-      if (domainControl.hasError('domainTaken')) {
-        const currentErrors = domainControl.errors;
-        delete currentErrors?.['domainTaken'];
-        domainControl.setErrors(Object.keys(currentErrors || {}).length ? currentErrors : null);
-      }
-    },
-    error: (err: HttpErrorResponse) => {
-      const details = err.error?.details || '';
-    
-        this.domainMsg = 'Domain is already taken';
+    this._AuthenticationService.checkDomain(domainControl.value).subscribe({
+      next: (response) => {
+        // console.log('Domain check response:', response);
+
+        this.domainMsg = 'Domain is available';
+        this.domainAvailable = true;
+
+        domainControl.markAsTouched();
+
+        if (domainControl.hasError('domainTaken')) {
+          const currentErrors = domainControl.errors;
+          delete currentErrors?.['domainTaken'];
+          domainControl.setErrors(Object.keys(currentErrors || {}).length ? currentErrors : null);
+        }
+
+        domainControl.updateValueAndValidity({ onlySelf: true });
+      },
+      error: (err: HttpErrorResponse) => {
+        const details = err.error?.details || '';
+
+        this.domainMsg = details;
         this.domainAvailable = false;
-
         domainControl.setErrors({ domainTaken: true });
-    
+        domainControl.markAsTouched();
 
-      console.error("Domain check error:", err);
-    }
-  });
-}
+        // console.error('Domain check error:', err, details);
+      }
+    });
+  }
+
+
+  sendOtp(): void {
+    this.isLoading = true;
+    const emailControl = this.registerForm1.get('email');
+    if (!emailControl?.value) return;
+
+    this._AuthenticationService.sendCode(emailControl.value).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.goNext();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading = false;
+        console.error("Email check error:", err);
+        this.errMsg = err.error?.details || 'An error occurred';
+      }
+    });
+  }
+
 
 
 
   // step 3 form
+createAccount():void{
+  this.isLoading = true;
+  const formData = new FormData();
+  formData.append('name', this.registerForm1.get('name')?.value);
+  formData.append('email', this.registerForm1.get('email')?.value);
+  formData.append('job_title', this.registerForm1.get('jobTitle')?.value);
+  formData.append('password', this.registerForm1.get('password')?.value);
+  formData.append('re_password', this.registerForm1.get('rePassword')?.value);
+  formData.append('company_name', this.registerForm2.get('companyName')?.value);
+  formData.append('company_domain', this.registerForm2.get('domain')?.value);
+  formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
+  formData.append('company_logo', this.registerForm2.get('logo')?.value);
+  formData.append('verification_code', this.otpForm.get('otp')?.value);
+ console.log("Form Data:", formData);
+ console.log("Form Data Values:");
+for (const [key, value] of formData.entries()) {
+  console.log(`${key}:`, value);
+}
+  // this._AuthenticationService.createAccount(formData).subscribe({
+  //   next: (response) => {
+  //     this.isLoading = false;
+  //     console.log("Account created successfully:", response);
+  //     // Handle success, e.g., navigate to a different page
+  //   },
+  //   error: (err: HttpErrorResponse) => {
+  //     this.isLoading = false;
+  //     console.error("Account creation error:", err);
+  //     this.errMsg = err.error?.details || 'An error occurred';
+  //   }
+  // });
+}
+
+
   otpCode: string = '';
   otpForm: FormGroup = new FormGroup({
     otp: new FormControl('', [Validators.required, Validators.minLength(6)]),
@@ -298,11 +357,11 @@ checkDomain(): void {
 
 
   // Timer for Resend Email
-  minutes: string = '02';
-  seconds: number = 30;
+  minutes: string = '01';
+  seconds: number = 0;
   canResend = false;
   private countdown: any;
-  private totalSeconds = 150;
+  private totalSeconds = 60;
 
   startCountdown() {
     this.canResend = false;
@@ -329,12 +388,28 @@ checkDomain(): void {
     this.seconds = secs;
   }
 
-  resendEmail() {
+  resendEmail(event: Event): void {
+    event.preventDefault();
+
     if (!this.canResend) return;
 
-    // logic in resend mail
-    this.startCountdown();
+    const emailControl = this.registerForm1.get('email');
+    if (!emailControl?.value) return;
+
+    this.canResend = false;
+
+    this._AuthenticationService.sendCode(emailControl.value).subscribe({
+      next: (response) => {
+        this.startCountdown();
+        this.goNext();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.canResend = true;
+        this.errMsg = err.error?.details || 'An error occurred';
+      }
+    });
   }
+
 
   ngOnDestroy() {
     if (this.countdown) {
