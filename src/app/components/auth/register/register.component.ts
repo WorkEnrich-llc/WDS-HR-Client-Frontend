@@ -14,6 +14,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 })
 export class RegisterComponent implements OnDestroy, OnInit {
   private _currentStep = 1;
+  cookieService: any;
   get currentStep() {
     return this._currentStep;
   }
@@ -196,7 +197,10 @@ export class RegisterComponent implements OnDestroy, OnInit {
   registerForm2: FormGroup = new FormGroup({
     logo: new FormControl('', [Validators.required]),
     companyName: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
-    domain: new FormControl('', [Validators.required]),
+    domain: new FormControl('', [
+  Validators.required,
+  Validators.pattern('^[a-zA-Z0-9\\-]+$')
+]),
     numOfEmployee: new FormControl('', [Validators.required]),
 
   });
@@ -305,8 +309,9 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
   // step 3 form
-createAccount():void{
+createAccount(): void {
   this.isLoading = true;
+
   const formData = new FormData();
   formData.append('name', this.registerForm1.get('name')?.value);
   formData.append('email', this.registerForm1.get('email')?.value);
@@ -318,23 +323,30 @@ createAccount():void{
   formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
   formData.append('company_logo', this.registerForm2.get('logo')?.value);
   formData.append('verification_code', this.otpForm.get('otp')?.value);
- console.log("Form Data:", formData);
- console.log("Form Data Values:");
-for (const [key, value] of formData.entries()) {
-  console.log(`${key}:`, value);
-}
-  // this._AuthenticationService.createAccount(formData).subscribe({
-  //   next: (response) => {
-  //     this.isLoading = false;
-  //     console.log("Account created successfully:", response);
-  //     // Handle success, e.g., navigate to a different page
-  //   },
-  //   error: (err: HttpErrorResponse) => {
-  //     this.isLoading = false;
-  //     console.error("Account creation error:", err);
-  //     this.errMsg = err.error?.details || 'An error occurred';
-  //   }
-  // });
+
+  this._AuthenticationService.createAcount(formData).subscribe({
+    next: (response) => {
+      this.isLoading = false;
+
+      if (response?.token && response?.domain) {
+        this.cookieService.set('token', response.token);
+
+        const currentHost = window.location.hostname;
+        const domainParts = currentHost.split('.');
+        const baseDomain = domainParts.slice(-2).join('.'); 
+
+        const redirectUrl = `${response.domain}.${baseDomain}`;
+        window.location.href = redirectUrl;
+      } else {
+        this.errMsg = 'Invalid response from server.';
+      }
+    },
+    error: (err: HttpErrorResponse) => {
+      this.isLoading = false;
+      console.error("Account creation error:", err);
+      this.errMsg = err.error?.details || 'An error occurred';
+    }
+  });
 }
 
 

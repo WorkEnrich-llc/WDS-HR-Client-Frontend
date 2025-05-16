@@ -396,6 +396,10 @@
                             *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['required']">
                             Domain is required.
                         </p>
+                        <p class="error-msg"
+                            *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['pattern']">
+                            The domain can contain letters, numbers, or - only.
+                        </p>
 
                         <p class="error-msg"
                             *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['domainTaken']">

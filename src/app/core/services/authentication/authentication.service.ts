@@ -72,8 +72,15 @@ export class AuthenticationService {
   }
 
 
+createAcount(FormData: any): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/register/create`;
 
-
+      return this._HttpClient.post(url, FormData);
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
 
 
 
