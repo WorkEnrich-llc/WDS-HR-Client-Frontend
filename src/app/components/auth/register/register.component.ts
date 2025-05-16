@@ -180,11 +180,11 @@ export class RegisterComponent implements OnDestroy, OnInit {
       },
       error: (err: HttpErrorResponse) => {
         const details = err.error?.details || '';
-        if (details.includes('already')) {
+       
           this.emailMsg = 'Email is already registered';
           this.emailAvailable = false;
           emailControl.setErrors({ emailTaken: true });
-        }
+        
         console.error("Email check error:", err);
       }
     });
@@ -245,37 +245,38 @@ export class RegisterComponent implements OnDestroy, OnInit {
   }
 
 
+domainMsg: string = '';
+domainAvailable: boolean = false;
 
-  checkDomain(): void {
-    const domainControl = this.registerForm2.get('domain');
-    if (!domainControl?.value) return;
+checkDomain(): void {
+  const domainControl = this.registerForm2.get('domain');
+  if (!domainControl?.value) return;
 
-    this._AuthenticationService.checkDomain(domainControl.value).subscribe({
-      next: (response) => {
-        this.emailMsg = response;
-        console.log(this.emailMsg);
-        // if (response?.details) {
-        //   this.emailMsg = response.details;
-        //   emailControl.setErrors({ domainTaken: true });
-        // } else {
-        //   this.emailMsg = '';
-        //   if (emailControl.hasError('domainTaken')) {
-        //     const currentErrors = emailControl.errors;
-        //     delete currentErrors?.['domainTaken'];
-        //     if (Object.keys(currentErrors || {}).length === 0) {
-        //       emailControl.setErrors(null);
-        //     } else {
-        //       emailControl.setErrors(currentErrors);
-        //     }
-        //   }
-        // }
-      },
-      error: (err) => {
-        this.errMsg = err;
-        console.error("Error:", this.errMsg);
+  this._AuthenticationService.checkDomain(domainControl.value).subscribe({
+    next: (response) => {
+      this.domainMsg = 'Domain is available';
+      this.domainAvailable = true;
+      if (domainControl.hasError('domainTaken')) {
+        const currentErrors = domainControl.errors;
+        delete currentErrors?.['domainTaken'];
+        domainControl.setErrors(Object.keys(currentErrors || {}).length ? currentErrors : null);
       }
-    });
-  }
+    },
+    error: (err: HttpErrorResponse) => {
+      const details = err.error?.details || '';
+    
+        this.domainMsg = 'Domain is already taken';
+        this.domainAvailable = false;
+
+        domainControl.setErrors({ domainTaken: true });
+    
+
+      console.error("Domain check error:", err);
+    }
+  });
+}
+
+
 
   // step 3 form
   otpCode: string = '';

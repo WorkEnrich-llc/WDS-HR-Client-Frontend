@@ -46,9 +46,12 @@ checkDomain(domain: string): Observable<any> {
   if (this.apiBaseUrl) {
     const url = `${this.apiBaseUrl}main/authentication/register/check-domain`;
 
-    const params = new HttpParams().set('company_domain', domain);
+    const body = new HttpParams().set('company_domain', domain);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
 
-    return this._HttpClient.get(url, { params });
+    return this._HttpClient.post(url, body.toString(), { headers });
   } else {
     throw new Error('API URL not found');
   }
