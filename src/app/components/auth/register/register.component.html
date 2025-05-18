@@ -518,7 +518,9 @@
                             </svg>
                         </button>
                         <button class="btn btn-lg btn-success w-100" (click)="createAccount()" [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid || !otpForm.valid">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status"
+                                aria-hidden="true"></span>
+                            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <circle cx="12" cy="12" r="10" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />

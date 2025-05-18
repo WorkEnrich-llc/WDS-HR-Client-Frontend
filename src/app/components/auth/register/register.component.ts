@@ -198,9 +198,9 @@ export class RegisterComponent implements OnDestroy, OnInit {
     logo: new FormControl('', [Validators.required]),
     companyName: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     domain: new FormControl('', [
-  Validators.required,
-  Validators.pattern('^[a-zA-Z0-9\\-]+$')
-]),
+      Validators.required,
+      Validators.pattern('^[a-zA-Z0-9\\-]+$')
+    ]),
     numOfEmployee: new FormControl('', [Validators.required]),
 
   });
@@ -286,8 +286,9 @@ export class RegisterComponent implements OnDestroy, OnInit {
     });
   }
 
-
+  timeLeftResend: number = 0;
   sendOtp(): void {
+    this.errMsg = '';
     this.isLoading = true;
     const emailControl = this.registerForm1.get('email');
     if (!emailControl?.value) return;
@@ -295,6 +296,8 @@ export class RegisterComponent implements OnDestroy, OnInit {
     this._AuthenticationService.sendCode(emailControl.value).subscribe({
       next: (response) => {
         this.isLoading = false;
+        this.timeLeftResend = response.data.re_send_seconds_left;
+        this.startCountdown();
         this.goNext();
       },
       error: (err: HttpErrorResponse) => {
@@ -309,45 +312,45 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
   // step 3 form
-createAccount(): void {
-  this.isLoading = true;
+  createAccount(): void {
+    this.isLoading = true;
+    this.errMsg = '';
+    const formData = new FormData();
+    formData.append('name', this.registerForm1.get('name')?.value);
+    formData.append('email', this.registerForm1.get('email')?.value);
+    formData.append('job_title', this.registerForm1.get('jobTitle')?.value);
+    formData.append('password', this.registerForm1.get('password')?.value);
+    formData.append('re_password', this.registerForm1.get('rePassword')?.value);
+    formData.append('company_name', this.registerForm2.get('companyName')?.value);
+    formData.append('company_domain', this.registerForm2.get('domain')?.value);
+    formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
+    formData.append('company_logo', this.registerForm2.get('logo')?.value);
+    formData.append('verification_code', this.otpForm.get('otp')?.value);
 
-  const formData = new FormData();
-  formData.append('name', this.registerForm1.get('name')?.value);
-  formData.append('email', this.registerForm1.get('email')?.value);
-  formData.append('job_title', this.registerForm1.get('jobTitle')?.value);
-  formData.append('password', this.registerForm1.get('password')?.value);
-  formData.append('re_password', this.registerForm1.get('rePassword')?.value);
-  formData.append('company_name', this.registerForm2.get('companyName')?.value);
-  formData.append('company_domain', this.registerForm2.get('domain')?.value);
-  formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
-  formData.append('company_logo', this.registerForm2.get('logo')?.value);
-  formData.append('verification_code', this.otpForm.get('otp')?.value);
+    this._AuthenticationService.createAcount(formData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log("Account creation response:", response);
+        if (response?.token && response?.domain) {
+          this.cookieService.set('token', response.token);
 
-  this._AuthenticationService.createAcount(formData).subscribe({
-    next: (response) => {
-      this.isLoading = false;
+          const currentHost = window.location.hostname;
+          const domainParts = currentHost.split('.');
+          const baseDomain = domainParts.slice(-2).join('.');
 
-      if (response?.token && response?.domain) {
-        this.cookieService.set('token', response.token);
-
-        const currentHost = window.location.hostname;
-        const domainParts = currentHost.split('.');
-        const baseDomain = domainParts.slice(-2).join('.'); 
-
-        const redirectUrl = `${response.domain}.${baseDomain}`;
-        window.location.href = redirectUrl;
-      } else {
-        this.errMsg = 'Invalid response from server.';
+          const redirectUrl = `${response.domain}.${baseDomain}`;
+          window.location.href = redirectUrl;
+        } else {
+          this.errMsg = 'Invalid response from server.';
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading = false;
+        console.error("Account creation error:", err);
+        this.errMsg = err.error?.details || 'An error occurred';
       }
-    },
-    error: (err: HttpErrorResponse) => {
-      this.isLoading = false;
-      console.error("Account creation error:", err);
-      this.errMsg = err.error?.details || 'An error occurred';
-    }
-  });
-}
+    });
+  }
 
 
   otpCode: string = '';
@@ -369,15 +372,15 @@ createAccount(): void {
 
 
   // Timer for Resend Email
-  minutes: string = '01';
-  seconds: number = 0;
+  minutes: string = '00';
+  seconds: string = '00';
   canResend = false;
   private countdown: any;
-  private totalSeconds = 60;
+
 
   startCountdown() {
     this.canResend = false;
-    let remaining = this.totalSeconds;
+    let remaining = this.timeLeftResend;
 
     this.updateDisplay(remaining);
 
@@ -393,13 +396,15 @@ createAccount(): void {
     }, 1000);
   }
 
+
   updateDisplay(remaining: number) {
     const mins = Math.floor(remaining / 60);
     const secs = remaining % 60;
     this.minutes = mins < 10 ? '0' + mins : '' + mins;
-    this.seconds = secs;
+    this.seconds = secs < 10 ? '0' + secs : '' + secs;
   }
-
+  
+  // Resend Email
   resendEmail(event: Event): void {
     event.preventDefault();
 
@@ -412,8 +417,8 @@ createAccount(): void {
 
     this._AuthenticationService.sendCode(emailControl.value).subscribe({
       next: (response) => {
+        this.timeLeftResend = response.data.re_send_seconds_left;
         this.startCountdown();
-        this.goNext();
       },
       error: (err: HttpErrorResponse) => {
         this.canResend = true;
