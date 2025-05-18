@@ -326,7 +326,9 @@ export class RegisterComponent implements OnDestroy, OnInit {
     formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
     formData.append('company_logo', this.registerForm2.get('logo')?.value);
     formData.append('verification_code', this.otpForm.get('otp')?.value);
-
+for (let pair of formData.entries()) {
+  console.log(`${pair[0]}:`, pair[1]);
+}
     this._AuthenticationService.createAcount(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
