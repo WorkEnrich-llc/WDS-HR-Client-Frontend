@@ -326,31 +326,29 @@ export class RegisterComponent implements OnDestroy, OnInit {
     formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
     formData.append('company_logo', this.registerForm2.get('logo')?.value);
     formData.append('verification_code', this.otpForm.get('otp')?.value);
-for (let pair of formData.entries()) {
-  console.log(`${pair[0]}:`, pair[1]);
-}
+    // for (let pair of formData.entries()) {
+    //   console.log(`${pair[0]}:`, pair[1]);
+    // }
     this._AuthenticationService.createAcount(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log("Account creation response:", response);
-        if (response?.token && response?.domain) {
-          this.cookieService.set('token', response.token);
 
-          const currentHost = window.location.hostname;
-          const domainParts = currentHost.split('.');
-          const baseDomain = domainParts.slice(-2).join('.');
+        this.cookieService.set('token', response.token);
 
-          const redirectUrl = `${response.domain}.${baseDomain}`;
-          window.location.href = redirectUrl;
-        } else {
-          this.errMsg = 'Invalid response from server.';
-        }
+        const currentHost = window.location.hostname;
+        const domainParts = currentHost.split('.');
+        const baseDomain = domainParts.slice(-2).join('.');
+
+        const redirectUrl = `${response.domain}.${baseDomain}`;
+        window.location.href = redirectUrl;
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
         console.error("Account creation error:", err);
         this.errMsg = err.error?.details || 'An error occurred';
       }
+
     });
   }
 
@@ -405,7 +403,7 @@ for (let pair of formData.entries()) {
     this.minutes = mins < 10 ? '0' + mins : '' + mins;
     this.seconds = secs < 10 ? '0' + secs : '' + secs;
   }
-  
+
   // Resend Email
   resendEmail(event: Event): void {
     event.preventDefault();
