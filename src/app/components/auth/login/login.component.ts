@@ -4,7 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { CookieService } from 'ngx-cookie-service';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -19,9 +19,9 @@ export class LoginComponent {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
-  cookieService: any;
+  
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router
+    private _AuthenticationService: AuthenticationService, private _Router: Router,private cookieService: CookieService
   ) { }
   login(): void {
     this.isLoading = true;

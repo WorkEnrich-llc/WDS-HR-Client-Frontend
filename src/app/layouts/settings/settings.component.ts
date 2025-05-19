@@ -4,6 +4,7 @@ import { BodyComponent } from '../../components/shared/body/body.component';
 import { PageHeaderComponent } from '../../components/shared/page-header/page-header.component';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { PopupComponent } from '../../components/shared/popup/popup.component';
+import { CookieService } from 'ngx-cookie-service';
 interface SideNavToggle{
   screenWidth:number;
   collapsed:boolean;
@@ -19,7 +20,8 @@ export class SettingsComponent {
 // handle responsive between sidenav and body components
 isSideNavCollapsed=false;
 screenWidth=0;
-  cookieService: any;
+
+constructor(private cookieService: CookieService) {}
 
 onToggleSideNav(data:SideNavToggle):void{
   this.screenWidth =data.screenWidth;

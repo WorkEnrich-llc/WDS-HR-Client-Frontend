@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,6 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 })
 export class RegisterComponent implements OnDestroy, OnInit {
   private _currentStep = 1;
-  cookieService: any;
   get currentStep() {
     return this._currentStep;
   }
@@ -43,7 +43,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
   groupedJobs: { name: string, jobs: any[] }[] = [];
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router
+    private _AuthenticationService: AuthenticationService, private _Router: Router ,private cookieService: CookieService
   ) { }
 
   ngOnInit(): void {
@@ -332,7 +332,6 @@ export class RegisterComponent implements OnDestroy, OnInit {
     this._AuthenticationService.createAcount(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        // console.log("Account creation response:", response);
 
         const authToken = response.data?.session?.auth_token;
         if (authToken) {
