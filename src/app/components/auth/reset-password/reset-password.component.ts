@@ -233,7 +233,7 @@ newPassword(): void {
       this.emailForm.reset();
       this.otpForm.reset();
       this.passwordForm.reset();
-
+// edit
     this.toasterMessageService.sendMessage(response.details);
 
     this._Router.navigate(['/auth/login']);
