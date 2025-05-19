@@ -8,7 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink,ReactiveFormsModule,FormsModule,CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -20,12 +20,13 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required]),
   });
   cookieService: any;
-constructor(
+  constructor(
     private _AuthenticationService: AuthenticationService, private _Router: Router
   ) { }
- login(): void {
+  login(): void {
     this.isLoading = true;
     this.errMsg = '';
+
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
@@ -33,26 +34,30 @@ constructor(
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log("Account creation response:", response);
-        if (response?.token && response?.domain) {
-          this.cookieService.set('token', response.token);
+        // console.log("Login response:", response);
 
-          const currentHost = window.location.hostname;
-          const domainParts = currentHost.split('.');
-          const baseDomain = domainParts.slice(-2).join('.');
+        const authToken = response.data?.session?.auth_token;
+        const domain = response.data?.company_info?.domain;
 
-          const redirectUrl = `${response.domain}.${baseDomain}`;
-          window.location.href = redirectUrl;
+        if (authToken && domain) {
+
+          this.cookieService.set('token', authToken);
+
+          const { session, ...dataWithoutToken } = response.data || {};
+          localStorage.setItem('user_data', JSON.stringify(dataWithoutToken));
+
+          window.location.href = `https://${domain}/departments`;
         } else {
           this.errMsg = 'Invalid response from server.';
         }
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
-        console.error("Account creation error:", err);
+        console.error("Login error:", err);
         this.errMsg = err.error?.details || 'An error occurred';
       }
     });
   }
+
 
 }

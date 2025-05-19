@@ -19,6 +19,7 @@ export class SettingsComponent {
 // handle responsive between sidenav and body components
 isSideNavCollapsed=false;
 screenWidth=0;
+  cookieService: any;
 
 onToggleSideNav(data:SideNavToggle):void{
   this.screenWidth =data.screenWidth;
@@ -38,6 +39,16 @@ isModalOpen = false;
 
   confirmAction() {
     this.isModalOpen = false;
-    // logic to logout
+    this.logout();
   }
+
+
+  logout(): void {
+  localStorage.clear();
+
+  this.cookieService.deleteAll('/', window.location.hostname);
+
+  window.location.href = `${window.location.origin}/auth/login`;
+}
+
 }

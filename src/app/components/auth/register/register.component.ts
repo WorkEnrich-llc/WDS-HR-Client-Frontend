@@ -332,24 +332,30 @@ export class RegisterComponent implements OnDestroy, OnInit {
     this._AuthenticationService.createAcount(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log("Account creation response:", response);
+        // console.log("Account creation response:", response);
 
-        this.cookieService.set('token', response.token);
+        const authToken = response.data?.session?.auth_token;
+        if (authToken) {
+          this.cookieService.set('token', authToken);
+        }
 
-        const currentHost = window.location.hostname;
-        const domainParts = currentHost.split('.');
-        const baseDomain = domainParts.slice(-2).join('.');
+        const { session, ...dataWithoutToken } = response.data || {};
+        localStorage.setItem('user_data', JSON.stringify(dataWithoutToken));
 
-        const redirectUrl = `${response.domain}.${baseDomain}`;
-        window.location.href = redirectUrl;
+        const domain = response.data?.company_info?.domain;
+        if (domain) {
+          window.location.href = `https://${domain}/departments`;
+        } else {
+          this.errMsg = 'Invalid company domain';
+        }
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
         console.error("Account creation error:", err);
         this.errMsg = err.error?.details || 'An error occurred';
       }
-
     });
+
   }
 
 
