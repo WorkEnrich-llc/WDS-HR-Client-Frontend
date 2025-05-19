@@ -214,7 +214,7 @@ export class ResetPasswordComponent {
 
 
 
-  newPassword(): void {
+newPassword(): void {
   this.isLoading = true;
   this.errMsg = '';
 
@@ -227,9 +227,15 @@ export class ResetPasswordComponent {
   this._AuthenticationService.newPassword(formData).subscribe({
     next: (response) => {
       this.isLoading = false;
-      console.log('Password reset response:', response);
-      this.toastr.success('Password changed successfully', 'Success');
 
+      this.emailForm.reset();
+      this.otpForm.reset();
+      this.passwordForm.reset();
+
+
+      setTimeout(() => {
+        this._Router.navigate(['/auth/login']);
+      }, 1000);
     },
     error: (err: HttpErrorResponse) => {
       this.isLoading = false;
@@ -238,5 +244,6 @@ export class ResetPasswordComponent {
     }
   });
 }
+
 
 }
