@@ -33,24 +33,26 @@ export class ResetPasswordComponent {
   isLoading: boolean = false;
 
   checkEmail(): void {
-    const emailControl = this.emailForm.get('email');
-    if (!emailControl || emailControl.invalid) return;
+  const emailControl = this.emailForm.get('email');
+  if (!emailControl || emailControl.invalid) return;
 
-    this.isLoading = true;
+  this.isLoading = true;
 
-    this._AuthenticationService.checkEmail(emailControl.value).subscribe({
-      next: () => {
-        this.emailMsg = 'Email is not registered';
-        this.isLoading = false;
-        emailControl.setErrors({ emailNotRegistered: true });
-      },
-      error: () => {
-        this.emailMsg = 'Email is registered';
-        this.isLoading = false;
-        emailControl.setErrors(null);
-      }
-    });
-  }
+  this._AuthenticationService.checkEmail(emailControl.value).subscribe({
+    next: () => {
+      this.emailMsg = 'Email is not registered';
+      this.isLoading = false;
+      emailControl.setErrors({ emailNotRegistered: true });
+      emailControl.updateValueAndValidity(); 
+    },
+    error: () => {
+      this.emailMsg = 'Email is registered';
+      this.isLoading = false;
+      emailControl.setErrors(null);
+      emailControl.updateValueAndValidity(); 
+    }
+  });
+}
 
 
 
@@ -238,7 +240,7 @@ newPassword(): void {
     },
     error: (err: HttpErrorResponse) => {
       this.isLoading = false;
-      console.error("Account creation error:", err);
+      // console.error("Account creation error:", err);
       this.errMsg = err.error?.details || 'An error occurred';
     }
   });
