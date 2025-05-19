@@ -230,33 +230,33 @@ export class ResetPasswordComponent {
       console.log('Password reset response:', response);
       this.toastr.success('Password changed successfully', 'Success');
 
-      const authToken = response.data?.session?.auth_token;
-      if (authToken) {
-        this.cookieService.set('token', authToken);
-      }
+      // const authToken = response.data?.session?.auth_token;
+      // if (authToken) {
+      //   this.cookieService.set('token', authToken);
+      // }
 
-      const userInfo = response.data?.user_info;
-      const companyInfo = response.data?.company_info;
-      const subscription = response.data?.subscription;
+      // const userInfo = response.data?.user_info;
+      // const companyInfo = response.data?.company_info;
+      // const subscription = response.data?.subscription;
 
-      if (userInfo) {
-        localStorage.setItem('user_info', JSON.stringify(userInfo));
-      }
+      // if (userInfo) {
+      //   localStorage.setItem('user_info', JSON.stringify(userInfo));
+      // }
 
-      if (companyInfo) {
-        localStorage.setItem('company_info', JSON.stringify(companyInfo));
-      }
+      // if (companyInfo) {
+      //   localStorage.setItem('company_info', JSON.stringify(companyInfo));
+      // }
 
-      if (subscription) {
-        localStorage.setItem('subscription_info', JSON.stringify(subscription));
-      }
+      // if (subscription) {
+      //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+      // }
 
-      const domain = response.data?.company_info?.domain;
-      if (domain) {
-        window.location.href = `https://${domain}/departments`;
-      } else {
-        this.errMsg = 'Invalid company domain';
-      }
+      // const domain = response.data?.company_info?.domain;
+      // if (domain) {
+      //   window.location.href = `https://${domain}/departments`;
+      // } else {
+      //   this.errMsg = 'Invalid company domain';
+      // }
     },
     error: (err: HttpErrorResponse) => {
       this.isLoading = false;
