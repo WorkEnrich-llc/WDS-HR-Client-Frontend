@@ -6,11 +6,11 @@ import { AuthenticationService } from '../../../core/services/authentication/aut
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import {  ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, FormsModule, NgOtpInputComponent, ReactiveFormsModule,ToastrModule],
+  imports: [CommonModule, FormsModule, NgOtpInputComponent, ReactiveFormsModule],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.css'
 })
@@ -18,8 +18,7 @@ export class ResetPasswordComponent {
 
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService,
-  private toastr: ToastrService
+    private _AuthenticationService: AuthenticationService, private _Router: Router,private toastr: ToastrService
   ) { }
 
   emailForm: FormGroup = new FormGroup({
@@ -232,10 +231,10 @@ newPassword(): void {
       this.otpForm.reset();
       this.passwordForm.reset();
 
-
+    this.toastr.success(response.details);
       setTimeout(() => {
         this._Router.navigate(['/auth/login']);
-      }, 1000);
+      }, 1500);
     },
     error: (err: HttpErrorResponse) => {
       this.isLoading = false;
