@@ -4,9 +4,10 @@ import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModul
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {  ToastrService } from 'ngx-toastr';
+import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
+
 
 @Component({
   selector: 'app-reset-password',
@@ -18,7 +19,7 @@ export class ResetPasswordComponent {
 
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router,private toastr: ToastrService
+    private _AuthenticationService: AuthenticationService, private _Router: Router,private toasterMessageService: ToasterMessageService
   ) { }
 
   emailForm: FormGroup = new FormGroup({
@@ -233,10 +234,9 @@ newPassword(): void {
       this.otpForm.reset();
       this.passwordForm.reset();
 
-    this.toastr.success(response.details);
-      setTimeout(() => {
-        this._Router.navigate(['/auth/login']);
-      }, 1500);
+    this.toasterMessageService.sendMessage(response.details);
+
+    this._Router.navigate(['/auth/login']);
     },
     error: (err: HttpErrorResponse) => {
       this.isLoading = false;
