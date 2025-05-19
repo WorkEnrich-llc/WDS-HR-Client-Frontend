@@ -7,7 +7,7 @@ import { routes } from './app/app.routes';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideAnimations } from '@angular/platform-browser/animations';
-
+import { provideToastr } from 'ngx-toastr';
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
@@ -17,6 +17,7 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(),
     provideAnimations(),
     provideRouter(routes),
+    provideToastr(),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {

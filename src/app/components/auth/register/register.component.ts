@@ -43,7 +43,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
   groupedJobs: { name: string, jobs: any[] }[] = [];
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router ,private cookieService: CookieService
+    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService
   ) { }
 
   ngOnInit(): void {
@@ -338,9 +338,24 @@ export class RegisterComponent implements OnDestroy, OnInit {
           this.cookieService.set('token', authToken);
         }
 
-        const { session, ...dataWithoutToken } = response.data || {};
-        localStorage.setItem('user_data', JSON.stringify(dataWithoutToken));
+        const userInfo = response.data?.user_info;
+        const companyInfo = response.data?.company_info;
+        const subscription = response.data?.subscription;
 
+        if (userInfo) {
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
+          // console.log('user_info:', userInfo);
+        }
+
+        if (companyInfo) {
+          localStorage.setItem('company_info', JSON.stringify(companyInfo));
+          // console.log('company_info:', companyInfo);
+        }
+
+        if (subscription) {
+          localStorage.setItem('subscription_info', JSON.stringify(subscription));
+          // console.log('subscription_info:', subscription);
+        }
         const domain = response.data?.company_info?.domain;
         if (domain) {
           window.location.href = `https://${domain}/departments`;

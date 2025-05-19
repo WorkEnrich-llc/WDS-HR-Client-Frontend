@@ -23,41 +23,53 @@ export class LoginComponent {
   constructor(
     private _AuthenticationService: AuthenticationService, private _Router: Router,private cookieService: CookieService
   ) { }
-  login(): void {
-    this.isLoading = true;
-    this.errMsg = '';
+ login(): void {
+  this.isLoading = true;
+  this.errMsg = '';
 
-    const formData = new FormData();
-    formData.append('username', this.loginForm.get('email')?.value);
-    formData.append('password', this.loginForm.get('password')?.value);
+  const formData = new FormData();
+  formData.append('username', this.loginForm.get('email')?.value);
+  formData.append('password', this.loginForm.get('password')?.value);
 
-    this._AuthenticationService.login(formData).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        // console.log("Login response:", response);
+  this._AuthenticationService.login(formData).subscribe({
+    next: (response) => {
+      this.isLoading = false;
 
-        const authToken = response.data?.session?.auth_token;
-        const domain = response.data?.company_info?.domain;
+      const authToken = response.data?.session?.auth_token;
+      const domain = response.data?.company_info?.domain;
 
-        if (authToken && domain) {
+      if (authToken && domain) {
+        this.cookieService.set('token', authToken);
 
-          this.cookieService.set('token', authToken);
+        const userInfo = response.data?.user_info;
+        const companyInfo = response.data?.company_info;
+        const subscription = response.data?.subscription;
 
-          const { session, ...dataWithoutToken } = response.data || {};
-          localStorage.setItem('user_data', JSON.stringify(dataWithoutToken));
-
-          window.location.href = `https://${domain}/departments`;
-        } else {
-          this.errMsg = 'Invalid response from server.';
+        if (userInfo) {
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
         }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isLoading = false;
-        console.error("Login error:", err);
-        this.errMsg = err.error?.details || 'An error occurred';
+
+        if (companyInfo) {
+          localStorage.setItem('company_info', JSON.stringify(companyInfo));
+        }
+
+        if (subscription) {
+          localStorage.setItem('subscription_info', JSON.stringify(subscription));
+        }
+
+        window.location.href = `https://${domain}/departments`;
+      } else {
+        this.errMsg = 'Invalid response from server.';
       }
-    });
-  }
+    },
+    error: (err: HttpErrorResponse) => {
+      this.isLoading = false;
+      console.error("Login error:", err);
+      this.errMsg = err.error?.details || 'An error occurred';
+    }
+  });
+}
+
 
 
 }

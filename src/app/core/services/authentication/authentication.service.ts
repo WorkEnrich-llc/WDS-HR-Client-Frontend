@@ -97,5 +97,43 @@ export class AuthenticationService {
   }
 
 
+  // forgot password
+  forgetPassSendCode(email: string): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/forgot-password/send-code`;
+
+      const body = new HttpParams().set('username', email);
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+
+      return this._HttpClient.post(url, body, { headers });
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
+  // forget password check code
+forgetCheckCode(formData: FormData): Observable<any> {
+  if (this.apiBaseUrl) {
+    const url = `${this.apiBaseUrl}main/authentication/forgot-password/check-code`;
+    return this._HttpClient.put(url, formData);
+  } else {
+    throw new Error('API URL not found');
+  }
+}
+
+
+// new password
+  newPassword(FormData: any): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/forgot-password/new-password`;
+
+      return this._HttpClient.post(url, FormData);
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
 
 }

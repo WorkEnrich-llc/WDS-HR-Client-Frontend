@@ -1,5 +1,7 @@
 import { importProvidersFrom } from '@angular/core';
 import { Routes } from '@angular/router';
+import { GuestGuard } from './core/guards/guest.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -12,6 +14,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    // canActivate: [GuestGuard],
     children: [
       {
         path: 'auth',
@@ -48,6 +51,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/od-layout/od-layout.component').then(m => m.OdLayoutComponent),
+    // canActivate: [AuthGuard],
     children: [
       // Deparments routes
       {
@@ -171,6 +175,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/settings/settings.component').then(m => m.SettingsComponent),
+    // canActivate: [AuthGuard],
     children: [
       {
         path: 'settings',
@@ -207,5 +212,9 @@ export const routes: Routes = [
       
     ]
   },
+  
+
+
+
   
 ];

@@ -267,6 +267,10 @@
                         </p>
                     </div>
 
+<div class="alert alert-danger" role="alert" *ngIf="errMsg">
+                        {{errMsg}}
+                    </div>
+
                     <button type="button" [disabled]="!registerForm1.valid" class="btn btn-lg btn-primary w-100"
                         (click)="currentStep=2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
