@@ -356,24 +356,24 @@ select.success-input option,select.error-input option{
 }
 .nav-tabs .nav-item .nav-link:hover{
   border-color: transparent !important;
-  color: var(--color-primary-500) !important;
+  /* color: var(--color-primary-500) !important; */
 }
 .text-success .nav-link{
   color: var(--color-success-700) !important;
   font-weight: bold;
 }
-.nav-link:hover{
+/* .nav-link:hover{
   cursor: pointer;
 }
 .nav-tabs .nav-item:hover{
   cursor: pointer;
-}
-.nav-tabs .nav-item:hover .nav-link{
+} */
+/* .nav-tabs .nav-item:hover .nav-link{
   color: var(--color-primary-500) !important;
 }
 .nav-tabs .nav-item:hover svg{
   fill: var(--color-primary-500) !important;
-}
+} */
 /* end steps navigation style */
 
 
@@ -414,7 +414,7 @@ select.success-input option,select.error-input option{
 textarea{
   height: 130px;
   overflow-y: auto;
-  resize: none;
+  resize: none !important;
 }
 @media (min-width:767px) {
   .w-15{

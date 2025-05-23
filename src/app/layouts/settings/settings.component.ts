@@ -50,7 +50,7 @@ isModalOpen = false;
 
   this.cookieService.deleteAll('/', window.location.hostname);
 
-  window.location.href = `${window.location.origin}/auth/login`;
+   window.location.href = 'https://client.workenrich.com/auth/login';
 }
 
 }

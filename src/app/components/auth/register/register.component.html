@@ -267,7 +267,7 @@
                         </p>
                     </div>
 
-<div class="alert alert-danger" role="alert" *ngIf="errMsg">
+                    <div class="alert alert-danger" role="alert" *ngIf="errMsg">
                         {{errMsg}}
                     </div>
 
@@ -415,6 +415,14 @@
                             {{ domainMsg }}
                         </p>
 
+                        <div *ngIf="!domainAvailable && domainSuggestions.length > 0" class="suggestions mt-2">
+                            <ul class="list-disc">
+                                <li *ngFor="let suggestion of domainSuggestions" (click)="selectSuggestion(suggestion)"
+                                    class="cursor-pointer hover:underline">
+                                    {{ suggestion }}
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
 
@@ -521,10 +529,12 @@
                                     stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                             </svg>
                         </button>
-                        <button class="btn btn-lg btn-success w-100" (click)="createAccount()" [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid || !otpForm.valid">
+                        <button class="btn btn-lg btn-success w-100" (click)="createAccount()"
+                            [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid || !otpForm.valid">
                             <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status"
                                 aria-hidden="true"></span>
-                            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <circle cx="12" cy="12" r="10" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -534,14 +544,13 @@
                         </button>
                     </div>
                     <p class="resend-otp">
-  <a href="#" type="button"
-     (click)="resendEmail($event)" 
-     [class.disabled]="!canResend || isLoading"
-     [style.pointer-events]="(canResend && !isLoading) ? 'auto' : 'none'">
-    Resend Email
-  </a>
-  <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
-</p>
+                        <a href="#" type="button" (click)="resendEmail($event)"
+                            [class.disabled]="!canResend || isLoading"
+                            [style.pointer-events]="(canResend && !isLoading) ? 'auto' : 'none'">
+                            Resend Email
+                        </a>
+                        <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
+                    </p>
 
 
                 </div>

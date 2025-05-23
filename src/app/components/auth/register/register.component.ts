@@ -182,7 +182,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
       error: (err: HttpErrorResponse) => {
         const details = err.error?.details || '';
 
-        this.emailMsg = 'Email is already registered';
+        this.emailMsg = details;
         this.emailAvailable = false;
         emailControl.setErrors({ emailTaken: true });
 
@@ -251,6 +251,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
   domainMsg: string = '';
   domainAvailable: boolean = false;
+  domainSuggestions: string[] = []; 
 
   checkDomain(): void {
     const domainControl = this.registerForm2.get('domain');
@@ -258,10 +259,9 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
     this._AuthenticationService.checkDomain(domainControl.value).subscribe({
       next: (response) => {
-        // console.log('Domain check response:', response);
-
         this.domainMsg = 'Domain is available';
         this.domainAvailable = true;
+        this.domainSuggestions = []; 
 
         domainControl.markAsTouched();
 
@@ -274,17 +274,22 @@ export class RegisterComponent implements OnDestroy, OnInit {
         domainControl.updateValueAndValidity({ onlySelf: true });
       },
       error: (err: HttpErrorResponse) => {
-        const details = err.error?.details || '';
+        const details = err.error?.details || 'This domain is not available.';
+        const suggestions = err.error?.data?.list_items || [];
 
         this.domainMsg = details;
         this.domainAvailable = false;
+        this.domainSuggestions = suggestions;
+
         domainControl.setErrors({ domainTaken: true });
         domainControl.markAsTouched();
-
-        // console.error('Domain check error:', err, details);
       }
     });
   }
+selectSuggestion(suggestion: string): void {
+  this.registerForm2.get('domain')?.setValue(suggestion);
+  this.checkDomain(); 
+}
 
   timeLeftResend: number = 0;
   sendOtp(): void {

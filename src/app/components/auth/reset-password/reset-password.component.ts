@@ -47,7 +47,7 @@ export class ResetPasswordComponent {
       emailControl.updateValueAndValidity(); 
     },
     error: () => {
-      this.emailMsg = 'Email is registered';
+      this.emailMsg = '';
       this.isLoading = false;
       emailControl.setErrors(null);
       emailControl.updateValueAndValidity(); 
