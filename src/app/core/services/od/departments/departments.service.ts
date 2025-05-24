@@ -18,7 +18,7 @@ export class DepartmentsService {
 
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${subdomain}/od/departments`;
+    const url = `http://${subdomain}/od/departments`;
 
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)

@@ -14,9 +14,19 @@ export class AuthHelperService {
   }
 
   getSubdomain(): string | null {
-    const host = window.location.hostname;
-    const parts = host.split('.');
-    return parts.length >= 3 ? parts[0] : null;
+    // const host = window.location.hostname;
+    // const parts = host.split('.');
+    // return parts.length >= 3 ? parts[0] : null;
+    const companyInfoStr = localStorage.getItem('company_info');
+    if (!companyInfoStr) return null;
+
+    try {
+      const companyInfo = JSON.parse(companyInfoStr);
+      return companyInfo?.domain || null;
+    } catch (e) {
+      console.error('Failed to parse company_info from localStorage', e);
+      return null;
+    }
   }
 
   isAuthenticated(): boolean {

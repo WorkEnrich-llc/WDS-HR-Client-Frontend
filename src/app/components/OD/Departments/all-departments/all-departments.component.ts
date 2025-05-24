@@ -4,6 +4,8 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-all-departments',
@@ -11,9 +13,18 @@ import { CommonModule } from '@angular/common';
   templateUrl: './all-departments.component.html',
   styleUrl: './all-departments.component.css'
 })
-export class AllDepartmentsComponent {
+export class AllDepartmentsComponent implements OnInit{
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+  constructor( private toasterMessageService: ToasterMessageService, private toastr: ToastrService){}
 
+    ngOnInit(): void {
+    this.toasterMessageService.currentMessage$.subscribe(addMsg => {
+    if (addMsg) {
+      this.toastr.success(addMsg);
+      this.toasterMessageService.sendMessage('');
+    }
+  });
+  }
 
   departments: any[] = [
     { id: 1, name: 'Branch One', createdAt: '9/3/2024', updatedAt: '12/3/2025', status: 'Active' },
