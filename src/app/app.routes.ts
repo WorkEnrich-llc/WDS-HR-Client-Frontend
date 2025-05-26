@@ -68,7 +68,7 @@ export const routes: Routes = [
             title: 'Departments',
           },
           {
-            path: 'view-department',
+            path: 'view-department/:id',
             loadComponent: () => import('./components/OD/Departments/view-departments/view-departments.component').then(m => m.ViewDepartmentsComponent),
             title: 'View Department'
           },
@@ -78,7 +78,7 @@ export const routes: Routes = [
             title: 'Create Department'
           },
           {
-            path: 'edit',
+            path: 'edit/:id',
             loadComponent: () => import('./components/OD/Departments/edit-departments/edit-departments.component').then(m => m.EditDepartmentsComponent),
             title: 'Edit Department'
           },

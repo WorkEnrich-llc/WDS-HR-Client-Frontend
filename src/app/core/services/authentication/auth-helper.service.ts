@@ -9,8 +9,9 @@ export class AuthHelperService {
   constructor(private cookieService: CookieService) { }
 
   getToken(): string | null {
-    const token = this.cookieService.get('token');
-    return token ? token : null;
+    // const token = this.cookieService.get('token');
+    const token=localStorage.getItem('token');
+    return token ? token.replace(/^"|"$/g, '') : null;
   }
 
   getSubdomain(): string | null {
@@ -22,7 +23,8 @@ export class AuthHelperService {
 
     try {
       const companyInfo = JSON.parse(companyInfoStr);
-      return companyInfo?.domain || null;
+      return companyInfo?.domain?.split('.')[0] || null;
+      // return companyInfo?.domain || null;
     } catch (e) {
       console.error('Failed to parse company_info from localStorage', e);
       return null;

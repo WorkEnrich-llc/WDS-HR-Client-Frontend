@@ -2,13 +2,17 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { AuthHelperService } from '../../authentication/auth-helper.service';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DepartmentsService {
 
-  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) { }
+  private apiBaseUrl: string;
+  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
+    this.apiBaseUrl = environment.apiBaseUrl;
+  }
 
   // create a new department
   createDepartment(departmentData: any): Observable<any> {
@@ -18,12 +22,8 @@ export class DepartmentsService {
 
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `http://${subdomain}/od/departments`;
-
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('SUBDOMAIN', subdomain);
-
+    const url = `${this.apiBaseUrl}od/departments`;
+    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain);
     return this._HttpClient.post(url, departmentData, { headers });
   }
 
@@ -71,10 +71,10 @@ export class DepartmentsService {
 
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${subdomain}/od/departments/${id}/status`;
+    const url = `${this.apiBaseUrl}od/departments/${id}/`;
 
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
+   const headers = new HttpHeaders()
+      .set('Authorization', token)
       .set('SUBDOMAIN', subdomain);
 
     return this._HttpClient.patch(url, status, { headers });
@@ -88,11 +88,12 @@ export class DepartmentsService {
     }
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${subdomain}/od/departments`;
+    const url = `${this.apiBaseUrl}od/departments`;
 
     const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', token)
       .set('SUBDOMAIN', subdomain);
+
 
     const params = new HttpParams().set('page', pageNumber);
 
@@ -107,10 +108,10 @@ export class DepartmentsService {
 
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${subdomain}/od/departments/${id}`;
+    const url = `${this.apiBaseUrl}od/departments/${id}`;
 
     const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', token)
       .set('SUBDOMAIN', subdomain);
 
     return this._HttpClient.get(url, { headers });

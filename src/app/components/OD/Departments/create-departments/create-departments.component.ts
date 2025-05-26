@@ -53,7 +53,7 @@ export class CreateDepartmentsComponent {
     return this.fb.group({
       secCode: ['', Validators.required],
       secName: ['', Validators.required],
-      status: ['true']
+      status: [true]
     });
   }
   // toggle activate and deactivate
@@ -84,11 +84,12 @@ export class CreateDepartmentsComponent {
     const form1Data = this.deptStep1.value;
     const sections = this.sectionsFormArray.controls.map((group, index) => {
       return {
+        id: 0,
         index: index + 1,
         record_type: 'create',
         code: group.get('secCode')?.value,
         name: group.get('secName')?.value,
-        status: group.get('status')?.value
+        status: group.get('status')?.value.toString()
       };
     });
 
@@ -109,16 +110,19 @@ export class CreateDepartmentsComponent {
         this.isLoading = false;
         this.errMsg = '';
         // create success
-        this.toasterMessageService.sendMessage(response.details);
-
         this.router.navigate(['/departments/all-departments']);
-
+        this.toasterMessageService.sendMessage("Department created successfully");
 
       },
       error: (err) => {
         this.isLoading = false;
-        // console.error("Login error:", err);
-        this.errMsg = err.error?.details;
+        const errorHandling = err?.error?.data?.error_handling;
+        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+          this.currentStep = errorHandling[0].tap;
+          this.errMsg = errorHandling[0].error;
+        } else {
+          this.errMsg = "An unexpected error occurred Please try again later.";
+        }
       }
     });
 

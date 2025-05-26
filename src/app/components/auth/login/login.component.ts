@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
           const userInfo = response.data?.user_info;
           const companyInfo = response.data?.company_info;
           const subscription = response.data?.subscription;
-
+          localStorage.setItem('token', JSON.stringify(authToken));
           if (userInfo) {
             localStorage.setItem('user_info', JSON.stringify(userInfo));
           }
