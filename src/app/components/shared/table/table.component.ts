@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ContentChild, Input, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-table',
-  imports: [CommonModule,FormsModule,NgxPaginationModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgxPaginationModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   encapsulation: ViewEncapsulation.None,
 })
 export class TableComponent {
   @Input() data: any[] = [];
+  @Input() totalItems!: number;
   @Input() itemsPerPage = 10;
   @Input() currentPage = 1;
 
@@ -19,8 +21,24 @@ export class TableComponent {
   @Input() rowTemplate!: TemplateRef<any>;
   @Input() emptyTemplate!: TemplateRef<any>;
   @Input() disablePagination: boolean = false;
+@Output() itemsPerPageChange = new EventEmitter<number>();
+
+  @Output() pageChange = new EventEmitter<number>();
+
+  onPageChanged(newPage: number) {
+    this.currentPage = newPage;
+    this.pageChange.emit(newPage);
+  }
 
   onItemsPerPageChange() {
-    this.currentPage = 1; 
+    this.currentPage = 1;
+  this.itemsPerPageChange.emit(this.itemsPerPage);
+  this.pageChange.emit(this.currentPage);
+
   }
+  get totalPages(): number {
+  return Math.ceil(this.totalItems / this.itemsPerPage);
+}
+
+  
 }

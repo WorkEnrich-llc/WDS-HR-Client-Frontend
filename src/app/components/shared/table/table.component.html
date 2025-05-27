@@ -9,9 +9,9 @@
 
     <tbody>
       <ng-container *ngIf="data.length > 0; else innerEmptyTemplate">
-        <tr *ngFor="let row of (disablePagination ? data : (data | paginate: { itemsPerPage, currentPage })); let i = index">
-          <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row, index: i }"></ng-container>
-        </tr>
+       <tr *ngFor="let row of data | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }">
+  <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row }"></ng-container>
+</tr>
       </ng-container>
       <ng-template #innerEmptyTemplate>
         <ng-container *ngTemplateOutlet="emptyTemplate"></ng-container>
@@ -20,19 +20,18 @@
   </table>
 </div>
 
-
-
 <!-- Pagination Section -->
-<div class="d-flex flex-column flex-lg-row justify-content-between align-items-center"  *ngIf="!disablePagination && data.length > 0">
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-center"
+  *ngIf="!disablePagination && data.length > 0">
   <div class="d-flex align-items-center gap-2">
     <div class="text-gray-sm pe-3">
       Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–
       {{
-        currentPage * itemsPerPage > data.length
-          ? data.length
-          : currentPage * itemsPerPage
+      (currentPage * itemsPerPage) > totalItems
+      ? totalItems
+      : (currentPage * itemsPerPage)
       }}
-      from {{ data.length }}
+      from {{ totalItems }}
     </div>
     <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
       View
@@ -46,15 +45,18 @@
   </div>
 
   <div class="d-flex align-items-center justify-content-center gap-2">
-    <button class="prev p-0 btn border-0" [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+    <button class="prev p-0 btn border-0" [disabled]="currentPage === 1" (click)="onPageChanged(currentPage - 1)">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="m15 5l-6 7l6 7" />
       </svg>
     </button>
-    <pagination-controls (pageChange)="currentPage = $event" class="mb-0 ms-0"></pagination-controls>
-    <button class="next p-0 btn border-0" [disabled]="currentPage * itemsPerPage >= data.length"
-      (click)="currentPage = currentPage + 1">
+
+    <pagination-controls
+  (pageChange)="onPageChanged($event)">
+</pagination-controls>
+    <button class="next p-0 btn border-0" [disabled]="currentPage >= totalPages"
+      (click)="onPageChanged(currentPage + 1)">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="m9 5l6 7l-6 7" />

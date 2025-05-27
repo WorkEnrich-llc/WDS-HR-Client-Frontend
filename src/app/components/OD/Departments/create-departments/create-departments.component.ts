@@ -1,19 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { TableComponent } from '../../../shared/table/table.component';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-create-departments',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, TableComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './create-departments.component.html',
-  styleUrl: './create-departments.component.css'
+  styleUrls: ['./../../../shared/table/table.component.css', './create-departments.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CreateDepartmentsComponent {
   todayFormatted: string = '';

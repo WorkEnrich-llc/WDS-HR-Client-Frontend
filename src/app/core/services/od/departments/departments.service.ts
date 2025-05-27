@@ -35,11 +35,8 @@ export class DepartmentsService {
 
     const token = this.authHelper.getToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${subdomain}/od/departments`;
-
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('SUBDOMAIN', subdomain);
+    const url = `${this.apiBaseUrl}od/departments`;
+    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain);
 
     return this._HttpClient.put(url, departmentData, { headers });
   }
@@ -82,23 +79,25 @@ export class DepartmentsService {
 
 
   // get all departments
-  getAllDepartment(pageNumber: number): Observable<any> {
-    if (!this.authHelper.validateAuth()) {
-      return throwError(() => new Error('Authentication failed'));
-    }
-    const token = this.authHelper.getToken()!;
-    const subdomain = this.authHelper.getSubdomain()!;
-    const url = `${this.apiBaseUrl}od/departments`;
-
-    const headers = new HttpHeaders()
-      .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain);
-
-
-    const params = new HttpParams().set('page', pageNumber);
-
-    return this._HttpClient.get(url, { headers, params });
+ getAllDepartment(pageNumber: number, perPage: number): Observable<any> {
+  if (!this.authHelper.validateAuth()) {
+    return throwError(() => new Error('Authentication failed'));
   }
+
+  const token = this.authHelper.getToken()!;
+  const subdomain = this.authHelper.getSubdomain()!;
+  const url = `${this.apiBaseUrl}od/departments`;
+
+  const headers = new HttpHeaders()
+    .set('Authorization', token)
+    .set('SUBDOMAIN', subdomain);
+
+  const params = new HttpParams()
+    .set('page', pageNumber)
+    .set('per_page', perPage);
+
+  return this._HttpClient.get(url, { headers, params });
+}
 
   // show a specific department
   showDepartment(id: number): Observable<any> {

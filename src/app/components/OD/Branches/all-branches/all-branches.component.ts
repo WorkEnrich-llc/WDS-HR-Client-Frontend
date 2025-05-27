@@ -42,7 +42,10 @@ export class AllBranchesComponent {
     { id: 11, name: 'Riyadh East', location: 'Riyadh', maxEmployees: 38, createdAt: '18/3/2024', updatedAt: '9/4/2025', status: 'Active' },
     { id: 12, name: 'Manama Finance Center', location: 'Manama', maxEmployees: 33, createdAt: '19/3/2024', updatedAt: '10/4/2025', status: 'Active' },
   ];
-
+ currentPage: number = 1;
+  // totalpages: number = 0;
+  // totalItems: number = 0;
+  itemsPerPage: number = 10;
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   sortBy() {
@@ -55,8 +58,9 @@ export class AllBranchesComponent {
       }
     });
   }
-
-
-
+onItemsPerPageChange(newItemsPerPage: number) {
+  this.currentPage = 1;
+  this.itemsPerPage = newItemsPerPage;
+}
 
 }

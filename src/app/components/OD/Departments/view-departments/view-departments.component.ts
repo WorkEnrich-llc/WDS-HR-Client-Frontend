@@ -3,20 +3,22 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-view-departments',
   standalone: true,
   imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent, CommonModule],
+  providers: [DatePipe],
   templateUrl: './view-departments.component.html',
   styleUrls: ['./view-departments.component.css']
 })
 export class ViewDepartmentsComponent implements OnInit {
-  constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute) { }
+  constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute,private datePipe: DatePipe) { }
   departmentData: any = { sections: [] };
-
+formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
   deptId: string | null = null;
   ngOnInit(): void {
     this.deptId = this.route.snapshot.paramMap.get('id');
@@ -26,7 +28,29 @@ export class ViewDepartmentsComponent implements OnInit {
     }
   }
 
+  getDepartment(deptId: number) {
 
+    this._DepartmentsService.showDepartment(deptId).subscribe({
+      next: (response) => {
+        this.departmentData = response.data.object_info;
+         const created = this.departmentData?.created_at;
+        const updated = this.departmentData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+        // console.log(this.departmentData);
+
+        this.sortDirection = 'desc';
+        this.sortBy('id');
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   sortBy(column: string) {
@@ -73,7 +97,7 @@ export class ViewDepartmentsComponent implements OnInit {
     this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-        console.log(this.departmentData);
+        // console.log(this.departmentData);
 
         this.sortDirection = 'desc';
         this.sortBy('id');
@@ -102,7 +126,7 @@ export class ViewDepartmentsComponent implements OnInit {
     this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-        console.log(this.departmentData);
+        // console.log(this.departmentData);
 
         this.sortDirection = 'desc';
         this.sortBy('id');
@@ -115,20 +139,6 @@ export class ViewDepartmentsComponent implements OnInit {
 
 
 
-  getDepartment(deptId: number) {
 
-    this._DepartmentsService.showDepartment(deptId).subscribe({
-      next: (response) => {
-        this.departmentData = response.data.object_info;
-        console.log(this.departmentData);
-
-        this.sortDirection = 'desc';
-        this.sortBy('id');
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
 
 }

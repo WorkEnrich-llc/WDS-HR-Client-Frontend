@@ -55,7 +55,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="branches" [itemsPerPage]="10" [currentPage]="1" [headerTemplate]="branchTableHeader"
+    <app-table [data]="branches" [totalItems]="branches.length"  [itemsPerPage]="10" [currentPage]="1" [headerTemplate]="branchTableHeader"
       [rowTemplate]="branchTableRow" [emptyTemplate]="noBranch"></app-table>
 
     <ng-template #branchTableHeader>

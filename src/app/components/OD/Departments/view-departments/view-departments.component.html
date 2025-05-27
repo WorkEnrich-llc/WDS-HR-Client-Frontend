@@ -2,8 +2,7 @@
     { label: 'Operations Development', link: '/' },
     { label: 'Departments', link: '/departments' },
     {  label: 'View Department ' + departmentData?.name }
-  ]" [title]="'View Department - ' + departmentData?.name" [create]="departmentData?.created_at?.split('T')[0]"
-  [update]="departmentData?.updated_at?.split('T')[0]">
+  ]" [title]="'View Department - ' + departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
   <button class="btn btn-lg btn-primary" [routerLink]="['/departments/edit', departmentData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -136,9 +135,8 @@
 
 <!-- activate popup  -->
 <app-popup [title]="'Activate Department'"
-[paragraph1]="'Are you sure you want to activate the Department “' + departmentData?.name + '”?'"
-  [paragraph2]="'You can deactivate it at any time later.'"
-  [isOpen]="activateOpen" (close)="closeActivate()">
+  [paragraph1]="'Are you sure you want to activate the Department “' + departmentData?.name + '”?'"
+  [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
   <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
