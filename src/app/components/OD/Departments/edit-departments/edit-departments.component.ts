@@ -2,7 +2,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -30,7 +30,7 @@ export class EditDepartmentsComponent implements OnInit {
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   deptId: string | null = null;
-
+  currentPage: number = 1;
 
   ngOnInit(): void {
     this.deptId = this.route.snapshot.paramMap.get('id');
@@ -38,6 +38,10 @@ export class EditDepartmentsComponent implements OnInit {
     if (this.deptId) {
       this.getDepartment(Number(this.deptId));
     }
+
+    this.route.queryParams.subscribe(params => {
+    this.currentPage = +params['page'] || 1; 
+  });
   }
 
   getDepartment(deptId: number) {
@@ -71,7 +75,7 @@ export class EditDepartmentsComponent implements OnInit {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
 
-        console.log(this.departmentData);
+        // console.log(this.departmentData);
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -143,63 +147,99 @@ export class EditDepartmentsComponent implements OnInit {
   }
 
 
-  updateDept() {
-    if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
-      this.errMsg = 'Please complete both steps with valid data and at least one section.';
-      return;
+updateDept() {
+  if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
+    this.errMsg = 'Please complete both steps with valid data and at least one section.';
+    return;
+  }
+
+  const form1Data = this.deptStep1.value;
+  const originalSections = this.departmentData.sections || [];
+
+  const currentSections = this.sectionsFormArray.controls.map((control: AbstractControl, index: number) => {
+    const group = control as FormGroup;
+    const code = group.get('secCode')?.value;
+    const name = group.get('secName')?.value;
+    const status = group.get('status')?.value;
+
+    const matchedOriginal = originalSections.find((s: any) =>
+      s.code === code && s.name === name
+    );
+
+    const id = matchedOriginal?.id || 0;
+
+    let record_type = 'create';
+    if (matchedOriginal) {
+      const changed = code !== matchedOriginal.code ||
+                      name !== matchedOriginal.name ||
+                      status !== matchedOriginal.is_active;
+      record_type = changed ? 'update' : 'nothing';
     }
 
-    const form1Data = this.deptStep1.value;
-    const existingSections = this.departmentData.sections || [];
+    return {
+      id,
+      index: index + 1,
+      code,
+      name,
+      status: status.toString(),
+      record_type
+    };
+  });
 
-    const sections = this.sectionsFormArray.controls.map((group, index) => {
-      const sectionId = existingSections[index]?.id || 0;
+  const deletedSections = originalSections
+    .filter((original: any) => {
+      return !currentSections.some((current: any) => current.id === original.id);
+    })
+    .map((section: any, index: number) => {
       return {
-        id: sectionId,
-        index: index + 1,
-        record_type: 'update',
-        code: group.get('secCode')?.value,
-        name: group.get('secName')?.value,
-        status: group.get('status')?.value.toString()
+        id: section.id,
+        index: currentSections.length + index + 1,
+        code: section.code,
+        name: section.name,
+        status: section.is_active.toString(),
+        record_type: 'delete'
       };
     });
 
-    const finalData = {
-      request_data: {
-        id: this.departmentData.id,
-        code: form1Data.code,
-        name: form1Data.name,
-        objectives: form1Data.objectives,
-        sections: sections
+  const allSections = [
+    ...currentSections,
+    ...deletedSections
+  ];
+
+  const finalData = {
+    request_data: {
+      id: this.departmentData.id,
+      code: form1Data.code,
+      name: form1Data.name,
+      objectives: form1Data.objectives,
+      sections: allSections
+    }
+  };
+
+  // console.log(finalData);
+
+  this.isLoading = true;
+  this._DepartmentsService.updateDepartment(finalData).subscribe({
+    next: (response) => {
+      this.isLoading = false;
+      this.errMsg = '';
+      this.router.navigate(['/departments/all-departments'], { queryParams: { page: this.currentPage } });
+      this.toasterMessageService.sendMessage("Department Updated successfully");
+    },
+    error: (err) => {
+      this.isLoading = false;
+      const errorHandling = err?.error?.data?.error_handling;
+      if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+        this.currentStep = errorHandling[0].tap;
+        this.errMsg = errorHandling[0].error;
+      } else {
+        this.errMsg = "An unexpected error occurred. Please try again later.";
       }
-    };
-
-    console.log(finalData);
-    // this.isLoading = true;
-    // this._DepartmentsService.updateDepartment(finalData).subscribe({
-
-    //   next: (response) => {
-    //     this.isLoading = false;
-    //     this.errMsg = '';
-    //     // create success
-    //     this.router.navigate(['/departments/all-departments']);
-    //     this.toasterMessageService.sendMessage("Department Updated successfully");
-
-    //   },
-    //   error: (err) => {
-    //     this.isLoading = false;
-    //     const errorHandling = err?.error?.data?.error_handling;
-    //     if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-    //       this.currentStep = errorHandling[0].tap;
-    //       this.errMsg = errorHandling[0].error;
-    //     } else {
-    //       this.errMsg = "An unexpected error occurred Please try again later.";
-    //     }
-    //   }
-    // });
+    }
+  });
+}
 
 
-  }
 
 
 

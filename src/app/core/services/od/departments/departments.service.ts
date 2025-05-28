@@ -79,7 +79,18 @@ export class DepartmentsService {
 
 
   // get all departments
- getAllDepartment(pageNumber: number, perPage: number): Observable<any> {
+getAllDepartment(
+  pageNumber: number,
+  perPage: number,
+  filters?: {
+    search?: string;
+    updated_from?: string;
+    updated_to?: string;
+    created_from?: string;
+    created_to?: string;
+    status?: string;
+  }
+): Observable<any> {
   if (!this.authHelper.validateAuth()) {
     return throwError(() => new Error('Authentication failed'));
   }
@@ -92,12 +103,35 @@ export class DepartmentsService {
     .set('Authorization', token)
     .set('SUBDOMAIN', subdomain);
 
-  const params = new HttpParams()
+  let params = new HttpParams()
     .set('page', pageNumber)
     .set('per_page', perPage);
 
+  // إضافة الفلاتر إذا كانت موجودة
+  if (filters) {
+    if (filters.search) {
+      params = params.set('search', filters.search);
+    }
+    if (filters.updated_from) {
+      params = params.set('updated_from', filters.updated_from);
+    }
+    if (filters.updated_to) {
+      params = params.set('updated_to', filters.updated_to);
+    }
+    if (filters.created_from) {
+      params = params.set('created_from', filters.created_from);
+    }
+    if (filters.created_to) {
+      params = params.set('created_to', filters.created_to);
+    }
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+  }
+
   return this._HttpClient.get(url, { headers, params });
 }
+
 
   // show a specific department
   showDepartment(id: number): Observable<any> {

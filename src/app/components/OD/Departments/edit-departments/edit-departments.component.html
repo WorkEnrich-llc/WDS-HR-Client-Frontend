@@ -232,8 +232,8 @@
                 </svg>
             </button>
             <button class="btn btn-lg w-auto btn-success"
-                [disabled]="isLoading || !deptStep1.valid || !deptStep2.valid || sectionsFormArray.length < 1"
-                (click)="updateDept()">
+                [disabled]="isLoading || !deptStep1.dirty && !deptStep2.dirty"
+        (click)="updateDept()">
                 <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -241,7 +241,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
                 </svg>
-                <span>Create Department</span>
+                <span>Save Changes</span>
             </button>
 
         </div>
