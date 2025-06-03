@@ -9,10 +9,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        env:
+          CI: true
+        run: npm run build
 
       - name: Set up SSH
         run: |
@@ -23,18 +37,18 @@ jobs:
 
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
-        env:
-          CI: true
         run: |
-          ssh -tt root@144.91.79.174 << 'EOF'
-            cd /var/www/WorkEnrich-Client-Front-End
-            git reset --hard
-            git pull origin main
-            npm install
-            timeout 300 npm run build --no-interactive || {
-                  echo "Build timed out or failed"
-                  pkill -f node || true
-                  exit 1
-                }
-            exit
-          EOF
+          # Create backup of current deployment
+          ssh root@144.91.79.174 "cd /var/www && cp -r WorkEnrich-Client-Front-End WorkEnrich-Client-Front-End-backup-$(date +%Y%m%d-%H%M%S) || true"
+
+          # Copy dist folder to server
+          scp -r dist/* root@144.91.79.174:/var/www/WorkEnrich-Client-Front-End/
+
+          # Verify deployment
+          ssh root@144.91.79.174 "ls -la /var/www/WorkEnrich-Client-Front-End/"
+
+      - name: Cleanup on Failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Cleaning up..."
+          ssh root@144.91.79.174 "cd /var/www && rm -rf WorkEnrich-Client-Front-End-backup-* || true"
