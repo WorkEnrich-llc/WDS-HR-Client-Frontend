@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -29,6 +29,6 @@ jobs:
             git reset --hard
             git pull origin main
             npm install
-            npm run build
+            npm run build --no-interactive
             exit
           EOF
