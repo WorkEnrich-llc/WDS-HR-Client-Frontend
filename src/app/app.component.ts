@@ -49,43 +49,44 @@ export class AppComponent {
   // ================
 
 
-  ngOnInit(): void {
-    const deviceDetector = new DeviceDetector();
-    const userAgent = navigator.userAgent;
-    const device = deviceDetector.parse(userAgent);
+ async ngOnInit(): Promise<void> {
+  const deviceDetector = new DeviceDetector();
+  const userAgent = navigator.userAgent;
+  const device = deviceDetector.parse(userAgent);
 
-    let d_family = 'unknown';
-    let d_model = 'unknown';
+  let d_family = 'unknown';
+  let d_model = 'unknown';
 
-    if (device.device?.type === 'desktop') {
-      const osName = device.os?.name?.toLowerCase();
-      d_family = 'PC';
-      d_model = 'Laptop | PC';
-
-    } else {
-      d_family = device.device?.brand || 'unknown';
-      d_model = device.device?.model || 'unknown';
-    }
-
-    const formData = new FormData();
-    formData.append('device_type', device.device?.type || 'unknown');
-    formData.append('d_family', d_family);
-    formData.append('d_model', d_model);
-    formData.append('d_os', device.os?.name || 'unknown');
-    formData.append('d_version', device.os?.version || 'unknown');
-    formData.append('d_browser', device.client?.name || 'unknown');
-    formData.append('d_browser_version', device.client?.version || 'unknown');
-    formData.append('fcm_token', 'dummy_fcm_token');
-
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(data => {
-        formData.append('ip_address', data.ip);
-
-        console.log('📦 Collected FormData:');
-        formData.forEach((value, key) => {
-          console.log(`${key}: ${value}`);
-        });
-      });
+  if (device.device?.type === 'desktop') {
+    d_family = 'PC';
+    d_model = 'Laptop | PC';
+  } else {
+    d_family = device.device?.brand || 'unknown';
+    d_model = device.device?.model || 'unknown';
   }
+
+  const fcmToken = await this.fcmService.getToken();
+
+  const formData = new FormData();
+  formData.append('device_type', device.device?.type || 'unknown');
+  formData.append('d_family', d_family);
+  formData.append('d_model', d_model);
+  formData.append('d_os', device.os?.name || 'unknown');
+  formData.append('d_version', device.os?.version || 'unknown');
+  formData.append('d_browser', device.client?.name || 'unknown');
+  formData.append('d_browser_version', device.client?.version || 'unknown');
+  formData.append('fcm_token', fcmToken || 'no_token');
+
+  fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => {
+      formData.append('ip_address', data.ip);
+
+      console.log('📦 Collected FormData:');
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
+    });
+}
+
 }
