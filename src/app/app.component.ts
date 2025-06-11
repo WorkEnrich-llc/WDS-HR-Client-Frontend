@@ -82,7 +82,7 @@ export class AppComponent {
     .then(data => {
       formData.append('ip_address', data.ip);
 
-      console.log('📦 Collected FormData:');
+      console.log('Collected FormData:');
       formData.forEach((value, key) => {
         console.log(`${key}: ${value}`);
       });
