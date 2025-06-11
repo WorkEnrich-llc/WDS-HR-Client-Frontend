@@ -15,7 +15,7 @@ export class FcmService {
     Notification.requestPermission()
       .then(() =>
         getToken(this.messaging, {
-          vapidKey: '🔑 VAPID_KEY_الخاصة_بك_هنا'
+          vapidKey: 'BAZJR-lUBhT5aY0HsiJOszKuU6U9ifiAkgOIGzaY59oe4WO9Wm_ISlnNfolCg2FMuMbMIKOAcOGjz2XcVeQiW9A'
         })
       )
       .then(token => {

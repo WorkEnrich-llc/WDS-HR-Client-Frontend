@@ -2,12 +2,11 @@ export const environment = {
   production: false,
   apiBaseUrl: 'https://dev-api.workenrich.com/',
   firebaseConfig: {
-    apiKey: "AIzaSyC8t8ev-Gfm6CWg3Sd5kOVdcs-k_fr4Lig",
-    authDomain: "workenrich-8292d.firebaseapp.com",
-    projectId: "workenrich-8292d",
-    storageBucket: "workenrich-8292d.firebasestorage.app",
-    messagingSenderId: "793588708815",
-    appId: "1:793588708815:web:0def7343231e72f99a8eba",
-    measurementId: "G-F6B5YLEQT0"
-  }
+  apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+  authDomain: "principal-iris-451803-a5.firebaseapp.com",
+  projectId: "principal-iris-451803-a5",
+  storageBucket: "principal-iris-451803-a5.appspot.com",
+  messagingSenderId: "239800378015",
+  appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+}
 };
