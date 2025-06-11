@@ -71,7 +71,8 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('subscription_info', JSON.stringify(subscription));
           }
 
-          window.location.href = `https://${domain}/departments`;
+          // window.location.href = `https://${domain}/departments`;
+          this._Router.navigate(['/departments']);
         } else {
           this.errMsg = 'Invalid response from server.';
         }

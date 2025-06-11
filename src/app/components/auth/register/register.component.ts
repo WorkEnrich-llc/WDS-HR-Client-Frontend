@@ -363,7 +363,8 @@ selectSuggestion(suggestion: string): void {
         }
         const domain = response.data?.company_info?.domain;
         if (domain) {
-          window.location.href = `https://${domain}/departments`;
+          // window.location.href = `https://${domain}/departments`;
+          this._Router.navigate(['/departments']);
         } else {
           this.errMsg = 'Invalid company domain';
         }

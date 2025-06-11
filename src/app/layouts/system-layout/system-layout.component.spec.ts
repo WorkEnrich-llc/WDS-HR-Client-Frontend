@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HrLayoutComponent } from './hr-layout.component';
+import { SystemLayoutComponent } from './system-layout.component';
 
-describe('HrLayoutComponent', () => {
-  let component: HrLayoutComponent;
-  let fixture: ComponentFixture<HrLayoutComponent>;
+describe('SystemLayoutComponent', () => {
+  let component: SystemLayoutComponent;
+  let fixture: ComponentFixture<SystemLayoutComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HrLayoutComponent]
+      imports: [SystemLayoutComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(HrLayoutComponent);
+    fixture = TestBed.createComponent(SystemLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
