@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import { RouterModule } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthHelperService {
 
-  constructor(private cookieService: CookieService) { }
+  constructor(private cookieService: CookieService,private _Router: Router) { }
 
   getToken(): string | null {
     // const token = this.cookieService.get('token');
@@ -48,13 +50,15 @@ export class AuthHelperService {
 
     if (!token) {
       alert('You must log in first');
-      window.location.href = 'https://client.workenrich.com/auth/login';
+      // window.location.href = 'https://client.workenrich.com/auth/login';
+      this._Router.navigate(['/auth/login']);
       return false;
     }
 
     if (!subdomain) {
       alert('Subdomain not found');
-      window.location.href = 'https://client.workenrich.com/auth/login';
+      // window.location.href = 'https://client.workenrich.com/auth/login';
+      this._Router.navigate(['/auth/login']);
       return false;
     }
 

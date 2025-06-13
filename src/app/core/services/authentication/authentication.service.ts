@@ -27,15 +27,6 @@ export class AuthenticationService {
     }
   }
 
-  // fcm update
-   fcmUpdate(formData: FormData): Observable<any> {
-    if (this.apiBaseUrl) {
-      const url = `${this.apiBaseUrl}main/authentication/fcm-update`;
-      return this._HttpClient.put(url, formData);
-    } else {
-      throw new Error('API URL not found');
-    }
-  }
 
 
 
@@ -163,22 +154,22 @@ export class AuthenticationService {
 
 
   // logout
- logout(): Observable<any> {
-  const token = this.authHelper.getToken()!;
-  const sessionToken = this.authHelper.getSessionToken()!;
+  logout(): Observable<any> {
+    const token = this.authHelper.getToken()!;
+    const sessionToken = this.authHelper.getSessionToken()!;
 
-  if (this.apiBaseUrl) {
-    const url = `${this.apiBaseUrl}main/authentication/logout`;
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/logout`;
 
-    const headers = new HttpHeaders({
-      'Authorization': token,
-      'SESSIONTOKEN': sessionToken
-    });
+      const headers = new HttpHeaders({
+        'Authorization': token,
+        'SESSIONTOKEN': sessionToken
+      });
 
-    return this._HttpClient.put(url, {}, { headers });
-  } else {
-    throw new Error('API URL not found');
+      return this._HttpClient.put(url, {}, { headers });
+    } else {
+      throw new Error('API URL not found');
+    }
   }
-}
 
 }
