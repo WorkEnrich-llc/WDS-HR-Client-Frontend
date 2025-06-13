@@ -24,7 +24,10 @@ messaging.onBackgroundMessage(function (payload) {
 
 self.addEventListener('notificationclick', function (event) {
   const baseURL = 'https://client.workenrich.com/';
+  console.log('Notification data:', event.notification.data);
   const urlToOpen = baseURL + (event.notification.data?.url || '');
+  console.log('Notification click received:', urlToOpen);
+  
   event.notification.close();
 
   event.waitUntil(
