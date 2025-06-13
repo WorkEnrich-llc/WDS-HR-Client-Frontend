@@ -17,6 +17,9 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function (payload) {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
+    data: {
+      url: payload.data?.url || '', // Assuming payload.data contains the URL
+    },
   });
 
   // console.log('[firebase-messaging-sw.js] Received background message ', payload);
