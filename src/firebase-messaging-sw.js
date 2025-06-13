@@ -14,9 +14,33 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
+messaging.onBackgroundMessage(function (payload) {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
   });
+
   // console.log('[firebase-messaging-sw.js] Received background message ', payload);
 });
+
+self.addEventListener('notificationclick', function (event) {
+  baseURL = 'https://client.workenrich.com/';
+  const urlToOpen = baseURL + event.notification.data?.url || '';
+  event.notification.close();
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+      for (let client of clientList) {
+        if (client.url.includes(self.location.origin)) {
+          return client.focus().then(() => client.navigate(urlToOpen));
+        }
+      }
+      return clients.openWindow(urlToOpen);
+    }
+    ));
+
+});
+// onMessage(messaging, payload => {
+//    self.registration.showNotification(payload.notification.title, {
+//     body: payload.notification.body,
+//   });
+// });

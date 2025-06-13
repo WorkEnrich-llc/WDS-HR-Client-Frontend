@@ -47,6 +47,7 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
+ 
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);
