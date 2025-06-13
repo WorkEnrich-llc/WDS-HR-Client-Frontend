@@ -13,6 +13,13 @@ export class AuthHelperService {
     const token=localStorage.getItem('token');
     return token ? token.replace(/^"|"$/g, '') : null;
   }
+  getSessionToken(): string | null {
+    // const session_token = this.cookieService.get('session_token');
+    const session_token=localStorage.getItem('session_token');
+    return session_token ? session_token.replace(/^"|"$/g, '') : null;
+  }
+
+  
 
   getSubdomain(): string | null {
     // const host = window.location.hostname;

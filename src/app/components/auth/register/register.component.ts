@@ -320,6 +320,7 @@ selectSuggestion(suggestion: string): void {
   createAccount(): void {
     this.isLoading = true;
     this.errMsg = '';
+    const device_token=localStorage.getItem('device_token');
     const formData = new FormData();
     formData.append('name', this.registerForm1.get('name')?.value);
     formData.append('email', this.registerForm1.get('email')?.value);
@@ -331,6 +332,8 @@ selectSuggestion(suggestion: string): void {
     formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
     formData.append('company_logo', this.registerForm2.get('logo')?.value);
     formData.append('verification_code', this.otpForm.get('otp')?.value);
+    formData.append('device_token', device_token! ); 
+    
     // for (let pair of formData.entries()) {
     //   console.log(`${pair[0]}:`, pair[1]);
     // }
@@ -339,6 +342,8 @@ selectSuggestion(suggestion: string): void {
         this.isLoading = false;
 
         const authToken = response.data?.session?.auth_token;
+        const session_token = response.data?.session?.session_token;
+        localStorage.setItem('session_token', JSON.stringify(session_token));
         if (authToken) {
           this.cookieService.set('token', authToken);
         }

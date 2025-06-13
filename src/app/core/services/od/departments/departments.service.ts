@@ -21,9 +21,10 @@ export class DepartmentsService {
     }
 
     const token = this.authHelper.getToken()!;
+    const sessionToken = this.authHelper.getSessionToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
     const url = `${this.apiBaseUrl}od/departments`;
-    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain);
+    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain).set('SESSIONTOKEN', sessionToken);
     return this._HttpClient.post(url, departmentData, { headers });
   }
 
@@ -34,9 +35,10 @@ export class DepartmentsService {
     }
 
     const token = this.authHelper.getToken()!;
+     const sessionToken = this.authHelper.getSessionToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
     const url = `${this.apiBaseUrl}od/departments`;
-    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain);
+    const headers = new HttpHeaders().set('Authorization', token).set('SUBDOMAIN', subdomain).set('SESSIONTOKEN', sessionToken);
 
     return this._HttpClient.put(url, departmentData, { headers });
   }
@@ -49,12 +51,14 @@ export class DepartmentsService {
     }
 
     const token = this.authHelper.getToken()!;
+     const sessionToken = this.authHelper.getSessionToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
     const url = `${subdomain}/od/departments/${id}/`;
 
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
-      .set('SUBDOMAIN', subdomain);
+      .set('SUBDOMAIN', subdomain)
+      .set('SESSIONTOKEN', sessionToken);
 
     return this._HttpClient.delete(url, { headers });
   }
@@ -67,12 +71,14 @@ export class DepartmentsService {
     }
 
     const token = this.authHelper.getToken()!;
+     const sessionToken = this.authHelper.getSessionToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
     const url = `${this.apiBaseUrl}od/departments/${id}/`;
 
    const headers = new HttpHeaders()
       .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain);
+      .set('SUBDOMAIN', subdomain)
+      .set('SESSIONTOKEN', sessionToken);
 
     return this._HttpClient.patch(url, status, { headers });
   }
@@ -96,13 +102,14 @@ getAllDepartment(
   }
 
   const token = this.authHelper.getToken()!;
+  const sessionToken = this.authHelper.getSessionToken()!;
   const subdomain = this.authHelper.getSubdomain()!;
   const url = `${this.apiBaseUrl}od/departments`;
 
   const headers = new HttpHeaders()
     .set('Authorization', token)
-    .set('SUBDOMAIN', subdomain);
-
+    .set('SUBDOMAIN', subdomain)
+  .set('SESSIONTOKEN', sessionToken);
   let params = new HttpParams()
     .set('page', pageNumber)
     .set('per_page', perPage);
@@ -140,12 +147,14 @@ getAllDepartment(
     }
 
     const token = this.authHelper.getToken()!;
+     const sessionToken = this.authHelper.getSessionToken()!;
     const subdomain = this.authHelper.getSubdomain()!;
     const url = `${this.apiBaseUrl}od/departments/${id}`;
 
     const headers = new HttpHeaders()
       .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain);
+      .set('SUBDOMAIN', subdomain)
+      .set('SESSIONTOKEN', sessionToken);
 
     return this._HttpClient.get(url, { headers });
   }

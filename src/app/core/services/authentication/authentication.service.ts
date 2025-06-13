@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
+import { AuthHelperService } from './auth-helper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +12,34 @@ export class AuthenticationService {
   private apiBaseUrl: string;
   email: string = '';
   domain: string = '';
-  constructor(private _HttpClient: HttpClient) {
+  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
+  // device register
+  deviceRegister(FormData: any): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/device-register`;
+
+      return this._HttpClient.post(url, FormData);
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
+  // fcm update
+   fcmUpdate(formData: FormData): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/fcm-update`;
+      return this._HttpClient.put(url, formData);
+    } else {
+      throw new Error('API URL not found');
+    }
+  }
+
+
+
+  // =========================================
   // get job titles
   getJobTitles(): Observable<any> {
     if (this.apiBaseUrl) {
@@ -25,6 +50,7 @@ export class AuthenticationService {
       throw new Error('API URL not found');
     }
   }
+
   // check email avilable
   checkEmail(email: string): Observable<any> {
     if (this.apiBaseUrl) {
@@ -114,17 +140,17 @@ export class AuthenticationService {
   }
 
   // forget password check code
-forgetCheckCode(formData: FormData): Observable<any> {
-  if (this.apiBaseUrl) {
-    const url = `${this.apiBaseUrl}main/authentication/forgot-password/check-code`;
-    return this._HttpClient.put(url, formData);
-  } else {
-    throw new Error('API URL not found');
+  forgetCheckCode(formData: FormData): Observable<any> {
+    if (this.apiBaseUrl) {
+      const url = `${this.apiBaseUrl}main/authentication/forgot-password/check-code`;
+      return this._HttpClient.put(url, formData);
+    } else {
+      throw new Error('API URL not found');
+    }
   }
-}
 
 
-// new password
+  // new password
   newPassword(FormData: any): Observable<any> {
     if (this.apiBaseUrl) {
       const url = `${this.apiBaseUrl}main/authentication/forgot-password/new-password`;
@@ -135,5 +161,24 @@ forgetCheckCode(formData: FormData): Observable<any> {
     }
   }
 
+
+  // logout
+ logout(): Observable<any> {
+  const token = this.authHelper.getToken()!;
+  const sessionToken = this.authHelper.getSessionToken()!;
+
+  if (this.apiBaseUrl) {
+    const url = `${this.apiBaseUrl}main/authentication/logout`;
+
+    const headers = new HttpHeaders({
+      'Authorization': token,
+      'SESSIONTOKEN': sessionToken
+    });
+
+    return this._HttpClient.put(url, {}, { headers });
+  } else {
+    throw new Error('API URL not found');
+  }
+}
 
 }

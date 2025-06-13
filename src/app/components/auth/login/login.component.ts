@@ -40,16 +40,17 @@ export class LoginComponent implements OnInit {
   login(): void {
     this.isLoading = true;
     this.errMsg = '';
-
+    const device_token=localStorage.getItem('device_token');
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
-
+    formData.append('device_token', device_token! ); 
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-
+        // console.log('Login response:', response);
         const authToken = response.data?.session?.auth_token;
+        const session_token = response.data?.session?.session_token;
         const domain = response.data?.company_info?.domain;
 
         if (authToken && domain) {
@@ -59,6 +60,7 @@ export class LoginComponent implements OnInit {
           const companyInfo = response.data?.company_info;
           const subscription = response.data?.subscription;
           localStorage.setItem('token', JSON.stringify(authToken));
+          localStorage.setItem('session_token', JSON.stringify(session_token));
           if (userInfo) {
             localStorage.setItem('user_info', JSON.stringify(userInfo));
           }
