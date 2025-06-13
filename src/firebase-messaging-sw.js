@@ -23,21 +23,22 @@ messaging.onBackgroundMessage(function (payload) {
 });
 
 self.addEventListener('notificationclick', function (event) {
-  baseURL = 'https://client.workenrich.com/';
-  const urlToOpen = baseURL + event.notification.data?.url || '';
+  const baseURL = 'https://client.workenrich.com/';
+  const urlToOpen = baseURL + (event.notification.data?.url || '');
   event.notification.close();
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
       for (let client of clientList) {
+        // لو في نافذة مفتوحة على نفس الـ origin، نوجهها
         if (client.url.includes(self.location.origin)) {
           return client.focus().then(() => client.navigate(urlToOpen));
         }
       }
+      // لو مفيش، نفتح نافذة جديدة
       return clients.openWindow(urlToOpen);
-    }
-    ));
-
+    })
+  );
 });
 // onMessage(messaging, payload => {
 //    self.registration.showNotification(payload.notification.title, {
