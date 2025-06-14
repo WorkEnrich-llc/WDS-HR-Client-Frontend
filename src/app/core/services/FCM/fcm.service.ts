@@ -26,7 +26,7 @@ export class FcmService {
           vapidKey: 'BAZJR-lUBhT5aY0HsiJOszKuU6U9ifiAkgOIGzaY59oe4WO9Wm_ISlnNfolCg2FMuMbMIKOAcOGjz2XcVeQiW9A'
         });
         this.token = token ?? '';
-        console.log('FCM Token:', this.token);
+        // console.log('FCM Token:', this.token);
         return this.token;
 
       } else if (permission === 'default') {
@@ -76,9 +76,9 @@ export class FcmService {
       const token = this.authHelper.getToken() ?? '';
       const headers = new HttpHeaders().set('Authorization', token);
 
-      headers.keys().forEach(key => {
-        console.log(`${key}: ${headers.get(key)}`);
-      });
+      // headers.keys().forEach(key => {
+      //   console.log(`${key}: ${headers.get(key)}`);
+      // });
 
       return this._HttpClient.put(url, formData, { headers });
     } else {

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 
 interface Department {
   id: number;
@@ -16,59 +17,122 @@ interface Department {
 
 @Component({
   selector: 'app-view-branches',
-  imports: [PageHeaderComponent,CommonModule,TableComponent,CommonModule,PopupComponent,RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink],
+  providers: [DatePipe],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
 })
 export class ViewBranchesComponent {
 
 
-  departments: Department[] = [
-    { id: 1, name: 'Human Resources', createdAt: '9/3/2024', updatedAt: '12/3/2025', sections: '8/9 selected', status: 'Active' },
-    { id: 2, name: 'Finance Department', createdAt: '10/3/2024', updatedAt: '13/3/2025', sections: '5/7 selected', status: 'Active' },
-    { id: 3, name: 'IT Services', createdAt: '11/3/2024', updatedAt: '14/3/2025', sections: '3/6 selected', status: 'Not Active' },
-    { id: 4, name: 'Marketing Team', createdAt: '12/3/2024', updatedAt: '15/3/2025', sections: '7/8 selected', status: 'Active' },
-    { id: 5, name: 'Sales Unit', createdAt: '13/3/2024', updatedAt: '16/3/2025', sections: '4/9 selected', status: 'Active' },
-    { id: 6, name: 'Logistics Department', createdAt: '14/3/2024', updatedAt: '17/3/2025', sections: '2/5 selected', status: 'Not Active' },
-    { id: 7, name: 'Procurement Team', createdAt: '15/3/2024', updatedAt: '18/3/2025', sections: '6/6 selected', status: 'Active' },
-    { id: 8, name: 'Legal Affairs', createdAt: '16/3/2024', updatedAt: '19/3/2025', sections: '1/3 selected', status: 'Active' },
-    { id: 9, name: 'Operations', createdAt: '17/3/2024', updatedAt: '20/3/2025', sections: '9/10 selected', status: 'Not Active' },
-    { id: 10, name: 'Customer Service', createdAt: '18/3/2024', updatedAt: '21/3/2025', sections: '8/8 selected', status: 'Active' },
-    { id: 11, name: 'Research and Development', createdAt: '19/3/2024', updatedAt: '22/3/2025', sections: '4/6 selected', status: 'Active' },
-    { id: 12, name: 'Public Relations', createdAt: '20/3/2024', updatedAt: '23/3/2025', sections: '5/5 selected', status: 'Active' },
-  ];
-  
+  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  departments: Department[] = [];
+  branchData: any = { sections: [] };
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  branchId: string | null = null;
+  ngOnInit(): void {
+    this.branchId = this.route.snapshot.paramMap.get('id');
+    // this.showBranch(Number(this.branchId));
+    if (this.branchId) {
+      this.showBranch(Number(this.branchId));
+    }
+  }
 
+  showBranch(branchId: number) {
 
+    this._BranchesService.showBranch(branchId).subscribe({
+      next: (response) => {
+        // console.log(response);
+        this.branchData = response.data.object_info;
+        const created = this.branchData?.created_at;
+        const updated = this.branchData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
-  sortBy() {
+
+  sortBy(column: string) {
+    this.currentSortColumn = column;
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.departments = this.departments.sort((a, b) => {
-      if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
-      } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+
+    if (this.branchData.departments && Array.isArray(this.branchData.departments)) {
+      this.branchData.departments = [...this.branchData.departments].sort((a, b) => {
+        const aVal = a[column];
+        const bVal = b[column];
+
+        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+  }
+
+
+  deactivateOpen = false;
+  activateOpen = false;
+  openDeactivate() {
+    this.deactivateOpen = true;
+  }
+
+  closeDeactivate() {
+    this.deactivateOpen = false;
+  }
+
+  confirmDeactivate() {
+    this.deactivateOpen = false;
+
+    const deptStatus = {
+      request_data: {
+        status: false
+      }
+    };
+
+    this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.branchData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
+  openActivate() {
+    this.activateOpen = true;
+  }
+
+  closeActivate() {
+    this.activateOpen = false;
+  }
+  confirmActivate() {
+    this.activateOpen = false;
+    const deptStatus = {
+      request_data: {
+        status: true
+      }
+    };
+
+    this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.branchData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
       }
     });
   }
 
 
 
-
-  isModalOpen = false;
-
-  openModal() {
-    this.isModalOpen = true;
-  }
-
-  closeModal() {
-    this.isModalOpen = false;
-  }
-
-  confirmAction() {
-    this.isModalOpen = false;
-    // logic to deactivate
-  }
-  
 }

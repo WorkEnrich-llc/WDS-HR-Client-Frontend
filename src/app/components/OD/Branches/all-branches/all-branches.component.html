@@ -20,7 +20,8 @@
       <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
         <!-- Search input -->
         <div data-mdb-input-init class="form-outline w-75">
-          <input type="text" class="form-control" placeholder="Search" />
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="11.5" cy="11.5" r="9.5" />
@@ -55,8 +56,8 @@
 
     <!-- start Table -->
 
-    <app-table [data]="branches" [totalItems]="branches.length"  [itemsPerPage]="10" [currentPage]="1" [headerTemplate]="branchTableHeader"
-      [rowTemplate]="branchTableRow" [emptyTemplate]="noBranch"></app-table>
+    <app-table [data]="branches" [totalItems]="branches.length" [itemsPerPage]="10" [currentPage]="1"
+      [headerTemplate]="branchTableHeader" [rowTemplate]="branchTableRow" [emptyTemplate]="noBranch"></app-table>
 
     <ng-template #branchTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
@@ -107,7 +108,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="branch.status ==='Not Active'">
+        <span class="badge-danger" *ngIf="branch.status ==='Inactive'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -119,7 +120,7 @@
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/branches/view-branch']" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+          <a [routerLink]="['/branches/view-branch', branch.id]" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path
@@ -129,7 +130,7 @@
             </svg>
             <span>View</span>
           </a>
-          <a [routerLink]="['/branches/edit']" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
+          <a [routerLink]="['/branches/edit', branch.id]" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -148,9 +149,9 @@
     <ng-template #noBranch>
       <tr>
         <td colspan="7" class="no-data py-4">
-            No Branches Added Yet
+          No Branches Added Yet
         </td>
-    </tr>
+      </tr>
     </ng-template>
 
   </div>
@@ -161,121 +162,224 @@
 
 
 <!-- filter popup -->
-<app-overlay-filter-box [title]="'Filters'">
-  <form action="" class="w-100 d-flex flex-column gap-3">
-    <div class="input">
-      <label for="createdAt">Created at</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" id="createdAt" class="form-control custom-date-input" placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-    </div>
-
-    <div class="input">
-      <label for="updatedAt">Updated at</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" id="updatedAt" class="form-control custom-date-input" placeholder="Min-Max" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-    </div>
-
-    <div class="input">
-      <label for="min">Max number of employees</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="d-flex align-items-center w-100 gap-2">
-          <div class="form-outline w-100 position-relative">
-            <input type="text" id="min" class="form-control" placeholder="Min" />
-          </div>
-          <div class="form-outline w-100 position-relative">
-            <input type="text" class="form-control" placeholder="Max" />
-          </div>
-        </div>
-
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-    </div>
-
-    <div class="input">
-      <label for="btanchLocation">Branch Location</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="btanchLocation" class="form-select">
-            <option value="">Any</option>
-            <option value="">1</option>
-            <option value="">2</option>
-          </select>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-    </div>
-
+<app-overlay-filter-box #filterBox [title]="'Filters'">
+  <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
       <label for="status">Status</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="status" class="form-select">
-            <option value="">Any</option>
-            <option value="Active">Active</option>
-            <option value="Not Active">Not Active</option>
+          <select name="" id="status" formControlName="status" class="form-select">
+            <option value="" selected disabled hidden>Select</option>
+            <option value="all">Any</option>
+            <option value="true">Active</option>
+            <option value="false">Not Active</option>
           </select>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <svg *ngIf="!filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
           <path fill="#e04f5f" fill-rule="evenodd"
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
+        <svg *ngIf="filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="minEmployees">Min Employees</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100">
+          <input type="text" formControlName="minEmployees" id="minEmployees" class="form-control custom-date-input"
+            placeholder="Min-Emp" />
+        </div>
+        <svg *ngIf="!filterForm.get('minEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('minEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="maxEmployees">Max Employees</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100">
+          <input type="text" formControlName="maxEmployees" id="maxEmployees" class="form-control custom-date-input"
+            placeholder="Max-Emp" />
+        </div>
+        <svg *ngIf="!filterForm.get('maxEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('maxEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="createdFrom">Created From</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" formControlName="createdFrom" id="createdFrom" class="form-control custom-date-input"
+            placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        <svg *ngIf="!filterForm.get('createdFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('createdFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="createdTo">Created To</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" formControlName="createdTo" id="createdTo" class="form-control custom-date-input"
+            placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        <svg *ngIf="!filterForm.get('createdTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('createdTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="updatedFrom">Updated From</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" formControlName="updatedFrom" id="updatedFrom" class="form-control custom-date-input"
+            placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        <svg *ngIf="!filterForm.get('updatedFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('updatedFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="updatedTo">Updated To</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" formControlName="updatedTo" id="updatedTo" class="form-control custom-date-input"
+            placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        <svg *ngIf="!filterForm.get('updatedTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('updatedTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
       </div>
     </div>
 
 
+
+
     <div class="d-flex align-items-center gap-3">
-      <button class="btn btn-lg btn-primary w-100">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -284,7 +388,7 @@
         </svg>
         <span>Apply Filter</span>
       </button>
-      <a class="text-danger-dark fw-bold w-100 text-center">
+      <a (click)="resetFilterForm()" class="text-danger-dark fw-bold w-100 text-center">
         <span>Clear Filters</span>
       </a>
     </div>

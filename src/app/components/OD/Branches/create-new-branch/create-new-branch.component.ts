@@ -80,7 +80,7 @@ export class CreateNewBranchComponent implements OnInit {
   // form step 2
   departments: any[] = [];
   addeddepartments: any[] = [];
-selectAll: boolean = false;
+  selectAll: boolean = false;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
   currentPage: number = 1;
@@ -92,29 +92,39 @@ selectAll: boolean = false;
     this.searchSubject.next(this.searchTerm);
   }
 
-  getAllDepartment(
-    pageNumber: number,
-    searchTerm: string = '',
-  ) {
-    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
     }).subscribe({
       next: (response) => {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
 
-        }));
+        this.departments = response.data.list_items.map((item: any) => {
+          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
+          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
+            ...section,
+            selected: false
+          }));
+
+          return {
+            id: item.id,
+            name: item.name,
+            sectionsCount: sectionsWithSelection.length,
+            sections: sectionsWithSelection,
+            selected: isSelected
+          };
+        });
+        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
         console.log(err.error?.details);
       }
     });
   }
+
   //checkboxes 
   toggleSelectAll() {
     this.departments.forEach(department => {
@@ -142,6 +152,7 @@ selectAll: boolean = false;
   discardDepartment(): void {
     this.departmentsOverlay.closeOverlay();
   }
+
   addSelectedDepartments(): void {
     const selected = this.departments.filter(dep => dep.selected);
 
@@ -151,16 +162,42 @@ selectAll: boolean = false;
         this.addeddepartments.push({
           id: dep.id,
           name: dep.name,
-          sectionFrom: 0,
-          sectionTo: 0
+          selectedSection: 0,
+          sectionsCount: dep.sectionsCount,
+          sections: dep.sections,
         });
       }
     });
 
-    this.departments.forEach(dep => dep.selected = false);
-    this.selectAll = false;
+    this.addeddepartments = this.addeddepartments.filter(added =>
+      selected.some(dep => dep.id === added.id)
+    );
+
     this.departmentsOverlay.closeOverlay();
+    // console.log(this.addeddepartments);
   }
+
+
+  // remove Department from selected departments
+  removeDepartment(department: any): void {
+    const index = this.addeddepartments.findIndex(dep => dep.id === department.id);
+    if (index !== -1) {
+      this.addeddepartments.splice(index, 1);
+    }
+
+    const deptInList = this.departments.find(dep => dep.id === department.id);
+    if (deptInList) {
+      deptInList.selected = false;
+    }
+
+    this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+  }
+
+
+
+
+
+
 
 
   sortDirection: string = 'asc';
@@ -175,31 +212,6 @@ selectAll: boolean = false;
       }
     });
   }
-
-  // steps
-  currentStep = 1;
-
-  goNext() {
-    if (this.currentStep < 2) {
-      this.currentStep++;
-    }
-  }
-
-  goPrev() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-
-
-  sections: any[] = [
-    { id: 4, name: 'Section 4', selected: true },
-    { id: 5, name: 'Section 5', selected: false },
-    { id: 6, name: 'Section 6', selected: true },
-    { id: 7, name: 'Section 7', selected: false },
-  ];
-
 
 
 
@@ -229,14 +241,135 @@ selectAll: boolean = false;
     this.departmentsOverlay.openOverlay();
   }
 
-  openSecondOverlay() {
+  selectedDepartmentSections: any[] = [];
+
+  openSecondOverlay(department: any): void {
+    this.selectedDepartmentId = department.id;
+
+    this.tempSections = (department.sections || []).map((section: any) => ({
+      ...section
+    }));
+
+    this.selectedDepartmentSections = this.tempSections;
     this.sectionsOverlay.openOverlay();
   }
 
 
-
-  // toggle section selected
+  selectedDepartmentId: number | null = null;
+  tempSections: any[] = [];
   toggleSectionSelection(section: any): void {
     section.selected = !section.selected;
+  }
+  confirmSectionChanges(): void {
+    const department = this.addeddepartments.find(dep => dep.id === this.selectedDepartmentId);
+    if (!department) return;
+
+    department.sections = this.tempSections.map(section => ({ ...section }));
+
+    const selectedCount = department.sections.filter((section: any) => section.selected).length;
+
+    department.selectedSection = selectedCount;
+
+    this.sectionsOverlay.closeOverlay();
+  }
+  discardSectionChanges(): void {
+    this.selectedDepartmentId = null;
+    this.tempSections = [];
+    this.selectedDepartmentSections = [];
+    this.sectionsOverlay.closeOverlay();
+  }
+
+
+  // create branch
+  createBranch(): void {
+    if (this.branchStep1.invalid) {
+      console.warn('Form is invalid');
+      return;
+    }
+
+    const formData = this.branchStep1.value;
+
+    const departments = this.addeddepartments.map((dep, depIndex) => {
+      return {
+        id: dep.id,
+        record_type: 'add',
+        index: depIndex + 1,
+        sections: (dep.sections || [])
+          .filter((section: any) => section.selected)
+          .map((section: any, secIndex: number) => ({
+            id: section.id,
+            record_type: 'add',
+            index: secIndex + 1
+          }))
+      };
+    });
+
+    const requestPayload = {
+      request_data: {
+        code: formData.code,
+        name: formData.name,
+        location: formData.location,
+        max_employee: Number(formData.maxEmployee),
+        departments: departments
+      }
+    };
+
+    console.log(requestPayload);
+    this._BranchesService.createBranch(requestPayload).subscribe({
+
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        // create success
+        this.router.navigate(['/branches/all-branches']);
+        this.toasterMessageService.sendMessage("Branch created successfully");
+
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const errorHandling = err?.error?.data?.error_handling;
+        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+          this.currentStep = errorHandling[0].tap;
+          this.errMsg = errorHandling[0].error;
+        } else {
+          this.errMsg = "An unexpected error occurred Please try again later.";
+        }
+      }
+    });
+  }
+
+
+  // steps
+  currentStep = 1;
+
+  goNext() {
+    if (this.currentStep < 2) {
+      this.currentStep++;
+    }
+  }
+
+  goPrev() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+
+  // added departmets table search
+  searchAddedDepartmentTerm: string = '';
+
+  get filteredDepartments() {
+    return this.addeddepartments.filter(dept =>
+      dept.name?.toLowerCase().includes(this.searchAddedDepartmentTerm.toLowerCase())
+    );
+  }
+
+
+  searchDeptSectionsTerm: string = '';
+
+  get filteredSections() {
+    return this.selectedDepartmentSections.filter(dept =>
+      dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
+    );
   }
 }

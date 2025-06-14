@@ -109,7 +109,7 @@ export const routes: Routes = [
                 title: 'Branches',
               },
               {
-                path: 'view-branch',
+                path: 'view-branch/:id',
                 loadComponent: () => import('./components/OD/Branches/view-branches/view-branches.component').then(m => m.ViewBranchesComponent),
                 title: 'View Branch'
               },
@@ -119,7 +119,7 @@ export const routes: Routes = [
                 title: 'Create Branch'
               },
               {
-                path: 'edit',
+                path: 'edit/:id',
                 loadComponent: () => import('./components/OD/Branches/edit-branch-info/edit-branch-info.component').then(m => m.EditBranchInfoComponent),
                 title: 'Edit Branch'
               },

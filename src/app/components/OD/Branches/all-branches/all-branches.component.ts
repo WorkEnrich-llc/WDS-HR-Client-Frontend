@@ -1,11 +1,15 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { BranchesService } from '../../../../core/services/od/branches/branches.service';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { ToastrService } from 'ngx-toastr';
+import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 
 interface Branch {
   id: number;
@@ -19,35 +23,84 @@ interface Branch {
 
 @Component({
   selector: 'app-all-branches',
-  imports: [PageHeaderComponent, CommonModule, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent,RouterLink],
+  imports: [PageHeaderComponent, CommonModule, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent, RouterLink,ReactiveFormsModule],
+  providers: [DatePipe],
   templateUrl: './all-branches.component.html',
   styleUrls: ['./all-branches.component.css']
 })
 
-export class AllBranchesComponent {
+export class AllBranchesComponent implements OnInit {
+
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
 
-  branches: Branch[] = [
-    { id: 1, name: 'Branch One', location: 'Cairo', maxEmployees: 30, createdAt: '9/3/2024', updatedAt: '12/3/2025', status: 'Active' },
-    { id: 2, name: 'North Jeddah Branch', location: 'Jeddah', maxEmployees: 35, createdAt: '9/3/2024', updatedAt: '12/3/2025', status: 'Active' },
-    { id: 3, name: 'Rabat Downtown', location: 'Rabat', maxEmployees: 46, createdAt: '9/3/2024', updatedAt: '12/3/2025', status: 'Not Active' },
-    { id: 4, name: 'Alex Main Branch', location: 'Alexandria', maxEmployees: 28, createdAt: '10/3/2024', updatedAt: '1/4/2025', status: 'Active' },
-    { id: 5, name: 'Dubai HQ', location: 'Dubai', maxEmployees: 55, createdAt: '11/3/2024', updatedAt: '3/4/2025', status: 'Active' },
-    { id: 6, name: 'Kuwait Office', location: 'Kuwait', maxEmployees: 32, createdAt: '13/3/2024', updatedAt: '4/4/2025', status: 'Not Active' },
-    { id: 7, name: 'Doha Service Point', location: 'Doha', maxEmployees: 25, createdAt: '14/3/2024', updatedAt: '5/4/2025', status: 'Active' },
-    { id: 8, name: 'Tunis City Branch', location: 'Tunis', maxEmployees: 40, createdAt: '15/3/2024', updatedAt: '6/4/2025', status: 'Active' },
-    { id: 9, name: 'Beirut Branch', location: 'Beirut', maxEmployees: 27, createdAt: '16/3/2024', updatedAt: '7/4/2025', status: 'Not Active' },
-    { id: 10, name: 'Tripoli Office', location: 'Tripoli', maxEmployees: 22, createdAt: '17/3/2024', updatedAt: '8/4/2025', status: 'Active' },
-    { id: 11, name: 'Riyadh East', location: 'Riyadh', maxEmployees: 38, createdAt: '18/3/2024', updatedAt: '9/4/2025', status: 'Active' },
-    { id: 12, name: 'Manama Finance Center', location: 'Manama', maxEmployees: 33, createdAt: '19/3/2024', updatedAt: '10/4/2025', status: 'Active' },
-  ];
- currentPage: number = 1;
-  // totalpages: number = 0;
-  // totalItems: number = 0;
-  itemsPerPage: number = 10;
+  filterForm!: FormGroup;
+  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+    private _BranchesService: BranchesService, private datePipe: DatePipe, private fb: FormBuilder) { }
+
+  branches: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
+  searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+  private toasterSubscription!: Subscription;
+
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.currentPage = +params['page'] || 1;
+      this.getAllBranches(this.currentPage);
+    });
+
+    this.toasterSubscription = this.toasterMessageService.currentMessage$
+      .pipe(filter(msg => !!msg && msg.trim() !== ''))
+      .subscribe(msg => {
+        this.toastr.clear();
+        this.toastr.success(msg, '', { timeOut: 3000 });
+
+        this.toasterMessageService.clearMessage();
+      });
+
+    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+      this.getAllBranches(this.currentPage, value);
+    });
+
+
+    this.filterForm = this.fb.group({
+      status: [''],
+      updatedFrom: [''],
+      updatedTo: [''],
+      createdFrom: [''],
+      createdTo: [''],
+      minEmployees: [''],
+      maxEmployees: [''],
+      branch: [''],
+    });
+  }
+
+
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      status: '',
+      updatedFrom: '',
+      updatedTo: '',
+      createdFrom: '',
+      createdTo: '',
+      minEmployees: '',
+      maxEmployees: '',
+      branch: ''
+    });
+    this.filterBox.closeOverlay();
+    this.getAllBranches(this.currentPage);
+  }
+
+  ngOnDestroy(): void {
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+  }
+
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.branches = this.branches.sort((a, b) => {
@@ -58,9 +111,88 @@ export class AllBranchesComponent {
       }
     });
   }
-onItemsPerPageChange(newItemsPerPage: number) {
-  this.currentPage = 1;
-  this.itemsPerPage = newItemsPerPage;
-}
 
+  onSearchChange() {
+    this.searchSubject.next(this.searchTerm);
+  }
+
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      const filters = {
+        status: rawFilters.status || undefined,
+        updated_from: rawFilters.updatedFrom || undefined,
+        updated_to: rawFilters.updatedTo || undefined,
+        created_from: rawFilters.createdFrom || undefined,
+        created_to: rawFilters.createdTo || undefined,
+        min_employees: rawFilters.minEmployees || undefined,
+        max_employees: rawFilters.maxEmployees || undefined,
+        branch: rawFilters.branch || undefined,
+      };
+
+      // console.log('Filters submitted:', filters);
+      this.filterBox.closeOverlay();
+      this.getAllBranches(this.currentPage, '', filters);
+    }
+  }
+
+
+
+  currentPage: number = 1;
+  totalpages: number = 0;
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+  getAllBranches(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      status?: string;
+      updated_from?: string;
+      updated_to?: string;
+      created_from?: string;
+      created_to?: string;
+    }
+  ) {
+    this._BranchesService.getAllBranches(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        // console.log(response);
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
+        this.branches = response.data.list_items.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          location: item.location,
+          maxEmployees: item.maxEmployees ?? null,
+          createdAt: this.datePipe.transform(item.created_at, 'dd/MM/yyyy'),
+          updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
+          status: item.is_active ? 'Active' : 'Inactive',
+        }));
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+
+        this.sortBy();
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
+
+
+  onItemsPerPageChange(newItemsPerPage: number) {
+    this.itemsPerPage = newItemsPerPage;
+    this.currentPage = 1;
+    this.getAllBranches(this.currentPage);
+  }
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.getAllBranches(this.currentPage);
+  }
 }

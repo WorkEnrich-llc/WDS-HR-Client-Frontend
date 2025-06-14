@@ -2,7 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideHttpClient, HttpClient } from '@angular/common/http';
 import { importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { routes } from './app/app.routes';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -20,7 +20,10 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(),
     provideAnimations(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withViewTransitions(),
+    ),
     provideToastr(),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideMessaging(() => getMessaging()),
@@ -47,6 +50,10 @@ if ('serviceWorker' in navigator) {
       //   },
       // });
 
-      console.log('✅ SW registered', registration);
-    }).catch(err => console.error('❌ SW registration failed', err));
+      // console.log('SW registered', registration);
+    }).catch(err => console.error('SW registration failed', err));
 }
+
+// function withScrollPositionRestoration(arg0: string): import("@angular/router").RouterFeatures {
+//   throw new Error('Function not implemented.');
+// }

@@ -1,4 +1,4 @@
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { Component } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FcmService } from './core/services/FCM/fcm.service';
@@ -7,6 +7,8 @@ import { AuthenticationService } from './core/services/authentication/authentica
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { environment } from './../environments/environment';
+import { ViewportScroller } from '@angular/common';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +24,9 @@ export class AppComponent {
   constructor(
     private translate: TranslateService,
     private fcmService: FcmService,
-    private _AuthenticationService: AuthenticationService
+    private _AuthenticationService: AuthenticationService,
+    private router: Router,
+    private viewportScroller: ViewportScroller
   ) {
     const lang = localStorage.getItem('lang') || 'en';
     this.translate.setDefaultLang('en');
@@ -30,6 +34,13 @@ export class AppComponent {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     this.updateStyles(lang);
+
+    // Scroll to top on navigation
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.viewportScroller.scrollToPosition([0, 0]);
+    });
   }
 
   updateStyles(lang: string) {
@@ -47,7 +58,13 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
- 
+    const existingToken = localStorage.getItem('device_token');
+    if (existingToken && existingToken.trim() !== '') {
+      // console.log('Device already registered, skipping registration.');
+      this.checkTokenChangesPeriodically();
+      this.checkAndUpdateFcmStatus();
+      return;
+    }
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);
@@ -103,7 +120,7 @@ export class AppComponent {
       });
 
     this.checkTokenChangesPeriodically();
-    this.checkAndUpdateFcmStatus();
+    // this.checkAndUpdateFcmStatus();
   }
 
 
@@ -147,40 +164,40 @@ export class AppComponent {
 
 
   // update fcm status
-checkAndUpdateFcmStatus(): void {
-  const sessionToken = localStorage.getItem('session_token') || '';
-  const cleanedSessionToken = sessionToken.replace(/^"|"$/g, '');
-  const fcmToken = localStorage.getItem('fcm_token') || '';
+  checkAndUpdateFcmStatus(): void {
+    const sessionToken = localStorage.getItem('session_token') || '';
+    const cleanedSessionToken = sessionToken.replace(/^"|"$/g, '');
+    const fcmToken = localStorage.getItem('fcm_token') || '';
 
-  const permission = Notification.permission;
-  let enabled = false;
-  if (permission === 'granted') {
-    enabled = true;
-  } else if (permission === 'default') {
-    enabled = true;
-  } else if (permission === 'denied') {
-    enabled = false;
-  }
-
-  const formData = new FormData();
-  formData.append('session_token', cleanedSessionToken);
-  formData.append('fcm_status', enabled ? 'true' : 'false');
-  formData.append('fcm_token', fcmToken);
-
-for (const [key, value] of formData.entries()) {
-  console.log(`${key}: ${value}`);
-}
-
-  this.fcmService.fcmChangeStatus(formData).subscribe({
-    next: () => {
-      // console.log('FCM status updated successfully');
-      localStorage.setItem('is_fcm', String(enabled));
-    },
-    error: (err) => {
-      console.error('FCM stutus update error: ', err);
+    const permission = Notification.permission;
+    let enabled = false;
+    if (permission === 'granted') {
+      enabled = true;
+    } else if (permission === 'default') {
+      enabled = true;
+    } else if (permission === 'denied') {
+      enabled = false;
     }
-  });
-}
+
+    const formData = new FormData();
+    formData.append('session_token', cleanedSessionToken);
+    formData.append('fcm_status', enabled ? 'true' : 'false');
+    formData.append('fcm_token', fcmToken);
+
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
+
+    this.fcmService.fcmChangeStatus(formData).subscribe({
+      next: () => {
+        // console.log('FCM status updated successfully');
+        localStorage.setItem('is_fcm', String(enabled));
+      },
+      error: (err) => {
+        console.error('FCM stutus update error: ', err);
+      }
+    });
+  }
 
 
 }
