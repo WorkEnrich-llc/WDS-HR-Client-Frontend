@@ -32,7 +32,7 @@ bootstrapApplication(AppComponent, {
           deps: [HttpClient]
         }
       }),
-      
+
     )
   ]
 }).catch(err => console.error(err));
@@ -40,6 +40,13 @@ bootstrapApplication(AppComponent, {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('firebase-messaging-sw.js')
     .then((registration) => {
+      // registration.showNotification('title', {
+      //   body: 'body',
+      //   data: {
+      //     url: 'departments/view-department/1',
+      //   },
+      // });
+
       console.log('✅ SW registered', registration);
     }).catch(err => console.error('❌ SW registration failed', err));
 }

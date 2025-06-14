@@ -14,14 +14,14 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
-    // canActivate: [GuestGuard],
+    canActivate: [GuestGuard],
     children: [
       {
         path: 'auth',
         children: [
           {
             path: '',
-            redirectTo: 'register',
+            redirectTo: 'login',
             pathMatch: 'full'
           },
           {
@@ -52,7 +52,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./layouts/system-layout/system-layout.component').then(m => m.SystemLayoutComponent),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
     children: [
 
 

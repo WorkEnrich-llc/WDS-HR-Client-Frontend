@@ -15,10 +15,10 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
-  self.registration.showNotification(payload.notification.title, {
-    body: payload.notification.body,
+  self.registration.showNotification(payload.data.title, {
+    body: payload.data.body,
     data: {
-      url: payload.data?.url || '', // Assuming payload.data contains the URL
+      url: payload.data?.url || '', 
     },
   });
 
@@ -36,12 +36,10 @@ self.addEventListener('notificationclick', function (event) {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
       for (let client of clientList) {
-        // لو في نافذة مفتوحة على نفس الـ origin، نوجهها
         if (client.url.includes(self.location.origin)) {
           return client.focus().then(() => client.navigate(urlToOpen));
         }
       }
-      // لو مفيش، نفتح نافذة جديدة
       return clients.openWindow(urlToOpen);
     })
   );
