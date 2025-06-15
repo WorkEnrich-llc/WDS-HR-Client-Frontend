@@ -200,13 +200,13 @@
     </div>
 
     <div class="input">
-      <label for="minEmployees">Min Employees</label>
+      <label for="location">Location</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100">
-          <input type="text" formControlName="minEmployees" id="minEmployees" class="form-control custom-date-input"
-            placeholder="Min-Emp" />
+          <input type="text" formControlName="branch" id="location" class="form-control custom-date-input"
+            placeholder="location" />
         </div>
-        <svg *ngIf="!filterForm.get('minEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="!filterForm.get('branch')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -214,7 +214,32 @@
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
-        <svg *ngIf="filterForm.get('minEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="filterForm.get('branch')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="minEmployees">Min Employees</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100">
+          <input type="text" formControlName="min_employees" id="minEmployees" class="form-control custom-date-input"
+            placeholder="Min-Emp" />
+        </div>
+        <svg *ngIf="!filterForm.get('min_employees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg *ngIf="filterForm.get('min_employees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -228,10 +253,10 @@
       <label for="maxEmployees">Max Employees</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100">
-          <input type="text" formControlName="maxEmployees" id="maxEmployees" class="form-control custom-date-input"
+          <input type="text" formControlName="max_employees" id="maxEmployees" class="form-control custom-date-input"
             placeholder="Max-Emp" />
         </div>
-        <svg *ngIf="!filterForm.get('maxEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="!filterForm.get('max_employees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -239,7 +264,7 @@
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
-        <svg *ngIf="filterForm.get('maxEmployees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="filterForm.get('max_employees')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />

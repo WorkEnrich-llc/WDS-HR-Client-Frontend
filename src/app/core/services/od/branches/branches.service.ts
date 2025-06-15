@@ -71,7 +71,7 @@ export class BranchesService {
     let params = new HttpParams()
       .set('page', pageNumber)
       .set('per_page', perPage);
-
+    console.log('Filters:', filters);
     if (filters) {
       if (filters.search) params = params.set('search', filters.search);
       if (filters.updated_from) params = params.set('updated_from', filters.updated_from);

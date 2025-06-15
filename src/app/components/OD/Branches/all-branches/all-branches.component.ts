@@ -73,8 +73,8 @@ export class AllBranchesComponent implements OnInit {
       updatedTo: [''],
       createdFrom: [''],
       createdTo: [''],
-      minEmployees: [''],
-      maxEmployees: [''],
+      min_employees: [''],
+      max_employees: [''],
       branch: [''],
     });
   }
@@ -87,8 +87,8 @@ export class AllBranchesComponent implements OnInit {
       updatedTo: '',
       createdFrom: '',
       createdTo: '',
-      minEmployees: '',
-      maxEmployees: '',
+      min_employees: '',
+      max_employees: '',
       branch: ''
     });
     this.filterBox.closeOverlay();
@@ -127,8 +127,8 @@ export class AllBranchesComponent implements OnInit {
         updated_to: rawFilters.updatedTo || undefined,
         created_from: rawFilters.createdFrom || undefined,
         created_to: rawFilters.createdTo || undefined,
-        min_employees: rawFilters.minEmployees || undefined,
-        max_employees: rawFilters.maxEmployees || undefined,
+        min_employees: rawFilters.min_employees || undefined,
+        max_employees: rawFilters.max_employees || undefined,
         branch: rawFilters.branch || undefined,
       };
 
@@ -153,6 +153,8 @@ export class AllBranchesComponent implements OnInit {
       updated_to?: string;
       created_from?: string;
       created_to?: string;
+      min_employees?: string;
+      max_employees?: string;
     }
   ) {
     this._BranchesService.getAllBranches(pageNumber, this.itemsPerPage, {
