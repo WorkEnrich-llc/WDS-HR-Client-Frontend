@@ -148,14 +148,19 @@
       </td>
 
     </ng-template>
+
     <ng-template #noDepartment>
       <tr>
         <td colspan="7" class="no-data py-4">
-          No Branches Added Yet
+          <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+            No Departments match your search.
+          </ng-container>
+          <ng-template #noDepartments>
+            No Departments Added Yet. You must add at least one Departments to the branch.
+          </ng-template>
         </td>
       </tr>
     </ng-template>
-
   </div>
 </div>
 
@@ -326,7 +331,7 @@
     </div>
 
 
-    
+
 
 
 

@@ -95,7 +95,7 @@
         </span>
       </td>
       <td>{{ branch.location }}</td>
-      <td>{{ branch.maxEmployees }}</td>
+      <td>{{ branch.max_employee }}</td>
       <td>{{ branch.createdAt }}</td>
       <td>{{ branch.updatedAt }}</td>
       <td>
@@ -120,7 +120,8 @@
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/branches/view-branch', branch.id]" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+          <a [routerLink]="['/branches/view-branch', branch.id]"
+            class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path
@@ -146,14 +147,19 @@
       </td>
 
     </ng-template>
+
     <ng-template #noBranch>
       <tr>
         <td colspan="7" class="no-data py-4">
-          No Branches Added Yet
+          <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+            No Departments match your search.
+          </ng-container>
+          <ng-template #noDepartments>
+            No Departments Added Yet. You must add at least one Departments to the branch.
+          </ng-template>
         </td>
       </tr>
     </ng-template>
-
   </div>
 </div>
 

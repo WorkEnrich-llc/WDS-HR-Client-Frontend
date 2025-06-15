@@ -1,7 +1,7 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Operations Development', link: '/' },
     { label: 'Branches', link: '/branches' },
-    { label: 'View Branch' + branchData?.name}
+    { label: 'View Branch ' + branchData?.name}
   ]" [title]="'View Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
   <button class="btn btn-lg btn-primary" [routerLink]="['/branches/edit', branchData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -50,15 +50,15 @@
     </div>
     <div class="info">
       <h6>Max No. Employees</h6>
-      <p class="fs-6 lh-base">30 Employees</p>
+      <p class="fs-6 lh-base">{{branchData.max_employee}}</p>
     </div>
   </div>
   <div class="content-box">
     <h2 class="mb-3">Departments</h2>
 
 
-    <app-table [data]="branchData.departments" [itemsPerPage]="10" [totalItems]="branchData?.departments?.length" [headerTemplate]="departmentTableHeader"
-      [rowTemplate]="departmentTableRow"></app-table>
+    <app-table [data]="branchData.departments" [itemsPerPage]="10" [totalItems]="branchData?.departments?.length"
+      [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"></app-table>
 
     <ng-template #departmentTableHeader>
       <th (click)="sortBy('id')" style="cursor: pointer;">

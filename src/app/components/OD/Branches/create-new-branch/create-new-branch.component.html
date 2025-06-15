@@ -4,7 +4,7 @@
     { label: 'Branches', link: '/branches' },
     { label: 'Create New Branch' }
   ]" title="Create New Branch" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid" (click)="createBranch()">
+    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -82,7 +82,7 @@
                 <label for="branchCode">Branch Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="code" id="branchCode" class="form-control custom-date-input"
-                        placeholder="0050" />
+                        placeholder="Enter Code" />
                 </div>
             </div>
 
@@ -90,7 +90,7 @@
                 <label for="branchName">Branch Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="name" id="branchName" class="form-control custom-date-input"
-                        placeholder="Maple Grove Branch" />
+                        placeholder="Enter Branch Name" />
                 </div>
                 <p class="error-msg"
                     *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['required']">
@@ -102,7 +102,7 @@
                 <label for="branchLocation">Branch Location (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="location" id="branchLocation"
-                        class="form-control custom-date-input" placeholder="Cairo" />
+                        class="form-control custom-date-input" placeholder="Enter Branch Location (city)" />
                 </div>
             </div>
 
@@ -110,7 +110,7 @@
                 <label for="empNo">Max No. Employees <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="maxEmployee" id="empNo" class="form-control custom-date-input"
-                        placeholder="30" />
+                        placeholder="Enter Max Num of Employees" />
                 </div>
                 <p class="error-msg"
                     *ngIf="branchStep1.get('maxEmployee')?.touched && branchStep1.get('maxEmployee')?.errors?.['required']">
@@ -212,7 +212,7 @@
                         {{ department.name }}
                     </span>
                 </td>
-                <td>{{ department.selectedSection }}/{{department.sectionsCount}} selected</td>
+                <td>{{ department.selectedSection }} / {{department.sectionsCount}} selected</td>
                 <td class="flex-grow-1 ps-3" style="white-space: nowrap;">
                     <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                         <a type="button" class="remove-btn d-flex align-items-center gap-1" (click)="removeDepartment(department)">
@@ -243,7 +243,12 @@
             <ng-template #departmentTableEmptyRow>
                 <tr>
                     <td colspan="3" class="no-data py-4">
-                        No Departments Added Yet
+                        <ng-container *ngIf="searchAddedDepartmentTerm?.trim(); else noDepartments">
+                            No Department match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Department Added Yet. You must add at least one Department to the branch.
+                        </ng-template>
                     </td>
                 </tr>
             </ng-template>
@@ -262,7 +267,7 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid" (click)="createBranch()">
+            <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
                   <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -328,6 +333,18 @@
                 </td>
             </tr>
         </ng-template>
+        <ng-template #noAllDepartments>
+                <tr>
+                    <td colspan="3" class="no-data py-4">
+                        <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                            No Department match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Department Added Yet. You must add at least one Department to the branch.
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">
@@ -410,6 +427,18 @@
                 </td>
             </tr>
         </ng-template>
+        <ng-template #noAllSections>
+                <tr>
+                    <td colspan="3" class="no-data py-4">
+                        <ng-container *ngIf="searchDeptSectionsTerm?.trim(); else noDepartments">
+                            No Sections match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Sections Added Yet. You must add at least one Sections to the branch.
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">

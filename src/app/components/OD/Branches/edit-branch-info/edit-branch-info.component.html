@@ -2,10 +2,13 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Operations Development', link: '/' },
     { label: 'Branches', link: '/branches' },
-    { label: 'Edit Branch 002' }
-  ]" title="Edit Branch Info" create="13/06/2023" update="03/12/2024">
-    <button class="btn btn-lg btn-success">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    { label: 'Edit Branch ' + branchData?.name}
+  ]" [title]="'Edit Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-success"
+        [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
+        (click)="updateBranch()">
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -31,7 +34,7 @@
         'active': currentStep === 1,
         'text-success': currentStep > 1, 
         'bg-light-success': currentStep > 1  
-    }" (click)="currentStep = 1">
+    }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
             <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
             <path
@@ -51,7 +54,7 @@
             d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
     </svg>
 
-    <li class="nav-item" [ngClass]="{ active: currentStep === 2 }" (click)="currentStep = 2">
+    <li class="nav-item" [ngClass]="{ active: currentStep === 2 }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
             [style.fill]="currentStep === 2 ? '#007bff' : 'black'">
             <path
@@ -72,40 +75,67 @@
 <div class="content-hug" *ngIf="currentStep === 1">
     <div class="content-box d-flex flex-column gap-3">
 
-        <form action="" class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="branchStep1" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="branchCode">Branch Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="branchCode" class="form-control custom-date-input" placeholder="0050" />
+                    <input type="text" formControlName="code" id="branchCode" class="form-control custom-date-input" />
                 </div>
             </div>
+
             <div class="input">
                 <label for="branchName">Branch Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="branchName" class="form-control custom-date-input"
-                        placeholder="Maple Grove Branch" />
+                    <input type="text" formControlName="name" id="branchName" class="form-control custom-date-input" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['required']">
+                    Branch Name is required.
+                </p>
             </div>
+
             <div class="input">
                 <label for="branchLocation">Branch Location (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="branchLocation" class="form-control custom-date-input" placeholder="Cairo" />
+                    <input type="text" formControlName="location" id="branchLocation"
+                        class="form-control custom-date-input" />
                 </div>
             </div>
+
             <div class="input">
                 <label for="empNo">Max No. Employees <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="empNo" class="form-control custom-date-input" placeholder="30" />
+                    <input type="text" formControlName="maxEmployee" id="empNo"
+                        class="form-control custom-date-input" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('maxEmployee')?.touched && branchStep1.get('maxEmployee')?.errors?.['required']">
+                    Max No. Employees is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('maxEmployee')?.touched && branchStep1.get('maxEmployee')?.errors?.['pattern']">
+                    Max No. Employees must be numbers only.
+                </p>
             </div>
+
         </form>
+        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
 
-
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" [disabled]="isLoading || !branchStep1.valid" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (1/2)</span>
+            </button>
+        </div>
 
     </div>
 </div>
-
-
 
 <!-- step 2 -->
 <div class="content-hug" *ngIf="currentStep === 2">
@@ -114,7 +144,7 @@
         <div class="d-flex flex-row justify-content-between gap-3">
             <!-- Search input -->
             <div data-mdb-input-init class="form-outline w-25 w-md-100">
-                <input type="text" class="form-control" placeholder="Search" />
+                <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchAddedDepartmentTerm" />
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                     <g fill="none" stroke-width="1.5">
                         <circle cx="11.5" cy="11.5" r="9.5" />
@@ -137,10 +167,12 @@
 
         <!-- start table -->
         <div>
-            <app-table [data]="departments" [currentPage]="1" [itemsPerPage]="10"
-                [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"
-                [emptyTemplate]="departmentTableEmptyRow">
+            <app-table [data]="filteredDepartments" [currentPage]="currentPage" [itemsPerPage]="10000"
+                [disablePagination]="true" (pageChange)="onPageChange($event)"
+                (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="departmentTableHeader"
+                [rowTemplate]="departmentTableRow" [emptyTemplate]="departmentTableEmptyRow">
             </app-table>
+
 
             <ng-template #departmentTableHeader>
                 <th (click)="sortBy()" style="cursor: pointer;" class="w-50">
@@ -172,10 +204,16 @@
                         {{ department.name }}
                     </span>
                 </td>
-                <td>{{ department.sectionFrom }}/{{department.sectionTo}} selected</td>
+                <td>
+                    {{ department.sections?.selected_list?.length || 0 }}
+                    /
+                    {{ department.sections?.options_list?.length || 0 }}
+                    selected
+                </td>
                 <td class="flex-grow-1 ps-3" style="white-space: nowrap;">
                     <div class="d-flex align-items-center justify-content-start w-100 gap-3">
-                        <a type="button" class="remove-btn d-flex align-items-center gap-1">
+                        <a type="button" class="remove-btn d-flex align-items-center gap-1"
+                            (click)="removeDepartment(department)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <path fill="currentColor"
                                     d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -185,7 +223,8 @@
                             </svg>
                             <span>Remove from Branch</span>
                         </a>
-                        <a type="button" class="edit-btn d-flex align-items-center gap-1" (click)="openSecondOverlay()">
+                        <a type="button" class="edit-btn d-flex align-items-center gap-1"
+                            (click)="openSecondOverlay(department)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <path stroke-linecap="round"
@@ -197,23 +236,50 @@
                             <span>Edit Sections</span>
                         </a>
                     </div>
-                    <button class="btn btn-outline-danger border-0">
 
-                    </button>
                 </td>
             </ng-template>
 
             <ng-template #departmentTableEmptyRow>
                 <tr>
                     <td colspan="3" class="no-data py-4">
-                        No Departments Added Yet
+                        <ng-container *ngIf="searchAddedDepartmentTerm?.trim(); else noDepartments">
+                            No departments match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Departments Added Yet. You must add at least one department to the branch.
+                        </ng-template>
                     </td>
                 </tr>
             </ng-template>
         </div>
+        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success"
+                [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
+                (click)="updateBranch()">
+                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Save Changes</span>
+            </button>
+        </div>
 
 
-        
     </div>
 </div>
 
@@ -222,7 +288,8 @@
 <app-overlay-filter-box #departmentsOverlay [title]="'Select Departments'">
     <!-- Search input -->
     <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
-        <input type="text" class="form-control" placeholder="Search" />
+        <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+            placeholder="Search" />
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
                 <circle cx="11.5" cy="11.5" r="9.5" />
@@ -232,7 +299,8 @@
     </div>
     <!-- start table -->
     <div class="slide-table">
-        <app-table [data]="Alldepartments" [itemsPerPage]="10" [currentPage]="1"
+        <app-table [data]="departments" [itemsPerPage]="10000" [disablePagination]="true" [currentPage]="currentPage"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
             [headerTemplate]="AlldepartmentTableHeader" [rowTemplate]="AlldepartmentTableRow"
             [emptyTemplate]="noAllDepartments">
         </app-table>
@@ -258,17 +326,23 @@
                 </label>
             </td>
         </ng-template>
-        <ng-template #noAllDepartments>
-            <tr>
-                <td colspan="3" class="no-data py-4">
-                    No Departments Added Yet
-                </td>
-            </tr>
-        </ng-template>
+        
+         <ng-template #noAllDepartments>
+                <tr>
+                    <td colspan="3" class="no-data py-4">
+                        <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                            No departments match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Departments Added Yet. You must add at least one department to the branch.
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">
-        <button class="btn btn-lg btn-primary w-100">
+        <button class="btn btn-lg btn-primary w-100" (click)="addSelectedDepartments()">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none" stroke-width="1.5">
                     <circle cx="12" cy="12" r="10" />
@@ -277,7 +351,7 @@
             </svg>
             <span>Add to Branch</span>
         </button>
-        <a class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
+        <a (click)="discardDepartment()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
             <span>Discard</span>
         </a>
     </div>
@@ -285,11 +359,12 @@
 </app-overlay-filter-box>
 
 
+
 <!-- edit section slider -->
 <app-overlay-filter-box #sectionsOverlay [title]="'Department Sections'">
     <!-- Search input -->
     <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
-        <input type="text" class="form-control" placeholder="Search" />
+        <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchDeptSectionsTerm" />
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
                 <circle cx="11.5" cy="11.5" r="9.5" />
@@ -299,8 +374,8 @@
     </div>
     <!-- start table -->
     <div class="slide-table">
-        <app-table [data]="sections" [itemsPerPage]="10" [currentPage]="1" [headerTemplate]="sectionsTableHeader"
-            [rowTemplate]="sectionsTableRow" [emptyTemplate]="noAllSections">
+        <app-table [data]="filteredSections" [itemsPerPage]="10000" [disablePagination]="true"
+            [headerTemplate]="sectionsTableHeader" [rowTemplate]="sectionsTableRow" [emptyTemplate]="noAllSections">
         </app-table>
 
         <ng-template #sectionsTableHeader>
@@ -318,42 +393,44 @@
                 </span>
             </td>
             <td>
-                <a
-                  type="button"
-                  class="d-flex align-items-center gap-1"
-                  [ngClass]="section.selected ? 'remove-btn' : 'view-btn'"
-                  (click)="toggleSectionSelection(section)"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <ng-container *ngIf="section.selected; else addIcon">
-                      <path fill="currentColor"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                      <path fill="currentColor" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                    </ng-container>
-                    <ng-template #addIcon>
-                      <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                      </g>
-                    </ng-template>
-                  </svg>
-                  <span>{{ section.selected ? 'Remove from Branch' : 'Add to Branch' }}</span>
+                <a type="button" class="d-flex align-items-center gap-1"
+                    [ngClass]="section.selected ? 'remove-btn' : 'view-btn'" (click)="toggleSectionSelection(section)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <ng-container *ngIf="section.selected; else addIcon">
+                            <path fill="currentColor"
+                                d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                            <path fill="currentColor" fill-rule="evenodd"
+                                d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                clip-rule="evenodd" />
+                        </ng-container>
+                        <ng-template #addIcon>
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                            </g>
+                        </ng-template>
+                    </svg>
+                    <span>{{ section.selected ? 'Remove from Branch' : 'Add to Branch' }}</span>
                 </a>
-              </td>
+            </td>
         </ng-template>
-        <ng-template #noAllSections>
-            <tr>
-                <td colspan="3" class="no-data py-4">
-                    No Sections Added Yet
-                </td>
-            </tr>
-        </ng-template>
+       
+         <ng-template #noAllSections>
+                <tr>
+                    <td colspan="3" class="no-data py-4">
+                        <ng-container *ngIf="searchDeptSectionsTerm?.trim(); else noDepartments">
+                            No Sections match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Sections Added Yet. You must add at least one Sections to the branch.
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">
-        <button class="btn btn-lg btn-primary w-100">
+        <button class="btn btn-lg btn-primary w-100" (click)="confirmSectionChanges()">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none" stroke-width="1.5">
                     <circle cx="12" cy="12" r="10" />
@@ -362,16 +439,16 @@
             </svg>
             <span>Confirm</span>
         </button>
-        <a class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
+        <a class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center" (click)="discardSectionChanges()">
             <span>Discard</span>
         </a>
     </div>
 
 </app-overlay-filter-box>
 
-
 <!-- Discard popup  -->
-<app-popup [title]="'Discard Branch Changes'" [paragraph1]="'Are you sure you want to discard all changes done to the Branch?'"
+<app-popup [title]="'Discard Branch Changes'"
+    [paragraph1]="'Are you sure you want to discard all changes done to the Branch?'"
     [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
     <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
         Discard Changes

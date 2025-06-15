@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Messaging } from '@angular/fire/messaging';
 import { getToken } from 'firebase/messaging';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { AuthHelperService } from '../authentication/auth-helper.service';
 import { environment } from '../../../../environments/environment';
 
@@ -14,6 +14,23 @@ export class FcmService {
   private apiBaseUrl: string;
   constructor(private messaging: Messaging, private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
     this.apiBaseUrl = environment.apiBaseUrl;
+  }
+  // getAuthHeaders
+  private getAuthHeaders(includeBearer: boolean = false): HttpHeaders | null {
+    if (!this.authHelper.validateAuth()) {
+      return null;
+    }
+
+    const token = this.authHelper.getToken()!;
+    const sessionToken = this.authHelper.getSessionToken()!;
+    const subdomain = this.authHelper.getSubdomain()!;
+
+    let headers = new HttpHeaders()
+      .set('Authorization', token)
+      .set('SUBDOMAIN', subdomain)
+      .set('SESSIONTOKEN', sessionToken);
+
+    return headers;
   }
 
   async getToken(): Promise<string> {
@@ -73,9 +90,9 @@ export class FcmService {
     if (this.apiBaseUrl) {
       const url = `${this.apiBaseUrl}main/authentication/fcm-change-status`;
 
-      const token = this.authHelper.getToken() ?? '';
-      const headers = new HttpHeaders().set('Authorization', token);
-
+      const headers = this.getAuthHeaders();
+      if (!headers) return throwError(() => new Error('Authentication failed'));
+     
       // headers.keys().forEach(key => {
       //   console.log(`${key}: ${headers.get(key)}`);
       // });

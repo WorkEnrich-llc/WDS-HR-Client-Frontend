@@ -95,6 +95,7 @@ export class BranchesService {
     const url = `${this.apiBaseUrl}od/branches/${id}`;
     return this._HttpClient.get(url, { headers });
   }
+  
   // update branch status
   updateBranchStatus(id: number, status: any): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -104,4 +105,14 @@ export class BranchesService {
     return this._HttpClient.patch(url, status, { headers });
   }
 
+  // update branch
+  updateBranch(branchData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}od/branches`;
+    return this._HttpClient.put(url, branchData, { headers });
+  }
+
+  
 }

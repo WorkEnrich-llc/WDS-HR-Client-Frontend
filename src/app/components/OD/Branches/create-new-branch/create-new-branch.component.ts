@@ -314,7 +314,7 @@ export class CreateNewBranchComponent implements OnInit {
       }
     };
 
-    console.log(requestPayload);
+    // console.log(requestPayload);
     this._BranchesService.createBranch(requestPayload).subscribe({
 
       next: (response) => {

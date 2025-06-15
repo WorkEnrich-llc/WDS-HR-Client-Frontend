@@ -168,7 +168,7 @@ export class AllBranchesComponent implements OnInit {
           id: item.id,
           name: item.name,
           location: item.location,
-          maxEmployees: item.maxEmployees ?? null,
+          max_employee: item.max_employee ?? null,
           createdAt: this.datePipe.transform(item.created_at, 'dd/MM/yyyy'),
           updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
           status: item.is_active ? 'Active' : 'Inactive',
