@@ -25,7 +25,7 @@
       <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
         <!-- Search input -->
         <div data-mdb-input-init class="form-outline w-75">
-          <input type="text" class="form-control" placeholder="Search" />
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="11.5" cy="11.5" r="9.5" />
@@ -60,8 +60,8 @@
 
     <!-- start Table -->
 
-    <app-table [data]="jobs" [itemsPerPage]="10" [currentPage]="1" [headerTemplate]="jobsTableHeader"
-      [rowTemplate]="jobsTableRow" [emptyTemplate]="noJobs"></app-table>
+    <app-table [data]="jobTitles" [itemsPerPage]="itemsPerPage" [totalItems]="totalItems" [currentPage]="currentPage"
+      [headerTemplate]="jobsTableHeader" [rowTemplate]="jobsTableRow" [emptyTemplate]="noJobs"></app-table>
 
     <ng-template #jobsTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
@@ -92,23 +92,30 @@
 
     <ng-template #jobsTableRow let-job let-i="index">
       <td class="width-fix">
-        <span class="d-block text-gray-sm">{{ job.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-gray-sm">{{ job.id.toString().padStart(4, '0')}}</span>
         <span class="d-block text-truncate" style="max-width: 200px;">
           {{ job.name }}
         </span>
       </td>
-      <td>{{ job.managementLevel }}</td>
-      <td>{{ job.department }}</td>
       <td>
-        <span class="d-block text-gray-sm">{{ job.directManagerId.toString().padStart(4, '0') }}</span>
-        <span class="d-block text-truncate" style="max-width: 200px;">
-          {{ job.directManagerName }}
-        </span>
+        <span *ngIf="job.management_level == 1">Company</span>
+        <span *ngIf="job.management_level == 2">Branch</span>
+        <span *ngIf="job.management_level == 3">Department</span>
+        <span *ngIf="job.management_level == 4">Section</span>
+        <span *ngIf="job.management_level == 5">None</span>
+      </td>
+      <td>{{ job.department?.name }}</td>
+      <td>
+        <ng-container *ngFor="let assign of job.assigns">
+          <span class="d-block text-gray-sm">{{ assign.id.toString().padStart(4, '0') }}</span>
+          <span class="d-block text-truncate" style="max-width: 200px;">
+            {{ assign.name }}
+          </span>
+        </ng-container>
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/jobs/view-job']"
-            class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+          <a [routerLink]="['/jobs/view-job']" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path

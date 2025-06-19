@@ -1,3 +1,4 @@
+
 body {
   font-family: var(--font-family) !important;
 }
@@ -425,6 +426,9 @@ textarea{
   }
   .w-15{
       width: 15% !important;
+  }
+  .w-30{
+    width: 30% !important;
   }
   .w-70{
       width: 70% !important;

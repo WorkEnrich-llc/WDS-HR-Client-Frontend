@@ -24,6 +24,7 @@ bootstrapApplication(AppComponent, {
       routes,
       withViewTransitions(),
     ),
+    
     provideToastr(),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideMessaging(() => getMessaging()),
