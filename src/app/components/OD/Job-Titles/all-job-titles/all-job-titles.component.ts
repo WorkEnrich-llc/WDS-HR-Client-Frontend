@@ -4,15 +4,16 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from './../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-all-job-titles',
-  imports: [PageHeaderComponent, RouterLink, TableComponent,FormsModule, OverlayFilterBoxComponent, CommonModule],
+  imports: [PageHeaderComponent, RouterLink, TableComponent, FormsModule, OverlayFilterBoxComponent, CommonModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-job-titles.component.html',
   styleUrl: './all-job-titles.component.css'
@@ -23,9 +24,9 @@ export class AllJobTitlesComponent {
 
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute,private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder) { }
-
+  departments: any[] = [];
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -36,6 +37,7 @@ export class AllJobTitlesComponent {
 
 
   ngOnInit(): void {
+    this.getAllDepartment(1);
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
       this.getAllJobTitles(this.currentPage);
@@ -52,26 +54,33 @@ export class AllJobTitlesComponent {
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.getAllJobTitles(this.currentPage, value);
+
     });
 
 
     this.filterForm = this.fb.group({
-      status: [''],
-      updatedFrom: [''],
-      updatedTo: [''],
-      createdFrom: [''],
-      createdTo: ['']
+      updated_from: [''],
+      updated_to: [''],
+      created_from: [''],
+      created_to: [''],
+      management_level: [''],
+      department: [''],
+      section: [''],
+      status: ['']
     });
   }
 
 
   resetFilterForm(): void {
     this.filterForm.reset({
-      status: '',
-      updatedFrom: '',
-      updatedTo: '',
-      createdFrom: '',
-      createdTo: ''
+      updated_from: '',
+      updated_to: '',
+      created_from: '',
+      created_to: '',
+      management_level: '',
+      department: '',
+      section: '',
+      status: ''
     });
     this.filterBox.closeOverlay();
     this.getAllJobTitles(this.currentPage);
@@ -104,10 +113,13 @@ export class AllJobTitlesComponent {
 
       const filters = {
         status: rawFilters.status || undefined,
-        updated_from: rawFilters.updatedFrom || undefined,
-        updated_to: rawFilters.updatedTo || undefined,
-        created_from: rawFilters.createdFrom || undefined,
-        created_to: rawFilters.createdTo || undefined,
+        updated_from: rawFilters.updated_from || undefined,
+        updated_to: rawFilters.updated_to || undefined,
+        created_from: rawFilters.created_from || undefined,
+        created_to: rawFilters.created_to || undefined,
+        management_level: rawFilters.management_level || undefined,
+        department: rawFilters.department || undefined,
+        section: rawFilters.section || undefined
       };
 
       // console.log('Filters submitted:', filters);
@@ -137,7 +149,7 @@ export class AllJobTitlesComponent {
     }
   ) {
     this._JobsService.getAllJobTitles(pageNumber, this.itemsPerPage, {
-      // search: searchTerm || undefined,
+      search: searchTerm || undefined,
       request_in: 'all',
       ...filters
     }).subscribe({
@@ -147,6 +159,40 @@ export class AllJobTitlesComponent {
         this.totalPages = response.data.total_pages;
         this.jobTitles = response.data.list_items;
         // console.log(this.jobTitles);
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
+
+  getAllDepartment(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      status?: string;
+      updated_from?: string;
+      updated_to?: string;
+      created_from?: string;
+      created_to?: string;
+    }
+  ) {
+    this._DepartmentsService.getAllDepartment(1, 10000, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        // this.totalpages = response.data.total_pages;
+        this.departments = response.data.list_items.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+        }));
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();

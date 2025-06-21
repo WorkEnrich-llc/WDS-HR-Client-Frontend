@@ -141,7 +141,7 @@ export const routes: Routes = [
                 title: 'Job Titles'
               },
               {
-                path: 'view-job',
+                path: 'view-job/:id',
                 loadComponent: () => import('./components/OD/Job-Titles/view-job/view-job.component').then(m => m.ViewJobComponent),
                 title: 'View Job'
               },
@@ -151,7 +151,7 @@ export const routes: Routes = [
                 title: 'Create job'
               },
               {
-                path: 'edit',
+                path: 'edit/:id',
                 loadComponent: () => import('./components/OD/Job-Titles/edit-job/edit-job.component').then(m => m.EditJobComponent),
                 title: 'Edit job'
               },

@@ -83,6 +83,33 @@ export class JobsService {
     const url = `${this.apiBaseUrl}od/job-titles`;
     return this._HttpClient.post(url, jobTilteData, { headers });
   }
-   
+
+  // view job title
+  showJobTitle(id: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}od/job-titles/${id}`;
+    return this._HttpClient.get(url, { headers });
+  }
+  // update job title status
+  updateJobStatus(id: number, status: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}od/job-titles/${id}/`;
+    return this._HttpClient.patch(url, status, { headers });
+  }
+
+  // update job title
+  updateJobTitle(jobTitleData: any): Observable<any> {
+    const headers = this.getAuthHeaders()?.set('Content-Type', 'application/x-www-form-urlencoded');
+    // console.log(headers);
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}od/job-titles`;
+
+    return this._HttpClient.put(url, jobTitleData, { headers });
+  }
 
 }

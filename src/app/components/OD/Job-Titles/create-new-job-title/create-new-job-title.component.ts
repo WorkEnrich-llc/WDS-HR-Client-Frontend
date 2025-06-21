@@ -400,32 +400,32 @@ export class CreateNewJobTitleComponent {
     };
 
 
-    this._JobsService.createJobTitle(requestData).subscribe({
+    // this._JobsService.createJobTitle(requestData).subscribe({
 
-      next: (response) => {
-        this.isLoading = false;
-        this.errMsg = '';
-        // create success
-        this.router.navigate(['/jobs/all-job-titles']);
-        this.toasterMessageService.sendMessage("Job Title created successfully");
+    //   next: (response) => {
+    //     this.isLoading = false;
+    //     this.errMsg = '';
+    //     // create success
+    //     this.router.navigate(['/jobs/all-job-titles']);
+    //     this.toasterMessageService.sendMessage("Job Title created successfully");
 
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const errorHandling = err?.error?.data?.error_handling;
+    //   },
+    //   error: (err) => {
+    //     this.isLoading = false;
+    //     const errorHandling = err?.error?.data?.error_handling;
 
-        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.currentStep = errorHandling[0].tap;
+    //     if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+    //       this.currentStep = errorHandling[0].tap;
 
-          this.errMsg = errorHandling
-            .map((e) => e.error)
-            .join('\n');
+    //       this.errMsg = errorHandling
+    //         .map((e) => e.error)
+    //         .join('\n');
 
-        } else {
-          this.errMsg = "An unexpected error occurred. Please try again later.";
-        }
-      }
-    });
+    //     } else {
+    //       this.errMsg = "An unexpected error occurred. Please try again later.";
+    //     }
+    //   }
+    // });
 
     // console.log('row', requestData);
   }

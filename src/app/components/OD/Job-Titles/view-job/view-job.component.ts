@@ -1,32 +1,140 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
+import { DatePipe, CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-view-job',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent],
+  providers: [DatePipe],
   templateUrl: './view-job.component.html',
   styleUrl: './view-job.component.css'
 })
 export class ViewJobComponent {
 
-
-
-  
-
-  isModalOpen = false;
-
-  openModal() {
-    this.isModalOpen = true;
+  constructor(private _JobsService: JobsService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  jobTitleData: any = { sections: [] };
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  jobId: string | null = null;
+  ngOnInit(): void {
+    this.jobId = this.route.snapshot.paramMap.get('id');
+    // this.getJobTitle(Number(this.jobId));
+    if (this.jobId) {
+      this.getJobTitle(Number(this.jobId));
+    }
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  getJobTitle(jobId: number) {
+
+    this._JobsService.showJobTitle(jobId).subscribe({
+      next: (response) => {
+        this.jobTitleData = response.data.object_info;
+        const created = this.jobTitleData?.created_at;
+        const updated = this.jobTitleData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+
+        // console.log(this.jobTitleData);
+
+        this.sortDirection = 'desc';
+        this.sortBy('id');
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+  sortDirection: string = 'asc';
+  currentSortColumn: string = '';
+  sortBy(column: string) {
+    if (this.currentSortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.currentSortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    if (this.jobTitleData.sections && Array.isArray(this.jobTitleData.sections)) {
+      this.jobTitleData.sections = [...this.jobTitleData.sections].sort((a, b) => {
+        const aVal = a[column];
+        const bVal = b[column];
+
+        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
   }
 
-  confirmAction() {
-    this.isModalOpen = false;
-    // logic to deactivate
+
+
+
+  deactivateOpen = false;
+  activateOpen = false;
+  openDeactivate() {
+    this.deactivateOpen = true;
+  }
+
+  closeDeactivate() {
+    this.deactivateOpen = false;
+  }
+
+  confirmDeactivate() {
+    this.deactivateOpen = false;
+
+    const deptStatus = {
+      request_data: {
+        status: false
+      }
+    };
+
+    this._JobsService.updateJobStatus(this.jobTitleData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.jobTitleData = response.data.object_info;
+        // console.log(this.departmentData);
+
+        this.sortDirection = 'desc';
+        this.sortBy('id');
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
+  openActivate() {
+    this.activateOpen = true;
+  }
+
+  closeActivate() {
+    this.activateOpen = false;
+  }
+  confirmActivate() {
+    this.activateOpen = false;
+    const deptStatus = {
+      request_data: {
+        status: true
+      }
+    };
+
+    this._JobsService.updateJobStatus(this.jobTitleData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.jobTitleData = response.data.object_info;
+        // console.log(this.departmentData);
+
+        this.sortDirection = 'desc';
+        this.sortBy('id');
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 }

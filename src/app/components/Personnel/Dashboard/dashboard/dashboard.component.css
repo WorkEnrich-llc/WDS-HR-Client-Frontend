@@ -247,7 +247,7 @@
 }
 .event {
   position: relative;
-  min-height: 60px; 
+  min-height: 50px; 
 }
 
 .border {
@@ -257,8 +257,7 @@
   left: 0;
   width: 6px;
   border-radius: 5px;
-  /*background-color: black;
-  */-webkit-border-radius: 10px;
+    -webkit-border-radius: 10px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
