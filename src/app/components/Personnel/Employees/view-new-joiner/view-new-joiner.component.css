@@ -1,0 +1,9 @@
+h5{
+    color: var(--color-secondary-800);
+    font-weight: 400;
+    font-size: var(--font-size-b1);
+    line-height: var(--line-height-sm);
+}
+h5 span{
+    color: var(--color-primary-600);
+}

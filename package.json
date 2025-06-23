@@ -30,6 +30,7 @@
     "firebase": "^11.9.1",
     "ng-otp-input": "^2.0.7",
     "ngx-cookie-service": "^20.0.0",
+    "ngx-country-picker": "^3.0.0",
     "ngx-pagination": "^6.0.3",
     "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",

@@ -37,9 +37,13 @@ a.text-danger-dark:hover {
 .input label svg{
   fill: var(--color-secondary-500);
 }
+input[type="date"]::placeholder{
+  color: var(--color-secondary-400);
+}
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
-  color: var(--color-secondary-300);
+  color: var(--color-secondary-400);
+  cursor: pointer !important;
 }
 
 .form-outline {
@@ -58,18 +62,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .form-outline .form-control::placeholder, .form-outline .form-select::placeholder {
-  color: var(--color-secondary-700);
+  color: var(--color-secondary-400);
 }
-
-
+.form-select:has(option:checked[value=""]) {
+  color: var(--color-secondary-400);
+}
 .form-outline svg {
   position: absolute;
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
   pointer-events: none;
-  stroke: var(--color-secondary-300);
-  fill: var(--color-secondary-300);
+  stroke: var(--color-secondary-400);
+  fill: var(--color-secondary-400);
+}
+.form-check-input{
+  width: 25px !important;
+  height: 25px !important;
+  border-radius: 7px !important;
+  -webkit-border-radius: 7px !important;
+  -moz-border-radius: 7px !important;
+  -ms-border-radius: 7px !important;
+  -o-border-radius: 7px !important;
+}
+.form-check-input:checked{
+  background-color: var(--color-primary-500) !important;
 }
 .checkbox {
   appearance: none;
@@ -452,4 +469,87 @@ textarea{
   -moz-transform: none !important;
   -ms-transform: none !important;
   -o-transform: none !important;
+}
+
+
+/* start badges */
+.badge-success{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-success-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-success-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-success-700);
+    width: max-content;
+}
+.badge-danger{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-danger-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-danger-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-danger-700);
+    width: max-content;
+}
+.badge-gray{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-secondary-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-secondary-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-secondary-700);
+    width: max-content;
+}
+.badge-newjoiner{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-primary-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-primary-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-primary-700);
+    width: max-content;
+}
+.badge-newemployee{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-warning-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-warning-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-warning-700);
+    width: max-content;
 }

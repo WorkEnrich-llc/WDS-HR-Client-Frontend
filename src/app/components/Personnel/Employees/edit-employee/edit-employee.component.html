@@ -1,1 +1,113 @@
-<p>edit-employee works!</p>
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Employees', link: '/employees' },
+    { label: 'Edit Employee' }
+  ]" title="Edit Employee - Employee ID" create="23/06/2025" update="23/06/2025">
+    <button class="btn btn-lg btn-success w-auto">
+        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Changes</span>
+    </button>
+</app-page-header>
+
+<div class="content-hug" >
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Contact Information</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="empId">ID (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="fullName">Full Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="fullName" class="form-control custom-date-input"
+                        placeholder="Enter Full Name" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+            <div class="input">
+                <label for="phone">Phone Number</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="phone" class="form-control custom-date-input"
+                        placeholder="xx xxx xxx xxx" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+            <div class="input">
+                <label for="email">Personal Email</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="email" id="email" class="form-control custom-date-input"
+                        placeholder="test@mail.com" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+
+            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+                {{errMsg}}
+            </div>
+
+
+
+        </form>
+
+
+
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Save Changes</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard update Ahmed?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

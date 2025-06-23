@@ -1,0 +1,221 @@
+<!-- page header in active account -->
+<app-page-header *ngIf="employeeData.accountStatus == 'inactive'" [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Employees', link: '/employees' },
+    { label: 'New Joiner' }
+  ]" title="New Joiner - (still haven’t joined)">
+</app-page-header>
+
+<!-- page header active account -->
+<app-page-header *ngIf="employeeData.accountStatus == 'active'" [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Employees', link: '/employees' },
+    { label: 'View New Joiner 1234' }
+  ]" title="New Joiner - 1234" create="23/06/2025" update="23/06/2025">
+    <button class="btn btn-lg btn-primary" (click)="openSuccessModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Employee Joined</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-danger" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Cancel Contract</span>
+    </button>
+</app-page-header>
+
+
+<div class="content-hug d-flex flex-column gap-4">
+
+    <!-- 3 cards -->
+    <div class="d-flex align-items-stretch gap-4">
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <h2>Contact Info</h2>
+            <div class="info">
+                <h6>ID</h6>
+                <span>0012</span>
+            </div>
+            <div class="info">
+                <h6>Full Name</h6>
+                <span>Ahmed Magdy</span>
+            </div>
+            <div class="info">
+                <h6>Phone Number</h6>
+                <span>0101234567</span>
+            </div>
+            <div class="info">
+                <h6>Personal Email</h6>
+                <span>ahmed.123&#64;gmail.com</span>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Job Info</h2>
+                <span class="badge-newjoiner" *ngIf="employeeData.employeeStatus ==='New Joiner'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
+                                d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                            <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                            <circle cx="16.5" cy="16.5" r="1.5" />
+                            <path stroke-linecap="round" d="M2.5 9h19" />
+                        </g>
+                    </svg>
+                    <span>New Joiner</span>
+                </span>
+            </div>
+            <div class="info">
+                <h6>Job Title</h6>
+                <span>UI/UX Designer</span>
+            </div>
+            <div class="info">
+                <h6>Employment Type</h6>
+                <span>Full-Time</span>
+            </div>
+            <div class="info">
+                <h6>Section</h6>
+                <span>UI/UX Design Section</span>
+            </div>
+            <div class="info">
+                <h6>Department</h6>
+                <span>Product Design Department</span>
+            </div>
+            <div class="info">
+                <h6>Branch</h6>
+                <span>Head Office – Cairo</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="info">
+                    <h6>Direct Manager</h6>
+                    <span>Ahmed Hamed</span>
+                </div>
+                <a class="view-btn h-100 d-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                            <path
+                                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                        </g>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Account Info</h2>
+                <span class="badge-success" *ngIf="employeeData.accountStatus ==='active'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    <span>Active</span>
+                </span>
+                <span class="badge-gray" *ngIf="employeeData.accountStatus ==='inactive'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
+                            <circle cx="12" cy="12" r="10" />
+                        </g>
+                    </svg>
+                    <span>Inactive</span>
+                </span>
+            </div>
+            <div class="info">
+                <h6>Company Email</h6>
+                <span>companyname.123&#64;gmail.com</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="content-box d-flex flex-column gap-3 w-100">
+        <!-- brfore joined date come -->
+        <h5 class="m-0 text-center">Ahmed Magdy will join on <span>28 September 2025</span></h5>
+        <!-- Today joined -->
+        <h5 class="m-0 text-center">Ahmed Magdy will join <span>Today</span></h5>
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-outline-danger btn-lg border-0 w-auto m-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" d="M4 22h16" />
+                        <path
+                            d="m13.888 3.663l.742-.742a3.146 3.146 0 1 1 4.449 4.45l-.742.74m-4.449-4.448s.093 1.576 1.483 2.966s2.966 1.483 2.966 1.483m-4.449-4.45L7.071 10.48c-.462.462-.693.692-.891.947a5.2 5.2 0 0 0-.599.969c-.139.291-.242.601-.449 1.22l-.875 2.626m14.08-8.13l-6.817 6.817c-.462.462-.692.692-.947.891q-.451.352-.969.599c-.291.139-.601.242-1.22.448l-2.626.876m0 0l-.641.213a.848.848 0 0 1-1.073-1.073l.213-.641m1.501 1.5l-1.5-1.5" />
+                    </g>
+                </svg>
+                <span class="fw-semibold">Reschedule Join Date</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="content-box d-flex flex-column gap-3 w-100">
+        <h2>Work Schedule</h2>
+        <div class="info">
+            <h6>Working days</h6>
+            <span>Sunday,Monday,Tuesday,Wednesday,Thursday</span>
+        </div>
+        <div class="info">
+            <h6>Work Hours Type</h6>
+            <span>Fixed Type</span>
+        </div>
+        <div class="info">
+            <h6>Shift Type</h6>
+            <span>morning Type</span>
+        </div>
+        <div class="info">
+            <h6>Shift Hours</h6>
+            <span>8 hours</span>
+        </div>
+        <div class="info">
+            <h6>Shift hours from / to</h6>
+            <span>09:00 to 15:00</span>
+        </div>
+    </div>
+
+
+</div>
+
+
+<app-popup [title]="'Employee Joined'"
+[paragraph1]="'The employee has joined now.'"
+  [isOpen]="isSuccessModalOpen"
+  (close)="closeSuccessModal()"
+>
+  <button modal-btn-left class="btn btn-lg btn-primary w-100 text-nowrap" (click)="viewEmployees()">
+    Create Employees
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-primary w-100" (click)="createAnother()">
+    Cancel
+  </button>
+</app-popup>
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Cancel contract'" [paragraph1]="'Are you sure you want to cancel the employee contract?'"
+
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+        Cancel Contract
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

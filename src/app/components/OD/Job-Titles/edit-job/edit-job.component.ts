@@ -44,7 +44,7 @@ export class EditJobComponent {
   jobTitleData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
-  jobId: string | null = null;
+  jobId: string | null = '';
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
@@ -76,6 +76,7 @@ export class EditJobComponent {
     if (this.jobId) {
       this.getJobTitle(Number(this.jobId));
     }
+
     this.getAllDepartment(this.currentPage);
     this.jobStep4 = new FormGroup({
       jobDescription: new FormControl('', [Validators.required, Validators.minLength(10)]),
@@ -89,6 +90,9 @@ export class EditJobComponent {
     this.watchFormChanges();
   }
 
+  get numericJobId(): number | null {
+    return this.jobId !== null ? +this.jobId : null;
+  }
 
   jobStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
@@ -106,7 +110,6 @@ export class EditJobComponent {
   }
 
   getJobTitle(jobId: number) {
-
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
@@ -118,19 +121,19 @@ export class EditJobComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.jobTitleData);
+        // console.log(this.jobTitleData);
         if (
           this.jobTitleData.department?.id &&
           (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)
         ) {
           this.getsections(this.jobTitleData.department.id);
-          const originalAssigned = this.jobTitleData?.assigns?.[0];
-          if (originalAssigned?.id) {
-            this.originalAssignedId = originalAssigned.id;
-            // console.log('Original Assigned ID:', this.originalAssignedId);
-          }
         }
-
+        const originalAssigned = this.jobTitleData?.assigns?.[0];
+        if (originalAssigned?.id) {
+          this.originalAssignedId = originalAssigned.id;
+        } else {
+          this.originalAssignedId = null;
+        }
 
         this.jobStep1.patchValue({
           code: this.jobTitleData.code || '',
@@ -360,6 +363,7 @@ export class EditJobComponent {
           };
         });
         // console.log(this.jobTitles);
+
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -368,6 +372,12 @@ export class EditJobComponent {
         console.error(err.error?.details);
       }
     });
+  }
+  get filteredJobTitles() {
+    if (this.numericJobId === null) {
+      return this.jobTitles;
+    }
+    return this.jobTitles.filter(job => job.id !== this.numericJobId);
   }
   onSearchChange(event: any) {
     this.searchTerm = event.target.value;
@@ -594,28 +604,25 @@ export class EditJobComponent {
     const setArray: number[] = [];
     const removeArray: number[] = [];
 
-    if (this.managerRemoved) {
-      if (assignedJob && this.originalAssignedId !== null && assignedJob.id !== this.originalAssignedId) {
-        setArray.push(assignedJob.id);
-        removeArray.push(this.originalAssignedId);
-      } else if (!assignedJob && this.originalAssignedId !== null) {
-        removeArray.push(this.originalAssignedId);
-      } else if (assignedJob && this.originalAssignedId === null) {
+    const hasOld = this.originalAssignedId !== null;
+    const hasNew = !!assignedJob;
+
+    if (hasOld && hasNew) {
+      if (assignedJob.id !== this.originalAssignedId!) {
+        removeArray.push(this.originalAssignedId!);
         setArray.push(assignedJob.id);
       }
-    } else {
-      if (this.originalAssignedId !== null) {
-        setArray.push(this.originalAssignedId);
-      }
+    } else if (hasOld && !hasNew) {
+      removeArray.push(this.originalAssignedId!);
+    } else if (!hasOld && hasNew) {
+      setArray.push(assignedJob.id);
     }
 
     requestData.request_data.assigns = {
       set: setArray,
       remove: removeArray
     };
-
-
-    console.log('row', requestData);
+    // console.log('row', requestData);
 
     this._JobsService.updateJobTitle(requestData).subscribe({
 

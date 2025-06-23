@@ -1,1 +1,579 @@
-<p>create-employee works!</p>
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Employees', link: '/employees' },
+    { label: 'Create New Employee' }
+  ]" title="Create New Employee" [create]="todayFormatted">
+    <button class="btn btn-lg btn-success w-auto" (click)="openSuccessModal()">
+        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Create Employee</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Employee</span>
+    </button>
+</app-page-header>
+
+
+
+<!-- steps -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 1,
+        'text-success': currentStep > 1, 
+        'bg-light-success': currentStep > 1  
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Main Information</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 2">
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M10.561 2.25c-.113 0-.201 0-.285.005a2.75 2.75 0 0 0-2.385 1.72c-.032.079-.06.164-.099.278c-.083.224-.274.479-.542.683q-.045.034-.09.064h1.942q.044-.09.08-.182l.001-.003l.004-.01l.005-.012l.005-.012l.004-.01l.001-.005l.005-.012l.003-.012l.003-.006l.002-.008l.002-.007l.002-.006c.04-.116.052-.153.063-.181a1.25 1.25 0 0 1 1.085-.782c.032-.002.071-.002.215-.002h2.837c.144 0 .183 0 .216.002c.482.03.904.334 1.084.782c.011.028.023.063.063.181l.002.006l.002.007l.003.008l.002.006l.003.012l.005.012l.001.005l.004.01l.005.012l.004.012l.005.01l.001.003q.036.093.08.182h1.942q-.045-.03-.09-.064c-.268-.204-.459-.46-.542-.683l-.003-.01c-.036-.107-.064-.191-.095-.269a2.75 2.75 0 0 0-2.386-1.719a5 5 0 0 0-.285-.005z"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M17.192 5H6.808c-1.688 0-2.531 0-3.175.33A3 3 0 0 0 2.33 6.633C2 7.277 2 8.12 2 9.808c0 .429 0 .643.073.824a1 1 0 0 0 .3.404c.153.122.358.183.77.307L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607c.41-.124.616-.185.768-.307a1 1 0 0 0 .3-.404c.074-.18.074-.395.074-.824c0-1.688 0-2.531-.33-3.175a3 3 0 0 0-1.303-1.303C19.723 5 18.88 5 17.192 5M13.6 12h-3.2c-.22 0-.4.182-.4.406v1.757c0 .166.1.315.251.377l.56.228c.764.31 1.614.31 2.377 0l.56-.228a.41.41 0 0 0 .252-.377v-1.757a.403.403 0 0 0-.4-.406"
+                clip-rule="evenodd" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="m3 11.3l.142.043L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607L21 11.3v1c0 3.675-.035 7.388-1.318 8.528C18.364 22 16.242 22 12 22s-6.364 0-7.682-1.172C3.035 19.688 3.001 15.975 3 12.3z"
+                opacity=".5" />
+        </svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Job Details</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 3">
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M16.519 16.501c.175-.136.334-.295.651-.612l3.957-3.958c.096-.095.052-.26-.075-.305a4.3 4.3 0 0 1-1.644-1.034a4.3 4.3 0 0 1-1.034-1.644c-.045-.127-.21-.171-.305-.075L14.11 12.83c-.317.317-.476.476-.612.651q-.243.311-.412.666c-.095.2-.166.414-.308.84l-.184.55l-.292.875l-.273.82a.584.584 0 0 0 .738.738l.82-.273l.875-.292l.55-.184c.426-.142.64-.212.84-.308q.355-.17.666-.412m5.849-5.809a2.163 2.163 0 1 0-3.06-3.059l-.126.128a.52.52 0 0 0-.148.465c.02.107.055.265.12.452c.13.375.376.867.839 1.33s.955.709 1.33.839c.188.065.345.1.452.12a.53.53 0 0 0 .465-.148z" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M7.25 9A.75.75 0 0 1 8 8.25h6.5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 9m0 4a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Contract Details</span>
+    </li>
+
+</ul>
+
+
+<!-- step 1 -->
+<div class="content-hug" *ngIf="currentStep === 1">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="jobCode">Employee ID (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="jobCode" class="form-control custom-date-input" placeholder="0050" />
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="fullName">Full Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="fullName" class="form-control custom-date-input"
+                        placeholder="Enter Full Name" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+            <div class="input">
+                <label for="gender">Gender</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="gender" id="gender" class="form-select">
+                            <option value="" disabled selected hidden>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="birthDate">Date of Birth</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="date" id="birthDate" class="form-control custom-date-input"
+                            placeholder="Min-Max" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke-width="1.5">
+                                <path stroke-linecap="round"
+                                    d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                                <circle cx="18" cy="18" r="3" />
+                                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                            </g>
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="marital">Marital Status</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="marital" id="marital" class="form-select">
+                            <option value="" disabled selected hidden>Select Marital Status</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Single">Single</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="phone">Phone Number</label>
+
+                <div class="d-flex gap-3">
+                    <div class="input w-25" #dropdownContainer>
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <div class="dropdown">
+                                <button class="form-select text-start" type="button"
+                                    (click)="dropdownOpen = !dropdownOpen">
+                                    <img *ngIf="selectedCountry"
+                                        [src]="'https://flagcdn.com/' + selectedCountry.flag.toLowerCase() + '.svg'"
+                                        width="26" height="26" class="me-3 rounded-circle object-fit-cover" />
+                                    <span class="text-sm">{{ selectedCountry.dialCode }}</span>
+                                </button>
+
+                                <ul *ngIf="dropdownOpen" class="dropdown-menu show w-100 mt-1 shadow-sm"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    <li *ngFor="let country of countries">
+                                        <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                                            (click)="selectCountry(country); dropdownOpen = false">
+                                            <img [src]="'https://flagcdn.com/' + country.flag.toLowerCase() + '.svg'"
+                                                width="26" height="26" class="me-3 rounded-circle object-fit-cover" />
+                                            <span class="text-muted">({{ country.dialCode }})</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input w-75">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="text" id="phone" class="form-control custom-date-input"
+                                placeholder="xx xxx xxxx" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="input">
+                <label for="personalEmail">Personal Email</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="personalEmail" class="form-control custom-date-input"
+                        placeholder="Enter Personal Email" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+                {{errMsg}}
+            </div>
+
+
+
+        </form>
+
+
+
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (1/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- step 2 -->
+<div class="content-hug" *ngIf="currentStep === 2">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Job Details</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="Branch">Branch</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Branch" id="Branch" class="form-select">
+                            <option value="" disabled selected hidden>Select 1 Branch</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+            <div class="input">
+                <label for="Department">Department</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Department" id="Department" class="form-select">
+                            <option value="" disabled selected hidden>Select 1 Department</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+            <div class="input">
+                <label for="Section">Section</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Section" id="Section" class="form-select">
+                            <option value="" disabled selected hidden>Select 1 Section</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+            <div class="input">
+                <label for="JobTitle">Job Title</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="JobTitle" id="JobTitle" class="form-select">
+                            <option value="" disabled selected hidden>Select 1 Job Title</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+            <div class="input">
+                <label for="WorkSchedule">Work Schedule</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="WorkSchedule" id="WorkSchedule" class="form-select">
+                            <option value="" disabled selected hidden>Select 1 Job Title</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+
+        </form>
+
+
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (2/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- step 3 -->
+<div class="content-hug" *ngIf="currentStep === 3">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Contract Details</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="contractStart">Contract Start Date</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="date" id="contractStart" class="form-control custom-date-input"
+                            placeholder="Enter the contract Start date" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke-width="1.5">
+                                <path stroke-linecap="round"
+                                    d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                                <circle cx="18" cy="18" r="3" />
+                                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                            </g>
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+                <input class="form-check-input m-0" type="checkbox" value="" id="withEnd">
+                <label class="form-check-label m-0" for="withEnd">
+                    With end date
+                </label>
+            </div>
+            <div class="input">
+                <label for="contractEnd">Contract End Date</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="date" id="contractEnd" class="form-control custom-date-input"
+                            placeholder="Enter the contract End date" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke-width="1.5">
+                                <path stroke-linecap="round"
+                                    d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                                <circle cx="18" cy="18" r="3" />
+                                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                            </g>
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="input">
+                <label for="employmentType">Employment Type</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="employmentType" id="employmentType" class="form-select">
+                            <option value="" disabled selected hidden>Select Employment Type</option>
+                            <option value="Full time">Full time</option>
+                            <option value="Part time">Part time</option>
+                            <option value="Per Hour">Per Hour</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="workMode">Work Mode</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="workMode" id="workMode" class="form-select">
+                            <option value="" disabled selected hidden>Select Work Mode</option>
+                            <option value="On site">On site</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+
+                    </div>
+                    <!-- <p class="error-msg"
+                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                        Management Level is required.
+                    </p> -->
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="daysOnSite">No. of Days on site</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="daysOnSite" class="form-control custom-date-input" placeholder="Max: 7" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
+            <div class="input">
+                <label for="salary">Salary</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="salary" class="form-control custom-date-input"
+                        placeholder="Enter the Employee Salary" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+            <div class="salary-info d-flex justify-content-between gap-3">
+                <div class="d-flex flex-column w-100">
+                    <span>Min. Salary</span>
+                    <h6>34,000 EGP</h6>
+                </div>
+                <div class="d-flex flex-column w-100">
+                    <span>Max. Salary</span>
+                    <h6>40,000 EGP</h6>
+                </div>
+            </div>
+        </form>
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success">
+                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Create Employee</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Added popup -->
+<app-popup [title]="'Employee Created!'"
+  [paragraph1]="'The employee’s account is still new and inactive. Upload their documents and ask them to login to their app account to activate.'"
+  [isOpen]="isSuccessModalOpen"
+  (close)="closeSuccessModal()"
+>
+  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="viewEmployees()">
+    View Employees
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-primary w-100" (click)="createAnother()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+      </g>
+    </svg>
+    Create Another
+  </button>
+</app-popup>
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Employee'" [paragraph1]="'Are you sure you want to discard creating the new Employee?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Employee
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

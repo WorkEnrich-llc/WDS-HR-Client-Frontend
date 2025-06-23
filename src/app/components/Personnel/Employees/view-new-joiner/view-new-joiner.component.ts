@@ -1,21 +1,20 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 @Component({
-  selector: 'app-edit-employee',
+  selector: 'app-view-new-joiner',
   imports: [PageHeaderComponent, CommonModule,PopupComponent],
-  providers:[DatePipe],
-  templateUrl: './edit-employee.component.html',
-  styleUrl: './edit-employee.component.css'
+  providers: [DatePipe],
+  templateUrl: './view-new-joiner.component.html',
+  styleUrl: './view-new-joiner.component.css'
 })
-export class EditEmployeeComponent {
+export class ViewNewJoinerComponent {
   todayFormatted: string = '';
-  errMsg: string = '';
-  isLoading: boolean = false;
+
 
   constructor(
     private router: Router,
@@ -25,6 +24,20 @@ export class EditEmployeeComponent {
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
   }
+
+  employeeData = {
+    id: 1,
+    name: "John Smith",
+    employeeStatus: "New Joiner",
+    accountStatus: "active",
+    // accountStatus: "inactive",
+    jobTitle: "Software Engineer",
+    branch: "New York",
+    joinDate: "2025-6-15T00:00:00.000Z"
+  }
+
+
+
 
 
   // popups
@@ -44,4 +57,21 @@ export class EditEmployeeComponent {
     this.router.navigate(['/employees/all-employees']);
   }
 
+  openSuccessModal() {
+    this.isSuccessModalOpen = true;
+  }
+
+  closeSuccessModal() {
+    this.isSuccessModalOpen = false;
+  }
+
+  viewEmployees() {
+    this.closeSuccessModal();
+    this.router.navigate(['/employees/all-employees']);
+  }
+
+  createAnother() {
+    this.closeSuccessModal();
+    // Reset form or navigate to create again
+  }
 }

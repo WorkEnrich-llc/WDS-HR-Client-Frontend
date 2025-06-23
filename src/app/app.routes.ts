@@ -215,6 +215,26 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Personnel/Employees/all-employees/all-employees.component').then(m => m.AllEmployeesComponent),
                 title: 'All Employees',
               },
+              {
+                path: 'create-employee',
+                loadComponent: () => import('./components/Personnel/Employees/create-employee/create-employee.component').then(m => m.CreateEmployeeComponent),
+                title: 'Create Employees',
+              },
+              {
+                path: 'view-employee/:id',
+                loadComponent: () => import('./components/Personnel/Employees/view-employee/view-employee.component').then(m => m.ViewEmployeeComponent),
+                title: 'View Employee',
+              },
+              {
+                path: 'view-newjoiner/:id',
+                loadComponent: () => import('./components/Personnel/Employees/view-new-joiner/view-new-joiner.component').then(m => m.ViewNewJoinerComponent),
+                title: 'View New Joiner',
+              },
+              {
+                path: 'edit-employee/:id',
+                loadComponent: () => import('./components/Personnel/Employees/edit-employee/edit-employee.component').then(m => m.EditEmployeeComponent),
+                title: 'Edit Employee',
+              },
             ]
           },
 
