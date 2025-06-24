@@ -258,6 +258,18 @@
                 </p> -->
             </div>
 
+            <div class="input">
+                <label for="address">Address</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="address" class="form-control custom-date-input"
+                        placeholder="Enter Detailed Address" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
+                    Job Title is required.
+                </p> -->
+            </div>
+
             <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
                 {{errMsg}}
             </div>
