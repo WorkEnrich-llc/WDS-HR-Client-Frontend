@@ -59,8 +59,8 @@
 
         <ng-template #employeesTableHeader>
             <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
-                <div class="Employeesn-items-center justify-content-between">
-                    <span>Department</span>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span>Full Name</span>
                     <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
                         viewBox=Employees>
                         <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
@@ -282,7 +282,7 @@
                 </svg>
                 <span>Apply Filter</span>
             </button>
-            <a class="text-danger-dark fw-bold w-100 text-center">
+            <a (click)="resetFilterForm()" class="text-danger-dark fw-bold w-100 text-center">
                 <span>Clear Filters</span>
             </a>
         </div>

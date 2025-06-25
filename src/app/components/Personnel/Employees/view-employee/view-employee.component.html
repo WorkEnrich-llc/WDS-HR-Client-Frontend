@@ -203,6 +203,7 @@
     </div>
 
   </div>
+  
   <div class="row">
     <div class="col-lg-8">
       <div class="content-box d-flex flex-column gap-3 w-100">
@@ -578,8 +579,8 @@
 
 
 <!-- deactivate popup  -->
-<app-popup [title]="'Deactivate Department'"
-  [paragraph1]="'Are you sure you want to deactivate the Department “' + employeeData.name + '”?'"
+<app-popup [title]="'Deactivate Employee'"
+  [paragraph1]="'Are you sure you want to deactivate the Employee “' + employeeData.name + '”?'"
   [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
   [isOpen]="deactivateOpen" (close)="closeDeactivate()">
   <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
@@ -595,8 +596,8 @@
 </app-popup>
 
 <!-- activate popup  -->
-<app-popup [title]="'Activate Department'"
-  [paragraph1]="'Are you sure you want to Activate the Department “' + employeeData.name + '”?'"
+<app-popup [title]="'Activate Employee'"
+  [paragraph1]="'Are you sure you want to Activate the Employee “' + employeeData.name + '”?'"
   [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
   <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

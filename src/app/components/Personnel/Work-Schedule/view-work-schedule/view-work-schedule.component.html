@@ -1,0 +1,237 @@
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Work Schedule', link: '/schedule' },
+    {  label: 'View Work Schedule Info '}
+  ]" title="View Work Schedule Info" create="25/06/2025" update="25/06/2025">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/schedule/edit-schedule', 1]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round"
+                    d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                    d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+            </g>
+        </svg>
+        <span>Edit</span>
+    </button>
+    <!-- 
+  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Activate</span>
+  </button> -->
+
+    <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+</app-page-header>
+
+
+
+
+
+
+
+
+
+
+<div class="content-hug d-flex flex-column gap-4">
+    <div class="row align-items-stretch">
+
+        <div class="col-lg-8 d-flex">
+            <div class="content-box d-flex flex-column gap-3 h-100 w-100">
+                <h2>Main Information</h2>
+                <div class="info">
+                    <h6>Work Schedule ID</h6>
+                    <span>0011</span>
+                </div>
+                <div class="info">
+                    <h6>Work Schedule Name </h6>
+                    <span>Effective Daily Task Schedule</span>
+                </div>
+                <div class="info">
+                    <h6>Schedules Type </h6>
+                    <span>Part-Time Schedule</span>
+                </div>
+                <div class="info">
+                    <h6>Terms & Rules</h6>
+                    <span [ngClass]="{ 'clamp-text': !isExpanded }">Lorem ipsum dolor sit amet, consectetur adipiscing
+                        elit. Nulla venenatis nulla quis convallis
+                        ullamcorper. Donec eget laoreet leo. Nulla vel blandit erat. Quisque ligula augue, luctus non
+                        nunc in, commodo porta mauris. Sed a nunc vel risus maximus tincidunt. In at ipsum sed nisi
+                        vestibulum ultricies ut vitae quam. Maecenas orci risus, viverra efficitur dictum in, rhoncus id
+                        risus. Sed et nibh eu odio luctus vestibulum sit amet non tellus. Praesent finibus tellus eget
+                        ex consequat, finibus pretium nibh dictum. Donec consequat semper lorem vitae dapibus.
+                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+                    </span>
+                    <button (click)="toggleText()"
+                        class="w-100 mt-2 edit-btn d-flex align-items-center justify-content-center gap-1 ms-2">
+                        <svg *ngIf="!isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="currentColor" fill-rule="evenodd"
+                                d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <svg *ngIf="isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5" d="m19 15l-7-6l-7 6" />
+                        </svg>
+                        <span>{{ isExpanded ? 'See Less' : 'See More' }}</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4 d-flex">
+            <div class="content-box d-flex flex-column gap-3 h-100 w-100">
+                <h2>Work Schedule System</h2>
+                <div class="info">
+                    <h6>Working days</h6>
+                    <span>Sunday,Monday,Tuesday,Wednesday,Thursday</span>
+                </div>
+                <div class="info">
+                    <h6>Work Hours Type</h6>
+                    <span>Fixed Type</span>
+                </div>
+                <div class="info">
+                    <h6>Shift Type</h6>
+                    <span>morning Type</span>
+                </div>
+                <div class="info">
+                    <h6>Shift Hours</h6>
+                    <span>8 hours</span>
+                </div>
+                <div class="info">
+                    <h6>Shift hours from / to</h6>
+                    <span>09:00 to 15:00</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="content-box d-flex flex-column gap-3 h-100 w-100">
+        <h2>departments</h2>
+        
+    <app-table [data]="departments" [totalItems]="departments.length" [itemsPerPage]="itemsPerPage"
+      [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="departmentsTableHeader"
+      [rowTemplate]="departmentsTableRow" [emptyTemplate]="noDepartments"></app-table>
+
+    <ng-template #departmentsTableHeader>
+      <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>department</span>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
+            viewBox=Employees>
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
+            viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+      </th>
+
+
+      <th>Status</th>
+    </ng-template>
+
+    <ng-template #departmentsTableRow let-dept let-i="index">
+      <td class="width-fix">
+        <span class="d-block text-gray-sm">{{ dept.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          {{ dept.name }}
+        </span>
+      </td>
+      <td>
+        <span class="badge-success" *ngIf="dept.status ==='active'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Active</span>
+        </span>
+        <span class="badge-danger" *ngIf="dept.status ==='inactive'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+          <span>Not Active</span>
+        </span>
+      </td>
+    </ng-template>
+
+    <ng-template #noDepartments>
+      <tr>
+        <td colspan="2" class="no-data py-4">
+          <ng-template #noDepartments>
+            No Departments Added Yet. You must add at least one Employee to the branch.
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- deactivate popup  -->
+<app-popup [title]="'Deactivate Work Schedule'"
+    [paragraph1]="'Are you sure you want to deactivate the Work Schedule “work schadule name”?'"
+    [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
+    [isOpen]="deactivateOpen" (close)="closeDeactivate()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
+        Cancel
+    </button>
+</app-popup>
+
+<!-- activate popup  -->
+<app-popup [title]="'Activate Work Schedule'"
+    [paragraph1]="'Are you sure you want to Activate the Work Schedule “work schadule name”?'"
+    [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Activate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+        Cancel
+    </button>
+</app-popup>

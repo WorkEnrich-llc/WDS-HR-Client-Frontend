@@ -252,6 +252,21 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Personnel/Work-Schedule/work-schedule/work-schedule.component').then(m => m.WorkScheduleComponent),
                 title: 'Work Schedule',
               },
+              {
+                path: 'create-schedule',
+                loadComponent: () => import('./components/Personnel/Work-Schedule/create-work-schedule/create-work-schedule.component').then(m => m.CreateWorkScheduleComponent),
+                title: 'Create Work Schedule',
+              },
+              {
+                path: 'view-schedule/:id',
+                loadComponent: () => import('./components/Personnel/Work-Schedule/view-work-schedule/view-work-schedule.component').then(m => m.ViewWorkScheduleComponent),
+                title: 'View Work Schedule',
+              },
+              {
+                path: 'edit-schedule/:id',
+                loadComponent: () => import('./components/Personnel/Work-Schedule/edit-work-schedule/edit-work-schedule.component').then(m => m.EditWorkScheduleComponent),
+                title: 'Edit Work Schedule',
+              },
             ]
           },
 
