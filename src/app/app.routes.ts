@@ -274,15 +274,63 @@ export const routes: Routes = [
           {
             path: 'leave-types',
             children: [
-
+              {
+                path: '',
+                redirectTo: 'all-leave-types',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-leave-types',
+                loadComponent: () => import('./components/Personnel/Leave Types/all-leave-types/all-leave-types.component').then(m => m.AllLeaveTypesComponent),
+                title: 'All Leave Types',
+              },
+              {
+                path: 'create-leave-types',
+                loadComponent: () => import('./components/Personnel/Leave Types/create-leave-type/create-leave-type.component').then(m => m.CreateLeaveTypeComponent),
+                title: 'Create Leave Type',
+              },
+              {
+                path: 'view-leave-types/:id',
+                loadComponent: () => import('./components/Personnel/Leave Types/view-leave-type/view-leave-type.component').then(m => m.ViewLeaveTypeComponent),
+                title: 'View Leave Type',
+              },
+              {
+                path: 'update-leave-types/:id',
+                loadComponent: () => import('./components/Personnel/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
+                title: 'Update Leave Type',
+              },
             ]
           },
 
           // Approval Workflow routes
           {
-            path: 'approval-workflow',
+            path: 'workflow',
             children: [
-
+              {
+                path: '',
+                redirectTo: 'all-workflows',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-workflows',
+                loadComponent: () => import('./components/Personnel/Approval-Workflow/all-workflow/all-workflow.component').then(m => m.AllWorkflowComponent),
+                title: 'All WorkFlows',
+              },
+              {
+                path: 'create-workflows',
+                loadComponent: () => import('./components/Personnel/Approval-Workflow/create-workflow/create-workflow.component').then(m => m.CreateWorkflowComponent),
+                title: 'Create WorkFlows',
+              },
+              {
+                path: 'view-workflows/:id',
+                loadComponent: () => import('./components/Personnel/Approval-Workflow/view-workflow/view-workflow.component').then(m => m.ViewWorkflowComponent),
+                title: 'View Workflows',
+              },
+              {
+                path: 'update-workflows/:id',
+                loadComponent: () => import('./components/Personnel/Approval-Workflow/update-workflow/update-workflow.component').then(m => m.UpdateWorkflowComponent),
+                title: 'Update Workflows',
+              },
             ]
           },
 

@@ -15,7 +15,7 @@
 .modal-content{
     height: auto;
     width: auto;
-    min-width: 500px;
+    min-width: 600px;
     max-width: 600px;
     padding: var(--spacing-40);
     background-color: var(--color-white);

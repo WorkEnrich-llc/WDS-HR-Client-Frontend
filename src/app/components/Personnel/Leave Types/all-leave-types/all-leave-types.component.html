@@ -1,11 +1,13 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
-    { label: 'Work Schedule' }
-  ]" title="Work Schedule">
+    { label: 'Leave Types' }
+  ]" title="All Leave Types">
 
 </app-page-header>
 <!-- end page header -->
+
+
 <!-- start page content -->
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
@@ -35,30 +37,30 @@
 
       </div>
 
-      <!-- New Work Schedule button -->
-      <button class="btn btn-lg btn-primary w-auto" routerLink="/schedule/create-schedule">
+      <!-- New Leave Type button -->
+      <button class="btn btn-lg btn-primary w-auto" routerLink="/leave-types/create-leave-types">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="#ffffff" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
           </g>
         </svg>
-        <span>New Work Schedule</span>
+        <span>New Leave Type</span>
       </button>
 
     </div>
 
     <!-- start Table -->
 
-    <app-table [data]="workschaduale" [totalItems]="workschaduale.length" [itemsPerPage]="itemsPerPage"
+    <app-table [data]="leaveTypes" [totalItems]="leaveTypes.length" [itemsPerPage]="itemsPerPage"
       [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="workTableHeader"
-      [rowTemplate]="workTableRow" [emptyTemplate]="noWork"></app-table>
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="leaveTableHeader"
+      [rowTemplate]="leaveTableRow" [emptyTemplate]="noLeave"></app-table>
 
-    <ng-template #workTableHeader>
+    <ng-template #leaveTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
         <div class="d-flex align-items-center justify-content-between">
-          <span>Work Schedules</span>
+          <span>Leave Type</span>
           <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
             viewBox=Employees>
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
@@ -76,25 +78,29 @@
       </th>
 
 
+      <th>
+        <span class="text-small fw-semibold text-secondary d-block">Per Month</span>
+        <span class="d-block">Accrual Rate</span>
+      </th>
       <th>Employment Type</th>
       <th>Created at</th>
       <th>Updated at</th>
       <th>Status</th>
-      <th>Action</th>
+      <th>Actions</th>
     </ng-template>
 
-    <ng-template #workTableRow let-work let-i="index">
+    <ng-template #leaveTableRow let-leave let-i="index">
       <td class="width-fix">
-        <span class="d-block text-gray-sm">{{ work.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ work.name }}
+          {{ leave.name }}
         </span>
       </td>
-      <td>{{work.employment_type}}</td>
-      <td>{{work.created_at}}</td>
-      <td>{{work.updated_at}}</td>
+      <td>{{leave.accrualRate}}</td>
+      <td>{{leave.employmentType}}</td>
+      <td>{{leave.createdAt}}</td>
+      <td>{{leave.updatedAt}}</td>
       <td>
-        <span class="badge-success" *ngIf="work.status ==='active'">
+        <span class="badge-success" *ngIf="leave.status ==='Active'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -103,7 +109,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="work.status ==='inactive'">
+        <span class="badge-danger" *ngIf="leave.status ==='Inactive'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -115,7 +121,7 @@
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/schedule/view-schedule', work.id]"
+          <a [routerLink]="['/leave-types/view-leave-types', leave.id]"
             class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -126,7 +132,7 @@
             </svg>
             <span>View</span>
           </a>
-          <a [routerLink]="['/schedule/edit-schedule', work.id]"
+          <a [routerLink]="['/leave-types/update-leave-types', leave.id]"
             class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -144,14 +150,14 @@
 
     </ng-template>
 
-    <ng-template #noWork>
+    <ng-template #noLeave>
       <tr>
-        <td colspan="6" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noWork">
-            No Work Schedule match your search.
+        <td colspan="7" class="no-data py-4">
+          <ng-container *ngIf="searchTerm?.trim(); else noLeave">
+            No Leave Type match your search.
           </ng-container>
-          <ng-template #noWork>
-            No Work Schedule Added Yet. You must add at least one Employee to the branch.
+          <ng-template #noLeave>
+            No Leave Type Added Yet. You must add at least one Employee to the branch.
           </ng-template>
         </td>
       </tr>

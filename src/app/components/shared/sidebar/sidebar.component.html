@@ -153,7 +153,7 @@
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                         <ng-container
-                            *ngIf="currentRoute.includes('dashboard') || currentRoute.includes('employees') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('approval-workflow') || currentRoute.includes('approval-requests') || currentRoute.includes('restricted-days'); else otherIcon2">
+                            *ngIf="currentRoute.includes('dashboard') || currentRoute.includes('employees') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('workflow') || currentRoute.includes('approval-requests') || currentRoute.includes('restricted-days'); else otherIcon2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 class="svg-active-accordion">
                                     <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
@@ -236,7 +236,7 @@
                                 </a>
                             </li>
                             <!-- Leave Types link -->
-                            <li class="sidenav-nav-item" routerLink="" routerLinkActive=""
+                            <li class="sidenav-nav-item" routerLink="/leave-types" routerLinkActive="active"
                                 [routerLinkActiveOptions]="{ exact: false }">
                                 <a class="sidenav-nav-link d-flex align-items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -249,7 +249,7 @@
                                 </a>
                             </li>
                             <!-- Approval Workflow link -->
-                            <li class="sidenav-nav-item" routerLink="" routerLinkActive=""
+                            <li class="sidenav-nav-item" routerLink="/workflow" routerLinkActive="active"
                                 [routerLinkActiveOptions]="{ exact: false }">
                                 <a class="sidenav-nav-link d-flex align-items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

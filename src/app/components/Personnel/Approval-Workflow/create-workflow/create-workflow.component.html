@@ -1,0 +1,134 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Workflows', link: '/workflow' },
+    {  label: 'Create New Workflow'}
+  ]" title="Create New Workflow" [create]="todayFormatted">
+    <button class="btn btn-lg btn-success w-auto">
+        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Create Workflow</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Workflow</span>
+    </button>
+</app-page-header>
+
+<!-- start content -->
+<div class="content-hug">
+    <div class="d-flex flex-column gap-4">
+
+        <div class="content-box d-flex flex-column gap-3">
+            <h2>Main Information</h2>
+            <form class="w-lg-50 d-flex flex-column gap-2">
+
+                <div class="input">
+                    <label for="workflowId">Workflow ID (Optional)</label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="workflowId" class="form-control custom-date-input" placeholder="0050" />
+                    </div>
+                </div>
+
+                <div class="input">
+                    <label for="workflowName">Workflow Name <span>*</span></label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="workflowName" class="form-control custom-date-input"
+                            placeholder="Workflow Name" />
+                    </div>
+                </div>
+
+                <div class="input">
+                    <label for="leavetype">Leave Type</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="leavetype" id="leavetype" class="form-select">
+                                <option value="" disabled selected hidden>Select one Leave Type</option>
+                                <option value="">1</option>
+                                <option value="">2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+
+        <div class="content-box d-flex flex-column gap-3">
+            <h2>Assign Employees</h2>
+            <form class="w-lg-50 d-flex flex-column gap-2">
+                <div class="input">
+                    <label for="department">Department</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="department" id="department" class="form-select">
+                                <option value="" disabled selected hidden>Select one or more Department</option>
+                                <option value="">1</option>
+                                <option value="">2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="input">
+                    <label for="jobLevel">Job Level</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="jobLevel" id="jobLevel" class="form-select">
+                                <option value="" disabled selected hidden>Select one or more Job Levels</option>
+                                <option value="">1</option>
+                                <option value="">2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input">
+                    <label for="emptype">Employment Type</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="emptype" id="emptype" class="form-select">
+                                <option value="" disabled selected hidden>Select one or more Employment Type</option>
+                                <option value="Full-Time">Full-Time</option>
+                                <option value="Part-Time">Part-Time</option>
+                                <option value="Per Hour">Per Hour</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+
+        </div>
+
+
+
+    </div>
+</div>
+
+
+
+
+<!-- discard -->
+<app-popup [title]="'Discard New Workflow'" [paragraph1]="'Are you sure you want to discard creating the new Workflow?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Workflow
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>
