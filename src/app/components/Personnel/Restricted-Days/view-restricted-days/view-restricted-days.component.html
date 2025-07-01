@@ -1,10 +1,10 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
-    { label: 'Workflows', link: '/workflow' },
-    {  label: 'View Workflow - 1234'}
-  ]" title="View Workflow - 1234" create="25/06/2025" update="25/06/2025">
-    <button class="btn btn-lg btn-primary" [routerLink]="['/workflow/update-workflows', 1]">
+    { label: 'Restricted Days', link: '/restricted-days' },
+    {  label: 'Restricted Day #1231'}
+  ]" title="Restricted Day #1231" create="25/06/2025" update="25/06/2025">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/restricted-days/update-restricted-day', 1]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -70,8 +70,8 @@
 
 
 <!-- deactivate popup  -->
-<app-popup [title]="'Deactivate workflow'"
-    [paragraph1]="'Are you sure you want to deactivate the workflow “Sick Leave”?'"
+<app-popup [title]="'Deactivate Restricted Day'"
+    [paragraph1]="'Are you sure you want to deactivate the Restricted Day “Sick Leave”?'"
     [paragraph2]="'You can Activate it later.'" [isOpen]="deactivateOpen" (close)="closeDeactivate()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -86,8 +86,8 @@
 </app-popup>
 
 <!-- activate popup  -->
-<app-popup [title]="'Activate workflow'"
-    [paragraph1]="'Are you sure you want to activate the workflow “Sick Leave”?'"
+<app-popup [title]="'Activate Restricted Day'"
+    [paragraph1]="'Are you sure you want to activate the Restricted Day “Sick Leave”?'"
     [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
     <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

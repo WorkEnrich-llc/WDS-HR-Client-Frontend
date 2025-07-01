@@ -336,9 +336,23 @@ export const routes: Routes = [
 
           // Approval Requests routes
           {
-            path: 'approval-requests',
+            path: 'requests',
             children: [
-
+              {
+                path: '',
+                redirectTo: 'all-requests',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-requests',
+                loadComponent: () => import('./components/Personnel/Approval-Requests/all-requests/all-requests.component').then(m => m.AllRequestsComponent),
+                title: 'All Requests',
+              },
+              {
+                path: 'view-requests/:id',
+                loadComponent: () => import('./components/Personnel/Approval-Requests/view-assigned-request/view-assigned-request.component').then(m => m.ViewAssignedRequestComponent),
+                title: 'View Requests',
+              },
             ]
           },
 
@@ -346,7 +360,31 @@ export const routes: Routes = [
           {
             path: 'restricted-days',
             children: [
-
+              {
+                path: '',
+                redirectTo: 'all-restricted-days',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-restricted-days',
+                loadComponent: () => import('./components/Personnel/Restricted-Days/all-restricted-days/all-restricted-days.component').then(m => m.AllRestrictedDaysComponent),
+                title: 'All Restricted Days',
+              },
+              {
+                path: 'create-restricted-days',
+                loadComponent: () => import('./components/Personnel/Restricted-Days/create-restricted-days/create-restricted-days.component').then(m => m.CreateRestrictedDaysComponent),
+                title: 'Create Restricted Days',
+              },
+              {
+                path: 'update-restricted-day/:id',
+                loadComponent: () => import('./components/Personnel/Restricted-Days/update-restricted-days/update-restricted-days.component').then(m => m.UpdateRestrictedDaysComponent),
+                title: 'Update Restricted Days',
+              },
+              {
+                path: 'view-restricted-day/:id',
+                loadComponent: () => import('./components/Personnel/Restricted-Days/view-restricted-days/view-restricted-days.component').then(m => m.ViewRestrictedDaysComponent),
+                title: 'View Restricted Days',
+              },
             ]
           },
         ]

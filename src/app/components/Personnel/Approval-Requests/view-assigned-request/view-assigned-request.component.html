@@ -1,0 +1,214 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Requests', link: '/requests' },
+    {  label: 'Request #1231'}
+  ]" title="Request #1231" create="25/06/2025" update="25/06/2025">
+
+</app-page-header>
+
+
+
+<div class="content-hug d-flex flex-column gap-4">
+
+    <!-- 3 cards -->
+    <div class="d-flex flex-column flex-lg-row align-items-stretch gap-4">
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <h2>Contact Information</h2>
+            <div class="info">
+                <h6>ID</h6>
+                <span>{{leaveRequest.requestId.toString().padStart(4, '0') }}</span>
+            </div>
+            <div class="info">
+                <h6>Full Name</h6>
+                <span>{{leaveRequest.contactInfo.fullName}}</span>
+            </div>
+            <div class="info">
+                <h6>Phone Number</h6>
+                <span>{{leaveRequest.contactInfo.phoneNumber}}</span>
+            </div>
+            <div class="info">
+                <h6>Personal Email</h6>
+                <span>{{leaveRequest.contactInfo.personalEmail}}</span>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Job Info</h2>
+                <span class="badge-newjoiner" *ngIf="leaveRequest.jobInfo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
+                                d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                            <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                            <circle cx="16.5" cy="16.5" r="1.5" />
+                            <path stroke-linecap="round" d="M2.5 9h19" />
+                        </g>
+                    </svg>
+                    <span>New Joiner</span>
+                </span>
+            </div>
+            <div class="info">
+                <h6>Job Title</h6>
+                <span>{{leaveRequest.jobInfo.jobTitle}}</span>
+            </div>
+            <div class="info">
+                <h6>Employment Type</h6>
+                <span>{{leaveRequest.jobInfo.employmentType}}</span>
+            </div>
+            <div class="info">
+                <h6>Section</h6>
+                <span>{{leaveRequest.jobInfo.section}}</span>
+            </div>
+            <div class="info">
+                <h6>Department</h6>
+                <span>{{leaveRequest.jobInfo.department}}</span>
+            </div>
+            <div class="info">
+                <h6>Branch</h6>
+                <span>{{leaveRequest.jobInfo.branch}}</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="info">
+                    <h6>Direct Manager</h6>
+                    <span>{{leaveRequest.jobInfo.directManager}}</span>
+                </div>
+                <a class="view-btn h-100 d-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                            <path
+                                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                        </g>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="content-box d-flex flex-column gap-3 w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <h2>Request Info</h2>
+                <span class="badge-newjoiner" *ngIf="leaveRequest.requestInfo.status==='Pending'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
+                                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+                            <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+                        </g>
+                    </svg>
+                    <span>Pending</span>
+                </span>
+                <span class="badge-danger" *ngIf="leaveRequest.requestInfo.status ==='Rejected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                        </g>
+                    </svg>
+                    <span>Rejected</span>
+                </span>
+                <span class="badge-success" *ngIf="leaveRequest.requestInfo.status ==='Accepted'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    <span>Accepted</span>
+                </span>
+            </div>
+            <div class="info">
+                <h6>Request ID</h6>
+                <span>{{leaveRequest.requestInfo.requestId.toString().padStart(4, '0')}}</span>
+            </div>
+            <div class="info">
+                <h6>Requested at</h6>
+                <span>{{ leaveRequest.requestInfo.requestedAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info">
+                <h6>Leave Type</h6>
+                <span>{{leaveRequest.requestInfo.leaveType}}</span>
+            </div>
+            <div class="info">
+                <h6>Date Range</h6>
+                <span>{{leaveRequest.requestInfo.dateRange.from | date:'dd/MM/yyyy'}} -
+                    {{leaveRequest.requestInfo.dateRange.to | date:'dd/MM/yyyy'}}</span>
+            </div>
+            <div class="info">
+                <h6>Leave Balance</h6>
+                <span>{{leaveRequest.requestInfo.leaveBalance}}</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="content-box d-flex flex-column gap-3 w-100">
+        <h2>Steps</h2>
+        <div>
+            <div *ngFor="let step of leaveRequest.steps; let i = index" class="row step-info py-2 align-items-center">
+
+                <div class="col-1 d-flex align-items-center">
+                    <div class="arrow p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+                        </svg>
+                    </div>
+                    <div class="p-2 ms-auto">{{ i + 1 }}</div>
+                </div>
+                <div class="col-3 name p-2">{{step.stepName}}</div>
+                <div class="job d-flex flex-column p-2 col-4">
+                    <span><strong>{{step.approverType}}</strong> {{step.approverRole}}</span>
+                    <h5>{{step.approverName}}</h5>
+                </div>
+                <div class="d-flex flex-column align-items-end gap-3 p-2 col-4">
+                    <span class="badge-danger" *ngIf="step.status === 'Rejected'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                            </g>
+                        </svg>
+                        <span>Rejected</span>
+                    </span>
+                    <span class="badge-success" *ngIf="step.status === 'Accepted'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                            </g>
+                        </svg>
+                        <span>Accepted</span>
+                    </span>
+                    <div class="d-flex gap-3" *ngIf="step.status === 'Pending'">
+                        <button class="btn btn-lg btn-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                </g>
+                            </svg>
+                            <span>Rejected</span>
+                        </button>
+                        <button class="btn btn-lg btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                            </svg>
+                            <span>Accepted</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

@@ -1,19 +1,20 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-create-workflow',
-  imports: [PageHeaderComponent,PopupComponent],
-  providers:[DatePipe],
+  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule],
+  providers: [DatePipe],
   templateUrl: './create-workflow.component.html',
   styleUrl: './create-workflow.component.css'
 })
 export class CreateWorkflowComponent {
-todayFormatted: string = '';
+  todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
 
@@ -21,11 +22,54 @@ todayFormatted: string = '';
     private router: Router,
     private datePipe: DatePipe,
     private toasterMessageService: ToasterMessageService,
+    private fb: FormBuilder
   ) {
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
   }
+  // steps
+  showErrors = false;
+  steps: { form: FormGroup, name: string }[] = [];
+  selectedStepIndex: number = 0;
 
+
+  createStepForm(): FormGroup {
+    return this.fb.group({
+      stepName: ['', Validators.required],
+      mandatory: [false],
+      assignee: ['', Validators.required],
+    });
+  }
+
+ addStep() {
+  const lastStep = this.steps[this.steps.length - 1];
+
+  if (lastStep && !lastStep.form.valid) {
+    this.showErrors = true;
+
+    Object.values(lastStep.form.controls).forEach(control => {
+      control.markAsTouched();
+      control.markAsDirty();
+      control.updateValueAndValidity();
+    });
+
+    return;
+  }
+
+  this.showErrors = false; 
+
+  const newStepForm = this.createStepForm();
+  this.steps.push({ form: newStepForm, name: '' });
+  this.selectedStepIndex = this.steps.length - 1;
+}
+
+
+  removeStep(index: number) {
+    this.steps.splice(index, 1);
+    if (this.selectedStepIndex >= this.steps.length) {
+      this.selectedStepIndex = this.steps.length - 1;
+    }
+  }
 
   // popups
   isModalOpen = false;
