@@ -489,15 +489,13 @@ export class EditBranchInfoComponent implements OnInit {
   currentStep = 1;
 
   goNext() {
-    if (this.currentStep < 2) {
       this.currentStep++;
-    }
+    
   }
 
   goPrev() {
-    if (this.currentStep > 1) {
       this.currentStep--;
-    }
+    
   }
 
 

@@ -85,6 +85,7 @@
       </th>
 
 
+      <th>Job Level</th>
       <th>Management Level</th>
       <th>Department</th>
       <th>Direct Manager</th>
@@ -97,6 +98,16 @@
         <span class="d-block text-truncate" style="max-width: 200px;">
           {{ job.name }}
         </span>
+      </td>
+      <td>
+        <span *ngIf="job.job_level == 0"></span>
+        <span *ngIf="job.job_level == 1">Intern</span>
+        <span *ngIf="job.job_level == 2">Junior</span>
+        <span *ngIf="job.job_level == 3">Mid Level</span>
+        <span *ngIf="job.job_level == 4">Senior</span>
+        <span *ngIf="job.job_level == 5">Team Leader</span>
+        <span *ngIf="job.job_level == 6">Expert</span>
+        <span *ngIf="job.job_level == 7">Consultant</span>
       </td>
       <td>
         <span *ngIf="job.management_level == 1">Company</span>
@@ -197,8 +208,8 @@
             <option *ngFor="let dept of departments" value="dept.id">{{dept.name}}</option>
           </select>
         </div>
-        <svg *ngIf="!filterForm.get('department')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-          height="24" viewBox="0 0 24 24">
+        <svg *ngIf="!filterForm.get('department')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
           <path fill="#e04f5f" fill-rule="evenodd"
@@ -216,7 +227,7 @@
     </div>
 
 
-  
+
     <div class="input">
       <label for="status">Status</label>
       <div class="d-flex align-items-center gap-4">

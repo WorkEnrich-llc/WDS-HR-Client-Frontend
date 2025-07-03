@@ -4,7 +4,8 @@
     { label: 'Branches', link: '/branches' },
     { label: 'Create New Branch' }
   ]" title="Create New Branch" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
+    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
+        (click)="createBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -48,15 +49,24 @@
         </svg>
         <span class="nav-link">Main Information</span>
     </li>
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-        [style.fill]="currentStep > 1 ? '#377AFD' : '#DDE3EB'">
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
+  ">
         <path
             d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
     </svg>
 
-    <li class="nav-item" [ngClass]="{ active: currentStep === 2 }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-            [style.fill]="currentStep === 2 ? '#007bff' : 'black'">
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 2"
+            [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd">
             <path
                 d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
                 opacity=".5" />
@@ -67,7 +77,47 @@
                 opacity=".5" />
 
         </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
         <span class="nav-link">Departments</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <= 3" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M3 13.037c0-1.103 0-1.655.393-1.976c.139-.114.308-.206.497-.269c.532-.177 1.231-.002 2.629.346c1.067.267 1.6.4 2.14.386q.298-.008.588-.059c.525-.093.993-.326 1.929-.793l1.382-.69c1.2-.599 1.799-.898 2.487-.967s1.372.102 2.739.443l1.165.29c.99.247 1.485.371 1.768.665s.283.685.283 1.466v6.084c0 1.103 0 1.655-.393 1.976a1.6 1.6 0 0 1-.497.269c-.532.177-1.231.003-2.629-.346c-1.067-.267-1.6-.4-2.14-.386a4 4 0 0 0-.588.059c-.525.093-.993.326-1.929.793l-1.382.69c-1.2.599-1.799.898-2.487.967s-1.372-.102-2.739-.443l-1.165-.29c-.99-.247-1.485-.371-1.768-.665S3 19.902 3 19.121z"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M12 2C8.686 2 6 4.552 6 7.7c0 3.124 1.915 6.769 4.903 8.072a2.76 2.76 0 0 0 2.194 0C16.085 14.47 18 10.824 18 7.7C18 4.552 15.314 2 12 2m0 8a2 2 0 1 0 0-4a2 2 0 0 0 0 4"
+                clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Branch Location</span>
     </li>
 </ul>
 
@@ -137,7 +187,7 @@
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
                 </svg>
-                <span>Next (1/2)</span>
+                <span>Next (1/3)</span>
             </button>
         </div>
 
@@ -153,7 +203,7 @@
         <div class="d-flex flex-row justify-content-between gap-3">
             <!-- Search input -->
             <div data-mdb-input-init class="form-outline w-25 w-md-100">
-                <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchAddedDepartmentTerm"/>
+                <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchAddedDepartmentTerm" />
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                     <g fill="none" stroke-width="1.5">
                         <circle cx="11.5" cy="11.5" r="9.5" />
@@ -176,10 +226,10 @@
 
         <!-- start table -->
         <div>
-            <app-table [data]="filteredDepartments" [currentPage]="currentPage" [itemsPerPage]="10000" [disablePagination]="true" (pageChange)="onPageChange($event)"
-            (itemsPerPageChange)="onItemsPerPageChange($event)"
-                [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"
-                [emptyTemplate]="departmentTableEmptyRow">
+            <app-table [data]="filteredDepartments" [currentPage]="currentPage" [itemsPerPage]="10000"
+                [disablePagination]="true" (pageChange)="onPageChange($event)"
+                (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="departmentTableHeader"
+                [rowTemplate]="departmentTableRow" [emptyTemplate]="departmentTableEmptyRow">
             </app-table>
 
             <ng-template #departmentTableHeader>
@@ -215,7 +265,8 @@
                 <td>{{ department.selectedSection }} / {{department.sectionsCount}} selected</td>
                 <td class="flex-grow-1 ps-3" style="white-space: nowrap;">
                     <div class="d-flex align-items-center justify-content-start w-100 gap-3">
-                        <a type="button" class="remove-btn d-flex align-items-center gap-1" (click)="removeDepartment(department)">
+                        <a type="button" class="remove-btn d-flex align-items-center gap-1"
+                            (click)="removeDepartment(department)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <path fill="currentColor"
                                     d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -225,7 +276,8 @@
                             </svg>
                             <span>Remove from Branch</span>
                         </a>
-                        <a type="button" class="edit-btn d-flex align-items-center gap-1" (click)="openSecondOverlay(department)">
+                        <a type="button" class="edit-btn d-flex align-items-center gap-1"
+                            (click)="openSecondOverlay(department)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <path stroke-linecap="round"
@@ -254,7 +306,7 @@
             </ng-template>
         </div>
 
-          <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
             {{errMsg}}
         </div>
 
@@ -267,15 +319,15 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
-                  <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <button class="btn btn-lg btn-primary" [disabled]=" !branchStep1.valid || addeddepartments.length<1"
+                (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
                 </svg>
-                <span>Create Branch</span>
+                <span>Next (2/3)</span>
             </button>
         </div>
 
@@ -299,10 +351,10 @@
     </div>
     <!-- start table -->
     <div class="slide-table">
-        <app-table [data]="departments" [itemsPerPage]="10000" [disablePagination]="true"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)" 
-            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="AlldepartmentTableHeader"
-            [rowTemplate]="AlldepartmentTableRow" [emptyTemplate]="noAllDepartments">
+        <app-table [data]="departments" [itemsPerPage]="10000" [disablePagination]="true" [currentPage]="currentPage"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+            [headerTemplate]="AlldepartmentTableHeader" [rowTemplate]="AlldepartmentTableRow"
+            [emptyTemplate]="noAllDepartments">
         </app-table>
 
         <ng-template #AlldepartmentTableHeader>
@@ -334,17 +386,17 @@
             </tr>
         </ng-template>
         <ng-template #noAllDepartments>
-                <tr>
-                    <td colspan="3" class="no-data py-4">
-                        <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
-                            No Department match your search.
-                        </ng-container>
-                        <ng-template #noDepartments>
-                            No Department Added Yet. You must add at least one Department to the branch.
-                        </ng-template>
-                    </td>
-                </tr>
-            </ng-template>
+            <tr>
+                <td colspan="3" class="no-data py-4">
+                    <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                        No Department match your search.
+                    </ng-container>
+                    <ng-template #noDepartments>
+                        No Department Added Yet. You must add at least one Department to the branch.
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">
@@ -370,7 +422,7 @@
 <app-overlay-filter-box #sectionsOverlay [title]="'Department Sections'">
     <!-- Search input -->
     <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
-        <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchDeptSectionsTerm"/>
+        <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchDeptSectionsTerm" />
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
                 <circle cx="11.5" cy="11.5" r="9.5" />
@@ -380,8 +432,8 @@
     </div>
     <!-- start table -->
     <div class="slide-table">
-        <app-table [data]="filteredSections" [itemsPerPage]="10000" [disablePagination]="true" [headerTemplate]="sectionsTableHeader"
-            [rowTemplate]="sectionsTableRow" [emptyTemplate]="noAllSections">
+        <app-table [data]="filteredSections" [itemsPerPage]="10000" [disablePagination]="true"
+            [headerTemplate]="sectionsTableHeader" [rowTemplate]="sectionsTableRow" [emptyTemplate]="noAllSections">
         </app-table>
 
         <ng-template #sectionsTableHeader>
@@ -428,17 +480,17 @@
             </tr>
         </ng-template>
         <ng-template #noAllSections>
-                <tr>
-                    <td colspan="3" class="no-data py-4">
-                        <ng-container *ngIf="searchDeptSectionsTerm?.trim(); else noDepartments">
-                            No Sections match your search.
-                        </ng-container>
-                        <ng-template #noDepartments>
-                            No Sections Added Yet. You must add at least one Sections to the branch.
-                        </ng-template>
-                    </td>
-                </tr>
-            </ng-template>
+            <tr>
+                <td colspan="3" class="no-data py-4">
+                    <ng-container *ngIf="searchDeptSectionsTerm?.trim(); else noDepartments">
+                        No Sections match your search.
+                    </ng-container>
+                    <ng-template #noDepartments>
+                        No Sections Added Yet. You must add at least one Sections to the branch.
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
     </div>
 
     <div class="d-flex align-items-center pt-4 gap-3">
@@ -458,6 +510,48 @@
 
 </app-overlay-filter-box>
 
+
+
+<!-- step 3 -->
+<div class="content-hug" *ngIf="currentStep === 3">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Branch Location</h2>
+        <div class="w-lg-50 d-flex flex-column gap-2">
+            <div data-mdb-input-init class="form-outline w-75">
+                <input type="text" class="form-control"
+                    placeholder="Search for a Street or Landmark" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke-width="1.5">
+                        <circle cx="11.5" cy="11.5" r="9.5" />
+                        <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                    </g>
+                </svg>
+            </div>
+            
+        </div>
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success"
+                [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
+                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Create Branch</span>
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Discard popup  -->
 <app-popup [title]="'Discard Branch'" [paragraph1]="'Are you sure you want to discard creating the new branch?'"

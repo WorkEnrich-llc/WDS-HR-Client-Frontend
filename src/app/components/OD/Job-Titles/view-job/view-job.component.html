@@ -45,6 +45,16 @@
                 <h6>Job Title</h6>
                 <span>{{jobTitleData.name}}</span>
             </div>
+            <div class="info" *ngIf="jobTitleData.job_level > 0">
+                <h6>Job Level</h6>
+                <span *ngIf="jobTitleData.job_level == 1">Intern</span>
+                <span *ngIf="jobTitleData.job_level == 2">Junior</span>
+                <span *ngIf="jobTitleData.job_level == 3">Mid Level</span>
+                <span *ngIf="jobTitleData.job_level == 4">Senior</span>
+                <span *ngIf="jobTitleData.job_level == 5">Team Leader</span>
+                <span *ngIf="jobTitleData.job_level == 6">Expert</span>
+                <span *ngIf="jobTitleData.job_level == 7">Consultant</span>
+            </div>
             <div class="info">
                 <h6>Employment Type</h6>
                 <span *ngIf="jobTitleData.salary_ranges">
@@ -60,6 +70,7 @@
                     </ng-container>
                 </span>
             </div>
+            
             <div class="info" *ngIf="jobTitleData.management_level">
                 <h6>Management Level</h6>
                 <span *ngIf="jobTitleData.management_level == 1">Company</span>
@@ -68,6 +79,7 @@
                 <span *ngIf="jobTitleData.management_level == 4">Section</span>
                 <span *ngIf="jobTitleData.management_level == 5">None</span>
             </div>
+         
             <div class="info" *ngIf="jobTitleData.department?.name">
                 <h6>Assigned Department</h6>
                 <span>{{jobTitleData.department?.name}}</span>

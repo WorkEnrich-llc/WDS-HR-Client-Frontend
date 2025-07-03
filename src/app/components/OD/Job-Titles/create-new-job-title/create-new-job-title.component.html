@@ -189,13 +189,12 @@
                             <option value="4">Section</option>
                             <option value="5">None</option>
                         </select>
-
                     </div>
-                    <p class="error-msg"
-                        *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
-                        Management Level is required.
-                    </p>
                 </div>
+                <p class="error-msg"
+                    *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                    Management Level is required.
+                </p>
             </div>
             <div class="input">
                 <label for="jobLevel">Job Level</label>
@@ -203,7 +202,8 @@
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select name="jobLevel" formControlName="jobLevel" id="jobLevel" class="form-select"
                             (change)="onLevelChange()">
-                            <option value="0" disabled hidden selected >Select Level</option>
+                            <option value="" disabled hidden>Select Level</option>
+                            <option value="0">Not Selected</option>
                             <option value="1">Intern</option>
                             <option value="2">Junior</option>
                             <option value="3">Mid Level</option>
@@ -212,13 +212,12 @@
                             <option value="6">Expert</option>
                             <option value="7">Consultant</option>
                         </select>
-
-                    </div>
-                    <p class="error-msg"
+                    </div>      
+                </div>
+                <p class="error-msg"
                         *ngIf="jobStep1.get('jobLevel')?.touched && jobStep1.get('jobLevel')?.errors?.['required']">
                         Job Level is required.
                     </p>
-                </div>
             </div>
 
             <div class="d-flex justify-content-between gap-3">

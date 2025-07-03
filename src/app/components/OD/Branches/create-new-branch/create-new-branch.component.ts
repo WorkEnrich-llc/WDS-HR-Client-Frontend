@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -14,7 +14,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 @Component({
   selector: 'app-create-new-branch',
   imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule],
-  providers: [DatePipe],
+providers: [DatePipe],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -63,8 +63,6 @@ export class CreateNewBranchComponent implements OnInit {
       this.getAllDepartment(this.currentPage, search);
     });
     this.getAllDepartment(this.currentPage);
-
-
 
   }
 
@@ -279,7 +277,7 @@ export class CreateNewBranchComponent implements OnInit {
     this.sectionsOverlay.closeOverlay();
   }
 
-
+  
   // create branch
   createBranch(): void {
     if (this.branchStep1.invalid) {
@@ -343,15 +341,13 @@ export class CreateNewBranchComponent implements OnInit {
   currentStep = 1;
 
   goNext() {
-    if (this.currentStep < 2) {
       this.currentStep++;
-    }
+    
   }
 
   goPrev() {
-    if (this.currentStep > 1) {
       this.currentStep--;
-    }
+    
   }
 
 

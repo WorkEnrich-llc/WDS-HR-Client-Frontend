@@ -5,11 +5,12 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, FullCalendarModule],
+  imports: [PageHeaderComponent, CommonModule, FullCalendarModule,RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

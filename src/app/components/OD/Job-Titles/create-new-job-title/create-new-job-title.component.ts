@@ -74,6 +74,7 @@ export class CreateNewJobTitleComponent {
     code: new FormControl(''),
     jobName: new FormControl('', [Validators.required]),
     managementLevel: new FormControl('', [Validators.required]),
+    jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
     section: new FormControl({ value: '', disabled: true }),
   });
@@ -343,6 +344,7 @@ export class CreateNewJobTitleComponent {
   createJobTitle() {
     this.isLoading = true;
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
+    const jobLevel = Number(this.jobStep1.get('jobLevel')?.value);
 
 
     const requestData: any = {
@@ -350,6 +352,7 @@ export class CreateNewJobTitleComponent {
         code: this.jobStep1.get('code')?.value || '',
         name: this.jobStep1.get('jobName')?.value || '',
         management_level: managementLevel,
+        job_level: jobLevel,
         salary_ranges: {
           full_time: {
             minimum: this.jobStep2.get('fullTime_minimum')?.value,
@@ -400,32 +403,32 @@ export class CreateNewJobTitleComponent {
     };
 
 
-    // this._JobsService.createJobTitle(requestData).subscribe({
+    this._JobsService.createJobTitle(requestData).subscribe({
 
-    //   next: (response) => {
-    //     this.isLoading = false;
-    //     this.errMsg = '';
-    //     // create success
-    //     this.router.navigate(['/jobs/all-job-titles']);
-    //     this.toasterMessageService.sendMessage("Job Title created successfully");
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        // create success
+        this.router.navigate(['/jobs/all-job-titles']);
+        this.toasterMessageService.sendMessage("Job Title created successfully");
 
-    //   },
-    //   error: (err) => {
-    //     this.isLoading = false;
-    //     const errorHandling = err?.error?.data?.error_handling;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const errorHandling = err?.error?.data?.error_handling;
 
-    //     if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-    //       this.currentStep = errorHandling[0].tap;
+        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+          this.currentStep = errorHandling[0].tap;
 
-    //       this.errMsg = errorHandling
-    //         .map((e) => e.error)
-    //         .join('\n');
+          this.errMsg = errorHandling
+            .map((e) => e.error)
+            .join('\n');
 
-    //     } else {
-    //       this.errMsg = "An unexpected error occurred. Please try again later.";
-    //     }
-    //   }
-    // });
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
+        }
+      }
+    });
 
     // console.log('row', requestData);
   }
