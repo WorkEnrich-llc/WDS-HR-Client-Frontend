@@ -14,7 +14,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 @Component({
   selector: 'app-create-new-branch',
   imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule],
-providers: [DatePipe],
+  providers: [DatePipe],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -277,7 +277,7 @@ export class CreateNewBranchComponent implements OnInit {
     this.sectionsOverlay.closeOverlay();
   }
 
-  
+
   // create branch
   createBranch(): void {
     if (this.branchStep1.invalid) {
@@ -325,14 +325,23 @@ export class CreateNewBranchComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        const statusCode = err?.status;
         const errorHandling = err?.error?.data?.error_handling;
-        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.currentStep = errorHandling[0].tap;
-          this.errMsg = errorHandling[0].error;
+
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.currentStep = errorHandling[0].tap;
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
         } else {
-          this.errMsg = "An unexpected error occurred Please try again later.";
+          this.errMsg = "An unexpected error occurred. Please try again later.";
         }
       }
+
     });
   }
 
@@ -341,13 +350,13 @@ export class CreateNewBranchComponent implements OnInit {
   currentStep = 1;
 
   goNext() {
-      this.currentStep++;
-    
+    this.currentStep++;
+
   }
 
   goPrev() {
-      this.currentStep--;
-    
+    this.currentStep--;
+
   }
 
 

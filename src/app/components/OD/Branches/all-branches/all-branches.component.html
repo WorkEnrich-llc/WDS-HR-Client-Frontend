@@ -56,7 +56,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="branches" [totalItems]="branches.length" [itemsPerPage]="10" [currentPage]="1"
+    <app-table [data]="branches" [totalItems]="branches.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" [totalItems]="totalItems" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
       [headerTemplate]="branchTableHeader" [rowTemplate]="branchTableRow" [emptyTemplate]="noBranch"></app-table>
 
     <ng-template #branchTableHeader>
@@ -151,11 +151,11 @@
     <ng-template #noBranch>
       <tr>
         <td colspan="7" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
-            No Departments match your search.
+          <ng-container *ngIf="searchTerm?.trim(); else noBranch">
+            No Branches match your search.
           </ng-container>
-          <ng-template #noDepartments>
-            No Departments Added Yet. You must add at least one Departments to the branch.
+          <ng-template #noBranch>
+            No Branches Added Yet. You must add at least one Branches to the branch.
           </ng-template>
         </td>
       </tr>

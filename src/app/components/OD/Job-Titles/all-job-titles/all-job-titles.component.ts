@@ -202,4 +202,14 @@ export class AllJobTitlesComponent {
       }
     });
   }
+
+  onItemsPerPageChange(newItemsPerPage: number) {
+    this.itemsPerPage = newItemsPerPage;
+    this.currentPage = 1;
+    this.getAllJobTitles(this.currentPage);
+  }
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.getAllJobTitles(this.currentPage);
+  }
 }

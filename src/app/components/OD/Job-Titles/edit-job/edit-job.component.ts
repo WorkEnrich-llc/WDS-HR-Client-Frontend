@@ -635,21 +635,27 @@ export class EditJobComponent {
 
       },
       error: (err) => {
-        console.log(err);
         this.isLoading = false;
+        const statusCode = err?.status;
         const errorHandling = err?.error?.data?.error_handling;
+        const details = err?.error?.details;
 
-        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.currentStep = errorHandling[0].tap;
-
-          this.errMsg = errorHandling
-            .map((e) => e.error)
-            .join('\n');
-
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.currentStep = errorHandling[0].tap;
+            this.errMsg = errorHandling
+              .map((e) => e.error)
+              .join('\n');
+          } else if (details) {
+            this.errMsg = details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
         } else {
           this.errMsg = "An unexpected error occurred. Please try again later.";
         }
       }
+
     });
 
   }

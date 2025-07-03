@@ -460,7 +460,7 @@ export class EditBranchInfoComponent implements OnInit {
 
     // console.log(requestPayload);
 
-     this._BranchesService.updateBranch(requestPayload).subscribe({
+    this._BranchesService.updateBranch(requestPayload).subscribe({
 
       next: (response) => {
         this.isLoading = false;
@@ -472,14 +472,23 @@ export class EditBranchInfoComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        const statusCode = err?.status;
         const errorHandling = err?.error?.data?.error_handling;
-        if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.currentStep = errorHandling[0].tap;
-          this.errMsg = errorHandling[0].error;
+
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.currentStep = errorHandling[0].tap;
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
         } else {
-          this.errMsg = "An unexpected error occurred Please try again later.";
+          this.errMsg = "An unexpected error occurred. Please try again later.";
         }
       }
+
     });
   }
 
@@ -489,13 +498,13 @@ export class EditBranchInfoComponent implements OnInit {
   currentStep = 1;
 
   goNext() {
-      this.currentStep++;
-    
+    this.currentStep++;
+
   }
 
   goPrev() {
-      this.currentStep--;
-    
+    this.currentStep--;
+
   }
 
 
