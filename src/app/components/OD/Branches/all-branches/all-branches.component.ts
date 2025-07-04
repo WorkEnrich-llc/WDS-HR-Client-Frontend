@@ -23,7 +23,7 @@ interface Branch {
 
 @Component({
   selector: 'app-all-branches',
-  imports: [PageHeaderComponent, CommonModule, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent, RouterLink,ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-branches.component.html',
   styleUrls: ['./all-branches.component.css']
@@ -104,13 +104,17 @@ export class AllBranchesComponent implements OnInit {
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.branches = this.branches.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+
       if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
+        return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
       } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+        return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
       }
     });
   }
+
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);

@@ -4,9 +4,10 @@
     { label: 'Leave Types', link: '/leave-types' },
     { label: 'Create New Leave Type' }
   ]" title="Create New Leave Type" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto">
-        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    <button class="btn btn-lg btn-success w-auto" [disabled]="!leaveType1.valid || !leaveType2.valid || isLoading"
+        (click)="createleaveType()">
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -87,43 +88,62 @@
 <div class="content-hug" *ngIf="currentStep === 1">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="leaveType1" class="w-lg-50 d-flex flex-column gap-2">
 
             <div class="input">
                 <label for="leaveId">Leave Type ID (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="leaveId" class="form-control custom-date-input" placeholder="0050" />
+                    <input type="text" formControlName="code" id="leaveId" class="form-control custom-date-input"
+                        placeholder="0050" />
                 </div>
             </div>
 
             <div class="input">
                 <label for="leaveName">Leave Type Name<span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="leaveName" class="form-control custom-date-input"
+                    <input type="text" id="leaveName" formControlName="name" class="form-control custom-date-input"
                         placeholder="Leave type name" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['minLength']">
+                    Leave Type Name min length must be 3.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['maxLength']">
+                    Leave Type Name max length must be 3.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['required']">
+                    Leave Type Name is required.
+                </p>
             </div>
 
             <div class="input">
                 <label for="permissionType">Permission Type</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="permissionType" id="permissionType" class="form-select">
+                        <select name="permissionType" formControlName="PermissionType" id="permissionType"
+                            class="form-select">
                             <option value="" disabled selected hidden>Select Type</option>
-                            <option value="Early Leave">Early Leave</option>
-                            <option value="Late Arrive">Late Arrive</option>
-                            <option value="Day Off">Day Off</option>
+                            <option value="early_leave">Early Leave</option>
+                            <option value="late_arrive">Late Arrive</option>
+                            <option value="day_off">Day Off</option>
                         </select>
                     </div>
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType1.get('PermissionType')?.touched && leaveType1.get('PermissionType')?.errors?.['required']">
+                    Permission Type is required.
+                </p>
             </div>
 
             <div class="input">
                 <label for="desc">Leave Type Description (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea type="text" id="desc" class="form-control custom-date-input"
+                    <textarea type="text" formControlName="description" id="desc" class="form-control custom-date-input"
                         placeholder="Describe the leave type briefly"></textarea>
                 </div>
+
             </div>
 
 
@@ -131,21 +151,26 @@
                 <label for="emptype">Employment Type</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="emptype" id="emptype" class="form-select">
+                        <select name="emptype" formControlName="employmentType" id="emptype" class="form-select">
                             <option value="" disabled selected hidden>Select Type</option>
-                            <option value="Full-Time">Full-Time</option>
-                            <option value="Part-Time">Part-Time</option>
-                            <option value="Per Hour">Per Hour</option>
+                            <option value="1">Full-Time</option>
+                            <option value="2">Part-Time</option>
+                            <option value="3">Per Hour</option>
+                            <option value="4">Freelance</option>
                         </select>
                     </div>
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType1.get('employmentType')?.touched && leaveType1.get('employmentType')?.errors?.['required']">
+                    Employment Type is required.
+                </p>
             </div>
 
 
         </form>
         <!-- next button -->
         <div class="btn-fixed">
-            <button class="btn btn-lg btn-primary" (click)="goNext()">
+            <button class="btn btn-lg btn-primary" [disabled]="!leaveType1.valid" (click)="goNext()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
@@ -162,33 +187,60 @@
 <div class="content-hug" *ngIf="currentStep === 2">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Leave Settings</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="leaveType2" class="w-lg-50 d-flex flex-column gap-2">
 
             <div class="input">
                 <label for="accrualRate">Accrual Rate</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="accrualRate" class="form-control custom-date-input"
-                        placeholder="Per Month" />
+                    <input type="number" formControlName="accrual_rate" id="accrualRate"
+                        class="form-control custom-date-input" placeholder="Per Month" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('accrual_rate')?.touched && leaveType2.get('accrual_rate')?.errors?.['required']">
+                    Accrual Rate is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('accrual_rate')?.touched && leaveType2.get('accrual_rate')?.errors?.['pattern']">
+                    Accrual Rate must be number.
+                </p>
             </div>
 
             <div class="input">
                 <label for="leaveLimits">Leave Limits</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="leaveLimits" class="form-control custom-date-input" placeholder="Per Year" />
+                    <input type="number" formControlName="leave_limits" id="leaveLimits"
+                        class="form-control custom-date-input" placeholder="Per Year" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['required']">
+                    Leave Limits is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['pattern']">
+                    Leave Limits must be number.
+                </p>
             </div>
 
             <div class="input">
                 <label for="maxReview">Max Review Days</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="maxReview" class="form-control custom-date-input" placeholder="ex: 5" />
+                    <input type="number" formControlName="max_review_days" id="maxReview"
+                        class="form-control custom-date-input" placeholder="ex: 5" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('max_review_days')?.touched && leaveType2.get('max_review_days')?.errors?.['required']">
+                    Max Review Days is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('max_review_days')?.touched && leaveType2.get('max_review_days')?.errors?.['pattern']">
+                    Max Review Days must be number.
+                </p>
             </div>
 
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                 <input class="form-check-input m-0" [(ngModel)]="carryoverAllowed"
-                    [ngModelOptions]="{ standalone: true }" type="checkbox" id="allowCarryover">
+                    (change)="toggleCarryoverValidators()" [ngModelOptions]="{ standalone: true }" type="checkbox"
+                    id="allowCarryover">
                 <label class="form-check-label m-0" for="allowCarryover">
                     Allow Carryover
                 </label>
@@ -197,9 +249,17 @@
             <div class="input mt-2" [style.opacity]="carryoverAllowed ? '1' : '0.5'">
                 <label for="maxCarryover">Maximum Carryover Days</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="maxCarryover" class="form-control custom-date-input" placeholder="ex: 5"
-                        [disabled]="!carryoverAllowed" />
+                    <input type="number" formControlName="maximum_carryover_days" id="maxCarryover"
+                        class="form-control custom-date-input" placeholder="ex: 5" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('maximum_carryover_days')?.touched && leaveType2.get('maximum_carryover_days')?.errors?.['required']">
+                    Maximum Carryover Days is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="leaveType2.get('maximum_carryover_days')?.touched && leaveType2.get('maximum_carryover_days')?.errors?.['pattern']">
+                    Maximum Carryover Days must be number.
+                </p>
             </div>
 
         </form>
@@ -212,7 +272,8 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-success w-auto">
+            <button class="btn btn-lg btn-success w-auto"
+                [disabled]="!leaveType1.valid || !leaveType2.valid || isLoading" (click)="createleaveType()">
                 <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">

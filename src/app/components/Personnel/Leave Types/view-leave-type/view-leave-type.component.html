@@ -1,10 +1,10 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
-    { label: 'Leave Types', link: '/schedule' },
-    {  label: 'View Leave Type - 1234 '}
-  ]" title="View Leave Type - 1234" create="25/06/2025" update="25/06/2025">
-    <button class="btn btn-lg btn-primary" [routerLink]="['/leave-types/update-leave-types', 1]">
+    { label: 'Leave Types', link: '/leave-types' },
+    {  label: 'View Leave Type - '+leaveTypeData?.name}
+  ]" [title]="'View Leave Type - ' +leaveTypeData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/leave-types/update-leave-types', leaveTypeData?.id]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -15,16 +15,16 @@
         </svg>
         <span>Edit</span>
     </button>
-    <!-- 
-  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+    
+  <button class="btn btn-lg btn-outline-success" *ngIf="!leaveTypeData.is_active" (click)="openActivate()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
         d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
     </svg>
     <span>Activate</span>
-  </button> -->
+  </button>
 
-    <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
+    <button class="btn btn-lg btn-outline-danger" *ngIf="leaveTypeData.is_active" (click)="openDeactivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                 d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
@@ -41,24 +41,17 @@
         <div class="col-lg-8">
             <div class="content-box d-flex flex-column gap-3 w-100">
                 <h2>Main Information</h2>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.settings?.accrual_rate">
                     <h6>Accrual Rate</h6>
-                    <span>1.25</span>
+                    <span>{{leaveTypeData?.settings?.accrual_rate}}</span>
                 </div>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.settings?.leave_limits">
                     <h6>Leave Limits </h6>
-                    <span>2</span>
+                    <span>{{leaveTypeData?.settings?.leave_limits}}</span>
                 </div>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.description">
                     <h6>Leave Type Description (Optional)</h6>
-                    <span [ngClass]="{ 'clamp-text': !isExpanded }">Lorem ipsum dolor sit amet, consectetur adipiscing
-                        elit. Nulla venenatis nulla quis convallis ullamcorper. Donec eget laoreet leo. Nulla vel
-                        blandit erat. Quisque ligula augue, luctus non nunc in, commodo porta mauris. Sed a nunc vel
-                        risus maximus tincidunt. In at ipsum sed nisi vestibulum ultricies ut vitae quam. Maecenas orci
-                        risus, viverra efficitur dictum in, rhoncus id risus. Sed et nibh eu odio luctus vestibulum sit
-                        amet non tellus. Praesent finibus tellus eget ex consequat, finibus pretium nibh dictum. Donec
-                        consequat semper lorem vitae dapibus. Pellentesque habitant morbi tristique senectus et netus et
-                        malesuada fames ac turpis egestas.
+                    <span  [ngClass]="{ 'clamp-text': !isExpanded }">{{leaveTypeData?.description}}
                     </span>
                     <button (click)="toggleText()"
                         class="w-100 mt-2 edit-btn d-flex align-items-center justify-content-center gap-1 ms-2">
@@ -83,21 +76,21 @@
         <div class="col-lg-4">
             <div class="content-box d-flex flex-column gap-3 w-100">
                 <h2>Leaves Settings</h2>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.employment_type?.name">
                     <h6>Eligibility Criteria</h6>
-                    <span>Full Time</span>
+                    <span>{{leaveTypeData?.employment_type?.name}}</span>
                 </div>
-                <div class="info">
-                    <h6>Maximum Accrued Days</h6>
-                    <span>5</span>
-                </div>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.settings?.leave_limits">
                     <h6>Leave Request Deadline</h6>
-                    <span>1</span>
+                    <span>{{leaveTypeData?.settings?.leave_limits}}</span>
                 </div>
-                <div class="info">
+                <div class="info" *ngIf="leaveTypeData?.settings?.max_review_days">
                     <h6>Max Review Days</h6>
-                    <span>1</span>
+                    <span>{{leaveTypeData?.settings?.max_review_days}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.settings?.maximum_carryover_days>0 && leaveTypeData?.settings?.allow_carryover">
+                    <h6>Maximum Carryover Days</h6>
+                    <span>{{leaveTypeData?.settings?.maximum_carryover_days}}</span>
                 </div>
             </div>
         </div>

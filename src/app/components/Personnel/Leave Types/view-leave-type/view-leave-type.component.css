@@ -2,8 +2,9 @@
   display: -webkit-box;               
   -webkit-line-clamp: 3;              
   -webkit-box-orient: vertical;      
-  overflow: hidden;                   
-  
+  overflow: hidden;
+  line-height:  var(--line-height-md) !important;
+  margin-bottom: 0; 
   line-clamp: 3;                     
   box-orient: vertical;               
 }

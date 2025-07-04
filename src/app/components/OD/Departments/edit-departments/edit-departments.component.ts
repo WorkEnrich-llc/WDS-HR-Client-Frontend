@@ -216,7 +216,7 @@ updateDept() {
     }
   };
 
-  // console.log(finalData);
+  console.log(finalData);
 
   this.isLoading = true;
   this._DepartmentsService.updateDepartment(finalData).subscribe({

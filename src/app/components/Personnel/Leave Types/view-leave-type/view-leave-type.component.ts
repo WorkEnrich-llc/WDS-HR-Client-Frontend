@@ -1,20 +1,57 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
+import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-view-leave-type',
   imports: [PageHeaderComponent, RouterLink, PopupComponent, CommonModule],
+  providers: [DatePipe],
   templateUrl: './view-leave-type.component.html',
   styleUrl: './view-leave-type.component.css'
 })
 export class ViewLeaveTypeComponent {
+  constructor(private _LeaveTypeService: LeaveTypeService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+
+  leaveTypeData: any =[];
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  leaveId: string | null = null;
+  ngOnInit(): void {
+    this.leaveId = this.route.snapshot.paramMap.get('id');
+    // this.getLeaveJob(Number(this.leaveId));
+    if (this.leaveId) {
+      this.getLeaveJob(Number(this.leaveId));
+    }
+  }
 
 
+  getLeaveJob(leaveId: number) {
+
+    this._LeaveTypeService.showLeaveType(leaveId).subscribe({
+      next: (response) => {
+        this.leaveTypeData = response.data.object_info;
+        const created = this.leaveTypeData?.created_at;
+        const updated = this.leaveTypeData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+        // console.log(this.leaveTypeData);
+
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   // show more text
   isExpanded = false;
+
 
   toggleText() {
     this.isExpanded = !this.isExpanded;
@@ -41,18 +78,15 @@ export class ViewLeaveTypeComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.leaveTypeData = response.data.object_info;
+        // console.log(this.departmentData);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 
   openActivate() {
@@ -70,17 +104,14 @@ export class ViewLeaveTypeComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.leaveTypeData = response.data.object_info;
+        // console.log(this.departmentData);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 }

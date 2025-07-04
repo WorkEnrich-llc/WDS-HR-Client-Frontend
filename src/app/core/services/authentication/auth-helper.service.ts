@@ -49,14 +49,14 @@ export class AuthHelperService {
     const subdomain = this.getSubdomain();
 
     if (!token) {
-      alert('You must log in first');
+      // alert('You must log in first');
       // window.location.href = 'https://client.workenrich.com/auth/login';
       this._Router.navigate(['/auth/login']);
       return false;
     }
 
     if (!subdomain) {
-      alert('Subdomain not found');
+      // alert('Subdomain not found');
       // window.location.href = 'https://client.workenrich.com/auth/login';
       this._Router.navigate(['/auth/login']);
       return false;

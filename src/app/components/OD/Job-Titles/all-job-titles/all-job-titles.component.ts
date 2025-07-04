@@ -92,16 +92,19 @@ export class AllJobTitlesComponent {
     }
   }
 
-  sortBy() {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.jobTitles = this.jobTitles.sort((a, b) => {
-      if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
-      } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
-      }
-    });
-  }
+   sortBy() {
+  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  this.jobTitles = this.jobTitles.sort((a, b) => {
+    const nameA = a.name.toLowerCase();
+    const nameB = b.name.toLowerCase();
+
+    if (this.sortDirection === 'asc') {
+      return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
+    } else {
+      return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
+    }
+  });
+}
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
