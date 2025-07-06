@@ -100,3 +100,19 @@ body {
   line-height: var(--line-height-xss);
   color: var(--color-secondary-700);
 }
+
+/* start skeleton load */
+.skeleton-box {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}

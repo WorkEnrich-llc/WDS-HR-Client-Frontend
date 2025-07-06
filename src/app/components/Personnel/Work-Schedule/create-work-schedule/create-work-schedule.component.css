@@ -28,6 +28,9 @@
     .width-fix{
         width: 60% !important;
     }    
+    .w-20{
+      width: 20% !important;
+    }
     .w-lg-50{
         width: 50% !important;
     }

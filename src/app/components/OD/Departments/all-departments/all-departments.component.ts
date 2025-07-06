@@ -10,6 +10,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+
 @Component({
   selector: 'app-all-departments',
   imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, CommonModule, FormsModule, ReactiveFormsModule],
@@ -127,6 +128,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
+  loadData:boolean =true;
   getAllDepartment(
     pageNumber: number,
     searchTerm: string = '',
@@ -138,6 +140,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
       created_to?: string;
     }
   ) {
+    this.loadData=true;
     this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
@@ -156,9 +159,11 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.loadData=false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData=false;
       }
     });
   }

@@ -135,7 +135,7 @@ export class AllJobTitlesComponent {
   totalPages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-
+  loadData:boolean =true;
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
@@ -165,9 +165,12 @@ export class AllJobTitlesComponent {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.loadData=false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData=false;
+
       }
     });
   }

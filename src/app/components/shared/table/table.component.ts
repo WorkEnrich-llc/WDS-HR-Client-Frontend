@@ -16,15 +16,17 @@ export class TableComponent {
   @Input() totalItems!: number;
   @Input() itemsPerPage = 10;
   @Input() currentPage = 1;
-
+ @Input() columnsCount = 0; 
   @Input() headerTemplate!: TemplateRef<any>;
   @Input() rowTemplate!: TemplateRef<any>;
   @Input() emptyTemplate!: TemplateRef<any>;
   @Input() disablePagination: boolean = false;
+  @Input() isLoading: boolean = false; 
 @Output() itemsPerPageChange = new EventEmitter<number>();
 
   @Output() pageChange = new EventEmitter<number>();
 
+  skeletonRows = Array(2).fill({ isSkeleton: true });
   onPageChanged(newPage: number) {
     this.currentPage = newPage;
     this.pageChange.emit(newPage);

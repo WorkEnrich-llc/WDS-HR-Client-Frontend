@@ -127,5 +127,21 @@ table.table tbody tr:last-of-type td:last-of-type{
     margin-bottom: 0 !important;
   }
 
+.skeleton-block {
+  background-color: #d2d2d2; 
+  border-radius: 4px;
+  height: 30px;
+  animation: pulse 1.5s infinite;
+}
 
-  
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}

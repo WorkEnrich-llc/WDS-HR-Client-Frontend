@@ -61,7 +61,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="jobTitles" [itemsPerPage]="itemsPerPage" [totalItems]="totalItems" [currentPage]="currentPage" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+    <app-table [data]="jobTitles" [isLoading]="loadData" [columnsCount]="6" [itemsPerPage]="itemsPerPage" [totalItems]="totalItems" [currentPage]="currentPage" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
       [headerTemplate]="jobsTableHeader" [rowTemplate]="jobsTableRow" [emptyTemplate]="noJobs"></app-table>
 
     <ng-template #jobsTableHeader>

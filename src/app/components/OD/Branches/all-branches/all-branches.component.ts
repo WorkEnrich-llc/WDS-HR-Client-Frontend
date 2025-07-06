@@ -148,6 +148,7 @@ export class AllBranchesComponent implements OnInit {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
+  loadData:boolean =true;
   getAllBranches(
     pageNumber: number,
     searchTerm: string = '',
@@ -183,9 +184,12 @@ export class AllBranchesComponent implements OnInit {
         this.currentSortColumn = 'id';
 
         this.sortBy();
+        this.loadData=false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData=false;
+
       }
     });
   }

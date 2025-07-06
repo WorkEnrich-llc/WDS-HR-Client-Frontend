@@ -8,6 +8,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-work-schedule',
@@ -19,126 +20,30 @@ import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 export class WorkScheduleComponent {
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
- @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
-  
 
-  workschaduale = [
-    {
-      id: 1,
-      name: 'Morning Shift',
-      status: 'active',
-      created_at: '10/01/2024',
-      updated_at: '25/06/2025',
-      employment_type: 'Full-Time'
-    },
-    {
-      id: 2,
-      name: 'Evening Shift',
-      status: 'inactive',
-      created_at: '12/03/2023',
-      updated_at: '25/06/2025',
-      employment_type: 'Part-Time'
-    },
-    {
-      id: 3,
-      name: 'Night Shift',
-      status: 'active',
-      created_at: '05/07/2022',
-      updated_at: '01/01/2025',
-      employment_type: 'Shift Schedule'
-    },
-    {
-      id: 4,
-      name: 'Weekend Schedule',
-      status: 'active',
-      created_at: '22/09/2023',
-      updated_at: '25/06/2025',
-      employment_type: 'Freelance'
-    },
-    {
-      id: 5,
-      name: 'Remote Work',
-      status: 'inactive',
-      created_at: '14/02/2023',
-      updated_at: '20/05/2025',
-      employment_type: 'Remote'
-    },
-    {
-      id: 6,
-      name: 'Contract-Based',
-      status: 'active',
-      created_at: '01/08/2023',
-      updated_at: '15/06/2025',
-      employment_type: 'Contract'
-    },
-    {
-      id: 7,
-      name: 'Temporary Project',
-      status: 'inactive',
-      created_at: '09/11/2022',
-      updated_at: '25/06/2025',
-      employment_type: 'Temporary Schedule'
-    },
-    {
-      id: 8,
-      name: 'Hybrid Mode',
-      status: 'active',
-      created_at: '18/04/2024',
-      updated_at: '25/06/2025',
-      employment_type: 'Hybrid'
-    },
-    {
-      id: 9,
-      name: 'Flexible Timing',
-      status: 'active',
-      created_at: '30/05/2023',
-      updated_at: '25/06/2025',
-      employment_type: 'Flexible Schedule'
-    },
-    {
-      id: 10,
-      name: 'Night Shift Backup',
-      status: 'inactive',
-      created_at: '25/12/2022',
-      updated_at: '10/06/2025',
-      employment_type: 'Shift Schedule'
-    },
-    {
-      id: 11,
-      name: 'Day Shift',
-      status: 'active',
-      created_at: '01/01/2024',
-      updated_at: '25/06/2025',
-      employment_type: 'Full-Time'
-    },
-    {
-      id: 12,
-      name: 'On-demand Freelance',
-      status: 'inactive',
-      created_at: '17/06/2023',
-      updated_at: '22/06/2025',
-      employment_type: 'Freelance'
-    }
-  ];
 
+  workschaduale: any[] = [];
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  totalpages: number = 0;
+  loadData: boolean = true;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllDepartment(this.currentPage);
+      this.currentPage = +params['page'] || 1;
+      this.getAllWorkSchedule(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -151,40 +56,101 @@ export class WorkScheduleComponent {
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllDepartment(this.currentPage, value);
+      this.getAllWorkSchedule(this.currentPage, value);
     });
-
+    this.filterForm = this.fb.group({
+      department: [''],
+      schedules_type: [''],
+      work_schedule_type: ['']
+    });
   }
+
+
+  getAllWorkSchedule(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      department?: string;
+      schedules_type?: string;
+      work_schedule_type?: string;
+    }
+  ) {
+    this._WorkSchaualeService.getAllWorkSchadule(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
+        this.workschaduale = response.data.list_items;
+        console.log(this.workschaduale);
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+        this.loadData = false;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
+
+
 
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.workschaduale = this.workschaduale.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+
       if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
+        return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
       } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+        return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
       }
     });
-  }
-
-  resetFilterForm(): void {
-
-    this.filterBox.closeOverlay();
-    // this.getAllDepartment(this.currentPage);
   }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
+
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      const filters = {
+        department: rawFilters.department || undefined,
+        schedules_type: rawFilters.schedules_type || undefined,
+        work_schedule_type: rawFilters.work_schedule_type || undefined
+      };
+
+      // console.log('Filters submitted:', filters);
+      this.filterBox.closeOverlay();
+      this.getAllWorkSchedule(this.currentPage, '', filters);
+    }
+  }
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      employment_type: ''
+    });
+    this.filterBox.closeOverlay();
+    this.getAllWorkSchedule(this.currentPage);
+  }
+
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
+    this.getAllWorkSchedule(this.currentPage);
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllDepartment(this.currentPage);
+    this.getAllWorkSchedule(this.currentPage);
   }
 
 }

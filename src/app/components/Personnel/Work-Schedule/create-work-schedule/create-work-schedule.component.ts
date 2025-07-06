@@ -8,11 +8,12 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-create-work-schedule',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent],
+  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent],
   providers: [DatePipe],
   templateUrl: './create-work-schedule.component.html',
   styleUrl: './create-work-schedule.component.css'
@@ -38,7 +39,8 @@ export class CreateWorkScheduleComponent {
     private router: Router,
     private datePipe: DatePipe,
     private toasterMessageService: ToasterMessageService,
-    private _DepartmentsService: DepartmentsService
+    private _DepartmentsService: DepartmentsService,
+    private _WorkSchaualeService: WorkSchaualeService
   ) {
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
@@ -53,10 +55,17 @@ export class CreateWorkScheduleComponent {
       this.getAllDepartment(this.currentPage, search);
     });
     this.getAllDepartment(this.currentPage);
-
-
-
   }
+
+
+
+  // step 1
+  workSchadule1: FormGroup = new FormGroup({
+    code: new FormControl(''),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+  });
+
+
   // step 2
   departments: any[] = [];
   addeddepartments: any[] = [];
@@ -161,20 +170,6 @@ export class CreateWorkScheduleComponent {
   }
 
 
-  // remove Department from selected departments
-  removeDepartment(department: any): void {
-    const index = this.addeddepartments.findIndex(dep => dep.id === department.id);
-    if (index !== -1) {
-      this.addeddepartments.splice(index, 1);
-    }
-
-    const deptInList = this.departments.find(dep => dep.id === department.id);
-    if (deptInList) {
-      deptInList.selected = false;
-    }
-
-    this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-  }
 
   // overlays boxes sliders
   openFirstOverlay() {
@@ -232,6 +227,109 @@ export class CreateWorkScheduleComponent {
     this.days[index].selected = !this.days[index].selected;
   }
 
+
+  // step 3
+  workSchadule2: FormGroup = new FormGroup({
+    employment_type: new FormControl('', [Validators.required]),
+    work_schedule_type: new FormControl('', [Validators.required]),
+    shift_hours: new FormControl(''),
+    from: new FormControl(''),
+    to: new FormControl(''),
+    terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
+  });
+
+
+  onWorkTypeChange(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+
+    const shiftHours = this.workSchadule2.get('shift_hours');
+    const from = this.workSchadule2.get('from');
+    const to = this.workSchadule2.get('to');
+
+    if (selectedValue === '1' || selectedValue === '2') {
+      shiftHours?.setValidators([Validators.required]);
+      from?.setValidators([Validators.required]);
+      to?.setValidators([Validators.required]);
+    } else if (selectedValue === '3') {
+      shiftHours?.clearValidators();
+      from?.clearValidators();
+      to?.clearValidators();
+    }
+
+    shiftHours?.updateValueAndValidity();
+    from?.updateValueAndValidity();
+    to?.updateValueAndValidity();
+  }
+
+
+  // check at least one day select 
+  isAtLeastOneDaySelected(): boolean {
+    return this.days.some(day => day.selected);
+  }
+
+
+  // create
+  createWorkScedule() {
+
+    this.isLoading = true;
+
+    const daysObject: { [key: string]: boolean } = {};
+    this.days.forEach(day => {
+      daysObject[day.name.toLowerCase()] = day.selected;
+    });
+
+    const request_data = {
+      request_data: {
+        code: this.workSchadule1.get('code')?.value,
+        name: this.workSchadule1.get('name')?.value,
+        departments: this.addeddepartments.map(dep => dep.id),
+        system: {
+          days: daysObject,
+          employment_type: Number(this.workSchadule2.get('employment_type')?.value),
+          work_schedule_type: Number(this.workSchadule2.get('work_schedule_type')?.value),
+          shift_hours: this.workSchadule2.get('shift_hours')?.value,
+          shift_range: {
+            from: this.workSchadule2.get('from')?.value,
+            to: this.workSchadule2.get('to')?.value
+          },
+          terms_and_rules: this.workSchadule2.get('terms')?.value
+        }
+      }
+    };
+
+    // console.log(request_data);
+    this._WorkSchaualeService.createWorkScaduale(request_data).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        // create success
+        this.router.navigate(['/schedule/work-schedule']);
+        this.toasterMessageService.sendMessage("Work schedule created successfully");
+
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const statusCode = err?.status;
+        const errorHandling = err?.error?.data?.error_handling;
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.currentStep = errorHandling[0].tap;
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
+        }
+      }
+
+    });
+  }
+
+
+  
   // next and prev
   currentStep = 1;
 

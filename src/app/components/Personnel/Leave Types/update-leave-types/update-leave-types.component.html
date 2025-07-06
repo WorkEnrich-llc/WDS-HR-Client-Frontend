@@ -4,8 +4,8 @@
     { label: 'Leave Types', link: '/leave-types' },
     { label: 'Edit Leave Type - '+leaveTypeData.name }
   ]" [title]="'Edit Leave Type - '+leaveTypeData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-    <button class="btn btn-lg btn-success w-auto" [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || isLoading"
-        (click)="updateleaveType()">
+    <button class="btn btn-lg btn-success w-auto"
+        [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || isLoading" (click)="updateleaveType()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -160,6 +160,9 @@
 
 
         </form>
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
         <!-- next button -->
         <div class="btn-fixed">
             <button class="btn btn-lg btn-primary" (click)="goNext()">
@@ -255,6 +258,9 @@
             </div>
 
         </form>
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
         <!-- prev and confirm buttons -->
         <div class="btn-fixed d-flex align-items-stretch gap-2">
             <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
@@ -264,8 +270,9 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-success w-auto"  [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || isLoading"
-        (click)="updateleaveType()">
+            <button class="btn btn-lg btn-success w-auto"
+                [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || isLoading"
+                (click)="updateleaveType()">
                 <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">

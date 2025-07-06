@@ -4,9 +4,10 @@
     { label: 'Work Schedule', link: '/schedule' },
     { label: 'Create New Work Schedule' }
   ]" title="Create New Work Schedule" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto">
-        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    <button class="btn btn-lg btn-success w-auto" (click)="createWorkScedule()"
+        [disabled]="!workSchadule1.valid ||!isAtLeastOneDaySelected() || !workSchadule2.valid || isLoading || addeddepartments.length <=0 ">
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -127,32 +128,43 @@
 <div class="content-hug" *ngIf="currentStep === 1">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="workSchadule1" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="workCode">Work Schedule ID (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="workCode" class="form-control custom-date-input" placeholder="0050" />
+                    <input type="text" formControlName="code" id="workCode" class="form-control custom-date-input"
+                        placeholder="0050" />
                 </div>
             </div>
 
             <div class="input">
                 <label for="workName">Work Schedule Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="workName" class="form-control custom-date-input"
+                    <input type="text" formControlName="name" id="workName" class="form-control custom-date-input"
                         placeholder="Work Schedule Name " />
                 </div>
-                <!-- <p class="error-msg"
-                    *ngIf="jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']">
-                    Job Title is required.
-                </p> -->
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['minLength']">
+                    Work Schedule Name min length must be 3.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['maxLength']">
+                    Work Schedule Name max length must be 3.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['required']">
+                    Work Schedule Name is required.
+                </p>
             </div>
 
         </form>
-
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
 
         <!-- next button -->
         <div class="btn-fixed">
-            <button class="btn btn-lg btn-primary" (click)="goNext()">
+            <button class="btn btn-lg btn-primary" [disabled]="!workSchadule1.valid" (click)="goNext()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
@@ -180,7 +192,9 @@
             </div>
 
         </div>
-
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
 
 
         <!-- start table -->
@@ -211,7 +225,7 @@
                     </div>
                 </th>
                 <th>Date Added</th>
-                <th>Action</th>
+                <th class="w-20">Action</th>
             </ng-template>
 
             <ng-template #departmentTableRow let-department let-i="index">
@@ -274,7 +288,8 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-primary" (click)="goNext()">
+            <button class="btn btn-lg btn-primary" [disabled]="!workSchadule1.valid || addeddepartments.length <= 0"
+                (click)="goNext()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
@@ -401,21 +416,24 @@
         </div>
 
 
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="workSchadule2" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="empType">Employment Type</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="empType" id="empType" class="form-select">
+                        <select name="empType" formControlName="employment_type" id="empType" class="form-select">
                             <option value="" disabled selected hidden>Select Type</option>
-                            <option value="Full-time">Full-time</option>
-                            <option value="Part-time">Part-time</option>
-                            <option value="Per Hour">Per Hour</option>
+                            <option value=1>Full-time</option>
+                            <option value=2>Part-time</option>
+                            <option value=3>Per Hour</option>
+                            <option value=4>Freelance</option>
                         </select>
                     </div>
-
-
                 </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('employment_type')?.touched && workSchadule2.get('employment_type')?.errors?.['required']">
+                    Employment Type is required.
+                </p>
             </div>
 
 
@@ -423,50 +441,83 @@
                 <label for="workType">Work Schedule Type</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="workType" id="workType" class="form-select">
+                        <select name="workType" formControlName="work_schedule_type" (change)="onWorkTypeChange($event)"
+                            id="workType" class="form-select">
                             <option value="" disabled selected hidden>Select Type</option>
-                            <option value="Flexible">Flexible</option>
-                            <option value="Fixed">Fixed</option>
-                            <option value="Remote">Remote</option>
+                            <option value=1>Fixed</option>
+                            <option value=2>Flexible</option>
+                            <option value=3>Remote</option>
                         </select>
                     </div>
-
-
                 </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('work_schedule_type')?.touched && workSchadule2.get('work_schedule_type')?.errors?.['required']">
+                    Work Schedule Type is required.
+                </p>
             </div>
 
 
             <div class="input">
                 <label for="shiftHours">Shift Hours</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="shiftHours" class="form-control custom-date-input"
-                        placeholder="Total Shift Hours Count" />
+                    <input type="number" formControlName="shift_hours" id="shiftHours"
+                        class="form-control custom-date-input" placeholder="Total Shift Hours Count" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('shift_hours')?.touched && workSchadule2.get('shift_hours')?.errors?.['required']">
+                    Shift Hours Required.
+                </p>
             </div>
 
             <div class="input">
                 <label for="shiftRange">Shift Range</label>
-                <div class="d-flex align-items-center justify-content-between gap-3">
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="shiftRange" class="form-control custom-date-input" placeholder="From" />
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div class="w-100">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="time" formControlName="from" id="shiftRange"
+                                class="form-control custom-date-input" placeholder="From" />
+                        </div>
+                        <p class="error-msg"
+                            *ngIf="workSchadule2.get('from')?.touched && workSchadule2.get('from')?.errors?.['required']">
+                            Required.
+                        </p>
                     </div>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="shiftTo" class="form-control custom-date-input" placeholder="To" />
+                    <div class="w-100">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="time" formControlName="to" id="shiftTo" class="form-control custom-date-input"
+                                placeholder="To" />
+                        </div>
+                        <p class="error-msg"
+                            *ngIf="workSchadule2.get('to')?.touched && workSchadule2.get('to')?.errors?.['required']">
+                            Required.
+                        </p>
                     </div>
+
                 </div>
             </div>
+
 
 
             <div class="input">
                 <label for="shiftTerms">Work Schedule Terms & Rules</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea type="text" id="shiftTerms" class="form-control custom-date-input"
+                    <textarea type="text" formControlName="terms" id="shiftTerms" class="form-control custom-date-input"
                         placeholder="Work Schedule Terms and Rules"></textarea>
                 </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('terms')?.touched && workSchadule2.get('terms')?.errors?.['required']">
+                    Work Schedule Terms is Required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('terms')?.touched && workSchadule2.get('terms')?.errors?.['minLength']">
+                    Work Schedule Terms min length must be 10.
+                </p>
             </div>
 
         </form>
-
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
         <!-- prev and confirm buttons -->
         <div class="btn-fixed d-flex align-items-stretch gap-2">
             <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
@@ -476,7 +527,8 @@
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button class="btn btn-lg btn-success w-auto">
+            <button class="btn btn-lg btn-success w-auto" (click)="createWorkScedule()"
+                [disabled]="!workSchadule1.valid ||!isAtLeastOneDaySelected() || !workSchadule2.valid || isLoading || addeddepartments.length <=0 ">
                 <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                 <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">

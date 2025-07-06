@@ -57,7 +57,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="departments" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
+    <app-table [isLoading]="loadData" [columnsCount]="5" [data]="departments" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
       (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
       [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"
       [emptyTemplate]="noDepartment"></app-table>
@@ -151,7 +151,7 @@
 
     <ng-template #noDepartment>
       <tr>
-        <td colspan="7" class="no-data py-4">
+        <td colspan="5" class="no-data py-4">
           <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
             No Departments match your search.
           </ng-container>

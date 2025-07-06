@@ -50,8 +50,8 @@
 
     <!-- start Table -->
 
-    <app-table [data]="workschaduale" [totalItems]="workschaduale.length" [itemsPerPage]="itemsPerPage"
-      [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+    <app-table [data]="workschaduale" [isLoading]="loadData" [columnsCount]="6" [totalItems]="workschaduale.length"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="workTableHeader"
       [rowTemplate]="workTableRow" [emptyTemplate]="noWork"></app-table>
 
@@ -90,11 +90,18 @@
           {{ work.name }}
         </span>
       </td>
-      <td>{{work.employment_type}}</td>
-      <td>{{work.created_at}}</td>
-      <td>{{work.updated_at}}</td>
+     <td>
+  <span *ngIf="work?.system?.employment_type === 1">Full-time</span>
+  <span *ngIf="work?.system?.employment_type === 2">Part-time</span>
+  <span *ngIf="work?.system?.employment_type === 3">Per Hour</span>
+  <span *ngIf="work?.system?.employment_type === 4">Freelance</span>
+</td>
+
+      <td>{{ work.created_at | date: 'dd/MM/yyyy' }}</td>
+      <td>{{ work.updated_at | date: 'dd/MM/yyyy' }}</td>
+
       <td>
-        <span class="badge-success" *ngIf="work.status ==='active'">
+        <span class="badge-success" *ngIf="work.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -103,7 +110,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="work.status ==='inactive'">
+        <span class="badge-danger" *ngIf="!work.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
