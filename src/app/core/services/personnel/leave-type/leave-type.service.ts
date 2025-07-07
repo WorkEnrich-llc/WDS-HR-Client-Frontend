@@ -55,7 +55,7 @@ export class LeaveTypeService {
   }
 
 
-   // update leavetype status
+  // update leavetype status
   updateLeaveStatus(id: number, status: any): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));

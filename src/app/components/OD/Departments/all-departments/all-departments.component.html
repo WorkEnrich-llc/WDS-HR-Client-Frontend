@@ -152,8 +152,8 @@
     <ng-template #noDepartment>
       <tr>
         <td colspan="5" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
-            No Departments match your search.
+          <ng-container *ngIf="searchTerm?.trim() || filterForm.dirty; else noDepartments">
+            No Departments match your search and filter.
           </ng-container>
           <ng-template #noDepartments>
             No Departments Added Yet. You must add at least one Departments to the branch.

@@ -1,62 +1,108 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
+import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-view-work-schedule',
-  imports: [PageHeaderComponent,CommonModule,RouterLink,PopupComponent,TableComponent],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent, TableComponent],
+  providers: [DatePipe],
   templateUrl: './view-work-schedule.component.html',
   styleUrl: './view-work-schedule.component.css'
 })
 export class ViewWorkScheduleComponent {
- sortDirection: string = 'asc';
+
+  constructor(private _WorkSchaualeService: WorkSchaualeService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  workScduleData: any = [];
+  workingDays: string[] = [];
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  workId: string | null = null;
+  departments: any[] = [];
+
+  ngOnInit(): void {
+    this.workId = this.route.snapshot.paramMap.get('id');
+    if (this.workId) {
+      this.getWorkSchedule(Number(this.workId));
+    }
+  }
+
+
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.departments = this.departments.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+
       if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
+        return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
       } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+        return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
       }
     });
   }
- onItemsPerPageChange(newItemsPerPage: number) {
+
+  onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     // this.getAllDepartment(this.currentPage);
   }
+
   onPageChange(page: number): void {
     this.currentPage = page;
     // this.getAllDepartment(this.currentPage);
   }
-  
- departments = [
-  { id: 1, name: 'Human Resources', status: 'active' },
-  { id: 2, name: 'Finance', status: 'inactive' },
-  { id: 3, name: 'Engineering', status: 'active' },
-  { id: 4, name: 'Marketing', status: 'inactive' },
-  { id: 5, name: 'Customer Support', status: 'active' },
-  { id: 6, name: 'IT Department', status: 'active' },
-  { id: 7, name: 'Legal Affairs', status: 'inactive' },
-  { id: 8, name: 'Research & Development', status: 'active' }
-];
 
-// show more text
- isExpanded = false;
+
+
+
+  getWorkSchedule(workId: number) {
+
+    this._WorkSchaualeService.showWorkSchedule(workId).subscribe({
+      next: (response) => {
+        this.workScduleData = response.data.object_info;
+        const created = this.workScduleData?.created_at;
+        const updated = this.workScduleData?.updated_at;
+        this.departments = this.workScduleData.departments;
+        const days = this.workScduleData.system?.days;
+        if (days) {
+          const orderedDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          this.workingDays = orderedDays
+            .filter(day => days[day])
+            .map(day => day.charAt(0).toUpperCase() + day.slice(1));
+        }
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+        // console.log(this.workScduleData);
+
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
+  // show more text
+  isExpanded = false;
 
   toggleText() {
     this.isExpanded = !this.isExpanded;
   }
 
   // activate and deactivate
-  
+
   deactivateOpen = false;
   activateOpen = false;
   openDeactivate() {
@@ -76,18 +122,15 @@ export class ViewWorkScheduleComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
+    this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.workScduleData = response.data.object_info;
 
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 
   openActivate() {
@@ -99,24 +142,21 @@ export class ViewWorkScheduleComponent {
   }
   confirmActivate() {
     this.activateOpen = false;
-     const deptStatus = {
+    const deptStatus = {
       request_data: {
         status: true
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
+    this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.workScduleData = response.data.object_info;
 
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 
 }

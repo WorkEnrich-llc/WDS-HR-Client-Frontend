@@ -2,17 +2,18 @@ import { Component, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-work-schedule',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink,ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './work-schedule.component.html',
   styleUrl: './work-schedule.component.css'
@@ -20,7 +21,7 @@ import { WorkSchaualeService } from '../../../../core/services/personnel/work-sc
 export class WorkScheduleComponent {
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute,private _DepartmentsService:DepartmentsService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
@@ -28,6 +29,7 @@ export class WorkScheduleComponent {
 
 
   workschaduale: any[] = [];
+  departments: any[] = [];
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -58,10 +60,11 @@ export class WorkScheduleComponent {
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.getAllWorkSchedule(this.currentPage, value);
     });
+    this.getAllDepartment(1);
     this.filterForm = this.fb.group({
-      department: [''],
-      schedules_type: [''],
-      work_schedule_type: ['']
+      department: '',
+      schedules_type: '',
+      work_schedule_type: ''
     });
   }
 
@@ -98,7 +101,21 @@ export class WorkScheduleComponent {
   }
 
 
-
+getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
+        this.departments = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -117,7 +134,13 @@ export class WorkScheduleComponent {
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
-
+resetFilterForm(): void {
+    this.filterForm.reset({
+      employment_type: ''
+    });
+    this.filterBox.closeOverlay();
+    this.getAllWorkSchedule(this.currentPage);
+  }
 
   filter(): void {
     if (this.filterForm.valid) {
@@ -134,13 +157,7 @@ export class WorkScheduleComponent {
       this.getAllWorkSchedule(this.currentPage, '', filters);
     }
   }
-  resetFilterForm(): void {
-    this.filterForm.reset({
-      employment_type: ''
-    });
-    this.filterBox.closeOverlay();
-    this.getAllWorkSchedule(this.currentPage);
-  }
+  
 
 
   onItemsPerPageChange(newItemsPerPage: number) {

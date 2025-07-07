@@ -154,9 +154,14 @@
 
     </ng-template>
     <ng-template #noJobs>
-      <tr>
+       <tr>
         <td colspan="7" class="no-data py-4">
-          No Jobs Added Yet
+          <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noBranch">
+            No Job titles match your search and filter.
+          </ng-container>
+          <ng-template #noBranch>
+            No Jobs Added Yet. You must add at least one Job title.
+          </ng-template>
         </td>
       </tr>
     </ng-template>

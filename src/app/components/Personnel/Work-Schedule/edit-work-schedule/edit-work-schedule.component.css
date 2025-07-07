@@ -1,0 +1,37 @@
+.day-card {
+  min-width: 160px;
+  border: 1px solid var(--color-secondary-500);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: var(--color-secondary-50);
+  -webkit-transition: background-color 0.3s ease;
+  -moz-transition: background-color 0.3s ease;
+  -ms-transition: background-color 0.3s ease;
+  -o-transition: background-color 0.3s ease;
+  border-radius: var(--border-radius-16);
+  -webkit-border-radius: var(--border-radius-16);
+  -moz-border-radius: var(--border-radius-16);
+  -ms-border-radius: var(--border-radius-16);
+  -o-border-radius: var(--border-radius-16);
+}
+
+.day-card:hover {
+  background-color: var(--color-secondary-100);
+}
+
+.day-card.selected {
+  background-color: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: var(--color-white);
+}
+@media (min-width:991px) {
+    .width-fix{
+        width: 60% !important;
+    }    
+    .w-20{
+      width: 20% !important;
+    }
+    .w-lg-50{
+        width: 50% !important;
+    }
+}

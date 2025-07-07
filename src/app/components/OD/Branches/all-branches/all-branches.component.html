@@ -151,8 +151,8 @@
     <ng-template #noBranch>
       <tr>
         <td colspan="7" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noBranch">
-            No Branches match your search.
+          <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noBranch">
+            No Branches match your search and filter.
           </ng-container>
           <ng-template #noBranch>
             No Branches Added Yet. You must add at least one Branches to the branch.

@@ -9,7 +9,7 @@ import { Observable, throwError } from 'rxjs';
 })
 export class WorkSchaualeService {
 
-    private apiBaseUrl: string;
+  private apiBaseUrl: string;
 
   constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
     this.apiBaseUrl = environment.apiBaseUrl;
@@ -33,7 +33,7 @@ export class WorkSchaualeService {
     return headers;
   }
 
-// create work schadule
+  // create work schadule
   createWorkScaduale(workSchaduleData: any): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
@@ -41,9 +41,9 @@ export class WorkSchaualeService {
     const url = `${this.apiBaseUrl}personnel/work-schedule`;
     return this._HttpClient.post(url, workSchaduleData, { headers });
   }
-  
 
-   // get all work schedule with pagination and filters
+
+  // get all work schedule with pagination and filters
   getAllWorkSchadule(
     pageNumber: number,
     perPage: number,
@@ -73,5 +73,30 @@ export class WorkSchaualeService {
     return this._HttpClient.get(url, { headers, params });
   }
 
+  // show work schedule by ID
+  showWorkSchedule(id: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
 
+    const url = `${this.apiBaseUrl}personnel/work-schedule/${id}`;
+    return this._HttpClient.get(url, { headers });
+  }
+
+  // update work schedule status
+  updateWorkStatus(id: number, status: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}personnel/work-schedule/${id}/`;
+    return this._HttpClient.patch(url, status, { headers });
+  }
+
+  // update work schedule
+  updateWorkSchedule(workScheduleData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    if (!headers) return throwError(() => new Error('Authentication failed'));
+
+    const url = `${this.apiBaseUrl}personnel/work-schedule`;
+    return this._HttpClient.put(url, workScheduleData, { headers });
+  }
 }
