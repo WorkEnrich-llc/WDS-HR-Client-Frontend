@@ -13,7 +13,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 
 @Component({
   selector: 'app-work-schedule',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink,ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './work-schedule.component.html',
   styleUrl: './work-schedule.component.css'
@@ -21,7 +21,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 export class WorkScheduleComponent {
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute,private _DepartmentsService:DepartmentsService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
@@ -87,7 +87,7 @@ export class WorkScheduleComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.workschaduale = response.data.list_items;
-        console.log(this.workschaduale);
+        // console.log(this.workschaduale);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -101,7 +101,7 @@ export class WorkScheduleComponent {
   }
 
 
-getAllDepartment(pageNumber: number, searchTerm: string = '') {
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
     this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
     }).subscribe({
@@ -134,14 +134,23 @@ getAllDepartment(pageNumber: number, searchTerm: string = '') {
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
-resetFilterForm(): void {
+  resetFilterForm(): void {
     this.filterForm.reset({
-      employment_type: ''
+      department: '',
+      schedules_type: '',
+      work_schedule_type: ''
     });
-    this.filterBox.closeOverlay();
-    this.getAllWorkSchedule(this.currentPage);
-  }
 
+    this.filterBox.closeOverlay();
+
+    const filters = {
+      department: undefined,
+      schedules_type: undefined,
+      work_schedule_type: undefined
+    };
+
+    this.getAllWorkSchedule(this.currentPage, '', filters);
+  }
   filter(): void {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
@@ -152,12 +161,13 @@ resetFilterForm(): void {
         work_schedule_type: rawFilters.work_schedule_type || undefined
       };
 
-      // console.log('Filters submitted:', filters);
+
+      console.log('Filters submitted:', filters);
       this.filterBox.closeOverlay();
       this.getAllWorkSchedule(this.currentPage, '', filters);
     }
   }
-  
+
 
 
   onItemsPerPageChange(newItemsPerPage: number) {

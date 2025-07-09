@@ -50,6 +50,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   position: relative;
 }
 
+
+
 .form-outline .form-control, .form-outline .form-select {
   padding: 0.8rem;
   border-radius: 0.9rem !important;
@@ -67,6 +69,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .form-select:has(option:checked[value=""]) {
   color: var(--color-secondary-400);
 }
+.form-outline .form-select option {
+
+  border-right: 1px solid var(--color-secondary-700) !important;
+}
+
+
 .form-outline svg {
   position: absolute;
   top: 50%;

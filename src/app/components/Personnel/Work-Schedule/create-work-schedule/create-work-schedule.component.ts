@@ -156,7 +156,7 @@ export class CreateWorkScheduleComponent {
           selectedSection: 0,
           sectionsCount: dep.sectionsCount,
           sections: dep.sections,
-          status: false
+          status: true
         });
       }
     });
@@ -209,9 +209,9 @@ export class CreateWorkScheduleComponent {
       }
     });
   }
-  toggleStatus(department: any): void {
-    department.status = !department.status;
-  }
+  toggleStatus(department: any) {
+  department.status = !department.status;
+}
 
 
 
@@ -281,24 +281,30 @@ export class CreateWorkScheduleComponent {
       daysObject[day.name.toLowerCase()] = day.selected;
     });
 
-    const request_data = {
-      request_data: {
-        code: this.workSchadule1.get('code')?.value,
-        name: this.workSchadule1.get('name')?.value,
-        departments: this.addeddepartments.map(dep => dep.id),
-        system: {
-          days: daysObject,
-          employment_type: Number(this.workSchadule2.get('employment_type')?.value),
-          work_schedule_type: Number(this.workSchadule2.get('work_schedule_type')?.value),
-          shift_hours: this.workSchadule2.get('shift_hours')?.value,
-          shift_range: {
-            from: this.workSchadule2.get('from')?.value,
-            to: this.workSchadule2.get('to')?.value
-          },
-          terms_and_rules: this.workSchadule2.get('terms')?.value
-        }
-      }
-    };
+   const request_data = {
+  request_data: {
+    code: this.workSchadule1.get('code')?.value,
+    name: this.workSchadule1.get('name')?.value,
+    departments: this.addeddepartments.map((dep, index) => ({
+      id: dep.id,
+      status: dep.status,
+      record_type: 'add', 
+      index: index + 1
+    })),
+    system: {
+      days: daysObject,
+      employment_type: Number(this.workSchadule2.get('employment_type')?.value),
+      work_schedule_type: Number(this.workSchadule2.get('work_schedule_type')?.value),
+      shift_hours: this.workSchadule2.get('shift_hours')?.value,
+      shift_range: {
+        from: this.workSchadule2.get('from')?.value,
+        to: this.workSchadule2.get('to')?.value
+      },
+      terms_and_rules: this.workSchadule2.get('terms')?.value
+    }
+  }
+};
+
 
     // console.log(request_data);
     this._WorkSchaualeService.createWorkScaduale(request_data).subscribe({

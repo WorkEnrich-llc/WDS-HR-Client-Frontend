@@ -4,9 +4,9 @@
     { label: 'Workflows', link: '/workflow' },
     {  label: 'Create New Workflow'}
   ]" title="Create New Workflow" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto">
-        <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    <button class="btn btn-lg btn-success w-auto" (click)="createWorkflow()" [disabled]="!workflow1.valid || !areAllStepsValid() || steps.length <= 0">
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -32,49 +32,70 @@
 
         <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
             <h2>Main Information</h2>
-            <form class="w-lg-50 d-flex flex-column gap-2">
+            <form [formGroup]="workflow1" class="w-lg-50 d-flex flex-column gap-2">
 
                 <div class="input">
                     <label for="workflowId">Workflow ID (Optional)</label>
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="workflowId" class="form-control custom-date-input" placeholder="0050" />
+                        <input type="text" formControlName="code" id="workflowId" class="form-control custom-date-input"
+                            placeholder="0050" />
                     </div>
                 </div>
 
                 <div class="input">
                     <label for="workflowName">Workflow Name <span>*</span></label>
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="workflowName" class="form-control custom-date-input"
-                            placeholder="Workflow Name" />
+                        <input type="text" formControlName="name" id="workflowName"
+                            class="form-control custom-date-input" placeholder="Workflow Name" />
                     </div>
+                    <p class="error-msg"
+                        *ngIf="workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']">
+                        Workflow Name min length must be 3.
+                    </p>
+                    <p class="error-msg"
+                        *ngIf="workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['maxLength']">
+                        Workflow Name max length must be 100.
+                    </p>
+                    <p class="error-msg"
+                        *ngIf="workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['required']">
+                        Workflow Name is required.
+                    </p>
                 </div>
 
                 <div class="input">
                     <label for="leavetype">Leave Type</label>
                     <div class="d-flex align-items-center gap-4">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="leavetype" id="leavetype" class="form-select">
+                            <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select">
                                 <option value="" disabled selected hidden>Select one Leave Type</option>
-                                <option value="">1</option>
-                                <option value="">2</option>
+                                <option *ngFor="let item of leaveTypes" [value]="item.id">{{item.name}}</option>
                             </select>
                         </div>
                     </div>
+                    <p class="error-msg"
+                        *ngIf="workflow1.get('leave_id')?.touched && workflow1.get('leave_id')?.errors?.['required']">
+                        Leave Type is required.
+                    </p>
                 </div>
 
                 <div class="input">
                     <label for="department">Department</label>
                     <div class="d-flex align-items-center gap-4">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="department" id="department" class="form-select">
+                            <select name="department" formControlName="department_id" id="department" class="form-select">
                                 <option value="" disabled selected hidden>Select one Department</option>
-                                <option value="">1</option>
-                                <option value="">2</option>
+                                <option *ngFor="let item of departments" [value]="item.id">{{item.name}}</option>
                             </select>
                         </div>
                     </div>
+                    <p class="error-msg"
+                        *ngIf="workflow1.get('department_id')?.touched && workflow1.get('department_id')?.errors?.['required']">
+                        Department is required.
+                    </p>
                 </div>
-
+                <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
             </form>
         </div>
 
@@ -129,8 +150,7 @@
                                 <select name="directManager" formControlName="assignee" id="directManager"
                                     class="form-select">
                                     <option value="" disabled selected hidden>Direct Manager</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
+                                    <option *ngFor="let item of jobTitles" [value]="item.id">{{item.name}}</option>
                                 </select>
                             </div>
 

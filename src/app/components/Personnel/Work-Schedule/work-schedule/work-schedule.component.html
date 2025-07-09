@@ -234,9 +234,9 @@
           <select name="work_schedule_type" formControlName="work_schedule_type" id="work_schedule_type"
             class="form-select">
             <option value="" selected disabled hidden>Select</option>
-            <option value=1>Fixed</option>
-            <option value=2>Flexible</option>
-            <option value=3>Remote</option>
+            <option [value]="'1'">Fixed</option>
+            <option [value]="'2'">Flexible</option>
+            <option [value]="'3'">Remote</option>
           </select>
         </div>
         <svg *ngIf="!filterForm.get('work_schedule_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24"

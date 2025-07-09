@@ -116,7 +116,7 @@ export class EditWorkScheduleComponent {
           selectedSection: 0,
           sectionsCount: 0,
           sections: [],
-          status: false
+          status: dep.is_active
         }));
 
         this.getAllDepartment(this.currentPage);
@@ -133,7 +133,10 @@ export class EditWorkScheduleComponent {
             ...this.workSchadule2.value,
             days: this.days.map(day => ({ name: day.name, selected: day.selected }))
           };
-          this.originalDepartments = this.addeddepartments.map(dep => ({ id: dep.id }));
+          this.originalDepartments = this.addeddepartments.map(dep => ({
+            id: dep.id,
+            status: dep.status
+          }));
           this.checkForChanges();
         }, 0);
 
@@ -162,7 +165,13 @@ export class EditWorkScheduleComponent {
     };
 
     const formChanged = JSON.stringify(currentForm) !== JSON.stringify(this.originalFormValue);
-    const departmentsChanged = JSON.stringify(this.addeddepartments.map(dep => ({ id: dep.id }))) !== JSON.stringify(this.originalDepartments);
+
+    const currentDepartments = this.addeddepartments.map(dep => ({
+      id: dep.id,
+      status: dep.status
+    }));
+
+    const departmentsChanged = JSON.stringify(currentDepartments) !== JSON.stringify(this.originalDepartments);
 
     this.hasChanges = formChanged || departmentsChanged;
   }
@@ -348,6 +357,7 @@ export class EditWorkScheduleComponent {
   }
   toggleStatus(department: any): void {
     department.status = !department.status;
+    this.checkForChanges();
   }
 
 
@@ -415,12 +425,48 @@ export class EditWorkScheduleComponent {
       daysObject[day.name.toLowerCase()] = day.selected;
     });
 
+    const currentDepartments = this.addeddepartments;
+    const originalDepartments = this.originalDepartments;
+
+    // بناء مصفوفة الأقسام بعد تحديد نوع التعديل
+    const departmentsPayload = currentDepartments.map((dep, index) => {
+      const original = originalDepartments.find(orig => orig.id === dep.id);
+
+      let record_type = 'add';
+
+      if (original) {
+        if (original.status === dep.status) {
+          record_type = 'nothing';
+        } else {
+          record_type = 'update';
+        }
+      }
+
+      return {
+        id: dep.id,
+        status: dep.status,
+        record_type,
+        index: index + 1
+      };
+    }).concat(
+      // الأقسام التي تم حذفها
+      originalDepartments
+        .filter(orig => !currentDepartments.some(dep => dep.id === orig.id))
+        .map((removedDep, idx) => ({
+          id: removedDep.id,
+          status: removedDep.status,
+          record_type: 'remove',
+          index: currentDepartments.length + idx + 1
+        }))
+    );
+
+
     const request_data = {
       request_data: {
         id: this.workScduleData.id,
         code: this.workSchadule1.get('code')?.value,
         name: this.workSchadule1.get('name')?.value,
-        departments: this.addeddepartments.map(dep => dep.id),
+        departments: departmentsPayload,
         system: {
           days: daysObject,
           employment_type: Number(this.workSchadule2.get('employment_type')?.value),
@@ -435,8 +481,9 @@ export class EditWorkScheduleComponent {
       }
     };
 
+
     // console.log(request_data);
-     this._WorkSchaualeService.updateWorkSchedule(request_data).subscribe({
+    this._WorkSchaualeService.updateWorkSchedule(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';

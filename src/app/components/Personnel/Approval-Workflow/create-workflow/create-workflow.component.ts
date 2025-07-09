@@ -4,7 +4,11 @@ import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
+import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 
 @Component({
   selector: 'app-create-workflow',
@@ -22,16 +26,99 @@ export class CreateWorkflowComponent {
     private router: Router,
     private datePipe: DatePipe,
     private toasterMessageService: ToasterMessageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private _LeaveTypeService: LeaveTypeService,
+    private _DepartmentsService: DepartmentsService,
+    private _JobsService: JobsService,
+    private _WorkflowService: WorkflowService,
   ) {
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
   }
+
+  ngOnInit(): void {
+    this.getAllLeaveTypes();
+    this.getAllDepartments();
+    this.getAllJobTitles();
+  }
+
   // steps
   showErrors = false;
   steps: { form: FormGroup, name: string }[] = [];
   selectedStepIndex: number = 0;
 
+  workflow1: FormGroup = new FormGroup({
+    code: new FormControl(''),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    leave_id: new FormControl('', [Validators.required]),
+    department_id: new FormControl('', [Validators.required]),
+  });
+
+  leaveTypes: any[] = [];
+  departments: any[] = [];
+  jobTitles: any[] = [];
+  loadData: boolean = true;
+  
+  getAllLeaveTypes(
+    searchTerm: string = '',
+    filters?: {
+      employment_type?: string;
+    }
+  ) {
+    this._LeaveTypeService.getAllLeavetypes(1, 10000, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.leaveTypes = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
+
+  getAllDepartments(
+    searchTerm: string = '',
+    filters?: {
+      employment_type?: string;
+    }
+  ) {
+    this._DepartmentsService.getAllDepartment(1, 10000, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.departments = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
+
+   
+  getAllJobTitles(
+    searchTerm: string = '',
+    filters?: {
+      employment_type?: string;
+    }
+  ) {
+    this._JobsService.getAllJobTitles(1, 10000, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.jobTitles = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
 
   createStepForm(): FormGroup {
     return this.fb.group({
@@ -41,27 +128,27 @@ export class CreateWorkflowComponent {
     });
   }
 
- addStep() {
-  const lastStep = this.steps[this.steps.length - 1];
+  addStep() {
+    const lastStep = this.steps[this.steps.length - 1];
 
-  if (lastStep && !lastStep.form.valid) {
-    this.showErrors = true;
+    if (lastStep && !lastStep.form.valid) {
+      this.showErrors = true;
 
-    Object.values(lastStep.form.controls).forEach(control => {
-      control.markAsTouched();
-      control.markAsDirty();
-      control.updateValueAndValidity();
-    });
+      Object.values(lastStep.form.controls).forEach(control => {
+        control.markAsTouched();
+        control.markAsDirty();
+        control.updateValueAndValidity();
+      });
 
-    return;
+      return;
+    }
+
+    this.showErrors = false;
+
+    const newStepForm = this.createStepForm();
+    this.steps.push({ form: newStepForm, name: '' });
+    this.selectedStepIndex = this.steps.length - 1;
   }
-
-  this.showErrors = false; 
-
-  const newStepForm = this.createStepForm();
-  this.steps.push({ form: newStepForm, name: '' });
-  this.selectedStepIndex = this.steps.length - 1;
-}
 
 
   removeStep(index: number) {
@@ -70,7 +157,67 @@ export class CreateWorkflowComponent {
       this.selectedStepIndex = this.steps.length - 1;
     }
   }
+  
+  
+  // steps valid
+  areAllStepsValid(): boolean {
+    return this.steps.every(step => step.form.valid);
+  }
 
+
+
+  // create workflow
+  createWorkflow() {
+    this.isLoading = true;
+
+const request_data = {
+  request_data: {
+    code: this.workflow1.value.code,
+    name: this.workflow1.value.name,
+    leave_id: Number(this.workflow1.value.leave_id),
+    department_id: Number(this.workflow1.value.department_id),
+    steps: this.steps.map((step, index) => ({
+      index: index + 1,
+      id: index,
+      record_type: "add",
+      name: step.form.value.stepName,
+      mandatory: step.form.value.mandatory,
+      assignee_id: Number(step.form.value.assignee)
+    }))
+  }
+};
+
+    // console.log({ request_data });
+    this._WorkflowService.createWorkFlow(request_data).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        // create success
+        this.router.navigate(['/workflow/all-workflows']);
+        this.toasterMessageService.sendMessage("Workflow created successfully");
+
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const statusCode = err?.status;
+        const errorHandling = err?.error?.data?.error_handling;
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
+        }
+      }
+
+    });
+  }
+  
+  
   // popups
   isModalOpen = false;
   isSuccessModalOpen = false;

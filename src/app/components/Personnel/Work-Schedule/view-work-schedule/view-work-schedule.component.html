@@ -146,7 +146,7 @@
         </span>
       </td>
       <td>
-        <span class="badge-success" *ngIf="dept.status ==='active'">
+        <span class="badge-success" *ngIf="dept.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -155,7 +155,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="dept.status ==='inactive'">
+        <span class="badge-danger" *ngIf="!dept.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
