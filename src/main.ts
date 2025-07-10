@@ -11,6 +11,7 @@ import { provideToastr } from 'ngx-toastr';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getMessaging, provideMessaging } from '@angular/fire/messaging';
 import { environment } from './environments/environment';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -18,6 +19,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 bootstrapApplication(AppComponent, {
   providers: [
+     importProvidersFrom(NgxDaterangepickerMd.forRoot()),
     provideHttpClient(),
     provideAnimations(),
     provideRouter(

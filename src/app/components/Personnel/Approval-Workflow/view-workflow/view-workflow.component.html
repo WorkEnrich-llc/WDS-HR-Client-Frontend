@@ -2,9 +2,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Workflows', link: '/workflow' },
-    {  label: 'View Workflow - 1234'}
-  ]" title="View Workflow - 1234" create="25/06/2025" update="25/06/2025">
-    <button class="btn btn-lg btn-primary" [routerLink]="['/workflow/update-workflows', 1]">
+    {  label: 'View Workflow - '+workflowData.name}
+  ]" [title]="'View Workflow - '+workflowData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/workflow/update-workflows', workflowData.id]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -15,16 +15,16 @@
         </svg>
         <span>Edit</span>
     </button>
-    <!-- 
-  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+    
+  <button  *ngIf="!workflowData.is_active" class="btn btn-lg btn-outline-success" (click)="openActivate()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
         d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
     </svg>
     <span>Activate</span>
-  </button> -->
+  </button>
 
-    <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
+    <button *ngIf="workflowData.is_active" class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                 d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
@@ -39,25 +39,29 @@
 
     <div class="content-box d-flex flex-column gap-3 w-100">
         <h2>Main Information</h2>
-        <div class="info">
-            <h6>Day ID</h6>
-            <span>0001</span>
+        <div class="info" *ngIf="workflowData?.id">
+            <h6>Workflow ID</h6>
+            <span>{{workflowData?.id.toString().padStart(4, '0')}}</span>
+        </div>
+        <div class="info" *ngIf="workflowData?.name">
+            <h6>Workflow Name</h6>
+            <span>{{workflowData?.name}}</span>
+        </div>
+        <div class="info" *ngIf="workflowData?.leave?.name">
+            <h6>Leave Type</h6>
+            <span>{{workflowData?.leave?.name}}</span>
+        </div>
+        <div class="info" *ngIf="workflowData?.department?.name">
+            <h6>Department</h6>
+            <span>{{workflowData?.department?.name}}</span>
         </div>
         <div class="info">
-            <h6>Day Name</h6>
-            <span>Rush Season</span>
-        </div>
-        <div class="info">
-            <h6>Restriction Type</h6>
-            <span>Blackout</span>
-        </div>
-        <div class="info">
-            <h6>Restricted Department</h6>
-            <span>Sales</span>
-        </div>
-        <div class="info">
-            <h6>Date</h6>
-            <span>2/8/2025 - 20/8/2025</span>
+            <h6>Steps</h6>
+            <span *ngFor="let step of workflowData.steps; let last = last">
+                {{ step.name }}<span *ngIf="!step.mandatory"><small> (optional)</small></span><span *ngIf="!last">,
+                </span>
+            </span>
+
         </div>
 
     </div>
@@ -86,8 +90,7 @@
 </app-popup>
 
 <!-- activate popup  -->
-<app-popup [title]="'Activate workflow'"
-    [paragraph1]="'Are you sure you want to activate the workflow “Sick Leave”?'"
+<app-popup [title]="'Activate workflow'" [paragraph1]="'Are you sure you want to activate the workflow “Sick Leave”?'"
     [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
     <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

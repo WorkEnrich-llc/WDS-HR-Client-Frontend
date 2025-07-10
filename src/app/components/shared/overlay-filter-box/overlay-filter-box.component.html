@@ -1,6 +1,6 @@
 <!-- Overlay box -->
 <div *ngIf="isOverlayVisible" (click)="closeOverlay()"
-    class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center z-index-overlay">
+    class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center z-index-overlay" style="z-index: 1055;">
     <div (click)="$event.stopPropagation()"
         [ngClass]="{'box-contain': true, 'slide-in': !isAnimatingOut, 'slide-out': isAnimatingOut}"
         class="box-contain shadow-lg w-md-50">
