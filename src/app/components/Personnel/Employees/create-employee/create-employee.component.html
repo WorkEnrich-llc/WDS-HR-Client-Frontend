@@ -3,7 +3,7 @@
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
     { label: 'Create New Employee' }
-  ]" title="Create New Employee" [create]="todayFormatted">
+  ]" title="Create New Employee" [create]="todayFormatted()">
     <button class="btn btn-lg btn-success w-auto" (click)="openSuccessModal()">
         <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -31,17 +31,17 @@
 <!-- steps -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
     <li class="nav-item" [ngClass]="{
-        'active': currentStep === 1,
-        'text-success': currentStep > 1, 
-        'bg-light-success': currentStep > 1  
+        'active': currentStep() === 1,
+        'text-success': currentStep() > 1, 
+        'bg-light-success': currentStep() > 1  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep() == 1">
             <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
             <path
                 d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
         </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep() > 1" viewBox="0 0 24 24"
+            [style.fill]="currentStep() > 1 ? 'currentColor' : 'black'">
             <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
             <path
                 d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
@@ -50,9 +50,9 @@
     </li>
 
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
-    currentStep === 1 ? '#DDE3EB' :
-    currentStep === 2 ? '#377AFD' :
-    currentStep > 2 ? '#4CA883' :
+    currentStep() === 1 ? '#DDE3EB' :
+    currentStep() === 2 ? '#377AFD' :
+    currentStep() > 2 ? '#4CA883' :
     '#DDE3EB'
   ">
         <path
@@ -61,24 +61,24 @@
 
 
     <li class="nav-item" [ngClass]="{
-        'active': currentStep === 2,
-        'text-success': currentStep > 2, 
-        'bg-light-success': currentStep > 2  
+        'active': currentStep() === 2,
+        'text-success': currentStep() > 2, 
+        'bg-light-success': currentStep() > 2  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 2">
-            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep() <= 2">
+            <path [style.fill]="currentStep() === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
                 d="M10.561 2.25c-.113 0-.201 0-.285.005a2.75 2.75 0 0 0-2.385 1.72c-.032.079-.06.164-.099.278c-.083.224-.274.479-.542.683q-.045.034-.09.064h1.942q.044-.09.08-.182l.001-.003l.004-.01l.005-.012l.005-.012l.004-.01l.001-.005l.005-.012l.003-.012l.003-.006l.002-.008l.002-.007l.002-.006c.04-.116.052-.153.063-.181a1.25 1.25 0 0 1 1.085-.782c.032-.002.071-.002.215-.002h2.837c.144 0 .183 0 .216.002c.482.03.904.334 1.084.782c.011.028.023.063.063.181l.002.006l.002.007l.003.008l.002.006l.003.012l.005.012l.001.005l.004.01l.005.012l.004.012l.005.01l.001.003q.036.093.08.182h1.942q-.045-.03-.09-.064c-.268-.204-.459-.46-.542-.683l-.003-.01c-.036-.107-.064-.191-.095-.269a2.75 2.75 0 0 0-2.386-1.719a5 5 0 0 0-.285-.005z"
                 opacity=".5" />
-            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+            <path [style.fill]="currentStep() === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
                 d="M17.192 5H6.808c-1.688 0-2.531 0-3.175.33A3 3 0 0 0 2.33 6.633C2 7.277 2 8.12 2 9.808c0 .429 0 .643.073.824a1 1 0 0 0 .3.404c.153.122.358.183.77.307L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607c.41-.124.616-.185.768-.307a1 1 0 0 0 .3-.404c.074-.18.074-.395.074-.824c0-1.688 0-2.531-.33-3.175a3 3 0 0 0-1.303-1.303C19.723 5 18.88 5 17.192 5M13.6 12h-3.2c-.22 0-.4.182-.4.406v1.757c0 .166.1.315.251.377l.56.228c.764.31 1.614.31 2.377 0l.56-.228a.41.41 0 0 0 .252-.377v-1.757a.403.403 0 0 0-.4-.406"
                 clip-rule="evenodd" />
-            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+            <path [style.fill]="currentStep() === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
                 d="m3 11.3l.142.043L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607L21 11.3v1c0 3.675-.035 7.388-1.318 8.528C18.364 22 16.242 22 12 22s-6.364 0-7.682-1.172C3.035 19.688 3.001 15.975 3 12.3z"
                 opacity=".5" />
         </svg>
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep() > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep() > 1 ? 'currentColor' : 'black'">
             <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
             <path
                 d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
@@ -87,9 +87,9 @@
     </li>
 
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
-    currentStep === 2 ? '#DDE3EB' :
-    currentStep === 3 ? '#377AFD' :
-    currentStep > 3 ? '#4CA883' :
+    currentStep() === 2 ? '#DDE3EB' :
+    currentStep() === 3 ? '#377AFD' :
+    currentStep() > 3 ? '#4CA883' :
     '#DDE3EB'
   ">
         <path
@@ -98,23 +98,23 @@
 
 
     <li class="nav-item" [ngClass]="{
-        'active': currentStep === 3,
-        'text-success': currentStep > 3, 
-        'bg-light-success': currentStep > 3  
+        'active': currentStep() === 3,
+        'text-success': currentStep() > 3, 
+        'bg-light-success': currentStep() > 3  
     }">
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep <= 3">
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep() <= 3">
+            <path [style.fill]="currentStep() === 3 ? '#007bff' : '#4A6D97'"
                 d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z"
                 opacity=".5" />
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+            <path [style.fill]="currentStep() === 3 ? '#007bff' : '#4A6D97'"
                 d="M16.519 16.501c.175-.136.334-.295.651-.612l3.957-3.958c.096-.095.052-.26-.075-.305a4.3 4.3 0 0 1-1.644-1.034a4.3 4.3 0 0 1-1.034-1.644c-.045-.127-.21-.171-.305-.075L14.11 12.83c-.317.317-.476.476-.612.651q-.243.311-.412.666c-.095.2-.166.414-.308.84l-.184.55l-.292.875l-.273.82a.584.584 0 0 0 .738.738l.82-.273l.875-.292l.55-.184c.426-.142.64-.212.84-.308q.355-.17.666-.412m5.849-5.809a2.163 2.163 0 1 0-3.06-3.059l-.126.128a.52.52 0 0 0-.148.465c.02.107.055.265.12.452c.13.375.376.867.839 1.33s.955.709 1.33.839c.188.065.345.1.452.12a.53.53 0 0 0 .465-.148z" />
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+            <path [style.fill]="currentStep() === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
                 d="M7.25 9A.75.75 0 0 1 8 8.25h6.5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 9m0 4a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
                 clip-rule="evenodd" />
         </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep() > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep() > 1 ? 'currentColor' : 'black'">
             <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
             <path
                 d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
@@ -126,7 +126,7 @@
 
 
 <!-- step 1 -->
-<div class="content-hug" *ngIf="currentStep === 1">
+<div class="content-hug" *ngIf="currentStep() === 1">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
         <form class="w-lg-50 d-flex flex-column gap-2">
@@ -214,18 +214,18 @@
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <div class="dropdown">
                                 <button class="form-select text-start" type="button"
-                                    (click)="dropdownOpen = !dropdownOpen">
-                                    <img *ngIf="selectedCountry"
-                                        [src]="'https://flagcdn.com/' + selectedCountry.flag.toLowerCase() + '.svg'"
+                                    (click)="dropdownOpen.set(!dropdownOpen())">
+                                    <img *ngIf="selectedCountry()"
+                                        [src]="'https://flagcdn.com/' + selectedCountry().flag + '.svg'"
                                         width="26" height="26" class="me-3 rounded-circle object-fit-cover" />
-                                    <span class="text-sm">{{ selectedCountry.dialCode }}</span>
+                                    <!-- <span class="text-sm">{{ selectedCountry.dialCode }}</span> -->
                                 </button>
 
-                                <ul *ngIf="dropdownOpen" class="dropdown-menu show w-100 mt-1 shadow-sm"
+                                <ul *ngIf="dropdownOpen()" class="dropdown-menu show w-100 mt-1 shadow-sm"
                                     style="max-height: 200px; overflow-y: auto;">
-                                    <li *ngFor="let country of countries">
+                                    <li *ngFor="let country of countries()">
                                         <a class="dropdown-item d-flex align-items-center gap-2" href="#"
-                                            (click)="selectCountry(country); dropdownOpen = false">
+                                            (click)="selectCountry(country); dropdownOpen.set(false)">
                                             <img [src]="'https://flagcdn.com/' + country.flag.toLowerCase() + '.svg'"
                                                 width="26" height="26" class="me-3 rounded-circle object-fit-cover" />
                                             <span class="text-muted">({{ country.dialCode }})</span>
@@ -270,8 +270,8 @@
                 </p> -->
             </div>
 
-            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
-                {{errMsg}}
+            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg()">
+                {{errMsg()}}
             </div>
 
 
@@ -296,7 +296,7 @@
 
 
 <!-- step 2 -->
-<div class="content-hug" *ngIf="currentStep === 2">
+<div class="content-hug" *ngIf="currentStep() === 2">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Job Details</h2>
         <form class="w-lg-50 d-flex flex-column gap-2">
@@ -304,10 +304,11 @@
                 <label for="Branch">Branch</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="Branch" id="Branch" class="form-select">
+                        <select name="Branch" id="Branch" class="form-select"
+                                [ngModel]="selectedBranchId()"
+                                (ngModelChange)="selectBranch($event)">
                             <option value="" disabled selected hidden>Select 1 Branch</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                            <option *ngFor="let b of getActiveBranches()" [value]="b.id">{{ b.name }}</option>
                         </select>
 
                     </div>
@@ -321,10 +322,11 @@
                 <label for="Department">Department</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="Department" id="Department" class="form-select">
+                        <select name="Department" id="Department" class="form-select"
+                                [ngModel]="selectedDepartmentId()"
+                                (ngModelChange)="selectDepartment($event)">
                             <option value="" disabled selected hidden>Select 1 Department</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                            <option *ngFor="let dept of getActiveDepartments()" [value]="dept.id">{{ dept.name }}</option>
                         </select>
 
                     </div>
@@ -338,10 +340,12 @@
                 <label for="Section">Section</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="Section" id="Section" class="form-select">
+                        <select name="Section" id="Section" class="form-select"
+                                [ngModel]="selectedSectionId()"
+                                (ngModelChange)="selectSection($event)"
+                                [disabled]="!selectedDepartmentId()">
                             <option value="" disabled selected hidden>Select 1 Section</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                            <option *ngFor="let section of getSections()" [value]="section.id">{{ section.name }}</option>
                         </select>
 
                     </div>
@@ -355,10 +359,11 @@
                 <label for="JobTitle">Job Title</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="JobTitle" id="JobTitle" class="form-select">
+                        <select name="JobTitle" id="JobTitle" class="form-select"
+                                [ngModel]="selectedJobTitleId()"
+                                (ngModelChange)="selectJobTitle($event)">
                             <option value="" disabled selected hidden>Select 1 Job Title</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                            <option *ngFor="let jobTitle of getActiveJobTitles()" [value]="jobTitle.id">{{ jobTitle.name }}</option>
                         </select>
 
                     </div>
@@ -372,10 +377,11 @@
                 <label for="WorkSchedule">Work Schedule</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="WorkSchedule" id="WorkSchedule" class="form-select">
-                            <option value="" disabled selected hidden>Select 1 Job Title</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
+                        <select name="WorkSchedule" id="WorkSchedule" class="form-select"
+                                [ngModel]="selectedWorkScheduleId()"
+                                (ngModelChange)="selectWorkSchedule($event)">
+                            <option value="" disabled selected hidden>Select 1 Work Schedule</option>
+                            <option *ngFor="let workSchedule of getActiveWorkSchedules()" [value]="workSchedule.id">{{ workSchedule.name }}</option>
                         </select>
 
                     </div>
@@ -413,7 +419,7 @@
 
 
 <!-- step 3 -->
-<div class="content-hug" *ngIf="currentStep === 3">
+<div class="content-hug" *ngIf="currentStep() === 3">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Contract Details</h2>
         <form class="w-lg-50 d-flex flex-column gap-2">
@@ -543,8 +549,8 @@
                 </svg>
             </button>
             <button class="btn btn-lg btn-success">
-                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <span *ngIf="isLoading()" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <svg *ngIf="!isLoading()" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -561,7 +567,7 @@
 <!-- Added popup -->
 <app-popup [title]="'Employee Created!'"
   [paragraph1]="'The employee’s account is still new and inactive. Upload their documents and ask them to login to their app account to activate.'"
-  [isOpen]="isSuccessModalOpen"
+  [isOpen]="isSuccessModalOpen()"
   (close)="closeSuccessModal()"
 >
   <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="viewEmployees()">
@@ -580,8 +586,10 @@
 
 
 <!-- Discard popup  -->
-<app-popup [title]="'Discard Employee'" [paragraph1]="'Are you sure you want to discard creating the new Employee?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+<app-popup [title]="'Discard Employee'"
+            [paragraph1]="'Are you sure you want to discard creating the new Employee?'"
+            [paragraph2]="'This action cannot be undone!'"
+    [isOpen]="isModalOpen()" (close)="closeModal()">
     <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
         Discard Employee
     </button>
