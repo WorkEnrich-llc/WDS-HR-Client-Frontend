@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - develop
+      - test
+      - staging
   workflow_dispatch:
 
 jobs:
@@ -40,7 +43,6 @@ jobs:
             ${{ runner.os }}-build-
 
       - name: Install Dependencies
-        # run: npm ci
         run: npm install --legacy-peer-deps
 
       - name: Build Project
@@ -55,20 +57,30 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 144.91.79.174 >> ~/.ssh/known_hosts
 
+      - name: Deploy to Dev
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Develop"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Develop/
+
+      - name: Deploy to Test
+        if: github.ref == 'refs/heads/test'
+        run: |
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Testing"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Testing/
+
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Staging"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Staging/
+
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
         run: |
-          # Create backup of current deployment
-          ssh root@144.91.79.174 "cd /var/www && cp -r WorkEnrich-Client-Front-End WorkEnrich-Client-Front-End-backup-$(date +%Y%m%d-%H%M%S) || true"
-
-          # Copy dist folder to server
-          scp -r dist/* root@144.91.79.174:/var/www/WorkEnrich-Client-Front-End/
-
-          # Verify deployment
-          ssh root@144.91.79.174 "ls -la /var/www/WorkEnrich-Client-Front-End/"
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Production"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Production/
 
       - name: Cleanup on Failure
         if: failure()
-        run: |
-          echo "Deployment failed. Cleaning up..."
-          ssh root@144.91.79.174 "cd /var/www && rm -rf WorkEnrich-Client-Front-End-backup-* || true"
+        run: echo "Deployment failed. Please check logs."
