@@ -45,7 +45,7 @@ jobs:
       - name: Generate environment.ts
         run: |
           BRANCH_NAME="${GITHUB_REF##*/}"
-
+          mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq .);" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
