@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - develop
-      - test
+      - testing
       - staging
   workflow_dispatch:
 
@@ -63,8 +63,8 @@ jobs:
           ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Develop"
           scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Develop/
 
-      - name: Deploy to Test
-        if: github.ref == 'refs/heads/test'
+      - name: Deploy to Testing
+        if: github.ref == 'refs/heads/testing'
         run: |
           ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Testing"
           scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Testing/
