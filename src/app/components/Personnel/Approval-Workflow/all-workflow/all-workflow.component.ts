@@ -3,28 +3,30 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { CommonModule } from '@angular/common';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-all-workflow',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, CommonModule,ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
   templateUrl: './all-workflow.component.html',
   styleUrl: './all-workflow.component.css'
 })
 export class AllWorkflowComponent {
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute,private _DepartmentsService:DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private fb: FormBuilder, private _WorkflowService: WorkflowService) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
   workflows: any[] = [];
+  departments: any[] = [];
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -55,9 +57,9 @@ export class AllWorkflowComponent {
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.getAllWorkflows(this.currentPage, value);
     });
-
+    this.getAllDepartment(1);
     this.filterForm = this.fb.group({
-      employment_type: ''
+      department: ''
     });
   }
 
@@ -65,7 +67,7 @@ export class AllWorkflowComponent {
     pageNumber: number,
     searchTerm: string = '',
     filters?: {
-      employment_type?: string;
+      department?: string;
     }
   ) {
     this._WorkflowService.getAllWorkFlow(pageNumber, this.itemsPerPage, {
@@ -77,7 +79,7 @@ export class AllWorkflowComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.workflows = response.data.list_items;
-        console.log(this.workflows);
+        // console.log(this.workflows);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -89,6 +91,24 @@ export class AllWorkflowComponent {
       }
     });
   }
+
+  
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
+        this.departments = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -108,7 +128,7 @@ export class AllWorkflowComponent {
   }
   resetFilterForm(): void {
     this.filterForm.reset({
-      employment_type: ''
+      department: ''
     });
     this.filterBox.closeOverlay();
     this.getAllWorkflows(this.currentPage);
@@ -119,7 +139,7 @@ export class AllWorkflowComponent {
       const rawFilters = this.filterForm.value;
 
       const filters = {
-        employment_type: rawFilters.employment_type || undefined
+        department: rawFilters.department || undefined
       };
 
       // console.log('Filters submitted:', filters);

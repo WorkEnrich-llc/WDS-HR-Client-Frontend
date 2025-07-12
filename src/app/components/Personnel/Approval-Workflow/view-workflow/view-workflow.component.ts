@@ -1,16 +1,53 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-workflow',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent],
+  imports: [PageHeaderComponent,RouterLink,PopupComponent,CommonModule],
+  providers: [DatePipe],
   templateUrl: './view-workflow.component.html',
   styleUrl: './view-workflow.component.css'
 })
 export class ViewWorkflowComponent {
 
+
+
+ constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  workflowData: any = [];
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  workId: string | null = null;
+ngOnInit(): void {
+    this.workId = this.route.snapshot.paramMap.get('id');
+    if (this.workId) {
+      this.getWorkflow(Number(this.workId));
+    }
+  }
+  getWorkflow(workId: number) {
+
+    this._WorkflowService.showWorkflow(workId).subscribe({
+      next: (response) => {
+        this.workflowData = response.data.object_info;
+        const created = this.workflowData?.created_at;
+        const updated = this.workflowData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+        // console.log(this.workflowData);
+
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   // activate and deactivate
 
   deactivateOpen = false;
@@ -32,18 +69,14 @@ export class ViewWorkflowComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.workflowData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 
   openActivate() {
@@ -61,17 +94,13 @@ export class ViewWorkflowComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.workflowData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 }

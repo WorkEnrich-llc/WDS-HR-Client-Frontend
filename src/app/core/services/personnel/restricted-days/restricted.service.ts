@@ -1,13 +1,13 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthHelperService } from '../../authentication/auth-helper.service';
-import { environment } from '../../../../../../environment';
+import { environment } from '../../../../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WorkflowService {
+export class RestrictedService {
 
   private apiBaseUrl: string;
 
@@ -33,29 +33,31 @@ export class WorkflowService {
     return headers;
   }
 
-  // create workflow
-  createWorkFlow(WorkFlowData: any): Observable<any> {
+
+
+  // create restricted days
+  createRestrictedDay(restrictedDatData: any): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
 
-    const url = `${this.apiBaseUrl}personnel/workflow`;
-    return this._HttpClient.post(url, WorkFlowData, { headers });
+    const url = `${this.apiBaseUrl}personnel/restricted`;
+    return this._HttpClient.post(url, restrictedDatData, { headers });
   }
 
 
-  // get all workflow with pagination and filters
-  getAllWorkFlow(
+  // get all restricted days with pagination and filters
+  getAllRestrictedDays(
     pageNumber: number,
     perPage: number,
     filters?: {
       search?: string;
-      department?: string;
+      restriction_type?: string;
     }
   ): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
 
-    const url = `${this.apiBaseUrl}personnel/workflow`;
+    const url = `${this.apiBaseUrl}personnel/restricted`;
 
     let params = new HttpParams()
       .set('page', pageNumber)
@@ -63,40 +65,39 @@ export class WorkflowService {
 
     if (filters) {
       if (filters.search) params = params.set('search', filters.search);
-      if (filters.department) params = params.set('department', filters.department);
+      if (filters.restriction_type) params = params.set('restriction_type', filters.restriction_type);
     }
 
     return this._HttpClient.get(url, { headers, params });
   }
 
 
-  // show workflow by ID
-  showWorkflow(id: number): Observable<any> {
+  // show restricted day by ID
+  showRestrictedDay(id: number): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
 
-    const url = `${this.apiBaseUrl}personnel/workflow/${id}`;
+    const url = `${this.apiBaseUrl}personnel/restricted/${id}`;
     return this._HttpClient.get(url, { headers });
   }
 
-  // update workflow status
-  updateWorkflowStatus(id: number, status: any): Observable<any> {
+  // update restricted day status
+  updateRestrictedDayStatus(id: number, status: any): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
 
-    const url = `${this.apiBaseUrl}personnel/workflow/${id}/`;
+    const url = `${this.apiBaseUrl}personnel/restricted/${id}/`;
     return this._HttpClient.patch(url, status, { headers });
   }
 
-  // update workflow
-  updateWorkflow(workflowData: any): Observable<any> {
+
+  // update restricted day
+  updateRestrictedDay(restrictedDayData: any): Observable<any> {
     const headers = this.getAuthHeaders();
     if (!headers) return throwError(() => new Error('Authentication failed'));
 
-    const url = `${this.apiBaseUrl}personnel/workflow`;
-    return this._HttpClient.put(url, workflowData, { headers });
+    const url = `${this.apiBaseUrl}personnel/restricted`;
+    return this._HttpClient.put(url, restrictedDayData, { headers });
   }
 
-
-  
 }

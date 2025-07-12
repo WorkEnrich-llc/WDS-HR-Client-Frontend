@@ -1,16 +1,52 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { RestrictedService } from '../../../../core/services/personnel/restricted-days/restricted.service';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-restricted-days',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent],
+  imports: [PageHeaderComponent,RouterLink,PopupComponent,CommonModule],
+  providers: [DatePipe],
   templateUrl: './view-restricted-days.component.html',
   styleUrl: './view-restricted-days.component.css'
 })
 export class ViewRestrictedDaysComponent {
 
+ constructor(private _RestrictedService: RestrictedService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+
+resterictedDayData: any = [];
+  formattedCreatedAt: string = '';
+  formattedUpdatedAt: string = '';
+  dayId: string | null = null;
+ngOnInit(): void {
+    this.dayId = this.route.snapshot.paramMap.get('id');
+    if (this.dayId) {
+      this.getRestrictedDay(Number(this.dayId));
+    }
+  }
+  getRestrictedDay(dayId: number) {
+
+    this._RestrictedService.showRestrictedDay(dayId).subscribe({
+      next: (response) => {
+        this.resterictedDayData = response.data.object_info;
+        const created = this.resterictedDayData?.created_at;
+        const updated = this.resterictedDayData?.updated_at;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+        // console.log(this.resterictedDayData);
+
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   // activate and deactivate
 
   deactivateOpen = false;
@@ -32,18 +68,14 @@ export class ViewRestrictedDaysComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._RestrictedService.updateRestrictedDayStatus(this.resterictedDayData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.resterictedDayData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 
   openActivate() {
@@ -61,17 +93,13 @@ export class ViewRestrictedDaysComponent {
       }
     };
 
-    // this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
-    //   next: (response) => {
-    //     this.departmentData = response.data.object_info;
-    //     // console.log(this.departmentData);
-
-    //     this.sortDirection = 'desc';
-    //     this.sortBy('id');
-    //   },
-    //   error: (err) => {
-    //     console.log(err.error?.details);
-    //   }
-    // });
+    this._RestrictedService.updateRestrictedDayStatus(this.resterictedDayData.id, deptStatus).subscribe({
+      next: (response) => {
+        this.resterictedDayData = response.data.object_info;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
 }

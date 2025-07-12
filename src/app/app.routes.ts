@@ -425,6 +425,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/settings/password-settings/password-settings.component').then(m => m.PasswordSettingsComponent),
                 title: 'Password Settings'
               },
+              {
+                path: 'google-maps-demo',
+                loadComponent: () => import('./components/shared/google-maps-demo/google-maps-demo.component').then(m => m.GoogleMapsDemoComponent),
+                title: 'Google Maps Demo'
+              },
 
             ]
           },
@@ -436,6 +441,18 @@ export const routes: Routes = [
 
     ]
   },
+
+  // Google Maps Demo (standalone route)
+  {
+    path: 'google-maps-demo',
+    loadComponent: () => import('./components/shared/google-maps-demo/google-maps-demo.component').then(m => m.GoogleMapsDemoComponent),
+    title: 'Google Maps Demo'
+  },
+
+  {
+    path: '**',
+    redirectTo: 'auth'
+  }
 
 
 
