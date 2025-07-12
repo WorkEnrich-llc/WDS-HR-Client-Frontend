@@ -49,20 +49,20 @@ jobs:
 
           if [[ "$BRANCH_NAME" == "develop" ]]; then
             cat <<EOF > src/environments/environment.ts
-export const environment = ${{ secrets.CLIENT_ENV_DEV }};
-EOF
+              export const environment = ${{ secrets.CLIENT_ENV_DEV }};
+              EOF
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
             cat <<EOF > src/environments/environment.ts
-export const environment = ${{ secrets.CLIENT_ENV_TEST }};
-EOF
+              export const environment = ${{ secrets.CLIENT_ENV_TEST }};
+              EOF
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
             cat <<EOF > src/environments/environment.ts
-export const environment = ${{ secrets.CLIENT_ENV_STAGING }};
-EOF
+              export const environment = ${{ secrets.CLIENT_ENV_STAGING }};
+              EOF
           elif [[ "$BRANCH_NAME" == "main" ]]; then
             cat <<EOF > src/environments/environment.ts
-export const environment = ${{ secrets.CLIENT_ENV_PROD }};
-EOF
+              export const environment = ${{ secrets.CLIENT_ENV_PROD }};
+              EOF
           else
             echo "Unknown branch: $BRANCH_NAME"
             exit 1
