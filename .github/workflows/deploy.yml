@@ -42,27 +42,22 @@ jobs:
             ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-
             ${{ runner.os }}-build-
 
-      - name: Generate environment.ts based on branch
+      - name: Generate environment.ts
         run: |
           BRANCH_NAME="${GITHUB_REF##*/}"
 
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "${{ secrets.CLIENT_ENV_DEV }}" > environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq .);" > environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            echo "${{ secrets.CLIENT_ENV_TEST }}" > environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq .);" > environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo "${{ secrets.CLIENT_ENV_STAGING }}" > environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq .);" > environment.ts
           elif [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "${{ secrets.CLIENT_ENV_PROD }}" > environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq .);" > environment.ts
           else
             echo "Unknown branch: $BRANCH_NAME"
             exit 1
           fi
-
-          # Optional: Copy it to src/environments if needed
-          mkdir -p src/environments
-          cp environment.ts src/environments/environment.ts
-
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
