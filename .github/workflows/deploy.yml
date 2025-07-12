@@ -79,7 +79,7 @@ jobs:
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
             echo 'export const environment = {
               production: false,
-              apiBaseUrl: "https://staging-api.workenrich.com/",
+              apiBaseUrl: "https://stg-api.workenrich.com/",
               firebaseConfig: {
                 apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
                 authDomain: "principal-iris-451803-a5.firebaseapp.com",
@@ -92,7 +92,7 @@ jobs:
           elif [[ "$BRANCH_NAME" == "main" ]]; then
             echo 'export const environment = {
               production: true,
-              apiBaseUrl: "https://api.workenrich.com/",
+              apiBaseUrl: "https://prod-api.workenrich.com/",
               firebaseConfig: {
                 apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
                 authDomain: "principal-iris-451803-a5.firebaseapp.com",
