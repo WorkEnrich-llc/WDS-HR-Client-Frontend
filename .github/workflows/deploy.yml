@@ -48,7 +48,7 @@ jobs:
           mkdir -p src/environments
 
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "export const environment = ${{ secrets.CLIENT_ENV_DEV }};" > src/environments/environment.ts    
+            echo "export const environment = ${{ secrets.CLIENT_ENV_DEV }};" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
             echo "export const environment = ${{ secrets.CLIENT_ENV_TEST }};" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
@@ -59,6 +59,10 @@ jobs:
             echo "Unknown branch: $BRANCH_NAME"
             exit 1
           fi
+
+          # Verify the generated file has proper structure
+          echo "Generated environment.ts content:"
+          cat src/environments/environment.ts
 
       - name: Print Branch Name
         run: |
