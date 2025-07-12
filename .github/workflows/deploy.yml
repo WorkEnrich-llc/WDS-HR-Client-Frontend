@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          BRANCH_NAME="${{ github.ref }}"
+          BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
@@ -61,7 +61,7 @@ jobs:
 
       - name: Print Branch Name
         run: |
-          echo "Branch: ${{ github.ref }}"
+          echo "Branch: ${{ github.ref_name }}"
 
       - name: Print generated environment.ts
         run: cat src/environments/environment.ts
