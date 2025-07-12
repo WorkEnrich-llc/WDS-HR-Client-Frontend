@@ -44,69 +44,23 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          BRANCH_NAME="${{ github.ref_name }}"
+          BRANCH_NAME="${GITHUB_REF##*/}"
           mkdir -p src/environments
-
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "export const environment = ${{ secrets.CLIENT_ENV_DEV }};" > src/environments/environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            echo "export const environment = ${{ secrets.CLIENT_ENV_TEST }};" > src/environments/environment.ts
+            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo "export const environment = ${{ secrets.CLIENT_ENV_STAGING }};" > src/environments/environment.ts
-          elif [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "export const environment = ${{ secrets.CLIENT_ENV_PROD }};" > src/environments/environment.ts
-          else
-            echo "Unknown branch: $BRANCH_NAME"
-            exit 1
-          fi
-
-          # Verify the generated file structure without exposing secrets
-          echo "Generated environment.ts file structure:"
-          head -c 50 src/environments/environment.ts
-          echo "..."
-          tail -c 10 src/environments/environment.ts
-          echo ""
-          echo "File size: $(wc -c < src/environments/environment.ts) bytes"
-          echo "First line starts with: $(head -c 30 src/environments/environment.ts)"
-
-      - name: Print Branch Name
-        run: |
-          echo "Branch: ${{ github.ref_name }}"
-
-      - name: Print generated environment.ts
-        run: cat src/environments/environment.ts
-
-      - name: Verify environment.ts syntax
-        run: |
-          echo "Verifying environment.ts syntax..."
-          # Check if the file starts with "export const environment ="
-          if head -c 30 src/environments/environment.ts | grep -q "export const environment ="; then
-            echo "✅ File starts correctly"
-          else
-            echo "❌ File does not start correctly"
-            exit 1
-          fi
-          
-          # Check if the file ends with ";"
-          if tail -c 2 src/environments/environment.ts | grep -q ";"; then
-            echo "✅ File ends correctly"
-          else
-            echo "❌ File does not end correctly"
-            exit 1
-          fi
-          
-          # Check file size (should be reasonable)
-          FILE_SIZE=$(wc -c < src/environments/environment.ts)
-          if [ "$FILE_SIZE" -gt 100 ]; then
-            echo "✅ File size is reasonable: $FILE_SIZE bytes"
-          else
-            echo "❌ File size seems too small: $FILE_SIZE bytes"
-            exit 1
-          fi
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq -c .)" > src/environments/environment.ts
+            elif [[ "$BRANCH_NAME" == "main" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq -c .)" > src/environments/environment.ts
+            else
+              echo "Unknown branch: $BRANCH_NAME"
+              exit 1
+            fi
 
       - name: Install Dependencies
-        run: |
-          npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Build Project
         env:
