@@ -1,8 +1,7 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthHelperService } from '../../authentication/auth-helper.service';
 import { environment } from '../../../../../environments/environment';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,42 +9,17 @@ import { Observable, throwError } from 'rxjs';
 export class BranchesService {
 
   private apiBaseUrl: string;
-  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
+  constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
-  }
-  // getAuthHeaders
-  private getAuthHeaders(includeBearer: boolean = false): HttpHeaders | null {
-    if (!this.authHelper.validateAuth()) {
-      return null;
-    }
-
-    const token = this.authHelper.getToken()!;
-    const sessionToken = this.authHelper.getSessionToken()!;
-    const subdomain = this.authHelper.getSubdomain()!;
-
-    let headers = new HttpHeaders()
-      .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain)
-      .set('SESSIONTOKEN', sessionToken);
-
-    return headers;
   }
 
 
 
   // create a new branch
   createBranch(branchData: any): Observable<any> {
-    if (!this.authHelper.validateAuth()) {
-      return throwError(() => new Error('Authentication failed'));
-    }
-
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/branches`;
-    return this._HttpClient.post(url, branchData, { headers });
+    return this._HttpClient.post(url, branchData);
   }
-
 
   // get all branches with pagination and filters
   getAllBranches(
@@ -63,9 +37,6 @@ export class BranchesService {
       status?: string;
     }
   ): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/branches`;
 
     let params = new HttpParams()
@@ -84,34 +55,25 @@ export class BranchesService {
       if (filters.status) params = params.set('status', filters.status);
     }
 
-    return this._HttpClient.get(url, { headers, params });
+    return this._HttpClient.get(url, { params });
   }
 
   // show branch details
   showBranch(id: number): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/branches/${id}`;
-    return this._HttpClient.get(url, { headers });
+    return this._HttpClient.get(url);
   }
   
   // update branch status
   updateBranchStatus(id: number, status: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/branches/${id}/`;
-    return this._HttpClient.patch(url, status, { headers });
+    return this._HttpClient.patch(url, status);
   }
 
   // update branch
   updateBranch(branchData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/branches`;
-    return this._HttpClient.put(url, branchData, { headers });
+    return this._HttpClient.put(url, branchData);
   }
 
   
