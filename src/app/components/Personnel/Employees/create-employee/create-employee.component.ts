@@ -96,7 +96,7 @@ export class CreateEmployeeComponent implements OnInit {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
         code: [''],
-        full_name: ['', [Validators.required, Validators.minLength(2)]],
+        name: ['', [Validators.required, Validators.minLength(2)]],
         gender: [null, Validators.required],
         mobile: this.fb.group({
           country_id: [1, Validators.required],
@@ -349,7 +349,7 @@ export class CreateEmployeeComponent implements OnInit {
         request_data: {
           main_information: {
             code: formData.main_information.code || '',
-            full_name: formData.main_information.full_name,
+            name: formData.main_information.name,
             gender: parseInt(formData.main_information.gender, 10),
             mobile: {
               country_id: formData.main_information.mobile.country_id,
@@ -414,7 +414,7 @@ export class CreateEmployeeComponent implements OnInit {
         request_data: {
           main_information: {
             code: formData.main_information.code || '',
-            full_name: formData.main_information.full_name,
+            name: formData.main_information.name,
             gender: formData.mainInformation.gender,
             mobile: {
               country_id: formData.main_information.mobile.country_id,

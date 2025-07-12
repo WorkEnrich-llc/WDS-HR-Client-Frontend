@@ -133,15 +133,15 @@
                 </div>
 
                 <div class="input">
-                    <label for="full_name">Full Name <span>*</span></label>
+                    <label for="name">Full Name <span>*</span></label>
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="full_name" formControlName="full_name"
+                        <input type="text" id="name" formControlName="name"
                             class="form-control custom-date-input"
-                            [class.is-invalid]="isFieldInvalid('full_name', mainInformation)"
+                            [class.is-invalid]="isFieldInvalid('name', mainInformation)"
                             placeholder="Enter employee full name" />
                     </div>
-                    <p class="error-msg text-danger" *ngIf="isFieldInvalid('full_name', mainInformation)">
-                        {{getFieldError('full_name', mainInformation)}}
+                    <p class="error-msg text-danger" *ngIf="isFieldInvalid('name', mainInformation)">
+                        {{getFieldError('name', mainInformation)}}
                     </p>
                 </div>
 

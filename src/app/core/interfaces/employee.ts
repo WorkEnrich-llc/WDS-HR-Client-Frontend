@@ -2,7 +2,7 @@ export interface CreateEmployeeRequest {
   request_data: {
     main_information: {
       code?: string;
-      full_name: string;
+      name: string;
       gender: number; // 1 - Male, 2 - Female
       mobile: {
         country_id: number;

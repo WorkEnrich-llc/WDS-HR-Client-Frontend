@@ -4,7 +4,7 @@ import { Messaging } from '@angular/fire/messaging';
 import { getToken } from 'firebase/messaging';
 import { Observable, throwError } from 'rxjs';
 import { AuthHelperService } from '../authentication/auth-helper.service';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../../../environment';
 
 @Injectable({
   providedIn: 'root'
