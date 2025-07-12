@@ -44,6 +44,10 @@ jobs:
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
+      
+      - name: Generate environment.ts
+        run: |
+          echo "export const environment = $(echo '${{ secrets.CLIENT_ENV }}' | jq .);" > environment.ts
 
       - name: Build Project
         env:
