@@ -6,7 +6,7 @@ import DeviceDetector from 'device-detector-js';
 import { AuthenticationService } from './core/services/authentication/authentication.service';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
-import { environment } from './../environments/environment';
+import { environment } from '../../environment';
 import { ViewportScroller } from '@angular/common';
 import { filter } from 'rxjs';
 

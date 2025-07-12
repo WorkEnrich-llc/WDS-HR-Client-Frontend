@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 
 @Component({
   selector: 'app-all-employees',
@@ -18,6 +19,8 @@ import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 })
 export class AllEmployeesComponent {
   filterForm!: FormGroup;
+  private employeeService = inject(EmployeeService);
+
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
@@ -162,6 +165,11 @@ export class AllEmployeesComponent {
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       // this.getAllDepartment(this.currentPage, value);
+    });
+    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm).subscribe(response => {
+      // this.employees = response.data; // Assuming response.data contains the employee list
+      // this.totalItems = response.total; // Assuming response.total contains the total count of employees
+      console.log('Employees:', response);
     });
 
   }
