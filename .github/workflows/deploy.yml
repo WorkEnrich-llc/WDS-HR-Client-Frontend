@@ -42,7 +42,7 @@ jobs:
             ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-
             ${{ runner.os }}-build-
 
-                  - name: Generate environment.ts
+      - name: Generate environment.ts
         run: |
           BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
