@@ -47,22 +47,34 @@ jobs:
           BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
 
-          ENV_CONTENT=""
-
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            ENV_CONTENT='${{ secrets.CLIENT_ENV_DEV }}'
+            echo "export const environment = $(cat <<EOF
+              ${{ secrets.CLIENT_ENV_DEV }}
+              EOF
+              );" > src/environments/environment.ts
+
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            ENV_CONTENT='${{ secrets.CLIENT_ENV_TEST }}'
+            echo "export const environment = $(cat <<EOF
+              ${{ secrets.CLIENT_ENV_TEST }}
+              EOF
+              );" > src/environments/environment.ts
+
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            ENV_CONTENT='${{ secrets.CLIENT_ENV_STAGING }}'
+            echo "export const environment = $(cat <<EOF
+              ${{ secrets.CLIENT_ENV_STAGING }}
+              EOF
+              );" > src/environments/environment.ts
+
           elif [[ "$BRANCH_NAME" == "main" ]]; then
-            ENV_CONTENT='${{ secrets.CLIENT_ENV_PROD }}'
+            echo "export const environment = $(cat <<EOF
+              ${{ secrets.CLIENT_ENV_PROD }}
+              EOF
+              );" > src/environments/environment.ts
+
           else
             echo "Unknown branch: $BRANCH_NAME"
             exit 1
           fi
-
-          echo "export const environment = $ENV_CONTENT;" > src/environments/environment.ts
 
       - name: Print Branch Name
         run: |
