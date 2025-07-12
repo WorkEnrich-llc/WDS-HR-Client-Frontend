@@ -139,26 +139,26 @@ jobs:
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/develop'
         run: |
-          ssh root@144.91.79.174 "mkdir -p /root/WDS-Client-Develop"
-          scp -r dist/* root@144.91.79.174:/root/WDS-Client-Develop/
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Develop"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Develop/
 
       - name: Deploy to Testing
         if: github.ref == 'refs/heads/testing'
         run: |
-          ssh root@144.91.79.174 "mkdir -p /root/WDS-Client-Testing"
-          scp -r dist/* root@144.91.79.174:/root/WDS-Client-Testing/
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Testing"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Testing/
 
       - name: Deploy to Staging
         if: github.ref == 'refs/heads/staging'
         run: |
-          ssh root@144.91.79.174 "mkdir -p /root/WDS-Client-Staging"
-          scp -r dist/* root@144.91.79.174:/root/WDS-Client-Staging/
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Staging"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Staging/
 
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
         run: |
-          ssh root@144.91.79.174 "mkdir -p /root/WDS-Client-Production"
-          scp -r dist/* root@144.91.79.174:/root/WDS-Client-Production/
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Production"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Production/
 
       - name: Cleanup on Failure
         if: failure()
