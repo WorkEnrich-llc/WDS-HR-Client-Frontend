@@ -60,9 +60,14 @@ jobs:
             exit 1
           fi
 
-          # Verify the generated file has proper structure
-          echo "Generated environment.ts content:"
-          cat src/environments/environment.ts
+          # Verify the generated file structure without exposing secrets
+          echo "Generated environment.ts file structure:"
+          head -c 50 src/environments/environment.ts
+          echo "..."
+          tail -c 10 src/environments/environment.ts
+          echo ""
+          echo "File size: $(wc -c < src/environments/environment.ts) bytes"
+          echo "First line starts with: $(head -c 30 src/environments/environment.ts)"
 
       - name: Print Branch Name
         run: |
@@ -70,6 +75,34 @@ jobs:
 
       - name: Print generated environment.ts
         run: cat src/environments/environment.ts
+
+      - name: Verify environment.ts syntax
+        run: |
+          echo "Verifying environment.ts syntax..."
+          # Check if the file starts with "export const environment ="
+          if head -c 30 src/environments/environment.ts | grep -q "export const environment ="; then
+            echo "✅ File starts correctly"
+          else
+            echo "❌ File does not start correctly"
+            exit 1
+          fi
+          
+          # Check if the file ends with ";"
+          if tail -c 2 src/environments/environment.ts | grep -q ";"; then
+            echo "✅ File ends correctly"
+          else
+            echo "❌ File does not end correctly"
+            exit 1
+          fi
+          
+          # Check file size (should be reasonable)
+          FILE_SIZE=$(wc -c < src/environments/environment.ts)
+          if [ "$FILE_SIZE" -gt 100 ]; then
+            echo "✅ File size is reasonable: $FILE_SIZE bytes"
+          else
+            echo "❌ File size seems too small: $FILE_SIZE bytes"
+            exit 1
+          fi
 
       - name: Install Dependencies
         run: |
