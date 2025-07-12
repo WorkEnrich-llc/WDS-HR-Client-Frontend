@@ -59,6 +59,12 @@ jobs:
             exit 1
           fi
 
+      - name: Print Branch Name
+        run: echo "Branch: ${GITHUB_REF##*/}"
+
+      - name: Print generated environment.ts
+        run: cat src/environments/environment.ts
+
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
