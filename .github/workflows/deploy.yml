@@ -46,80 +46,18 @@ jobs:
         run: |
           BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
-          
-          # Remove existing environment.ts to ensure we use the generated one
-          rm -f src/environments/environment.ts
-          
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo 'export const environment = {
-              production: false,
-              apiBaseUrl: "https://dev-api.workenrich.com/",
-              firebaseConfig: {
-                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-                authDomain: "principal-iris-451803-a5.firebaseapp.com",
-                projectId: "principal-iris-451803-a5",
-                storageBucket: "principal-iris-451803-a5.appspot.com",
-                messagingSenderId: "239800378015",
-                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-              }
-            };' > src/environments/environment.ts
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            echo 'export const environment = {
-              production: false,
-              apiBaseUrl: "https://test-api.workenrich.com/",
-              firebaseConfig: {
-                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-                authDomain: "principal-iris-451803-a5.firebaseapp.com",
-                projectId: "principal-iris-451803-a5",
-                storageBucket: "principal-iris-451803-a5.appspot.com",
-                messagingSenderId: "239800378015",
-                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-              }
-            };' > src/environments/environment.ts
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo 'export const environment = {
-              production: false,
-              apiBaseUrl: "https://stg-api.workenrich.com/",
-              firebaseConfig: {
-                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-                authDomain: "principal-iris-451803-a5.firebaseapp.com",
-                projectId: "principal-iris-451803-a5",
-                storageBucket: "principal-iris-451803-a5.appspot.com",
-                messagingSenderId: "239800378015",
-                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-              }
-            };' > src/environments/environment.ts
-          elif [[ "$BRANCH_NAME" == "main" ]]; then
-            echo 'export const environment = {
-              production: true,
-              apiBaseUrl: "https://prod-api.workenrich.com/",
-              firebaseConfig: {
-                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-                authDomain: "principal-iris-451803-a5.firebaseapp.com",
-                projectId: "principal-iris-451803-a5",
-                storageBucket: "principal-iris-451803-a5.appspot.com",
-                messagingSenderId: "239800378015",
-                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-              }
-            };' > src/environments/environment.ts
-          else
-            echo "Unknown branch: $BRANCH_NAME"
-            exit 1
-          fi
-
-      - name: Verify environment.ts
-        run: |
-          echo "=== Environment File Content ==="
-          cat src/environments/environment.ts
-          echo ""
-          echo "=== Branch Name ==="
-          echo "${{ github.ref_name }}"
-          echo ""
-          echo "=== File Size ==="
-          wc -c src/environments/environment.ts
-          echo ""
-          echo "=== First 100 characters ==="
-          head -c 100 src/environments/environment.ts
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq -c .)" > src/environments/environment.ts
+            elif [[ "$BRANCH_NAME" == "main" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq -c .)" > src/environments/environment.ts
+            else
+              echo "Unknown branch: $BRANCH_NAME"
+              exit 1
+            fi
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
