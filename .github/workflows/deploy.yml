@@ -48,7 +48,7 @@ jobs:
           mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -r tostring);" > src/environments/environment.ts
-          elif [[ "$BRANCH_NAME" == "testing"]]; then
+          elif [[ "$BRANCH_NAME" == "testing" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -r tostring);" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq -r tostring);" > src/environments/environment.ts
