@@ -60,7 +60,6 @@ jobs:
                         appId: "1:239800378015:web:657cd08adf20cd78f478aa"
                       }
                     };
-                    EOF
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
