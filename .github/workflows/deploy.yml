@@ -44,23 +44,23 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          BRANCH_NAME="${{}}"
+          BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "export const environment = $(echo '''
-            {
-                  production: false,
-                  apiBaseUrl: 'https://dev-api.workenrich.com/',
-                  firebaseConfig: {
-                  apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-                  authDomain: "principal-iris-451803-a5.firebaseapp.com",
-                  projectId: "principal-iris-451803-a5",
-                  storageBucket: "principal-iris-451803-a5.appspot.com",
-                  messagingSenderId: "239800378015",
-                  appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-                }
-                }
-            ''' | jq -c .)" > src/environments/environment.ts
+                 cat <<EOF > src/environments/environment.ts
+                    export const environment = {
+                      production: false,
+                      apiBaseUrl: "https://dev-api.workenrich.com/",
+                      firebaseConfig: {
+                        apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+                        authDomain: "principal-iris-451803-a5.firebaseapp.com",
+                        projectId: "principal-iris-451803-a5",
+                        storageBucket: "principal-iris-451803-a5.appspot.com",
+                        messagingSenderId: "239800378015",
+                        appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+                      }
+                    };
+                    EOF
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
