@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiBaseUrl: 'https://dev-api.workenrich.com/',
+  googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY_HERE', // Replace with your actual API key
   firebaseConfig: {
   apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
   authDomain: "principal-iris-451803-a5.firebaseapp.com",
