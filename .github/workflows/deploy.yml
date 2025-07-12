@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          BRANCH_NAME="${GITHUB_REF##*/}"
+          BRANCH_NAME="${{ github.ref }}"
           mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
             echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
@@ -60,13 +60,15 @@ jobs:
           fi
 
       - name: Print Branch Name
-        run: echo "Branch: ${GITHUB_REF##*/}"
+        run: |
+          echo "Branch: ${{ github.ref }}"
 
       - name: Print generated environment.ts
         run: cat src/environments/environment.ts
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          npm install --legacy-peer-deps
 
       - name: Build Project
         env:
