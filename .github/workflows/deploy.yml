@@ -48,65 +48,57 @@ jobs:
           mkdir -p src/environments
           
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            cat > src/environments/environment.ts << 'EOF'
-export const environment = {
-  production: false,
-  apiBaseUrl: "https://dev-api.workenrich.com/",
-  firebaseConfig: {
-    apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-    authDomain: "principal-iris-451803-a5.firebaseapp.com",
-    projectId: "principal-iris-451803-a5",
-    storageBucket: "principal-iris-451803-a5.appspot.com",
-    messagingSenderId: "239800378015",
-    appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-  }
-};
-EOF
+            echo 'export const environment = {
+              production: false,
+              apiBaseUrl: "https://dev-api.workenrich.com/",
+              firebaseConfig: {
+                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+                authDomain: "principal-iris-451803-a5.firebaseapp.com",
+                projectId: "principal-iris-451803-a5",
+                storageBucket: "principal-iris-451803-a5.appspot.com",
+                messagingSenderId: "239800378015",
+                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+              }
+            };' > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            cat > src/environments/environment.ts << 'EOF'
-export const environment = {
-  production: false,
-  apiBaseUrl: "https://test-api.workenrich.com/",
-  firebaseConfig: {
-    apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-    authDomain: "principal-iris-451803-a5.firebaseapp.com",
-    projectId: "principal-iris-451803-a5",
-    storageBucket: "principal-iris-451803-a5.appspot.com",
-    messagingSenderId: "239800378015",
-    appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-  }
-};
-EOF
+            echo 'export const environment = {
+              production: false,
+              apiBaseUrl: "https://test-api.workenrich.com/",
+              firebaseConfig: {
+                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+                authDomain: "principal-iris-451803-a5.firebaseapp.com",
+                projectId: "principal-iris-451803-a5",
+                storageBucket: "principal-iris-451803-a5.appspot.com",
+                messagingSenderId: "239800378015",
+                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+              }
+            };' > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            cat > src/environments/environment.ts << 'EOF'
-export const environment = {
-  production: false,
-  apiBaseUrl: "https://staging-api.workenrich.com/",
-  firebaseConfig: {
-    apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-    authDomain: "principal-iris-451803-a5.firebaseapp.com",
-    projectId: "principal-iris-451803-a5",
-    storageBucket: "principal-iris-451803-a5.appspot.com",
-    messagingSenderId: "239800378015",
-    appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-  }
-};
-EOF
+            echo 'export const environment = {
+              production: false,
+              apiBaseUrl: "https://staging-api.workenrich.com/",
+              firebaseConfig: {
+                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+                authDomain: "principal-iris-451803-a5.firebaseapp.com",
+                projectId: "principal-iris-451803-a5",
+                storageBucket: "principal-iris-451803-a5.appspot.com",
+                messagingSenderId: "239800378015",
+                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+              }
+            };' > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "main" ]]; then
-            cat > src/environments/environment.ts << 'EOF'
-export const environment = {
-  production: true,
-  apiBaseUrl: "https://api.workenrich.com/",
-  firebaseConfig: {
-    apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
-    authDomain: "principal-iris-451803-a5.firebaseapp.com",
-    projectId: "principal-iris-451803-a5",
-    storageBucket: "principal-iris-451803-a5.appspot.com",
-    messagingSenderId: "239800378015",
-    appId: "1:239800378015:web:657cd08adf20cd78f478aa"
-  }
-};
-EOF
+            echo 'export const environment = {
+              production: true,
+              apiBaseUrl: "https://api.workenrich.com/",
+              firebaseConfig: {
+                apiKey: "AIzaSyDu84Gysfnx0uCmC5HC-jKUdlZGhRQm_kQ",
+                authDomain: "principal-iris-451803-a5.firebaseapp.com",
+                projectId: "principal-iris-451803-a5",
+                storageBucket: "principal-iris-451803-a5.appspot.com",
+                messagingSenderId: "239800378015",
+                appId: "1:239800378015:web:657cd08adf20cd78f478aa"
+              }
+            };' > src/environments/environment.ts
           else
             echo "Unknown branch: $BRANCH_NAME"
             exit 1
