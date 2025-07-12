@@ -44,20 +44,20 @@ jobs:
 
       - name: Generate environment.ts
         run: |
-          BRANCH_NAME="${GITHUB_REF##*/}"
+          BRANCH_NAME="${{ github.ref_name }}"
           mkdir -p src/environments
           if [[ "$BRANCH_NAME" == "develop" ]]; then
-            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq .);" > src/environments/environment.ts
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "testing" ]]; then
-            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq .);" > src/environments/environment.ts
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
           elif [[ "$BRANCH_NAME" == "staging" ]]; then
-            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq .);" > src/environments/environment.ts
-          elif [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq .);" > src/environments/environment.ts
-          else
-            echo "Unknown branch: $BRANCH_NAME"
-            exit 1
-          fi
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq -c .)" > src/environments/environment.ts
+            elif [[ "$BRANCH_NAME" == "main" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq -c .)" > src/environments/environment.ts
+            else
+              echo "Unknown branch: $BRANCH_NAME"
+              exit 1
+            fi
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
