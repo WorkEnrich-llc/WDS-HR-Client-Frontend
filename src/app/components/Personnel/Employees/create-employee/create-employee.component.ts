@@ -53,6 +53,7 @@ export class CreateEmployeeComponent implements OnInit {
   readonly isLoading = signal<boolean>(false);
   readonly branches = signal<Branch[]>([]);
   readonly departments = signal<Department[]>([]);
+  readonly sections = signal<any[]>([]);
   readonly jobTitles = signal<JobTitle[]>([]);
   readonly workSchedules = signal<WorkSchedule[]>([]);
   readonly currentStep = signal<number>(1);
@@ -151,6 +152,19 @@ export class CreateEmployeeComponent implements OnInit {
       daysOnSiteControl?.updateValueAndValidity();
     });
 
+    // Watch for branch changes to fetch departments and sections
+    this.jobDetails.get('branch_id')?.valueChanges.subscribe(branchId => {
+      if (branchId) {
+        this.loadDepartmentsByBranch(branchId);
+        // Reset dependent fields
+        this.jobDetails.get('department_id')?.setValue(null);
+        this.jobDetails.get('section_id')?.setValue(null);
+      } else {
+        this.departments.set([]);
+        this.sections.set([]);
+      }
+    });
+
     // Watch for department changes to reset section
     this.jobDetails.get('department_id')?.valueChanges.subscribe(() => {
       this.jobDetails.get('section_id')?.setValue(null);
@@ -170,12 +184,6 @@ export class CreateEmployeeComponent implements OnInit {
       error: (err) => console.error('Error loading branches', err),
     });
 
-    // load departments
-    this.departmentsService.getAllDepartment(1, 100).subscribe({
-      next: (res) => this.departments.set(res.data.list_items),
-      error: (err) => console.error('Error loading departments', err),
-    });
-
     // load job titles
     this.jobsService.getAllJobTitles(1, 100).subscribe({
       next: (res) => this.jobTitles.set(res.data.list_items),
@@ -186,6 +194,26 @@ export class CreateEmployeeComponent implements OnInit {
     this.workScheduleService.getAllWorkSchadule(1, 100).subscribe({
       next: (res) => this.workSchedules.set(res.data.list_items),
       error: (err) => console.error('Error loading work schedules', err),
+    });
+  }
+
+  // Load departments by branch ID
+  loadDepartmentsByBranch(branchId: number): void {
+    this.departmentsService.showDepartment(branchId).subscribe({
+      next: (res) => {
+        // Based on the API response structure you provided, the department info is in object_info
+        if (res.data?.object_info) {
+          // Set the single department in departments array
+          this.departments.set([res.data.object_info]);
+          // Set sections from the department
+          this.sections.set(res.data.object_info.sections || []);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading departments by branch', err);
+        this.departments.set([]);
+        this.sections.set([]);
+      },
     });
   }
 
@@ -203,11 +231,7 @@ export class CreateEmployeeComponent implements OnInit {
 
   // Get sections for selected department
   getSections() {
-    const selectedDepartmentId = this.jobDetails.get('department_id')?.value;
-    const selectedDepartment = this.departments().find(
-      (dept) => dept.id === selectedDepartmentId
-    );
-    return selectedDepartment?.sections?.filter((section) => section.is_active) || [];
+    return this.sections().filter((section) => section.is_active) || [];
   }
 
   // Get active departments
