@@ -82,6 +82,12 @@ export class WorkSchaualeService {
     return this._HttpClient.get(url, { headers });
   }
 
+  // get work schedule by id
+  getWorkScheduleById(id: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/work-schedule/${id}`;
+    return this._HttpClient.get(url);
+  }
+
   // update work schedule status
   updateWorkStatus(id: number, status: any): Observable<any> {
     const headers = this.getAuthHeaders();

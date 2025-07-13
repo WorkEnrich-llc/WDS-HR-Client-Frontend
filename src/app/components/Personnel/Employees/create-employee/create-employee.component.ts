@@ -165,9 +165,34 @@ export class CreateEmployeeComponent implements OnInit {
       }
     });
 
-    // Watch for department changes to reset section
-    this.jobDetails.get('department_id')?.valueChanges.subscribe(() => {
+    // Watch for department changes to reset section and load job titles
+    this.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
+      // reset dependent fields
       this.jobDetails.get('section_id')?.setValue(null);
+      this.jobDetails.get('job_title_id')?.setValue(null);
+      if (departmentId) {
+        // fetch single job title for selected department
+        this.jobsService.getJobTitlesByDepartment(departmentId).subscribe({
+          next: res => {
+            const jobTitle = res.data?.object_info;
+            this.jobTitles.set(jobTitle ? [jobTitle] : []);
+            // fetch work schedule for selected department
+            this.workScheduleService.getWorkScheduleById(departmentId).subscribe({
+              next: res => {
+                const schedule = res.data?.object_info;
+                this.workSchedules.set(schedule ? [schedule] : []);
+                if (schedule) {
+                  this.jobDetails.get('work_schedule_id')?.setValue(schedule.id);
+                }
+              },
+              error: err => console.error('Error loading work schedule for department', err)
+            });
+          },
+          error: err => console.error('Error loading job title for department', err)
+        });
+      } else {
+        this.jobTitles.set([]);
+      }
     });
   }
 
@@ -184,11 +209,6 @@ export class CreateEmployeeComponent implements OnInit {
       error: (err) => console.error('Error loading branches', err),
     });
 
-    // load job titles
-    this.jobsService.getAllJobTitles(1, 100).subscribe({
-      next: (res) => this.jobTitles.set(res.data.list_items),
-      error: (err) => console.error('Error loading job titles', err),
-    });
 
     // load work schedules
     this.workScheduleService.getAllWorkSchadule(1, 100).subscribe({

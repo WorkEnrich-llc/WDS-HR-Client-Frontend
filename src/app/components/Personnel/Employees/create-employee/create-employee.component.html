@@ -345,7 +345,7 @@
                             <select id="job_title_id" formControlName="job_title_id" class="form-select"
                                 [class.is-invalid]="isFieldInvalid('job_title_id', jobDetails)">
                                 <option value="" disabled hidden>Select Job Title</option>
-                                <option *ngFor="let job of getActiveJobTitles()" [value]="job.id">{{job.name}}</option>
+                                <option *ngFor="let job of jobTitles()" [value]="job.id">{{job.name}}</option>
                             </select>
                         </div>
                     </div>

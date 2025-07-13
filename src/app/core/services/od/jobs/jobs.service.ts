@@ -82,4 +82,10 @@ export class JobsService {
     });
   }
 
+  // get job titles by department id
+  getJobTitlesByDepartment(departmentId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}od/job-titles/${departmentId}`;
+    return this._HttpClient.get(url);
+  }
+
 }
