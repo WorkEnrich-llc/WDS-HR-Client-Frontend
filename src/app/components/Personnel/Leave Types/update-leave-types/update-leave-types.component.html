@@ -244,7 +244,7 @@
             <div class="input mt-2" [style.opacity]="carryoverAllowed ? '1' : '0.5'">
                 <label for="maxCarryover">Maximum Carryover Days</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="number" formControlName="maximum_carryover_days" id="maxCarryover"
+                    <input type="number" [disabled]="!carryoverAllowed" formControlName="maximum_carryover_days" id="maxCarryover"
                         class="form-control custom-date-input" placeholder="ex: 5" />
                 </div>
                 <p class="error-msg"

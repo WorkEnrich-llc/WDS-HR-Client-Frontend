@@ -1,8 +1,7 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthHelperService } from '../../authentication/auth-helper.service';
-import { environment } from '../../../../../environments/environment';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+import { environment } from './../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,37 +10,15 @@ export class WorkflowService {
 
   private apiBaseUrl: string;
 
-  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
+  constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
-  // getAuthHeaders
-  private getAuthHeaders(includeBearer: boolean = false): HttpHeaders | null {
-    if (!this.authHelper.validateAuth()) {
-      return null;
-    }
-
-    const token = this.authHelper.getToken()!;
-    const sessionToken = this.authHelper.getSessionToken()!;
-    const subdomain = this.authHelper.getSubdomain()!;
-
-    let headers = new HttpHeaders()
-      .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain)
-      .set('SESSIONTOKEN', sessionToken);
-
-    return headers;
-  }
-
   // create workflow
-  createWorkFlow(WorkFlowData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
+  createWorkFlow(workFlowData: any): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/workflow`;
-    return this._HttpClient.post(url, WorkFlowData, { headers });
+    return this._HttpClient.post(url, workFlowData);
   }
-
 
   // get all workflow with pagination and filters
   getAllWorkFlow(
@@ -52,9 +29,6 @@ export class WorkflowService {
       department?: string;
     }
   ): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/workflow`;
 
     let params = new HttpParams()
@@ -66,37 +40,24 @@ export class WorkflowService {
       if (filters.department) params = params.set('department', filters.department);
     }
 
-    return this._HttpClient.get(url, { headers, params });
+    return this._HttpClient.get(url, { params });
   }
-
 
   // show workflow by ID
   showWorkflow(id: number): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/workflow/${id}`;
-    return this._HttpClient.get(url, { headers });
+    return this._HttpClient.get(url);
   }
 
   // update workflow status
   updateWorkflowStatus(id: number, status: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/workflow/${id}/`;
-    return this._HttpClient.patch(url, status, { headers });
+    return this._HttpClient.patch(url, status);
   }
 
   // update workflow
   updateWorkflow(workflowData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/workflow`;
-    return this._HttpClient.put(url, workflowData, { headers });
+    return this._HttpClient.put(url, workflowData);
   }
-
-
-  
 }
