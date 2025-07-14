@@ -25,15 +25,16 @@ export const routes: Routes = [
             pathMatch: 'full'
           },
           {
-            path: 'register',
-            loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent),
-            title: 'Register'
-          },
-          {
             path: 'login',
             loadComponent: () => import('./components/auth/login/login.component').then(m => m.LoginComponent),
             title: 'Login',
           },
+          {
+            path: 'register',
+            loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent),
+            title: 'Register'
+          },
+          
           {
             path: 'reset-password',
             loadComponent: () => import('./components/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
@@ -298,6 +299,60 @@ export const routes: Routes = [
                 path: 'update-leave-types/:id',
                 loadComponent: () => import('./components/Personnel/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
                 title: 'Update Leave Type',
+              },
+            ]
+          },
+
+          // permission routes
+          {
+            path: 'permissions',
+            children: [
+              {
+                path: '',
+                redirectTo: 'view-permissions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'view-permissions',
+                loadComponent: () => import('./components/Personnel/permissions/permission/permission.component').then(m => m.PermissionComponent),
+                title: 'View Permissions',
+              },
+              {
+                path: 'edit-early-leave',
+                loadComponent: () => import('./components/Personnel/permissions/edit-early-leave/edit-early-leave.component').then(m => m.EditEarlyLeaveComponent),
+                title: 'Edit Early Leave',
+              }, 
+              {
+                path: 'edit-late-arrive',
+                loadComponent: () => import('./components/Personnel/permissions/edit-late-arrive/edit-late-arrive.component').then(m => m.EditLateArriveComponent),
+                title: 'Edit Late Arrive',
+              }, 
+            ]
+          },
+
+          // Attendance Rules routes
+          {
+            path: 'attendance',
+            children: [
+              {
+                path: '',
+                redirectTo: 'attendance-rules',
+                pathMatch: 'full'
+              },
+              {
+                path: 'attendance-rules',
+                loadComponent: () => import('./components/Personnel/attendance-rules/attendance-rule/attendance-rule.component').then(m => m.AttendanceRuleComponent),
+                title: 'Attendance Rules',
+              },
+              {
+                path: 'full-time',
+                loadComponent: () => import('./components/Personnel/attendance-rules/edit-full-time/edit-full-time.component').then(m => m.EditFullTimeComponent),
+                title: 'Edit Full Time',
+              },
+              {
+                path: 'part-time',
+                loadComponent: () => import('./components/Personnel/attendance-rules/edit-part-time/edit-part-time.component').then(m => m.EditPartTimeComponent),
+                title: 'Edit Part Time',
               },
             ]
           },

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../../environments/environment';
+import { environment } from './../../../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -12,8 +12,6 @@ export class BranchesService {
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
-
-
 
   // create a new branch
   createBranch(branchData: any): Observable<any> {
