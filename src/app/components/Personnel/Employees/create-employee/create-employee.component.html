@@ -506,22 +506,29 @@
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <input type="number" id="salary" formControlName="salary" class="form-control custom-date-input"
                             [class.is-invalid]="isFieldInvalid('salary', contractDetails)"
-                            placeholder="Enter the Employee Salary" min="0" step="0.01" />
+                            placeholder="Enter the Employee Salary" 
+                            [min]="currentSalaryRange()?.minimum || 0" 
+                            [max]="currentSalaryRange()?.maximum || 999999999"
+                            step="0.01" />
                     </div>
                     <p class="error-msg text-danger" *ngIf="isFieldInvalid('salary', contractDetails)">
                         {{getFieldError('salary', contractDetails)}}
                     </p>
                 </div>
 
-                <div class="salary-info d-flex justify-content-between gap-3">
+                <div class="salary-info d-flex justify-content-between gap-3" *ngIf="getSalaryRangeDisplay()">
                     <div class="d-flex flex-column w-100">
                         <span>Min. Salary</span>
-                        <h6>34,000 EGP</h6>
+                        <h6>{{getSalaryRangeDisplay()?.min}} {{getSalaryRangeDisplay()?.currency}}</h6>
                     </div>
                     <div class="d-flex flex-column w-100">
                         <span>Max. Salary</span>
-                        <h6>40,000 EGP</h6>
+                        <h6>{{getSalaryRangeDisplay()?.max}} {{getSalaryRangeDisplay()?.currency}}</h6>
                     </div>
+                </div>
+
+                <div class="alert alert-info mb-0 mt-2" *ngIf="!getSalaryRangeDisplay() && contractDetails.get('employment_type')?.value && selectedJobTitle()">
+                    <small>No salary range defined for this employment type and job title.</small>
                 </div>
 
                 <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg()">

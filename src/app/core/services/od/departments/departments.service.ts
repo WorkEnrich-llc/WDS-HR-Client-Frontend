@@ -80,6 +80,7 @@ export class DepartmentsService {
       created_from?: string;
       created_to?: string;
       status?: string;
+      branch_id?: number;
     }
   ): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -98,6 +99,7 @@ export class DepartmentsService {
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
       if (filters.status) params = params.set('status', filters.status);
+      if (filters.branch_id != null) params = params.set('branch_id', filters.branch_id.toString());
     }
 
     return this._HttpClient.get(url, { headers, params });

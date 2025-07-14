@@ -32,8 +32,9 @@ import { COUNTRIES, Country } from './countries-list';
   templateUrl: './create-employee.component.html',
   styleUrl: './create-employee.component.css',
 })
+
 export class CreateEmployeeComponent implements OnInit {
-  // inject services without constructor
+  // Dependency Injection
   private router = inject(Router);
   private datePipe = inject(DatePipe);
   private toasterMessageService = inject(ToasterMessageService);
@@ -47,7 +48,7 @@ export class CreateEmployeeComponent implements OnInit {
   // Reactive Forms
   employeeForm: FormGroup;
 
-  // component state as signals
+  // Component state as signals
   readonly todayFormatted = signal<string>('');
   readonly errMsg = signal<string>('');
   readonly isLoading = signal<boolean>(false);
@@ -60,35 +61,39 @@ export class CreateEmployeeComponent implements OnInit {
   readonly dropdownOpen = signal<boolean>(false);
   readonly isModalOpen = signal<boolean>(false);
   readonly isSuccessModalOpen = signal<boolean>(false);
+  readonly selectedJobTitle = signal<JobTitle | null>(null);
+  readonly currentSalaryRange = signal<{
+    minimum: string | number;
+    maximum: string | number;
+    currency: string;
+  } | null>(null);
 
-  // options for dropdowns
+  // Options for dropdowns
   readonly genderOptions = signal<{ id: number; name: string }[]>([
     { id: 1, name: 'Male' },
     { id: 2, name: 'Female' }
   ]);
-
   readonly maritalStatusOptions = signal<{ id: number; name: string }[]>([
     { id: 1, name: 'Single' },
     { id: 2, name: 'Married' },
     { id: 3, name: 'Divorced' },
     { id: 4, name: 'Widowed' }
   ]);
-
   readonly employmentTypes = signal<{ id: number; name: string }[]>([
     { id: 1, name: 'Full Time' },
     { id: 2, name: 'Part Time' },
     { id: 3, name: 'Per Hour' },
   ]);
-
   readonly workModes = signal<{ id: number; name: string }[]>([
     { id: 1, name: 'On site' },
     { id: 2, name: 'Remote' },
     { id: 3, name: 'Hybrid' },
   ]);
-
-  // countries list
   readonly countries = signal<Country[]>(COUNTRIES);
 
+  // ViewChild
+
+  // --- 1. Constructor: Form Initialization and Watchers ---
   constructor() {
     const today = new Date();
     this.todayFormatted.set(this.datePipe.transform(today, 'dd/MM/yyyy')!);
@@ -101,7 +106,7 @@ export class CreateEmployeeComponent implements OnInit {
         gender: [null, Validators.required],
         mobile: this.fb.group({
           country_id: [1, Validators.required],
-          number: ['', [Validators.required, Validators.pattern(/^\d+$/)]]
+          number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)\d{8}$/)]]
         }),
         personal_email: ['', [Validators.required, Validators.email]],
         marital_status: [null, Validators.required],
@@ -166,80 +171,110 @@ export class CreateEmployeeComponent implements OnInit {
     });
 
     // Watch for department changes to reset section and load job titles
-    this.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
-      // reset dependent fields
-      this.jobDetails.get('section_id')?.setValue(null);
-      this.jobDetails.get('job_title_id')?.setValue(null);
-      if (departmentId) {
-        // fetch single job title for selected department
-        this.jobsService.getJobTitlesByDepartment(departmentId).subscribe({
-          next: res => {
-            const jobTitle = res.data?.object_info;
-            this.jobTitles.set(jobTitle ? [jobTitle] : []);
-            // fetch work schedule for selected department
-            this.workScheduleService.getWorkScheduleById(departmentId).subscribe({
-              next: res => {
-                const schedule = res.data?.object_info;
-                this.workSchedules.set(schedule ? [schedule] : []);
-                if (schedule) {
-                  this.jobDetails.get('work_schedule_id')?.setValue(schedule.id);
-                }
-              },
-              error: err => console.error('Error loading work schedule for department', err)
-            });
-          },
-          error: err => console.error('Error loading job title for department', err)
-        });
+      this.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
+        // reset dependent fields
+        this.jobDetails.get('section_id')?.setValue(null);
+        this.jobDetails.get('job_title_id')?.setValue(null);
+        if (departmentId) {
+          // fetch all job titles for selected department using paginated API
+          this.jobsService.getAllJobTitles(1, 100, { department: departmentId.toString() }).subscribe({
+            next: res => {
+              const titles = res.data?.list_items || [];
+              this.jobTitles.set(titles);
+              // fetch work schedules for selected department
+              this.workScheduleService.getAllWorkSchadule(1, 100, { department: departmentId.toString() }).subscribe({
+                next: res => {
+                  const schedules = res.data?.list_items || [];
+                  this.workSchedules.set(schedules);
+                  if (schedules.length) {
+                    this.jobDetails.get('work_schedule_id')?.setValue(schedules[0].id);
+                  }
+                },
+                error: err => console.error('Error loading work schedules for department', err)
+              });
+            },
+            error: err => {
+              console.error('Error loading job titles for department', err);
+              this.jobTitles.set([]);
+            }
+          });
+        } else {
+          this.jobTitles.set([]);
+        }
+      });
+
+    // Watch for job title changes to update salary ranges
+    this.jobDetails.get('job_title_id')?.valueChanges.subscribe(jobTitleId => {
+      if (jobTitleId) {
+        const selectedTitle = this.jobTitles().find(title => title.id == jobTitleId);
+        this.selectedJobTitle.set(selectedTitle || null);
+        this.updateSalaryRange();
       } else {
-        this.jobTitles.set([]);
+        this.selectedJobTitle.set(null);
+        this.currentSalaryRange.set(null);
+      }
+    });
+
+    // Watch for employment type changes to update salary range and validators
+    this.contractDetails.get('employment_type')?.valueChanges.subscribe(employmentType => {
+      this.updateSalaryRange();
+    });
+
+    // Strip leading zeros from phone number and enforce prefix pattern
+    this.mobileGroup.get('number')?.valueChanges.subscribe(value => {
+      if (value != null && typeof value === 'string') {
+        const stripped = value.replace(/^0+/, '');
+        if (stripped !== value) {
+          this.mobileGroup.get('number')?.setValue(stripped, { emitEvent: false });
+        }
       }
     });
   }
 
-  // Getters for form groups
-  get mainInformation() { return this.employeeForm.get('main_information') as FormGroup; }
-  get jobDetails() { return this.employeeForm.get('job_details') as FormGroup; }
-  get contractDetails() { return this.employeeForm.get('contract_details') as FormGroup; }
-  get mobileGroup() { return this.mainInformation.get('mobile') as FormGroup; }
-  @ViewChild('dropdownContainer') dropdownRef!: ElementRef;
+  // --- 2. ngOnInit: Initial Data Loading ---
   ngOnInit(): void {
-    // load branches using object literal subscribe to avoid deprecated overload
     this.branchesService.getAllBranches(1, 100).subscribe({
       next: (res) => this.branches.set(res.data.list_items),
       error: (err) => console.error('Error loading branches', err),
     });
-
-
-    // load work schedules
     this.workScheduleService.getAllWorkSchadule(1, 100).subscribe({
       next: (res) => this.workSchedules.set(res.data.list_items),
       error: (err) => console.error('Error loading work schedules', err),
     });
   }
 
-  // Load departments by branch ID
+  // --- 3. Data Loading Methods ---
   loadDepartmentsByBranch(branchId: number): void {
-    this.departmentsService.showDepartment(branchId).subscribe({
+    // Fetch departments for selected branch using filters
+    this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'all' }).subscribe({
       next: (res) => {
-        // Based on the API response structure you provided, the department info is in object_info
-        if (res.data?.object_info) {
-          // Set the single department in departments array
-          this.departments.set([res.data.object_info]);
-          // Set sections from the department
-          this.sections.set(res.data.object_info.sections || []);
-        }
+        const depts = res.data?.list_items || [];
+        this.departments.set(depts);
+        
+        // Extract all sections from all departments
+        const allSections: any[] = [];
+        depts.forEach((dept: any) => {
+          if (dept.sections && Array.isArray(dept.sections)) {
+            allSections.push(...dept.sections);
+          }
+        });
+        this.sections.set(allSections);
       },
       error: (err) => {
         console.error('Error loading departments by branch', err);
         this.departments.set([]);
         this.sections.set([]);
-      },
+      }
     });
   }
 
-  // Utility methods for reactive forms
+  // --- 4. Form Utility Methods and Getters ---
+  get mainInformation() { return this.employeeForm.get('main_information') as FormGroup; }
+  get jobDetails() { return this.employeeForm.get('job_details') as FormGroup; }
+  get contractDetails() { return this.employeeForm.get('contract_details') as FormGroup; }
+  get mobileGroup() { return this.mainInformation.get('mobile') as FormGroup; }
+
   selectCountry(country: Country) {
-    // Since Country interface doesn't have id, we'll use the index or create a mapping
     const countryIndex = this.countries().findIndex(c => c.dialCode === country.dialCode);
     this.mobileGroup.get('country_id')?.setValue(countryIndex + 1);
   }
@@ -249,32 +284,112 @@ export class CreateEmployeeComponent implements OnInit {
     return this.countries()[countryId - 1] || this.countries()[0];
   }
 
-  // Get sections for selected department
   getSections() {
     return this.sections().filter((section) => section.is_active) || [];
   }
 
-  // Get active departments
   getActiveDepartments(): Department[] {
     return this.departments().filter((d) => d.is_active);
   }
 
-  // Get active job titles
   getActiveJobTitles(): JobTitle[] {
     return this.jobTitles().filter((j) => j.is_active);
   }
 
-  // Get active work schedules
   getActiveWorkSchedules(): WorkSchedule[] {
     return this.workSchedules().filter((w) => w.is_active);
   }
 
-  // Get active branches
   getActiveBranches(): Branch[] {
     return this.branches().filter((b) => b.is_active);
   }
 
-  // Form validation helpers
+  // --- Salary Range Methods ---
+  updateSalaryRange(): void {
+    const selectedTitle = this.selectedJobTitle();
+    const employmentType = +this.contractDetails.get('employment_type')?.value;
+    
+    if (!selectedTitle || !selectedTitle.salary_ranges || !employmentType) {
+      this.currentSalaryRange.set(null);
+      this.updateSalaryValidators(null);
+      return;
+    }
+
+    let salaryRange = null;
+    
+    switch (employmentType) {
+      case 1: // Full Time
+        salaryRange = selectedTitle.salary_ranges.full_time;
+        break;
+      case 2: // Part Time
+        salaryRange = selectedTitle.salary_ranges.part_time;
+        break;
+      case 3: // Per Hour
+        salaryRange = selectedTitle.salary_ranges.per_hour;
+        break;
+    }
+
+    if (salaryRange && salaryRange.status) {
+      this.currentSalaryRange.set({
+        minimum: salaryRange.minimum,
+        maximum: salaryRange.maximum,
+        currency: salaryRange.currency
+      });
+      this.updateSalaryValidators(salaryRange);
+    } else {
+      this.currentSalaryRange.set(null);
+      this.updateSalaryValidators(null);
+    }
+  }
+
+  updateSalaryValidators(salaryRange: any): void {
+    const salaryControl = this.contractDetails.get('salary');
+    if (!salaryControl) return;
+
+    if (salaryRange) {
+      const minValue = Number(salaryRange.minimum);
+      const maxValue = Number(salaryRange.maximum);
+      
+      salaryControl.setValidators([
+        Validators.required,
+        Validators.min(minValue),
+        Validators.max(maxValue)
+      ]);
+    } else {
+      salaryControl.setValidators([
+        Validators.required,
+        Validators.min(0)
+      ]);
+    }
+    
+    salaryControl.updateValueAndValidity();
+  }
+
+  getSalaryRangeDisplay(): { min: string, max: string, currency: string } | null {
+    const range = this.currentSalaryRange();
+    if (!range) return null;
+    
+    return {
+      min: this.formatCurrency(range.minimum),
+      max: this.formatCurrency(range.maximum),
+      currency: range.currency
+    };
+  }
+
+  formatCurrency(value: string | number): string {
+    const numValue = Number(value);
+    return numValue.toLocaleString();
+  }
+
+  getEmploymentTypeName(typeId: number): string {
+    switch (typeId) {
+      case 1: return 'full_time';
+      case 2: return 'part_time';
+      case 3: return 'per_hour';
+      default: return '';
+    }
+  }
+
   isFieldInvalid(fieldName: string, formGroup?: FormGroup): boolean {
     const group = formGroup || this.employeeForm;
     const field = group.get(fieldName);
@@ -295,7 +410,7 @@ export class CreateEmployeeComponent implements OnInit {
     return '';
   }
 
-  // Step validation
+  // --- 5. Step Navigation and Validation ---
   validateCurrentStep(): boolean {
     let isValid = true;
     this.errMsg.set('');
@@ -326,13 +441,6 @@ export class CreateEmployeeComponent implements OnInit {
     return isValid;
   }
 
-  @HostListener('document:click', ['$event.target'])
-  onClickOutside(target: HTMLElement) {
-    if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(target)) {
-      this.dropdownOpen.set(false);
-    }
-  }
-
   goNext() {
     if (this.validateCurrentStep()) {
       this.currentStep.set(this.currentStep() + 1);
@@ -341,6 +449,14 @@ export class CreateEmployeeComponent implements OnInit {
 
   goPrev() {
     this.currentStep.set(this.currentStep() - 1);
+  }
+
+  // --- 6. Dropdown/Modal Handlers ---
+  @HostListener('document:click', ['$event.target'])
+  onClickOutside(target: HTMLElement) {
+    if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(target)) {
+      this.dropdownOpen.set(false);
+    }
   }
 
   openModal() {
@@ -375,12 +491,12 @@ export class CreateEmployeeComponent implements OnInit {
     this.currentStep.set(1);
   }
 
-  // Getter for contract type based on checkbox
+  // --- 7. Other Utility Methods ---
   get withEndDate(): boolean {
     return this.contractDetails.get('contract_type')?.value === 1;
   }
 
-  // Submit form
+  // --- 8. Form Submission ---
   onSubmit() {
     if (this.employeeForm.valid) {
       this.isLoading.set(true);
@@ -450,7 +566,6 @@ export class CreateEmployeeComponent implements OnInit {
     }
   }
 
-  // Helper method to get formatted form data for debugging
   getFormDataFormatted(): CreateEmployeeRequest | null {
     if (this.employeeForm.valid) {
       const formData = this.employeeForm.value;
@@ -490,4 +605,6 @@ export class CreateEmployeeComponent implements OnInit {
     }
     return null;
   }
+
+  @ViewChild('dropdownContainer') dropdownRef!: ElementRef;
 }
