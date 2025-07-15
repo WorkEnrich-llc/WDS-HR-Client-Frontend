@@ -51,8 +51,13 @@
         </div>
 
         <!-- start Table -->
+        <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
 
-        <app-table [data]="employees" [totalItems]="employees.length" [itemsPerPage]="itemsPerPage"
+        <app-table *ngIf="!loading" [data]="filteredEmployees" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
             [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="employeesTableHeader"
             [rowTemplate]="employeesTableRow" [emptyTemplate]="noEmployees"></app-table>

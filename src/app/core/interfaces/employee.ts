@@ -37,3 +37,79 @@ export interface CreateEmployeeResponse {
   message: string;
   data?: any;
 }
+
+// API Response Interfaces
+export interface Employee {
+  id: number;
+  contact_info: {
+    name: string;
+    mobile: {
+      country: {
+        id: number;
+        name: string;
+        phone_prefix: string;
+      };
+      number: number;
+    };
+    email: string;
+    date_of_birth: string;
+    address: string;
+    marital_status: {
+      id: number;
+      name: string;
+    };
+  };
+  job_info: {
+    branch: {
+      id: number;
+      name: string;
+    };
+    department: {
+      id: number;
+      name: string;
+    };
+    section: {
+      id: number;
+      name: string;
+    } | null;
+    job_title: {
+      id: number;
+      name: string;
+    };
+    work_schedule: {
+      id: number;
+      name: string;
+    };
+    start_contract: string;
+    contract_type: {
+      id: number;
+      name: string;
+    };
+    end_contract: string | null;
+    employment_type: {
+      id: number;
+      name: string;
+    };
+    work_mode: {
+      id: number;
+      name: string;
+    };
+    days_on_site: number;
+    salary: number;
+  };
+  employee_active: boolean;
+  employee_status: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EmployeesResponse {
+  details: string;
+  data: {
+    subscription: any;
+    list_items: Employee[];
+    total_items: number;
+    page: string;
+    total_pages: number;
+  };
+}

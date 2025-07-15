@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../interfaces/employee';
+import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse } from '../../../interfaces/employee';
 
 @Injectable({
   providedIn: 'root'
@@ -23,11 +23,11 @@ export class EmployeeService {
   }
 
   // Get employees with pagination and search
-  getEmployees(page: number = 1, per_page: number = 10, search: string = ''): Observable<any> {
+  getEmployees(page: number = 1, per_page: number = 10, search: string = ''): Observable<EmployeesResponse> {
     let url = `${this.apiBaseUrl}personnel/employees?page=${page}&per_page=${per_page}`;
     if (search) {
       url += `&search=${search}`;
     }
-    return this.http.get(url);
+    return this.http.get<EmployeesResponse>(url);
   }
 }
