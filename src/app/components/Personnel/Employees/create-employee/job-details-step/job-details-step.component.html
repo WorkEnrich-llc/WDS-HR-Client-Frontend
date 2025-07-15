@@ -1,0 +1,109 @@
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Job Details</h2>
+        <div formGroupName="job_details" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="branch_id">Branch <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select id="branch_id" formControlName="branch_id" class="form-select"
+                            [class.is-invalid]="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)">
+                            <option value="" disabled hidden>Select Branch</option>
+                            <option *ngFor="let branch of sharedService.getActiveBranches()" [value]="branch.id">{{branch.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)">
+                    {{sharedService.getFieldError('branch_id', sharedService.jobDetails)}}
+                </p>
+            </div>
+
+            <div class="input">
+                <label for="department_id">Department <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select id="department_id" formControlName="department_id" class="form-select"
+                            [class.is-invalid]="sharedService.isFieldInvalid('department_id', sharedService.jobDetails)">
+                            <option value="" disabled hidden>Select Department</option>
+                            <option *ngFor="let dept of sharedService.getActiveDepartments()" [value]="dept.id">{{dept.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('department_id', sharedService.jobDetails)">
+                    {{sharedService.getFieldError('department_id', sharedService.jobDetails)}}
+                </p>
+            </div>
+
+            <div class="input">
+                <label for="section_id">Section</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select id="section_id" formControlName="section_id" class="form-select">
+                            <option value="" disabled hidden>Select Section</option>
+                            <option *ngFor="let section of sharedService.getSections()" [value]="section.id">{{section.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="job_title_id">Job Title <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select id="job_title_id" formControlName="job_title_id" class="form-select"
+                            [class.is-invalid]="sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)">
+                            <option value="" disabled hidden>Select Job Title</option>
+                            <option *ngFor="let job of sharedService.jobTitles()" [value]="job.id">{{job.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)">
+                    {{sharedService.getFieldError('job_title_id', sharedService.jobDetails)}}
+                </p>
+            </div>
+
+            <div class="input">
+                <label for="work_schedule_id">Work Schedule <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select"
+                            [class.is-invalid]="sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)">
+                            <option value="" disabled hidden>Select Work Schedule</option>
+                            <option *ngFor="let schedule of sharedService.getActiveWorkSchedules()" [value]="schedule.id">
+                                {{schedule.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)">
+                    {{sharedService.getFieldError('work_schedule_id', sharedService.jobDetails)}}
+                </p>
+            </div>
+
+            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="sharedService.errMsg()">
+                {{sharedService.errMsg()}}
+            </div>
+        </div>
+
+        <!-- prev and next buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button type="button"
+                class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (2/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
