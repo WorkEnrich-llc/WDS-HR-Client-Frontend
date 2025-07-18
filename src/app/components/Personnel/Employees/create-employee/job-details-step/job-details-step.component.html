@@ -9,14 +9,17 @@
                         <select id="branch_id" formControlName="branch_id" class="form-select"
                             [class.is-invalid]="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)">
                             <option value="" disabled hidden>Select Branch</option>
-                            <option *ngFor="let branch of sharedService.getActiveBranches()" [value]="branch.id">{{branch.name}}
-                            </option>
+                            @for (branch of sharedService.getActiveBranches(); track branch.id) {
+                                <option [value]="branch.id">{{branch.name}}</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)">
-                    {{sharedService.getFieldError('branch_id', sharedService.jobDetails)}}
-                </p>
+                @if (sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)) {
+                    <p class="error-msg text-danger">
+                        {{sharedService.getFieldError('branch_id', sharedService.jobDetails)}}
+                    </p>
+                }
             </div>
 
             <div class="input">
@@ -26,24 +29,31 @@
                         <select id="department_id" formControlName="department_id" class="form-select"
                             [class.is-invalid]="sharedService.isFieldInvalid('department_id', sharedService.jobDetails)">
                             <option value="" disabled hidden>Select Department</option>
-                            <option *ngFor="let dept of sharedService.getActiveDepartments()" [value]="dept.id">{{dept.name}}
-                            </option>
+                            @for (dept of sharedService.getActiveDepartments(); track dept.id) {
+                                <option [value]="dept.id">{{dept.name}}</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('department_id', sharedService.jobDetails)">
-                    {{sharedService.getFieldError('department_id', sharedService.jobDetails)}}
-                </p>
+                @if (sharedService.isFieldInvalid('department_id', sharedService.jobDetails)) {
+                    <p class="error-msg text-danger">
+                        {{sharedService.getFieldError('department_id', sharedService.jobDetails)}}
+                    </p>
+                }
             </div>
 
             <div class="input">
                 <label for="section_id">Section</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="section_id" formControlName="section_id" class="form-select">
-                            <option value="" disabled hidden>Select Section</option>
-                            <option *ngFor="let section of sharedService.getSections()" [value]="section.id">{{section.name}}
+                        <select id="section_id" formControlName="section_id" class="form-select" 
+                            [disabled]="sharedService.getSections().length === 0">
+                            <option value="" disabled hidden>
+                                {{sharedService.getSections().length === 0 ? 'Select Department first' : 'Select Section'}}
                             </option>
+                            @for (section of sharedService.getSections(); track section.id) {
+                                <option [value]="section.id">{{section.name}}</option>
+                            }
                         </select>
                     </div>
                 </div>
@@ -56,13 +66,17 @@
                         <select id="job_title_id" formControlName="job_title_id" class="form-select"
                             [class.is-invalid]="sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)">
                             <option value="" disabled hidden>Select Job Title</option>
-                            <option *ngFor="let job of sharedService.jobTitles()" [value]="job.id">{{job.name}}</option>
+                            @for (job of sharedService.jobTitles(); track job.id) {
+                                <option [value]="job.id">{{job.name}}</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)">
-                    {{sharedService.getFieldError('job_title_id', sharedService.jobDetails)}}
-                </p>
+                @if (sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)) {
+                    <p class="error-msg text-danger">
+                        {{sharedService.getFieldError('job_title_id', sharedService.jobDetails)}}
+                    </p>
+                }
             </div>
 
             <div class="input">
@@ -72,19 +86,24 @@
                         <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select"
                             [class.is-invalid]="sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)">
                             <option value="" disabled hidden>Select Work Schedule</option>
-                            <option *ngFor="let schedule of sharedService.getActiveWorkSchedules()" [value]="schedule.id">
-                                {{schedule.name}}</option>
+                            @for (schedule of sharedService.getActiveWorkSchedules(); track schedule.id) {
+                                <option [value]="schedule.id">{{schedule.name}}</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)">
-                    {{sharedService.getFieldError('work_schedule_id', sharedService.jobDetails)}}
-                </p>
+                @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)) {
+                    <p class="error-msg text-danger">
+                        {{sharedService.getFieldError('work_schedule_id', sharedService.jobDetails)}}
+                    </p>
+                }
             </div>
 
-            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="sharedService.errMsg()">
-                {{sharedService.errMsg()}}
-            </div>
+            @if (sharedService.errMsg()) {
+                <div class="alert alert-danger mb-0 mt-3" role="alert">
+                    {{sharedService.errMsg()}}
+                </div>
+            }
         </div>
 
         <!-- prev and next buttons -->

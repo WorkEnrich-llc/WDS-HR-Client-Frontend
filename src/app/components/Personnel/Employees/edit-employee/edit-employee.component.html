@@ -4,7 +4,7 @@
     { label: 'Employees', link: '/employees' },
     { label: 'Edit Employee' }
   ]" title="Edit Employee - Employee ID" create="23/06/2025" update="23/06/2025">
-    <button class="btn btn-lg btn-success w-auto">
+        <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()">
         <!-- <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -29,18 +29,18 @@
 <div class="content-hug" >
     <div class="content-box d-flex flex-column gap-3">
         <h2>Contact Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="empId">ID (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
+                    <input formControlName="empId" type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
                 </div>
             </div>
 
             <div class="input">
                 <label for="fullName">Full Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="fullName" class="form-control custom-date-input"
+                    <input formControlName="fullName" type="text" id="fullName" class="form-control custom-date-input"
                         placeholder="Enter Full Name" />
                 </div>
                 <!-- <p class="error-msg"
@@ -52,7 +52,7 @@
             <div class="input">
                 <label for="phone">Phone Number</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="phone" class="form-control custom-date-input"
+                    <input formControlName="phone" type="text" id="phone" class="form-control custom-date-input"
                         placeholder="xx xxx xxx xxx" />
                 </div>
                 <!-- <p class="error-msg"
@@ -64,7 +64,7 @@
             <div class="input">
                 <label for="email">Personal Email</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="email" id="email" class="form-control custom-date-input"
+                    <input formControlName="email" type="email" id="email" class="form-control custom-date-input"
                         placeholder="test@mail.com" />
                 </div>
                 <!-- <p class="error-msg"
@@ -84,9 +84,9 @@
 
 
 
-        <!-- next button -->
+        <!-- Save Changes button -->
         <div class="btn-fixed">
-            <button class="btn btn-lg btn-success">
+            <button type="submit" class="btn btn-lg btn-success">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />

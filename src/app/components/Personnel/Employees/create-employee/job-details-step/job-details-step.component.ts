@@ -25,6 +25,10 @@ export class JobDetailsStepComponent implements OnInit {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupJobDetailsWatchers();
+    // Initially disable department, section, and job title selects until a branch/department is chosen
+    this.sharedService.jobDetails.get('department_id')?.disable();
+    this.sharedService.jobDetails.get('section_id')?.disable();
+    this.sharedService.jobDetails.get('job_title_id')?.disable();
   }
 
   private loadInitialData(): void {
@@ -40,25 +44,43 @@ export class JobDetailsStepComponent implements OnInit {
 
   private setupJobDetailsWatchers(): void {
     // Watch for branch changes to fetch departments and sections
+    // Watch for branch changes to fetch departments and manage field states
     this.sharedService.jobDetails.get('branch_id')?.valueChanges.subscribe(branchId => {
       if (branchId) {
+        // enable department select
+        this.sharedService.jobDetails.get('department_id')?.enable();
         this.loadDepartmentsByBranch(branchId);
         // Reset dependent fields
         this.sharedService.jobDetails.get('department_id')?.setValue(null);
+        this.sharedService.jobDetails.get('job_title_id')?.setValue(null);
+        this.sharedService.sections.set([]);
+        // Keep section and job title disabled until department selected
         this.sharedService.jobDetails.get('section_id')?.setValue(null);
+        this.sharedService.jobDetails.get('section_id')?.disable();
+        this.sharedService.jobDetails.get('job_title_id')?.disable();
       } else {
+        // no branch: disable dependent selects
         this.sharedService.departments.set([]);
         this.sharedService.sections.set([]);
+        this.sharedService.jobDetails.get('department_id')?.setValue(null);
+        this.sharedService.jobDetails.get('department_id')?.disable();
+        this.sharedService.jobDetails.get('section_id')?.setValue(null);
+        this.sharedService.jobDetails.get('section_id')?.disable();
+        this.sharedService.jobDetails.get('job_title_id')?.setValue(null);
+        this.sharedService.jobDetails.get('job_title_id')?.disable();
       }
     });
 
-    // Watch for department changes to reset section and load job titles
+    // Watch for department changes to reset section, load job titles, and enable section select
     this.sharedService.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
       // reset dependent fields
       this.sharedService.jobDetails.get('section_id')?.setValue(null);
       this.sharedService.jobDetails.get('job_title_id')?.setValue(null);
       if (departmentId) {
-        // fetch all job titles for selected department using paginated API
+        // enable section and job title selects
+        this.sharedService.jobDetails.get('section_id')?.enable();
+        this.sharedService.jobDetails.get('job_title_id')?.enable();
+        // fetch all job titles for selected department
         this.jobsService.getAllJobTitles(1, 100, { department: departmentId.toString() }).subscribe({
           next: res => {
             const titles = res.data?.list_items || [];
@@ -82,6 +104,9 @@ export class JobDetailsStepComponent implements OnInit {
         });
       } else {
         this.sharedService.jobTitles.set([]);
+        // disable section and job title when no department
+        this.sharedService.jobDetails.get('section_id')?.disable();
+        this.sharedService.jobDetails.get('job_title_id')?.disable();
       }
     });
   }

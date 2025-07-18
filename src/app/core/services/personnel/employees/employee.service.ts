@@ -69,4 +69,10 @@ export class EmployeeService {
     formData.append('id', id.toString());
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
+  
+  // Update an existing employee record
+  updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees`;
+    return this.http.put<CreateEmployeeResponse>(url, requestData);
+  }
 }
