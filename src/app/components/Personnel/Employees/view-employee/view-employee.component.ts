@@ -8,6 +8,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { HttpEventType } from '@angular/common/http';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
 
@@ -29,6 +30,36 @@ export class ViewEmployeeComponent implements OnInit {
   loading = false;
   employeeId: number = 0;
 
+  // Documents checklist
+  readonly documentsRequired: Array<{ name: string; key: string; uploaded: boolean; url?: string; id?: number }> = [
+    { name: 'CV', key: 'cv', uploaded: false },
+    { name: 'ID Front', key: 'id_front', uploaded: false },
+    { name: 'ID Back', key: 'id_back', uploaded: false },
+    { name: 'Driver License', key: 'driver_license', uploaded: false },
+    { name: '101 Medical File', key: '101_medical_file', uploaded: false },
+    { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
+    { name: 'Background Check', key: 'background_check', uploaded: false }
+  ];
+  
+  // Load existing documents for employee
+  loadEmployeeDocuments(): void {
+    if (!this.employee) return;
+    this.employeeService.getEmployeeDocuments(this.employee.id).subscribe({
+      next: (res) => {
+        const items = res.data.list_items || [];
+        items.forEach((item: any) => {
+          const doc = this.documentsRequired.find(d => d.key === item.name);
+          if (doc) {
+            doc.uploaded = true;
+            doc.url = item.document_url?.generate_signed_url;
+            doc.id = item.id;
+          }
+        });
+      },
+      error: (error) => console.error('Error loading documents', error)
+    });
+  }
+
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.employeeId = +params['id'];
@@ -43,6 +74,8 @@ export class ViewEmployeeComponent implements OnInit {
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: (response) => {
         this.employee = response.data.object_info;
+        // fetch documents
+        this.loadEmployeeDocuments();
         this.subscription = response.data.subscription;
         this.loading = false;
         console.log('Employee data loaded:', response);
@@ -269,5 +302,63 @@ events = [
     
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.infinity : false;
+  }
+
+  // File upload handling for documents
+  selectedDocumentKey: string | null = null;
+  // Track upload progress per document
+  uploadProgress: { [key: string]: number } = {};
+
+  onUpload(docKey: string, fileInput: HTMLInputElement): void {
+    this.selectedDocumentKey = docKey;
+    fileInput.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0 && this.selectedDocumentKey && this.employee) {
+      const file = input.files[0];
+      const docKey = this.selectedDocumentKey;
+      this.employeeService.uploadEmployeeDocument(this.employee.id, docKey, file).subscribe(event => {
+        if (event.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * (event.loaded / (event.total || 1)));
+          this.uploadProgress[docKey] = percentDone;
+        } else if (event.type === HttpEventType.Response) {
+          // upload complete
+          const doc = this.documentsRequired.find(d => d.key === docKey);
+          if (doc) {
+            doc.uploaded = true;
+          }
+          delete this.uploadProgress[docKey];
+          this.toasterMessageService.sendMessage(`${docKey} uploaded successfully`);
+        }
+      }, error => {
+        console.error('Error uploading document', error);
+        delete this.uploadProgress[docKey];
+        this.toasterMessageService.sendMessage(`Error uploading ${docKey}`);
+      });
+    }
+    // reset input and selected key
+    input.value = '';
+    this.selectedDocumentKey = null;
+  }
+
+  /** Delete an uploaded document */
+  onDelete(docKey: string): void {
+    const doc = this.documentsRequired.find(d => d.key === docKey);
+    if (doc?.id) {
+      this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
+        next: () => {
+          doc.uploaded = false;
+          delete doc.url;
+          delete doc.id;
+          this.toasterMessageService.sendMessage(`${docKey} deleted successfully`);
+        },
+        error: (error) => {
+          console.error('Error deleting document', error);
+          this.toasterMessageService.sendMessage(`Error deleting ${docKey}`);
+        }
+      });
+    }
   }
 }

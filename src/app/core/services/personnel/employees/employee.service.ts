@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './../../../../../environments/environment';
@@ -74,5 +74,30 @@ export class EmployeeService {
   updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;
     return this.http.put<CreateEmployeeResponse>(url, requestData);
+  }
+
+  // Upload employee document
+  uploadEmployeeDocument(employeeId: number, fileName: string, file: File): Observable<HttpEvent<any>> {
+    const url = `${this.apiBaseUrl}personnel/employees-documents`;
+    const formData = new FormData();
+    formData.append('employee_id', employeeId.toString());
+    formData.append('file_name', fileName);
+    formData.append('file', file);
+    return this.http.post<any>(url, formData, { reportProgress: true, observe: 'events' });
+  }
+  
+  // Get existing employee documents
+  getEmployeeDocuments(employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-documents/${employeeId}/`;
+    return this.http.get<any>(url);
+  }
+
+  // Delete an uploaded employee document
+  deleteEmployeeDocument(documentId: number, employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/employees-documents/${documentId}/`;
+    const formData = new FormData();
+    formData.append('employee_id', employeeId.toString());
+    // Send employee_id in body as form-data
+    return this.http.delete<any>(url, { body: formData });
   }
 }
