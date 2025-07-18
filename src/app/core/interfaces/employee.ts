@@ -103,13 +103,67 @@ export interface Employee {
   updated_at: string;
 }
 
+// Subscription related interfaces
+export interface AllowedAction {
+  name: string;
+  count: number;
+  status: boolean;
+  infinity: boolean;
+}
+
+export interface SubFeature {
+  sub: {
+    id: number;
+    name: string;
+  };
+  is_support: boolean;
+  allowed_actions: AllowedAction[];
+}
+
+export interface Feature {
+  main: {
+    id: number;
+    name: string;
+  };
+  is_support: boolean;
+  sub_list: SubFeature[];
+}
+
+export interface RenewalInfo {
+  title: string;
+  days: number;
+  hours: number;
+  minutes: number;
+  expired: boolean;
+}
+
+export interface Subscription {
+  id: number;
+  plan: string;
+  period: number;
+  status: number;
+  payment_method: number;
+  created_at: string;
+  renewal_in: RenewalInfo;
+  features: Feature[];
+  code: string;
+}
+
 export interface EmployeesResponse {
   details: string;
   data: {
-    subscription: any;
+    subscription: Subscription;
     list_items: Employee[];
     total_items: number;
     page: string;
     total_pages: number;
+  };
+}
+
+export interface EmployeeDetailResponse {
+  details: string;
+  data: {
+    subscription: Subscription;
+    object_info: Employee;
   };
 }

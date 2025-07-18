@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse } from '../../../interfaces/employee';
+import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
 
 @Injectable({
   providedIn: 'root'
@@ -29,5 +29,19 @@ export class EmployeeService {
       url += `&search=${search}`;
     }
     return this.http.get<EmployeesResponse>(url);
+  }
+
+  // Get a single employee by ID
+  getEmployeeById(id: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/${id}/`;
+    return this.http.get<EmployeeDetailResponse>(url);
+  }
+
+  // Update employee status (activate/deactivate)
+  updateEmployeeStatus(id: number, status: boolean): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/${id}/`;
+    const payload = { request_data: { status } };
+    // Use PUT to update the employee's active status
+    return this.http.put<EmployeeDetailResponse>(url, payload);
   }
 }
