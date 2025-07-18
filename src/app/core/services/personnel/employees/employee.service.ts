@@ -44,4 +44,29 @@ export class EmployeeService {
     // Use PUT to update the employee's active status
     return this.http.put<EmployeeDetailResponse>(url, payload);
   }
+  
+  // Reschedule join date for an employee
+  rescheduleJoinDate(id: number, start_contract: string): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-reschedule-join-date`;
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    formData.append('start_contract', start_contract);
+    return this.http.put<EmployeeDetailResponse>(url, formData);
+  }
+
+  // Resend activation link to employee email
+  resendActiveLink(id: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-resend-active-link`;
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    return this.http.put<EmployeeDetailResponse>(url, formData);
+  }
+  
+  // Reset password for active employee
+  resetPassword(id: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-reset-password`;
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    return this.http.put<EmployeeDetailResponse>(url, formData);
+  }
 }

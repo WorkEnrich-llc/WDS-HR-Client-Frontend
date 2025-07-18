@@ -8,6 +8,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
 
 
@@ -21,6 +22,7 @@ import { Employee, Subscription } from '../../../../core/interfaces/employee';
 export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
+  private toasterMessageService = inject(ToasterMessageService);
   
   employee: Employee | null = null;
   subscription: Subscription | null = null;
@@ -193,6 +195,35 @@ events = [
         },
         error: (error) => {
           console.error('Error activating employee:', error);
+        }
+      });
+    }
+  }
+
+  // Resend activation link to employee email
+  resendActiveLink(): void {
+    if (this.employee) {
+      this.employeeService.resendActiveLink(this.employee.id).subscribe({
+        next: (response) => {
+          console.log('Resend active link successfully:', response);
+          this.toasterMessageService.sendMessage('Activation link resent successfully');
+        },
+        error: (error) => {
+          console.error('Error resending active link:', error);
+        }
+      });
+    }
+  }
+  
+  // Reset password for inactive employee email
+  resetPassword(): void {
+    if (this.employee) {
+      this.employeeService.resetPassword(this.employee.id).subscribe({
+        next: (response) => {
+          console.log('Password reset successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error resetting password:', error);
         }
       });
     }

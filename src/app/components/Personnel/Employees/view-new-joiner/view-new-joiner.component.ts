@@ -2,6 +2,9 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ViewChild } from '@angular/core';
+import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { FormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
@@ -9,7 +12,7 @@ import { Employee, Subscription } from '../../../../core/interfaces/employee';
 
 @Component({
   selector: 'app-view-new-joiner',
-  imports: [PageHeaderComponent, CommonModule,PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule],
   providers: [DatePipe],
   templateUrl: './view-new-joiner.component.html',
   styleUrl: './view-new-joiner.component.css'
@@ -23,6 +26,10 @@ export class ViewNewJoinerComponent implements OnInit {
   loading = false;
   employeeId: number = 0;
   todayFormatted: string = '';
+  // Reschedule overlay reference
+  @ViewChild('rescheduleBox') rescheduleBox!: OverlayFilterBoxComponent;
+  // Model for new join date
+  newJoinDate: string = '';
 
   constructor(
     private router: Router,
@@ -199,6 +206,27 @@ export class ViewNewJoinerComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+  
+  // Open the reschedule join date overlay
+  openRescheduleOverlay(): void {
+    this.rescheduleBox.openOverlay();
+  }
+  
+  // Submit the rescheduled join date
+  submitReschedule(): void {
+    if (this.employee && this.newJoinDate) {
+      this.employeeService.rescheduleJoinDate(this.employee.id, this.newJoinDate).subscribe({
+        next: () => {
+          this.toasterMessageService.sendMessage('Join date rescheduled successfully');
+          this.rescheduleBox.closeOverlay();
+          this.loadEmployeeData();
+        },
+        error: () => {
+          this.toasterMessageService.sendMessage('Failed to reschedule join date');
+        }
+      });
+    }
   }
 
   confirmAction() {
