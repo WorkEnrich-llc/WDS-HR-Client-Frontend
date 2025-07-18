@@ -153,33 +153,33 @@
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                         <ng-container
-                            *ngIf="currentRoute.includes('dashboard') || currentRoute.includes('employees') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('workflow') || currentRoute.includes('requests') || currentRoute.includes('restricted-days'); else otherIcon2">
+                            *ngIf="currentRoute.includes('dashboard') || currentRoute.includes('employees') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('permissions') || currentRoute.includes('attendance') || currentRoute.includes('workflow') || currentRoute.includes('requests') || currentRoute.includes('restricted-days'); else otherIcon2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 class="svg-active-accordion">
-                                    <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
-                                    <path
-                                        d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
-                                        opacity=".4" />
-                                    <path
-                                        d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
-                                    <path
-                                        d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
-                                        opacity=".4" />
-                                </svg>
+                                <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
+                                <path
+                                    d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
+                                    opacity=".4" />
+                                <path
+                                    d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
+                                <path
+                                    d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
+                                    opacity=".4" />
+                            </svg>
                         </ng-container>
                         <ng-template #otherIcon2>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 class="svg-inactive-accordion">
-                                    <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
-                                    <path
-                                        d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
-                                        opacity=".4" />
-                                    <path
-                                        d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
-                                    <path
-                                        d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
-                                        opacity=".4" />
-                                </svg>
+                                <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
+                                <path
+                                    d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
+                                    opacity=".4" />
+                                <path
+                                    d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
+                                <path
+                                    d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
+                                    opacity=".4" />
+                            </svg>
                         </ng-template>
                         <span [ngClass]="{'text-visible': !collapsed}">Personnel</span>
                     </button>
@@ -246,6 +246,33 @@
                                             d="M8 22.75a.75.75 0 0 0 0-1.5H3.81l6.72-6.72a.75.75 0 1 0-1.06-1.06l-6.72 6.72V16a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75z" />
                                     </svg>
                                     <span *ngIf="collapsed">Leave Types</span>
+                                </a>
+                            </li>
+                            <!-- permissions Link -->
+                            <li class="sidenav-nav-item" routerLink="/permissions" routerLinkActive="active"
+                                [routerLinkActiveOptions]="{ exact: false }">
+                                <a class="sidenav-nav-link d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd"
+                                            d="M9.25 2a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4A.75.75 0 0 1 9.25 2M12 4.75a8.25 8.25 0 1 0 0 16.5a8.25 8.25 0 0 0 0-16.5M2.25 13c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75s-4.365 9.75-9.75 9.75S2.25 18.385 2.25 13M12 8.25a.75.75 0 0 1 .75.75v4a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <span *ngIf="collapsed">Permissions</span>
+                                </a>
+                            </li>
+                            <!-- Attendance Rules Link -->
+                            <li class="sidenav-nav-item" routerLink="/attendance" routerLinkActive="active"
+                                [routerLinkActiveOptions]="{ exact: false }">
+                                <a class="sidenav-nav-link d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd"
+                                            d="M16.75 4a2.75 2.75 0 1 1-5.5 0a2.75 2.75 0 0 1 5.5 0M14 5.25a1.25 1.25 0 1 0 0-2.5a1.25 1.25 0 0 0 0 2.5m-2 9.5a2.75 2.75 0 1 1 0-5.5a2.75 2.75 0 0 1 0 5.5M10.75 12a1.25 1.25 0 1 0 2.5 0a1.25 1.25 0 0 0-2.5 0M10 22.75a2.75 2.75 0 1 1 0-5.5a2.75 2.75 0 0 1 0 5.5M8.75 20a1.25 1.25 0 1 0 2.5 0a1.25 1.25 0 0 0-2.5 0"
+                                            clip-rule="evenodd" />
+                                        <path
+                                            d="M15.25 12a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75M14 19.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5zM10.75 4a.75.75 0 0 0-.75-.75H5a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 .75-.75M5 11.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5zM4.25 20a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75M19 3.25a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1 0-1.5z" />
+                                    </svg>
+                                    <span *ngIf="collapsed">Attendance Rules</span>
                                 </a>
                             </li>
                             <!-- Approval Workflow link -->
