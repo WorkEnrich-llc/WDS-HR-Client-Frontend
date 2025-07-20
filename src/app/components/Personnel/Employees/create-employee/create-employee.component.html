@@ -10,9 +10,9 @@
 <app-stepper-navigation></app-stepper-navigation>
 
 <form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
-  <app-main-information-step *ngIf="sharedService.currentStep() === 1"></app-main-information-step>
-  <app-job-details-step *ngIf="sharedService.currentStep() === 2"></app-job-details-step>
-  <app-contract-details-step *ngIf="sharedService.currentStep() === 3" (submitForm)="onSubmit()"></app-contract-details-step>
+  <app-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-main-information-step>
+  <app-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-job-details-step>
+  <app-contract-details-step [hidden]="sharedService.currentStep() !== 3" (submitForm)="onSubmit()"></app-contract-details-step>
 </form>
 
 <app-popup 

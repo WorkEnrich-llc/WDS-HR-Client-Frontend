@@ -42,7 +42,7 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/employees/${id}/`;
     const payload = { request_data: { status } };
     // Use PUT to update the employee's active status
-    return this.http.put<EmployeeDetailResponse>(url, payload);
+    return this.http.patch<EmployeeDetailResponse>(url, payload);
   }
   
   // Reschedule join date for an employee

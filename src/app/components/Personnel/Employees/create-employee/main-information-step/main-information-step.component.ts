@@ -4,6 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
 import { Country } from '../countries-list';
 
+import { Validators } from '@angular/forms';
+
 @Component({
   standalone: true,
   selector: 'app-main-information-step',
@@ -14,6 +16,17 @@ import { Country } from '../countries-list';
 })
 export class MainInformationStepComponent {
   sharedService = inject(CreateEmployeeSharedService);
+
+  constructor() {
+    // Add pattern validator for full name: at least four parts (words)
+    const nameControl = this.sharedService.mainInformation.get('name');
+    if (nameControl) {
+      nameControl.addValidators([
+        Validators.pattern(/^(\S+\s+){3,}\S+$/)
+      ]);
+      nameControl.updateValueAndValidity();
+    }
+  }
 
   @ViewChild('dropdownContainer') dropdownRef!: ElementRef;
 

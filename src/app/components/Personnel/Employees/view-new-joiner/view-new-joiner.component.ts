@@ -9,6 +9,8 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
+import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
+import { WorkSchedule } from '../../../../core/interfaces/work-schedule';
 
 @Component({
   selector: 'app-view-new-joiner',
@@ -19,10 +21,12 @@ import { Employee, Subscription } from '../../../../core/interfaces/employee';
 })
 export class ViewNewJoinerComponent implements OnInit {
   private employeeService = inject(EmployeeService);
+  private workScheduleService = inject(WorkSchaualeService);
   private route = inject(ActivatedRoute);
   
   employee: Employee | null = null;
   subscription: Subscription | null = null;
+  workScheduleData: WorkSchedule | null = null;
   loading = false;
   employeeId: number = 0;
   todayFormatted: string = '';
@@ -57,10 +61,27 @@ export class ViewNewJoinerComponent implements OnInit {
         this.subscription = response.data.subscription;
         this.loading = false;
         console.log('New joiner data loaded:', response);
+        
+        // Load work schedule data if employee has a work schedule
+        if (this.employee?.job_info?.work_schedule?.id) {
+          this.loadWorkScheduleData(this.employee.job_info.work_schedule.id);
+        }
       },
       error: (error) => {
         console.error('Error loading new joiner:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  loadWorkScheduleData(workScheduleId: number): void {
+    this.workScheduleService.showWorkSchedule(workScheduleId).subscribe({
+      next: (response) => {
+        this.workScheduleData = response.data.object_info;
+        console.log('Work schedule data loaded:', this.workScheduleData);
+      },
+      error: (error) => {
+        console.error('Error loading work schedule:', error);
       }
     });
   }
@@ -171,6 +192,58 @@ export class ViewNewJoinerComponent implements OnInit {
   getFormattedJoinDate(): string {
     if (!this.employee) return '';
     return this.datePipe.transform(this.employee.job_info.start_contract, 'dd MMMM yyyy') || '';
+  }
+
+  // Get formatted working days
+  getWorkingDays(): string {
+    if (!this.workScheduleData?.system?.days) return 'N/A';
+    
+    const days = this.workScheduleData.system.days;
+    const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const workingDays = dayOrder
+      .filter(day => (days as any)[day])
+      .map(day => day.charAt(0).toUpperCase() + day.slice(1));
+    
+    return workingDays.join(', ');
+  }
+
+  // Get employment type display
+  getEmploymentTypeDisplay(): string {
+    if (!this.workScheduleData?.system?.employment_type) return 'N/A';
+    
+    const employmentType = this.workScheduleData.system.employment_type;
+    switch (employmentType) {
+      case 1: return 'Full-time';
+      case 2: return 'Part-time';
+      case 3: return 'Per Hour';
+      default: return 'N/A';
+    }
+  }
+
+  // Get work schedule type display
+  getWorkScheduleTypeDisplay(): string {
+    if (!this.workScheduleData?.system?.work_schedule_type) return 'N/A';
+    
+    const scheduleType = this.workScheduleData.system.work_schedule_type;
+    switch (scheduleType) {
+      case 1: return 'Fixed';
+      case 2: return 'Flexible';
+      case 3: return 'Remote';
+      default: return 'N/A';
+    }
+  }
+
+  // Get shift hours display
+  getShiftHoursDisplay(): string {
+    if (!this.workScheduleData?.system?.shift_hours) return 'N/A';
+    return `${this.workScheduleData.system.shift_hours} hours`;
+  }
+
+  // Get shift range display
+  getShiftRangeDisplay(): string {
+    if (!this.workScheduleData?.system?.shift_range) return 'N/A';
+    const range = this.workScheduleData.system.shift_range;
+    return `${range.from} to ${range.to}`;
   }
 
   // Activate employee (mark as joined)

@@ -132,13 +132,13 @@ export class CreateEmployeeComponent implements OnInit {
         }
       };
 
-
       // Call the real employee service
       this.employeeService.createEmployee(employeeData).subscribe({
         next: (response: CreateEmployeeResponse) => {
           this.sharedService.isLoading.set(false);
+          this.sharedService.errMsg.set('');
           this.toasterMessageService.sendMessage('Employee created successfully!');
-          this.openSuccessModal();
+          this.router.navigate(['/employees/all-employees']);
         },
         error: (error: any) => {
           this.sharedService.isLoading.set(false);

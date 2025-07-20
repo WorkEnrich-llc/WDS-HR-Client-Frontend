@@ -16,7 +16,7 @@ import { Employee, Subscription } from '../../../../core/interfaces/employee';
 
 @Component({
   selector: 'app-view-employee',
-  imports: [PageHeaderComponent, CommonModule,RouterLink,PopupComponent,FullCalendarModule],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent, FullCalendarModule],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
 })
@@ -24,7 +24,7 @@ export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
-  
+
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
@@ -40,7 +40,7 @@ export class ViewEmployeeComponent implements OnInit {
     { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
     { name: 'Background Check', key: 'background_check', uploaded: false }
   ];
-  
+
   // Load existing documents for employee
   loadEmployeeDocuments(): void {
     if (!this.employee) return;
@@ -131,50 +131,50 @@ export class ViewEmployeeComponent implements OnInit {
 
   selectedDateFormatted: string = '';
   eventsDay: { title: string; date: string; type: string }[] = [];
-events = [
-  // Multiple events on June 12
-  { title: 'Join Date', date: '2025-06-11', type: 'Holiday' },
-  { title: '09:00AM - 05:00PM', date: '2025-06-12', type: 'Meeting' },
-  { title: '09:00AM - 05:00PM', date: '2025-06-15', type: 'Meeting' },
-  { title: '09:00AM - 05:00PM', date: '2025-06-16', type: 'Meeting' },
-  { title: '09:00AM - 05:00PM', date: '2025-06-17', type: 'Meeting' },
-];
+  events = [
+    // Multiple events on June 12
+    { title: 'Join Date', date: '2025-06-11', type: 'Holiday' },
+    { title: '09:00AM - 05:00PM', date: '2025-06-12', type: 'Meeting' },
+    { title: '09:00AM - 05:00PM', date: '2025-06-15', type: 'Meeting' },
+    { title: '09:00AM - 05:00PM', date: '2025-06-16', type: 'Meeting' },
+    { title: '09:00AM - 05:00PM', date: '2025-06-17', type: 'Meeting' },
+  ];
   calendarOptions: CalendarOptions = {
-  initialView: 'dayGridMonth',
-  plugins: [dayGridPlugin, interactionPlugin],
-  fixedWeekCount: false,
-  selectable: true,
-  events: this.events,
-  dayMaxEvents: 3, 
-  height: 'auto',
-  eventClassNames: (arg) => {
-    const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
-    return [`event-${eventType}`];
-  },
-  dateClick: this.handleDateClick.bind(this)
-};
+    initialView: 'dayGridMonth',
+    plugins: [dayGridPlugin, interactionPlugin],
+    fixedWeekCount: false,
+    selectable: true,
+    events: this.events,
+    dayMaxEvents: 3,
+    height: 'auto',
+    eventClassNames: (arg) => {
+      const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
+      return [`event-${eventType}`];
+    },
+    dateClick: this.handleDateClick.bind(this)
+  };
 
- handleDateClick(arg: any) {
-  const clickedDate = arg.dateStr;
-  const dateObj = new Date(clickedDate);
+  handleDateClick(arg: any) {
+    const clickedDate = arg.dateStr;
+    const dateObj = new Date(clickedDate);
 
-  this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long'
-  });
+    this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long'
+    });
 
-  this.eventsDay = this.events.filter(e => e.date === clickedDate);
+    this.eventsDay = this.events.filter(e => e.date === clickedDate);
 
-  if (this.eventsDay.length) {
-    // console.log(`Events on ${this.selectedDateFormatted}:`);
-    this.eventsDay.forEach(event =>
-      console.log(`- ${event.title} (${event.type})`)
-    );
-  } else {
-    // console.log(`No events on ${this.selectedDateFormatted}.`);
+    if (this.eventsDay.length) {
+      // console.log(`Events on ${this.selectedDateFormatted}:`);
+      this.eventsDay.forEach(event =>
+        console.log(`- ${event.title} (${event.type})`)
+      );
+    } else {
+      // console.log(`No events on ${this.selectedDateFormatted}.`);
+    }
   }
-}
 
 
 
@@ -191,7 +191,7 @@ events = [
 
   confirmDeactivate() {
     this.deactivateOpen = false;
-    
+
     if (this.employee) {
       this.employeeService.updateEmployeeStatus(this.employee.id, false).subscribe({
         next: (response) => {
@@ -216,7 +216,7 @@ events = [
   }
   confirmActivate() {
     this.activateOpen = false;
-    
+
     if (this.employee) {
       this.employeeService.updateEmployeeStatus(this.employee.id, true).subscribe({
         next: (response) => {
@@ -247,7 +247,7 @@ events = [
       });
     }
   }
-  
+
   // Reset password for inactive employee email
   resetPassword(): void {
     if (this.employee) {
@@ -265,13 +265,13 @@ events = [
   // Helper method to check subscription permissions
   hasEmployeePermission(action: string): boolean {
     if (!this.subscription) return false;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature || !personnelFeature.is_support) return false;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub || !employeeSub.is_support) return false;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.status : false;
   }
@@ -279,13 +279,13 @@ events = [
   // Helper method to get remaining action count
   getEmployeeActionCount(action: string): number {
     if (!this.subscription) return 0;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature) return 0;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub) return 0;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.count : 0;
   }
@@ -293,13 +293,13 @@ events = [
   // Helper method to check if action has infinite usage
   hasInfiniteEmployeePermission(action: string): boolean {
     if (!this.subscription) return false;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature) return false;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub) return false;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.infinity : false;
   }

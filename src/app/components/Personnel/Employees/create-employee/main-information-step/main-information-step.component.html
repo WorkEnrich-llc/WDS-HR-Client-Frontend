@@ -16,7 +16,7 @@
                     <input type="text" id="name" formControlName="name"
                         class="form-control custom-date-input"
                         [class.is-invalid]="sharedService.isFieldInvalid('name', sharedService.mainInformation)"
-                        placeholder="Enter employee full name" />
+                        placeholder="Example: John Michael Smith Doe (Full name must contain at least four parts)" />
                 </div>
                 <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('name', sharedService.mainInformation)">
                     {{sharedService.getFieldError('name', sharedService.mainInformation)}}

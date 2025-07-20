@@ -296,25 +296,24 @@
     <div class="content-box d-flex flex-column gap-3 w-100">
         <h2>Work Schedule</h2>
         <div class="info">
-            <h6>Schedule Name</h6>
-            <span>{{ employee.job_info.work_schedule.name || 'N/A' }}</span>
-        </div>
-        <div class="info">
             <h6>Working days</h6>
-            <span>Back end miss it</span>
-
+            <span>{{ getWorkingDays() }}</span>
         </div>
         <div class="info">
-            <h6>Working Hours</h6>
-            <span>09:00 AM - 05:00 PM</span>
+            <h6>Work Hours Type</h6>
+            <span>{{ getWorkScheduleTypeDisplay() }} Type</span>
         </div>
         <div class="info">
-            <h6>Break Time</h6>
-            <span>12:00 PM - 01:00 PM</span>
+            <h6>Shift Type</h6>
+            <span>{{ getEmploymentTypeDisplay() }} Type</span>
         </div>
         <div class="info">
-            <h6>Total Working Hours</h6>
-            <span>8 hours/day</span>
+            <h6>Shift Hours</h6>
+            <span>{{ getShiftHoursDisplay() }}</span>
+        </div>
+        <div class="info">
+            <h6>Shift hours from / to</h6>
+            <span>{{ getShiftRangeDisplay() }}</span>
         </div>
     </div>
 
