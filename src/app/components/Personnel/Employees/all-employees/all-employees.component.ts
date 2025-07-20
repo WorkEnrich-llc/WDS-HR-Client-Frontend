@@ -87,11 +87,26 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       id: employee.id,
       name: employee.contact_info.name,
       employeeStatus: this.getEmployeeStatus(employee),
-      accountStatus: employee.employee_active ? 'active' : 'inactive',
+      accountStatus: this.getAccountStatus(employee.employee_active),
       jobTitle: employee.job_info.job_title.name,
       branch: employee.job_info.branch.name,
       joinDate: this.formatDate(employee.job_info.start_contract)
     }));
+  }
+
+  // Helper method to convert string employee_active to account status
+  private getAccountStatus(employeeActive: string): 'active' | 'inactive' | 'pending' | 'disabled' {
+    switch (employeeActive?.toLowerCase()) {
+      case 'active':
+        return 'active';
+      case 'pending':
+        return 'pending';
+      case 'disabled':
+        return 'disabled';
+      case 'inactive':
+      default:
+        return 'inactive';
+    }
   }
 
   // Determine employee status based on contract dates and status

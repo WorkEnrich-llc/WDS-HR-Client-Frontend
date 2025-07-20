@@ -531,6 +531,22 @@ textarea{
     color: var(--color-secondary-700);
     width: max-content;
 }
+.badge-warning{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:0.3rem;
+    background-color: var(--color-warning-100);
+    padding: var(--spacing-4) var(--spacing-4);
+    border:1px solid var(--color-warning-400);
+    border-radius: 30px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    color: var(--color-warning-700);
+    width: max-content;
+}
 .badge-newjoiner{
     display: flex;
     align-items: center;

@@ -97,8 +97,8 @@ export interface Employee {
     days_on_site: number;
     salary: number;
   };
-  employee_active: boolean;
-  employee_status: boolean;
+  employee_active: string; // "Active" | "Inactive" | "Pending" | "Disabled"
+  employee_status: string; // "New Employee" | "Employed" | etc.
   created_at: string;
   updated_at: string;
 }

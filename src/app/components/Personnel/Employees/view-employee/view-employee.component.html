@@ -1,5 +1,5 @@
 <!-- page header inactive account -->
-@if (employee && !employee.employee_active) {
+@if (employee && !isEmployeeActive) {
 <app-page-header
   [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
@@ -58,7 +58,7 @@
 }
 
 <!-- page header active account -->
-@if (employee && employee.employee_active) {
+@if (employee && isEmployeeActive) {
 <app-page-header
   [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
@@ -321,7 +321,7 @@
     <div class="content-box d-flex flex-column gap-3 w-100">
       <div class="d-flex align-items-center justify-content-between">
         <h2>Account Info</h2>
-        @if (employee.employee_active) {
+        @if (isEmployeeActive) {
         <span class="badge-success">
           <!-- SVG and Active -->
           <svg
@@ -341,7 +341,39 @@
           </svg>
           <span>Active</span>
         </span>
-        } @if (!employee.employee_active) {
+        } @if (isEmployeePending) {
+        <span class="badge-warning">
+          <!-- SVG and Pending -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M12 7v5l3 3" />
+            </g>
+          </svg>
+          <span>Pending</span>
+        </span>
+        } @if (isEmployeeDisabled) {
+        <span class="badge-danger">
+          <!-- SVG and Disabled -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+            </g>
+          </svg>
+          <span>Disabled</span>
+        </span>
+        } @if (isEmployeeInactive) {
         <span class="badge-gray">
           <!-- SVG and Inactive -->
           <svg
@@ -363,7 +395,7 @@
         <h6>Company Email</h6>
         <span>{{ employee.contact_info.email || "N/A" }}</span>
       </div>
-      @if (!employee.employee_active) {
+      @if (!isEmployeeActive) {
       <div class="info">
         <h6>Password</h6>
         <span>**********</span>
@@ -388,7 +420,7 @@
         </svg>
         <span>Send in Email</span>
       </button>
-      } @if (employee.employee_active) {
+      } @if (isEmployeeActive) {
       <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resetPassword()">
         <!-- SVG and Reset Password -->
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -404,7 +436,7 @@
     <div class="col-lg-8">
       <div class="content-box d-flex flex-column gap-3 w-100">
         <h2>Schedule</h2>
-        @if (!employee.employee_active) {
+        @if (!isEmployeeActive) {
         <h5 class="m-0 text-center">
           Account Still Not Active
           <span>Schedule Not Available</span>
@@ -415,7 +447,7 @@
           <full-calendar
             class="calendar-full"
             [ngClass]="{
-              'opacity-50 pointer-events-none': !employee.employee_active
+              'opacity-50 pointer-events-none': !isEmployeeActive
             }"
             [options]="calendarOptions"
           >

@@ -93,7 +93,7 @@ export class ViewNewJoinerComponent implements OnInit {
         id: 0,
         name: "",
         employeeStatus: "New Joiner",
-        accountStatus: "inactive" as 'active' | 'inactive',
+        accountStatus: "inactive" as 'active' | 'inactive' | 'pending' | 'disabled',
         jobTitle: "",
         branch: "",
         joinDate: ""
@@ -104,11 +104,47 @@ export class ViewNewJoinerComponent implements OnInit {
       id: this.employee.id,
       name: this.employee.contact_info.name,
       employeeStatus: this.getEmployeeStatus(this.employee),
-      accountStatus: this.employee.employee_active ? 'active' as const : 'inactive' as const,
+      accountStatus: this.getAccountStatus(this.employee.employee_active),
       jobTitle: this.employee.job_info.job_title.name,
       branch: this.employee.job_info.branch.name,
       joinDate: this.employee.job_info.start_contract
     };
+  }
+
+  // Helper method to convert string employee_active to account status
+  private getAccountStatus(employeeActive: string): 'active' | 'inactive' | 'pending' | 'disabled' {
+    switch (employeeActive?.toLowerCase()) {
+      case 'active':
+        return 'active';
+      case 'pending':
+        return 'pending';
+      case 'disabled':
+        return 'disabled';
+      case 'inactive':
+      default:
+        return 'inactive';
+    }
+  }
+
+  // Check if employee is active
+  get isEmployeeActive(): boolean {
+    return this.employee?.employee_active?.toLowerCase() === 'active';
+  }
+
+  // Check if employee is pending
+  get isEmployeePending(): boolean {
+    return this.employee?.employee_active?.toLowerCase() === 'pending';
+  }
+
+  // Check if employee is disabled
+  get isEmployeeDisabled(): boolean {
+    return this.employee?.employee_active?.toLowerCase() === 'disabled';
+  }
+
+  // Check if employee is inactive
+  get isEmployeeInactive(): boolean {
+    const status = this.employee?.employee_active?.toLowerCase();
+    return status === 'inactive' || !status;
   }
 
   // Determine employee status based on contract dates
@@ -250,15 +286,15 @@ export class ViewNewJoinerComponent implements OnInit {
   activateEmployee(): void {
     if (this.employee) {
       this.employeeService.updateEmployeeStatus(this.employee.id, true).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log('Employee activated successfully:', response);
           // Update local employee status
           if (this.employee) {
-            this.employee.employee_active = true;
+            this.employee.employee_active = 'Active';
           }
           this.openSuccessModal();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error activating employee:', error);
           this.toasterMessageService.sendMessage('Failed to activate employee');
         }
