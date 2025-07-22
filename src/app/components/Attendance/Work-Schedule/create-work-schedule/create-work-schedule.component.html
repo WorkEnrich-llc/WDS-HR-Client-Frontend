@@ -1,0 +1,555 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+     { label: 'Attendance', link: '/attendance' },
+    { label: 'Work Schedule', link: '/schedule' },
+    { label: 'Create New Work Schedule' }
+  ]" title="Create New Work Schedule" [create]="todayFormatted">
+    <button class="btn btn-lg btn-success w-auto" (click)="createWorkScedule()"
+        [disabled]="!workSchadule1.valid ||!isAtLeastOneDaySelected() || !workSchadule2.valid || isLoading || addeddepartments.length <=0 ">
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Create Work Schedule</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Work Schedule</span>
+    </button>
+</app-page-header>
+
+
+
+<!-- steps -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 1,
+        'text-success': currentStep > 1, 
+        'bg-light-success': currentStep > 1  
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Main Information</span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <= 2" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+                d="M17.5 2.75a.75.75 0 0 1 .75.75v2.25h2.25a.75.75 0 0 1 0 1.5h-2.25V9.5a.75.75 0 0 1-1.5 0V7.25H14.5a.75.75 0 0 1 0-1.5h2.25V3.5a.75.75 0 0 1 .75-.75"
+                clip-rule="evenodd" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+                d="M2 6.5c0-2.121 0-3.182.659-3.841S4.379 2 6.5 2s3.182 0 3.841.659S11 4.379 11 6.5s0 3.182-.659 3.841S8.621 11 6.5 11s-3.182 0-3.841-.659S2 8.621 2 6.5m11 11c0-2.121 0-3.182.659-3.841S15.379 13 17.5 13s3.182 0 3.841.659S22 15.379 22 17.5s0 3.182-.659 3.841S19.621 22 17.5 22s-3.182 0-3.841-.659S13 19.621 13 17.5" />
+            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+                d="M2 17.5c0-2.121 0-3.182.659-3.841S4.379 13 6.5 13s3.182 0 3.841.659S11 15.379 11 17.5s0 3.182-.659 3.841S8.621 22 6.5 22s-3.182 0-3.841-.659S2 19.621 2 17.5"
+                opacity=".5" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Departments <small class="ms-2">Optional</small></span>
+    </li>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }">
+
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <= 3" viewBox="0 0 24 24">
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972s1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828S6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172S22 17.772 22 14"
+                opacity=".5" />
+            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+                d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
+            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        <span class="nav-link">Work Schedule System</span>
+    </li>
+
+</ul>
+
+<!-- step 1 -->
+<div class="content-hug" *ngIf="currentStep === 1">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form [formGroup]="workSchadule1" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="workCode">Work Schedule ID (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" formControlName="code" id="workCode" class="form-control custom-date-input"
+                        placeholder="0050" />
+                </div>
+            </div>
+
+            <div class="input">
+                <label for="workName">Work Schedule Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" formControlName="name" id="workName" class="form-control custom-date-input"
+                        placeholder="Work Schedule Name " />
+                </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['minLength']">
+                    Work Schedule Name min length must be 3.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['maxLength']">
+                    Work Schedule Name max length must be 100.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule1.get('name')?.touched && workSchadule1.get('name')?.errors?.['required']">
+                    Work Schedule Name is required.
+                </p>
+            </div>
+
+        </form>
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
+
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" [disabled]="!workSchadule1.valid" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (1/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- step 2 -->
+<div class="content-hug" *ngIf="currentStep === 2">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Departments</h2>
+        <div class="d-flex flex-row justify-content-between gap-3">
+            <!-- Search input -->
+            <div data-mdb-input-init class="form-outline w-25 w-md-100">
+                <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchAddedDepartmentTerm" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke-width="1.5">
+                        <circle cx="11.5" cy="11.5" r="9.5" />
+                        <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                    </g>
+                </svg>
+            </div>
+
+        </div>
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
+
+
+        <!-- start table -->
+        <div>
+            <app-table [data]="filteredDepartments" [currentPage]="currentPage" [itemsPerPage]="10000"
+                [disablePagination]="true" (pageChange)="onPageChange($event)"
+                (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="departmentTableHeader"
+                [rowTemplate]="departmentTableRow" [emptyTemplate]="departmentTableEmptyRow">
+            </app-table>
+
+            <ng-template #departmentTableHeader>
+                <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span>Department</span>
+                        <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                                <path d="M4 8h9m-7 5h7m-5 5h5" />
+                                <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                            </g>
+                        </svg>
+                        <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <path fill="#DDE3EB" fill-rule="evenodd"
+                                d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </th>
+                <th>Date Added</th>
+                <th class="w-20">Action</th>
+            </ng-template>
+
+            <ng-template #departmentTableRow let-department let-i="index">
+                <td>
+                    <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
+                    <span class="d-block text-truncate" style="max-width: 300px;">
+                        {{ department.name }}
+                    </span>
+                </td>
+                <td>{{ department.create | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                    <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                        <a type="button" class="d-flex align-items-center gap-1"
+                            [ngClass]="department.status ? 'view-btn' : 'remove-btn'"
+                            (click)="toggleStatus(department)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                    d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                            </svg>
+                            <span>{{ department.status ? 'Activate' : 'Deactivate' }}</span>
+                        </a>
+                    </div>
+                </td>
+            </ng-template>
+
+            <ng-template #departmentTableEmptyRow>
+                <tr>
+                    <td colspan="3" class="no-data py-4">
+                        <ng-container *ngIf="searchAddedDepartmentTerm?.trim(); else noDepartments">
+                            No Department match your search.
+                        </ng-container>
+                        <ng-template #noDepartments>
+                            No Department Added Yet.
+                        </ng-template>
+                    </td>
+                </tr>
+            </ng-template>
+        </div>
+        <button class="btn btn-lg btn-outline-primary border-0" (click)="openFirstOverlay()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                </g>
+            </svg>
+            <span>Add Departments</span>
+        </button>
+        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
+
+
+
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-primary" [disabled]="!workSchadule1.valid || addeddepartments.length <= 0"
+                (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (2/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- add department slider -->
+<app-overlay-filter-box #departmentsOverlay [title]="'Select Departments'">
+    <!-- Search input -->
+    <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
+        <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+            placeholder="Search" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+        </svg>
+    </div>
+    <!-- start table -->
+    <div class="slide-table">
+        <app-table [data]="departments" [itemsPerPage]="10000" [disablePagination]="true" [currentPage]="currentPage"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+            [headerTemplate]="AlldepartmentTableHeader" [rowTemplate]="AlldepartmentTableRow"
+            [emptyTemplate]="noAllDepartments">
+        </app-table>
+
+        <ng-template #AlldepartmentTableHeader>
+            <th class="width-handle">
+                <input type="checkbox" class="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()">
+            </th>
+            <th>Department</th>
+        </ng-template>
+
+        <ng-template #AlldepartmentTableRow let-department let-i="index">
+            <td>
+                <input type="checkbox" class="checkbox checkbox-light" [(ngModel)]="department.selected"
+                    (change)="toggleDepartment(department)" id="checkbox-{{ department.id }}">
+            </td>
+            <td>
+                <label for="checkbox-{{ department.id }}" class="d-block text-gray-sm" style="cursor: pointer;">
+                    <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
+                    <span class="depart-name d-block text-truncate w-100">
+                        {{ department.name }}
+                    </span>
+                </label>
+            </td>
+        </ng-template>
+        <ng-template #noAllDepartments>
+            <tr>
+                <td colspan="3" class="no-data py-4">
+                    No Departments Added Yet
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #noAllDepartments>
+            <tr>
+                <td colspan="3" class="no-data py-4">
+                    <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                        No Department match your search.
+                    </ng-container>
+                    <ng-template #noDepartments>
+                        No Department Added Yet. You must add at least one Department to the branch.
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+    </div>
+
+    <div class="d-flex align-items-center pt-4 gap-3">
+        <button class="btn btn-lg btn-primary w-100" (click)="addSelectedDepartments()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+            </svg>
+            <span>Add Departments</span>
+        </button>
+        <a (click)="discardDepartment()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
+            <span>Discard</span>
+        </a>
+    </div>
+
+</app-overlay-filter-box>
+
+
+
+
+<!-- step 3 -->
+<div class="content-hug" *ngIf="currentStep === 3">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Work Schedule System</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <div *ngFor="let day of days; let i = index"
+                class="day-card d-flex align-items-center justify-content-center gap-2 p-3"
+                [class.selected]="day.selected" (click)="toggleDay(i)">
+                <span class="icon">
+                    <ng-container *ngIf="!day.selected">
+                        <!-- Plus Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                            </g>
+                        </svg>
+                    </ng-container>
+                    <ng-container *ngIf="day.selected">
+                        <!-- Check Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                            </g>
+                        </svg>
+                    </ng-container>
+                </span>
+                <span>{{ day.name }}</span>
+            </div>
+        </div>
+
+
+        <form [formGroup]="workSchadule2" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="empType">Employment Type</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="empType" formControlName="employment_type" id="empType" class="form-select">
+                            <option value="" disabled selected hidden>Select Type</option>
+                            <option value=1>Full-time</option>
+                            <option value=2>Part-time</option>
+                            <option value=3>Per Hour</option>
+                            <option value=4>Freelance</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('employment_type')?.touched && workSchadule2.get('employment_type')?.errors?.['required']">
+                    Employment Type is required.
+                </p>
+            </div>
+
+
+            <div class="input">
+                <label for="workType">Work Schedule Type</label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="workType" formControlName="work_schedule_type" (change)="onWorkTypeChange($event)"
+                            id="workType" class="form-select">
+                            <option value="" disabled selected hidden>Select Type</option>
+                            <option value=1>Fixed</option>
+                            <option value=2>Flexible</option>
+                            <option value=3>Remote</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('work_schedule_type')?.touched && workSchadule2.get('work_schedule_type')?.errors?.['required']">
+                    Work Schedule Type is required.
+                </p>
+            </div>
+
+
+            <div class="input">
+                <label for="shiftHours">Shift Hours</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="number" formControlName="shift_hours" id="shiftHours"
+                        class="form-control custom-date-input" placeholder="Total Shift Hours Count" />
+                </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('shift_hours')?.touched && workSchadule2.get('shift_hours')?.errors?.['required']">
+                    Shift Hours Required.
+                </p>
+            </div>
+
+            <div class="input">
+                <label for="shiftRange">Shift Range</label>
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div class="w-100">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="text" formControlName="from" id="shiftRange"
+                                class="form-control custom-date-input"   pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" placeholder="From" />
+                        </div>
+                        <p class="error-msg"
+                            *ngIf="workSchadule2.get('from')?.touched && workSchadule2.get('from')?.errors?.['required']">
+                            Required.
+                        </p>
+                    </div>
+                    <div class="w-100">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="text" formControlName="to" id="shiftTo" class="form-control custom-date-input"
+                                 pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" placeholder="To" />
+                        </div>
+                        <p class="error-msg"
+                            *ngIf="workSchadule2.get('to')?.touched && workSchadule2.get('to')?.errors?.['required']">
+                            Required.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+            <div class="input">
+                <label for="shiftTerms">Work Schedule Terms & Rules</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <textarea type="text" formControlName="terms" id="shiftTerms" class="form-control custom-date-input"
+                        placeholder="Work Schedule Terms and Rules"></textarea>
+                </div>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('terms')?.touched && workSchadule2.get('terms')?.errors?.['required']">
+                    Work Schedule Terms is Required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="workSchadule2.get('terms')?.touched && workSchadule2.get('terms')?.errors?.['minLength']">
+                    Work Schedule Terms min length must be 10.
+                </p>
+            </div>
+
+        </form>
+        <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+            {{errMsg}}
+        </div>
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success w-auto" (click)="createWorkScedule()"
+                [disabled]="!workSchadule1.valid ||!isAtLeastOneDaySelected() || !workSchadule2.valid || isLoading || addeddepartments.length <=0 ">
+                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Create Work Schedule</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- discard -->
+<app-popup [title]="'Discard Work Schedule'"
+    [paragraph1]="'Are you sure you want to discard creating the new Work Schedule?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Work Schedule
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

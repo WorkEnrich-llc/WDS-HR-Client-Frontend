@@ -34,7 +34,7 @@ export const routes: Routes = [
             loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent),
             title: 'Register'
           },
-          
+
           {
             path: 'reset-password',
             loadComponent: () => import('./components/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
@@ -61,7 +61,7 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./layouts/od-layout/od-layout.component').then(m => m.OdLayoutComponent),
-        // canActivate: [AuthGuard],
+
         children: [
           // Deparments routes
           {
@@ -178,12 +178,11 @@ export const routes: Routes = [
         ]
       },
 
-
       // start Personnel layout
       {
         path: '',
         loadComponent: () => import('./layouts/Personnel-layout/Personnel-layout.component').then(m => m.PersonnelLayoutComponent),
-        // canActivate: [AuthGuard],
+
         children: [
           // Dashboard routes
           {
@@ -235,124 +234,6 @@ export const routes: Routes = [
                 path: 'edit-employee/:id',
                 loadComponent: () => import('./components/Personnel/Employees/edit-employee/edit-employee.component').then(m => m.EditEmployeeComponent),
                 title: 'Edit Employee',
-              },
-            ]
-          },
-
-          // Work Schedule routes
-          {
-            path: 'schedule',
-            children: [
-              {
-                path: '',
-                redirectTo: 'work-schedule',
-                pathMatch: 'full'
-              },
-              {
-                path: 'work-schedule',
-                loadComponent: () => import('./components/Personnel/Work-Schedule/work-schedule/work-schedule.component').then(m => m.WorkScheduleComponent),
-                title: 'Work Schedule',
-              },
-              {
-                path: 'create-schedule',
-                loadComponent: () => import('./components/Personnel/Work-Schedule/create-work-schedule/create-work-schedule.component').then(m => m.CreateWorkScheduleComponent),
-                title: 'Create Work Schedule',
-              },
-              {
-                path: 'view-schedule/:id',
-                loadComponent: () => import('./components/Personnel/Work-Schedule/view-work-schedule/view-work-schedule.component').then(m => m.ViewWorkScheduleComponent),
-                title: 'View Work Schedule',
-              },
-              {
-                path: 'edit-schedule/:id',
-                loadComponent: () => import('./components/Personnel/Work-Schedule/edit-work-schedule/edit-work-schedule.component').then(m => m.EditWorkScheduleComponent),
-                title: 'Edit Work Schedule',
-              },
-            ]
-          },
-
-          // Leave Types routes
-          {
-            path: 'leave-types',
-            children: [
-              {
-                path: '',
-                redirectTo: 'all-leave-types',
-                pathMatch: 'full'
-              },
-              {
-                path: 'all-leave-types',
-                loadComponent: () => import('./components/Personnel/Leave Types/all-leave-types/all-leave-types.component').then(m => m.AllLeaveTypesComponent),
-                title: 'All Leave Types',
-              },
-              {
-                path: 'create-leave-types',
-                loadComponent: () => import('./components/Personnel/Leave Types/create-leave-type/create-leave-type.component').then(m => m.CreateLeaveTypeComponent),
-                title: 'Create Leave Type',
-              },
-              {
-                path: 'view-leave-types/:id',
-                loadComponent: () => import('./components/Personnel/Leave Types/view-leave-type/view-leave-type.component').then(m => m.ViewLeaveTypeComponent),
-                title: 'View Leave Type',
-              },
-              {
-                path: 'update-leave-types/:id',
-                loadComponent: () => import('./components/Personnel/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
-                title: 'Update Leave Type',
-              },
-            ]
-          },
-
-          // permission routes
-          {
-            path: 'permissions',
-            children: [
-              {
-                path: '',
-                redirectTo: 'view-permissions',
-                pathMatch: 'full'
-              },
-              {
-                path: 'view-permissions',
-                loadComponent: () => import('./components/Personnel/permissions/permission/permission.component').then(m => m.PermissionComponent),
-                title: 'View Permissions',
-              },
-              {
-                path: 'edit-early-leave',
-                loadComponent: () => import('./components/Personnel/permissions/edit-early-leave/edit-early-leave.component').then(m => m.EditEarlyLeaveComponent),
-                title: 'Edit Early Leave',
-              }, 
-              {
-                path: 'edit-late-arrive',
-                loadComponent: () => import('./components/Personnel/permissions/edit-late-arrive/edit-late-arrive.component').then(m => m.EditLateArriveComponent),
-                title: 'Edit Late Arrive',
-              }, 
-            ]
-          },
-
-          // Attendance Rules routes
-          {
-            path: 'attendance',
-            children: [
-              {
-                path: '',
-                redirectTo: 'attendance-rules',
-                pathMatch: 'full'
-              },
-              {
-                path: 'attendance-rules',
-                loadComponent: () => import('./components/Personnel/attendance-rules/attendance-rule/attendance-rule.component').then(m => m.AttendanceRuleComponent),
-                title: 'Attendance Rules',
-              },
-              {
-                path: 'full-time',
-                loadComponent: () => import('./components/Personnel/attendance-rules/edit-full-time/edit-full-time.component').then(m => m.EditFullTimeComponent),
-                title: 'Edit Full Time',
-              },
-              {
-                path: 'part-time',
-                loadComponent: () => import('./components/Personnel/attendance-rules/edit-part-time/edit-part-time.component').then(m => m.EditPartTimeComponent),
-                title: 'Edit Part Time',
               },
             ]
           },
@@ -410,7 +291,47 @@ export const routes: Routes = [
               },
             ]
           },
+        ]
+      },
 
+      // start Attendace layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/attendance-layout/attendance-layout.component').then(m => m.AttendanceLayoutComponent),
+
+        children: [
+
+          // Attendance Rules routes
+          {
+            path: 'attendance',
+            children: [
+              {
+                path: '',
+                redirectTo: 'attendance-log',
+                pathMatch: 'full'
+              },
+              {
+                path: 'attendance-log',
+                loadComponent: () => import('./components/Attendance/attendance-log/attendance-log/attendance-log.component').then(m => m.AttendanceLogComponent),
+                title: 'Attendance Log',
+              },
+              {
+                path: 'attendance-rules',
+                loadComponent: () => import('./components/Attendance/attendance-rules/attendance-rule/attendance-rule.component').then(m => m.AttendanceRuleComponent),
+                title: 'Attendance Rules',
+              },
+              {
+                path: 'full-time',
+                loadComponent: () => import('./components/Attendance/attendance-rules/edit-full-time/edit-full-time.component').then(m => m.EditFullTimeComponent),
+                title: 'Edit Full Time',
+              },
+              {
+                path: 'part-time',
+                loadComponent: () => import('./components/Attendance/attendance-rules/edit-part-time/edit-part-time.component').then(m => m.EditPartTimeComponent),
+                title: 'Edit Part Time',
+              },
+            ]
+          },
           // Restricted Days routes
           {
             path: 'restricted-days',
@@ -422,35 +343,281 @@ export const routes: Routes = [
               },
               {
                 path: 'all-restricted-days',
-                loadComponent: () => import('./components/Personnel/Restricted-Days/all-restricted-days/all-restricted-days.component').then(m => m.AllRestrictedDaysComponent),
+                loadComponent: () => import('./components/Attendance/Restricted-Days/all-restricted-days/all-restricted-days.component').then(m => m.AllRestrictedDaysComponent),
                 title: 'All Restricted Days',
               },
               {
                 path: 'create-restricted-days',
-                loadComponent: () => import('./components/Personnel/Restricted-Days/create-restricted-days/create-restricted-days.component').then(m => m.CreateRestrictedDaysComponent),
+                loadComponent: () => import('./components/Attendance/Restricted-Days/create-restricted-days/create-restricted-days.component').then(m => m.CreateRestrictedDaysComponent),
                 title: 'Create Restricted Days',
               },
               {
                 path: 'update-restricted-day/:id',
-                loadComponent: () => import('./components/Personnel/Restricted-Days/update-restricted-days/update-restricted-days.component').then(m => m.UpdateRestrictedDaysComponent),
+                loadComponent: () => import('./components/Attendance/Restricted-Days/update-restricted-days/update-restricted-days.component').then(m => m.UpdateRestrictedDaysComponent),
                 title: 'Update Restricted Days',
               },
               {
                 path: 'view-restricted-day/:id',
-                loadComponent: () => import('./components/Personnel/Restricted-Days/view-restricted-days/view-restricted-days.component').then(m => m.ViewRestrictedDaysComponent),
+                loadComponent: () => import('./components/Attendance/Restricted-Days/view-restricted-days/view-restricted-days.component').then(m => m.ViewRestrictedDaysComponent),
                 title: 'View Restricted Days',
               },
             ]
           },
+          // Work Schedule routes
+          {
+            path: 'schedule',
+            children: [
+              {
+                path: '',
+                redirectTo: 'work-schedule',
+                pathMatch: 'full'
+              },
+              {
+                path: 'work-schedule',
+                loadComponent: () => import('./components/Attendance/Work-Schedule/work-schedule/work-schedule.component').then(m => m.WorkScheduleComponent),
+                title: 'Work Schedule',
+              },
+              {
+                path: 'create-schedule',
+                loadComponent: () => import('./components/Attendance/Work-Schedule/create-work-schedule/create-work-schedule.component').then(m => m.CreateWorkScheduleComponent),
+                title: 'Create Work Schedule',
+              },
+              {
+                path: 'view-schedule/:id',
+                loadComponent: () => import('./components/Attendance/Work-Schedule/view-work-schedule/view-work-schedule.component').then(m => m.ViewWorkScheduleComponent),
+                title: 'View Work Schedule',
+              },
+              {
+                path: 'edit-schedule/:id',
+                loadComponent: () => import('./components/Attendance/Work-Schedule/edit-work-schedule/edit-work-schedule.component').then(m => m.EditWorkScheduleComponent),
+                title: 'Edit Work Schedule',
+              },
+            ]
+          },
+
+          // Leave Types routes
+          {
+            path: 'leave-types',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-leave-types',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-leave-types',
+                loadComponent: () => import('./components/Attendance/Leave Types/all-leave-types/all-leave-types.component').then(m => m.AllLeaveTypesComponent),
+                title: 'All Leave Types',
+              },
+              {
+                path: 'create-leave-types',
+                loadComponent: () => import('./components/Attendance/Leave Types/create-leave-type/create-leave-type.component').then(m => m.CreateLeaveTypeComponent),
+                title: 'Create Leave Type',
+              },
+              {
+                path: 'view-leave-types/:id',
+                loadComponent: () => import('./components/Attendance/Leave Types/view-leave-type/view-leave-type.component').then(m => m.ViewLeaveTypeComponent),
+                title: 'View Leave Type',
+              },
+              {
+                path: 'update-leave-types/:id',
+                loadComponent: () => import('./components/Attendance/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
+                title: 'Update Leave Type',
+              },
+            ]
+          },
+
+          // permission routes
+          {
+            path: 'permissions',
+            children: [
+              {
+                path: '',
+                redirectTo: 'view-permissions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'view-permissions',
+                loadComponent: () => import('./components/Attendance/permissions/permission/permission.component').then(m => m.PermissionComponent),
+                title: 'View Permissions',
+              },
+              {
+                path: 'edit-early-leave',
+                loadComponent: () => import('./components/Attendance/permissions/edit-early-leave/edit-early-leave.component').then(m => m.EditEarlyLeaveComponent),
+                title: 'Edit Early Leave',
+              },
+              {
+                path: 'edit-late-arrive',
+                loadComponent: () => import('./components/Attendance/permissions/edit-late-arrive/edit-late-arrive.component').then(m => m.EditLateArriveComponent),
+                title: 'Edit Late Arrive',
+              },
+            ]
+          },
+
+
+
         ]
       },
+
+      // start Recruitment layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/recruitment-layout/recruitment-layout.component').then(m => m.RecruitmentLayoutComponent),
+
+        children: [
+          // Calendar routes
+          {
+            path: 'calendar',
+            children: [
+              {
+                path: '',
+                redirectTo: 'calender',
+                pathMatch: 'full'
+              },
+              {
+                path: 'calender',
+                loadComponent: () => import('./components/Recruitment/calender/calendar/calendar.component').then(m => m.CalendarComponent),
+                title: 'Calendar',
+              },
+
+            ]
+          },
+
+          // Job Openings routes
+          {
+            path: 'job-openings',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-job-openings',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-job-openings',
+                loadComponent: () => import('./components/Recruitment/job-openings/all-job-openings/all-job-openings.component').then(m => m.AllJobOpeningsComponent),
+                title: 'Job Openings',
+              },
+              {
+                path: 'view-job-openings/:id',
+                loadComponent: () => import('./components/Recruitment/job-openings/view-jop-open/view-jop-open.component').then(m => m.ViewJopOpenComponent),
+                title: 'View Job Openings',
+              },
+              {
+                path: 'create-job-openings',
+                loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/create-jop-open.component').then(m => m.CreateJopOpenComponent),
+                title: 'Create Job Openings',
+                children: [
+                  {
+                    path: '',
+                    redirectTo: 'main-information',
+                    pathMatch: 'full'
+                  },
+                  {
+                    path: 'main-information',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
+                  },
+                  {
+                    path: 'required-details',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
+                  },
+                  {
+                    path: 'attachments',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
+                  },
+                ]
+              },
+              {
+                path: 'view-applicant-details/:id',
+                loadComponent: () => import('./components/Recruitment/applicant-detais/applicant-detais.component').then(m => m.ApplicantDetaisComponent),
+                title: 'View Applicant Details',
+              },
+            ]
+          },
+
+          // Archived Openings routes
+          {
+            path: 'archived-openings',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-archived-openings',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-archived-openings',
+                loadComponent: () => import('./components/Recruitment/archived-openings/all-archived-openings/all-archived-openings.component').then(m => m.AllArchivedOpeningsComponent),
+                title: 'Archived Openings',
+              },
+              {
+                path: 'view-archived-openings/:id',
+                loadComponent: () => import('./components/Recruitment/archived-openings/view-archived-openings/view-archived-openings.component').then(m => m.ViewArchivedOpeningsComponent),
+                title: 'View Archived Openings',
+              },
+            ]
+          },
+
+
+
+        ]
+      },
+
+      // start Payroll layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/payroll-layout/payroll-layout.component').then(m => m.PayrollLayoutComponent),
+
+        children: [
+          // payroll components routes
+          {
+            path: 'payroll-components',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-payroll-components',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-payroll-components',
+                loadComponent: () => import('./components/Payroll/Payroll-components/all-payroll-components/all-payroll-components.component').then(m => m.AllPayrollComponentsComponent),
+                title: 'All Payroll Components',
+              },
+
+            ]
+          },
+          
+          // payroll runs routes
+          {
+            path: 'payroll-runs',
+            children: [
+              {
+                path: '',
+                redirectTo: 'payroll-runs',
+                pathMatch: 'full'
+              },
+              {
+                path: 'payroll-runs',
+                loadComponent: () => import('./components/Payroll/Payroll-runs/all-payroll-runs/all-payroll-runs.component').then(m => m.AllPayrollRunsComponent),
+                title: 'All Payroll Runs',
+              },
+
+            ]
+          },
+
+          
+
+
+        ]
+      },
+
+
+
 
 
       // settings layout
       {
         path: '',
         loadComponent: () => import('./layouts/settings/settings.component').then(m => m.SettingsComponent),
-        // canActivate: [AuthGuard],
+
         children: [
           {
             path: 'settings',

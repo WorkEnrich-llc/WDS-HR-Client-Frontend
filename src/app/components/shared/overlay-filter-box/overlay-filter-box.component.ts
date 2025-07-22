@@ -8,7 +8,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './overlay-filter-box.component.css'
 })
 export class OverlayFilterBoxComponent {
-  @Input() title: string = 'عنوان الافتراضي'; 
+  @Input() customWidth: string = '32%';
+  @Input() title: string = 'Defult title'; 
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();  
   isOverlayVisible: boolean = false;
   isAnimatingOut: boolean = false;

@@ -96,6 +96,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .form-check-input:checked{
   background-color: var(--color-primary-500) !important;
 }
+.form-check-input.radio{
+  border-radius: 50% !important;
+  -webkit-border-radius: 50% !important;
+  -moz-border-radius: 50% !important;
+  -ms-border-radius: 50% !important;
+  -o-border-radius: 50% !important;
+}
+.radio .form-check-label{
+  margin: 0 !important;
+}
+
 .checkbox {
   appearance: none;
   -webkit-appearance: none;
@@ -127,6 +138,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+input.radio{
+  margin: 0 !important;
+}
+
 /* error message validation */
 .error-msg{
   margin: 5px 0;
@@ -279,6 +294,27 @@ select.success-input option,select.error-input option{
   background-color: var(--color-success-500) !important;
   color: var(--color-white) !important;
 }
+/* warning buttons */
+.btn-warning {
+  background-color: var(--color-warning-500) !important;
+  border-color: var(--color-warning-500) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-warning:hover {
+  background-color: var(--color-warning-700) !important;
+  border-color: var(--color-warning-700) !important;
+}
+
+.btn-outline-warning {
+  color: var(--color-warning-700) !important;
+  border-color: var(--color-warning-500) !important;
+}
+
+.btn-outline-warning:hover {
+  background-color: var(--color-warning-500) !important;
+  color: var(--color-white) !important;
+}
 /* btn dark */
 .btn-dark {
   background-color: var(--color-secondary-500) !important;
@@ -299,7 +335,10 @@ select.success-input option,select.error-input option{
   color: var(--color-white) !important;
 }
 /* btn links with icons */
-.view-btn,.edit-btn,.remove-btn,.success-btn{
+.view-btn,.edit-btn,.remove-btn,.success-btn,.pause-btn{
+  display:inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   text-decoration: none !important;
   font-size: var(--font-size-b3);
   font-weight: 600;
@@ -312,7 +351,7 @@ select.success-input option,select.error-input option{
   background-color: transparent;
   border: 0;
 }
-.view-btn:hover,.edit-btn:hover,.remove-btn:hover,.success-btn:hover{
+.view-btn:hover,.edit-btn:hover,.remove-btn:hover,.success-btn:hover,.pause-btn:hover{
   transform: scale(1.05);
   -webkit-transform: scale(1.05);
   -moz-transform: scale(1.05);
@@ -332,6 +371,9 @@ select.success-input option,select.error-input option{
 .success-btn{
   color: var(--color-success-700);
 }
+.pause-btn{
+  color: var(--color-warning-700);
+}
 .remove-btn svg{
   color: var(--color-danger-400);
 }
@@ -343,6 +385,9 @@ select.success-input option,select.error-input option{
 }
 .success-btn svg{
   color: var(--color-success-500);
+}
+.pause-btn svg{
+  color: var(--color-warning-500);
 }
 
 /* steps form links */
@@ -489,7 +534,7 @@ textarea{
     justify-content: center;
     gap:0.3rem;
     background-color: var(--color-success-100);
-    padding: var(--spacing-4) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-8);
     border:1px solid var(--color-success-400);
     border-radius: 30px;
     -webkit-border-radius: 30px;
@@ -505,7 +550,7 @@ textarea{
     justify-content: center;
     gap:0.3rem;
     background-color: var(--color-danger-100);
-    padding: var(--spacing-4) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-8);
     border:1px solid var(--color-danger-400);
     border-radius: 30px;
     -webkit-border-radius: 30px;
@@ -521,7 +566,7 @@ textarea{
     justify-content: center;
     gap:0.3rem;
     background-color: var(--color-secondary-100);
-    padding: var(--spacing-4) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-8);
     border:1px solid var(--color-secondary-400);
     border-radius: 30px;
     -webkit-border-radius: 30px;
@@ -553,7 +598,7 @@ textarea{
     justify-content: center;
     gap:0.3rem;
     background-color: var(--color-primary-100);
-    padding: var(--spacing-4) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-8);
     border:1px solid var(--color-primary-400);
     border-radius: 30px;
     -webkit-border-radius: 30px;
@@ -569,7 +614,7 @@ textarea{
     justify-content: center;
     gap:0.3rem;
     background-color: var(--color-warning-100);
-    padding: var(--spacing-4) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-8);
     border:1px solid var(--color-warning-400);
     border-radius: 30px;
     -webkit-border-radius: 30px;
@@ -578,4 +623,8 @@ textarea{
     -o-border-radius: 30px;
     color: var(--color-warning-700);
     width: max-content;
+}
+/* text color */
+.text-danger{
+  color: var(--color-danger-700) !important;
 }

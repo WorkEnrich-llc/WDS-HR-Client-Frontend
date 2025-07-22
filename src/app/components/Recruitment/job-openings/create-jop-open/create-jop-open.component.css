@@ -1,0 +1,6 @@
+.text-success svg{
+    fill: #198754 !important;
+}
+.active svg{
+    fill: var(--color-primary-500) !important;
+}

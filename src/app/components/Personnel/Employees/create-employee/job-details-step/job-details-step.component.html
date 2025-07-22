@@ -7,7 +7,7 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="branch_id" formControlName="branch_id" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)">
+                           >
                             <option value="" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track branch.id) {
                                 <option [value]="branch.id">{{branch.name}}</option>
@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 @if (sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)) {
-                    <p class="error-msg text-danger">
+                    <p class="error-msg">
                         {{sharedService.getFieldError('branch_id', sharedService.jobDetails)}}
                     </p>
                 }
@@ -27,7 +27,7 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="department_id" formControlName="department_id" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('department_id', sharedService.jobDetails)">
+                           >
                             <option value="" disabled hidden>Select Department</option>
                             @for (dept of sharedService.getActiveDepartments(); track dept.id) {
                                 <option [value]="dept.id">{{dept.name}}</option>
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 @if (sharedService.isFieldInvalid('department_id', sharedService.jobDetails)) {
-                    <p class="error-msg text-danger">
+                    <p class="error-msg">
                         {{sharedService.getFieldError('department_id', sharedService.jobDetails)}}
                     </p>
                 }
@@ -64,7 +64,7 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="job_title_id" formControlName="job_title_id" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)">
+                           >
                             <option value="" disabled hidden>Select Job Title</option>
                             @for (job of sharedService.jobTitles(); track job.id) {
                                 <option [value]="job.id">{{job.name}}</option>
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 @if (sharedService.isFieldInvalid('job_title_id', sharedService.jobDetails)) {
-                    <p class="error-msg text-danger">
+                    <p class="error-msg">
                         {{sharedService.getFieldError('job_title_id', sharedService.jobDetails)}}
                     </p>
                 }
@@ -84,7 +84,7 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)">
+                           >
                             <option value="" disabled hidden>Select Work Schedule</option>
                             @for (schedule of sharedService.getActiveWorkSchedules(); track schedule.id) {
                                 <option [value]="schedule.id">{{schedule.name}}</option>
@@ -93,7 +93,7 @@
                     </div>
                 </div>
                 @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.jobDetails)) {
-                    <p class="error-msg text-danger">
+                    <p class="error-msg">
                         {{sharedService.getFieldError('work_schedule_id', sharedService.jobDetails)}}
                     </p>
                 }

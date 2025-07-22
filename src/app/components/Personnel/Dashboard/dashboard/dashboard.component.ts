@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -15,6 +15,17 @@ import { RouterLink } from '@angular/router';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+    @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
+  ngAfterViewInit() {
+    // Automatically select today's date when the calendar is initialized
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    this.handleDateClick({ dateStr });
+
+    const calendarApi = this.calendarComponent?.getApi();
+    calendarApi?.select(today);
+  }
+
   selectedDateFormatted: string = '';
   eventsDay: { title: string; date: string; type: string }[] = [];
 events = [

@@ -8,7 +8,7 @@
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <input type="date" id="start_contract" formControlName="start_contract"
                             class="form-control custom-date-input"
-                            [class.is-invalid]="sharedService.isFieldInvalid('start_contract', sharedService.contractDetails)" />
+                            />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <g fill="none" stroke-width="1.5">
                                 <path stroke-linecap="round"
@@ -19,7 +19,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('start_contract', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('start_contract', sharedService.contractDetails)">
                     {{sharedService.getFieldError('start_contract', sharedService.contractDetails)}}
                 </p>
             </div>
@@ -38,7 +38,7 @@
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <input type="date" id="contract_end_date" formControlName="contract_end_date"
                             class="form-control custom-date-input"
-                            [class.is-invalid]="sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)"
+                           
                             [disabled]="!sharedService.withEndDate" />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <g fill="none" stroke-width="1.5">
@@ -50,7 +50,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)">
                     {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
                 </p>
             </div>
@@ -60,14 +60,14 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="employment_type" formControlName="employment_type" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('employment_type', sharedService.contractDetails)">
+                            >
                             <option value="" disabled hidden>Select Employment Type</option>
                             <option *ngFor="let type of sharedService.employmentTypes()" [value]="type.id">{{ type.name }}
                             </option>
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('employment_type', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('employment_type', sharedService.contractDetails)">
                     {{sharedService.getFieldError('employment_type', sharedService.contractDetails)}}
                 </p>
             </div>
@@ -77,13 +77,13 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="work_mode" formControlName="work_mode" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('work_mode', sharedService.contractDetails)">
+                           >
                             <option value="" disabled hidden>Select Work Mode</option>
                             <option *ngFor="let mode of sharedService.workModes()" [value]="mode.id">{{ mode.name }}</option>
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('work_mode', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('work_mode', sharedService.contractDetails)">
                     {{sharedService.getFieldError('work_mode', sharedService.contractDetails)}}
                 </p>
             </div>
@@ -93,10 +93,10 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" id="days_on_site" formControlName="days_on_site"
                         class="form-control custom-date-input"
-                        [class.is-invalid]="sharedService.isFieldInvalid('days_on_site', sharedService.contractDetails)" placeholder="Max: 7"
+ placeholder="Max: 7"
                         min="0" max="7" />
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('days_on_site', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('days_on_site', sharedService.contractDetails)">
                     {{sharedService.getFieldError('days_on_site', sharedService.contractDetails)}}
                 </p>
             </div>
@@ -105,13 +105,13 @@
                 <label for="salary">Salary <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" id="salary" formControlName="salary" class="form-control custom-date-input"
-                        [class.is-invalid]="sharedService.isFieldInvalid('salary', sharedService.contractDetails)"
+                        
                         placeholder="Enter the Employee Salary" 
                         [min]="sharedService.currentSalaryRange()?.minimum || 0" 
                         [max]="sharedService.currentSalaryRange()?.maximum || 999999999"
                         step="0.01" />
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('salary', sharedService.contractDetails)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('salary', sharedService.contractDetails)">
                     {{sharedService.getFieldError('salary', sharedService.contractDetails)}}
                 </p>
             </div>

@@ -56,7 +56,7 @@
     <h2 class="mb-3">Sections</h2>
 
 
-    <app-table [data]="departmentData.sections" [itemsPerPage]="10" [headerTemplate]="sectionsTableHeader"
+    <app-table [data]="departmentData.sections" [columnsCount]="2" [itemsPerPage]="departmentData.sections.length" [headerTemplate]="sectionsTableHeader"
       [rowTemplate]="sectionsTableRow"></app-table>
 
     <ng-template #sectionsTableHeader>

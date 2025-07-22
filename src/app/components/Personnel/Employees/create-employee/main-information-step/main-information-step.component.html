@@ -15,10 +15,9 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" id="name" formControlName="name"
                         class="form-control custom-date-input"
-                        [class.is-invalid]="sharedService.isFieldInvalid('name', sharedService.mainInformation)"
                         placeholder="Example: John Michael Smith Doe (Full name must contain at least four parts)" />
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('name', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('name', sharedService.mainInformation)">
                     {{sharedService.getFieldError('name', sharedService.mainInformation)}}
                 </p>
             </div>
@@ -27,15 +26,14 @@
                 <label for="gender">Gender <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="gender" formControlName="gender" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('gender', sharedService.mainInformation)">
+                        <select id="gender" formControlName="gender" class="form-select">
                             <option value="" disabled hidden>Select Gender</option>
                             <option *ngFor="let gender of sharedService.genderOptions()" [value]="gender.id">{{gender.name}}
                             </option>
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('gender', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('gender', sharedService.mainInformation)">
                     {{sharedService.getFieldError('gender', sharedService.mainInformation)}}
                 </p>
             </div>
@@ -45,8 +43,7 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <input type="date" id="date_of_birth" formControlName="date_of_birth"
-                            class="form-control custom-date-input"
-                            [class.is-invalid]="sharedService.isFieldInvalid('date_of_birth', sharedService.mainInformation)" />
+                            class="form-control custom-date-input" />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <g fill="none" stroke-width="1.5">
                                 <path stroke-linecap="round"
@@ -57,7 +54,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('date_of_birth', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('date_of_birth', sharedService.mainInformation)">
                     {{sharedService.getFieldError('date_of_birth', sharedService.mainInformation)}}
                 </p>
             </div>
@@ -66,15 +63,14 @@
                 <label for="marital_status">Marital Status <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="marital_status" formControlName="marital_status" class="form-select"
-                            [class.is-invalid]="sharedService.isFieldInvalid('marital_status', sharedService.mainInformation)">
+                        <select id="marital_status" formControlName="marital_status" class="form-select">
                             <option value="" disabled hidden>Select Marital Status</option>
                             <option *ngFor="let status of sharedService.maritalStatusOptions()" [value]="status.id">
                                 {{status.name}}</option>
                         </select>
                     </div>
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('marital_status', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('marital_status', sharedService.mainInformation)">
                     {{sharedService.getFieldError('marital_status', sharedService.mainInformation)}}
                 </p>
             </div>
@@ -111,10 +107,10 @@
                     <div class="input w-75">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="tel" formControlName="number" class="form-control custom-date-input"
-                                [class.is-invalid]="sharedService.isFieldInvalid('number', sharedService.mobileGroup)"
+                               
                                 placeholder="Enter phone number" />
                         </div>
-                        <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('number', sharedService.mobileGroup)">
+                        <p class="error-msg" *ngIf="sharedService.isFieldInvalid('number', sharedService.mobileGroup)">
                             {{sharedService.getFieldError('number', sharedService.mobileGroup)}}
                         </p>
                     </div>
@@ -126,10 +122,9 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="email" id="personal_email" formControlName="personal_email"
                         class="form-control custom-date-input"
-                        [class.is-invalid]="sharedService.isFieldInvalid('personal_email', sharedService.mainInformation)"
                         placeholder="Enter personal email" />
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('personal_email', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('personal_email', sharedService.mainInformation)">
                     {{sharedService.getFieldError('personal_email', sharedService.mainInformation)}}
                 </p>
             </div>
@@ -138,10 +133,9 @@
                 <label for="address">Address <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" id="address" formControlName="address" class="form-control custom-date-input"
-                        [class.is-invalid]="sharedService.isFieldInvalid('address', sharedService.mainInformation)"
                         placeholder="Enter address" />
                 </div>
-                <p class="error-msg text-danger" *ngIf="sharedService.isFieldInvalid('address', sharedService.mainInformation)">
+                <p class="error-msg" *ngIf="sharedService.isFieldInvalid('address', sharedService.mainInformation)">
                     {{sharedService.getFieldError('address', sharedService.mainInformation)}}
                 </p>
             </div>

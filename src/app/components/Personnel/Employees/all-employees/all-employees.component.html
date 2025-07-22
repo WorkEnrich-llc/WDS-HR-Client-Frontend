@@ -51,8 +51,9 @@
         </div>
 
         <!-- start Table -->
-        <app-table [data]="filteredEmployees" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+
+        <app-table [isLoading]="loadData" [columnsCount]="7" [data]="filteredEmployees" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="employeesTableHeader"
             [rowTemplate]="employeesTableRow" [emptyTemplate]="noEmployees"></app-table>
 
@@ -172,7 +173,7 @@
             </td>
             <td>{{employee.jobTitle}}</td>
             <td>{{employee.branch}}</td>
-            <td>{{employee.joinDate}}</td>
+            <td>{{employee.joinDate | date:'dd/MM/yyyy'}}</td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <a [routerLink]="employee.employeeStatus === 'New Joiner' 
@@ -208,11 +209,11 @@
         <ng-template #noEmployees>
             <tr>
                 <td colspan="7" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noEmployees">
+                    <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noEmployees">
                         No Employees match your search.
                     </ng-container>
                     <ng-template #noEmployees>
-                        No Employees Added Yet. You must add at least one Employee to the branch.
+                        No Employees Added Yet.
                     </ng-template>
                 </td>
             </tr>

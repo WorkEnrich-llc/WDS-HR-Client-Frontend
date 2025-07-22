@@ -30,7 +30,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   employees: Employee[] = [];
   filteredEmployees: any[] = []; // For display purposes with transformed data
-
+    loadData:boolean =true;
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -39,7 +39,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
-  loading: boolean = false;
+  loading: boolean = true;
 
 
   ngOnInit(): void {
@@ -71,11 +71,13 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.totalItems = response.data.total_items;
           this.transformEmployeesForDisplay();
           this.loading = false;
-          console.log('Employees loaded:', response);
+          this.loadData = false;
+          // console.log('Employees loaded:', response);
         },
         error: (error) => {
           console.error('Error loading employees:', error);
           this.loading = false;
+          this.loadData = false;
           this.toastr.error('Failed to load employees', 'Error');
         }
       });
