@@ -1,33 +1,73 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 
 @Component({
+  standalone: true,
   selector: 'app-edit-employee',
-  imports: [PageHeaderComponent, CommonModule,PopupComponent],
-  providers:[DatePipe],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule],
+  providers: [DatePipe],
   templateUrl: './edit-employee.component.html',
-  styleUrl: './edit-employee.component.css'
+  styleUrls: ['./edit-employee.component.css']
 })
-export class EditEmployeeComponent {
-  todayFormatted: string = '';
-  errMsg: string = '';
-  isLoading: boolean = false;
+export class EditEmployeeComponent implements OnInit {
+  employeeForm!: FormGroup;
+  employeeId!: number;
+  errMsg = '';
+  isLoading = false;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    private employeeService: EmployeeService,
     private datePipe: DatePipe,
     private toasterMessageService: ToasterMessageService
   ) {
-    const today = new Date();
-    this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
+    // initialize form
+    this.employeeForm = this.fb.group({
+      empId: [''],
+      fullName: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
 
-  // popups
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.employeeId = +params['id'];
+      if (this.employeeId) {
+        this.loadEmployee();
+      }
+    });
+  }
+
+  private loadEmployee(): void {
+    this.isLoading = true;
+    this.employeeService.getEmployeeById(this.employeeId).subscribe({
+      next: res => {
+        const info = res.data.object_info.contact_info;
+        this.employeeForm.patchValue({
+          empId: res.data.object_info.id,
+          fullName: info.name,
+          phone: info.mobile.number,
+          email: info.email
+        });
+        this.isLoading = false;
+      },
+      error: err => {
+        this.errMsg = 'Failed to load employee data.';
+        this.isLoading = false;
+      }
+    });
+  }
   isModalOpen = false;
   isSuccessModalOpen = false;
 
@@ -42,6 +82,38 @@ export class EditEmployeeComponent {
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/employees/all-employees']);
+  }
+
+  onSubmit(): void {
+    if (this.employeeForm.invalid) {
+      this.errMsg = 'Please correct errors in the form.';
+      return;
+    }
+    this.errMsg = '';
+    this.isLoading = true;
+    const form = this.employeeForm.value;
+    const payload = {
+      request_data: {
+        id: this.employeeId,
+        main_information: {
+          code: form.empId,
+          name: form.fullName,
+          // mobile expects object, using number only
+          mobile: { country_id: 0, number: form.phone },
+          personal_email: form.email
+        }
+      }
+    };
+    this.employeeService.updateEmployee(payload).subscribe({
+      next: () => {
+        this.toasterMessageService.sendMessage('Employee updated successfully');
+        this.router.navigate(['/employees/all-employees']);
+      },
+      error: (err: any) => {
+        this.errMsg = 'Update failed.';
+        this.isLoading = false;
+      }
+    });
   }
 
 }

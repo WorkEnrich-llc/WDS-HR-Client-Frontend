@@ -51,8 +51,13 @@
         </div>
 
         <!-- start Table -->
+        <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
 
-        <app-table [data]="employees" [totalItems]="employees.length" [itemsPerPage]="itemsPerPage"
+        <app-table *ngIf="!loading" [data]="filteredEmployees" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
             [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="employeesTableHeader"
             [rowTemplate]="employeesTableRow" [emptyTemplate]="noEmployees"></app-table>
@@ -143,6 +148,24 @@
                     </svg>
                     <span>Active</span>
                 </span>
+                <span class="badge-warning" *ngIf="employee.accountStatus ==='pending'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M12 7v5l3 3" />
+                        </g>
+                    </svg>
+                    <span>Pending</span>
+                </span>
+                <span class="badge-danger" *ngIf="employee.accountStatus ==='disabled'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+                        </g>
+                    </svg>
+                    <span>Disabled</span>
+                </span>
                 <span class="badge-gray" *ngIf="employee.accountStatus ==='inactive'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -215,8 +238,10 @@
                     <select name="" id="status" class="form-select">
                         <option value="" selected disabled hidden>Select</option>
                         <option value="all">Any</option>
-                        <option value="true">Active</option>
-                        <option value="false">Not Active</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="disabled">Disabled</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
