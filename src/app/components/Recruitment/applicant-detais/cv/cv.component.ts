@@ -14,7 +14,8 @@ import { CommonModule } from '@angular/common';
 export class CvComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
-  pdfUrl = 'http://localhost:4200/assets/cv.pdf';
+  pdfUrl = `${window.location.origin}/assets/cv.pdf`;
+
   totalPages: number | null = null;
 
 onPdfLoad(pdf: any) {
