@@ -274,8 +274,8 @@ export class ViewEmployeeComponent implements OnInit {
     if (this.employee) {
       this.employeeService.resendActiveLink(this.employee.id).subscribe({
         next: (response) => {
-          console.log('Resend active link successfully:', response);
           this.toasterMessageService.sendMessage('Activation link resent successfully');
+          console.log('Resend active link successfully:', response);
         },
         error: (error) => {
           console.error('Error resending active link:', error);

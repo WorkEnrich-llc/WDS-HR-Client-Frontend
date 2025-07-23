@@ -360,4 +360,19 @@ export class ViewNewJoinerComponent implements OnInit {
     this.closeSuccessModal();
     // Reset form or navigate to create again
   }
+
+  // Resend activation link to employee email
+  resendActiveLink(): void {
+    if (this.employee) {
+      this.employeeService.resendActiveLink(this.employee.id).subscribe({
+        next: (response) => {
+          this.toasterMessageService.sendMessage('Activation link resent successfully');
+          console.log('Resend active link successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error resending active link:', error);
+        }
+      });
+    }
+  }
 }
