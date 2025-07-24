@@ -3,6 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
@@ -83,15 +84,18 @@ export class CreateLeaveTypeComponent {
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
-        // create success
+        
+        // Show success toast
+        this.toasterMessageService.showSuccess("Leave Type created successfully", "Success");
+        
+        // Navigate to list page
         this.router.navigate(['/leave-types/all-leave-types']);
-        this.toasterMessageService.sendMessage("Leave Type created successfully");
-
       },
       error: (err) => {
         this.isLoading = false;
         const statusCode = err?.status;
         const errorHandling = err?.error?.data?.error_handling;
+        
         if (statusCode === 400) {
           if (Array.isArray(errorHandling) && errorHandling.length > 0) {
             this.currentStep = errorHandling[0].tap;
@@ -103,9 +107,10 @@ export class CreateLeaveTypeComponent {
           }
         } else {
           this.errMsg = "An unexpected error occurred. Please try again later.";
+          // Use the helper for general error handling
+          ApiToastHelper.handleApiError(err, this.toasterMessageService);
         }
       }
-
     });
   }
 

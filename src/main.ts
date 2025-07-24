@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { toastInterceptor } from './app/core/interceptors/toast.interceptor';
 import { importProvidersFrom } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 import { routes } from './app/app.routes';
@@ -20,15 +21,25 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-     importProvidersFrom(NgxDaterangepickerMd.forRoot()),
+    importProvidersFrom(NgxDaterangepickerMd.forRoot()),
     provideHttpClient(withInterceptors([authInterceptor])),
+    // provideHttpClient(withInterceptors([authInterceptor, toastInterceptor])),
+
     provideAnimations(),
     provideRouter(
       routes,
       withViewTransitions(),
     ),
-    
-    provideToastr(),
+
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      closeButton: true,
+      progressBar: true,
+      enableHtml: true,
+      toastClass: 'custom-toast'
+    }),
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideMessaging(() => getMessaging()),
     importProvidersFrom(
