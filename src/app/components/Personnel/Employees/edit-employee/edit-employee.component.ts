@@ -34,6 +34,7 @@ export class EditEmployeeComponent implements OnInit {
     this.employeeForm = this.fb.group({
       empId: [''],
       fullName: ['', Validators.required],
+      gender: [null, Validators.required],
       phone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
@@ -57,6 +58,8 @@ export class EditEmployeeComponent implements OnInit {
         this.employeeForm.patchValue({
           empId: res.data.object_info.id,
           fullName: info.name,
+          // set gender if available (backend may include gender in contact_info)
+          gender: (info as any).gender ?? null,
           phone: info.mobile.number,
           email: info.email
         });
@@ -98,8 +101,9 @@ export class EditEmployeeComponent implements OnInit {
         main_information: {
           code: form.empId,
           name: form.fullName,
+          gender: form.gender.id,
           // mobile expects object, using number only
-          mobile: { country_id: 0, number: form.phone },
+          mobile: { country_id: 1, number: +form.phone },
           personal_email: form.email
         }
       }
