@@ -5,6 +5,7 @@
   ]" title="Personnel Dashboard">
 </app-page-header>
 <!-- end page header -->
+ <!-- start content -->
 <div class="content-hug">
     <div class="row align-items-stretch">
         <!-- calender -->
@@ -41,7 +42,7 @@
 
                 <!-- calender -->
                 <div class="calendar-wrapper mt-4">
-                    <full-calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
+                    <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
                 </div>
             </div>
 
@@ -49,7 +50,7 @@
 
         <!-- day details -->
         <div class="col-lg-4">
-            <div class="content-box position-sticky" style="top: 1.2rem;" *ngIf="selectedDateFormatted">
+            <div class="content-box position-sticky" style="top: 9.8rem;" *ngIf="selectedDateFormatted">
                 <div class="selected-day mb-4" *ngIf="selectedDateFormatted">
                     {{ selectedDateFormatted }}
                 </div>

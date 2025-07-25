@@ -1,8 +1,7 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthHelperService } from '../../authentication/auth-helper.service';
-import { environment } from '../../../../../environments/environment';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
+import { environment } from './../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,37 +10,15 @@ export class WorkSchaualeService {
 
   private apiBaseUrl: string;
 
-  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
+  constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
-  // getAuthHeaders
-  private getAuthHeaders(includeBearer: boolean = false): HttpHeaders | null {
-    if (!this.authHelper.validateAuth()) {
-      return null;
-    }
-
-    const token = this.authHelper.getToken()!;
-    const sessionToken = this.authHelper.getSessionToken()!;
-    const subdomain = this.authHelper.getSubdomain()!;
-
-    let headers = new HttpHeaders()
-      .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain)
-      .set('SESSIONTOKEN', sessionToken);
-
-    return headers;
-  }
-
-  // create work schadule
+  // create work schedule
   createWorkScaduale(workSchaduleData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/work-schedule`;
-    return this._HttpClient.post(url, workSchaduleData, { headers });
+    return this._HttpClient.post(url, workSchaduleData);
   }
-
 
   // get all work schedule with pagination and filters
   getAllWorkSchadule(
@@ -54,9 +31,6 @@ export class WorkSchaualeService {
       work_schedule_type?: string;
     }
   ): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/work-schedule`;
 
     let params = new HttpParams()
@@ -69,34 +43,31 @@ export class WorkSchaualeService {
       if (filters.schedules_type) params = params.set('schedules_type', filters.schedules_type);
       if (filters.work_schedule_type) params = params.set('work_schedule_type', filters.work_schedule_type);
     }
-    
-    return this._HttpClient.get(url, { headers, params });
+
+    return this._HttpClient.get(url, { params });
   }
 
   // show work schedule by ID
   showWorkSchedule(id: number): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/work-schedule/${id}`;
-    return this._HttpClient.get(url, { headers });
+    return this._HttpClient.get(url);
+  }
+
+  // get work schedule by id
+  getWorkScheduleById(id: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/work-schedule/${id}`;
+    return this._HttpClient.get(url);
   }
 
   // update work schedule status
   updateWorkStatus(id: number, status: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/work-schedule/${id}/`;
-    return this._HttpClient.patch(url, status, { headers });
+    return this._HttpClient.patch(url, status);
   }
 
   // update work schedule
   updateWorkSchedule(workScheduleData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}personnel/work-schedule`;
-    return this._HttpClient.put(url, workScheduleData, { headers });
+    return this._HttpClient.put(url, workScheduleData);
   }
 }

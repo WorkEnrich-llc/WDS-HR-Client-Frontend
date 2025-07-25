@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve -o",
+    "start": "ng serve --o",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -30,6 +30,7 @@
     "device-detector-js": "^3.0.3",
     "firebase": "^11.9.1",
     "ng-otp-input": "^2.0.7",
+    "ng2-pdf-viewer": "^10.4.0",
     "ngx-cookie-service": "^20.0.0",
     "ngx-country-picker": "^3.0.0",
     "ngx-daterangepicker-material": "^6.0.4",

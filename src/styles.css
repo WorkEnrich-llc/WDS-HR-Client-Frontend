@@ -9,19 +9,19 @@ html {
 
 body {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-400) var(--color-neutral-700);
+  scrollbar-color: var(--color-primary-400) var(--color-neutral-200);
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar:horizontal {
-  height: 12px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-neutral-700);
+  background: var(--color-neutral-200);
 }
 
 ::-webkit-scrollbar-thumb {

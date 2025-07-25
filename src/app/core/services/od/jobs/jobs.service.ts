@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../../environments/environment';
+import { environment } from './../../../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -80,6 +80,12 @@ export class JobsService {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
+  }
+
+  // get job titles by department id
+  getJobTitlesByDepartment(departmentId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}od/job-titles/${departmentId}`;
+    return this._HttpClient.get(url);
   }
 
 }

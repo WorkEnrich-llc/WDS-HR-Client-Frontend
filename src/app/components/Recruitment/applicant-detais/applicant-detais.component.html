@@ -1,0 +1,91 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Recruitment', link: '/calendar' },
+    { label: 'Job Openings', link: '/job-openings' },
+    { label: 'Opening 231123', link: '/job-openings/view-job-openings/1' },
+    {  label: 'View Applicant'}
+  ]" title="Opening 231123 - Applicants" create="16/07/2025" [isApplied]="true" update="16/07/2025">
+  <button class="btn btn-lg btn-outline-danger" (click)="overlay.openOverlay()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor" fill-rule="evenodd"
+        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+      <path fill="currentColor" fill-rule="evenodd" fill-rule="evenodd"
+        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+        clip-rule="evenodd" />
+    </svg>
+    <span>Reject</span>
+  </button>
+  <button class="btn btn-lg btn-dark">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor" fill-rule="evenodd"
+        d="M13.47 5.47a.75.75 0 0 1 1.06 0l6 6a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 1 1-1.06-1.06l4.72-4.72H4a.75.75 0 0 1 0-1.5h14.19l-4.72-4.72a.75.75 0 0 1 0-1.06"
+        clip-rule="evenodd" />
+    </svg>
+    <span>Next</span>
+  </button>
+</app-page-header>
+<!-- end page header -->
+
+<!-- page content -->
+<div class="content-hug d-flex flex-column gap-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <app-cv></app-cv>
+    </div>
+    <div class="col-lg-4">
+      <app-interview></app-interview>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <app-attachment-and-info></app-attachment-and-info>
+    </div>
+    <div class="col-lg-8">
+      <app-feedback></app-feedback>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Reject Applicant form -->
+<app-overlay-filter-box #filterBox title="Reject Applicant">
+  <form class="w-100 d-flex flex-column gap-2">
+
+    <div class="input">
+      <label for="notes">Rejection Notes (Optional)</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <textarea type="text" id="notes" class="form-control" placeholder="Enter notes for internal use"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="mail">Rejection Mail (Mandatory)</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <textarea type="text" id="mail" class="form-control"
+            placeholder="Enter a message to be sent in mail"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-lg btn-danger w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+          viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Reject Applicant</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Keep Applicant</span>
+      </a>
+    </div>
+
+  </form>
+</app-overlay-filter-box>
