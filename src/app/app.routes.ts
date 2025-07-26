@@ -581,6 +581,21 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Payroll/Payroll-components/all-payroll-components/all-payroll-components.component').then(m => m.AllPayrollComponentsComponent),
                 title: 'All Payroll Components',
               },
+              {
+                path: 'create-payroll-components',
+                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
+                title: 'Create Payroll Components',
+              },
+              {
+                path: 'edit-payroll-components/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-components/update-payroll-component/update-payroll-component.component').then(m => m.UpdatePayrollComponentComponent),
+                title: 'Edit Payroll Components',
+              },
+              {
+                path: 'view-payroll-components/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-components/view-payroll-component/view-payroll-component.component').then(m => m.ViewPayrollComponentComponent),
+                title: 'View Payroll Components',
+              },
 
             ]
           },
@@ -598,6 +613,21 @@ export const routes: Routes = [
                 path: 'payroll-runs',
                 loadComponent: () => import('./components/Payroll/Payroll-runs/all-payroll-runs/all-payroll-runs.component').then(m => m.AllPayrollRunsComponent),
                 title: 'All Payroll Runs',
+              },
+              {
+                path: 'view-payroll-run/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-runs/view-payroll-runs/view-payroll-runs.component').then(m => m.ViewPayrollRunsComponent),
+                title: 'View Payroll Run',
+              },
+              {
+                path: 'edit-payroll-run/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-runs/edit-employee-payroll/edit-employee-payroll.component').then(m => m.EditEmployeePayrollComponent),
+                title: 'Edit Employee Payroll',
+              },
+              {
+                path: 'view-employee-payroll/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-runs/view-employee/view-employee.component').then(m => m.ViewEmployeeComponent),
+                title: 'View Employee',
               },
 
             ]
