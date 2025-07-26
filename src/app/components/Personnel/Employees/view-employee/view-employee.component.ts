@@ -3,20 +3,31 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { HttpEventType } from '@angular/common/http';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
 
+// Import tab components
+import { AttendanceTabComponent } from './tabs/attendance-tab/attendance-tab.component';
+import { RequestsTabComponent } from './tabs/requests-tab/requests-tab.component';
+import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.component';
+import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
+
 
 
 @Component({
   selector: 'app-view-employee',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent, FullCalendarModule],
+  imports: [
+    PageHeaderComponent, 
+    CommonModule, 
+    RouterLink, 
+    PopupComponent,
+    AttendanceTabComponent,
+    RequestsTabComponent,
+    DocumentsTabComponent,
+    ContractsTabComponent
+  ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
 })
@@ -29,6 +40,9 @@ export class ViewEmployeeComponent implements OnInit {
   subscription: Subscription | null = null;
   loading = false;
   employeeId: number = 0;
+
+  // Tab management
+  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' = 'attendance';
 
   // Documents checklist
   readonly documentsRequired: Array<{ name: string; key: string; uploaded: boolean; url?: string; id?: number }> = [
@@ -163,56 +177,10 @@ export class ViewEmployeeComponent implements OnInit {
     }
   }
 
-  // calender
-
-  selectedDateFormatted: string = '';
-  eventsDay: { title: string; date: string; type: string }[] = [];
-  events = [
-    // Multiple events on June 12
-    { title: 'Join Date', date: '2025-06-11', type: 'Holiday' },
-    { title: '09:00AM - 05:00PM', date: '2025-06-12', type: 'Meeting' },
-    { title: '09:00AM - 05:00PM', date: '2025-06-15', type: 'Meeting' },
-    { title: '09:00AM - 05:00PM', date: '2025-06-16', type: 'Meeting' },
-    { title: '09:00AM - 05:00PM', date: '2025-06-17', type: 'Meeting' },
-  ];
-  calendarOptions: CalendarOptions = {
-    initialView: 'dayGridMonth',
-    plugins: [dayGridPlugin, interactionPlugin],
-    fixedWeekCount: false,
-    selectable: true,
-    events: this.events,
-    dayMaxEvents: 3,
-    height: 'auto',
-    eventClassNames: (arg) => {
-      const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
-      return [`event-${eventType}`];
-    },
-    dateClick: this.handleDateClick.bind(this)
-  };
-
-  handleDateClick(arg: any) {
-    const clickedDate = arg.dateStr;
-    const dateObj = new Date(clickedDate);
-
-    this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long'
-    });
-
-    this.eventsDay = this.events.filter(e => e.date === clickedDate);
-
-    if (this.eventsDay.length) {
-      // console.log(`Events on ${this.selectedDateFormatted}:`);
-      this.eventsDay.forEach(event =>
-        console.log(`- ${event.title} (${event.type})`)
-      );
-    } else {
-      // console.log(`No events on ${this.selectedDateFormatted}.`);
-    }
+  // Tab management method
+  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts'): void {
+    this.currentTab = tab;
   }
-
-
 
   // popups
   deactivateOpen = false;

@@ -1,0 +1,269 @@
+<!-- New Contract Overlay -->
+<app-overlay-filter-box
+  [title]="isEditMode ? 'Edit Contract' : 'New Contract'"
+  [customWidth]="'700px'"
+  [isOverlayVisible]="isAddModalOpen"
+  (onClose)="closeAddModal()">
+  <div modal-content>
+    <form [formGroup]="contractForm">
+      <div class="input mb-3">
+        <label for="newSalary">{{ isEditMode ? 'Edit Salary' : 'New Salary' }}</label>
+        <div class="form-outline w-100 position-relative">
+          <input 
+            id="newSalary" 
+            type="number" 
+            class="form-control custom-date-input" 
+            [class.is-invalid]="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
+            placeholder="In EGP"
+            formControlName="salary" />
+          <div class="invalid-feedback" *ngIf="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched">
+            <div *ngIf="contractForm.get('salary')?.errors?.['required']">Salary is required</div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['min']">Salary must be greater than 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="input mb-3">
+        <label for="startDate">Start Date</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input 
+            id="startDate" 
+            type="date" 
+            class="form-control custom-date-input" 
+            [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
+            placeholder="Select Start Date" 
+            formControlName="startDate" />
+          <div class="invalid-feedback" *ngIf="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched">
+            Start date is required
+          </div>
+        </div>
+      </div>
+      <div class="form-check mb-3">
+        <input 
+          class="form-check-input" 
+          type="checkbox"
+          id="withEnd" 
+          formControlName="withEndDate" />
+        <label class="form-check-label" for="withEnd">With end date</label>
+      </div>
+      <div *ngIf="contractForm.get('withEndDate')?.value">
+        <div class="input mb-3">
+          <label for="endDate">End Date</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input 
+              id="endDate" 
+              type="date" 
+              class="form-control custom-date-input" 
+              [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+              placeholder="Select End Date" 
+              formControlName="endDate" />
+            <div class="invalid-feedback" *ngIf="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched">
+              End date is required when "With end date" is selected
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <button modal-btn-left class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" (click)="saveContract()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6"/>
+    </svg>
+    <span>{{ isEditMode ? 'Update Contract' : 'Save Contract' }}</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark w-100 d-flex align-items-center justify-content-center gap-2" (click)="closeAddModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4m0 0l6 6m-6-6l6-6"/>
+    </svg>
+    <span>Close</span>
+  </button>
+</app-overlay-filter-box>
+<div class="contracts-content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Work Contracts</h3>
+    <button class="btn btn-primary d-flex align-items-center gap-2" (click)="addContract()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/>
+        <path d="M12 5v14"/>
+      </svg>
+      Add Contract
+    </button>
+  </div>
+
+  <!-- Table Header Template -->
+  <ng-template #headerTemplate>
+    <th class="text-start">Contract Number</th>
+    <th class="text-start">Start Date</th>
+    <th class="text-start">End Date</th>
+    <th class="text-start">Salary</th>
+    <th class="text-start">Insurance Salary</th>
+    <th class="text-start">Status</th>
+    <th class="text-start">Actions</th>
+  </ng-template>
+
+  <!-- Table Row Template -->
+  <ng-template #rowTemplate let-contract>
+    <td class="text-start">
+      <div class="d-flex flex-column">
+        <span class="fw-bold">{{ contract.contractNumber }}</span>
+      </div>
+    </td>
+    <td class="text-start">{{ contract.startDate }}</td>
+    <td class="text-start">{{ contract.endDate }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency) }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary, contract.currency) }}</td>
+    <td class="text-start">
+      <span [ngClass]="getStatusClass(contract.status)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Upcoming'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M12 7v5l3 3" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Active'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Cancelled'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Expired'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+          </g>
+        </svg>
+        <span>{{ contract.status }}</span>
+      </span>
+    </td>
+    <td class="text-start">
+      <div class="d-flex align-items-center gap-2">
+        <!-- History Action -->
+        <a (click)="viewHistory(contract)" class="view-btn" title="Contract History">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8v4l3 3" />
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          
+        </a>
+        <!-- Edit Action -->
+        <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <path d="m15 5 4 4"/>
+          </svg>
+          Edit
+        </a>
+        <!-- Delete Action -->
+        <a (click)="openDeleteModal(contract)" class="view-btn delete-btn" title="Delete Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"/>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v>2"/>
+          </svg>
+          Delete
+        </a>
+      </div>
+    </td>
+  </ng-template>
+
+  <!-- Empty Template -->
+  <ng-template #emptyTemplate>
+    <tr>
+      <td colspan="7" class="text-center py-4">
+        <div class="no-data">
+          No contracts found
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <app-table
+    [data]="contractsData"
+    [totalItems]="totalItems"
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [isLoading]="isLoading"
+    [columnsCount]="7"
+    [headerTemplate]="headerTemplate"
+    [rowTemplate]="rowTemplate"
+    [emptyTemplate]="emptyTemplate"
+    (pageChange)="onPageChange($event)"
+    (itemsPerPageChange)="onItemsPerPageChange($event)">
+  </app-table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<app-popup 
+  [title]="'Delete Contract'" 
+  [paragraph1]="'Are you sure you want to delete this contract?'"
+  [paragraph2]="'Contract: ' + (selectedContract?.contractNumber || '')"
+  [isOpen]="isDeleteModalOpen" 
+  (close)="closeDeleteModal()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
+    Delete Contract
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteModal()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Contract History Modal -->
+<app-overlay-filter-box
+  [title]="'Contract History'"
+  [customWidth]="'700px'"
+  [isOverlayVisible]="isHistoryModalOpen"
+  (onClose)="closeHistoryModal()">
+  <div modal-content>
+    <div class="history-table-container">
+      <!-- Table Header Template -->
+      <ng-template #historyHeaderTemplate>
+        <th class="text-start">ID</th>
+        <th class="text-start">Adjustment Type</th>
+        <th class="text-start">Adjusted Salary</th>
+        <th class="text-start">Date</th>
+      </ng-template>
+
+      <!-- Table Row Template -->
+      <ng-template #historyRowTemplate let-historyItem>
+        <td class="text-start">{{ ('00' + historyItem.id).slice(-3) }}</td>
+        <td class="text-start">{{ historyItem.action }}</td>
+        <td class="text-start">{{ historyItem.newValue }}</td>
+        <td class="text-start">{{ historyItem.changeDate }}</td>
+      </ng-template>
+
+      <!-- Empty Template -->
+      <ng-template #historyEmptyTemplate>
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <div class="no-data">
+              No history available for this contract.
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <app-table
+        [data]="contractHistory"
+        [totalItems]="contractHistory.length"
+        [currentPage]="1"
+        [itemsPerPage]="contractHistory.length"
+        [disablePagination]="true"
+        [isLoading]="false"
+        [columnsCount]="4"
+        [headerTemplate]="historyHeaderTemplate"
+        [rowTemplate]="historyRowTemplate"
+        [emptyTemplate]="historyEmptyTemplate">
+      </app-table>
+    </div>
+  </div>
+
+</app-overlay-filter-box>
