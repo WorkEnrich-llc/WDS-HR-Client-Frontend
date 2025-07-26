@@ -21,6 +21,7 @@ export class EditEmployeeComponent implements OnInit {
   employeeId!: number;
   errMsg = '';
   isLoading = false;
+  employeeData: any = null; // Store the complete employee data
 
   constructor(
     private router: Router,
@@ -54,6 +55,7 @@ export class EditEmployeeComponent implements OnInit {
     this.isLoading = true;
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: res => {
+        this.employeeData = res.data.object_info; // Store the complete employee data
         const info = res.data.object_info.contact_info;
         this.employeeForm.patchValue({
           empId: res.data.object_info.id,
@@ -95,19 +97,43 @@ export class EditEmployeeComponent implements OnInit {
     this.errMsg = '';
     this.isLoading = true;
     const form = this.employeeForm.value;
+
+    // Build the complete payload using the stored employee data
     const payload = {
       request_data: {
         id: this.employeeId,
         main_information: {
-          code: form.empId,
+          code: String(form.empId || this.employeeData?.id),
           name: form.fullName,
-          gender: form.gender.id,
-          // mobile expects object, using number only
-          mobile: { country_id: 1, number: +form.phone },
-          personal_email: form.email
+          gender: form.gender?.id || this.employeeData?.contact_info?.gender?.id,
+          mobile: {
+            country_id: this.employeeData?.contact_info?.mobile?.country?.id || 1,
+            number: +form.phone
+          },
+          personal_email: form.email,
+          marital_status: this.employeeData?.contact_info?.marital_status?.id,
+          date_of_birth: this.employeeData?.contact_info?.date_of_birth?.split('T')[0], // Convert to YYYY-MM-DD format
+          address: this.employeeData?.contact_info?.address
+        },
+        job_details: {
+          branch_id: this.employeeData?.job_info?.branch?.id,
+          department_id: this.employeeData?.job_info?.department?.id,
+          section_id: this.employeeData?.job_info?.section?.id,
+          job_title_id: this.employeeData?.job_info?.job_title?.id,
+          work_schedule_id: this.employeeData?.job_info?.work_schedule?.id
+        },
+        contract_details: {
+          start_contract: this.employeeData?.job_info?.start_contract,
+          contract_type: this.employeeData?.job_info?.contract_type?.id,
+          contract_end_date: this.employeeData?.job_info?.end_contract,
+          employment_type: this.employeeData?.job_info?.employment_type?.id,
+          work_mode: this.employeeData?.job_info?.work_mode?.id,
+          days_on_site: this.employeeData?.job_info?.days_on_site,
+          salary: this.employeeData?.job_info?.salary
         }
       }
     };
+
     this.employeeService.updateEmployee(payload).subscribe({
       next: () => {
         this.toasterMessageService.sendMessage('Employee updated successfully');
