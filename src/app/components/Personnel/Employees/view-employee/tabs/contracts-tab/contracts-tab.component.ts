@@ -1,16 +1,16 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { TableComponent } from '../../../../../shared/table/table.component';
-import { PopupComponent } from '../../../../../shared/popup/popup.component';
-import { OverlayFilterBoxComponent } from '../../../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { ContractFormModalComponent } from './modals/contract-form-modal/contract-form-modal.component';
+import { ContractDeleteModalComponent } from './modals/contract-delete-modal/contract-delete-modal.component';
+import { ContractHistoryModalComponent } from './modals/contract-history-modal/contract-history-modal.component';
 
 @Component({
   standalone: true,
   selector: 'app-contracts-tab',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableComponent, PopupComponent, OverlayFilterBoxComponent],
+  imports: [CommonModule, TableComponent, ContractFormModalComponent, ContractDeleteModalComponent, ContractHistoryModalComponent],
   templateUrl: './contracts-tab.component.html',
   styleUrl: './contracts-tab.component.css'
 })
@@ -32,29 +32,7 @@ export class ContractsTabComponent implements OnInit {
   isAddModalOpen = false;
   isEditMode = false;
 
-  // Reactive form
-  contractForm: FormGroup;
-
-  constructor(private fb: FormBuilder) {
-    this.contractForm = this.fb.group({
-      salary: [null, [Validators.required, Validators.min(0)]],
-      startDate: [null, Validators.required],
-      withEndDate: [true],
-      endDate: [null]
-    });
-
-    // Watch for changes in withEndDate to control endDate validation
-    this.contractForm.get('withEndDate')?.valueChanges.subscribe(value => {
-      const endDateControl = this.contractForm.get('endDate');
-      if (value) {
-        endDateControl?.setValidators([Validators.required]);
-      } else {
-        endDateControl?.clearValidators();
-        endDateControl?.setValue(null);
-      }
-      endDateControl?.updateValueAndValidity();
-    });
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.loadMockData();
@@ -316,37 +294,30 @@ export class ContractsTabComponent implements OnInit {
     }
   }
 
-  // Edit contract
+  // Handle delete from modal
+  onContractDelete(contract: Contract): void {
+    // Call API to delete contract
+    console.log('Deleting contract:', contract.id);
+    
+    // Remove from local data (replace with API call)
+    this.contractsData = this.contractsData.filter(c => c.id !== contract.id);
+    this.totalItems = this.contractsData.length;
+    
+    this.closeDeleteModal();
+    // Show success message
+  }
+
   // Edit contract
   editContract(contract: Contract): void {
     this.selectedContract = contract;
     this.isEditMode = true;
     this.isAddModalOpen = true;
-
-    // Format dates for form inputs (convert from display format to ISO format)
-    const formattedStartDate = this.convertDisplayDateToFormDate(contract.startDate);
-    const formattedEndDate = contract.endDate ? this.convertDisplayDateToFormDate(contract.endDate) : null;
-    const hasEndDate = !!contract.endDate;
-
-    // Populate form with contract data
-    this.contractForm.patchValue({
-      salary: contract.salary,
-      startDate: formattedStartDate,
-      withEndDate: hasEndDate,
-      endDate: formattedEndDate
-    });
   }
 
   // Add new contract
   addContract(): void {
     this.isEditMode = false;
     this.selectedContract = null;
-    this.contractForm.reset({
-      salary: null,
-      startDate: null,
-      withEndDate: true,
-      endDate: null
-    });
     this.isAddModalOpen = true;
   }
 
@@ -355,27 +326,17 @@ export class ContractsTabComponent implements OnInit {
     this.isAddModalOpen = false;
     this.isEditMode = false;
     this.selectedContract = null;
-    this.contractForm.reset();
   }
 
-  // Save contract (add or edit)
-  saveContract(): void {
-    if (this.contractForm.invalid) {
-      Object.keys(this.contractForm.controls).forEach(key => {
-        this.contractForm.get(key)?.markAsTouched();
-      });
-      return;
-    }
-
-    const formValue = this.contractForm.value;
-
-    if (this.isEditMode && this.selectedContract) {
+  // Save contract (add or edit) - called from modal
+  onContractSave(contractData: any): void {
+    if (contractData.isEdit && this.selectedContract) {
       // Update existing contract
       const updatedContract: Contract = {
         ...this.selectedContract,
-        salary: formValue.salary,
-        startDate: this.convertFormDateToDisplayDate(formValue.startDate),
-        endDate: formValue.withEndDate ? this.convertFormDateToDisplayDate(formValue.endDate) : '',
+        salary: contractData.salary,
+        startDate: contractData.startDate,
+        endDate: contractData.endDate,
         updatedAt: new Date().toISOString()
       };
 
@@ -389,12 +350,12 @@ export class ContractsTabComponent implements OnInit {
       const newContract: Contract = {
         id: newId,
         contractNumber: ('00' + newId).slice(-3),
-        startDate: this.convertFormDateToDisplayDate(formValue.startDate),
-        endDate: formValue.withEndDate ? this.convertFormDateToDisplayDate(formValue.endDate) : '',
+        startDate: contractData.startDate,
+        endDate: contractData.endDate,
         employmentType: { id: 0, name: '' },
         contractType: { id: 0, name: '' },
         workMode: { id: 0, name: '' },
-        salary: formValue.salary,
+        salary: contractData.salary,
         insuranceSalary: 0,
         currency: 'EGP',
         status: 'Upcoming',
@@ -409,27 +370,6 @@ export class ContractsTabComponent implements OnInit {
     }
 
     this.closeAddModal();
-  }
-
-  // Helper method to convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
-  private convertDisplayDateToFormDate(displayDate: string): string {
-    if (!displayDate) return '';
-    const parts = displayDate.split('/');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-    }
-    return displayDate;
-  }
-
-  // Helper method to convert form date (YYYY-MM-DD) to display date (DD/MM/YYYY)
-  private convertFormDateToDisplayDate(formDate: string): string {
-    if (!formDate) return '';
-    const date = new Date(formDate);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
   }
   
   // View contract history
@@ -569,30 +509,5 @@ export class ContractsTabComponent implements OnInit {
 
   getUpcomingContractsCount(): number {
     return this.contractsData.filter(contract => contract.status === 'Upcoming').length;
-  }
-
-  // Form validation helper methods
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.contractForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
-  }
-
-  getFieldError(fieldName: string): string {
-    const field = this.contractForm.get(fieldName);
-    if (field && field.errors && field.touched) {
-      if (field.errors['required']) return `${fieldName} is required`;
-      if (field.errors['min']) return `${fieldName} must be greater than 0`;
-    }
-    return '';
-  }
-
-  // Modal title helper
-  getModalTitle(): string {
-    return this.isEditMode ? 'Edit Contract' : 'New Contract';
-  }
-
-  // Button text helper
-  getSaveButtonText(): string {
-    return this.isEditMode ? 'Update Contract' : 'Save Contract';
   }
 }
