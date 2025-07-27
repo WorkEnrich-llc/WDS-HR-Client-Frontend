@@ -36,7 +36,7 @@
     <td>{{ document.name }}</td>
     <td>
       @if (document.uploaded) {
-        {{ document.uploadDate || '20/05/2025' }}
+        {{ getFormattedDate(document.uploadDate) }}
       } @else {
         <span class="text-warning">Not Uploaded</span>
       }
@@ -44,8 +44,8 @@
     <td>
       @if (document.uploaded) {
         <div>
-          <small class="text-muted">{{ document.size || '0 MB' }}</small><br>
-          <small>{{ document.fileName || 'File' }}</small>
+          <small class="text-muted">{{ getFormattedSize(document.size) }}</small><br>
+          <small>{{ document.fileName || 'Unknown File' }}</small>
         </div>
       } @else {
         <span class="text-warning">Not Uploaded</span>
@@ -54,7 +54,7 @@
     <td>
       @if (document.uploaded) {
         <div class="d-flex align-items-center gap-2">
-          <button class="btn btn-sm btn-outline-primary" title="View">
+          <button class="btn btn-sm btn-outline-primary" (click)="onViewDocument(document.url)" title="View">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>

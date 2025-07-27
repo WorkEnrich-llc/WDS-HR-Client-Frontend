@@ -88,7 +88,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.filteredEmployees = this.employees.map(employee => ({
       id: employee.id,
       name: employee.contact_info.name,
-      employeeStatus: this.getEmployeeStatus(employee),
+      employeeStatus: employee.employee_status,
       accountStatus: this.getAccountStatus(employee.employee_active),
       jobTitle: employee.job_info.job_title.name,
       branch: employee.job_info.branch.name,

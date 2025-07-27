@@ -45,7 +45,18 @@ export class ViewEmployeeComponent implements OnInit {
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' = 'attendance';
 
   // Documents checklist
-  readonly documentsRequired: Array<{ name: string; key: string; uploaded: boolean; url?: string; id?: number }> = [
+  readonly documentsRequired: Array<{ 
+    name: string; 
+    key: string; 
+    uploaded: boolean; 
+    url?: string; 
+    id?: number;
+    uploadDate?: string;
+    fileName?: string;
+    size?: number;
+    fileExt?: string;
+    fileType?: string;
+  }> = [
     { name: 'CV', key: 'cv', uploaded: false },
     { name: 'ID Front', key: 'id_front', uploaded: false },
     { name: 'ID Back', key: 'id_back', uploaded: false },
@@ -65,8 +76,13 @@ export class ViewEmployeeComponent implements OnInit {
           const doc = this.documentsRequired.find(d => d.key === item.name);
           if (doc) {
             doc.uploaded = true;
-            doc.url = item.document_url?.generate_signed_url;
+            doc.url = item.document_url;
             doc.id = item.id;
+            doc.uploadDate = item.created_at;
+            doc.fileName = item.info?.file_name;
+            doc.size = item.info?.file_size_kb;
+            doc.fileExt = item.info?.file_ext;
+            doc.fileType = item.info?.file_type;
           }
         });
       },
@@ -114,11 +130,10 @@ export class ViewEmployeeComponent implements OnInit {
         joinDate: ""
       };
     }
-
     return {
       id: this.employee.id,
       name: this.employee.contact_info.name,
-      employeeStatus: this.getEmployeeStatus(this.employee),
+      employeeStatus: this.employee.employee_status,
       accountStatus: this.getAccountStatus(this.employee.employee_active),
       jobTitle: this.employee.job_info.job_title.name,
       branch: this.employee.job_info.branch.name,

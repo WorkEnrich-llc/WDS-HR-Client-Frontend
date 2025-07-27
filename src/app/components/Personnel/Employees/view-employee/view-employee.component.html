@@ -34,25 +34,6 @@
     </svg>
     <span>Edit</span>
   </button>
-  } @if (hasEmployeePermission('update')) {
-  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
-    <!-- SVG and Activate -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-width="1.5"
-        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294"
-      />
-    </svg>
-    <span>Activate</span>
-  </button>
   }
 </app-page-header>
 }
@@ -92,25 +73,6 @@
       </g>
     </svg>
     <span>Edit</span>
-  </button>
-  } @if (hasEmployeePermission('update')) {
-  <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
-    <!-- SVG and Deactivate -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-width="1.5"
-        d="m18.5 5.5l-13 13M5.5 5.5l13 13"
-      />
-    </svg>
-    <span>Deactivate</span>
   </button>
   }
 </app-page-header>
@@ -430,12 +392,36 @@
         </svg>
         <span>Activate</span>
       </button>
-      } @else {
+      } @else if (isEmployeeInactive) {
       <button
         class="btn btn-lg btn-primary w-100 mt-auto"
         (click)="resendActiveLink()"
       >
         <!-- SVG and Send in Email -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <path
+              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"
+            />
+            <path
+              stroke-linecap="round"
+              d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8"
+            />
+          </g>
+        </svg>
+        <span>Send in Email</span>
+      </button>
+      } @else {
+      <button
+        class="btn btn-lg btn-primary w-100 mt-auto"
+        (click)="resendActiveLink()"
+      >
+        <!-- SVG and Send Again -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -510,34 +496,7 @@
             }"
             (click)="setCurrentTab('attendance')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab === 'attendance'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.5 12.5l2 2l5-5"
-                />
-              </g>
-            </svg>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab !== 'attendance'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="M12 7v5l3 3" />
-              </g>
-            </svg>
+
             <span class="nav-link">Attendance</span>
           </li>
 
@@ -548,39 +507,7 @@
             }"
             (click)="setCurrentTab('requests')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab === 'requests'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.5 12.5l2 2l5-5"
-                />
-              </g>
-            </svg>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab !== 'requests'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                  d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"
-                />
-                <path
-                  stroke-linecap="round"
-                  d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8"
-                />
-              </g>
-            </svg>
+
             <span class="nav-link">Requests</span>
           </li>
 
@@ -591,41 +518,8 @@
             }"
             (click)="setCurrentTab('documents')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab === 'documents'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.5 12.5l2 2l5-5"
-                />
-              </g>
-            </svg>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab !== 'documents'"
-            >
-              <g fill="none">
-                <path
-                  fill="currentColor"
-                  d="m15.393 4.054l-.502.557zm3.959 3.563l-.502.557zm2.302 2.537l-.685.305zM3.172 20.828l.53-.53zm17.656 0l-.53-.53zM14 21.25h-4v1.5h4zM2.75 14v-4h-1.5v4zm18.5-.437V14h1.5v-.437z"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  d="M13 2.5V5c0 2.357 0 3.536.732 4.268S15.643 10 18 10h4"
-                />
-              </g>
-            </svg>
+
+
             <span class="nav-link">Documents</span>
           </li>
 
@@ -636,42 +530,8 @@
             }"
             (click)="setCurrentTab('contracts')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab === 'contracts'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m8.5 12.5l2 2l5-5"
-                />
-              </g>
-            </svg>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              *ngIf="currentTab !== 'contracts'"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                  d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12"
-                />
-                <path
-                  d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802"
-                />
-                <path
-                  stroke-linecap="round"
-                  d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z"
-                />
-              </g>
-            </svg>
+
+
             <span class="nav-link">Contracts</span>
           </li>
         </ul>
@@ -679,34 +539,29 @@
         <!-- Tab Content -->
         <div class="tab-content">
           @if (currentTab === 'attendance') {
-            <app-attendance-tab 
-              [employee]="employee" 
-              [isEmployeeActive]="isEmployeeActive">
-            </app-attendance-tab>
-          }
-          
-          @if (currentTab === 'requests') {
-            <app-requests-tab 
-              [employee]="employee" 
-              [isEmployeeActive]="isEmployeeActive">
-            </app-requests-tab>
-          }
-          
-          @if (currentTab === 'documents') {
-            <app-documents-tab 
-              [employee]="employee"
-              [documentsRequired]="documentsRequired"
-              [uploadProgress]="uploadProgress"
-              (fileSelected)="onFileSelected($event)"
-              (uploadDocument)="onUpload($event.key, $event.fileInput)"
-              (deleteDocument)="onDelete($event)">
-            </app-documents-tab>
-          }
-          
-          @if (currentTab === 'contracts') {
-            <app-contracts-tab 
-              [employee]="employee">
-            </app-contracts-tab>
+          <app-attendance-tab
+            [employee]="employee"
+            [isEmployeeActive]="isEmployeeActive"
+          >
+          </app-attendance-tab>
+          } @if (currentTab === 'requests') {
+          <app-requests-tab
+            [employee]="employee"
+            [isEmployeeActive]="isEmployeeActive"
+          >
+          </app-requests-tab>
+          } @if (currentTab === 'documents') {
+          <app-documents-tab
+            [employee]="employee"
+            [documentsRequired]="documentsRequired"
+            [uploadProgress]="uploadProgress"
+            (fileSelected)="onFileSelected($event)"
+            (uploadDocument)="onUpload($event.key, $event.fileInput)"
+            (deleteDocument)="onDelete($event)"
+          >
+          </app-documents-tab>
+          } @if (currentTab === 'contracts') {
+          <app-contracts-tab [employee]="employee"> </app-contracts-tab>
           }
         </div>
       </div>

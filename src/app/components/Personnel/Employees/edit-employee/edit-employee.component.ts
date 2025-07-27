@@ -98,7 +98,7 @@ export class EditEmployeeComponent implements OnInit {
     this.isLoading = true;
     const form = this.employeeForm.value;
 
-    // Build the complete payload using the stored employee data
+
     const payload = {
       request_data: {
         id: this.employeeId,
@@ -112,7 +112,7 @@ export class EditEmployeeComponent implements OnInit {
           },
           personal_email: form.email,
           marital_status: this.employeeData?.contact_info?.marital_status?.id,
-          date_of_birth: this.employeeData?.contact_info?.date_of_birth?.split('T')[0], // Convert to YYYY-MM-DD format
+          date_of_birth: this.formatDate(this.employeeData?.contact_info?.date_of_birth), // Convert to YYYY-M-D format
           address: this.employeeData?.contact_info?.address
         },
         job_details: {
@@ -123,7 +123,7 @@ export class EditEmployeeComponent implements OnInit {
           work_schedule_id: this.employeeData?.job_info?.work_schedule?.id
         },
         contract_details: {
-          start_contract: this.employeeData?.job_info?.start_contract,
+          start_contract: this.formatDate(this.employeeData?.job_info?.start_contract), // Convert to YYYY-M-D format
           contract_type: this.employeeData?.job_info?.contract_type?.id,
           contract_end_date: this.employeeData?.job_info?.end_contract,
           employment_type: this.employeeData?.job_info?.employment_type?.id,
@@ -146,4 +146,9 @@ export class EditEmployeeComponent implements OnInit {
     });
   }
 
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
 }

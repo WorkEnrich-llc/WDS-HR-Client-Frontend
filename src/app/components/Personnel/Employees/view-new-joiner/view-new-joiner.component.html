@@ -4,9 +4,9 @@
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
     { label: 'New Joiner' }
-  ]" [title]="'New Joiner - ' + (employee.contact_info.name || '')" 
-  [create]="(employee.created_at | date:'dd/MM/yyyy') || ''" 
-  [update]="(employee.updated_at | date:'dd/MM/yyyy') || ''">
+  ]" [title]="'New Joiner - ' + (employee.contact_info.name || '')"
+    [create]="(employee.created_at | date : 'dd/MM/yyyy') || ''"
+    [update]="(employee.updated_at | date : 'dd/MM/yyyy') || ''">
 </app-page-header>
 }
 
@@ -16,9 +16,9 @@
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
     { label: 'View New Joiner ' + employee.contact_info.name }
-  ]" [title]="'New Joiner - ' + employee.contact_info.name" 
-  [create]="(employee.created_at | date:'dd/MM/yyyy') || ''" 
-  [update]="(employee.updated_at | date:'dd/MM/yyyy') || ''">
+  ]" [title]="'New Joiner - ' + employee.contact_info.name"
+    [create]="(employee.created_at | date : 'dd/MM/yyyy') || ''"
+    [update]="(employee.updated_at | date : 'dd/MM/yyyy') || ''">
     @if (hasEmployeePermission('update')) {
     <button class="btn btn-lg btn-primary" (click)="openSuccessModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -29,8 +29,7 @@
         </svg>
         <span>Employee Joined</span>
     </button>
-    }
-    @if (hasEmployeePermission('delete')) {
+    } @if (hasEmployeePermission('delete')) {
     <button class="btn btn-lg btn-outline-danger" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -45,59 +44,63 @@
 }
 
 <div class="content-hug d-flex flex-column gap-4">
-
-  <!-- Loading state -->
-  @if (loading) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+    <!-- Loading state -->
+    @if (loading) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 400px">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
-  </div>
-  }
+    }
 
-  <!-- Error state -->
-  @if (!loading && !employee) {
-  <div class="alert alert-warning" role="alert">
-    <h4 class="alert-heading">Employee Not Found</h4>
-    <p>The requested employee could not be found or an error occurred while loading the data.</p>
-  </div>
-  }
+    <!-- Error state -->
+    @if (!loading && !employee) {
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Employee Not Found</h4>
+        <p>
+            The requested employee could not be found or an error occurred while
+            loading the data.
+        </p>
+    </div>
+    }
 
-  <!-- Content when employee data is loaded -->
-  @if (!loading && employee) {
+    <!-- Content when employee data is loaded -->
+    @if (!loading && employee) {
 
     <!-- 3 cards -->
     <div class="d-flex align-items-stretch gap-4">
-
         <div class="content-box d-flex flex-column gap-3 w-100">
             <h2>Contact Info</h2>
             <div class="info">
                 <h6>ID</h6>
-                <span>{{ employee.id || 'N/A' }}</span>
+                <span>{{ employee.id || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Full Name</h6>
-                <span>{{ employee.contact_info.name || 'N/A' }}</span>
+                <span>{{ employee.contact_info.name || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Phone Number</h6>
-                <span>{{ employee.contact_info.mobile.country.phone_prefix || '' }}{{ employee.contact_info.mobile.number || 'N/A' }}</span>
+                <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
+                    }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Personal Email</h6>
-                <span>{{ employee.contact_info.email || 'N/A' }}</span>
+                <span>{{ employee.contact_info.email || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Date of Birth</h6>
-                <span>{{ (employee.contact_info.date_of_birth | date:'dd/MM/yyyy') || 'N/A' }}</span>
+                <span>{{
+                    (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
+                    }}</span>
             </div>
             <div class="info">
                 <h6>Address</h6>
-                <span>{{ employee.contact_info.address || 'N/A' }}</span>
+                <span>{{ employee.contact_info.address || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Marital Status</h6>
-                <span>{{ employee.contact_info.marital_status.name || 'N/A' }}</span>
+                <span>{{ employee.contact_info.marital_status.name || "N/A" }}</span>
             </div>
         </div>
 
@@ -117,12 +120,12 @@
                     </svg>
                     <span>New Joiner</span>
                 </span>
-                }
-                @if (employeeData.employeeStatus === 'Joining Today') {
+                } @if (employeeData.employeeStatus === 'Joining Today') {
                 <span class="badge-newemployee">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
+                            <path
+                                d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
                             <path
                                 d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
                             <path stroke-linecap="round"
@@ -135,11 +138,11 @@
             </div>
             <div class="info">
                 <h6>Job Title</h6>
-                <span>{{ employee.job_info.job_title.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.job_title.name || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Employment Type</h6>
-                <span>{{ employee.job_info.employment_type.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.employment_type.name || "N/A" }}</span>
             </div>
             <!-- <div class="info">
                 <h6>Work Mode</h6>
@@ -147,15 +150,15 @@
             </div> -->
             <div class="info">
                 <h6>Section</h6>
-                <span>{{ employee.job_info.section?.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.section?.name || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Department</h6>
-                <span>{{ employee.job_info.department.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.department.name || "N/A" }}</span>
             </div>
             <div class="info">
                 <h6>Branch</h6>
-                <span>{{ employee.job_info.branch.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.branch.name || "N/A" }}</span>
             </div>
             <!-- <div class="info">
                 <h6>Work Schedule</h6>
@@ -168,7 +171,9 @@
             @if (employee.job_info.end_contract) {
             <div class="info">
                 <h6>Contract End Date</h6>
-                <span>{{ (employee.job_info.end_contract | date:'dd/MM/yyyy') || 'N/A' }}</span>
+                <span>{{
+                    (employee.job_info.end_contract | date : "dd/MM/yyyy") || "N/A"
+                    }}</span>
             </div>
             }
             <!-- <div class="info">
@@ -213,8 +218,7 @@
                     </svg>
                     <span>Active</span>
                 </span>
-                }
-                @if (isEmployeePending) {
+                } @if (isEmployeePending) {
                 <span class="badge-warning">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -224,8 +228,7 @@
                     </svg>
                     <span>Pending</span>
                 </span>
-                }
-                @if (isEmployeeDisabled) {
+                } @if (isEmployeeDisabled) {
                 <span class="badge-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -235,8 +238,7 @@
                     </svg>
                     <span>Disabled</span>
                 </span>
-                }
-                @if (isEmployeeInactive) {
+                } @if (isEmployeeInactive) {
                 <span class="badge-gray">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -250,7 +252,7 @@
             </div>
             <div class="info">
                 <h6>Company Email</h6>
-                <span>{{ employee.contact_info.email || 'N/A' }}</span>
+                <span>{{ employee.contact_info.email || "N/A" }}</span>
             </div>
             @if (!isEmployeeActive) {
             <div class="info">
@@ -258,22 +260,7 @@
                 <span>**********</span>
             </div>
             }
-
-            @if (!isEmployeeActive) {
-            <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resendActiveLink()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path
-                            d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
-                        <path stroke-linecap="round"
-                            d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
-                    </g>
-                </svg>
-                <span>Send in Email</span>
-            </button>
-            }
         </div>
-
     </div>
 
     <!-- Join Status Section -->
@@ -281,7 +268,8 @@
         <!-- Future join date -->
         @if (isJoiningFuture()) {
         <h5 class="m-0 text-center">
-            {{ employee.contact_info.name }} will join on <span>{{ getFormattedJoinDate() }}</span>
+            {{ employee.contact_info.name }} will join on
+            <span>{{ getFormattedJoinDate() }}</span>
         </h5>
         }
         <!-- Today joined -->
@@ -293,10 +281,10 @@
         <!-- Past join date -->
         @if (!isJoiningFuture() && !isJoiningToday()) {
         <h5 class="m-0 text-center">
-            {{ employee.contact_info.name }} joined on <span>{{ getFormattedJoinDate() }}</span>
+            {{ employee.contact_info.name }} joined on
+            <span>{{ getFormattedJoinDate() }}</span>
         </h5>
-        }
-        @if (isJoiningToday()) {
+        } @if (isJoiningToday()) {
         <div class="d-flex justify-content-center">
             @if (hasEmployeePermission('update')) {
             <button class="btn btn-outline-danger btn-lg border-0 w-auto m-0" (click)="openRescheduleOverlay()">
@@ -314,114 +302,98 @@
         }
     </div>
 
-    <!-- Work Schedule Section -->
-    <div class="content-box d-flex flex-column gap-3 w-100">
-        <h2>Work Schedule</h2>
-        <div class="info">
-            <h6>Working days</h6>
-            <span>{{ getWorkingDays() }}</span>
-        </div>
-        <div class="info">
-            <h6>Work Hours Type</h6>
-            <span>{{ getWorkScheduleTypeDisplay() }} Type</span>
-        </div>
-        <div class="info">
-            <h6>Shift Type</h6>
-            <span>{{ getEmploymentTypeDisplay() }} Type</span>
-        </div>
-        <div class="info">
-            <h6>Shift Hours</h6>
-            <span>{{ getShiftHoursDisplay() }}</span>
-        </div>
-        <div class="info">
-            <h6>Shift hours from / to</h6>
-            <span>{{ getShiftRangeDisplay() }}</span>
-        </div>
+    <div class="content-box d-flex flex-column gap-3 w-100 my-3">
+        <app-contracts-tab [employee]="employee"></app-contracts-tab>
     </div>
+    <!-- Contracts Section -->
 
-  }
+    }
 </div>
 
 <!-- Cancel Contract Modal -->
-<app-popup
-  [title]="'Cancel Contract'"
-  [paragraph1]="'Are you sure you want to cancel the contract for &quot;' + (employee?.contact_info?.name || '') + '&quot;?'"
-  [paragraph2]="'This action cannot be undone. The employee will be removed from the system.'"
-  [isOpen]="isModalOpen"
-  (close)="closeModal()">
-  
-  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-      <g fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10" />
-        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-      </g>
-    </svg>
-    <span>Cancel Contract</span>
-  </button>
-  
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-    Cancel
-  </button>
+<app-popup [title]="'Cancel Contract'" [paragraph1]="
+    'Are you sure you want to cancel the contract for &quot;' +
+    (employee?.contact_info?.name || '') +
+    '&quot;?'
+  " [paragraph2]="
+    'This action cannot be undone. The employee will be removed from the system.'
+  " [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Cancel Contract</span>
+    </button>
+
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
 </app-popup>
 
 <!-- Success Modal -->
-<app-popup
-  [title]="'Employee Joined Successfully'"
-  [paragraph1]="'&quot;' + (employee?.contact_info?.name || '') + '&quot; has been successfully marked as joined.'"
-  [paragraph2]="'The employee is now active in the system and can access their account.'"
-  [isOpen]="isSuccessModalOpen"
-  (close)="closeSuccessModal()">
-  
-  <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="viewEmployees()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-      <g fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-      </g>
-    </svg>
-    <span>View All Employees</span>
-  </button>
-  
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="createAnother()">
-    Create Another
-  </button>
+<app-popup [title]="'Employee Joined Successfully'" [paragraph1]="
+    '&quot;' +
+    (employee?.contact_info?.name || '') +
+    '&quot; has been successfully marked as joined.'
+  " [paragraph2]="
+    'The employee is now active in the system and can access their account.'
+  " [isOpen]="isSuccessModalOpen" (close)="closeSuccessModal()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="viewEmployees()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>View All Employees</span>
+    </button>
+
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="createAnother()">
+        Create Another
+    </button>
 </app-popup>
 
 <!-- Reschedule Join Date Overlay -->
-  <app-overlay-filter-box #rescheduleBox [title]="'Reschedule Join Date'">
+<app-overlay-filter-box #rescheduleBox [title]="'Reschedule Join Date'">
     <form class="w-100 d-flex flex-column gap-3 p-3">
-      <div class="info">
-        <h6>Current Join Date</h6>
-        <span>{{ isJoiningToday() ? 'Today' : getFormattedJoinDate() }}</span>
-      </div>
-      <div class="input">
-        <label for="newJoinDate">New Join Date</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" id="newJoinDate" class="form-control custom-date-input" [(ngModel)]="newJoinDate" name="newJoinDate" placeholder="Select a new Date" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%);">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round" d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
+        <div class="info">
+            <h6>Current Join Date</h6>
+            <span>{{ isJoiningToday() ? "Today" : getFormattedJoinDate() }}</span>
         </div>
-      </div>
-      <div class="d-flex align-items-center gap-3">
-        <button type="button" class="btn btn-lg btn-danger w-100" (click)="submitReschedule()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-          </svg>
-          <span>Reschedule</span>
-        </button>
-        <button type="button" class="btn btn-lg btn-outline-dark border-0 w-100" (click)="rescheduleBox.closeOverlay()">
-          Keep Current Date
-        </button>
-      </div>
+        <div class="input">
+            <label for="newJoinDate">New Join Date</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="date" id="newJoinDate" class="form-control custom-date-input" [(ngModel)]="newJoinDate"
+                    name="newJoinDate" placeholder="Select a new Date" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    class="position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%)">
+                    <g fill="none" stroke-width="1.5">
+                        <path stroke-linecap="round"
+                            d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                        <circle cx="18" cy="18" r="3" />
+                        <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <button type="button" class="btn btn-lg btn-danger w-100" (click)="submitReschedule()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Reschedule</span>
+            </button>
+            <button type="button" class="btn btn-lg btn-outline-dark border-0 w-100"
+                (click)="rescheduleBox.closeOverlay()">
+                Keep Current Date
+            </button>
+        </div>
     </form>
-  </app-overlay-filter-box>
-  <!-- end Reschedule Overlay -->
+</app-overlay-filter-box>
+<!-- end Reschedule Overlay -->
