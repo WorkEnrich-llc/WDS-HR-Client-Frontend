@@ -1,0 +1,147 @@
+<!-- Contract Form Modal -->
+<app-contract-form-modal
+  [isOpen]="isAddModalOpen"
+  [isEditMode]="isEditMode"
+  [contract]="selectedContract"
+  (onClose)="closeAddModal()"
+  (onSave)="onContractSave($event)">
+</app-contract-form-modal>
+<div class="contracts-content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Work Contracts</h3>
+    <button class="btn btn-primary d-flex align-items-center gap-2" (click)="addContract()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/>
+        <path d="M12 5v14"/>
+      </svg>
+      Add Contract
+    </button>
+  </div>
+
+  <!-- Table Header Template -->
+  <ng-template #headerTemplate>
+    <th class="text-start">Contract Number</th>
+    <th class="text-start">Start Date</th>
+    <th class="text-start">End Date</th>
+    <th class="text-start">Salary</th>
+    <th class="text-start">Insurance Salary</th>
+    <th class="text-start">Status</th>
+    <th class="text-start">Actions</th>
+  </ng-template>
+
+  <!-- Table Row Template -->
+  <ng-template #rowTemplate let-contract>
+    <td class="text-start">
+      <div class="d-flex flex-column">
+        <span class="fw-bold">{{ contract.contractNumber }}</span>
+      </div>
+    </td>
+    <td class="text-start">{{ contract.startDate }}</td>
+    <td class="text-start">{{ contract.endDate }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency) }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary, contract.currency) }}</td>
+    <td class="text-start">
+      <span [ngClass]="getStatusClass(contract.status)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Upcoming'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M12 7v5l3 3" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Active'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Cancelled'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             *ngIf="contract.status === 'Expired'">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+          </g>
+        </svg>
+        <span>{{ contract.status }}</span>
+      </span>
+    </td>
+    <td class="text-start">
+      <div class="d-flex align-items-center gap-2">
+        <!-- History Action -->
+        <a (click)="viewHistory(contract)" class="view-btn" title="Contract History">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8v4l3 3" />
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          
+        </a>
+        <!-- Edit Action -->
+        <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <path d="m15 5 4 4"/>
+          </svg>
+          Edit
+        </a>
+        <!-- Delete Action -->
+        <a (click)="openDeleteModal(contract)" class="view-btn delete-btn" title="Delete Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"/>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v>2"/>
+          </svg>
+          Delete
+        </a>
+      </div>
+    </td>
+  </ng-template>
+
+  <!-- Empty Template -->
+  <ng-template #emptyTemplate>
+    <tr>
+      <td colspan="7" class="text-center py-4">
+        <div class="no-data">
+          No contracts found
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <app-table
+    [data]="contractsData"
+    [totalItems]="totalItems"
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [isLoading]="isLoading"
+    [columnsCount]="7"
+    [headerTemplate]="headerTemplate"
+    [rowTemplate]="rowTemplate"
+    [emptyTemplate]="emptyTemplate"
+    (pageChange)="onPageChange($event)"
+    (itemsPerPageChange)="onItemsPerPageChange($event)">
+  </app-table>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<app-contract-delete-modal
+  [isOpen]="isDeleteModalOpen"
+  [contract]="selectedContract"
+  (onClose)="closeDeleteModal()"
+  (onDelete)="onContractDelete($event)">
+</app-contract-delete-modal>
+
+<!-- Contract History Modal -->
+<app-contract-history-modal
+  [isOpen]="isHistoryModalOpen"
+  [contract]="selectedContract"
+  [historyData]="contractHistory"
+  (onClose)="closeHistoryModal()">
+</app-contract-history-modal>

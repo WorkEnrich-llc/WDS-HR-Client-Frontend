@@ -7,6 +7,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { FormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { ContractsTabComponent } from '../view-employee/tabs/contracts-tab/contracts-tab.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
 import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
@@ -14,7 +15,8 @@ import { WorkSchedule } from '../../../../core/interfaces/work-schedule';
 
 @Component({
   selector: 'app-view-new-joiner',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule],
+  standalone: true,
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent],
   providers: [DatePipe],
   templateUrl: './view-new-joiner.component.html',
   styleUrl: './view-new-joiner.component.css'
@@ -359,5 +361,20 @@ export class ViewNewJoinerComponent implements OnInit {
   createAnother() {
     this.closeSuccessModal();
     // Reset form or navigate to create again
+  }
+
+  // Resend activation link to employee email
+  resendActiveLink(): void {
+    if (this.employee) {
+      this.employeeService.resendActiveLink(this.employee.id).subscribe({
+        next: (response) => {
+          this.toasterMessageService.sendMessage('Activation link resent successfully');
+          console.log('Resend active link successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error resending active link:', error);
+        }
+      });
+    }
   }
 }

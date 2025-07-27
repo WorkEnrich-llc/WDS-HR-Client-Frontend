@@ -21,6 +21,7 @@ export class EditEmployeeComponent implements OnInit {
   employeeId!: number;
   errMsg = '';
   isLoading = false;
+  employeeData: any = null; // Store the complete employee data
 
   constructor(
     private router: Router,
@@ -34,6 +35,7 @@ export class EditEmployeeComponent implements OnInit {
     this.employeeForm = this.fb.group({
       empId: [''],
       fullName: ['', Validators.required],
+      gender: [null, Validators.required],
       phone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
     });
@@ -53,10 +55,13 @@ export class EditEmployeeComponent implements OnInit {
     this.isLoading = true;
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: res => {
+        this.employeeData = res.data.object_info; // Store the complete employee data
         const info = res.data.object_info.contact_info;
         this.employeeForm.patchValue({
           empId: res.data.object_info.id,
           fullName: info.name,
+          // set gender if available (backend may include gender in contact_info)
+          gender: (info as any).gender ?? null,
           phone: info.mobile.number,
           email: info.email
         });
@@ -92,18 +97,43 @@ export class EditEmployeeComponent implements OnInit {
     this.errMsg = '';
     this.isLoading = true;
     const form = this.employeeForm.value;
+
+
     const payload = {
       request_data: {
         id: this.employeeId,
         main_information: {
-          code: form.empId,
+          code: String(form.empId || this.employeeData?.id),
           name: form.fullName,
-          // mobile expects object, using number only
-          mobile: { country_id: 0, number: form.phone },
-          personal_email: form.email
+          gender: form.gender?.id || this.employeeData?.contact_info?.gender?.id,
+          mobile: {
+            country_id: this.employeeData?.contact_info?.mobile?.country?.id || 1,
+            number: +form.phone
+          },
+          personal_email: form.email,
+          marital_status: this.employeeData?.contact_info?.marital_status?.id,
+          date_of_birth: this.formatDate(this.employeeData?.contact_info?.date_of_birth), // Convert to YYYY-M-D format
+          address: this.employeeData?.contact_info?.address
+        },
+        job_details: {
+          branch_id: this.employeeData?.job_info?.branch?.id,
+          department_id: this.employeeData?.job_info?.department?.id,
+          section_id: this.employeeData?.job_info?.section?.id,
+          job_title_id: this.employeeData?.job_info?.job_title?.id,
+          work_schedule_id: this.employeeData?.job_info?.work_schedule?.id
+        },
+        contract_details: {
+          start_contract: this.formatDate(this.employeeData?.job_info?.start_contract), // Convert to YYYY-M-D format
+          contract_type: this.employeeData?.job_info?.contract_type?.id,
+          contract_end_date: this.employeeData?.job_info?.end_contract,
+          employment_type: this.employeeData?.job_info?.employment_type?.id,
+          work_mode: this.employeeData?.job_info?.work_mode?.id,
+          days_on_site: this.employeeData?.job_info?.days_on_site,
+          salary: this.employeeData?.job_info?.salary
         }
       }
     };
+
     this.employeeService.updateEmployee(payload).subscribe({
       next: () => {
         this.toasterMessageService.sendMessage('Employee updated successfully');
@@ -116,4 +146,9 @@ export class EditEmployeeComponent implements OnInit {
     });
   }
 
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
 }
