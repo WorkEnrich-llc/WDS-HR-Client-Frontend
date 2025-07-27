@@ -3,5 +3,410 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Runs' }
   ]" title="All Payroll Runs">
+  <button class="btn btn-lg btn-outline-dark w-100 px-5" (click)="configureBox.openOverlay()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9.5 14a3 3 0 1 1 0 6a3 3 0 0 1 0-6Zm5-10a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z" />
+        <path stroke-linecap="round" d="M15 16.959h7m-13-10H2m0 10h2m18-10h-2" />
+      </g>
+    </svg>
+    <span>Configure Payroll Run</span>
+  </button>
 </app-page-header>
 <!-- end page header -->
+
+
+
+
+<!-- start page content -->
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <!-- start search and filter -->
+    <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+        <!-- Search input -->
+        <div data-mdb-input-init class="form-outline w-75">
+          <input type="text" class="form-control" placeholder="Search" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <circle cx="11.5" cy="11.5" r="9.5" />
+              <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Filter button -->
+        <button class="btn btn-lg btn-outline-primary" (click)="filterBox.openOverlay()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke-width="1.5"
+              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+          </svg>
+          <span>Filter</span>
+        </button>
+
+      </div>
+
+
+    </div>
+
+    <!-- start Table -->
+
+    <app-table [data]="payrollRuns" [isLoading]="loadData" [columnsCount]="9" [totalItems]="payrollRuns.length"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
+      [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
+
+    <ng-template #payrollTableHeader>
+      <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Month</span>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
+            viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
+            viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+      </th>
+      <th class="w-20">Cycle</th>
+      <th class="w-20">No. of Employees</th>
+      <th class="w-20">Status</th>
+      <th class="w-10">Actions</th>
+    </ng-template>
+
+    <ng-template #payrollTableRow let-runs let-i="index">
+      <td>
+        {{runs.month}}
+      </td>
+      <td>
+        {{ runs.cycle }}
+      </td>
+      <td>
+        {{runs.numOfEmp}}
+      </td>
+      <td>
+        <span class="badge-success" *ngIf="runs.Status ==='Completed'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Completed</span>
+        </span>
+        <span class="badge-newjoiner" *ngIf="runs.Status ==='Pending'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+              <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+            </g>
+          </svg>
+          <span>Pending</span>
+        </span>
+        <span class="badge-gray" *ngIf="runs.Status ==='Draft'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="currentColor" fill-rule="evenodd"
+              d="M10.944 1.25h2.112c1.838 0 3.294 0 4.433.153c1.172.158 2.121.49 2.87 1.238a.75.75 0 0 1-1.06 1.06c-.424-.422-1.004-.676-2.01-.811c-1.027-.138-2.382-.14-4.289-.14h-2c-1.907 0-3.261.002-4.29.14c-1.005.135-1.585.389-2.008.812S4.025 4.705 3.89 5.71c-.138 1.029-.14 2.383-.14 4.29v4c0 1.907.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h2c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812c.696-.696.907-1.777.943-4.309a.75.75 0 0 1 1.5.022c-.035 2.427-.192 4.158-1.382 5.348c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153h-2.112c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433V9.944c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238c1.14-.153 2.595-.153 4.433-.153m7.17 5.796a2.716 2.716 0 1 1 3.84 3.84L17.2 15.643a7 7 0 0 1-.63.587q-.346.27-.744.46c-.224.107-.46.185-.806.3l-2.084.695a1.28 1.28 0 0 1-1.62-1.62l.681-2.04l.014-.043c.116-.347.194-.582.301-.806a4 4 0 0 1 .46-.744c.153-.196.328-.371.587-.63l.031-.031zm2.78 1.06a1.216 1.216 0 0 0-1.72 0l-.182.182l.034.107c.094.27.273.63.611.968a2.55 2.55 0 0 0 1.075.645l.182-.182a1.216 1.216 0 0 0 0-1.72m-1.328 3.048a4 4 0 0 1-.99-.73a4 4 0 0 1-.73-.99L14.45 12.83c-.301.301-.407.409-.496.523q-.17.218-.289.467c-.062.131-.111.274-.246.678l-.4 1.2l.283.283l1.2-.4c.404-.135.547-.184.678-.246q.248-.12.467-.289c.114-.089.222-.195.523-.496zM7.25 9A.75.75 0 0 1 8 8.25h6.5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 9m0 4a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Draft</span>
+        </span>
+      </td>
+      <td>
+        <div class="d-flex justify-content-start gap-4 align-items-center w-100">
+          <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="View"
+            *ngIf="runs.Status ==='Draft' || 'Pending' || 'Completed'"
+            [routerLink]="['/payroll-runs/view-payroll-run', runs.id]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+              </g>
+            </svg>
+          </a>
+          <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Payroll Runs"
+            *ngIf="runs.Status === 'Pending'" [routerLink]="['/payroll-runs/edit-payroll-run', runs.id]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+          <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Import"
+            *ngIf="runs.Status === 'Pending'" (click)="importBox.openOverlay()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M12 1.25a.75.75 0 0 1 .57.262l3 3.5a.75.75 0 1 1-1.14.976l-1.68-1.96V15a.75.75 0 0 1-1.5 0V4.027L9.57 5.988a.75.75 0 1 1-1.14-.976l3-3.5A.75.75 0 0 1 12 1.25M6.996 8.252a.75.75 0 0 1 .008 1.5c-1.093.006-1.868.034-2.457.142c-.566.105-.895.272-1.138.515c-.277.277-.457.666-.556 1.4c-.101.755-.103 1.756-.103 3.191v1c0 1.436.002 2.437.103 3.192c.099.734.28 1.122.556 1.4c.277.276.665.456 1.4.555c.754.102 1.756.103 3.191.103h8c1.435 0 2.436-.001 3.192-.103c.734-.099 1.122-.279 1.399-.556s.457-.665.556-1.399c.101-.755.103-1.756.103-3.192v-1c0-1.435-.002-2.436-.103-3.192c-.099-.733-.28-1.122-.556-1.399c-.244-.243-.572-.41-1.138-.515c-.589-.108-1.364-.136-2.457-.142a.75.75 0 1 1 .008-1.5c1.082.006 1.983.032 2.72.167c.758.14 1.403.405 1.928.93c.602.601.86 1.36.982 2.26c.116.866.116 1.969.116 3.336v1.11c0 1.368 0 2.47-.116 3.337c-.122.9-.38 1.658-.982 2.26s-1.36.86-2.26.982c-.867.116-1.97.116-3.337.116h-8.11c-1.367 0-2.47 0-3.337-.116c-.9-.121-1.658-.38-2.26-.982s-.86-1.36-.981-2.26c-.117-.867-.117-1.97-.117-3.337v-1.11c0-1.367 0-2.47.117-3.337c.12-.9.38-1.658.981-2.26c.525-.524 1.17-.79 1.928-.929c.737-.135 1.638-.161 2.72-.167"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+          <a class="view-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Start"
+            *ngIf="runs.Status === 'Draft'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M7.238 3.044C5.652 2.182 3.75 3.32 3.75 5.033v13.934c0 1.714 1.902 2.851 3.488 1.989l12.812-6.967c1.6-.87 1.6-3.108 0-3.977zM2.25 5.033c0-2.905 3.167-4.687 5.705-3.306l12.812 6.967c2.644 1.438 2.644 5.174 0 6.612L7.955 22.273c-2.538 1.38-5.705-.4-5.705-3.306z"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+        </div>
+      </td>
+
+    </ng-template>
+
+    <ng-template #noPayroll>
+      <tr>
+        <td colspan="7" class="no-data py-4">
+          <ng-container *ngIf="searchTerm?.trim(); else noPayroll">
+            No Payroll Runs match your search.
+          </ng-container>
+          <ng-template #noPayroll>
+            No Payroll Runs Added Yet.
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </div>
+</div>
+
+
+<!-- filter popup -->
+<app-overlay-filter-box #filterBox [title]="'Filters'">
+  <form class="w-100 d-flex flex-column gap-3">
+    <div class="input">
+      <label for="status">Status</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="status" class="form-select">
+            <option value="" selected disabled hidden>Select</option>
+            <option value="all">Any</option>
+            <option value="true">Active</option>
+            <option value="false">Not Active</option>
+          </select>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="createdFrom">Created From</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" id="createdFrom" class="form-control custom-date-input" placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Apply Filter</span>
+      </button>
+      <a (click)="resetFilterForm()" type="button" class="text-danger-dark fw-bold w-100 text-center">
+        <span>Clear Filters</span>
+      </a>
+    </div>
+  </form>
+
+
+
+</app-overlay-filter-box>
+
+
+
+<!-- Configure payroll popup -->
+<app-overlay-filter-box #configureBox [title]="'Configure Payroll'">
+  <form class="w-100 d-flex flex-column gap-3">
+    <p>Select the starting day of upcoming Payroll Runs.
+      This will not apply on approved payroll runs!</p>
+    <div class="input">
+      <label for="StartDay">Start Day</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="StartDay" class="form-select">
+            <option value="" selected disabled hidden>Select</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-primary">The current Payroll will end on 30 January</p>
+
+
+
+
+
+
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Save Changes</span>
+      </button>
+      <a type="button" (click)="closeconfigureBoxOverlays()" class="btn btn-lg btn-outline-dark border-0 w-100">
+        <span>Discard Changes</span>
+      </a>
+    </div>
+  </form>
+
+
+
+</app-overlay-filter-box>
+
+
+<!-- Import popup -->
+<app-overlay-filter-box #importBox [title]="'Import Employee Payrolls'">
+  <form class="w-100 d-flex flex-column gap-3">
+    <p>Download the template file, fill in your data, and upload it again to import all employee payrolls.</p>
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-outline-dark px-0 w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
+            <path
+              d="M12.25 2.834c-.46-.078-1.088-.084-2.22-.084c-1.917 0-3.28.002-4.312.14c-1.012.135-1.593.39-2.016.812s-.677 1.003-.812 2.009c-.138 1.028-.14 2.382-.14 4.29v4c0 1.906.002 3.26.14 4.288c.135 1.006.389 1.586.812 2.01c.423.422 1.003.676 2.009.811c1.028.139 2.382.14 4.289.14h4c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-.437c0-1.536-.01-2.264-.174-2.813h-3.13c-1.133 0-2.058 0-2.79-.098c-.763-.103-1.425-.325-1.954-.854s-.751-1.19-.854-1.955c-.098-.73-.098-1.656-.098-2.79zm1.5.776V5c0 1.2.002 2.024.085 2.643c.08.598.224.891.428 1.094s.496.348 1.094.428c.619.083 1.443.085 2.643.085h2.02a46 46 0 0 0-1.17-1.076l-3.959-3.563A37 37 0 0 0 13.75 3.61m-3.575-2.36c1.385 0 2.28 0 3.103.315c.823.316 1.485.912 2.51 1.835l.107.096l3.958 3.563l.125.112c1.184 1.065 1.95 1.754 2.361 2.678s.412 1.954.411 3.546v.661c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433V9.945c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.75-.749 1.701-1.08 2.878-1.238c1.144-.153 2.607-.153 4.455-.153h.202" />
+            <path
+              d="M7.987 19.047a.75.75 0 0 0 1.026 0l2-1.875a.75.75 0 0 0-1.026-1.094l-.737.69V13.5a.75.75 0 1 0-1.5 0v3.269l-.737-.691a.75.75 0 1 0-1.026 1.094z" />
+          </g>
+        </svg>
+        <span>Download Template</span>
+      </button>
+      <button *ngIf="!selectedFile" type="button"
+        class="btn btn-lg btn-primary px-0 w-100 position-relative overflow-hidden">
+        <input type="file" accept=".xls,.xlsx" (change)="onFileSelected($event)"
+          class="position-absolute w-100 h-100 opacity-0 cursor-pointer" style="top: 0; left: 0;" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+            <path
+              d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
+            <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
+          </g>
+        </svg>
+        <span>Upload File</span>
+      </button>
+
+      <!--file uploaded-->
+      <div *ngIf="selectedFile" class="d-flex align-items-center justify-content-between gap-2 px-0 w-100">
+        <div class="text-success d-flex align-items-center gap-2 w-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+            <path fill="currentColor" fill-rule="evenodd"
+              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+              clip-rule="evenodd" />
+          </svg>
+          <span class="text-sm">{{ selectedFile.name }}</span>
+        </div>
+        <div class="d-flex gap-1">
+
+          <button type="button" class="btn btn-outline-dark px-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none">
+                <path fill="currentColor"
+                  d="m15.393 4.054l-.502.557zm3.959 3.563l-.502.557zm2.302 2.537l-.685.305zM3.172 20.828l.53-.53zm17.656 0l-.53-.53zM14 21.25h-4v1.5h4zM2.75 14v-4h-1.5v4zm18.5-.437V14h1.5v-.437zM14.891 4.61l3.959 3.563l1.003-1.115l-3.958-3.563zm7.859 8.952c0-1.689.015-2.758-.41-3.714l-1.371.61c.266.598.281 1.283.281 3.104zm-3.9-5.389c1.353 1.218 1.853 1.688 2.119 2.285l1.37-.61c-.426-.957-1.23-1.66-2.486-2.79zM10.03 2.75c1.582 0 2.179.012 2.71.216l.538-1.4c-.852-.328-1.78-.316-3.248-.316zm5.865.746c-1.086-.977-1.765-1.604-2.617-1.93l-.537 1.4c.532.204.98.592 2.15 1.645zM10 21.25c-1.907 0-3.261-.002-4.29-.14c-1.005-.135-1.585-.389-2.008-.812l-1.06 1.06c.748.75 1.697 1.081 2.869 1.239c1.15.155 2.625.153 4.489.153zM1.25 14c0 1.864-.002 3.338.153 4.489c.158 1.172.49 2.121 1.238 2.87l1.06-1.06c-.422-.424-.676-1.004-.811-2.01c-.138-1.027-.14-2.382-.14-4.289zM14 22.75c1.864 0 3.338.002 4.489-.153c1.172-.158 2.121-.49 2.87-1.238l-1.06-1.06c-.424.422-1.004.676-2.01.811c-1.027.138-2.382.14-4.289.14zM21.25 14c0 1.907-.002 3.262-.14 4.29c-.135 1.005-.389 1.585-.812 2.008l1.06 1.06c.75-.748 1.081-1.697 1.239-2.869c.155-1.15.153-2.625.153-4.489zm-18.5-4c0-1.907.002-3.261.14-4.29c.135-1.005.389-1.585.812-2.008l-1.06-1.06c-.75.748-1.081 1.697-1.239 2.869C1.248 6.661 1.25 8.136 1.25 10zm7.28-8.75c-1.875 0-3.356-.002-4.511.153c-1.177.158-2.129.49-2.878 1.238l1.06 1.06c.424-.422 1.005-.676 2.017-.811c1.033-.138 2.395-.14 4.312-.14z" />
+                <path stroke="currentColor" stroke-width="1.5"
+                  d="M13 2.5V5c0 2.357 0 3.536.732 4.268S15.643 10 18 10h4" />
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M8.5 13.5v5m0 0l2-1.875m-2 1.875l-2-1.875" />
+              </g>
+            </svg>
+          </button>
+          <button type="button" class="btn btn-outline-danger px-2" (click)="removeFile()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor"
+                d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+              <path fill="currentColor"
+                d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-success px-0 w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Import Payrolls</span>
+      </button>
+      <a type="button" (click)="closeOverlays()" class="btn btn-lg btn-outline-dark border-0 px-0 w-100">
+        <span>Discard Import</span>
+      </a>
+    </div>
+  </form>
+
+
+
+</app-overlay-filter-box>
