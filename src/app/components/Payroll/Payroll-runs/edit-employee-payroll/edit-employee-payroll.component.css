@@ -1,0 +1,7 @@
+.table-input{
+    text-align: end;
+}
+.ng-invalid{
+    color: var(--color-danger-700) !important;
+    padding-right: 32px;
+}

@@ -1,0 +1,14 @@
+<!-- Delete Confirmation Modal -->
+<app-popup 
+  [title]="'Delete Contract'" 
+  [paragraph1]="'Are you sure you want to delete this contract?'"
+  [paragraph2]="'Contract: ' + getContractNumber()"
+  [isOpen]="isOpen" 
+  (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
+    Delete Contract
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Cancel
+  </button>
+</app-popup>

@@ -34,25 +34,6 @@
     </svg>
     <span>Edit</span>
   </button>
-  } @if (hasEmployeePermission('update')) {
-  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
-    <!-- SVG and Activate -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-width="1.5"
-        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294"
-      />
-    </svg>
-    <span>Activate</span>
-  </button>
   }
 </app-page-header>
 }
@@ -92,25 +73,6 @@
       </g>
     </svg>
     <span>Edit</span>
-  </button>
-  } @if (hasEmployeePermission('update')) {
-  <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
-    <!-- SVG and Deactivate -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-width="1.5"
-        d="m18.5 5.5l-13 13M5.5 5.5l13 13"
-      />
-    </svg>
-    <span>Deactivate</span>
   </button>
   }
 </app-page-header>
@@ -398,7 +360,9 @@
       <div class="info">
         <h6>Join Date</h6>
         <span>
-          {{ (employee.job_info.start_contract| date : "dd/MM/yyyy") || "N/A" }}
+          {{
+            (employee.job_info.start_contract | date : "dd/MM/yyyy") || "N/A"
+          }}
         </span>
       </div>
       @if (!isEmployeeActive) {
@@ -428,12 +392,36 @@
         </svg>
         <span>Activate</span>
       </button>
-      } @else {
+      } @else if (isEmployeeInactive) {
       <button
         class="btn btn-lg btn-primary w-100 mt-auto"
         (click)="resendActiveLink()"
       >
         <!-- SVG and Send in Email -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <path
+              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z"
+            />
+            <path
+              stroke-linecap="round"
+              d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8"
+            />
+          </g>
+        </svg>
+        <span>Send in Email</span>
+      </button>
+      } @else {
+      <button
+        class="btn btn-lg btn-primary w-100 mt-auto"
+        (click)="resendActiveLink()"
+      >
+        <!-- SVG and Send Again -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -495,159 +483,87 @@
   </div>
 
   <div class="row mt-4">
-    <div class="col-lg-8">
+    <div class="col-12">
       <div class="content-box d-flex flex-column gap-3 w-100">
-        <h2>Schedule</h2>
-        @if (!isEmployeeActive) {
-        <h5 class="m-0 text-center">
-          Account Still Not Active
-          <span>Schedule Not Available</span>
-        </h5>
-        }
-        <!-- calender -->
-        <div class="calendar-wrapper">
-          <full-calendar
-            class="calendar-full"
+        <!-- Tab Navigation -->
+        <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+          <li
+            class="nav-item"
             [ngClass]="{
-              'opacity-50 pointer-events-none': !isEmployeeActive
+              active: currentTab === 'attendance',
+              'text-success': false,
+              'bg-light-success': false
             }"
-            [options]="calendarOptions"
+            (click)="setCurrentTab('attendance')"
           >
-          </full-calendar>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="content-box d-flex flex-column w-100">
-        <h2 class="mb-3">Documents Checklist</h2>
-        <!-- hidden file input for uploads -->
-        <input
-          type="file"
-          #fileInput
-          (change)="onFileSelected($event)"
-          hidden
-        />
 
-        @for (document of documentsRequired; track document.key) {
-        <div class="document">
-          @if (document.uploaded) {
-          <!-- Uploaded document -->
-          <div
-            class="uploaded p-2 py-4 d-flex align-items-center justify-content-between"
+            <span class="nav-link">Attendance</span>
+          </li>
+
+          <li
+            class="nav-item"
+            [ngClass]="{
+              active: currentTab === 'requests'
+            }"
+            (click)="setCurrentTab('requests')"
           >
-            <div class="success-upload d-flex align-items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m8.5 12.5l2 2l5-5"
-                  />
-                </g>
-              </svg>
-              <span>{{ document.name }}</span>
-              @if (document.url) {
-              <a [href]="document.url" target="_blank" class="ms-2">View</a>
-              }
-            </div>
-            <div class="d-flex align-items-center gap-4">
-              <button class="download-doc">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <g fill="none">
-                    <path
-                      fill="currentColor"
-                      d="m15.393 4.054l-.502.557zm3.959 3.563l-.502.557zm2.302 2.537l-.685.305zM3.172 20.828l.53-.53zm17.656 0l-.53-.53zM14 21.25h-4v1.5h4zM2.75 14v-4h-1.5v4zm18.5-.437V14h1.5v-.437zM14.891 4.61l3.959 3.563l1.003-1.115l-3.958-3.563zm7.859 8.952c0-1.689.015-2.758-.41-3.714l-1.371.61c.266.598.281 1.283.281 3.104zm-3.9-5.389c1.353 1.218 1.853 1.688 2.119 2.285l1.37-.61c-.426-.957-1.23-1.66-2.486-2.79zM10.03 2.75c1.582 0 2.179.012 2.71.216l.538-1.4c-.852-.328-1.78-.316-3.248-.316zm5.865.746c-1.086-.977-1.765-1.604-2.617-1.93l-.537 1.4c.532.204.98.592 2.15 1.645zM10 21.25c-1.907 0-3.261-.002-4.29-.14c-1.005-.135-1.585-.389-2.008-.812l-1.06 1.06c.748.75 1.697 1.081 2.869 1.239c1.15.155 2.625.153 4.489.153zM1.25 14c0 1.864-.002 3.338.153 4.489c.158 1.172.49 2.121 1.238 2.87l1.06-1.06c-.422-.424-.676-1.004-.811-2.01c-.138-1.027-.14-2.382-.14-4.289zM14 22.75c1.864 0 3.338.002 4.489-.153c1.172-.158 2.121-.49 2.87-1.238l-1.06-1.06c-.424.422-1.004.676-2.01.811c-1.027.138-2.382.14-4.289.14zM21.25 14c0 1.907-.002 3.262-.14 4.29c-.135 1.005-.389 1.585-.812 2.008l1.06 1.06c.75-.748 1.081-1.697 1.239-2.869c.155-1.15.153-2.625.153-4.489zm-18.5-4c0-1.907.002-3.261.14-4.29c.135-1.005.389-1.585.812-2.008l-1.06-1.06c-.75.748-1.081 1.697-1.239 2.869C1.248 6.661 1.25 8.136 1.25 10zm7.28-8.75c-1.875 0-3.356-.002-4.511.153c-1.177.158-2.129.49-2.878 1.238l1.06 1.06c.424-.422 1.005-.676 2.017-.811c1.033-.138 2.395-.14 4.312-.14z"
-                    />
-                    <path
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      d="M13 2.5V5c0 2.357 0 3.536.732 4.268S15.643 10 18 10h4"
-                    />
-                  </g>
-                </svg>
-              </button>
-              <button class="delete-doc" (click)="onDelete(document.key)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <g
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6"
-                    />
-                  </g>
-                </svg>
-              </button>
-            </div>
-          </div>
-          } @else {
-          <!-- Not uploaded document -->
-          <div class="notupload p-2 py-4 d-flex flex-column gap-2">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="ps-4">{{ document.name }}</span>
-              @if (uploadProgress[document.key] !== undefined) {
-              <div class="progress w-50">
-                <div
-                  class="progress-bar"
-                  role="progressbar"
-                  [style.width.%]="uploadProgress[document.key]"
-                >
-                  {{ uploadProgress[document.key] }}%
-                </div>
-              </div>
-              } @else {
-              <button
-                class="view-btn d-flex align-items-center gap-2"
-                (click)="onUpload(document.key, fileInput)"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                >
-                  <g
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      stroke-linejoin="round"
-                      d="m13 11l9-9m0 0h-5.344M22 2v5.344"
-                    />
-                    <path
-                      d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2"
-                    />
-                  </g>
-                </svg>
-                <span>Upload</span>
-              </button>
-              }
-            </div>
-          </div>
+
+            <span class="nav-link">Requests</span>
+          </li>
+
+          <li
+            class="nav-item"
+            [ngClass]="{
+              active: currentTab === 'documents'
+            }"
+            (click)="setCurrentTab('documents')"
+          >
+
+
+            <span class="nav-link">Documents</span>
+          </li>
+
+          <li
+            class="nav-item"
+            [ngClass]="{
+              active: currentTab === 'contracts'
+            }"
+            (click)="setCurrentTab('contracts')"
+          >
+
+
+            <span class="nav-link">Contracts</span>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          @if (currentTab === 'attendance') {
+          <app-attendance-tab
+            [employee]="employee"
+            [isEmployeeActive]="isEmployeeActive"
+          >
+          </app-attendance-tab>
+          } @if (currentTab === 'requests') {
+          <app-requests-tab
+            [employee]="employee"
+            [isEmployeeActive]="isEmployeeActive"
+          >
+          </app-requests-tab>
+          } @if (currentTab === 'documents') {
+          <app-documents-tab
+            [employee]="employee"
+            [documentsRequired]="documentsRequired"
+            [uploadProgress]="uploadProgress"
+            (fileSelected)="onFileSelected($event)"
+            (uploadDocument)="onUpload($event.key, $event.fileInput)"
+            (deleteDocument)="onDelete($event)"
+          >
+          </app-documents-tab>
+          } @if (currentTab === 'contracts') {
+          <app-contracts-tab [employee]="employee"> </app-contracts-tab>
           }
         </div>
-        }
       </div>
     </div>
   </div>

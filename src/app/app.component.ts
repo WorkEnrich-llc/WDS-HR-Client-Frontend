@@ -9,11 +9,12 @@ import { getMessaging, getToken } from 'firebase/messaging';
 import { ViewportScroller } from '@angular/common';
 import { filter } from 'rxjs';
 import { environment } from '../environments/environment';
+import { NetworkStatusComponent } from './components/shared/network-status/network-status.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslateModule, RouterOutlet, RouterModule],
+  imports: [TranslateModule, RouterOutlet, RouterModule, NetworkStatusComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
