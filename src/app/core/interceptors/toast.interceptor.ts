@@ -36,6 +36,7 @@ export const toastInterceptor: HttpInterceptorFn = (
             } else if (responseBody?.data?.message) {
               message = responseBody.data.message;
             } else {
+              return
               // Customize message based on HTTP method
               switch (req.method) {
                 case 'POST':

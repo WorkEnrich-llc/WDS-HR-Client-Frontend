@@ -23,7 +23,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(NgxDaterangepickerMd.forRoot()),
-    provideHttpClient(withInterceptors([authInterceptor, errorHandlingInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorHandlingInterceptor,toastInterceptor])),
     // provideHttpClient(withInterceptors([authInterceptor, toastInterceptor])),
 
     provideAnimations(),
