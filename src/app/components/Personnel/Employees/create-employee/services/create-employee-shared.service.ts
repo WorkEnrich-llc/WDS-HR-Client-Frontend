@@ -82,7 +82,8 @@ export class CreateEmployeeSharedService {
         department_id: [null, Validators.required],
         section_id: [null],
         job_title_id: [null, Validators.required],
-        work_schedule_id: [null, Validators.required]
+        work_schedule_id: [null, Validators.required],
+        activate_attendance_rules: [false]
       }),
       contract_details: this.fb.group({
         start_contract: ['', Validators.required],
