@@ -11,7 +11,7 @@ export class OverlayFilterBoxComponent {
   @Input() customWidth: string = '32%';
   @Input() title: string = 'Defult title'; 
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();  
-  isOverlayVisible: boolean = false;
+  @Input() isOverlayVisible: boolean = false;
   isAnimatingOut: boolean = false;
 
   openOverlay() {

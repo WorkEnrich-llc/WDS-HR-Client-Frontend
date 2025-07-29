@@ -1,0 +1,79 @@
+<!-- Contract Form Modal -->
+<app-overlay-filter-box
+  [title]="getModalTitle()"
+  [customWidth]="'700px'"
+  [isOverlayVisible]="isOpen"
+  (onClose)="closeModal()">
+  <div modal-content>
+    <form [formGroup]="contractForm">
+      <div class="input mb-3">
+        <label for="newSalary">{{ getSalaryLabel() }}</label>
+        <div class="form-outline w-100 position-relative">
+          <input 
+            id="newSalary" 
+            type="number" 
+            class="form-control custom-date-input" 
+            [class.is-invalid]="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
+            placeholder="In EGP"
+            formControlName="salary" />
+          <div class="invalid-feedback" *ngIf="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched">
+            <div *ngIf="contractForm.get('salary')?.errors?.['required']">Salary is required</div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['min']">Salary must be greater than 0</div>
+          </div>
+        </div>
+      </div>
+      <div class="input mb-3">
+        <label for="startDate">Start Date</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input 
+            id="startDate" 
+            type="date" 
+            class="form-control custom-date-input" 
+            [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
+            placeholder="Select Start Date" 
+            formControlName="startDate" />
+          <div class="invalid-feedback" *ngIf="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched">
+            Start date is required
+          </div>
+        </div>
+      </div>
+      <div class="form-check mb-3">
+        <input 
+          class="form-check-input" 
+          type="checkbox"
+          id="withEnd" 
+          formControlName="withEndDate" />
+        <label class="form-check-label" for="withEnd">With end date</label>
+      </div>
+      <div *ngIf="contractForm.get('withEndDate')?.value">
+        <div class="input mb-3">
+          <label for="endDate">End Date</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input 
+              id="endDate" 
+              type="date" 
+              class="form-control custom-date-input" 
+              [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+              placeholder="Select End Date" 
+              formControlName="endDate" />
+            <div class="invalid-feedback" *ngIf="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched">
+              End date is required when "With end date" is selected
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <button modal-btn-left class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" (click)="saveContract()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6"/>
+    </svg>
+    <span>{{ getSaveButtonText() }}</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark w-100 d-flex align-items-center justify-content-center gap-2" (click)="closeModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4m0 0l6 6m-6-6l6-6"/>
+    </svg>
+    <span>Close</span>
+  </button>
+</app-overlay-filter-box>

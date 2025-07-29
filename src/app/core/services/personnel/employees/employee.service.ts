@@ -64,7 +64,7 @@ export class EmployeeService {
   
   // Reset password for active employee
   resetPassword(id: number): Observable<EmployeeDetailResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-reset-password`;
+    const url = `${this.apiBaseUrl}personnel/employees-re-password`;
     const formData = new FormData();
     formData.append('id', id.toString());
     return this.http.put<EmployeeDetailResponse>(url, formData);
