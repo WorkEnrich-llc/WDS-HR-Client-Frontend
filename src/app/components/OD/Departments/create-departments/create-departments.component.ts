@@ -40,7 +40,8 @@ export class CreateDepartmentsComponent {
     // console.log(this.todayFormatted); 
   }
   deptStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
+    // Optional code must include both letters and numbers when provided
+    code: new FormControl('', [Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$')]),
     name: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });

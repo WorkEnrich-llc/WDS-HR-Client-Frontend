@@ -82,10 +82,13 @@
         <form [formGroup]="deptStep1" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="deptCode">Department Code (Optional)</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="code" type="text" id="deptCode" class="form-control custom-date-input"
                         placeholder="0050" />
                 </div>
+                <p class="error-msg" *ngIf="deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']">
+                    Department Code must include both letters and numbers.
+                </p>
 
             </div>
             <div class="input">
