@@ -136,7 +136,7 @@ export class EditEmployeeComponent implements OnInit {
 
     this.employeeService.updateEmployee(payload).subscribe({
       next: () => {
-        this.toasterMessageService.sendMessage('Employee updated successfully');
+        this.toasterMessageService.showSuccess('Employee updated successfully');
         this.router.navigate(['/employees/all-employees']);
       },
       error: (err: any) => {
