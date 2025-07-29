@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -15,14 +15,18 @@ import interactionPlugin from '@fullcalendar/interaction';
 })
 export class CalendarComponent {
   @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
+   constructor(private cdr: ChangeDetectorRef) { }
   ngAfterViewInit() {
-    // Automatically select today's date when the calendar is initialized
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    this.handleDateClick({ dateStr });
+    setTimeout(() => {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+      this.handleDateClick({ dateStr });
 
-    const calendarApi = this.calendarComponent?.getApi();
-    calendarApi?.select(today);
+      const calendarApi = this.calendarComponent?.getApi();
+      calendarApi?.select(today);
+
+      this.cdr.detectChanges();
+    });
   }
 
   selectedDateFormatted: string = '';

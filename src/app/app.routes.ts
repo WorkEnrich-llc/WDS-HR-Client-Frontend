@@ -599,7 +599,7 @@ export const routes: Routes = [
 
             ]
           },
-          
+
           // payroll runs routes
           {
             path: 'payroll-runs',
@@ -633,12 +633,35 @@ export const routes: Routes = [
             ]
           },
 
-          
+        ]
+      },
+
+      // system cloud layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/cloud-layout/cloud-layout.component').then(m => m.CloudLayoutComponent),
+
+        children: [
+          {
+            path: 'cloud',
+            children: [
+              {
+                path: '',
+                redirectTo: 'cloud-system',
+                pathMatch: 'full'
+              },
+              {
+                path: 'cloud-system',
+                loadComponent: () => import('./components/system-cloud/system-cloud/system-cloud.component').then(m => m.SystemCloudComponent),
+                title: 'System Cloud'
+              },
+
+            ]
+          },
 
 
         ]
       },
-
 
 
 

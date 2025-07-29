@@ -3,6 +3,7 @@
       <h2 class="modal-title">{{ title }}</h2>
       <p class="modal-paragraph">{{ paragraph1 }}</p>
       <p class="modal-paragraph">{{ paragraph2 }}</p>
+      <ng-content></ng-content>
       <div class="modal-buttons">
         <ng-content select="[modal-btn-left]"></ng-content>
         <ng-content select="[modal-btn-right]"></ng-content>

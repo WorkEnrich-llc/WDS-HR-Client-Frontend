@@ -87,7 +87,7 @@ export class AllRestrictedDaysComponent {
             item.latest_date = null;
           }
         });
-        console.log(this.restrictedDays);
+        // console.log(this.restrictedDays);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
