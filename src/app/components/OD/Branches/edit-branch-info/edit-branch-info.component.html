@@ -500,6 +500,94 @@
     <div class="content-box d-flex flex-column gap-3">
         <h2>Branch Location</h2>
 
+        <!-- Search Box -->
+        <div class="w-lg-50 d-flex flex-column gap-2">
+            <div data-mdb-input-init class="form-outline position-relative">
+                <input type="text" class="form-control" [(ngModel)]="locationSearchTerm"
+                    (keyup.enter)="searchLocation()" placeholder="Search for a Street or Landmark" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="11.5" cy="11.5" r="9.5" />
+                        <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="position-relative"
+            style="height: 300px; width: 50%; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+            <google-map height="100%" width="100%" [center]="center" [zoom]="zoom" [options]="mapOptions"
+                (mapClick)="onMapClick($event)">
+
+                <!-- Branch Marker -->
+                <map-marker *ngIf="branchMarker" [position]="branchMarker" [options]="markerOptions"
+                    (mapDragend)="onMarkerDragEnd($event)">
+                </map-marker>
+            </google-map>
+
+            <!-- Confirm Button Overlay -->
+            <div class="position-absolute" style="bottom: 20px; left: 20px;">
+                <button class="btn btn-primary d-flex align-items-center gap-2" *ngIf="branchMarker"
+                    (click)="confirmLocation()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    Confirm
+                </button>
+            </div>
+
+            <!-- Location Button Overlay -->
+            <div class="position-absolute" style="bottom: 20px; right: 20px;">
+                <button class="btn btn-outline-secondary btn-sm rounded-circle" (click)="getCurrentLocation()"
+                    style="width: 40px; height: 40px; padding: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M12 2L12 6M12 18L12 22M4.22 4.22L7.07 7.07M16.93 16.93L19.78 19.78M2 12L6 12M18 12L22 12M4.22 19.78L7.07 16.93M16.93 7.07L19.78 4.22" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Location Data Inputs -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="input">
+                    <label for="longitude">Longitude</label>
+                    <div class="form-outline w-100">
+                        <input type="number" id="longitude" class="form-control" [(ngModel)]="longitude"
+                            (ngModelChange)="onLongitudeChange()" placeholder="-" step="0.000001" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="input">
+                    <label for="latitude">Latitude</label>
+                    <div class="form-outline w-100">
+                        <input type="number" id="latitude" class="form-control" [(ngModel)]="latitude"
+                            (ngModelChange)="onLatitudeChange()" placeholder="-" step="0.000001" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input">
+                    <label for="radiusRange">Radius Range</label>
+                    <div class="form-outline w-100">
+                        <input type="number" id="radiusRange" class="form-control" [(ngModel)]="radiusRange"
+                            placeholder="120 metres" min="1" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- prev and confirm buttons -->
         <div class="btn-fixed d-flex align-items-stretch gap-2">
             <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
