@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -39,7 +39,22 @@ export class SidebarComponent implements OnInit {
       screenWidth: this.screenWidth,
     });
   }
+// close accourdions opens when click one out accourdion 
+@ViewChild('accordionWrapper') accordionWrapper!: ElementRef;
 
+closeAllAccordions(): void {
+    const accordions = this.accordionWrapper.nativeElement.querySelectorAll('.accordion-collapse.show');
+
+    accordions.forEach((el: HTMLElement) => {
+      el.classList.remove('show'); // Bootstrap collapse class
+    });
+
+    const buttons = this.accordionWrapper.nativeElement.querySelectorAll('.accordion-button');
+    buttons.forEach((btn: HTMLElement) => {
+      btn.classList.add('collapsed');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  }
   // screen responsive in start page
   ngOnInit(): void {
     // route contain to active icon 

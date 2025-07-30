@@ -3,8 +3,8 @@ body {
 }
 
 .page-header {
-    padding-top: var(--spacing-68) !important;
-    padding-bottom: var(--spacing-68) !important;
+    padding-top: var(--spacing-52) !important;
+    padding-bottom: var(--spacing-52) !important;
 }
 
 .page-header nav {

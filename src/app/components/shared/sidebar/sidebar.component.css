@@ -272,3 +272,14 @@
 .accordion-body .sidenav-nav-item{
     border-color: transparent;
 }
+.link-button-outer{
+    padding: var(--spacing-16) var(--spacing-24) !important;
+    border-top:0 ;
+}
+.accordion-item:last-of-type > .accordion-header .accordion-button.collapsed,.accordion-item:last-of-type,.accordion-item:first-of-type{
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+}
