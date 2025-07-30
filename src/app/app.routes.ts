@@ -332,6 +332,7 @@ export const routes: Routes = [
               },
             ]
           },
+
           // Restricted Days routes
           {
             path: 'restricted-days',
@@ -363,6 +364,7 @@ export const routes: Routes = [
               },
             ]
           },
+
           // Work Schedule routes
           {
             path: 'schedule',
@@ -453,8 +455,6 @@ export const routes: Routes = [
               },
             ]
           },
-
-
 
         ]
       },
@@ -654,6 +654,11 @@ export const routes: Routes = [
                 path: 'cloud-system',
                 loadComponent: () => import('./components/system-cloud/system-cloud/system-cloud.component').then(m => m.SystemCloudComponent),
                 title: 'System Cloud'
+              },
+              {
+                path: 'employee-template',
+                loadComponent: () => import('./components/system-cloud/employee-template/employee-template.component').then(m => m.EmployeeTemplateComponent),
+                title: 'Employee Template'
               },
 
             ]

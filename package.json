@@ -26,6 +26,8 @@
     "@fullcalendar/interaction": "^6.1.17",
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
+    "ag-grid-angular": "^34.1.0",
+    "ag-grid-community": "^34.1.0",
     "bootstrap": "^5.3.3",
     "device-detector-js": "^3.0.3",
     "firebase": "^11.9.1",

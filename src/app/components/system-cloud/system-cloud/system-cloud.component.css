@@ -76,29 +76,189 @@
     border-top: 1px solid var(--color-secondary-300);
 }
 
+
+
+.st0 {
+    fill: var(--color-secondary-700);
+    transition: 0.3s;
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
+    -ms-transition: 0.3s;
+    -o-transition: 0.3s;
+}
+
+.st1 {
+    fill: var(--color-secondary-100);
+    transition: 0.3s;
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
+    -ms-transition: 0.3s;
+    -o-transition: 0.3s;
+}
+
+.st2 {
+    fill: var(--color-secondary-300);
+    transition: 0.3s;
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
+    -ms-transition: 0.3s;
+    -o-transition: 0.3s;
+}
+
+.st3 {
+    fill: var(--color-secondary-500);
+    transition: 0.3s;
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
+    -ms-transition: 0.3s;
+    -o-transition: 0.3s;
+}
 .file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: var(--spacing-8);
     border-radius: var(--border-radius-16);
-    -webkit-border-radius: var(--border-radius-16);
-    -moz-border-radius: var(--border-radius-16);
-    -ms-border-radius: var(--border-radius-16);
-    -o-border-radius: var(--border-radius-16);
+    border: 1px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    -webkit-transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    -moz-transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    -ms-transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    -o-transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.label {
+    fill: white;
+    font-size: 1.5rem;
+    font-weight: lighter;
+    font-family: Arial, sans-serif;
 }
 
 .file:hover {
     cursor: pointer;
+    border-color: var(--color-secondary-300);
 }
-
-.file:focus {
-    background-color: var(--color-primary-100) !important;
-    border: 1px solid var(--color-primary-500);
+.file:hover .st0{
+    fill: var(--color-primary-600);
+}
+.file:hover .st1{
+    fill: var(--color-primary-100);
+}
+.file:hover .st2{
+    fill: var( --color-primary-300);
+}
+.file:hover .st3{
+    fill: var(--color-primary-500);
+}
+.file:hover h6 {
+    color: var(--color-primary-500);
+    font-weight: 600;
 }
 
 .file h6 {
     margin-top: 10px;
+    margin-bottom: 0;
     color: var(--color-secondary-700);
     font-size: var(--font-size-b3);
+    transition: color 0.3s, font-weight 0.3s, opacity 0.3s ease;
+    -webkit-transition: color 0.3s, font-weight 0.3s, opacity 0.3s ease;
+    -moz-transition: color 0.3s, font-weight 0.3s, opacity 0.3s ease;
+    -ms-transition: color 0.3s, font-weight 0.3s, opacity 0.3s ease;
+    -o-transition: color 0.3s, font-weight 0.3s, opacity 0.3s ease;
+}
+.file:focus{
+    background-color: var(--color-primary-50);
+    border: 1px solid var(--color-primary-500);
+}
+
+.template{
+    position: relative;
+}
+.template button {
+    position: absolute;
+    bottom: var(--spacing-8);
+    left: 50%;
+    transform: translate(-50%, var(--spacing-8));
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    -webkit-transform: translate(-50%, var(--spacing-8));
+    -moz-transform: translate(-50%, var(--spacing-8));
+    -ms-transform: translate(-50%, var(--spacing-8));
+    -o-transform: translate(-50%, var(--spacing-8));
+    white-space: nowrap;
+    min-width: auto; 
+}
+
+.template:hover h6 {
+    opacity: 0;
+}
+
+.template:hover button {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+.table-file {
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+.table-file:hover td:nth-child(1),
+.table-file:hover td:nth-child(2) {
+    color: var(--color-primary-500);
+}
+.table-file:hover .st0{
+    fill: var(--color-primary-600);
+}
+.table-file:hover .st1{
+    fill: var(--color-primary-100);
+}
+.table-file:hover .st2{
+    fill: var( --color-primary-300);
+}
+.table-file:hover .st3{
+    fill: var(--color-primary-500);
+}
+
+.table-file:hover td:nth-child(n+3):nth-child(-n+6) {
+  opacity: 0;
+  pointer-events: none;
+}
+.actions-cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.table-file:hover .actions-cell {
+    display: flex;
+    gap: 8px;
+    padding-inline-end: var(--spacing-8);
+    justify-content: end;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+     opacity: 1;
+  pointer-events: auto;
+}
+.table-file:hover .actions-cell {
+    display: flex !important;
 }
 
 .breadcrumb {
@@ -129,12 +289,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap:5px;
+    gap: 5px;
     font-size: var(--font-size-b2);
 }
-.switchs .dispaly-switch.active{
+
+.switchs .dispaly-switch.active {
     background-color: var(--color-primary-50);
-    border:1px solid var(--color-primary-300);
+    border: 1px solid var(--color-primary-300);
     color: var(--color-primary-600);
     font-weight: 600;
     border-radius: var(--border-radius-25);
@@ -143,44 +304,58 @@
     -ms-border-radius: var(--border-radius-25);
     -o-border-radius: var(--border-radius-25);
 }
-.switchs .dispaly-switch.active svg{
+
+.switchs .dispaly-switch.active svg {
     fill: var(--color-primary-500);
 }
-table thead tr td, table tbody tr td{
+
+table thead tr td, table tbody tr td {
     padding: var(--spacing-8);
     font-size: var(--font-size-b2);
 }
-table thead tr td{
+
+table thead tr td {
     color: var(--color-secondary-700);
     font-weight: 600;
 }
-table tbody tr{
+
+table tbody tr {
     transition: 0.3s;
     -webkit-transition: 0.3s;
     -moz-transition: 0.3s;
     -ms-transition: 0.3s;
     -o-transition: 0.3s;
 }
-table tbody tr:hover{
+
+table tbody tr:hover {
     background-color: var(--color-secondary-50);
 }
-table tbody tr td{
-    color: var( --color-secondary-500);
+
+table tbody tr td {
+    color: var(--color-secondary-500);
 }
+
 table thead tr td:not(:nth-child(1)):not(:nth-child(2)),
 table tbody tr td:not(:nth-child(1)):not(:nth-child(2)) {
-  text-align: end;
+    text-align: end;
 }
-table img{
+
+table img {
     width: 40px;
 }
-table tbody tr td{
-    border-bottom:1px solid var(--color-neutral-300);
+
+table tbody tr td {
+    border-bottom: 1px solid var(--color-neutral-300);
 }
-.modal-overlay input::placeholder{
+
+.modal-overlay input::placeholder {
     text-align: start;
 }
-.modal-overlay .form-control{
+
+.modal-overlay .form-control {
     margin-top: var(--spacing-20) !important;
     border: 1px solid var(--color-secondary-300);
+}
+.table-icon{
+    width: 10%;
 }

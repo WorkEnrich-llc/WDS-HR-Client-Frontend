@@ -2,10 +2,11 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { PopupComponent } from '../../shared/popup/popup.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-system-cloud',
-  imports: [PageHeaderComponent,CommonModule,PopupComponent],
+  imports: [PageHeaderComponent,CommonModule,PopupComponent,RouterLink],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation:ViewEncapsulation.None

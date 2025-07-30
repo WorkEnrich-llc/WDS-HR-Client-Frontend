@@ -1,0 +1,55 @@
+.page-header h2{
+    margin-bottom: var(--spacing-12) !important;
+}
+.body-trimmed{
+    padding: 0 !important;
+}
+.breadcrumb {
+    margin: 0;
+}
+.breadcrumb a{
+    color: var(--color-secondary-700);
+}
+
+.breadcrumb .active a {
+    color: var(--color-primary-500) !important;
+}
+.content-hug{
+    background-color: var(--color-white);
+}
+.form-outline .form-control {
+    border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    border: none;
+    border-bottom: 1px solid var(--color-secondary-300);
+}
+table thead tr th{
+    background-color: var(--color-neutral-800) !important;
+    color: var(--color-white);
+    font-weight: 600;
+    font-size: var(--font-size-b2);
+    text-wrap: nowrap;
+    padding: var(--spacing-8);
+}
+table tbody tr td:first-of-type{
+    background-color: var(--color-neutral-800) !important;
+    color: var(--color-white);
+    font-weight: 400;
+    font-size: var(--font-size-b2);
+    text-wrap: nowrap;
+    padding: var(--spacing-8);
+    text-align: end !important;
+}
+table input,table select{
+    min-width: 100% !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+    padding: var(--spacing-8);
+    border: none;
+}
