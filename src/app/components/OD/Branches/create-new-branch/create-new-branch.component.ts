@@ -9,12 +9,12 @@ import { Router } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-create-new-branch',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
@@ -75,39 +75,13 @@ export class CreateNewBranchComponent implements OnInit {
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
 
-  // Map configuration for step 3
-  center: google.maps.LatLngLiteral = { lat: 25.2048, lng: 55.2708 }; // Dubai coordinates
-  zoom = 10;
-  
-  // Map options
-  mapOptions: google.maps.MapOptions = {
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    zoomControl: true,
-    scrollwheel: true,
-    disableDoubleClickZoom: false,
-    maxZoom: 20,
-    minZoom: 4,
-  };
-
-  // Branch location marker
-  branchMarker: google.maps.LatLngLiteral | null = null;
-
-  // Marker options
-  markerOptions: google.maps.MarkerOptions = {
-    draggable: true,
-    animation: google.maps.Animation.DROP,
-  };
-
-  // Form controls for location data
-  latitude: number = 0;
-  longitude: number = 0;
-  radiusRange: number = 120; // Default radius in meters
-  locationSearchTerm: string = '';
-
-  // Info window content
-  infoWindowContent = 'Branch Location';
-  infoWindowOptions: google.maps.InfoWindowOptions = {
-    maxWidth: 300
+  // Location data for step 3
+  locationData: LocationData = {
+    latitude: 0,
+    longitude: 0,
+    radiusRange: 120,
+    displayLatitude: '',
+    displayLongitude: ''
   };
 
 
@@ -344,9 +318,9 @@ export class CreateNewBranchComponent implements OnInit {
         name: formData.name,
         location: formData.location,
         max_employee: Number(formData.maxEmployee),
-        latitude: this.latitude,
-        longitude: this.longitude,
-        radius_range: this.radiusRange,
+        latitude: this.locationData.latitude,
+        longitude: this.locationData.longitude,
+        radius_range: this.locationData.radiusRange,
         departments: departments
       }
     };
@@ -417,96 +391,13 @@ export class CreateNewBranchComponent implements OnInit {
     );
   }
 
-  // Map-related methods for step 3
-  onMapClick(event: google.maps.MapMouseEvent) {
-    if (event.latLng) {
-      const clickedLocation = event.latLng.toJSON();
-      this.branchMarker = clickedLocation;
-      this.latitude = clickedLocation.lat;
-      this.longitude = clickedLocation.lng;
-      this.center = clickedLocation;
-      this.zoom = 15;
-    }
+  // Handle location changes from Google Maps component
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 
-  onMarkerDragEnd(event: google.maps.MapMouseEvent) {
-    if (event.latLng && this.branchMarker) {
-      const newPosition = event.latLng.toJSON();
-      this.branchMarker = newPosition;
-      this.latitude = newPosition.lat;
-      this.longitude = newPosition.lng;
-    }
-  }
-
-  getCurrentLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const currentLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          this.center = currentLocation;
-          this.branchMarker = currentLocation;
-          this.latitude = currentLocation.lat;
-          this.longitude = currentLocation.lng;
-          this.zoom = 15;
-        },
-        (error) => {
-          console.error('Error getting current location:', error);
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
-    }
-  }
-
-  searchLocation() {
-    if (!this.locationSearchTerm.trim()) {
-      return;
-    }
-
-    const geocoder = new google.maps.Geocoder();
-    
-    geocoder.geocode({ address: this.locationSearchTerm }, (results, status) => {
-      if (status === 'OK' && results && results[0]) {
-        const location = results[0].geometry.location.toJSON();
-        this.center = location;
-        this.branchMarker = location;
-        this.latitude = location.lat;
-        this.longitude = location.lng;
-        this.zoom = 15;
-      } else {
-        console.error('Geocode was not successful for the following reason:', status);
-      }
-    });
-  }
-
-
-
-  // Update map when latitude/longitude inputs change
-  onLatitudeChange() {
-    if (this.latitude && this.longitude) {
-      const newLocation = { lat: this.latitude, lng: this.longitude };
-      this.center = newLocation;
-      this.branchMarker = newLocation;
-      this.zoom = 15;
-    }
-  }
-
-  onLongitudeChange() {
-    if (this.latitude && this.longitude) {
-      const newLocation = { lat: this.latitude, lng: this.longitude };
-      this.center = newLocation;
-      this.branchMarker = newLocation;
-      this.zoom = 15;
-    }
-  }
-
-  confirmLocation() {
-    if (this.branchMarker) {
-      // Location is confirmed, could add additional logic here if needed
-      console.log('Location confirmed:', this.branchMarker);
-    }
+  // Handle location confirmation from Google Maps component
+  onLocationConfirmed(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 }
