@@ -10,7 +10,7 @@ import { BranchesService } from '../../../../core/services/od/branches/branches.
 import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 interface Department {
   id: number;
   name: string;
@@ -21,7 +21,7 @@ interface Department {
 }
 @Component({
   selector: 'app-edit-branch-info',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './edit-branch-info.component.html',
   styleUrl: './edit-branch-info.component.css',
@@ -57,39 +57,13 @@ export class EditBranchInfoComponent implements OnInit {
   errMsg: string = '';
   isLoading: boolean = false;
 
-  // Map configuration for step 3
-  center: google.maps.LatLngLiteral = { lat: 25.2048, lng: 55.2708 }; // Dubai coordinates
-  zoom = 10;
-  
-  // Map options
-  mapOptions: google.maps.MapOptions = {
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    zoomControl: true,
-    scrollwheel: true,
-    disableDoubleClickZoom: false,
-    maxZoom: 20,
-    minZoom: 4,
-  };
-
-  // Branch location marker
-  branchMarker: google.maps.LatLngLiteral | null = null;
-
-  // Marker options
-  markerOptions: google.maps.MarkerOptions = {
-    draggable: true,
-    animation: google.maps.Animation.DROP,
-  };
-
-  // Form controls for location data
-  latitude: number = 0;
-  longitude: number = 0;
-  radiusRange: number = 120; // Default radius in meters
-  locationSearchTerm: string = '';
-
-  // Info window content
-  infoWindowContent = 'Branch Location';
-  infoWindowOptions: google.maps.InfoWindowOptions = {
-    maxWidth: 300
+  // Location data for step 3
+  locationData: LocationData = {
+    latitude: 0,
+    longitude: 0,
+    radiusRange: 120,
+    displayLatitude: '',
+    displayLongitude: ''
   };
 
 
@@ -269,15 +243,13 @@ export class EditBranchInfoComponent implements OnInit {
         
         // Set map coordinates if available
         if (this.branchData.latitude && this.branchData.longitude) {
-          this.latitude = parseFloat(this.branchData.latitude);
-          this.longitude = parseFloat(this.branchData.longitude);
-          this.center = { lat: this.latitude, lng: this.longitude };
-          this.branchMarker = { lat: this.latitude, lng: this.longitude };
-          this.zoom = 15;
-        }
-        
-        if (this.branchData.radius_range) {
-          this.radiusRange = this.branchData.radius_range;
+          this.locationData = {
+            latitude: parseFloat(this.branchData.latitude),
+            longitude: parseFloat(this.branchData.longitude),
+            radiusRange: this.branchData.radius_range || 120,
+            displayLatitude: this.branchData.latitude,
+            displayLongitude: this.branchData.longitude
+          };
         }
         
         // console.log(this.addeddepartments);
@@ -327,9 +299,9 @@ export class EditBranchInfoComponent implements OnInit {
     const originalLongitude = this.branchData?.longitude ? parseFloat(this.branchData.longitude) : 0;
     const originalRadiusRange = this.branchData?.radius_range || 120;
 
-    const isLocationChanged = this.latitude !== originalLatitude || 
-                              this.longitude !== originalLongitude ||
-                              this.radiusRange !== originalRadiusRange;
+    const isLocationChanged = this.locationData.latitude !== originalLatitude || 
+                              this.locationData.longitude !== originalLongitude ||
+                              this.locationData.radiusRange !== originalRadiusRange;
 
     return isFormDifferent || isDepartmentsDifferent || isSectionChanged || isLocationChanged;
   }
@@ -514,9 +486,9 @@ export class EditBranchInfoComponent implements OnInit {
         name: formData.name,
         location: formData.location,
         max_employee: Number(formData.maxEmployee),
-        latitude: this.latitude,
-        longitude: this.longitude,
-        radius_range: this.radiusRange,
+        latitude: this.locationData.latitude,
+        longitude: this.locationData.longitude,
+        radius_range: this.locationData.radiusRange,
         departments: departments
       }
     };
@@ -589,94 +561,13 @@ export class EditBranchInfoComponent implements OnInit {
     );
   }
 
-  // Map-related methods for step 3
-  onMapClick(event: google.maps.MapMouseEvent) {
-    if (event.latLng) {
-      const clickedLocation = event.latLng.toJSON();
-      this.branchMarker = clickedLocation;
-      this.latitude = clickedLocation.lat;
-      this.longitude = clickedLocation.lng;
-      this.center = clickedLocation;
-      this.zoom = 15;
-    }
+  // Handle location changes from Google Maps component
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 
-  onMarkerDragEnd(event: google.maps.MapMouseEvent) {
-    if (event.latLng && this.branchMarker) {
-      const newPosition = event.latLng.toJSON();
-      this.branchMarker = newPosition;
-      this.latitude = newPosition.lat;
-      this.longitude = newPosition.lng;
-    }
-  }
-
-  getCurrentLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const currentLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          this.center = currentLocation;
-          this.branchMarker = currentLocation;
-          this.latitude = currentLocation.lat;
-          this.longitude = currentLocation.lng;
-          this.zoom = 15;
-        },
-        (error) => {
-          console.error('Error getting current location:', error);
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
-    }
-  }
-
-  searchLocation() {
-    if (!this.locationSearchTerm.trim()) {
-      return;
-    }
-
-    const geocoder = new google.maps.Geocoder();
-    
-    geocoder.geocode({ address: this.locationSearchTerm }, (results, status) => {
-      if (status === 'OK' && results && results[0]) {
-        const location = results[0].geometry.location.toJSON();
-        this.center = location;
-        this.branchMarker = location;
-        this.latitude = location.lat;
-        this.longitude = location.lng;
-        this.zoom = 15;
-      } else {
-        console.error('Geocode was not successful for the following reason:', status);
-      }
-    });
-  }
-
-  // Update map when latitude/longitude inputs change
-  onLatitudeChange() {
-    if (this.latitude && this.longitude) {
-      const newLocation = { lat: this.latitude, lng: this.longitude };
-      this.center = newLocation;
-      this.branchMarker = newLocation;
-      this.zoom = 15;
-    }
-  }
-
-  onLongitudeChange() {
-    if (this.latitude && this.longitude) {
-      const newLocation = { lat: this.latitude, lng: this.longitude };
-      this.center = newLocation;
-      this.branchMarker = newLocation;
-      this.zoom = 15;
-    }
-  }
-
-  confirmLocation() {
-    if (this.branchMarker) {
-      // Location is confirmed, could add additional logic here if needed
-      console.log('Location confirmed:', this.branchMarker);
-    }
+  // Handle location confirmation from Google Maps component
+  onLocationConfirmed(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 }
