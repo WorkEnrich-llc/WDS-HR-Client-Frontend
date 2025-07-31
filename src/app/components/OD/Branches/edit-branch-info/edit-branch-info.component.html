@@ -497,31 +497,32 @@
 
 <!-- step 3 -->
 <div class="content-hug" *ngIf="currentStep === 3">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Branch Location</h2>
+    <app-google-maps-location [title]="'Branch Location'" [initialLocation]="locationData" [isEditMode]="true"
+        [mapHeight]="'300px'" [mapWidth]="'50%'" (locationChanged)="onLocationChanged($event)"
+        (locationConfirmed)="onLocationConfirmed($event)">
+    </app-google-maps-location>
 
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg btn-success"
-                [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
-                (click)="updateBranch()">
-                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Save Changes</span>
-            </button>
-        </div>
+    <!-- prev and confirm buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+        <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+            (click)="goPrev()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+            </svg>
+        </button>
+        <button class="btn btn-lg btn-success"
+            [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
+            (click)="updateBranch()">
+            <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+            </svg>
+            <span>Save Changes</span>
+        </button>
     </div>
 </div>
 

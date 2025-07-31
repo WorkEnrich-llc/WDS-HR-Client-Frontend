@@ -41,6 +41,7 @@ export class AllRequestsComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
@@ -95,6 +96,7 @@ export class AllRequestsComponent {
       this.filters
     ).subscribe({
       next: (response) => {
+
         // debugger
         const temp =  [
             {
@@ -199,6 +201,7 @@ export class AllRequestsComponent {
         ]
          this.approvalRequests = temp;
         // this.approvalRequests = response.data.list_items;
+        console.log(response.data);
         this.totalItems = response.data.total_items;
         this.loading = false;
       },

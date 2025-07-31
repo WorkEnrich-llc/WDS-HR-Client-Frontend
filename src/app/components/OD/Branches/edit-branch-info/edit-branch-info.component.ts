@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -10,6 +10,7 @@ import { BranchesService } from '../../../../core/services/od/branches/branches.
 import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 interface Department {
   id: number;
   name: string;
@@ -20,10 +21,11 @@ interface Department {
 }
 @Component({
   selector: 'app-edit-branch-info',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './edit-branch-info.component.html',
-  styleUrl: './edit-branch-info.component.css'
+  styleUrl: './edit-branch-info.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class EditBranchInfoComponent implements OnInit {
   //deparment table
@@ -54,6 +56,15 @@ export class EditBranchInfoComponent implements OnInit {
   branchId: string | null = null;
   errMsg: string = '';
   isLoading: boolean = false;
+
+  // Location data for step 3
+  locationData: LocationData = {
+    latitude: 0,
+    longitude: 0,
+    radiusRange: 120,
+    displayLatitude: '',
+    displayLongitude: ''
+  };
 
 
   ngOnInit(): void {
@@ -229,6 +240,18 @@ export class EditBranchInfoComponent implements OnInit {
           location: this.branchData.location || '',
           maxEmployee: this.branchData.max_employee || '',
         });
+        
+        // Set map coordinates if available
+        if (this.branchData.latitude && this.branchData.longitude) {
+          this.locationData = {
+            latitude: parseFloat(this.branchData.latitude),
+            longitude: parseFloat(this.branchData.longitude),
+            radiusRange: this.branchData.radius_range || 120,
+            displayLatitude: this.branchData.latitude,
+            displayLongitude: this.branchData.longitude
+          };
+        }
+        
         // console.log(this.addeddepartments);
         this.originalFormData = { ...this.branchStep1.value };
         this.originalDepartmentsSnapshot = JSON.parse(JSON.stringify(this.addeddepartments));
@@ -271,7 +294,16 @@ export class EditBranchInfoComponent implements OnInit {
       );
     });
 
-    return isFormDifferent || isDepartmentsDifferent || isSectionChanged;
+    // Check if map coordinates have changed
+    const originalLatitude = this.branchData?.latitude ? parseFloat(this.branchData.latitude) : 0;
+    const originalLongitude = this.branchData?.longitude ? parseFloat(this.branchData.longitude) : 0;
+    const originalRadiusRange = this.branchData?.radius_range || 120;
+
+    const isLocationChanged = this.locationData.latitude !== originalLatitude || 
+                              this.locationData.longitude !== originalLongitude ||
+                              this.locationData.radiusRange !== originalRadiusRange;
+
+    return isFormDifferent || isDepartmentsDifferent || isSectionChanged || isLocationChanged;
   }
 
   // remove Department from selected departments
@@ -454,6 +486,9 @@ export class EditBranchInfoComponent implements OnInit {
         name: formData.name,
         location: formData.location,
         max_employee: Number(formData.maxEmployee),
+        latitude: this.locationData.latitude,
+        longitude: this.locationData.longitude,
+        radius_range: this.locationData.radiusRange,
         departments: departments
       }
     };
@@ -524,5 +559,15 @@ export class EditBranchInfoComponent implements OnInit {
     return this.selectedDepartmentSections.filter(dept =>
       dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
     );
+  }
+
+  // Handle location changes from Google Maps component
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
+  }
+
+  // Handle location confirmation from Google Maps component
+  onLocationConfirmed(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 }

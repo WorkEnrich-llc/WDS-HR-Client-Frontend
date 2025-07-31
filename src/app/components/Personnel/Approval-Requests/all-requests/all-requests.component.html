@@ -39,13 +39,13 @@
 
             </div>
 
-            
+
         </div>
 
         <!-- start Table -->
 
-        <app-table [data]="approvalRequests" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+        <app-table [data]="approvalRequests" [isLoading]="loading" [columnsCount]="7" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="requestTableHeader"
             [rowTemplate]="requestTableRow" [emptyTemplate]="noRequest"></app-table>
 
@@ -85,12 +85,19 @@
                 <span class="d-block text-truncate" style="max-width: 300px;">
                     {{ getEmployeeName(request) }}
                 </span>
-                <span class="d-block text-gray-sm">{{ getEmployeeJobTitle(request) }}</span>
             </td>
-            <td>{{ getFormattedDate(request.created_at) }}</td>
+            <td>{{ getFormattedDate(request.created_at) | date:'dd/MM/yyyy' }}</td>
             <td>{{ getReasonStatusName(request) }}</td>
             <td>{{ request.name }}</td>
-            <td>{{ getDateRange(request) }}</td>
+            <td>{{ request.dates.from_date | date:'dd/MM/yyyy'}} 
+                <span class="mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24">
+                        <path fill="#2C63CC"
+                            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+                    </svg>
+                </span>
+                {{ request.dates.to_date | date:'dd/MM/yyyy'}}</td>
             <td>
                 <span class="badge-newjoiner" *ngIf="getStatusName(request) ==='Pending'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -112,8 +119,7 @@
                     <span>Rejected</span>
                 </span>
                 <span class="badge-success" *ngIf="getStatusName(request) ==='Accepted'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -192,7 +198,8 @@
             <label for="leave_type">Leave Type</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="leave_type" type="text" id="leave_type" class="form-control" placeholder="Enter leave type" />
+                    <input formControlName="leave_type" type="text" id="leave_type" class="form-control"
+                        placeholder="Enter leave type" />
                 </div>
             </div>
         </div>
@@ -201,7 +208,8 @@
             <label for="from_date">From Date</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="from_date" type="date" id="from_date" class="form-control custom-date-input" />
+                    <input formControlName="from_date" type="date" id="from_date"
+                        class="form-control custom-date-input" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <path stroke-linecap="round"

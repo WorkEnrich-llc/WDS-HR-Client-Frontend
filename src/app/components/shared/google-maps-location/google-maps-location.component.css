@@ -1,0 +1,46 @@
+/* Google Maps Location Component Styles */
+.google-maps-location-container {
+  width: 100%;
+}
+
+.google-maps-location-container .content-box {
+  padding: 0;
+}
+
+/* Map specific styles */
+.google-maps-location-container google-map {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Button overlay styles */
+.google-maps-location-container .position-absolute button {
+  z-index: 10;
+}
+
+/* Input group styling */
+.google-maps-location-container .input {
+  margin-bottom: 1rem;
+}
+
+.google-maps-location-container .input label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Search box styling */
+.google-maps-location-container .form-outline {
+  position: relative;
+}
+
+.google-maps-location-container .form-outline input {
+  padding-right: 45px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .google-maps-location-container .position-relative {
+    width: 100% !important;
+  }
+}

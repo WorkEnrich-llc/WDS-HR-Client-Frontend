@@ -332,6 +332,7 @@ export const routes: Routes = [
               },
             ]
           },
+
           // Restricted Days routes
           {
             path: 'restricted-days',
@@ -363,6 +364,7 @@ export const routes: Routes = [
               },
             ]
           },
+
           // Work Schedule routes
           {
             path: 'schedule',
@@ -453,8 +455,6 @@ export const routes: Routes = [
               },
             ]
           },
-
-
 
         ]
       },
@@ -599,7 +599,7 @@ export const routes: Routes = [
 
             ]
           },
-          
+
           // payroll runs routes
           {
             path: 'payroll-runs',
@@ -633,12 +633,40 @@ export const routes: Routes = [
             ]
           },
 
-          
+        ]
+      },
+
+      // system cloud layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/cloud-layout/cloud-layout.component').then(m => m.CloudLayoutComponent),
+
+        children: [
+          {
+            path: 'cloud',
+            children: [
+              {
+                path: '',
+                redirectTo: 'cloud-system',
+                pathMatch: 'full'
+              },
+              {
+                path: 'cloud-system',
+                loadComponent: () => import('./components/system-cloud/system-cloud/system-cloud.component').then(m => m.SystemCloudComponent),
+                title: 'System Cloud'
+              },
+              {
+                path: 'employee-template',
+                loadComponent: () => import('./components/system-cloud/employee-template/employee-template.component').then(m => m.EmployeeTemplateComponent),
+                title: 'Employee Template'
+              },
+
+            ]
+          },
 
 
         ]
       },
-
 
 
 
