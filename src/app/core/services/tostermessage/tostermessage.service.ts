@@ -11,10 +11,16 @@ export class ToasterMessageService {
 
   constructor(private toastr: ToastrService) {}
 
+  /**
+   * @deprecated Use showSuccess, showError, showWarning, or showInfo instead.
+   */
   sendMessage(message: string) {
     this.messageSource.next(message);
   }
 
+  /**
+   * @deprecated Use showSuccess, showError, showWarning, or showInfo instead.
+   */
   clearMessage() {
     this.messageSource.next('');
   }

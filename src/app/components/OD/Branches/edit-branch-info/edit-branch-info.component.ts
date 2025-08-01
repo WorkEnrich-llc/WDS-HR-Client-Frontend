@@ -89,7 +89,7 @@ export class EditBranchInfoComponent implements OnInit {
   // form step 1
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required]),
+    name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
