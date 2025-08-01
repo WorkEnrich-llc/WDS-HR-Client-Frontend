@@ -96,6 +96,10 @@
                     *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']">
                     Department Name is required.
                 </p>
+                <p class="error-msg"
+                    *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['minlength']">
+                    Department Name must be at least 2 characters long.
+                </p>
             </div>
             <div class="input">
                 <label for="empNo">Department Objectives <span>*</span></label>

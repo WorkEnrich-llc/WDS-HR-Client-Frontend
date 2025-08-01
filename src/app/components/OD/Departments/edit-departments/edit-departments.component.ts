@@ -92,7 +92,7 @@ export class EditDepartmentsComponent implements OnInit {
 
   deptStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required]),
+    name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     objectives: new FormControl('', [Validators.required]),
   });
 
