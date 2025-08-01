@@ -159,6 +159,8 @@ export class CreateNewBranchComponent implements OnInit {
   }
   discardDepartment(): void {
     this.departmentsOverlay.closeOverlay();
+    // Reset search input after closing overlay
+    this.searchTerm = '';
   }
 
   addSelectedDepartments(): void {
@@ -246,6 +248,10 @@ export class CreateNewBranchComponent implements OnInit {
 
   // overlays boxes sliders
   openFirstOverlay() {
+    // Reset search input and load full departments list when opening overlay
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.getAllDepartment(this.currentPage);
     this.departmentsOverlay.openOverlay();
   }
 
