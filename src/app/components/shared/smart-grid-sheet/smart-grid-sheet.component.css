@@ -1,0 +1,51 @@
+
+table {
+    border-collapse: collapse !important;
+    padding: 0 !important;
+}
+
+table thead tr th {
+    background-color: var(--color-neutral-800) !important;
+    color: var(--color-white);
+    text-wrap: nowrap;
+    border: 1px solid var(--color-secondary-300);
+    padding: var(--spacing-12) !important;
+}
+
+table tbody tr td:first-of-type {
+    background-color: var(--color-neutral-800) !important;
+    color: var(--color-white);
+    text-wrap: nowrap;
+    border: 1px solid var(--color-secondary-300);
+    padding: 0 var(--spacing-12) !important;
+}
+
+table tbody {
+    background-color: var(--color-secondary-300) !important;
+}
+
+.no-radius {
+    border-radius: 0 !important;
+}
+
+.no-padding-input {
+    padding-left: 0.25rem !important;
+    padding-right: 1.75rem !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+}
+
+input:focus {
+    box-shadow: none !important;
+    border: none !important;
+    box-shadow: inset 0 -2px 0 var(--color-primary-700) !important;
+    color: var(--color-primary-500) !important;
+    background-color: var(--color-primary-50) !important;
+}
+
+.is-invalid {
+    border: none !important;
+    box-shadow: inset 0 -2px 0 var(--color-danger-700) !important;
+    color: var(--color-danger-500) !important;
+    background-color: var(--color-danger-100) !important;
+}

@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
   imports: [PageHeaderComponent,CommonModule,PopupComponent,RouterLink],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
-  encapsulation:ViewEncapsulation.None
 })
 export class SystemCloudComponent {
   isExpanded=true;

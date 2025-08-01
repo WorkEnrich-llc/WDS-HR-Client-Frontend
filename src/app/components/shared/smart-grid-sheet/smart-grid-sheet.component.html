@@ -1,0 +1,36 @@
+<div class="overflow-auto">
+  <table class="min-w-100">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th *ngFor="let col of columns">{{ col.name }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let form of rows(); let rowIndex = index">
+        <td>{{ rowIndex + 1 }}</td>
+        <td *ngFor="let col of columns; let colIndex = index" class="border p-0">
+          <div class="position-relative w-100 p-0">
+            <select *ngIf="col.type === 'select'; else textInput"
+              [formControl]="getFormControl(form, col)"
+              class="form-select no-radius no-padding-input"
+              [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }">
+              <option *ngFor="let opt of col.options" [value]="opt">{{ opt }}</option>
+            </select>
+
+            <ng-template #textInput>
+              <input [formControl]="getFormControl(form, col)"
+                class="form-control no-radius no-padding-input ps-4"
+                [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }"
+                (paste)="paste($event, rowIndex, col.name)" />
+            </ng-template>
+
+            <i *ngIf="isCellInvalid(form, col)"
+              class="bi bi-info-circle-fill text-danger position-absolute"
+              style="left: 8px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
