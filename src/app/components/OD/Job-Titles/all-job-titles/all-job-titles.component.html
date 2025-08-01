@@ -210,7 +210,7 @@
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <select name="" id="department" formControlName="department" class="form-select">
             <option value="" selected disabled hidden>Select</option>
-            <option *ngFor="let dept of departments" value="dept.id">{{dept.name}}</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">{{dept.name}}</option>
           </select>
         </div>
         <svg *ngIf="!filterForm.get('department')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
