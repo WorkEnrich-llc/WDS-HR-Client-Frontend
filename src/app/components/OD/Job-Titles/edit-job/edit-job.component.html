@@ -197,6 +197,29 @@
                     </p>
                 </div>
             </div>
+            <div class="input" *ngIf="showJobLevel">
+                <label for="jobLevel">Job Level <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="jobLevel" formControlName="jobLevel" id="jobLevel" class="form-select"
+                            (change)="onLevelChange()">
+                            <option value="" disabled hidden>Select Level</option>
+                            <option value="0">Not Selected</option>
+                            <option value="1">Intern</option>
+                            <option value="2">Junior</option>
+                            <option value="3">Mid Level</option>
+                            <option value="4">Senior</option>
+                            <option value="5">Team Leader</option>
+                            <option value="6">Expert</option>
+                            <option value="7">Consultant</option>
+                        </select>
+                    </div>      
+                </div>
+                <p class="error-msg"
+                        *ngIf="jobStep1.get('jobLevel')?.touched && jobStep1.get('jobLevel')?.errors?.['required']">
+                        Job Level is required.
+                    </p>
+            </div>
 
             <div class="d-flex justify-content-between gap-3">
                 <div class="input w-100" [ngClass]="{'opacity-50': !isDepartmentSelected}">
