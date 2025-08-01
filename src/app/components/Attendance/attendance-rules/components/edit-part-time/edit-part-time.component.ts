@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { PopupComponent } from '../../../shared/popup/popup.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PopupComponent } from '../../../../shared/popup/popup.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-edit-part-time',
   imports: [PageHeaderComponent, PopupComponent, CommonModule, FormsModule],
   templateUrl: './edit-part-time.component.html',
-  styleUrls: ['./../../../shared/table/table.component.css','./edit-part-time.component.css'],
+  styleUrls: ['./../../../../shared/table/table.component.css','./edit-part-time.component.css'],
 })
 export class EditPartTimeComponent {
 

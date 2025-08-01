@@ -317,17 +317,17 @@ export const routes: Routes = [
               },
               {
                 path: 'attendance-rules',
-                loadComponent: () => import('./components/Attendance/attendance-rules/attendance-rule/attendance-rule.component').then(m => m.AttendanceRuleComponent),
+                loadComponent: () => import('./components/Attendance/attendance-rules/components/attendance-rule/attendance-rule.component').then(m => m.AttendanceRuleComponent),
                 title: 'Attendance Rules',
               },
               {
                 path: 'full-time',
-                loadComponent: () => import('./components/Attendance/attendance-rules/edit-full-time/edit-full-time.component').then(m => m.EditFullTimeComponent),
+                loadComponent: () => import('./components/Attendance/attendance-rules/components/edit-full-time/edit-full-time.component').then(m => m.EditFullTimeComponent),
                 title: 'Edit Full Time',
               },
               {
                 path: 'part-time',
-                loadComponent: () => import('./components/Attendance/attendance-rules/edit-part-time/edit-part-time.component').then(m => m.EditPartTimeComponent),
+                loadComponent: () => import('./components/Attendance/attendance-rules/components/edit-part-time/edit-part-time.component').then(m => m.EditPartTimeComponent),
                 title: 'Edit Part Time',
               },
             ]

@@ -1,15 +1,15 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { PopupComponent } from '../../../shared/popup/popup.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PopupComponent } from '../../../../shared/popup/popup.component';
 
 @Component({
   selector: 'app-edit-full-time',
   imports: [PageHeaderComponent, PopupComponent, CommonModule, FormsModule],
   templateUrl: './edit-full-time.component.html',
-  styleUrls: ['./../../../shared/table/table.component.css','./edit-full-time.component.css'],
+  styleUrls: ['./../../../../shared/table/table.component.css','./edit-full-time.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class EditFullTimeComponent {

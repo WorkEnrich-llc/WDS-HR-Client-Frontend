@@ -7,7 +7,23 @@
 <!-- end page header -->
 
 <div class="content-hug">
-  <div class="content-box d-flex flex-column gap-3">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    {{ error }}
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadAttendanceRules()">
+      Retry
+    </button>
+  </div>
+
+  <!-- Full-Time Rules -->
+  <div *ngIf="!loading && !error && attendanceRulesData" class="content-box d-flex flex-column gap-3">
     <div class="d-flex align-items-center justify-content-between">
 
       <h2>Full-Time</h2>
@@ -23,7 +39,7 @@
 
     <div class="info">
       <h6>Grace Period</h6>
-      <span>60 Minutes Per Day</span>
+      <span>{{ getGracePeriodText(getFullTimeSettings()) }}</span>
     </div>
 
     <div class="table-responsive">
@@ -40,53 +56,25 @@
 
         <tbody>
           <tr>
-            <td>
-              Lateness
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Lateness</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 3) }}</td>
           </tr>
 
           <tr>
-            <td>
-              Early Leave
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Early Leave</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 3) }}</td>
           </tr>
 
           <tr>
-            <td>
-              Absence
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Absence</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 3) }}</td>
           </tr>
-
-
-
-
         </tbody>
 
       </table>
@@ -99,7 +87,7 @@
   </div>
 
   
-  <div class="content-box d-flex flex-column gap-3 mt-4">
+  <div *ngIf="!loading && !error && attendanceRulesData" class="content-box d-flex flex-column gap-3 mt-4">
     <div class="d-flex align-items-center justify-content-between">
 
       <h2>Part-Time</h2>
@@ -115,7 +103,7 @@
 
     <div class="info">
       <h6>Grace Period</h6>
-      <span>60 Minutes Per Day</span>
+      <span>{{ getGracePeriodText(getPartTimeSettings()) }}</span>
     </div>
 
     <div class="table-responsive">
@@ -132,53 +120,25 @@
 
         <tbody>
           <tr>
-            <td>
-              Lateness
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Lateness</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 3) }}</td>
           </tr>
 
           <tr>
-            <td>
-              Early Leave
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Early Leave</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 3) }}</td>
           </tr>
 
           <tr>
-            <td>
-              Absence
-            </td>
-            <td>
-              0.25 day
-            </td>
-            <td>
-              0.5 day
-            </td>
-            <td>
-              1 day
-            </td>
+            <td>Absence</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 1) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 2) }}</td>
+            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 3) }}</td>
           </tr>
-
-
-
-
         </tbody>
 
       </table>
