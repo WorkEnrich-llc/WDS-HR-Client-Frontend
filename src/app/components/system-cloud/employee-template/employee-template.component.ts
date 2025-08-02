@@ -49,10 +49,6 @@ export class EmployeeTemplateComponent {
   {
     name: 'Actions',
     type: 'input'
-  },
-  {
-    name: 'H',
-    type: 'input'
   }
 ];
 

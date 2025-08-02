@@ -350,7 +350,7 @@ table tbody tr td {
 }
 
 .modal-overlay input::placeholder {
-    text-align: start;
+    text-align: start !important;
 }
 
 .modal-overlay .form-control {
@@ -359,4 +359,46 @@ table tbody tr td {
 }
 .table-icon{
     width: 10%;
+}
+
+
+.progress-circle {
+  width: 100px;
+  height: 100px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 4;
+}
+
+.circle {
+  fill: none;
+  stroke: var(--color-primary-500);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.percentage {
+  fill: var(--color-primary-500);
+  font-size: 0.5em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.empty p{
+    color: var(--color-primary-600);
+    font-weight: 600;
+    font-size: var(--font-size-b2);
+    margin-top: var(--spacing-8);
+}
+.empty img{
+    max-width: 150px;
+    height: auto;
+}
+.breadcrumb-item{
+    display: flex;
+    align-items: center;
 }
