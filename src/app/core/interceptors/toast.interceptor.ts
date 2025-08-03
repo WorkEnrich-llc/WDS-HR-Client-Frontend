@@ -11,6 +11,78 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ToasterMessageService } from '../services/tostermessage/tostermessage.service';
 
+// Helper function to extract error messages from the complex API error structure
+function extractErrorMessages(error: HttpErrorResponse): string[] {
+  const messages: string[] = [];
+  
+  try {
+    const errorBody = error.error;
+    
+    // Check for error_handling array in data
+    if (errorBody?.data?.error_handling && Array.isArray(errorBody.data.error_handling)) {
+      errorBody.data.error_handling.forEach((errorItem: any) => {
+        if (errorItem.error) {
+          messages.push(errorItem.error);
+        }
+      });
+    }
+    
+    // Check for direct error messages
+    if (errorBody?.message && messages.length === 0) {
+      messages.push(errorBody.message);
+    } else if (errorBody?.details && messages.length === 0) {
+      messages.push(errorBody.details);
+    } else if (errorBody?.error && typeof errorBody.error === 'string' && messages.length === 0) {
+      messages.push(errorBody.error);
+    }
+    
+    // Check for validation errors if it's an object
+    if (errorBody?.error && typeof errorBody.error === 'object' && messages.length === 0) {
+      Object.keys(errorBody.error).forEach(key => {
+        const fieldErrors = errorBody.error[key];
+        if (Array.isArray(fieldErrors)) {
+          fieldErrors.forEach(fieldError => {
+            messages.push(`${key}: ${fieldError}`);
+          });
+        } else if (typeof fieldErrors === 'string') {
+          messages.push(`${key}: ${fieldErrors}`);
+        }
+      });
+    }
+    
+  } catch (parseError) {
+    console.error('Error parsing API error response:', parseError);
+  }
+  
+  return messages;
+}
+
+// Helper function to get default error messages based on status code
+function getDefaultErrorMessage(error: HttpErrorResponse): string {
+  if (error.message && !error.message.includes('Http failure response')) {
+    return error.message;
+  }
+  
+  switch (error.status) {
+    case 400:
+      return 'Bad request. Please check your input.';
+    case 401:
+      return 'Unauthorized. Please login again.';
+    case 403:
+      return 'Forbidden. You don\'t have permission.';
+    case 404:
+      return 'Resource not found.';
+    case 422:
+      return 'Validation error. Please check your input.';
+    case 500:
+      return 'Server error. Please try again later.';
+    case 0:
+      return 'Network error. Please check your connection.';
+    default:
+      return `Error ${error.status}: ${error.statusText || 'Unknown error'}`;
+  }
+}
+
 export const toastInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
@@ -62,44 +134,18 @@ export const toastInterceptor: HttpInterceptorFn = (
       },
       error: (error) => {
         if (error instanceof HttpErrorResponse && shouldShowToast) {
-          let errorMessage = 'An error occurred';
+          const errorMessages = extractErrorMessages(error);
           
-          // Extract error message from response
-          if (error.error?.message) {
-            errorMessage = error.error.message;
-          } else if (error.error?.details) {
-            errorMessage = error.error.details;
-          } else if (error.error?.error) {
-            errorMessage = error.error.error;
-          } else if (error.message) {
-            errorMessage = error.message;
+          // Show all error messages
+          if (errorMessages.length > 0) {
+            errorMessages.forEach((message: string) => {
+              toasterService.showError(message);
+            });
           } else {
-            // Default messages based on status code
-            switch (error.status) {
-              case 400:
-                errorMessage = 'Bad request. Please check your input.';
-                break;
-              case 401:
-                errorMessage = 'Unauthorized. Please login again.';
-                break;
-              case 403:
-                errorMessage = 'Forbidden. You don\'t have permission.';
-                break;
-              case 404:
-                errorMessage = 'Resource not found.';
-                break;
-              case 422:
-                errorMessage = 'Validation error. Please check your input.';
-                break;
-              case 500:
-                errorMessage = 'Server error. Please try again later.';
-                break;
-              default:
-                errorMessage = `Error ${error.status}: ${error.statusText}`;
-            }
+            // Fallback to default error message
+            const defaultMessage = getDefaultErrorMessage(error);
+            toasterService.showError(defaultMessage);
           }
-          
-          toasterService.showError(errorMessage);
         }
       }
     })

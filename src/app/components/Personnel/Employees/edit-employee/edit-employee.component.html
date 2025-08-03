@@ -35,6 +35,9 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="empId" type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
                 </div>
+                <p class="error-msg" *ngIf="hasFieldError('empId')">
+                    {{getFieldError('empId')}}
+                </p>
             </div>
 
             <div class="input">
@@ -47,6 +50,9 @@
                     *ngIf="employeeForm.get('fullName')?.touched && employeeForm.get('fullName')?.errors?.['required']">
                     Full Name is required.
                 </p>
+                <p class="error-msg" *ngIf="hasFieldError('fullName')">
+                    {{getFieldError('fullName')}}
+                </p>
             </div>
 
             <div class="input">
@@ -58,6 +64,9 @@
                 <p class="error-msg"
                     *ngIf="employeeForm.get('phone')?.touched && employeeForm.get('phone')?.errors?.['required']">
                     Phone is required.
+                </p>
+                <p class="error-msg" *ngIf="hasFieldError('phone')">
+                    {{getFieldError('phone')}}
                 </p>
             </div>
 
@@ -74,6 +83,9 @@
                 <p class="error-msg"
                     *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['email']">
                     Enter Correct Email.
+                </p>
+                <p class="error-msg" *ngIf="hasFieldError('email')">
+                    {{getFieldError('email')}}
                 </p>
             </div>
 

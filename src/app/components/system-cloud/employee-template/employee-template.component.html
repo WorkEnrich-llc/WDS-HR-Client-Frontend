@@ -4,30 +4,30 @@
 
 
 <div class="content-hug">
-    <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Drive</a></li>
-            <li class="breadcrumb-item active"><a href="#">New Hires</a></li>
-        </ol>
-    </nav>
+  <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Drive</a></li>
+      <li class="breadcrumb-item active"><a href="#">New Hires</a></li>
+    </ol>
+  </nav>
 
-    <div class="d-flex align-items-center justify-content-between mt-3">
+  <div class="d-flex align-items-center justify-content-between mt-3">
 
-        <div class="form-outline w-25 position-relative custom-date-wrapper">
-            <input type="text" id="fileName" class="form-control" placeholder="File Name" />
-        </div>
+    <div class="form-outline w-25 position-relative custom-date-wrapper">
+      <input type="text" id="fileName" class="form-control" placeholder="File Name" />
+    </div>
 
-        <div class="d-flex align-items-center gap-3">
-            <span class="badge-success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Synced</span>
-            </span>
-            <!-- <span class="badge-newjoiner">
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Synced</span>
+      </span>
+      <!-- <span class="badge-newjoiner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     viewBox="0 0 24 24">
                     <path fill="currentColor"
@@ -44,70 +44,21 @@
                 </svg>
                 <span>Synced 2 mins ago</span>
             </span> -->
-            <button class="btn btn-outline-primary w-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                        <path d="M4 12a8 8 0 1 0 16 0" />
-                        <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
-                    </g>
-                </svg>
-                <span>Import to System</span>
-            </button>
-        </div>
+      <button class="btn btn-outline-primary w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+            <path d="M4 12a8 8 0 1 0 16 0" />
+            <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
+          </g>
+        </svg>
+        <span>Import to System</span>
+      </button>
     </div>
+  </div>
 
 </div>
 
 
 
 <!-- sheet -->
- <form [formGroup]="spreadsheetForm" class="w-100 overflow-x-auto">
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th *ngFor="let col of columns">{{ col }}</th>
-      </tr>
-    </thead>
-    <tbody formArrayName="rows">
-      <tr *ngFor="let row of rowsFormArray.controls; let i = index" [formGroupName]="i">
-        <td class="border text-center">{{ i + 1 }}</td>
-
-        <!-- Full Name input -->
-        <td>
-          <input formControlName="fullName" type="text" />
-        </td>
-
-        <!-- Employee Status dropdown -->
-        <td>
-          <select formControlName="employeeStatus">
-            <option value="">Select</option>
-            <option *ngFor="let status of employeeStatusOptions" [value]="status">{{ status }}</option>
-          </select>
-        </td>
-
-        <!-- Account Status dropdown -->
-        <td>
-          <select formControlName="accountStatus">
-            <option value="">Select</option>
-            <option *ngFor="let status of accountStatusOptions" [value]="status">{{ status }}</option>
-          </select>
-        </td>
-
-        <!-- Job Title dropdown -->
-        <td>
-          <select formControlName="jobTitle">
-            <option value="">Select</option>
-            <option *ngFor="let job of jobTitleOptions" [value]="job">{{ job }}</option>
-          </select>
-        </td>
-
-        <!-- Other fields as input -->
-        <td><input formControlName="branch" type="text" /></td>
-        <td><input formControlName="joinDate" type="date" /></td>
-        <td><input formControlName="actions" type="text" /></td>
-        <td><input formControlName="h" type="text" /></td>
-      </tr>
-    </tbody>
-  </table>
-</form>
+<app-smart-grid-sheet [columns]="customColumns"></app-smart-grid-sheet>

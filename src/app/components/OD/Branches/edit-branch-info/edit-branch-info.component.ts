@@ -65,6 +65,8 @@ export class EditBranchInfoComponent implements OnInit {
     displayLatitude: '',
     displayLongitude: ''
   };
+  // Flag to track if map location has been confirmed before saving
+  locationConfirmed: boolean = true;
 
 
   ngOnInit(): void {
@@ -89,7 +91,7 @@ export class EditBranchInfoComponent implements OnInit {
   // form step 1
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required]),
+    name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
@@ -430,6 +432,12 @@ export class EditBranchInfoComponent implements OnInit {
   // update branch
   updateBranch() {
     this.isLoading = true;
+    // Prevent saving if in step 3 and location not yet confirmed
+    if (this.currentStep === 3 && !this.locationConfirmed) {
+      this.isLoading = false;
+      this.errMsg = 'Please confirm the location on the map before saving.';
+      return;
+    }
     if (this.branchStep1.invalid) {
       console.warn('Form is invalid');
       return;
@@ -564,10 +572,18 @@ export class EditBranchInfoComponent implements OnInit {
   // Handle location changes from Google Maps component
   onLocationChanged(locationData: LocationData): void {
     this.locationData = { ...locationData };
+    // Mark location as unconfirmed until user confirms
+    this.locationConfirmed = false;
+    // Clear any existing error message
+    this.errMsg = '';
   }
 
   // Handle location confirmation from Google Maps component
   onLocationConfirmed(locationData: LocationData): void {
     this.locationData = { ...locationData };
+    // Mark location as confirmed
+    this.locationConfirmed = true;
+    // Clear any existing error message
+    this.errMsg = '';
   }
 }
