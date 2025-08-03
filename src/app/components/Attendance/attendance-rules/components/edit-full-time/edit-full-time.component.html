@@ -4,7 +4,7 @@
     { label: 'Attendance Rules', link: '/attendance/attendance-rules' },
     { label: 'Edit Full Time Rules' }
   ]" title="Edit Absence - Full Time">
-    <button class="btn btn-lg btn-success">
+    <button class="btn btn-lg btn-success" (click)="saveChanges()">
         <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -28,22 +28,6 @@
 <!-- end page header -->
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" (click)="currentStep=1" [ngClass]="{
-        'active': currentStep === 1
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path
-                d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
-                opacity=".5" />
-            <path fill-rule="evenodd"
-                d="M6.914 11.25H2v1.5h8.163A3.25 3.25 0 0 1 7 15.25a.75.75 0 0 0 0 1.5a4.75 4.75 0 0 0 4.25-2.626V22h1.5v-7.876A4.75 4.75 0 0 0 17 16.75a.75.75 0 0 0 0-1.5a3.25 3.25 0 0 1-3.163-2.5H22v-1.5h-4.913c.35-.438.613-.955.756-1.527c.538-2.153-1.413-4.103-3.565-3.565a4 4 0 0 0-1.528.756V2h-1.5v4.914a4 4 0 0 0-1.527-.756C7.57 5.62 5.62 7.57 6.158 9.723c.143.572.405 1.089.756 1.527m4.336 0H9.997a2.5 2.5 0 0 1-2.384-1.891A1.44 1.44 0 0 1 9.36 7.613a2.5 2.5 0 0 1 1.891 2.384zm2.753 0H12.75v-1.245a2.5 2.5 0 0 1 1.891-2.392a1.44 1.44 0 0 1 1.746 1.746a2.5 2.5 0 0 1-2.384 1.891"
-                clip-rule="evenodd" />
-        </svg>
-        <span class="nav-link">Grace Period</span>
-    </li>
-
-
-
     <li class="nav-item" (click)="currentStep=2" [ngClass]="{
         'active': currentStep === 2
     }">
@@ -55,7 +39,6 @@
         </svg>
         <span class="nav-link">Lateness</span>
     </li>
-
 
 
     <li class="nav-item" (click)="currentStep=3" [ngClass]="{
@@ -70,7 +53,6 @@
         <span class="nav-link">Early Leave</span>
     </li>
 
-
     <li class="nav-item" (click)="currentStep=4" [ngClass]="{
         'active': currentStep === 4
     }">
@@ -82,10 +64,36 @@
         </svg>
         <span class="nav-link">Absence</span>
     </li>
+
+    <li class="nav-item" (click)="currentStep=5" [ngClass]="{
+        'active': currentStep === 5
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8" />
+            <path fill="currentColor" d="M12.5 7H11v6l5.2 3.2l.8-1.3l-4.5-2.7V7z" />
+        </svg>
+        <span class="nav-link">Overtime</span>
+    </li>
+
+    <li class="nav-item" (click)="currentStep=1" [ngClass]="{
+        'active': currentStep === 1
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path
+                d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
+                opacity=".5" />
+            <path fill-rule="evenodd"
+                d="M6.914 11.25H2v1.5h8.163A3.25 3.25 0 0 1 7 15.25a.75.75 0 0 0 0 1.5a4.75 4.75 0 0 0 4.25-2.626V22h1.5v-7.876A4.75 4.75 0 0 0 17 16.75a.75.75 0 0 0 0-1.5a3.25 3.25 0 0 1-3.163-2.5H22v-1.5h-4.913c.35-.438.613-.955.756-1.527c.538-2.153-1.413-4.103-3.565-3.565a4 4 0 0 0-1.528.756V2h-1.5v4.914a4 4 0 0 0-1.527-.756C7.57 5.62 5.62 7.57 6.158 9.723c.143.572.405 1.089.756 1.527m4.336 0H9.997a2.5 2.5 0 0 1-2.384-1.891A1.44 1.44 0 0 1 9.36 7.613a2.5 2.5 0 0 1 1.891 2.384zm2.753 0H12.75v-1.245a2.5 2.5 0 0 1 1.891-2.392a1.44 1.44 0 0 1 1.746 1.746a2.5 2.5 0 0 1-2.384 1.891"
+                clip-rule="evenodd" />
+        </svg>
+        <span class="nav-link">Grace Period</span>
+    </li>
 </ul>
 
 <!-- Grace Period -->
-<div class="content-hug" *ngIf="currentStep === 1">
+@if (currentStep === 1) {
+<div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Grace Period</h2>
         <form class="w-lg-50 d-flex flex-column gap-2">
@@ -101,16 +109,19 @@
                 <label for="maxCarryover">Allowed Minutes</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" [disabled]="!allowGrace" id="maxCarryover"
-                        class="form-control custom-date-input" placeholder="Per Day" />
+                        class="form-control custom-date-input" placeholder="Per Day" 
+                        [(ngModel)]="graceMinutes" [ngModelOptions]="{ standalone: true }" />
                 </div>
             </div>
 
         </form>
     </div>
 </div>
+}
 
 <!-- Lateness -->
-<div class="content-hug" *ngIf="currentStep === 2">
+@if (currentStep === 2) {
+<div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
 
         <h2>Lateness</h2>
@@ -126,16 +137,18 @@
 
                 <tbody>
 
-                    <tr *ngFor="let entry of latenessEntries; let i = index">
-                        <td>{{ getOccurrenceLabel(i)}}</td>
+                    @for (entry of latenessEntries; track $index) {
+                    <tr>
+                        <td>{{ getOccurrenceLabel($index)}}</td>
                         <td>
                             <input type="number" [(ngModel)]="entry.value" class="form-control table-input"
                                 placeholder="Enter Value in days" />
                         </td>
 
                         <td>
-                            <button *ngIf="latenessEntries.length > 1" type="button" (click)="removeLatenessRow(i)"
-                                class="btn btn-remove p-0 text-lg" aria-label="Remove section">
+                            @if (latenessEntries.length > 1) {
+                            <button type="button" (click)="removeLatenessRow($index)" class="btn btn-remove p-0 text-lg"
+                                aria-label="Remove section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
@@ -143,9 +156,10 @@
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
                             </button>
+                            }
                         </td>
                     </tr>
-
+                    }
 
                 </tbody>
             </table>
@@ -164,14 +178,17 @@
 
     </div>
 </div>
+}
 
 <!-- Early Leave -->
-<div class="content-hug" *ngIf="currentStep === 3">
+@if (currentStep === 3) {
+<div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <div class="d-flex align-items-center justify-content-between">
             <h2>Early Leave</h2>
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                <input class="form-check-input m-0" type="checkbox" id="sameLatness" />
+                <input class="form-check-input m-0" type="checkbox" id="sameLatness" 
+                    [(ngModel)]="sameAsLateness" [ngModelOptions]="{ standalone: true }" />
                 <label class="form-check-label m-0" for="sameLatness">
                     Same as Lateness
                 </label>
@@ -193,16 +210,18 @@
 
                 <tbody>
 
-                    <tr *ngFor="let row of earlyLeaveRows; let i = index">
-                        <td>{{ getOccurrenceLabel(i) }}</td>
+                    @for (row of earlyLeaveRows; track $index) {
+                    <tr>
+                        <td>{{ getOccurrenceLabel($index) }}</td>
                         <td>
                             <input type="number" class="form-control table-input" [(ngModel)]="row.deduction"
                                 placeholder="Enter Value in days" />
                         </td>
 
                         <td>
-                            <button *ngIf="earlyLeaveRows.length > 1" type="button" (click)="removeRow(i)"
-                                class="btn btn-remove p-0 text-lg" aria-label="Remove section">
+                            @if (earlyLeaveRows.length > 1) {
+                            <button type="button" (click)="removeRow($index)" class="btn btn-remove p-0 text-lg"
+                                aria-label="Remove section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
@@ -210,9 +229,10 @@
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
                             </button>
+                            }
                         </td>
                     </tr>
-
+                    }
 
                 </tbody>
             </table>
@@ -230,9 +250,131 @@
         </div>
     </div>
 </div>
+}
+
+<!-- Overtime -->
+@if (currentStep === 5) {
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Overtime</h2>
+
+        <!-- Allow Overtime Checkbox -->
+        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <input class="form-check-input m-0" type="checkbox" id="allowOvertime" [(ngModel)]="allowOvertime"
+                [ngModelOptions]="{ standalone: true }" />
+            <label class="form-check-label m-0" for="allowOvertime">
+                Allow Overtime
+            </label>
+        </div>
+
+        <!-- Overtime Options -->
+        <div class="d-flex flex-column gap-3" [style.opacity]="allowOvertime ? '1' : '0.5'">
+            <!-- Radio Button Options -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Flat Rate Option -->
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-check-input radio" type="radio" name="overtimeType" id="flatRate"
+                        [(ngModel)]="overtimeType" value="flatRate" [ngModelOptions]="{ standalone: true }"
+                        [disabled]="!allowOvertime" />
+                    <label class="form-check-label m-0" for="flatRate">
+                        Flat Rate
+                    </label>
+                </div>
+
+                <!-- Custom Hours Option -->
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-check-input radio" type="radio" name="overtimeType" id="customHours"
+                        [(ngModel)]="overtimeType" value="customHours" [ngModelOptions]="{ standalone: true }"
+                        [disabled]="!allowOvertime" />
+                    <label class="form-check-label m-0" for="customHours">
+                        Custom Hours
+                    </label>
+                </div>
+            </div>
+
+            <!-- Flat Rate Input -->
+            @if (overtimeType === 'flatRate') {
+            <div class="input w-lg-50">
+                <label for="flatRateValue">Flat Rate</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" class="form-control custom-date-input" id="flatRateValue" placeholder="Per Hour"
+                        [(ngModel)]="flatRateValue" [ngModelOptions]="{ standalone: true }"
+                        [disabled]="!allowOvertime" />
+                </div>
+            </div>
+            }
+
+            <!-- Custom Hours Table -->
+            @if (overtimeType === 'customHours') {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Rate</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (entry of overtimeEntries; track $index) {
+                        <tr>
+                            <td>{{ ($index + 1).toString().padStart(3, '0') }}</td>
+                            <td>
+                                <input type="time" class="form-control" [(ngModel)]="entry.from"
+                                    [ngModelOptions]="{ standalone: true }" [disabled]="!allowOvertime" />
+                            </td>
+                            <td>
+                                <input type="time" class="form-control" [(ngModel)]="entry.to"
+                                    [ngModelOptions]="{ standalone: true }" [disabled]="!allowOvertime" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" placeholder="1.00" step="0.01"
+                                    [(ngModel)]="entry.rate" [ngModelOptions]="{ standalone: true }"
+                                    [disabled]="!allowOvertime" />
+                            </td>
+                            <td>
+                                @if (overtimeEntries.length > 1) {
+                                <button type="button" class="btn btn-remove p-0 text-lg"
+                                    (click)="removeOvertimeRow($index)" aria-label="Remove section"
+                                    [disabled]="!allowOvertime">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                                        <path fill="#4A6D97"
+                                            d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                                        <path fill="#4A6D97"
+                                            d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                                    </svg>
+                                </button>
+                                }
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="mt-3">
+                    <a type="button" (click)="addOvertimeRow()" class="view-btn add-sec d-flex align-items-center gap-1"
+                        [style.pointer-events]="allowOvertime ? 'auto' : 'none'"
+                        [style.cursor]="allowOvertime ? 'pointer' : 'not-allowed'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                            </g>
+                        </svg>
+                        <span>Add Custom Range</span>
+                    </a>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+}
 
 <!-- Absence -->
-<div class="content-hug" *ngIf="currentStep === 4">
+@if (currentStep === 4) {
+<div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Absence</h2>
         <div class="table-responsive">
@@ -247,16 +389,18 @@
 
                 <tbody>
 
-                    <tr *ngFor="let entry of absenceEntries; let i = index">
-                        <td>{{ getOccurrenceLabel(i) }}</td>
+                    @for (entry of absenceEntries; track $index) {
+                    <tr>
+                        <td>{{ getOccurrenceLabel($index) }}</td>
                         <td>
                             <input type="number" [(ngModel)]="entry.value" class="form-control table-input"
                                 placeholder="Enter Value in days" />
                         </td>
 
                         <td>
-                            <button *ngIf="absenceEntries.length > 1" type="button" (click)="removeAbsenceRow(i)"
-                                class="btn btn-remove p-0 text-lg" aria-label="Remove section">
+                            @if (absenceEntries.length > 1) {
+                            <button type="button" (click)="removeAbsenceRow($index)" class="btn btn-remove p-0 text-lg"
+                                aria-label="Remove section">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
@@ -264,9 +408,10 @@
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
                             </button>
+                            }
                         </td>
                     </tr>
-
+                    }
 
                 </tbody>
             </table>
@@ -284,6 +429,7 @@
         </div>
     </div>
 </div>
+}
 
 
 

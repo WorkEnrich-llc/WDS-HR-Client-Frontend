@@ -20,9 +20,13 @@ export class RegisterComponent implements OnDestroy, OnInit {
   }
   set currentStep(value: number) {
     this._currentStep = value;
-
+    // Start countdown when entering the verification step
     if (value === 3 && !this.countdown) {
       this.startCountdown();
+    }
+    // Clear any existing error messages when leaving the verification step
+    if (value !== 3) {
+      this.errMsg = '';
     }
   }
 

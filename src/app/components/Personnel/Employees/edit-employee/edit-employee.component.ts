@@ -22,6 +22,7 @@ export class EditEmployeeComponent implements OnInit {
   errMsg = '';
   isLoading = false;
   employeeData: any = null; // Store the complete employee data
+  fieldErrors: { [key: string]: string } = {}; // Store field-specific errors
 
   constructor(
     private router: Router,
@@ -47,6 +48,13 @@ export class EditEmployeeComponent implements OnInit {
       this.employeeId = +params['id'];
       if (this.employeeId) {
         this.loadEmployee();
+      }
+    });
+
+    // Clear field errors when user starts typing
+    this.employeeForm.valueChanges.subscribe(() => {
+      if (Object.keys(this.fieldErrors).length > 0) {
+        this.fieldErrors = {};
       }
     });
   }
@@ -95,6 +103,7 @@ export class EditEmployeeComponent implements OnInit {
       return;
     }
     this.errMsg = '';
+    this.fieldErrors = {}; // Clear previous field errors
     this.isLoading = true;
     const form = this.employeeForm.value;
 
@@ -140,8 +149,14 @@ export class EditEmployeeComponent implements OnInit {
         this.router.navigate(['/employees/all-employees']);
       },
       error: (err: any) => {
-        this.errMsg = 'Update failed.';
         this.isLoading = false;
+        
+        // Handle API error response with error_handling array
+        if (err?.error?.data?.error_handling && Array.isArray(err.error.data.error_handling)) {
+          this.handleFieldErrors(err.error.data.error_handling);
+        } else {
+          this.errMsg = 'Update failed.';
+        }
       }
     });
   }
@@ -150,5 +165,33 @@ export class EditEmployeeComponent implements OnInit {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
+
+  private handleFieldErrors(errorHandling: any[]): void {
+    this.fieldErrors = {}; // Clear previous errors
+    
+    errorHandling.forEach(error => {
+      const fieldName = error.field;
+      const errorMessage = error.error;
+      
+      // Map API field names to form control names
+      const fieldMapping: { [key: string]: string } = {
+        'name': 'fullName',
+        'number': 'phone',
+        'personal_email': 'email',
+        'code': 'empId'
+      };
+      
+      const formFieldName = fieldMapping[fieldName] || fieldName;
+      this.fieldErrors[formFieldName] = errorMessage;
+    });
+  }
+
+  hasFieldError(fieldName: string): boolean {
+    return !!this.fieldErrors[fieldName];
+  }
+
+  getFieldError(fieldName: string): string {
+    return this.fieldErrors[fieldName] || '';
   }
 }

@@ -28,19 +28,19 @@ export class GoogleMapsLocationComponent implements OnInit {
     displayLatitude: '',
     displayLongitude: ''
   };
-  
+
   @Input() title: string = 'Location';
   @Input() isEditMode: boolean = false;
   @Input() mapHeight: string = '300px';
   @Input() mapWidth: string = '50%';
-  
+
   @Output() locationChanged = new EventEmitter<LocationData>();
   @Output() locationConfirmed = new EventEmitter<LocationData>();
 
   // Map configuration
   center: google.maps.LatLngLiteral = { lat: 25.2048, lng: 55.2708 }; // Dubai coordinates
   zoom = 10;
-  
+
   // Map options
   mapOptions: google.maps.MapOptions = {
     mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -87,7 +87,7 @@ export class GoogleMapsLocationComponent implements OnInit {
     maxWidth: 300
   };
 
-  constructor(private toasterMessageService: ToasterMessageService) {}
+  constructor(private toasterMessageService: ToasterMessageService) { }
 
   ngOnInit(): void {
     this.initializeLocation();
@@ -190,7 +190,7 @@ export class GoogleMapsLocationComponent implements OnInit {
     }
 
     const geocoder = new google.maps.Geocoder();
-    
+
     geocoder.geocode({ address: this.locationSearchTerm }, (results, status) => {
       if (status === 'OK' && results && results[0]) {
         const location = results[0].geometry.location.toJSON();
@@ -200,11 +200,11 @@ export class GoogleMapsLocationComponent implements OnInit {
         this.longitude = location.lng;
         this.zoom = 15;
         this.updateCircleOptions();
-        this.toasterMessageService.sendMessage(`Location found: ${results[0].formatted_address}`);
+        this.toasterMessageService.showSuccess(`Location found: ${results[0].formatted_address}`);
         this.emitLocationChange();
       } else {
         console.error('Geocode was not successful for the following reason:', status);
-        this.toasterMessageService.sendMessage('Location not found. Please try a different search term.');
+        this.toasterMessageService.showError('Location not found. Please try a different search term.');
       }
     });
   }
@@ -251,7 +251,7 @@ export class GoogleMapsLocationComponent implements OnInit {
       // Update display values when confirmed
       this.displayLatitude = this.latitude.toFixed(6);
       this.displayLongitude = this.longitude.toFixed(6);
-      
+
       const locationData: LocationData = {
         latitude: this.latitude,
         longitude: this.longitude,

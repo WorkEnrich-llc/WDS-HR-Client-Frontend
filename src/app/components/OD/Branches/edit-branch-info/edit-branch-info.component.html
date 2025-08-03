@@ -5,7 +5,7 @@
     { label: 'Edit Branch ' + branchData?.name}
   ]" [title]="'Edit Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
     <button class="btn btn-lg btn-success"
-        [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
+        [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || (currentStep===3 && !locationConfirmed)"
         (click)="updateBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -143,11 +143,16 @@
             <div class="input">
                 <label for="branchName">Branch Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" formControlName="name" id="branchName" class="form-control custom-date-input" />
+                    <input type="text" formControlName="name" id="branchName" class="form-control custom-date-input"
+                        placeholder="Enter Branch Name" maxlength="81" />
                 </div>
                 <p class="error-msg"
                     *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['required']">
                     Branch Name is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['maxlength']">
+                    Branch Name cannot exceed 81 characters.
                 </p>
             </div>
 
@@ -508,6 +513,10 @@
         [mapHeight]="'300px'" [mapWidth]="'50%'" (locationChanged)="onLocationChanged($event)"
         (locationConfirmed)="onLocationConfirmed($event)">
     </app-google-maps-location>
+    <!-- show error if location not confirmed -->
+    <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg && currentStep === 3">
+        {{ errMsg }}
+    </div>
 
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
@@ -519,7 +528,7 @@
             </svg>
         </button>
         <button class="btn btn-lg btn-success"
-            [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged()"
+            [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || !locationConfirmed"
             (click)="updateBranch()">
             <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
             <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

@@ -10,11 +10,13 @@ import { ViewportScroller } from '@angular/common';
 import { filter } from 'rxjs';
 import { environment } from '../environments/environment';
 import { NetworkStatusComponent } from './components/shared/network-status/network-status.component';
+import { VersionService } from './core/services/version.service';
+import { VersionDisplayComponent } from './components/shared/version-display/version-display.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslateModule, RouterOutlet, RouterModule, NetworkStatusComponent],
+  imports: [TranslateModule, RouterOutlet, RouterModule, NetworkStatusComponent, VersionDisplayComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -27,7 +29,8 @@ export class AppComponent {
     private fcmService: FcmService,
     private _AuthenticationService: AuthenticationService,
     private router: Router,
-    private viewportScroller: ViewportScroller
+    private viewportScroller: ViewportScroller,
+    private versionService: VersionService
   ) {
     const lang = localStorage.getItem('lang') || 'en';
     this.translate.setDefaultLang('en');
