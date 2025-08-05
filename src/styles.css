@@ -9,19 +9,19 @@ html {
 
 body {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-400) var(--color-neutral-700);
+  scrollbar-color: var(--color-primary-400) var(--color-neutral-200);
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar:horizontal {
-  height: 12px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-neutral-700);
+  background: var(--color-neutral-200);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -114,5 +114,184 @@ body {
   }
   100% {
     background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Custom Toastr Styles */
+.custom-toast {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  min-height: 70px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 16px 20px 16px 60px !important;
+  margin-bottom: 12px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: white !important;
+  color: #374151 !important;
+  border-left: 4px solid transparent !important;
+}
+
+.custom-toast::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  color: white !important;
+}
+
+.custom-toast .toast-title {
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  margin-bottom: 4px !important;
+  color: #111827 !important;
+}
+
+.custom-toast .toast-message {
+  font-weight: 400 !important;
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+.custom-toast .toast-close-button {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  opacity: 0.5 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #9ca3af !important;
+}
+
+.custom-toast .toast-close-button:hover {
+  opacity: 0.8 !important;
+  color: #6b7280 !important;
+}
+
+.custom-toast .toast-progress {
+  height: 3px !important;
+  border-radius: 0 !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Success Toast */
+.success-toast {
+  border-left-color: #10b981 !important;
+}
+
+.success-toast::before {
+  content: '✓' !important;
+  background-color: #10b981 !important;
+}
+
+.success-toast .toast-progress {
+  background-color: #10b981 !important;
+}
+
+/* Error Toast */
+.error-toast {
+  border-left-color: #ef4444 !important;
+}
+
+.error-toast::before {
+  content: '✕' !important;
+  background-color: #ef4444 !important;
+}
+
+.error-toast .toast-progress {
+  background-color: #ef4444 !important;
+}
+
+/* Warning Toast */
+.warning-toast {
+  border-left-color: #f59e0b !important;
+}
+
+.warning-toast::before {
+  content: '!' !important;
+  background-color: #f59e0b !important;
+}
+
+.warning-toast .toast-progress {
+  background-color: #f59e0b !important;
+}
+
+/* Info Toast */
+.info-toast {
+  border-left-color: #3b82f6 !important;
+}
+
+.info-toast::before {
+  content: 'i' !important;
+  background-color: #3b82f6 !important;
+}
+
+.info-toast .toast-progress {
+  background-color: #3b82f6 !important;
+}
+
+/* Toast Container */
+#toast-container {
+  z-index: 999999 !important;
+  pointer-events: unset;
+}
+
+#toast-container > div {
+  opacity: 1 !important;
+}
+
+/* Animation */
+.custom-toast {
+  animation: slideInRight 0.3s ease-out !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .custom-toast {
+    margin: 8px !important;
+    border-radius: 8px !important;
+    min-height: 50px !important;
+    padding: 12px 16px !important;
+    font-size: 13px !important;
+  }
+  
+  .custom-toast .toast-title {
+    font-size: 14px !important;
   }
 }

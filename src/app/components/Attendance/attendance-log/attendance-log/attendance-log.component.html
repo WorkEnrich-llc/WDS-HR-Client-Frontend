@@ -1,0 +1,264 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Attendance', link: '/attendance' },
+    { label: 'Attendance Log' }
+  ]" title="Attendance Log">
+</app-page-header>
+<!-- end page header -->
+
+<!-- start page content -->
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <!-- start search and filter -->
+        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2 w-100">
+                <!-- Search input -->
+                <div data-mdb-input-init class="form-outline w-75">
+                    <input type="text" class="form-control" placeholder="Search for an employee" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <circle cx="11.5" cy="11.5" r="9.5" />
+                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Filter button -->
+                <button class="btn btn-lg btn-outline-primary" (click)="overlay.openOverlay()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke-width="1.5"
+                            d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+                    </svg>
+                    <span>Filter</span>
+                </button>
+
+            </div>
+
+            <!-- last days -->
+            <div class="date-slider">
+                <button class="btn btn-outline-dark border-0" (click)="prevWeek()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor" fill-rule="evenodd"
+                            d="M15.488 4.43a.75.75 0 0 1 .081 1.058L9.988 12l5.581 6.512a.75.75 0 1 1-1.138.976l-6-7a.75.75 0 0 1 0-.976l6-7a.75.75 0 0 1 1.057-.081"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <div class="dates">
+                    <div *ngFor="let day of days" class="date-box" [class.today]="day.isToday"
+                        [class.selected]="isSelected(day.date)" [class.disabled]="day.date > today"
+                        (click)="selectDate(day.date)">
+
+                        <div class="day-label">{{ day.isToday ? 'Today' : day.label }}</div>
+                        <div class="day-number">{{ day.date | date: 'd MMM' }}</div>
+
+                    </div>
+                </div>
+
+
+                <button class="btn btn-outline-dark border-0" (click)="nextWeek()" [disabled]="!canGoNext()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="currentColor" fill-rule="evenodd"
+                            d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+
+
+        </div>
+
+        <!-- start Table -->
+
+        <app-table [data]="attendanceLogs" [isLoading]="loadData" [columnsCount]="8"
+            [totalItems]="attendanceLogs.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+            [headerTemplate]="attedanceTableHeader" [rowTemplate]="attendanceTableRow"
+            [emptyTemplate]="noAttendance"></app-table>
+
+        <ng-template #attedanceTableHeader>
+            <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span>Employee</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
+                        viewBox=Employees>
+                        <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                            <path d="M4 8h9m-7 5h7m-5 5h5" />
+                            <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                        </g>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
+                        viewBox="0 0 24 24">
+                        <path fill="#DDE3EB" fill-rule="evenodd"
+                            d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </th>
+
+
+            <th>In</th>
+            <th>Out</th>
+            <th>Date</th>
+            <th>Day Type</th>
+            <th>Working Hrs</th>
+            <th>Missing Hrs</th>
+            <th>Deduction</th>
+        </ng-template>
+
+        <ng-template #attendanceTableRow let-attendance let-i="index">
+            <td class="width-fix">
+                <span class="d-block text-gray-sm">{{ attendance.id.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-truncate" style="max-width: 300px;">
+                    {{ attendance.name }}
+                </span>
+            </td>
+            <td [ngClass]="isLate(attendance.in, attendance.arriveTime) ? 'text-danger' : ''">
+                {{ attendance.in || '-' }}
+            </td>
+
+
+            <td [ngClass]="leftEarly(attendance.out, attendance.leaveTime) ? 'text-danger' : ''">
+                {{ attendance.out || '-' }}
+            </td>
+
+            <td>{{ attendance.date | date: 'dd/MM/yyyy' }}</td>
+
+            <td>
+                {{attendance.dayType || '-' }}
+            </td>
+
+            <td [ngClass]="isMissingHours(attendance.workHours, attendance.worksHours) ? 'text-danger' : ''">
+                {{ attendance.workHours || '-' }}
+            </td>
+
+            <td [ngClass]="{'text-danger': attendance.missingHours}">
+                {{ attendance.missingHours || '-' }}
+            </td>
+            <td [ngClass]="{'text-danger': attendance.deduction}">
+                {{ attendance.deduction || '-' }}
+            </td>
+
+        </ng-template>
+
+        <ng-template #noAttendance>
+            <tr>
+                <td colspan="8" class="no-data py-4">
+                    <ng-container *ngIf="searchTerm?.trim() || filterForm.dirty; else noAttendance">
+                        No Attendance Log match your search and filter.
+                    </ng-container>
+                    <ng-template #noAttendance>
+                        No Attendance Log Added Yet.
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+    </div>
+</div>
+
+
+
+<!-- filter popup -->
+<app-overlay-filter-box #filterBox [title]="'Filters'">
+    <form class="w-100 d-flex flex-column gap-3">
+        <div class="input">
+            <label for="department">Department</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select name="department" id="department" class="form-select">
+                        <option value="" selected disabled hidden>Select</option>
+                        <option>1</option>
+                        <option>2</option>
+                    </select>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#e04f5f"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                    <path fill="#e04f5f" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="input">
+            <label for="Offenses">Offenses</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select name="Offenses" id="Offenses" class="form-select">
+                        <option value="" selected disabled hidden>Select</option>
+                        <option value=1>1</option>
+                        <option value=1>2</option>
+                    </select>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#e04f5f"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                    <path fill="#e04f5f" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="input">
+            <label for="day-type">Day type</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select name="day-type" id="day-type" class="form-select">
+                        <option value="" selected disabled hidden>Any</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#e04f5f"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                    <path fill="#e04f5f" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="d-flex align-items-center gap-3">
+            <button type="submit" class="btn btn-lg btn-primary w-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                <span>Apply Filter</span>
+            </button>
+            <a type="button" class="text-danger-dark fw-bold w-100 text-center">
+                <span>Clear Filters</span>
+            </a>
+        </div>
+    </form>
+
+
+
+</app-overlay-filter-box>

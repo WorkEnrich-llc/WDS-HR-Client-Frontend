@@ -17,7 +17,8 @@
     <div class="parag d-flex align-items-end gap-5" *ngIf="create || update">
       <ng-container *ngIf="create && update; else draftCreated">
         <p class="date-cre mb-0">
-          Created at: <span class="text-show">{{ create }}</span>
+          {{ isApplied ? 'Applied at' : 'Created at' }}:
+          <span class="text-show">{{ create }}</span>
         </p>
         <p class="date-cre mb-0">
           Updated At: <span class="text-show">{{ update }}</span>
@@ -28,7 +29,7 @@
           Created as a Draft: <span class="text-show">{{ create }}</span>
         </p>
       </ng-template>
-      
+
     </div>
 
     <div class="d-flex gap-2 ms-auto parag">

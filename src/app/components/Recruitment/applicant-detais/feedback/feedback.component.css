@@ -1,0 +1,40 @@
+.feed{
+    padding: var(--spacing-16) 0;
+}
+.feed h5,
+.feed h6,
+.feed p,
+.feed .date,
+.feed .time,
+.info.feedback h6 {
+  font-size: var(--font-size-b2) !important;
+  font-weight: 400 !important;
+  line-height: var(--line-height-xxs) !important;
+}
+
+.feed h5 {
+  font-weight: 600 !important;
+}
+
+.info.feedback h6 {
+  font-size: var(--font-size-b3) !important;
+  color: var(--color-secondary-700) !important;
+  line-height: var(--line-height-xss) !important;
+}
+
+.feed h6,
+.feed .date {
+  color: var(--color-secondary-800) !important;
+}
+
+.feed p {
+  color: var(--color-secondary-700) !important;
+  line-height: var(--line-height-sm) !important;
+}
+
+.feed .time {
+  color: var(--color-secondary-600) !important;
+}
+.feed:not(:last-of-type){
+    border-bottom: 1px solid var(--color-neutral-300);
+}

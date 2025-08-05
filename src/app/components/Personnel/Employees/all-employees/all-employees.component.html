@@ -52,8 +52,8 @@
 
         <!-- start Table -->
 
-        <app-table [data]="employees" [totalItems]="employees.length" [itemsPerPage]="itemsPerPage"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+        <app-table [isLoading]="loadData" [columnsCount]="7" [data]="filteredEmployees" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="employeesTableHeader"
             [rowTemplate]="employeesTableRow" [emptyTemplate]="noEmployees"></app-table>
 
@@ -143,6 +143,24 @@
                     </svg>
                     <span>Active</span>
                 </span>
+                <span class="badge-warning" *ngIf="employee.accountStatus ==='pending'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M12 7v5l3 3" />
+                        </g>
+                    </svg>
+                    <span>Pending</span>
+                </span>
+                <span class="badge-danger" *ngIf="employee.accountStatus ==='disabled'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+                        </g>
+                    </svg>
+                    <span>Disabled</span>
+                </span>
                 <span class="badge-gray" *ngIf="employee.accountStatus ==='inactive'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -155,7 +173,7 @@
             </td>
             <td>{{employee.jobTitle}}</td>
             <td>{{employee.branch}}</td>
-            <td>{{employee.joinDate}}</td>
+            <td>{{employee.joinDate | date:'dd/MM/yyyy'}}</td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <a [routerLink]="employee.employeeStatus === 'New Joiner' 
@@ -191,11 +209,11 @@
         <ng-template #noEmployees>
             <tr>
                 <td colspan="7" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noEmployees">
+                    <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noEmployees">
                         No Employees match your search.
                     </ng-container>
                     <ng-template #noEmployees>
-                        No Employees Added Yet. You must add at least one Employee to the branch.
+                        No Employees Added Yet.
                     </ng-template>
                 </td>
             </tr>
@@ -215,8 +233,10 @@
                     <select name="" id="status" class="form-select">
                         <option value="" selected disabled hidden>Select</option>
                         <option value="all">Any</option>
-                        <option value="true">Active</option>
-                        <option value="false">Not Active</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="disabled">Disabled</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

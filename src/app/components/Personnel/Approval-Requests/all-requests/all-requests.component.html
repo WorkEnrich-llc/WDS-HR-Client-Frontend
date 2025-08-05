@@ -39,13 +39,13 @@
 
             </div>
 
-            
+
         </div>
 
         <!-- start Table -->
 
-        <app-table [data]="approvalRequests" [totalItems]="approvalRequests.length" [itemsPerPage]="itemsPerPage"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+        <app-table [data]="approvalRequests" [isLoading]="loading" [columnsCount]="7" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="requestTableHeader"
             [rowTemplate]="requestTableRow" [emptyTemplate]="noRequest"></app-table>
 
@@ -83,15 +83,23 @@
             <td>
                 <span class="d-block text-gray-sm">{{ request.id.toString().padStart(4, '0') }}</span>
                 <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ request.name }}
+                    {{ getEmployeeName(request) }}
                 </span>
             </td>
-            <td>{{ request.requestedAt | date:'dd/MM/yyyy' }}</td>
-            <td>{{request.currentStep}}</td>
-            <td>{{request.leaveType}}</td>
-            <td>{{request.dateRange.to | date:'dd/MM/yyyy'}}</td>
+            <td>{{ getFormattedDate(request.created_at) | date:'dd/MM/yyyy' }}</td>
+            <td>{{ getReasonStatusName(request) }}</td>
+            <td>{{ request.name }}</td>
+            <td>{{ request.dates.from_date | date:'dd/MM/yyyy'}} 
+                <span class="mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24">
+                        <path fill="#2C63CC"
+                            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+                    </svg>
+                </span>
+                {{ request.dates.to_date | date:'dd/MM/yyyy'}}</td>
             <td>
-                <span class="badge-newjoiner" *ngIf="request.status ==='Pending'">
+                <span class="badge-newjoiner" *ngIf="getStatusName(request) ==='Pending'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <path
@@ -101,7 +109,7 @@
                     </svg>
                     <span>Pending</span>
                 </span>
-                <span class="badge-danger" *ngIf="request.status ==='Rejected'">
+                <span class="badge-danger" *ngIf="getStatusName(request) ==='Rejected'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -110,9 +118,8 @@
                     </svg>
                     <span>Rejected</span>
                 </span>
-                <span class="badge-success" *ngIf="request.status ==='Accepted'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24">
+                <span class="badge-success" *ngIf="getStatusName(request) ==='Accepted'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -124,7 +131,7 @@
             </td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
-                    <a [routerLink]="['/workflow/view-workflows', request.id]"
+                    <a [routerLink]="['/requests/view-requests', request.id]"
                         class="view-btn h-100 d-flex align-items-center gap-1 w-auto me-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -148,7 +155,7 @@
                         No Requests match your search.
                     </ng-container>
                     <ng-template #noRequest>
-                        No Requests Added Yet. You must add at least one Employee to the branch.
+                        No Requests Added Yet.
                     </ng-template>
                 </td>
             </tr>
@@ -159,16 +166,16 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form class="w-100 d-flex flex-column gap-3">
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="w-100 d-flex flex-column gap-3">
         <div class="input">
             <label for="status">Status</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="" id="status" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option value="all">Any</option>
-                        <option value="true">Active</option>
-                        <option value="false">Not Active</option>
+                    <select formControlName="status" id="status" class="form-select">
+                        <option value="" selected>Any</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
                     </select>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -184,6 +191,51 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
                 </svg>
+            </div>
+        </div>
+
+        <div class="input">
+            <label for="leave_type">Leave Type</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="leave_type" type="text" id="leave_type" class="form-control"
+                        placeholder="Enter leave type" />
+                </div>
+            </div>
+        </div>
+
+        <div class="input">
+            <label for="from_date">From Date</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="from_date" type="date" id="from_date"
+                        class="form-control custom-date-input" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <path stroke-linecap="round"
+                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                            <circle cx="18" cy="18" r="3" />
+                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="input">
+            <label for="to_date">To Date</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="to_date" type="date" id="to_date" class="form-control custom-date-input" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <path stroke-linecap="round"
+                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                            <circle cx="18" cy="18" r="3" />
+                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                    </svg>
+                </div>
             </div>
         </div>
 

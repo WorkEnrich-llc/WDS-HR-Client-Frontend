@@ -1,0 +1,27 @@
+.page-header .parag {
+    margin-top: calc(-1 * var(--spacing-48)) !important;
+}
+.nav .nav-item{
+    transition: 0.3s;
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
+    -ms-transition: 0.3s;
+    -o-transition: 0.3s;
+}
+.nav .nav-item:hover{
+    background-color: var(--color-primary-50) !important;
+    cursor: pointer !important;
+}
+.nav .nav-item.active{
+    position: relative;
+}
+.nav .nav-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 80%;
+    height: 4px;
+    background-color: var(--color-primary-400);
+    border-radius: 2px; 
+}

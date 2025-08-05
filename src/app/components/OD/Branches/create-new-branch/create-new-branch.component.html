@@ -132,19 +132,29 @@
                 <label for="branchCode">Branch Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="code" id="branchCode" class="form-control custom-date-input"
-                        placeholder="Enter Code" />
+                        placeholder="Enter Code" maxlength="26" pattern="[A-Za-z0-9]*" />
                 </div>
+                <p class="error-msg" *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['maxlength']">
+                    Branch Code cannot exceed 26 characters.
+                </p>
+                <p class="error-msg" *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['pattern']">
+                    Branch Code must contain letters and numbers only.
+                </p>
             </div>
 
             <div class="input">
                 <label for="branchName">Branch Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="name" id="branchName" class="form-control custom-date-input"
-                        placeholder="Enter Branch Name" />
+                        placeholder="Enter Branch Name" maxlength="81" />
                 </div>
                 <p class="error-msg"
                     *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['required']">
                     Branch Name is required.
+                </p>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['maxlength']">
+                    Branch Name cannot exceed 81 characters.
                 </p>
             </div>
 
@@ -514,42 +524,31 @@
 
 <!-- step 3 -->
 <div class="content-hug" *ngIf="currentStep === 3">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Branch Location</h2>
-        <div class="w-lg-50 d-flex flex-column gap-2">
-            <div data-mdb-input-init class="form-outline w-75">
-                <input type="text" class="form-control"
-                    placeholder="Search for a Street or Landmark" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <g fill="none" stroke-width="1.5">
-                        <circle cx="11.5" cy="11.5" r="9.5" />
-                        <path stroke-linecap="round" d="M18.5 18.5L22 22" />
-                    </g>
-                </svg>
-            </div>
-            
-        </div>
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg btn-success"
-                [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1" (click)="createBranch()">
-                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Create Branch</span>
-            </button>
-        </div>
+    <app-google-maps-location [title]="'Branch Location'" [initialLocation]="locationData" [isEditMode]="false"
+        [mapHeight]="'300px'" [mapWidth]="'50%'" (locationChanged)="onLocationChanged($event)"
+        (locationConfirmed)="onLocationConfirmed($event)">
+    </app-google-maps-location>
+
+    <!-- prev and confirm buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+        <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+            (click)="goPrev()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+            </svg>
+        </button>
+        <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
+            (click)="createBranch()">
+            <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+            </svg>
+            <span>Create Branch</span>
+        </button>
     </div>
 </div>
 

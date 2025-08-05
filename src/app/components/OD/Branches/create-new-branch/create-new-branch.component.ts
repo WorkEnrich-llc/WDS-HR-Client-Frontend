@@ -9,11 +9,12 @@ import { Router } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-create-new-branch',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
@@ -69,10 +70,19 @@ export class CreateNewBranchComponent implements OnInit {
   // form step 1
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required]),
+  name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
+
+  // Location data for step 3
+  locationData: LocationData = {
+    latitude: 0,
+    longitude: 0,
+    radiusRange: 120,
+    displayLatitude: '',
+    displayLongitude: ''
+  };
 
 
   // form step 2
@@ -149,6 +159,8 @@ export class CreateNewBranchComponent implements OnInit {
   }
   discardDepartment(): void {
     this.departmentsOverlay.closeOverlay();
+    // Reset search input after closing overlay
+    this.searchTerm = '';
   }
 
   addSelectedDepartments(): void {
@@ -236,6 +248,10 @@ export class CreateNewBranchComponent implements OnInit {
 
   // overlays boxes sliders
   openFirstOverlay() {
+    // Reset search input and load full departments list when opening overlay
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.getAllDepartment(this.currentPage);
     this.departmentsOverlay.openOverlay();
   }
 
@@ -308,6 +324,9 @@ export class CreateNewBranchComponent implements OnInit {
         name: formData.name,
         location: formData.location,
         max_employee: Number(formData.maxEmployee),
+        latitude: this.locationData.latitude,
+        longitude: this.locationData.longitude,
+        radius_range: this.locationData.radiusRange,
         departments: departments
       }
     };
@@ -376,5 +395,15 @@ export class CreateNewBranchComponent implements OnInit {
     return this.selectedDepartmentSections.filter(dept =>
       dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
     );
+  }
+
+  // Handle location changes from Google Maps component
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
+  }
+
+  // Handle location confirmation from Google Maps component
+  onLocationConfirmed(locationData: LocationData): void {
+    this.locationData = { ...locationData };
   }
 }

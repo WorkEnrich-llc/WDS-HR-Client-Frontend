@@ -87,22 +87,35 @@ export class CreateNewJobTitleComponent {
   selectedLevel: string = '';
   isDepartmentSelected: boolean = false;
   isSectionSelected: boolean = false;
+  showJobLevel: boolean = true;
 
   onLevelChange() {
     const level = this.jobStep1.get('managementLevel')?.value;
 
+    const jobLevelControl = this.jobStep1.get('jobLevel');
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
-    // Reset validation and disable both fields
+    // Reset validation and disable jobLevel, department, section
+    jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
 
+    // Disable department and section by default
     departmentControl?.disable();
     sectionControl?.disable();
 
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
+
+    // Show or hide Job Level based on managementLevel ('5' => None)
+    this.showJobLevel = (level === '' || level === '5');
+    if (this.showJobLevel) {
+      jobLevelControl?.enable();
+      jobLevelControl?.setValidators([Validators.required]);
+    } else {
+      jobLevelControl?.disable();
+    }
 
     if (level === '3') {
       // Enable department only
@@ -119,6 +132,8 @@ export class CreateNewJobTitleComponent {
       this.isSectionSelected = true;
     }
 
+    // Update validity for all affected controls
+    jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
   }

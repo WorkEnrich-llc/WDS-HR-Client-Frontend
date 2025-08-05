@@ -20,6 +20,12 @@ export class ViewDepartmentsComponent implements OnInit {
 formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   deptId: string | null = null;
+  
+  // Table pagination properties
+  loadData: boolean = false;
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+  currentPage: number = 1;
   ngOnInit(): void {
     this.deptId = this.route.snapshot.paramMap.get('id');
     // this.getDepartment(Number(this.deptId));
@@ -29,10 +35,12 @@ formattedCreatedAt: string = '';
   }
 
   getDepartment(deptId: number) {
-
+    this.loadData = true;
+    
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
+        this.totalItems = this.departmentData.sections?.length || 0;
          const created = this.departmentData?.created_at;
         const updated = this.departmentData?.updated_at;
         if (created) {
@@ -45,9 +53,11 @@ formattedCreatedAt: string = '';
 
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
@@ -137,8 +147,15 @@ formattedCreatedAt: string = '';
     });
   }
 
+  // Pagination methods
+  onPageChange(page: number): void {
+    this.currentPage = page;
+  }
 
-
+  onItemsPerPageChange(itemsPerPage: number): void {
+    this.itemsPerPage = itemsPerPage;
+    this.currentPage = 1;
+  }
 
 
 }

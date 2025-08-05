@@ -1,179 +1,39 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, skip, Subject, Subscription } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { CommonModule, DatePipe } from '@angular/common';
+import { ApprovalRequestsService } from '../service/approval-requests.service';
+import { ApprovalRequestItem, ApprovalRequestFilters } from '../../../../core/interfaces/approval-request';
 
 @Component({
   selector: 'app-all-requests',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
 })
 export class AllRequestsComponent {
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private fb: FormBuilder) { }
+  constructor(
+    private route: ActivatedRoute, 
+    private toasterMessageService: ToasterMessageService, 
+    private toastr: ToastrService,
+    private fb: FormBuilder,
+    private approvalRequestsService: ApprovalRequestsService
+  ) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
-  approvalRequests = [
-    {
-      id: 101,
-      name: 'Ali Hassan',
-      requestedAt: new Date('2025-06-01'),
-      currentStep: 'Direct Manager’s Approval',
-      leaveType: 'Sick Leave',
-      dateRange: {
-        from: new Date('2025-06-05'),
-        to: new Date('2025-06-07'),
-      },
-      status: 'Pending',
-    },
-    {
-      id: 102,
-      name: 'Sara Mohamed',
-      requestedAt: new Date('2025-06-03'),
-      currentStep: 'HR Approval',
-      leaveType: 'Annual Leave',
-      dateRange: {
-        from: new Date('2025-06-10'),
-        to: new Date('2025-06-15'),
-      },
-      status: 'Accepted',
-    },
-    {
-      id: 103,
-      name: 'Ahmed Youssef',
-      requestedAt: new Date('2025-06-04'),
-      currentStep: 'Direct Manager’s Approval',
-      leaveType: 'Sick Leave',
-      dateRange: {
-        from: new Date('2025-06-06'),
-        to: new Date('2025-06-06'),
-      },
-      status: 'Rejected',
-    },
-    {
-      id: 104,
-      name: 'Laila Nasser',
-      requestedAt: new Date('2025-06-02'),
-      currentStep: 'HR Approval',
-      leaveType: 'Maternity Leave',
-      dateRange: {
-        from: new Date('2025-06-15'),
-        to: new Date('2025-07-15'),
-      },
-      status: 'Pending',
-    },
-    {
-      id: 105,
-      name: 'Mohamed Adel',
-      requestedAt: new Date('2025-06-05'),
-      currentStep: 'Direct Manager’s Approval',
-      leaveType: 'Emergency Leave',
-      dateRange: {
-        from: new Date('2025-06-07'),
-        to: new Date('2025-06-08'),
-      },
-      status: 'Pending',
-    },
-    {
-      id: 106,
-      name: 'Yara Samir',
-      requestedAt: new Date('2025-06-06'),
-      currentStep: 'HR Approval',
-      leaveType: 'Sick Leave',
-      dateRange: {
-        from: new Date('2025-06-09'),
-        to: new Date('2025-06-10'),
-      },
-      status: 'Accepted',
-    },
-    {
-      id: 107,
-      name: 'Hassan Ali',
-      requestedAt: new Date('2025-06-07'),
-      currentStep: 'Finance Approval',
-      leaveType: 'Unpaid Leave',
-      dateRange: {
-        from: new Date('2025-06-20'),
-        to: new Date('2025-06-25'),
-      },
-      status: 'Rejected',
-    },
-    {
-      id: 108,
-      name: 'Nourhan Gamal',
-      requestedAt: new Date('2025-06-08'),
-      currentStep: 'Direct Manager’s Approval',
-      leaveType: 'Annual Leave',
-      dateRange: {
-        from: new Date('2025-06-12'),
-        to: new Date('2025-06-18'),
-      },
-      status: 'Pending',
-    },
-    {
-      id: 109,
-      name: 'Khaled Essam',
-      requestedAt: new Date('2025-06-09'),
-      currentStep: 'HR Approval',
-      leaveType: 'Sick Leave',
-      dateRange: {
-        from: new Date('2025-06-10'),
-        to: new Date('2025-06-12'),
-      },
-      status: 'Accepted',
-    },
-    {
-      id: 110,
-      name: 'Mai Tarek',
-      requestedAt: new Date('2025-06-10'),
-      currentStep: 'Direct Manager’s Approval',
-      leaveType: 'Emergency Leave',
-      dateRange: {
-        from: new Date('2025-06-11'),
-        to: new Date('2025-06-11'),
-      },
-      status: 'Pending',
-    },
-    {
-      id: 111,
-      name: 'Omar Fathy',
-      requestedAt: new Date('2025-06-11'),
-      currentStep: 'HR Approval',
-      leaveType: 'Sick Leave',
-      dateRange: {
-        from: new Date('2025-06-13'),
-        to: new Date('2025-06-14'),
-      },
-      status: 'Rejected',
-    },
-    {
-      id: 112,
-      name: 'Dina ElSayed',
-      requestedAt: new Date('2025-06-05'),
-      currentStep: 'Finance Approval',
-      leaveType: 'Annual Leave',
-      dateRange: {
-        from: new Date('2025-06-20'),
-        to: new Date('2025-06-25'),
-      },
-      status: 'Accepted',
-    },
-  ];
-
-
-
-
+  approvalRequests: ApprovalRequestItem[] = [];
+  loading: boolean = false;
+  filters: ApprovalRequestFilters = {};
 
   searchTerm: string = '';
   sortDirection: string = 'asc';
@@ -181,14 +41,17 @@ export class AllRequestsComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
-
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllDepartment(this.currentPage);
+    this.initializeFilterForm();
+    this.loadApprovalRequests();
+
+    this.route.queryParams.pipe(skip(1)).subscribe(params => {
+      this.currentPage = +params['page'] || 1;
+      this.loadApprovalRequests();
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -196,22 +59,74 @@ export class AllRequestsComponent {
       .subscribe(msg => {
         this.toastr.clear();
         this.toastr.success(msg, '', { timeOut: 3000 });
-
         this.toasterMessageService.clearMessage();
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllDepartment(this.currentPage, value);
+      this.filters.search = value;
+      this.currentPage = 1;
+      this.loadApprovalRequests();
     });
-
   }
 
+  ngOnDestroy(): void {
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+  }
 
-  sortBy() {
+  initializeFilterForm(): void {
+    this.filterForm = this.fb.group({
+      status: [''],
+      employee_id: [''],
+      leave_type: [''],
+      from_date: [''],
+      to_date: [''],
+      created_from: [''],
+      created_to: ['']
+    });
+  }
+
+  loadApprovalRequests(): void {
+    this.loading = true;
+    
+    this.approvalRequestsService.getAllApprovalRequests(
+      this.currentPage,
+      this.itemsPerPage,
+      this.filters
+    ).subscribe({
+      next: (response) => {
+        this.approvalRequests = response.data.list_items;
+        this.totalItems = response.data.total_items;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading approval requests:', error);
+        this.toastr.error('Failed to load approval requests', 'Error');
+        this.loading = false;
+      }
+    });
+  }
+
+  applyFilters(): void {
+    this.filters = { ...this.filterForm.value };
+    // Remove empty values
+    Object.keys(this.filters).forEach(key => {
+      if (!this.filters[key as keyof ApprovalRequestFilters]) {
+        delete this.filters[key as keyof ApprovalRequestFilters];
+      }
+    });
+    
+    this.currentPage = 1;
+    this.loadApprovalRequests();
+    this.filterBox.closeOverlay();
+  }
+
+  sortBy(): void {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.approvalRequests = this.approvalRequests.sort((a, b) => {
-      const dateA = new Date(a.requestedAt).getTime();
-      const dateB = new Date(b.requestedAt).getTime();
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
       if (this.sortDirection === 'asc') {
         return dateA - dateB;
       } else {
@@ -221,22 +136,53 @@ export class AllRequestsComponent {
   }
 
   resetFilterForm(): void {
-
+    this.filterForm.reset();
+    this.filters = {};
+    this.currentPage = 1;
+    this.loadApprovalRequests();
     this.filterBox.closeOverlay();
-    // this.getAllDepartment(this.currentPage);
   }
 
-  onSearchChange() {
+  onSearchChange(): void {
     this.searchSubject.next(this.searchTerm);
   }
-  onItemsPerPageChange(newItemsPerPage: number) {
+
+  onItemsPerPageChange(newItemsPerPage: number): void {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
-  }
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    // this.getAllDepartment(this.currentPage);
+    this.loadApprovalRequests();
   }
 
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadApprovalRequests();
+  }
+
+  // Helper methods to access nested properties for template
+  getEmployeeName(request: ApprovalRequestItem): string {
+    return request.employee_info?.name || 'N/A';
+  }
+
+  getEmployeeJobTitle(request: ApprovalRequestItem): string {
+    return request.employee_info?.job_title || 'N/A';
+  }
+
+  getStatusName(request: ApprovalRequestItem): string {
+    return request.status?.name || 'N/A';
+  }
+
+  getReasonStatusName(request: ApprovalRequestItem): string {
+    return request.reason?.status?.name || 'N/A';
+  }
+
+  getDateRange(request: ApprovalRequestItem): string {
+    if (request.dates?.from_date && request.dates?.to_date) {
+      return `${request.dates.from_date} - ${request.dates.to_date}`;
+    }
+    return 'N/A';
+  }
+
+  getFormattedDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
 }

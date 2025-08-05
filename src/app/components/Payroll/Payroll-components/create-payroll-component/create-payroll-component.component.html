@@ -1,0 +1,106 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Payroll', link: '/payroll-components' },
+    { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
+    { label: 'Create New Component'},
+  ]" title="Create New Component" create="13/06/2025">
+    <button class="btn btn-lg btn-success w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Create Component</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Component</span>
+    </button>
+</app-page-header>
+
+
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="compCode">Component Code (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="compCode" class="form-control custom-date-input"
+                        placeholder="0050" />
+                </div>
+
+            </div>
+            <div class="input">
+                <label for="compName">Component Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="compName" class="form-control custom-date-input"
+                        placeholder="Enter Component Name" />
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']">
+                    Component Name is required.
+                </p> -->
+            </div>
+            <div class="input">
+                <label for="type">Type <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="type" id="type" class="form-select">
+                            <option value="" disabled hidden>Select Level</option>
+                            <option value="Variable">Variable</option>
+                            <option value="Fixed">Fixed</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                    Management Level is required.
+                </p> -->
+            </div>
+            <div class="input">
+                <label for="Classification">Classification <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Classification" id="Classification" class="form-select">
+                            <option value="" disabled hidden>Select Level</option>
+                            <option value="Earning">Earning</option>
+                            <option value="Deduction">Deduction</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- <p class="error-msg"
+                    *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
+                    Management Level is required.
+                </p> -->
+            </div>
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+                <input class="form-check-input m-0" type="checkbox" id="shown">
+                <label class="form-check-label m-0" for="shown">
+                    Shown in Employee Payslip
+                </label>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Payroll Component'"
+    [paragraph1]="'Are you sure you want to discard creating the new Payroll Component?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Component
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>
