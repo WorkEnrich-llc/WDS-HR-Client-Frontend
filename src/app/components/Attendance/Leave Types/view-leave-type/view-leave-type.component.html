@@ -1,0 +1,135 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Attendance', link: '/attendance' },
+    { label: 'Leave Types', link: '/leave-types' },
+    {  label: 'View Leave Type - '+leaveTypeData?.name}
+  ]" [title]="'View Leave Type - ' +leaveTypeData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-primary" [routerLink]="['/leave-types/update-leave-types', leaveTypeData?.id]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round"
+                    d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                    d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+            </g>
+        </svg>
+        <span>Edit</span>
+    </button>
+    
+  <button class="btn btn-lg btn-outline-success" *ngIf="!leaveTypeData.is_active" (click)="openActivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Activate</span>
+  </button>
+
+    <button class="btn btn-lg btn-outline-danger" *ngIf="leaveTypeData.is_active" (click)="openDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+</app-page-header>
+
+
+<!-- start content -->
+<div class="content-hug d-flex flex-column gap-4">
+    <div class="row align-items-stretch">
+
+        <div class="col-lg-8">
+            <div class="content-box d-flex flex-column gap-3 w-100">
+                <h2>Main Information</h2>
+                <div class="info" *ngIf="leaveTypeData?.settings?.accrual_rate">
+                    <h6>Accrual Rate</h6>
+                    <span>{{leaveTypeData?.settings?.accrual_rate}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.settings?.leave_limits">
+                    <h6>Leave Limits </h6>
+                    <span>{{leaveTypeData?.settings?.leave_limits}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.description">
+                    <h6>Leave Type Description (Optional)</h6>
+                    <span  [ngClass]="{ 'clamp-text': !isExpanded }">{{leaveTypeData?.description}}
+                    </span>
+                    <button (click)="toggleText()"
+                        class="w-100 mt-2 edit-btn d-flex align-items-center justify-content-center gap-1 ms-2">
+                        <svg *ngIf="!isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="currentColor" fill-rule="evenodd"
+                                d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <svg *ngIf="isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5" d="m19 15l-7-6l-7 6" />
+                        </svg>
+                        <span>{{ isExpanded ? 'See Less' : 'See More' }}</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-box d-flex flex-column gap-3 w-100">
+                <h2>Leaves Settings</h2>
+                <div class="info" *ngIf="leaveTypeData?.employment_type?.name">
+                    <h6>Eligibility Criteria</h6>
+                    <span>{{leaveTypeData?.employment_type?.name}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.settings?.leave_limits">
+                    <h6>Leave Request Deadline</h6>
+                    <span>{{leaveTypeData?.settings?.leave_limits}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.settings?.max_review_days">
+                    <h6>Max Review Days</h6>
+                    <span>{{leaveTypeData?.settings?.max_review_days}}</span>
+                </div>
+                <div class="info" *ngIf="leaveTypeData?.settings?.maximum_carryover_days>0 && leaveTypeData?.settings?.allow_carryover">
+                    <h6>Maximum Carryover Days</h6>
+                    <span>{{leaveTypeData?.settings?.maximum_carryover_days}}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<!-- deactivate popup  -->
+<app-popup [title]="'Deactivate Leave Type'"
+    [paragraph1]="'Are you sure you want to deactivate the Leave Type “Sick Leave”?'"
+    [paragraph2]="'You can Activate it later.'" [isOpen]="deactivateOpen" (close)="closeDeactivate()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
+        Cancel
+    </button>
+</app-popup>
+
+<!-- activate popup  -->
+<app-popup [title]="'Activate Leave Type'"
+    [paragraph1]="'Are you sure you want to activate the Leave Type “Sick Leave”?'"
+    [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Activate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+        Cancel
+    </button>
+</app-popup>

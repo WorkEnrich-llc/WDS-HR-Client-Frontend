@@ -177,7 +177,7 @@
                 </p>
             </div>
             <div class="input">
-                <label for="level">Management Level</label>
+                <label for="level">Management Level <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select name="level" formControlName="managementLevel" id="level" class="form-select"
@@ -196,8 +196,8 @@
                     Management Level is required.
                 </p>
             </div>
-            <div class="input">
-                <label for="jobLevel">Job Level</label>
+            <div class="input" *ngIf="showJobLevel">
+                <label for="jobLevel">Job Level <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select name="jobLevel" formControlName="jobLevel" id="jobLevel" class="form-select"
@@ -635,7 +635,7 @@
         <h2>Job Details</h2>
         <form [formGroup]="jobStep4" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
-                <label for="jobDesc">Job Description</label>
+                <label for="jobDesc">Job Description <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <textarea type="text" formControlName="jobDescription" id="jobDesc" class="form-control"
                         placeholder="Enter the Job Description"></textarea>
@@ -653,7 +653,7 @@
 
 
             <div class="input">
-                <label for="jobReq">Job Requirements</label>
+                <label for="jobReq">Job Requirements <span>*</span></label>
                 <div class="input-box">
                     <div *ngFor="let requirement of requirements; let i = index"
                         class="record d-flex align-items-center">
@@ -692,7 +692,7 @@
 
 
             <div class="input">
-                <label for="jobDesc">Job Analysis</label>
+                <label for="jobDesc">Job Analysis <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <textarea type="text" formControlName="jobAnalysis" id="jobDesc" class="form-control"
                         placeholder="Enter the Job Analysis"></textarea>

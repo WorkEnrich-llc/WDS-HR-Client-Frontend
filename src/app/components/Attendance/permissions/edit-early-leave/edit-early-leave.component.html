@@ -1,0 +1,88 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Attendance', link: '/attendance' },
+    { label: 'Permissions', link: '/permissions' },
+    { label: 'Edit Early Leave' }
+  ]" title="Edit Early Leave permission">
+    <button class="btn btn-lg btn-success">
+        <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Changes</span>
+    </button>
+</app-page-header>
+<!-- end page header -->
+<!-- content -->
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Early Leave permission</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <!-- Main checkbox -->
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+                <input class="form-check-input m-0" type="checkbox" id="allowPermission" [(ngModel)]="allowPermission"
+                    name="allowPermission" (change)="onPermissionChange()" />
+                <label class="form-check-label m-0" for="allowPermission">
+                    Allow Early Leave permission
+                </label>
+            </div>
+
+            <!-- Number input -->
+            <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
+                <label for="jobTitle">Maximum Requested Minutes <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="number" id="jobTitle" class="form-control custom-date-input" placeholder="Per month"
+                        [disabled]="!allowPermission" />
+                </div>
+            </div>
+
+            <!-- Second checkbox -->
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
+                [style.opacity]="allowPermission ? 1 : 0.5">
+                <input class="form-check-input m-0" type="checkbox" id="linkedPolicy" [disabled]="!allowPermission"
+                    [(ngModel)]="linkedPolicy" name="linkedPolicy" />
+                <label class="form-check-label m-0" for="linkedPolicy">
+                    Linked to attendance Policy
+                </label>
+            </div>
+
+            <!-- Notes textarea -->
+            <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
+                <label for="jobDesc">Notes (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <textarea id="jobDesc" class="form-control" placeholder="Add additional Notes"
+                        [disabled]="!allowPermission"></textarea>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Changes'"
+    [paragraph1]="'Are you sure you want to discard all changes done to the Early Leave permission?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Keep Editing
+    </button>
+</app-popup>

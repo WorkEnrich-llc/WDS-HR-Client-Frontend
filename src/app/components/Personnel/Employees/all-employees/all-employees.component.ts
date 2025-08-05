@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -9,6 +9,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { Employee } from '../../../../core/interfaces/employee';
 
 @Component({
   selector: 'app-all-employees',
@@ -17,7 +18,7 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })
-export class AllEmployeesComponent {
+export class AllEmployeesComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
 
@@ -27,117 +28,9 @@ export class AllEmployeesComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
-  employees = [
-    {
-      id: 1,
-      name: "John Smith",
-      employeeStatus: "New Joiner",
-      accountStatus: "active",
-      jobTitle: "Software Engineer",
-      branch: "New York",
-      joinDate: "2025-01-15"
-    },
-    {
-      id: 2,
-      name: "Emily Johnson",
-      employeeStatus: "New Employee",
-      accountStatus: "inactive",
-      jobTitle: "Project Manager",
-      branch: "London",
-      joinDate: "2024-12-01"
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      employeeStatus: "Employed",
-      accountStatus: "active",
-      jobTitle: "UI/UX Designer",
-      branch: "Berlin",
-      joinDate: "2023-09-23"
-    },
-    {
-      id: 4,
-      name: "Sarah Lee",
-      employeeStatus: "New Joiner",
-      accountStatus: "active",
-      jobTitle: "HR Specialist",
-      branch: "Dubai",
-      joinDate: "2025-06-01"
-    },
-    {
-      id: 5,
-      name: "David Wilson",
-      employeeStatus: "Employed",
-      accountStatus: "inactive",
-      jobTitle: "Accountant",
-      branch: "Toronto",
-      joinDate: "2022-05-17"
-    },
-    {
-      id: 6,
-      name: "Olivia Davis",
-      employeeStatus: "New Employee",
-      accountStatus: "active",
-      jobTitle: "Marketing Manager",
-      branch: "Paris",
-      joinDate: "2024-11-10"
-    },
-    {
-      id: 7,
-      name: "James Miller",
-      employeeStatus: "Employed",
-      accountStatus: "active",
-      jobTitle: "DevOps Engineer",
-      branch: "Sydney",
-      joinDate: "2021-08-30"
-    },
-    {
-      id: 8,
-      name: "Ava Martinez",
-      employeeStatus: "New Joiner",
-      accountStatus: "inactive",
-      jobTitle: "Business Analyst",
-      branch: "Amsterdam",
-      joinDate: "2025-05-20"
-    },
-    {
-      id: 9,
-      name: "William Anderson",
-      employeeStatus: "New Employee",
-      accountStatus: "active",
-      jobTitle: "QA Engineer",
-      branch: "Cairo",
-      joinDate: "2024-10-05"
-    },
-    {
-      id: 10,
-      name: "Sophia Thomas",
-      employeeStatus: "Employed",
-      accountStatus: "inactive",
-      jobTitle: "Product Owner",
-      branch: "Riyadh",
-      joinDate: "2023-03-18"
-    },
-    {
-      id: 11,
-      name: "Benjamin Taylor",
-      employeeStatus: "New Joiner",
-      accountStatus: "active",
-      jobTitle: "Frontend Developer",
-      branch: "Madrid",
-      joinDate: "2025-06-10"
-    },
-    {
-      id: 12,
-      name: "Isabella Moore",
-      employeeStatus: "Employed",
-      accountStatus: "active",
-      jobTitle: "Data Scientist",
-      branch: "San Francisco",
-      joinDate: "2022-07-01"
-    }
-  ];
-
+  employees: Employee[] = [];
+  filteredEmployees: any[] = []; // For display purposes with transformed data
+    loadData:boolean =true;
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -146,12 +39,13 @@ export class AllEmployeesComponent {
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  loading: boolean = true;
 
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllDepartment(this.currentPage);
+      this.currentPage = +params['page'] || 1;
+      this.loadEmployees();
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -159,25 +53,89 @@ export class AllEmployeesComponent {
       .subscribe(msg => {
         this.toastr.clear();
         this.toastr.success(msg, '', { timeOut: 3000 });
-
         this.toasterMessageService.clearMessage();
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllDepartment(this.currentPage, value);
+      this.currentPage = 1;
+      this.loadEmployees();
     });
-    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm).subscribe(response => {
-      // this.employees = response.data; // Assuming response.data contains the employee list
-      // this.totalItems = response.total; // Assuming response.total contains the total count of employees
-      console.log('Employees:', response);
-    });
+  }
 
+  loadEmployees(): void {
+    this.loading = true;
+    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm)
+      .subscribe({
+        next: (response) => {
+          this.employees = response.data.list_items;
+          this.totalItems = response.data.total_items;
+          this.transformEmployeesForDisplay();
+          this.loading = false;
+          this.loadData = false;
+          // console.log('Employees loaded:', response);
+        },
+        error: (error) => {
+          console.error('Error loading employees:', error);
+          this.loading = false;
+          this.loadData = false;
+          this.toastr.error('Failed to load employees', 'Error');
+        }
+      });
+  }
+
+  // Transform API data to match the template expectations
+  transformEmployeesForDisplay(): void {
+    this.filteredEmployees = this.employees.map(employee => ({
+      id: employee.id,
+      name: employee.contact_info.name,
+      employeeStatus: employee.employee_status,
+      accountStatus: this.getAccountStatus(employee.employee_active),
+      jobTitle: employee.job_info.job_title.name,
+      branch: employee.job_info.branch.name,
+      joinDate: this.formatDate(employee.job_info.start_contract)
+    }));
+  }
+
+  // Helper method to convert string employee_active to account status
+  private getAccountStatus(employeeActive: string): 'active' | 'inactive' | 'pending' | 'disabled' {
+    switch (employeeActive?.toLowerCase()) {
+      case 'active':
+        return 'active';
+      case 'pending':
+        return 'pending';
+      case 'disabled':
+        return 'disabled';
+      case 'inactive':
+      default:
+        return 'inactive';
+    }
+  }
+
+  // Determine employee status based on contract dates and status
+  private getEmployeeStatus(employee: Employee): string {
+    const today = new Date();
+    const startDate = new Date(employee.job_info.start_contract);
+    const daysDiff = (today.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
+
+    if (daysDiff < 0) {
+      return 'New Joiner'; // Contract hasn't started yet
+    } else if (daysDiff <= 90) {
+      return 'New Employee'; // Within first 90 days
+    } else {
+      return 'Employed'; // More than 90 days
+    }
+  }
+
+  // Format date for display
+  private formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return this.datePipe.transform(date, 'yyyy-MM-dd') || dateString;
   }
 
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.employees = this.employees.sort((a, b) => {
+    this.filteredEmployees = this.filteredEmployees.sort((a, b) => {
       if (this.sortDirection === 'asc') {
         return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
       } else {
@@ -187,21 +145,28 @@ export class AllEmployeesComponent {
   }
 
   resetFilterForm(): void {
-
     this.filterBox.closeOverlay();
-    // this.getAllDepartment(this.currentPage);
+    this.loadEmployees();
   }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
+    this.loadEmployees();
   }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllDepartment(this.currentPage);
+    this.loadEmployees();
+  }
+
+  ngOnDestroy(): void {
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
   }
 }

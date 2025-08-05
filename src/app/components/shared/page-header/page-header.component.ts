@@ -14,6 +14,7 @@ export class PageHeaderComponent implements OnInit {
   @Input() title: string = '';
   @Input() create!: string;
   @Input() update!: string;
+   @Input() isApplied: boolean = false;
   ngOnInit(): void {
 
   }

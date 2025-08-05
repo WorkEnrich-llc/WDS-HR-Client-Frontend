@@ -37,3 +37,133 @@ export interface CreateEmployeeResponse {
   message: string;
   data?: any;
 }
+
+// API Response Interfaces
+export interface Employee {
+  id: number;
+  contact_info: {
+    name: string;
+    mobile: {
+      country: {
+        id: number;
+        name: string;
+        phone_prefix: string;
+      };
+      number: number;
+    };
+    email: string;
+    date_of_birth: string;
+    address: string;
+    marital_status: {
+      id: number;
+      name: string;
+    };
+  };
+  job_info: {
+    branch: {
+      id: number;
+      name: string;
+    };
+    department: {
+      id: number;
+      name: string;
+    };
+    section: {
+      id: number;
+      name: string;
+    } | null;
+    job_title: {
+      id: number;
+      name: string;
+    };
+    work_schedule: {
+      id: number;
+      name: string;
+    };
+    start_contract: string;
+    contract_type: {
+      id: number;
+      name: string;
+    };
+    end_contract: string | null;
+    employment_type: {
+      id: number;
+      name: string;
+    };
+    work_mode: {
+      id: number;
+      name: string;
+    };
+    days_on_site: number;
+    salary: number;
+  };
+  employee_active: string; // "Active" | "Inactive" | "Pending" | "Disabled"
+  employee_status: string; // "New Employee" | "Employed" | etc.
+  created_at: string;
+  updated_at: string;
+}
+
+// Subscription related interfaces
+export interface AllowedAction {
+  name: string;
+  count: number;
+  status: boolean;
+  infinity: boolean;
+}
+
+export interface SubFeature {
+  sub: {
+    id: number;
+    name: string;
+  };
+  is_support: boolean;
+  allowed_actions: AllowedAction[];
+}
+
+export interface Feature {
+  main: {
+    id: number;
+    name: string;
+  };
+  is_support: boolean;
+  sub_list: SubFeature[];
+}
+
+export interface RenewalInfo {
+  title: string;
+  days: number;
+  hours: number;
+  minutes: number;
+  expired: boolean;
+}
+
+export interface Subscription {
+  id: number;
+  plan: string;
+  period: number;
+  status: number;
+  payment_method: number;
+  created_at: string;
+  renewal_in: RenewalInfo;
+  features: Feature[];
+  code: string;
+}
+
+export interface EmployeesResponse {
+  details: string;
+  data: {
+    subscription: Subscription;
+    list_items: Employee[];
+    total_items: number;
+    page: string;
+    total_pages: number;
+  };
+}
+
+export interface EmployeeDetailResponse {
+  details: string;
+  data: {
+    subscription: Subscription;
+    object_info: Employee;
+  };
+}

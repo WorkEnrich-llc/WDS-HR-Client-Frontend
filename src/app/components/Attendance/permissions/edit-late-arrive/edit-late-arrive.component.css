@@ -1,0 +1,3 @@
+.page-header .parag {
+    margin-top: calc(-1 * var(--spacing-48)) !important;
+}

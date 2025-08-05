@@ -1,0 +1,43 @@
+<div class="attendance-log-container">
+  <h5 class="mb-3">Attendance Log</h5>
+  
+  <app-table 
+    [data]="attendanceData" 
+    [totalItems]="attendanceData.length" 
+    [itemsPerPage]="10"
+    [currentPage]="1"
+    [columnsCount]="7"
+    [headerTemplate]="headerTemplate"
+    [rowTemplate]="rowTemplate"
+    [emptyTemplate]="emptyTemplate">
+  </app-table>
+
+  <!-- Header Template -->
+  <ng-template #headerTemplate>
+    <th class="w-15">In</th>
+    <th class="w-15">Out</th>
+    <th class="w-15">Date</th>
+    <th class="w-15">Day Type</th>
+    <th class="w-15">Working Hrs</th>
+    <th class="w-15">Missing Hrs</th>
+    <th class="w-10">Deduction</th>
+  </ng-template>
+
+  <!-- Row Template -->
+  <ng-template #rowTemplate let-row>
+    <td>{{ row.in }}</td>
+    <td>{{ row.out }}</td>
+    <td>{{ row.date }}</td>
+    <td>{{ row.dayType }}</td>
+    <td [ngClass]="{'text-primary': row.workingHrs === 'Holiday'}">{{ row.workingHrs }}</td>
+    <td [ngClass]="{'text-danger': row.missingHrs && row.missingHrs !== '-'}">{{ row.missingHrs }}</td>
+    <td [ngClass]="{'text-danger': row.deduction && row.deduction !== '-', 'text-warning': row.deduction === 'Absent'}">{{ row.deduction }}</td>
+  </ng-template>
+
+  <!-- Empty Template -->
+  <ng-template #emptyTemplate>
+    <tr>
+      <td colspan="7" class="text-center no-data">No attendance records found</td>
+    </tr>
+  </ng-template>
+</div>

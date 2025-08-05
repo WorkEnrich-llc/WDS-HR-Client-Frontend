@@ -141,6 +141,10 @@
                             *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['maxlength']">
                             Name must not exceed 100 characters.
                         </p>
+                        <p class="error-msg"
+                            *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['pattern']">
+                            Name must contain at least one alphabetical character.
+                        </p>
                     </div>
 
                     <div class="input">

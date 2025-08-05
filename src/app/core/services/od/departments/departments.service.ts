@@ -1,8 +1,7 @@
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { AuthHelperService } from '../../authentication/auth-helper.service';
-import { environment } from '../../../../../environments/environment';
+import { Observable } from 'rxjs';
+import { environment } from './../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,62 +10,26 @@ export class DepartmentsService {
 
   private apiBaseUrl: string;
 
-  constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
+  constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
-  }
-
-  // getAuthHeaders
-  private getAuthHeaders(includeBearer: boolean = false): HttpHeaders | null {
-    if (!this.authHelper.validateAuth()) {
-      return null;
-    }
-
-    const token = this.authHelper.getToken()!;
-    const sessionToken = this.authHelper.getSessionToken()!;
-    const subdomain = this.authHelper.getSubdomain()!;
-
-    let headers = new HttpHeaders()
-      .set('Authorization', token)
-      .set('SUBDOMAIN', subdomain)
-      .set('SESSIONTOKEN', sessionToken);
-
-    return headers;
   }
 
   // create department
   createDepartment(departmentData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/departments`;
-    return this._HttpClient.post(url, departmentData, { headers });
+    return this._HttpClient.post(url, departmentData);
   }
 
   // update department
   updateDepartment(departmentData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/departments`;
-    return this._HttpClient.put(url, departmentData, { headers });
+    return this._HttpClient.put(url, departmentData);
   }
-
-  // delete department
-  // deleteDepartment(id: number): Observable<any> {
-  //   const headers = this.getAuthHeaders(true);
-  //   if (!headers) return throwError(() => new Error('Authentication failed'));
-
-  //   const url = `${this.apiBaseUrl}od/departments/${id}/`;
-  //   return this._HttpClient.delete(url, { headers });
-  // }
 
   // update department status
   updateDeptStatus(id: number, status: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/departments/${id}/`;
-    return this._HttpClient.patch(url, status, { headers });
+    return this._HttpClient.patch(url, status);
   }
 
   // get all departments with pagination and filters
@@ -80,11 +43,9 @@ export class DepartmentsService {
       created_from?: string;
       created_to?: string;
       status?: string;
+      branch_id?: number;
     }
   ): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/departments`;
 
     let params = new HttpParams()
@@ -98,19 +59,15 @@ export class DepartmentsService {
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
       if (filters.status) params = params.set('status', filters.status);
+      if (filters.branch_id != null) params = params.set('branch_id', filters.branch_id.toString());
     }
 
-    return this._HttpClient.get(url, { headers, params });
+    return this._HttpClient.get(url, { params });
   }
 
   // show department by ID
   showDepartment(id: number): Observable<any> {
-    const headers = this.getAuthHeaders();
-    if (!headers) return throwError(() => new Error('Authentication failed'));
-
     const url = `${this.apiBaseUrl}od/departments/${id}`;
-    return this._HttpClient.get(url, { headers });
+    return this._HttpClient.get(url);
   }
-
-
 }
