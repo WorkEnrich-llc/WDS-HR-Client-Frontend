@@ -108,14 +108,10 @@ export class CreateNewJobTitleComponent {
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    // Show or hide Job Level based on managementLevel ('5' => None)
-    this.showJobLevel = (level === '' || level === '5');
-    if (this.showJobLevel) {
-      jobLevelControl?.enable();
-      jobLevelControl?.setValidators([Validators.required]);
-    } else {
-      jobLevelControl?.disable();
-    }
+    // Always show Job Level field
+    this.showJobLevel = true;
+    jobLevelControl?.enable();
+    jobLevelControl?.setValidators([Validators.required]);
 
     if (level === '3') {
       // Enable department only
