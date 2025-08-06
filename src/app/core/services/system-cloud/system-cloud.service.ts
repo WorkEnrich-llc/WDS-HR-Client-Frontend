@@ -30,17 +30,28 @@ export class SystemCloudService {
         const url = `${this.apiBaseUrl}cloud/files/`;
         return this._HttpClient.post(url, folderData);
     }
-    
+
     // create upload file
-  createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
-  const url = `${this.apiBaseUrl}cloud/files/`;
+    createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
+        const url = `${this.apiBaseUrl}cloud/files/`;
 
-  const req = new HttpRequest('POST', url, fileData, {
-    reportProgress: true
-  });
+        const req = new HttpRequest('POST', url, fileData, {
+            reportProgress: true
+        });
+        return this._HttpClient.request(req);
+    }
 
-  return this._HttpClient.request(req);
-}
+    // delete file and folder
+    deleteFile(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/${id}/`;
+        return this._HttpClient.delete(url);
+    }
+
+    // rename file
+    renameFile(id: string,folderData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/${id}/`;
+        return this._HttpClient.patch(url,folderData);
+    }
 
 
 }

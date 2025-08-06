@@ -9,11 +9,17 @@
 }
 
 .progress {
-    background-color: var(--color-success-100);
+    background-color: var(--color-secondary-100);
 }
 
-.progress-bar {
+.progress-success {
     background-color: var(--color-success-500);
+}
+.progress-warning{
+    background-color: var(--color-warning-400);
+}
+.progress-danger{
+    background-color: var(--color-danger-500);
 }
 
 .progress,
