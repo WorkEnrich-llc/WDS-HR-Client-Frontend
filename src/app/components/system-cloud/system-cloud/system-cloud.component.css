@@ -402,3 +402,6 @@ table tbody tr td {
     display: flex;
     align-items: center;
 }
+.cursor-pointer{
+    cursor: pointer !important;
+}

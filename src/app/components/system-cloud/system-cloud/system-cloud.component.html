@@ -29,16 +29,17 @@
                 <span>Templates</span>
             </a>
             <div class="d-flex align-items-center gap-3 justify-content-end w-50" *ngIf="isExpanded">
-                <div class="form-outline position-relative w-50">
+                <!-- <div class="form-outline position-relative w-50">
                     <select name="" id="status" class="form-select">
                         <option value="" class="place" selected disabled hidden>Select</option>
                         <option value="all">Any</option>
                         <option value="true">Active</option>
                         <option value="false">Not Active</option>
                     </select>
-                </div>
+                </div> -->
                 <div data-mdb-input-init class="form-outline w-50">
-                    <input type="text" class="form-control" placeholder="Search for a Template" />
+                    <input type="text" class="form-control" placeholder="Search for a Template" [(ngModel)]="searchText"
+                        (input)="filterTemplates()" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <circle cx="11.5" cy="11.5" r="9.5" />
@@ -47,12 +48,24 @@
                     </svg>
                 </div>
 
+
             </div>
         </div>
-        <div class="content-files" *ngIf="isExpanded">
-            <div class="row g-3">
 
-                <div class="col-6 col-md-3 col-lg-2" *ngFor="let temp of systemTemplates">
+        <div class="content-files" *ngIf="isExpanded">
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 150px;"
+                *ngIf="!isAllLoaded">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                </div>
+            </div>
+            <div class="row g-3" *ngIf="isAllLoaded">
+                <div class="col-12 text-center empty"
+                    *ngIf="isAllLoaded && systemTemplates.length > 0 && filteredTemplates.length === 0 && searchText">
+                    <img src="./images/emptyfolder.svg" />
+                    <p>No matching Templates</p>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-2" *ngFor="let temp of filteredTemplates">
                     <div tabindex="0" class="file template">
                         <svg width="114" height="114" viewBox="0 0 116 116" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -114,13 +127,14 @@
     </div>
 
     <!-- Drive -->
-    <div class="content-box p-0 d-flex flex-column mt-4">
+    <div class="content-box p-0 d-flex flex-column mt-4" (dragover)="onDragOver($event)" (drop)="onDrop($event)"
+        (dragleave)="onDragLeave($event)" [class.dragover-active]="isDragOver">
         <div class="head-box">
             <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item" *ngFor="let crumb of breadcrumb; let i = index"
-                        [ngClass]="{'active': crumb.id === openedFolderId}"
-                        (click)="goToFolder(crumb.id)" style="cursor: pointer">
+                        [ngClass]="{'active': crumb.id === openedFolderId}" (click)="goToFolder(crumb.id)"
+                        style="cursor: pointer">
                         <a>{{ crumb.name }}</a>
                     </li>
                 </ol>
@@ -129,7 +143,8 @@
 
             <div class="d-flex align-items-center gap-3 justify-content-end w-50">
                 <div data-mdb-input-init class="form-outline w-50">
-                    <input type="text" class="form-control" placeholder="Search in this folder" />
+                    <input type="text" class="form-control" placeholder="Search in this folder"
+                        [(ngModel)]="searchFolderText" (input)="filterFolders()" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <circle cx="11.5" cy="11.5" r="9.5" />
@@ -137,6 +152,7 @@
                         </g>
                     </svg>
                 </div>
+
                 <div class="switchs d-flex">
                     <a type="button" class="dispaly-switch" [class.active]="selectedView === 'grid'"
                         (click)="setView('grid')">
@@ -163,14 +179,26 @@
             </div>
         </div>
 
+
         <div class="content-files position-relative">
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 150px;"
+                *ngIf="!isAllLoaded">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                </div>
+            </div>
             <!-- grid -->
-            <div class="row g-3" *ngIf="selectedView === 'grid'">
-                <div class="col-12 text-center empty" *ngIf="!loadData && !isLoading && files.length === 0 ">
+            <div class="row g-3" *ngIf="selectedView === 'grid' && isAllLoaded">
+                <div class="col-12 text-center empty" *ngIf="isAllLoaded && files.length === 0 && !searchFolderText">
                     <img src="./images/emptyfolder.svg" />
                     <p>This Folder is Empty</p>
                 </div>
-                <div class="col-6 col-md-3 col-lg-2" *ngFor="let folder of files">
+
+                <div class="col-12 text-center empty"
+                    *ngIf="isAllLoaded && files.length > 0 && filteredFiles.length === 0 && searchFolderText">
+                    <img src="./images/emptyfolder.svg" />
+                    <p>No matching files or folders</p>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2" *ngFor="let folder of filteredFiles">
                     <!-- folder -->
                     <div tabindex="0" class="file" *ngIf="folder.type==='Folder'" (dblclick)="openFolder(folder)">
                         <svg width="116" height="106" viewBox="0 0 116 106" fill="none"
@@ -200,7 +228,8 @@
                             <text [attr.x]="getTextX(folder.file_type)" y="84" class="label capitalize"> {{
                                 getFileTypeText(folder.file_type) }}</text>
                         </svg>
-                        <h6>{{ folder.name.split('_').pop()?.split('.')[0] }}</h6>
+                       <h6>{{ getCleanName(folder.name) }}</h6>
+
 
                     </div>
                 </div>
@@ -227,7 +256,7 @@
 
 
             <!-- list -->
-            <table class="w-100" *ngIf="selectedView === 'list'">
+            <table class="w-100" *ngIf="selectedView === 'list' && isAllLoaded">
                 <thead>
                     <tr>
                         <td class="table-icon"></td>
@@ -239,7 +268,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="table-file" *ngFor="let folder of files">
+                    <tr *ngIf="isAllLoaded && files.length === 0 && !searchFolderText">
+                        <td colspan="6" class="text-center empty">
+                            <img src="./images/emptyfolder.svg" />
+                            <p>This Folder is Empty</p>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="isAllLoaded && files.length > 0 && filteredFiles.length === 0 && searchFolderText">
+                        <td colspan="6" class="text-center empty">
+                            <img src="./images/emptyfolder.svg" />
+                            <p>No matching files or folders</p>
+                        </td>
+                    </tr>
+
+                    <tr class="table-file cursor-pointer" *ngFor="let folder of filteredFiles"
+                        (dblclick)="openFolder(folder)">
                         <td>
                             <svg width="35" height="35" viewBox="0 0 116 106" fill="none" *ngIf="folder.type==='Folder'"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -264,7 +308,7 @@
                         </td>
                         <td>
                             <span *ngIf="folder.type==='Folder'">{{folder.name}}</span>
-                            <span *ngIf="folder.type==='File'">{{ folder.name.split('_').pop()?.split('.')[0] }}</span>
+                            <span *ngIf="folder.type==='File'"> <h6>{{ getCleanName(folder.name) }}</h6></span>
                         </td>
                         <td>
                             <span *ngIf="folder.type==='Folder'">{{folder?.children.length}}</span>
@@ -309,6 +353,20 @@
                         </div>
 
                     </tr>
+
+                    <tr *ngIf="isLoading">
+                        <td colspan="6" class="text-center py-3">
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                    role="progressbar" [style.width.%]="uploadProgress"
+                                    [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+                                    {{ uploadProgress }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+
                 </tbody>
             </table>
 
