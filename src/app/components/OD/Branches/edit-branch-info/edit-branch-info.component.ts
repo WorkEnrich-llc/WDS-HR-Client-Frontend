@@ -197,6 +197,8 @@ export class EditBranchInfoComponent implements OnInit {
   // discard department
   discardDepartment(): void {
     this.departmentsOverlay.closeOverlay();
+    // reset search term when closing overlay
+    this.searchTerm = '';
   }
 
   // add selected departments
@@ -357,6 +359,10 @@ export class EditBranchInfoComponent implements OnInit {
 
   // overlays boxes sliders
   openFirstOverlay() {
+    // reset search and pagination before opening overlay
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.getAllDepartment(this.currentPage);
     this.departmentsOverlay.openOverlay();
   }
 

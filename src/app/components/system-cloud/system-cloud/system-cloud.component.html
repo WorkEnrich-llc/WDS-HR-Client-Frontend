@@ -1,14 +1,20 @@
 <!-- pageheader and progress -->
 <app-page-header title="System Cloud">
     <div class="prog-contain d-flex align-items-center gap-5">
-        <div class="storage d-flex flex-column">
+        <div class="storage d-flex flex-column" *ngIf="isAllLoaded">
             <p>Storage</p>
-            <span>1.4 GB free / 2.0 GB</span>
+            <span>{{ storageInfo?.used_size }} Used / {{ storageInfo?.total_size}}</span>
         </div>
-        <div class="progress" style="height: 32px; width: 165px;">
-            <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0"
-                aria-valuemax="100"></div>
+        <div *ngIf="storageInfo" class="progress" style="height: 32px; width: 165px;">
+            <div class="progress-bar" role="progressbar" [style.width.%]="storageInfo.percentage"
+                [attr.aria-valuenow]="storageInfo.percentage" aria-valuemin="0" aria-valuemax="100" [ngClass]="{
+      'progress-success': storageInfo.percentage < 50,
+      'progress-warning': storageInfo.percentage >= 50 && storageInfo.percentage < 80,
+      'progress-danger': storageInfo.percentage >= 80
+    }">
+            </div>
         </div>
+
     </div>
 </app-page-header>
 
@@ -29,16 +35,17 @@
                 <span>Templates</span>
             </a>
             <div class="d-flex align-items-center gap-3 justify-content-end w-50" *ngIf="isExpanded">
-                <div class="form-outline position-relative w-50">
+                <!-- <div class="form-outline position-relative w-50">
                     <select name="" id="status" class="form-select">
                         <option value="" class="place" selected disabled hidden>Select</option>
                         <option value="all">Any</option>
                         <option value="true">Active</option>
                         <option value="false">Not Active</option>
                     </select>
-                </div>
+                </div> -->
                 <div data-mdb-input-init class="form-outline w-50">
-                    <input type="text" class="form-control" placeholder="Search for a Template" />
+                    <input type="text" class="form-control" placeholder="Search for a Template" [(ngModel)]="searchText"
+                        (input)="filterTemplates()" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <circle cx="11.5" cy="11.5" r="9.5" />
@@ -47,12 +54,24 @@
                     </svg>
                 </div>
 
+
             </div>
         </div>
-        <div class="content-files" *ngIf="isExpanded">
-            <div class="row g-3">
 
-                <div class="col-6 col-md-3 col-lg-2" *ngFor="let temp of systemTemplates">
+        <div class="content-files" *ngIf="isExpanded">
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 150px;"
+                *ngIf="!isAllLoaded">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                </div>
+            </div>
+            <div class="row g-3" *ngIf="isAllLoaded">
+                <div class="col-12 text-center empty"
+                    *ngIf="isAllLoaded && systemTemplates.length > 0 && filteredTemplates.length === 0 && searchText">
+                    <img src="./images/emptyfolder.svg" />
+                    <p>No matching Templates</p>
+                </div>
+
+                <div class="col-6 col-md-3 col-lg-2" *ngFor="let temp of filteredTemplates">
                     <div tabindex="0" class="file template">
                         <svg width="114" height="114" viewBox="0 0 116 116" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +117,7 @@
 
 
                         <h6>{{temp.label}}</h6>
-                        <button class="btn btn-primary w-auto" (click)="openModalNewFile()">
+                        <button class="btn btn-primary w-auto" (click)="openModalNewFile(temp.type)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                                     <circle cx="12" cy="12" r="10" />
@@ -114,13 +133,15 @@
     </div>
 
     <!-- Drive -->
-    <div class="content-box p-0 d-flex flex-column mt-4">
+    <div class="content-box p-0 d-flex flex-column mt-4" (dragover)="onDragOver($event)" (drop)="onDrop($event)"
+        (dragleave)="onDragLeave($event)" [class.dragover-active]="isDragOver">
+        
         <div class="head-box">
             <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item" *ngFor="let crumb of breadcrumb; let i = index"
-                        [ngClass]="{'active': crumb.id === openedFolderId}"
-                        (click)="goToFolder(crumb.id)" style="cursor: pointer">
+                        [ngClass]="{'active': crumb.id === openedFolderId}" (click)="goToFolder(crumb.id)"
+                        style="cursor: pointer">
                         <a>{{ crumb.name }}</a>
                     </li>
                 </ol>
@@ -129,7 +150,8 @@
 
             <div class="d-flex align-items-center gap-3 justify-content-end w-50">
                 <div data-mdb-input-init class="form-outline w-50">
-                    <input type="text" class="form-control" placeholder="Search in this folder" />
+                    <input type="text" class="form-control" placeholder="Search in this folder"
+                        [(ngModel)]="searchFolderText" (input)="filterFolders()" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <circle cx="11.5" cy="11.5" r="9.5" />
@@ -137,6 +159,7 @@
                         </g>
                     </svg>
                 </div>
+
                 <div class="switchs d-flex">
                     <a type="button" class="dispaly-switch" [class.active]="selectedView === 'grid'"
                         (click)="setView('grid')">
@@ -163,14 +186,27 @@
             </div>
         </div>
 
+
         <div class="content-files position-relative">
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 150px;"
+                *ngIf="!isAllLoaded">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                </div>
+            </div>
             <!-- grid -->
-            <div class="row g-3" *ngIf="selectedView === 'grid'">
-                <div class="col-12 text-center empty" *ngIf="!loadData && !isLoading && files.length === 0 ">
+            <div class="row g-3" *ngIf="selectedView === 'grid' && isAllLoaded">
+                <div class="col-12 text-center empty"
+                    *ngIf="isAllLoaded && files.length === 0 && !searchFolderText && !isLoading">
                     <img src="./images/emptyfolder.svg" />
                     <p>This Folder is Empty</p>
                 </div>
-                <div class="col-6 col-md-3 col-lg-2" *ngFor="let folder of files">
+
+                <div class="col-12 text-center empty"
+                    *ngIf="isAllLoaded && files.length > 0 && filteredFiles.length === 0 && searchFolderText && !isLoading">
+                    <img src="./images/emptyfolder.svg" />
+                    <p>No matching files or folders</p>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2" *ngFor="let folder of filteredFiles">
                     <!-- folder -->
                     <div tabindex="0" class="file" *ngIf="folder.type==='Folder'" (dblclick)="openFolder(folder)">
                         <svg width="116" height="106" viewBox="0 0 116 106" fill="none"
@@ -200,7 +236,8 @@
                             <text [attr.x]="getTextX(folder.file_type)" y="84" class="label capitalize"> {{
                                 getFileTypeText(folder.file_type) }}</text>
                         </svg>
-                        <h6>{{ folder.name.split('_').pop()?.split('.')[0] }}</h6>
+                        <h6>{{ getCleanName(folder.name) }}</h6>
+
 
                     </div>
                 </div>
@@ -227,7 +264,7 @@
 
 
             <!-- list -->
-            <table class="w-100" *ngIf="selectedView === 'list'">
+            <table class="w-100" *ngIf="selectedView === 'list' && isAllLoaded">
                 <thead>
                     <tr>
                         <td class="table-icon"></td>
@@ -239,7 +276,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="table-file" *ngFor="let folder of files">
+                    <tr *ngIf="isAllLoaded && files.length === 0 && !searchFolderText && !isLoading">
+                        <td colspan="6" class="text-center empty">
+                            <img src="./images/emptyfolder.svg" />
+                            <p>This Folder is Empty</p>
+                        </td>
+                    </tr>
+
+                    <tr
+                        *ngIf="isAllLoaded && files.length > 0 && filteredFiles.length === 0 && searchFolderText && !isLoading">
+                        <td colspan="6" class="text-center empty">
+                            <img src="./images/emptyfolder.svg" />
+                            <p>No matching files or folders</p>
+                        </td>
+                    </tr>
+
+                    <tr class="table-file cursor-pointer" *ngFor="let folder of filteredFiles"
+                        (dblclick)="openFolder(folder)">
                         <td>
                             <svg width="35" height="35" viewBox="0 0 116 106" fill="none" *ngIf="folder.type==='Folder'"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -264,13 +317,21 @@
                         </td>
                         <td>
                             <span *ngIf="folder.type==='Folder'">{{folder.name}}</span>
-                            <span *ngIf="folder.type==='File'">{{ folder.name.split('_').pop()?.split('.')[0] }}</span>
+                            <span *ngIf="folder.type==='File'">
+                                <h6>{{ getCleanName(folder.name) }}</h6>
+                            </span>
                         </td>
                         <td>
-                            <span *ngIf="folder.type==='Folder'">{{folder?.children.length}}</span>
+                            <span *ngIf="folder.type === 'Folder' && folder.children?.length !== undefined">
+                                {{ folder?.children?.length }}
+                            </span>
+
                         </td>
                         <td>
-                            <span>{{ formatFileSize(folder.size) }}</span>
+                            <span *ngIf="folder.size !== undefined && folder.size !== null">
+                                {{ formatFileSize(folder.size) }}
+                            </span>
+
 
                         </td>
                         <td>
@@ -280,35 +341,41 @@
                             {{folder.created_at | date:'dd/MM/yyyy'}}
                         </td>
                         <div class="actions-cell" style="display: none;">
-                            <button class="edit-btn">
+                            <button class="edit-btn" (click)="openModalrename(folder.id,folder.name,folder.type)"
+                                data-toggle="tooltip" data-placement="top" title="Rename">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path
-                                            d="M6 11c0-2.828 0-4.243.879-5.121C7.757 5 9.172 5 12 5h3c2.828 0 4.243 0 5.121.879C21 6.757 21 8.172 21 11v5c0 2.828 0 4.243-.879 5.121C19.243 22 17.828 22 15 22h-3c-2.828 0-4.243 0-5.121-.879C6 20.243 6 18.828 6 16z" />
-                                        <path
-                                            d="M6 19a3 3 0 0 1-3-3v-6c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h4a3 3 0 0 1 3 3" />
+                                    <g fill="none">
+                                        <path fill="currentColor"
+                                            d="M8.25 15.5a.75.75 0 0 0 1.5 0zm3.414-6.748l.498-.56zm-.414 1.673a.75.75 0 0 0 1.5 0zm.498-1.59l.56-.497zm-5.412-.083l-.498-.56zM5.25 10.425a.75.75 0 0 0 1.5 0zm1.002-1.59l-.56-.497zM7 14.75a.75.75 0 0 0 0 1.5zm4 1.5a.75.75 0 0 0 0-1.5zm-3.075-7H9v-1.5H7.925zM9 9.25h1.075v-1.5H9zm.75 6.25v-7h-1.5v7zm.325-6.25c.455 0 .726.001.922.026c.177.022.186.052.17.037l.995-1.121c-.3-.268-.651-.364-.98-.405c-.31-.038-.691-.037-1.107-.037zm2.675 1.175c0-.416.001-.797-.037-1.107c-.041-.329-.137-.68-.405-.98l-1.121.996c-.015-.017.015-.008.037.17c.025.195.026.466.026.921zm-1.584-1.112l.02.02l1.122-.995a2 2 0 0 0-.146-.146zM7.925 7.75c-.416 0-.797-.001-1.107.037c-.329.041-.68.137-.98.405l.996 1.121c-.017.015-.008-.015.17-.037c.195-.025.466-.026.921-.026zM6.75 10.425c0-.455.001-.726.026-.922c.022-.177.052-.186.037-.17l-1.121-.995c-.268.3-.364.651-.405.98c-.038.31-.037.691-.037 1.107zm-.912-2.233q-.077.069-.146.146l1.121.996l.02-.02zM7 16.25h4v-1.5H7z" />
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                            d="M12 4h-2C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12s0 5.657 1.172 6.828S6.229 20 10 20h2m3-16c3.114.01 4.765.108 5.828 1.172C22 6.343 22 8.229 22 12s0 5.657-1.172 6.828C19.765 19.892 18.114 19.99 15 20m0-18v20" />
                                     </g>
                                 </svg>
                             </button>
-                            <button class="remove-btn">
+                            <button class="remove-btn" (click)="openModalDelete(folder.id,folder.name,folder.type)"
+                                data-toggle="tooltip" data-placement="top" title="Delete">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                                         d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
                                 </svg>
                             </button>
-                            <button class="view-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round"
-                                            d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-                                        <path
-                                            d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-                                    </g>
-                                </svg>
-                            </button>
                         </div>
 
                     </tr>
+
+                    <tr *ngIf="isLoading">
+                        <td colspan="6" class="text-center py-3">
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                    role="progressbar" [style.width.%]="uploadProgress"
+                                    [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+                                    {{ uploadProgress }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+
                 </tbody>
             </table>
 
@@ -365,6 +432,7 @@
     </button>
 </app-popup>
 
+
 <!-- create new folder -->
 <app-popup [title]="'Create folder'" [paragraph1]="'Please enter folder name'" [isOpen]="createFolderPop"
     (close)="closeModalFolder()">
@@ -382,6 +450,45 @@
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     </button>
     <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalFolder()">
+        Cancel
+    </button>
+</app-popup>
+
+<!-- Rename Popup -->
+<app-popup [title]="'Rename ' + (folderTypeToRename || '')"
+    [paragraph1]="'Please enter a new name for &quot;' + (getCleanName(folderNameToRename) || '') + '&quot;.'"
+    [isOpen]="renameFolderPop" (close)="closeModalrename()">
+    <div class="input">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" id="foldername" class="form-control custom-date-input" name="foldername"
+                autocomplete="off" [(ngModel)]="newName" placeholder="Enter New Name" />
+        </div>
+        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+            {{ errMsg }}
+        </div>
+    </div>
+
+    <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="renameFolder()">
+        <span *ngIf="!isLoading">Save Change</span>
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    </button>
+
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalrename()">
+        Cancel
+    </button>
+</app-popup>
+
+
+
+<!-- Delete popup  -->
+<app-popup [title]="'Are you sure to delete?'"
+    [paragraph1]="'Are you sure you want to delete the &quot;' + getCleanName(folderNameToDelete) + '&quot; ' + folderTypeToDelete + '?'"
+    [paragraph2]="'This action cannot be undone.'" [isOpen]="deletePOP" (close)="closeModalDelete()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="deleteFile(folderIdToDelete)">
+        <span *ngIf="!isLoading">Delete</span>
+        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalDelete()">
         Cancel
     </button>
 </app-popup>
