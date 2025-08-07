@@ -656,9 +656,9 @@ export const routes: Routes = [
                 title: 'System Cloud'
               },
               {
-                path: 'employee-template',
-                loadComponent: () => import('./components/system-cloud/employee-template/employee-template.component').then(m => m.EmployeeTemplateComponent),
-                title: 'Employee Template'
+                path: 'system-file/:id',
+                loadComponent: () => import('./components/system-cloud/system_file/system-file.component').then(m => m.SystemFileComponent),
+                title: 'System File'
               },
 
             ]

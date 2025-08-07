@@ -43,9 +43,22 @@ input:focus {
     background-color: var(--color-primary-50) !important;
 }
 
-.is-invalid {
+.is-invalid,.invalid {
     border: none !important;
     box-shadow: inset 0 -2px 0 var(--color-danger-700) !important;
     color: var(--color-danger-500) !important;
     background-color: var(--color-danger-100) !important;
+}
+input,select{
+    min-width:200px !important;
+}
+.form-control.is-invalid,
+.form-select.is-invalid {
+  background-image: none !important;
+}
+select:focus{
+    box-shadow: none !important;
+    color: black !important;
+    background-color: white !important;
+    border: 1px solid black;
 }

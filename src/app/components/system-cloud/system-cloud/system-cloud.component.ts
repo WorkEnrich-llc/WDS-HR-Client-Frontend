@@ -6,6 +6,7 @@ import { SystemCloudService } from '../../../core/services/system-cloud/system-c
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { RouterLink } from '@angular/router';
 interface FileItem {
   id: string;
   name: string;
@@ -21,7 +22,7 @@ interface storageInfo {
 };
 @Component({
   selector: 'app-system-cloud',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule,RouterLink],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
@@ -105,7 +106,7 @@ export class SystemCloudComponent implements OnInit {
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
-        // console.log(this.allFiles)
+        // console.log(this.allFiles);
         this.dataLoaded = true;
         this.storageInfo = response?.data?.storage_size_info;
         // console.log(this.storageInfo);
@@ -417,16 +418,16 @@ export class SystemCloudComponent implements OnInit {
   }
 
   // format file size
- formatFileSize(bytes: number | undefined | null): string {
-  if (!bytes && bytes !== 0) return '0 B';
-  if (bytes === 0) return '0 B';
+  formatFileSize(bytes: number | undefined | null): string {
+    if (!bytes && bytes !== 0) return '0 B';
+    if (bytes === 0) return '0 B';
 
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const size = bytes / Math.pow(1024, i);
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    const size = bytes / Math.pow(1024, i);
 
-  return size.toFixed(2) + ' ' + sizes[i];
-}
+    return size.toFixed(2) + ' ' + sizes[i];
+  }
 
 
   // exxpand and collapse file templates
@@ -444,16 +445,89 @@ export class SystemCloudComponent implements OnInit {
   }
 
 
+  // =================== system files 
   // create File Popup
+
   createFilePop = false;
-  openModalNewFile(fileType:string) {
+  sheetName: string = '';
+  fileType: string = '';
+  systemFileName: string = '';
+  openModalNewFile(fileType: string, sheetName: string) {
     this.createFilePop = true;
+    this.sheetName = sheetName;
+    this.fileType = fileType;
   }
 
   closeModalFile() {
     this.createFilePop = false;
   }
 
+
+  createSystemFile(fileType: string) {
+    this.isLoading = true;
+    this.errMsg = '';
+
+    if (!this.systemFileName || !this.systemFileName.trim()) {
+      this.errMsg = 'Please enter a valid folder name.';
+      this.isLoading = false;
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', this.systemFileName);
+    formData.append('type', 'System_File');
+    formData.append('file_type', fileType);
+
+    if (this.openedFolderId) {
+      formData.append('parent', this.openedFolderId);
+    }
+
+    this._systemCloudService.createSystemFile(formData).subscribe({
+      next: (response) => {
+        this.systemFileName = '';
+        this.errMsg = '';
+        this.closeModalFile();
+        this.isLoading = false;
+
+        const newFile = {
+          ...response?.data?.object_info,
+          parent: this.openedFolderId ?? null
+        };
+
+        this.allFiles.push(newFile);
+
+        const exists = this.files.some(file => file.id === newFile.id);
+        if (!exists) {
+          if (this.openedFolderId === newFile.parent || (!this.openedFolderId && !newFile.parent)) {
+            this.files.push(newFile);
+          }
+        }
+
+        this.filteredFiles = [...this.files].sort((a, b) => {
+          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+          return a.name.localeCompare(b.name, undefined, {
+            numeric: true,
+            sensitivity: 'base'
+          });
+        });
+
+      },
+      error: (err) => {
+        if (err?.error?.data?.error_handling?.length > 0) {
+          this.errMsg = err.error.data.error_handling[0].error;
+        } else {
+          this.errMsg = 'An unexpected error occurred.';
+        }
+        this.isLoading = false;
+      }
+    });
+  }
+
+
+
+
+  // ====================== folders
   // create Folder Popup
   createFolderPop = false;
   openModalNewFolder() {
