@@ -54,12 +54,12 @@ export class VersionService {
     // console.log('%c📦 Version:', styles.info, '%c' + this.version.version, styles.value);
     // console.log('%c🌿 Branch:', styles.info, '%c' + this.version.branch, styles.value);
     // console.log('%c📝 Commit:', styles.info, '%c' + this.version.commit, styles.value);
-    console.log('%c📅 Build Date:', styles.info, '%c' + new Date(this.version.buildDate).toLocaleString(), styles.value);
-    console.log('%c💻 Environment:', styles.info, '%c' + (this.version.branch === 'main' ? 'Production' : this.version.branch), styles.value);
+    console.log('📅 Build Date:', styles.info, '%c' + new Date(this.version.buildDate).toLocaleString(), styles.value);
+    console.log('💻 Environment:', styles.info, '%c' + (this.version.branch === 'main' ? 'Production' : this.version.branch), styles.value);
     console.groupEnd();
 
     // Also log a simple version for easy access
-    console.log(`%cVersion: ${this.version.version}`, 'color: #2196F3; font-weight: bold;');
+    console.log(`Version: ${this.version.version}`, 'color: #2196F3; font-weight: bold;');
   }
 
   // Method to display version in UI
