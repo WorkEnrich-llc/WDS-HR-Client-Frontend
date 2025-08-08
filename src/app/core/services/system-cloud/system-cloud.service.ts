@@ -31,6 +31,12 @@ export class SystemCloudService {
         return this._HttpClient.post(url, folderData);
     }
 
+    // create system File
+    createSystemFile(folderData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/`;
+        return this._HttpClient.post(url, folderData);
+    }
+
     // create upload file
     createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
         const url = `${this.apiBaseUrl}cloud/files/`;
@@ -48,10 +54,23 @@ export class SystemCloudService {
     }
 
     // rename file
-    renameFile(id: string,folderData: any): Observable<any> {
+    renameFile(id: string, folderData: any): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/files/${id}/`;
-        return this._HttpClient.patch(url,folderData);
+        return this._HttpClient.patch(url, folderData);
     }
 
+
+    // get system file data 
+    getSystemFileData(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
+        return this._HttpClient.get(url);
+    }
+
+
+    // save system file
+     updateSheet(id: string,fileData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
+        return this._HttpClient.put(url,fileData);
+    }    
 
 }

@@ -14,11 +14,12 @@
   <div class="d-flex align-items-center justify-content-between mt-3">
 
     <div class="form-outline w-25 position-relative custom-date-wrapper">
-      <input type="text" id="fileName" class="form-control" placeholder="File Name" />
+      <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control" placeholder="File Name"
+        readonly />
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      <span class="badge-success">
+      <span class="badge-success" *ngIf="syncStatus === 'synced'">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -27,7 +28,7 @@
         </svg>
         <span>Synced</span>
       </span>
-      <!-- <span class="badge-newjoiner">
+      <span class="badge-newjoiner" *ngIf="syncStatus === 'syncing'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     viewBox="0 0 24 24">
                     <path fill="currentColor"
@@ -35,7 +36,7 @@
                 </svg>
                 <span>Syncing</span>
             </span>
-            <span class="badge-gray">
+            <!-- <span class="badge-gray">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
@@ -61,4 +62,14 @@
 
 
 <!-- sheet -->
-<app-smart-grid-sheet [columns]="customColumns"></app-smart-grid-sheet>
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 150px;" *ngIf="!isAllLoaded">
+  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
+</div>
+<app-smart-grid-sheet *ngIf="isAllLoaded"
+  [columns]="customColumns"
+  (inputChanged)="onCellInput()"
+  [initialRows]="rowsData"
+   [rowsInput]="bodyRows"
+  (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()"
+>
+</app-smart-grid-sheet>
