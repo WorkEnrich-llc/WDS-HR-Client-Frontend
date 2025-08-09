@@ -1,13 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
 
 @Component({
   standalone: true,
   selector: 'app-contract-form-modal',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent],
+  imports: [FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent],
   templateUrl: './contract-form-modal.component.html',
   styleUrl: './contract-form-modal.component.css'
 })

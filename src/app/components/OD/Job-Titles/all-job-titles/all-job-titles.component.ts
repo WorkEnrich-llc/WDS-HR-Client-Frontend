@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from './../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
@@ -13,7 +13,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 
 @Component({
   selector: 'app-all-job-titles',
-  imports: [PageHeaderComponent, RouterLink, TableComponent, FormsModule, OverlayFilterBoxComponent, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, RouterLink, TableComponent, FormsModule, OverlayFilterBoxComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-job-titles.component.html',
   styleUrl: './all-job-titles.component.css'

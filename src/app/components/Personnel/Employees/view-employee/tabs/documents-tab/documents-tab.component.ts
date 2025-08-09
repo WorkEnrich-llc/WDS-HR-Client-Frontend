@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 
 @Component({
   selector: 'app-documents-tab',
-  imports: [CommonModule, TableComponent],
+  imports: [TableComponent],
   templateUrl: './documents-tab.component.html',
   styleUrl: './documents-tab.component.css'
 })

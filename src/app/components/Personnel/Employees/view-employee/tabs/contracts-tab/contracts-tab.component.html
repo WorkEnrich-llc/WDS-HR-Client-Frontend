@@ -42,34 +42,42 @@
     <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary, contract.currency) }}</td>
     <td class="text-start">
       <span [ngClass]="getStatusClass(contract.status)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-             *ngIf="contract.status === 'Upcoming'">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="M12 7v5l3 3" />
-          </g>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-             *ngIf="contract.status === 'Active'">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-             *ngIf="contract.status === 'Cancelled'">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-          </g>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-             *ngIf="contract.status === 'Expired'">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
-          </g>
-        </svg>
+        @if (contract.status === 'Upcoming') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M12 7v5l3 3" />
+            </g>
+          </svg>
+        }
+        @if (contract.status === 'Active') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+        }
+        @if (contract.status === 'Cancelled') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+        }
+        @if (contract.status === 'Expired') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+            </g>
+          </svg>
+        }
         <span>{{ contract.status }}</span>
       </span>
     </td>
@@ -81,7 +89,7 @@
             <path d="M12 8v4l3 3" />
             <circle cx="12" cy="12" r="10" />
           </svg>
-          
+
         </a>
         <!-- Edit Action -->
         <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
@@ -97,51 +105,51 @@
             <path d="M3 6h18"/>
             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v>2"/>
-          </svg>
-          Delete
-        </a>
-      </div>
-    </td>
-  </ng-template>
-
-  <!-- Empty Template -->
-  <ng-template #emptyTemplate>
-    <tr>
-      <td colspan="7" class="text-center py-4">
-        <div class="no-data">
-          No contracts found
+            </svg>
+            Delete
+          </a>
         </div>
       </td>
-    </tr>
-  </ng-template>
+    </ng-template>
 
-  <app-table
-    [data]="contractsData"
-    [totalItems]="totalItems"
-    [currentPage]="currentPage"
-    [itemsPerPage]="itemsPerPage"
-    [isLoading]="isLoading"
-    [columnsCount]="7"
-    [headerTemplate]="headerTemplate"
-    [rowTemplate]="rowTemplate"
-    [emptyTemplate]="emptyTemplate"
-    (pageChange)="onPageChange($event)"
-    (itemsPerPageChange)="onItemsPerPageChange($event)">
-  </app-table>
-</div>
+    <!-- Empty Template -->
+    <ng-template #emptyTemplate>
+      <tr>
+        <td colspan="7" class="text-center py-4">
+          <div class="no-data">
+            No contracts found
+          </div>
+        </td>
+      </tr>
+    </ng-template>
 
-<!-- Delete Confirmation Modal -->
-<app-contract-delete-modal
-  [isOpen]="isDeleteModalOpen"
-  [contract]="selectedContract"
-  (onClose)="closeDeleteModal()"
-  (onDelete)="onContractDelete($event)">
-</app-contract-delete-modal>
+    <app-table
+      [data]="contractsData"
+      [totalItems]="totalItems"
+      [currentPage]="currentPage"
+      [itemsPerPage]="itemsPerPage"
+      [isLoading]="isLoading"
+      [columnsCount]="7"
+      [headerTemplate]="headerTemplate"
+      [rowTemplate]="rowTemplate"
+      [emptyTemplate]="emptyTemplate"
+      (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)">
+    </app-table>
+  </div>
 
-<!-- Contract History Modal -->
-<app-contract-history-modal
-  [isOpen]="isHistoryModalOpen"
-  [contract]="selectedContract"
-  [historyData]="contractHistory"
-  (onClose)="closeHistoryModal()">
-</app-contract-history-modal>
+  <!-- Delete Confirmation Modal -->
+  <app-contract-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    [contract]="selectedContract"
+    (onClose)="closeDeleteModal()"
+    (onDelete)="onContractDelete($event)">
+  </app-contract-delete-modal>
+
+  <!-- Contract History Modal -->
+  <app-contract-history-modal
+    [isOpen]="isHistoryModalOpen"
+    [contract]="selectedContract"
+    [historyData]="contractHistory"
+    (onClose)="closeHistoryModal()">
+  </app-contract-history-modal>

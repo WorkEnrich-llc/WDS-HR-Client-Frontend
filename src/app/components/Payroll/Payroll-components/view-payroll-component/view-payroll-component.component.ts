@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-view-payroll-component',
-  imports: [PageHeaderComponent,PopupComponent,RouterLink, CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, RouterLink],
   templateUrl: './view-payroll-component.component.html',
   styleUrl: './view-payroll-component.component.css'
 })

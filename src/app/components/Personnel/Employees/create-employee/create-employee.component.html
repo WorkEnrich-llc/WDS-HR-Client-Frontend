@@ -1,4 +1,4 @@
-<app-page-header 
+<app-page-header
   [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
@@ -15,13 +15,15 @@
   <app-contract-details-step [hidden]="sharedService.currentStep() !== 3" (submitForm)="onSubmit()"></app-contract-details-step>
 </form>
 
-<app-popup 
-  *ngIf="sharedService.isModalOpen()" 
-  (confirmAction)="confirmAction()" 
-  (cancelAction)="closeModal()">
-</app-popup>
+@if (sharedService.isModalOpen()) {
+  <app-popup
+    (confirmAction)="confirmAction()"
+    (cancelAction)="closeModal()">
+  </app-popup>
+}
 
-<app-popup 
-  *ngIf="sharedService.isSuccessModalOpen()" 
-  (confirmAction)="viewEmployees()">
-</app-popup>
+@if (sharedService.isSuccessModalOpen()) {
+  <app-popup
+    (confirmAction)="viewEmployees()">
+  </app-popup>
+}

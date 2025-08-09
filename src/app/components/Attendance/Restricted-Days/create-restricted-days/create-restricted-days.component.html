@@ -4,134 +4,152 @@
     { label: 'Restricted Days', link: '/restricted-days' },
     {  label: 'Create New Restricted Day'}
   ]" title="Create New Restricted Day" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto" [disabled]="!restrictedDayForm.valid || isLoading" (click)="createRestrictedDay()">
-        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        <span>Create Restricted Day</span>
-    </button>
+  <button class="btn btn-lg btn-success w-auto" [disabled]="!restrictedDayForm.valid || isLoading" (click)="createRestrictedDay()">
+    @if (isLoading) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    @if (!isLoading) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+    }
+    <span>Create Restricted Day</span>
+  </button>
 
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Restricted Day</span>
-    </button>
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Restricted Day</span>
+  </button>
 </app-page-header>
 
 <!-- start content -->
 <div class="content-hug">
-    <div class="d-flex flex-column gap-4">
+  <div class="d-flex flex-column gap-4">
 
-        <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
-            <h2>Main Information</h2>
-            <form [formGroup]="restrictedDayForm" class="w-lg-50 d-flex flex-column gap-2">
+    <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
+      <h2>Main Information</h2>
+      <form [formGroup]="restrictedDayForm" class="w-lg-50 d-flex flex-column gap-2">
 
-                <div class="input">
-                    <label for="restrictedId">Restricted Day ID (Optional)</label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" formControlName="code" id="restrictedId"
-                            class="form-control custom-date-input" placeholder="0050" />
-                    </div>
+        <div class="input">
+          <label for="restrictedId">Restricted Day ID (Optional)</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" formControlName="code" id="restrictedId"
+              class="form-control custom-date-input" placeholder="0050" />
+            </div>
+          </div>
+
+          <div class="input">
+            <label for="restrictedName">Restricted Day Name <span>*</span></label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" formControlName="name" id="restrictedName"
+                class="form-control custom-date-input" placeholder="Restricted Day Name" />
+              </div>
+              @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['minLength']) {
+                <p class="error-msg"
+                  >
+                  Restricted Day Name min length must be 3.
+                </p>
+              }
+              @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['maxLength']) {
+                <p class="error-msg"
+                  >
+                  Restricted Day Name max length must be 100.
+                </p>
+              }
+              @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Restricted Day Name is required.
+                </p>
+              }
+            </div>
+
+            <div class="input">
+              <label for="restrictedType">Restriction Type</label>
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <select name="restrictedType" formControlName="restriction_type" id="restrictedType"
+                    class="form-select">
+                    <option value="" disabled selected hidden>Select one Restriction Type</option>
+                    <option value="holiday">Holiday</option>
+                    <option value="blackout">Blackout</option>
+                  </select>
                 </div>
+              </div>
+              @if (restrictedDayForm.get('restriction_type')?.touched && restrictedDayForm.get('restriction_type')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Restriction Type is required.
+                </p>
+              }
+            </div>
 
-                <div class="input">
-                    <label for="restrictedName">Restricted Day Name <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" formControlName="name" id="restrictedName"
-                            class="form-control custom-date-input" placeholder="Restricted Day Name" />
-                    </div>
-                    <p class="error-msg"
-                        *ngIf="restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['minLength']">
-                        Restricted Day Name min length must be 3.
-                    </p>
-                    <p class="error-msg"
-                        *ngIf="restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['maxLength']">
-                        Restricted Day Name max length must be 100.
-                    </p>
-                    <p class="error-msg"
-                        *ngIf="restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['required']">
-                        Restricted Day Name is required.
-                    </p>
+            <div class="input">
+              <label for="department">Restricted Departments (Optional)</label>
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <select name="department" formControlName="departments" id="department" class="form-select">
+                    <option value="" disabled selected hidden>Select one Department</option>
+                    @for (item of departments; track item) {
+                      <option [value]="item.id">{{item.name}}</option>
+                    }
+                  </select>
                 </div>
+              </div>
+            </div>
 
-                <div class="input">
-                    <label for="restrictedType">Restriction Type</label>
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="restrictedType" formControlName="restriction_type" id="restrictedType"
-                                class="form-select">
-                                <option value="" disabled selected hidden>Select one Restriction Type</option>
-                                <option value="holiday">Holiday</option>
-                                <option value="blackout">Blackout</option>
-                            </select>
-                        </div>
+            <div class="input">
+              <label for="dateRange">Date Range</label>
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <input ngxDaterangepickerMd formControlName="dates" class="form-control"
+                    placeholder="Select date or range" [showDropdowns]="true" [autoApply]="true"
+                    [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                      <g fill="none" stroke-width="1.5">
+                        <path stroke-linecap="round"
+                          d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                          <circle cx="18" cy="18" r="3" />
+                          <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                      </svg>
                     </div>
+                  </div>
+                  @if (restrictedDayForm.get('dates')?.touched && restrictedDayForm.get('dates')?.errors?.['required']) {
                     <p class="error-msg"
-                        *ngIf="restrictedDayForm.get('restriction_type')?.touched && restrictedDayForm.get('restriction_type')?.errors?.['required']">
-                        Restriction Type is required.
+                      >
+                      Date Range is required.
                     </p>
+                  }
                 </div>
-
-                <div class="input">
-                    <label for="department">Restricted Departments (Optional)</label>
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select name="department" formControlName="departments" id="department" class="form-select">
-                                <option value="" disabled selected hidden>Select one Department</option>
-                                <option *ngFor="let item of departments" [value]="item.id">{{item.name}}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input">
-                    <label for="dateRange">Date Range</label>
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <input ngxDaterangepickerMd formControlName="dates" class="form-control"
-                                placeholder="Select date or range" [showDropdowns]="true" [autoApply]="true"
-                                [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" />
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <path stroke-linecap="round"
-                                        d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                                    <circle cx="18" cy="18" r="3" />
-                                    <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="error-msg"
-                        *ngIf="restrictedDayForm.get('dates')?.touched && restrictedDayForm.get('dates')?.errors?.['required']">
-                        Date Range is required.
-                    </p>
-                </div>
-                <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
+                @if (errMsg) {
+                  <div class="alert alert-danger mb-0 mt-3" role="alert">
                     {{errMsg}}
-                </div>
-            </form>
+                  </div>
+                }
+              </form>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
 
 
 
-<!-- discard -->
-<app-popup [title]="'Discard New Restricted Day'"
-    [paragraph1]="'Are you sure you want to discard creating the new Restricted Day?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Restricted Day
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>
+        <!-- discard -->
+        <app-popup [title]="'Discard New Restricted Day'"
+          [paragraph1]="'Are you sure you want to discard creating the new Restricted Day?'"
+          [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+          <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+            Discard Restricted Day
+          </button>
+          <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+            Cancel
+          </button>
+        </app-popup>

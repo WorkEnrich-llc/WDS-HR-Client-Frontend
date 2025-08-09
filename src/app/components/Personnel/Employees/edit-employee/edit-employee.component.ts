@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -11,7 +11,7 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 @Component({
   standalone: true,
   selector: 'app-edit-employee',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './edit-employee.component.html',
   styleUrls: ['./edit-employee.component.css']

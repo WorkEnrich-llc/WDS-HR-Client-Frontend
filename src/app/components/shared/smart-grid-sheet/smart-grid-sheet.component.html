@@ -2,38 +2,54 @@
 
   <table class="min-w-100">
     <thead>
-      <tr *ngIf="columns">
+      @if (columns) {
+      <tr>
         <th></th>
-        <th *ngFor="let col of columns">{{ col.label }}</th>
+        @for (col of columns; track col) {
+        <th>{{ col.label }}</th>
+        }
       </tr>
+      }
     </thead>
     <tbody>
-      <tr *ngFor="let form of rows(); let rowIndex = index">
-        <td>{{ rowIndex + 1 }}</td>
-        <td *ngFor="let col of columns; let colIndex = index" class="border p-0">
+      @for (form of rows(); track form; let rowIndex = $index) {
+      <tr class="table-row">
+        <td class="text-end">{{ rowIndex + 1 }}</td>
+        @for (col of columns; track col; let colIndex = $index) {
+        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
+          (mousedown)="onCellMouseDown($event, rowIndex, colIndex)"
+          (mouseover)="onCellMouseOver($event, rowIndex, colIndex)">
           <div class="position-relative w-100 p-0">
-            <select *ngIf="col.type === 'select'; else textInput" [formControl]="getFormControl(form, col)"
-              (input)="inputChanged.emit()" class="form-select no-radius no-padding-input"
-              [ngClass]="{ 'invalid': isCellInvalid(form, col) }" (focus)="handleFocus(rowIndex, col.name)"
-              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()">
-              <option *ngIf="!col?.options?.length" value="0" disabled>Empty</option>
-              <option *ngFor="let opt of col.options" [value]="opt.value">{{ opt.label }}</option>
+            @if (col.type === 'select') {
+            <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
+              class="form-select no-radius no-padding-input" [ngClass]="{
+            'invalid': isCellInvalid(form, col),
+            'placeholder-selected': getFormControl(form, col).value === '' || getFormControl(form, col).value === null
+          }" (focus)="handleFocus(rowIndex, col.name)"
+              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+              (keydown)="onArrowKey($event, rowIndex, colIndex)"
+              (mousedown)="onCellMouseDown($event, rowIndex, colIndex)"
+              (mouseover)="onCellMouseOver($event, rowIndex, colIndex)">
+
+              <option value="" disabled hidden selected>Select</option>
+              <option *ngIf="!rowOptions[rowIndex][col.name]?.length" value="" disabled>No options</option>
+              <option *ngFor="let opt of rowOptions[rowIndex][col.name]" [value]="opt.value">{{ opt.label }}</option>
             </select>
 
 
-
-            <ng-template #textInput>
-              <input [type]="col.type === 'date' ? 'date' : 'text'" [formControl]="getFormControl(form, col)"
-                (input)="inputChanged.emit()" class="form-control no-radius no-padding-input ps-4"
-                [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }" (paste)="paste($event, rowIndex, col.name)"
-                (focus)="handleFocus(rowIndex, col.name)"
-                (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()" />
-            </ng-template>
-
-
-
-            <svg *ngIf="isCellInvalid(form, col)" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-              class="position-absolute" [ngStyle]="{'inset-inline-end': col.type === 'select' ? '30px' : '8px',
+            }
+            @else {
+            <input [type]="col.type === 'date' ? 'date' : 'text'" [formControl]="getFormControl(form, col)"
+              (input)="inputChanged.emit()" class="form-control no-radius no-padding-input ps-4"
+              [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }" (paste)="paste($event, rowIndex, col.name)"
+              (focus)="handleFocus(rowIndex, col.name)"
+              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+              (keydown)="onArrowKey($event, rowIndex, colIndex)"
+              (mousedown)="onCellMouseDown($event, rowIndex, colIndex)"
+              (mouseover)="onCellMouseOver($event, rowIndex, colIndex)" />
+            }
+            @if (isCellInvalid(form, col)) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="position-absolute" [ngStyle]="{'inset-inline-end': col.type === 'select' ? '30px' : '8px',
     top: '50%',
     transform: 'translateY(-50%)',
     cursor: 'pointer',
@@ -45,11 +61,12 @@
                 <circle cx="1" cy="1" r="1" fill="#e04f5f" transform="matrix(1 0 0 -1 11 9)" />
               </g>
             </svg>
-
-
+            }
           </div>
         </td>
+        }
       </tr>
+      }
     </tbody>
   </table>
 </div>

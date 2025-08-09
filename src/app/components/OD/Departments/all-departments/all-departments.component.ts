@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -13,7 +13,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 
 @Component({
   selector: 'app-all-departments',
-  imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-departments.component.html',
   styleUrl: './all-departments.component.css'

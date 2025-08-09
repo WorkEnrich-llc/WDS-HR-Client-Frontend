@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -12,7 +12,7 @@ import { WorkflowService } from '../../../../core/services/personnel/workflows/w
 
 @Component({
   selector: 'app-update-workflow',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './update-workflow.component.html',
   styleUrl: './update-workflow.component.css'

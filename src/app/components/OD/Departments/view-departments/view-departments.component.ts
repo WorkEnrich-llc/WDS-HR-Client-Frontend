@@ -3,13 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-view-departments',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent, CommonModule],
+  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-departments.component.html',
   styleUrls: ['./view-departments.component.css']

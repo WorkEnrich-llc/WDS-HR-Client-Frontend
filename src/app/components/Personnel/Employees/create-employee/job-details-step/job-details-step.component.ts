@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
@@ -10,7 +10,7 @@ import { WorkSchaualeService } from '../../../../../core/services/personnel/work
 @Component({
   selector: 'app-job-details-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './job-details-step.component.html',
   styleUrls: ['./job-details-step.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]

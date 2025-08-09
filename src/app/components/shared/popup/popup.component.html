@@ -1,4 +1,5 @@
-<div *ngIf="isOpen" class="modal-overlay" (click)="close.emit()">
+@if (isOpen) {
+  <div class="modal-overlay" (click)="close.emit()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <h2 class="modal-title">{{ title }}</h2>
       <p class="modal-paragraph">{{ paragraph1 }}</p>
@@ -10,3 +11,4 @@
       </div>
     </div>
   </div>
+}

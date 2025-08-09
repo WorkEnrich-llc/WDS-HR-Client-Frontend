@@ -4,28 +4,32 @@
     { label: 'Departments', link: '/departments' },
     { label: 'Create New Department' }
   ]" title="Create New Department" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto"
-        [disabled]="isLoading || !deptStep1.valid || !deptStep2.valid || sectionsFormArray.length < 1"
-        (click)="createDept()">
-        <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        <span>Create Department</span>
-    </button>
+  <button class="btn btn-lg btn-success w-auto"
+    [disabled]="isLoading || !deptStep1.valid || !deptStep2.valid || sectionsFormArray.length < 1"
+    (click)="createDept()">
+    @if (isLoading) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    @if (!isLoading) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+    }
+    <span>Create Department</span>
+  </button>
 
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Department</span>
-    </button>
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Department</span>
+  </button>
 </app-page-header>
 
 
@@ -37,232 +41,250 @@
         'text-success': currentStep > 1, 
         'bg-light-success': currentStep > 1  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" *ngIf="currentStep == 1">
-            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-            <path
-                d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+    @if (currentStep == 1) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
         </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : '#4A6D97'">
-            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-            <path
-                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-        </svg>
+      }
+      @if (currentStep > 1) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+          [style.fill]="currentStep > 1 ? 'currentColor' : '#4A6D97'">
+          <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+          <path
+            d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+          </svg>
+        }
         <span class="nav-link">Main Information</span>
-    </li>
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+      </li>
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
         [style.fill]="currentStep > 1 ? '#377AFD' : '#DDE3EB'">
         <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
+          d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+        </svg>
 
-    <li class="nav-item" [ngClass]="{ active: currentStep === 2 }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        <li class="nav-item" [ngClass]="{ active: currentStep === 2 }">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
             [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'">
             <path
-                d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
-                opacity=".5" />
-            <path
+              d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
+              opacity=".5" />
+              <path
                 d="M2 8.6c0 2.074 0 3.111.659 3.756S4.379 13 6.5 13s3.182 0 3.841-.644C11 11.71 11 10.674 11 8.6V6.4c0-2.074 0-3.111-.659-3.756S8.621 2 6.5 2s-3.182 0-3.841.644C2 3.29 2 4.326 2 6.4zm11-3.1c0-1.087 0-1.63.171-2.06a2.3 2.3 0 0 1 1.218-1.262C14.802 2 15.327 2 16.375 2h2.25c1.048 0 1.573 0 1.986.178c.551.236.99.69 1.218 1.262c.171.43.171.973.171 2.06s0 1.63-.171 2.06a2.3 2.3 0 0 1-1.218 1.262C20.198 9 19.673 9 18.625 9h-2.25c-1.048 0-1.573 0-1.986-.178a2.3 2.3 0 0 1-1.218-1.262C13 7.13 13 6.587 13 5.5" />
-            <path
-                d="M2 18.5c0 1.087 0 1.63.171 2.06a2.3 2.3 0 0 0 1.218 1.262c.413.178.938.178 1.986.178h2.25c1.048 0 1.573 0 1.986-.178c.551-.236.99-.69 1.218-1.262c.171-.43.171-.973.171-2.06s0-1.63-.171-2.06a2.3 2.3 0 0 0-1.218-1.262C9.198 15 8.673 15 7.625 15h-2.25c-1.048 0-1.573 0-1.986.178c-.551.236-.99.69-1.218 1.262C2 16.87 2 17.413 2 18.5"
-                opacity=".5" />
+                <path
+                  d="M2 18.5c0 1.087 0 1.63.171 2.06a2.3 2.3 0 0 0 1.218 1.262c.413.178.938.178 1.986.178h2.25c1.048 0 1.573 0 1.986-.178c.551-.236.99-.69 1.218-1.262c.171-.43.171-.973.171-2.06s0-1.63-.171-2.06a2.3 2.3 0 0 0-1.218-1.262C9.198 15 8.673 15 7.625 15h-2.25c-1.048 0-1.573 0-1.986.178c-.551.236-.99.69-1.218 1.262C2 16.87 2 17.413 2 18.5"
+                  opacity=".5" />
 
-        </svg>
-        <span class="nav-link">Sections</span>
-    </li>
-</ul>
-
-
-
-<!-- step 1 -->
-<div class="content-hug" *ngIf="currentStep === 1">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Main Information</h2>
-        <form [formGroup]="deptStep1" class="w-lg-50 d-flex flex-column gap-2">
-            <div class="input">
-                <label for="deptCode">Department Code (Optional)</label>
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="code" type="text" id="deptCode" class="form-control custom-date-input"
-                        placeholder="0050" />
-                </div>
-                <p class="error-msg" *ngIf="deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']">
-                    Department Code must include both letters and numbers.
-                </p>
-
-            </div>
-            <div class="input">
-                <label for="deptName">Department Name <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="name" type="text" id="deptName" class="form-control custom-date-input"
-                        placeholder="Recruitment" />
-                </div>
-                <p class="error-msg"
-                    *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']">
-                    Department Name is required.
-                </p>
-            </div>
-            <div class="input">
-                <label for="empNo">Department Objectives <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea formControlName="objectives" type="text" id="empNo" class="form-control custom-date-input"
-                        placeholder="Write Department Objectives"></textarea>
-                </div>
-                <p class="error-msg"
-                    *ngIf="deptStep1.get('objectives')?.touched && deptStep1.get('objectives')?.errors?.['required']">
-                    Department Objectives is required.
-                </p>
-            </div>
-        </form>
-        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
-            {{errMsg}}
-        </div>
-
-
-
-
-        <!-- next button -->
-        <div class="btn-fixed">
-            <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid" (click)="goNext()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
                 </svg>
-                <span>Next (1/2)</span>
-            </button>
-        </div>
-
-    </div>
-</div>
+                <span class="nav-link">Sections</span>
+              </li>
+            </ul>
 
 
 
-<!-- step 2 -->
-<div class="content-hug" *ngIf="currentStep === 2">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Sections</h2>
-        <form [formGroup]="deptStep2">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th class="w-15">Section Code</th>
-                            <th class="w-65">Section Name</th>
-                            <th class="w-15">Actions</th>
-                            <th class="w-5"></th>
-                        </tr>
-                    </thead>
+            <!-- step 1 -->
+            @if (currentStep === 1) {
+              <div class="content-hug">
+                <div class="content-box d-flex flex-column gap-3">
+                  <h2>Main Information</h2>
+                  <form [formGroup]="deptStep1" class="w-lg-50 d-flex flex-column gap-2">
+                    <div class="input">
+                      <label for="deptCode">Department Code (Optional)</label>
+                      <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input formControlName="code" type="text" id="deptCode" class="form-control custom-date-input"
+                          placeholder="0050" />
+                        </div>
+                        @if (deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']) {
+                          <p class="error-msg">
+                            Department Code must include both letters and numbers.
+                          </p>
+                        }
+                      </div>
+                      <div class="input">
+                        <label for="deptName">Department Name <span>*</span></label>
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                          <input formControlName="name" type="text" id="deptName" class="form-control custom-date-input"
+                            placeholder="Recruitment" />
+                          </div>
+                          @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']) {
+                            <p class="error-msg"
+                              >
+                              Department Name is required.
+                            </p>
+                          }
+                        </div>
+                        <div class="input">
+                          <label for="empNo">Department Objectives <span>*</span></label>
+                          <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <textarea formControlName="objectives" type="text" id="empNo" class="form-control custom-date-input"
+                            placeholder="Write Department Objectives"></textarea>
+                          </div>
+                          @if (deptStep1.get('objectives')?.touched && deptStep1.get('objectives')?.errors?.['required']) {
+                            <p class="error-msg"
+                              >
+                              Department Objectives is required.
+                            </p>
+                          }
+                        </div>
+                      </form>
+                      @if (errMsg) {
+                        <div class="alert alert-danger mb-0 mt-2" role="alert">
+                          {{errMsg}}
+                        </div>
+                      }
+                      <!-- next button -->
+                      <div class="btn-fixed">
+                        <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid" (click)="goNext()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                            </svg>
+                            <span>Next (1/2)</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
 
-                    <tbody formArrayName="sections">
-                        <tr *ngFor="let section of sectionsFormArray.controls; let i = index" [formGroupName]="i">
-                            <td>
-                                <input type="text" class="form-control table-input" placeholder="Code"
-                                    formControlName="secCode" />
-                                <p class="error-msg"
-                                    *ngIf="section.get('secCode')?.invalid && section.get('secCode')?.touched">
-                                    Section Code is required
-                                </p>
-                            </td>
 
-                            <td>
-                                <input type="text" class="form-control table-input" placeholder="Section Name"
-                                    formControlName="secName" />
-                                <p class="error-msg"
-                                    *ngIf="section.get('secName')?.invalid && section.get('secName')?.touched">
-                                    Section name is required
-                                </p>
-                            </td>
 
-                            <td>
-                                <div class="d-flex align-items-center justify-content-start w-100 gap-3">
-                                    <a type="button" class="d-flex align-items-center gap-1"
-                                        [ngClass]="section.get('status')?.value ? 'view-btn' : 'remove-btn'"
-                                        (click)="toggleSectionStatus(i)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                            viewBox="0 0 24 24">
-                                            <path fill="none" stroke="currentColor" stroke-linecap="round"
-                                                stroke-width="1.5"
-                                                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                  <!-- step 2 -->
+                  @if (currentStep === 2) {
+                    <div class="content-hug">
+                      <div class="content-box d-flex flex-column gap-3">
+                        <h2>Sections</h2>
+                        <form [formGroup]="deptStep2">
+                          <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                              <thead>
+                                <tr>
+                                  <th class="w-15">Section Code</th>
+                                  <th class="w-65">Section Name</th>
+                                  <th class="w-15">Actions</th>
+                                  <th class="w-5"></th>
+                                </tr>
+                              </thead>
+                              <tbody formArrayName="sections">
+                                @for (section of sectionsFormArray.controls; track section; let i = $index) {
+                                  <tr [formGroupName]="i">
+                                    <td>
+                                      <input type="text" class="form-control table-input" placeholder="Code"
+                                        formControlName="secCode" />
+                                        @if (section.get('secCode')?.invalid && section.get('secCode')?.touched) {
+                                          <p class="error-msg"
+                                            >
+                                            Section Code is required
+                                          </p>
+                                        }
+                                      </td>
+                                      <td>
+                                        <input type="text" class="form-control table-input" placeholder="Section Name"
+                                          formControlName="secName" />
+                                          @if (section.get('secName')?.invalid && section.get('secName')?.touched) {
+                                            <p class="error-msg"
+                                              >
+                                              Section name is required
+                                            </p>
+                                          }
+                                        </td>
+                                        <td>
+                                          <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                                            <a type="button" class="d-flex align-items-center gap-1"
+                                              [ngClass]="section.get('status')?.value ? 'view-btn' : 'remove-btn'"
+                                              (click)="toggleSectionStatus(i)">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                viewBox="0 0 24 24">
+                                                <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                                  stroke-width="1.5"
+                                                  d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                                                </svg>
+                                                <span>{{ section.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
+                                              </a>
+                                            </div>
+                                          </td>
+                                          <td>
+                                            @if (i >= 1) {
+                                              <button type="button" class="btn btn-remove p-0 text-lg"
+                                                (click)="removeSection(i)" aria-label="Remove section">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                                                  viewBox="0 0 24 24">
+                                                  <path fill="#4A6D97"
+                                                    d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                                                    <path fill="#4A6D97"
+                                                      d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                                                    </svg>
+                                                  </button>
+                                                }
+                                              </td>
+                                            </tr>
+                                          }
+                                          <!-- Empty row if no sections -->
+                                          @if (sectionsFormArray.length === 0) {
+                                            <tr>
+                                              <td colspan="4" class="no-data py-4 text-center">No Sections Added Yet</td>
+                                            </tr>
+                                          }
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                    <!-- Add Section Button -->
+                                    <div class="mt-3">
+                                      <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="addSection()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                          <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                                          </g>
                                         </svg>
-                                        <span>{{ section.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
-                                    </a>
+                                        <span>Add Section</span>
+                                      </a>
+                                    </div>
+                                    @if (errMsg) {
+                                      <div class="alert alert-danger mb-0 mt-3" role="alert">
+                                        {{errMsg}}
+                                      </div>
+                                    }
+                                  </form>
+                                  <!-- prev and confirm buttons -->
+                                  <div class="btn-fixed d-flex align-items-stretch gap-2">
+                                    <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                                      (click)="goPrev()">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                                        </svg>
+                                      </button>
+                                      <button class="btn btn-lg w-auto btn-success"
+                                        [disabled]="isLoading || !deptStep1.valid || !deptStep2.valid || sectionsFormArray.length < 1"
+                                        (click)="createDept()">
+                                        @if (isLoading) {
+                                          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                        }
+                                        @if (!isLoading) {
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                              <circle cx="12" cy="12" r="10" />
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                            </g>
+                                          </svg>
+                                        }
+                                        <span>Create Department</span>
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
-                            </td>
+                              }
 
-                            <td>
-                                <button *ngIf="i >= 1" type="button" class="btn btn-remove p-0 text-lg"
-                                    (click)="removeSection(i)" aria-label="Remove section">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#4A6D97"
-                                            d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-                                        <path fill="#4A6D97"
-                                            d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-                                    </svg>
+
+
+                              <!-- Discard popup  -->
+                              <app-popup [title]="'Discard Department'" [paragraph1]="'Are you sure you want to discard creating the new Department?'"
+                                [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+                                <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+                                  Discard Department
                                 </button>
-                            </td>
-                        </tr>
-
-                        <!-- Empty row if no sections -->
-                        <tr *ngIf="sectionsFormArray.length === 0">
-                            <td colspan="4" class="no-data py-4 text-center">No Sections Added Yet</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Add Section Button -->
-            <div class="mt-3">
-                <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="addSection()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                        </g>
-                    </svg>
-                    <span>Add Section</span>
-                </a>
-            </div>
-
-            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
-                {{errMsg}}
-            </div>
-        </form>
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg w-auto btn-success"
-                [disabled]="isLoading || !deptStep1.valid || !deptStep2.valid || sectionsFormArray.length < 1"
-                (click)="createDept()">
-                <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Create Department</span>
-            </button>
-        </div>
-
-    </div>
-</div>
-
-
-
-<!-- Discard popup  -->
-<app-popup [title]="'Discard Department'" [paragraph1]="'Are you sure you want to discard creating the new Department?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Department
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>
+                                <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+                                  Cancel
+                                </button>
+                              </app-popup>

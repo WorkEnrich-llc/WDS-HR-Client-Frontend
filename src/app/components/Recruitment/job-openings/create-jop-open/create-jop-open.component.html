@@ -4,26 +4,26 @@
     { label: 'Job Openings', link: '/job-openings' },
     { label: 'create New Job' }
   ]" title="Create Job - Job ID" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto">
-        <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        <span>Create Opportunity</span>
-    </button>
+  <button class="btn btn-lg btn-success w-auto">
+    <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
+    <span>Create Opportunity</span>
+  </button>
 
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Opportunity</span>
-    </button>
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Opportunity</span>
+  </button>
 </app-page-header>
 
 
@@ -34,33 +34,35 @@
         'text-success': isCompleted('main-information'),
         'bg-light-success': isCompleted('main-information')
     }">
-        <ng-container [ngSwitch]="getStepIconType('main-information')">
-
-            <!-- active -->
-            <svg *ngSwitchCase="'active'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-                <path
-                    d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+    @switch (getStepIconType('main-information')) {
+      <!-- active -->
+      @case ('active') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+          <path
+            d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+          </svg>
+        }
+        <!-- complete -->
+        @case ('completed') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+            viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+              d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
             </svg>
-
-            <!-- complete -->
-            <svg *ngSwitchCase="'completed'" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-                <path
-                    d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+          }
+          <!-- upcoming -->
+          @default {
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+              fill="#DDE3EB">
+              <circle cx="12" cy="12" r="10" opacity=".2" />
             </svg>
-
-            <!-- upcoming -->
-            <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                fill="#DDE3EB">
-                <circle cx="12" cy="12" r="10" opacity=".2" />
-            </svg>
-
-        </ng-container>
+          }
+        }
 
         <span class="nav-link">Main Information</span>
-    </li>
+      </li>
 
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     isActive('main-information') ? '#DDE3EB' :
@@ -68,59 +70,60 @@
     isCompleted('required-details') ? '#4CA883' :
     '#DDE3EB'">
         <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
+          d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+        </svg>
 
     <li class="nav-item" [ngClass]="{
         'active': isActive('required-details'),
         'text-success': isCompleted('required-details'),
         'bg-light-success': isCompleted('required-details')
     }">
-        <ng-container [ngSwitch]="getStepIconType('required-details')">
-
+          @switch (getStepIconType('required-details')) {
             <!-- active -->
-            <svg *ngSwitchCase="'active'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            @case ('active') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                 <path fill-rule="evenodd"
-                    d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9"
-                    clip-rule="evenodd" />
-                <path
+                  d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9"
+                  clip-rule="evenodd" />
+                  <path
                     d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z"
                     opacity=".5" />
-            </svg>
+                  </svg>
+                }
+                <!-- complete -->
+                @case ('completed') {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                    viewBox="0 0 24 24">
+                    <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+                    <path
+                      d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+                    </svg>
+                  }
+                  <!-- upcoming -->
+                  @default {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                      fill="#DDE3EB">
+                      <path fill-rule="evenodd"
+                        d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9"
+                        clip-rule="evenodd" />
+                        <path
+                          d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z"
+                          opacity=".5" />
+                        </svg>
+                      }
+                    }
 
-            <!-- complete -->
-            <svg *ngSwitchCase="'completed'" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                viewBox="0 0 24 24">
-                <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-                <path
-                    d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-            </svg>
-
-            <!-- upcoming -->
-            <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                fill="#DDE3EB">
-                <path fill-rule="evenodd"
-                    d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9"
-                    clip-rule="evenodd" />
-                <path
-                    d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z"
-                    opacity=".5" />
-
-            </svg>
-
-        </ng-container>
-
-        <span class="nav-link">Required Details</span>
-    </li>
+                    <span class="nav-link">Required Details</span>
+                  </li>
 
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     isActive('required-details') ? '#DDE3EB' :
     isActive('attachments') ? '#377AFD' :
     isCompleted('attachments') ? '#4CA883' :
     '#DDE3EB'">
-        <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
+                    <path
+                      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+                    </svg>
 
 
     <li class="nav-item" [ngClass]="{
@@ -129,56 +132,56 @@
         'bg-light-success': isCompleted('attachments')
     }">
 
-        <ng-container [ngSwitch]="getStepIconType('attachments')">
+                      @switch (getStepIconType('attachments')) {
+                        <!-- active -->
+                        @case ('active') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <path
+                              d="M19.739 4.261a6.867 6.867 0 0 0-9.711 0l-.72.721a.75.75 0 0 0 1.06 1.06l.72-.72a5.367 5.367 0 1 1 7.59 7.59l-.72.72a.75.75 0 0 0 1.06 1.06l.72-.72a6.867 6.867 0 0 0 0-9.71M6.043 9.307a.75.75 0 0 1 0 1.06l-.721.722a5.367 5.367 0 1 0 7.59 7.59l.72-.722a.75.75 0 0 1 1.06 1.06l-.72.722a6.867 6.867 0 0 1-9.71-9.711l.72-.72a.75.75 0 0 1 1.06 0" />
+                              <path
+                                d="M14.693 9.307a.75.75 0 0 1 0 1.06l-4.325 4.326a.75.75 0 1 1-1.06-1.06l4.324-4.326a.75.75 0 0 1 1.06 0" />
+                              </svg>
+                            }
+                            <!-- complete -->
+                            @case ('completed') {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+                                <path
+                                  d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+                                </svg>
+                              }
+                              <!-- upcoming -->
+                              @default {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                  fill="#DDE3EB">
+                                  <g fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1.5">
+                                    <path d="m14.163 18.488l-.721.72a6.117 6.117 0 0 1-8.65-8.65l.72-.72" opacity=".5" />
+                                    <path d="m9.837 14.163l4.326-4.326" />
+                                    <path d="m9.837 5.512l.721-.72a6.117 6.117 0 1 1 8.65 8.65l-.72.72" opacity=".5" />
+                                  </g>
+                                </svg>
+                              }
+                            }
 
-            <!-- active -->
-            <svg *ngSwitchCase="'active'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path 
-                    d="M19.739 4.261a6.867 6.867 0 0 0-9.711 0l-.72.721a.75.75 0 0 0 1.06 1.06l.72-.72a5.367 5.367 0 1 1 7.59 7.59l-.72.72a.75.75 0 0 0 1.06 1.06l.72-.72a6.867 6.867 0 0 0 0-9.71M6.043 9.307a.75.75 0 0 1 0 1.06l-.721.722a5.367 5.367 0 1 0 7.59 7.59l.72-.722a.75.75 0 0 1 1.06 1.06l-.72.722a6.867 6.867 0 0 1-9.71-9.711l.72-.72a.75.75 0 0 1 1.06 0" />
-                <path 
-                    d="M14.693 9.307a.75.75 0 0 1 0 1.06l-4.325 4.326a.75.75 0 1 1-1.06-1.06l4.324-4.326a.75.75 0 0 1 1.06 0" />
-
-            </svg>
-
-            <!-- complete -->
-            <svg *ngSwitchCase="'completed'" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-                <path
-                    d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47 2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-            </svg>
-
-            <!-- upcoming -->
-            <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                fill="#DDE3EB">
-                <g fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1.5">
-                    <path d="m14.163 18.488l-.721.72a6.117 6.117 0 0 1-8.65-8.65l.72-.72" opacity=".5" />
-                    <path d="m9.837 14.163l4.326-4.326" />
-                    <path d="m9.837 5.512l.721-.72a6.117 6.117 0 1 1 8.65 8.65l-.72.72" opacity=".5" />
-                </g>
-
-            </svg>
-
-        </ng-container>
-
-        <span class="nav-link">Attachments</span>
-    </li>
-</ul>
-
-
-
-<!-- content -->
-<router-outlet></router-outlet>
+                            <span class="nav-link">Attachments</span>
+                          </li>
+                        </ul>
 
 
 
-<!-- Discard popup  -->
-<app-popup [title]="'Discard New Job'" [paragraph1]="'Are you sure you want to discard creating the new Job?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Job
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>
+                        <!-- content -->
+                        <router-outlet></router-outlet>
+
+
+
+                        <!-- Discard popup  -->
+                        <app-popup [title]="'Discard New Job'" [paragraph1]="'Are you sure you want to discard creating the new Job?'"
+                          [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+                          <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+                            Discard Job
+                          </button>
+                          <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+                            Cancel
+                          </button>
+                        </app-popup>

@@ -4,221 +4,232 @@
     { label: 'Archived Openings', link: '/archived-openings' },
     {  label: 'Applicants'}
   ]" title="Opening 231123 - Applicants" create="16/07/2025" update="16/07/2025">
-    <button class="btn btn-lg btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                    d="M6 11c0-2.828 0-4.243.879-5.121C7.757 5 9.172 5 12 5h3c2.828 0 4.243 0 5.121.879C21 6.757 21 8.172 21 11v5c0 2.828 0 4.243-.879 5.121C19.243 22 17.828 22 15 22h-3c-2.828 0-4.243 0-5.121-.879C6 20.243 6 18.828 6 16z" />
-                <path d="M6 19a3 3 0 0 1-3-3v-6c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h4a3 3 0 0 1 3 3" />
-            </g>
-        </svg>
-        <span>Duplicate</span>
+  <button class="btn btn-lg btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <path
+          d="M6 11c0-2.828 0-4.243.879-5.121C7.757 5 9.172 5 12 5h3c2.828 0 4.243 0 5.121.879C21 6.757 21 8.172 21 11v5c0 2.828 0 4.243-.879 5.121C19.243 22 17.828 22 15 22h-3c-2.828 0-4.243 0-5.121-.879C6 20.243 6 18.828 6 16z" />
+          <path d="M6 19a3 3 0 0 1-3-3v-6c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h4a3 3 0 0 1 3 3" />
+        </g>
+      </svg>
+      <span>Duplicate</span>
     </button>
 
     <button class="btn btn-lg btn-outline-success">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                    d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12" />
-                <path
-                    d="M2 14c0-2.8 0-4.2.545-5.27A5 5 0 0 1 4.73 6.545C5.8 6 7.2 6 10 6h4c2.8 0 4.2 0 5.27.545a5 5 0 0 1 2.185 2.185C22 9.8 22 11.2 22 14s0 4.2-.545 5.27a5 5 0 0 1-2.185 2.185C18.2 22 16.8 22 14 22h-4c-2.8 0-4.2 0-5.27-.545a5 5 0 0 1-2.185-2.185C2 18.2 2 16.8 2 14Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 17v-6m0 0l2.5 2.5M12 11l-2.5 2.5" />
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <path
+            d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12" />
+            <path
+              d="M2 14c0-2.8 0-4.2.545-5.27A5 5 0 0 1 4.73 6.545C5.8 6 7.2 6 10 6h4c2.8 0 4.2 0 5.27.545a5 5 0 0 1 2.185 2.185C22 9.8 22 11.2 22 14s0 4.2-.545 5.27a5 5 0 0 1-2.185 2.185C18.2 22 16.8 22 14 22h-4c-2.8 0-4.2 0-5.27-.545a5 5 0 0 1-2.185-2.185C2 18.2 2 16.8 2 14Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 17v-6m0 0l2.5 2.5M12 11l-2.5 2.5" />
             </g>
-        </svg>
-        <span>Unarchive</span>
-    </button>
+          </svg>
+          <span>Unarchive</span>
+        </button>
 
-</app-page-header>
-<!-- page content -->
-<div class="content-hug d-flex flex-column gap-4">
+      </app-page-header>
+      <!-- page content -->
+      <div class="content-hug d-flex flex-column gap-4">
 
-    <!-- 2 cards -->
-    <div class="row">
-        <div class="col-lg-8">
+        <!-- 2 cards -->
+        <div class="row">
+          <div class="col-lg-8">
             <div class="content-box d-flex flex-column gap-3 w-100">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h2>Main Information</h2>
-                    <button (click)="toggleText()"
-                        class="edit-btn d-flex align-items-center justify-content-center gap-1">
-                        <svg *ngIf="isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                            viewBox="0 0 24 24">
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
-                                clip-rule="evenodd" />
+              <div class="d-flex align-items-center justify-content-between">
+                <h2>Main Information</h2>
+                <button (click)="toggleText()"
+                  class="edit-btn d-flex align-items-center justify-content-center gap-1">
+                  @if (isExpanded) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                      viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                        clip-rule="evenodd" />
+                      </svg>
+                    }
+                    @if (!isExpanded) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                        viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="1.5" d="m19 15l-7-6l-7 6" />
                         </svg>
-                        <svg *ngIf="!isExpanded" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                            viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="1.5" d="m19 15l-7-6l-7 6" />
-                        </svg>
-                        <span>{{ isExpanded ? 'Show' : 'Hide' }}</span>
+                      }
+                      <span>{{ isExpanded ? 'Show' : 'Hide' }}</span>
                     </button>
-                </div>
-                <div *ngIf="!isExpanded" class="d-flex flex-column gap-3">
-                    <div class="info">
+                  </div>
+                  @if (!isExpanded) {
+                    <div class="d-flex flex-column gap-3">
+                      <div class="info">
                         <h6>Opening ID</h6>
                         <span>0101</span>
-                    </div>
-                    <div class="info">
+                      </div>
+                      <div class="info">
                         <h6>Opening Name</h6>
                         <span>UI/UX designer - Cairo Branch</span>
-                    </div>
-                    <div class="info">
+                      </div>
+                      <div class="info">
                         <h6>Branch</h6>
                         <span>Cairo</span>
-                    </div>
-                    <div class="info">
+                      </div>
+                      <div class="info">
                         <h6>CV Limit</h6>
                         <span>200</span>
-                    </div>
-                    <div class="info">
+                      </div>
+                      <div class="info">
                         <h6>Time Limit</h6>
                         <span>7 Days</span>
+                      </div>
                     </div>
+                  }
 
                 </div>
-
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="content-box d-flex flex-column gap-3 w-100">
-                <div class="d-flex align-items-center justify-content-between">
+              </div>
+              <div class="col-lg-4">
+                <div class="content-box d-flex flex-column gap-3 w-100">
+                  <div class="d-flex align-items-center justify-content-between">
                     <h2>Job details</h2>
                     <a class="view-btn h-100 d-flex align-items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                                <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
-                                <path
-                                    d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
-                            </g>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                          <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                          <path
+                            d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                          </g>
                         </svg>
                         <span>View</span>
-                    </a>
+                      </a>
+                    </div>
+                    @if (!isExpanded) {
+                      <div class="d-flex flex-column gap-3">
+                        <div class="info">
+                          <h6>Job ID</h6>
+                          <span>0020</span>
+                        </div>
+                        <div class="info">
+                          <h6>Job title</h6>
+                          <span>UI/UX designer</span>
+                        </div>
+                        <div class="info">
+                          <h6>Department</h6>
+                          <span>UI/UX</span>
+                        </div>
+                        <div class="info">
+                          <h6>Job type</h6>
+                          <span>Full time</span>
+                        </div>
+                        <div class="info">
+                          <h6>Average Salary</h6>
+                          <span>14.000-18.000</span>
+                        </div>
+                      </div>
+                    }
+
+                  </div>
                 </div>
-                <div *ngIf="!isExpanded" class="d-flex flex-column gap-3">
-                    <div class="info">
-                        <h6>Job ID</h6>
-                        <span>0020</span>
-                    </div>
-                    <div class="info">
-                        <h6>Job title</h6>
-                        <span>UI/UX designer</span>
-                    </div>
-                    <div class="info">
-                        <h6>Department</h6>
-                        <span>UI/UX</span>
-                    </div>
-                    <div class="info">
-                        <h6>Job type</h6>
-                        <span>Full time</span>
-                    </div>
-                    <div class="info">
-                        <h6>Average Salary</h6>
-                        <span>14.000-18.000</span>
-                    </div>
-                </div>
 
-            </div>
-        </div>
+              </div>
 
-    </div>
-
-    <div class="content-box">
-        <h2 class="mb-3">Applicants</h2>
-        <!-- start search and filter -->
-        <div
-            class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2 mb-3">
-            <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
-                <!-- Search input -->
-                <div data-mdb-input-init class="form-outline w-75">
-                    <input type="text" class="form-control" placeholder="Search" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <div class="content-box">
+                <h2 class="mb-3">Applicants</h2>
+                <!-- start search and filter -->
+                <div
+                  class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2 mb-3">
+                  <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+                    <!-- Search input -->
+                    <div data-mdb-input-init class="form-outline w-75">
+                      <input type="text" class="form-control" placeholder="Search" />
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
-                            <circle cx="11.5" cy="11.5" r="9.5" />
-                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                          <circle cx="11.5" cy="11.5" r="9.5" />
+                          <path stroke-linecap="round" d="M18.5 18.5L22 22" />
                         </g>
-                    </svg>
-                </div>
-
-
-            </div>
-            <div class="input w-25">
-                <div class="d-flex align-items-center gap-4">
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="" id="status" class="form-select">
-                            <option value="" selected disabled hidden>All Applicants</option>
-                            <option value="all">Any</option>
-                            <option value="true">Active</option>
-                            <option value="false">Not Active</option>
-                        </select>
+                      </svg>
                     </div>
+
+
+                  </div>
+                  <div class="input w-25">
+                    <div class="d-flex align-items-center gap-4">
+                      <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="" id="status" class="form-select">
+                          <option value="" selected disabled hidden>All Applicants</option>
+                          <option value="all">Any</option>
+                          <option value="true">Active</option>
+                          <option value="false">Not Active</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+
                 </div>
-            </div>
 
+                <app-table [data]="applicant" [itemsPerPage]="applicant.length" [columnsCount]="5"
+                [headerTemplate]="applicantTableHeader" [rowTemplate]="applicantTableRow"></app-table>
 
-        </div>
-
-        <app-table [data]="applicant" [itemsPerPage]="applicant.length" [columnsCount]="5"
-            [headerTemplate]="applicantTableHeader" [rowTemplate]="applicantTableRow"></app-table>
-
-        <ng-template #applicantTableHeader>
-            <th (click)="sortBy('name')" style="cursor: pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <span>Name</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
-                        viewBox="0 0 24 24">
-                        <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                <ng-template #applicantTableHeader>
+                  <th (click)="sortBy('name')" style="cursor: pointer;">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span>Name</span>
+                      @if (sortDirection === 'desc') {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24">
+                          <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
                             <path d="M4 8h9m-7 5h7m-5 5h5" />
                             <path stroke-linejoin="round" d="M17 20V4l3 4" />
-                        </g>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
-                        viewBox="0 0 24 24">
-                        <path fill="#DDE3EB" fill-rule="evenodd"
+                          </g>
+                        </svg>
+                      }
+                      @if (sortDirection === 'asc') {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24">
+                          <path fill="#DDE3EB" fill-rule="evenodd"
                             d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
                             clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </th>
+                          </svg>
+                        }
+                      </div>
+                    </th>
 
-            <th>Phone number</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Action</th>
+                    <th>Phone number</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Action</th>
 
-        </ng-template>
+                  </ng-template>
 
-        <ng-template #applicantTableRow let-application let-i="index">
-            <td>
-                <span class="d-block text-gray-sm">{{ application.id.toString().padStart(4, '0') }}</span>
-                <span class="d-block text-truncate" style="max-width: 200px;">
-                    {{ application.name }}
-                </span>
-            </td>
-            <td>{{application.phoneNumber}}</td>
-            <td>{{application.email}}</td>
-            <td>
-                <span class="d-block text-gray-sm">{{ application.status }}</span>
-                <span class="d-block text-truncate" style="max-width: 200px;">
-                    {{ application.statusAt }}
-                </span>
-            </td>
-            <td>
-                <a class="edit-btn h-100 d-flex align-items-center gap-1 w-auto me-2"
-                    [routerLink]="['/job-openings/view-applicant-details', application.id]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <ng-template #applicantTableRow let-application let-i="index">
+                    <td>
+                      <span class="d-block text-gray-sm">{{ application.id.toString().padStart(4, '0') }}</span>
+                      <span class="d-block text-truncate" style="max-width: 200px;">
+                        {{ application.name }}
+                      </span>
+                    </td>
+                    <td>{{application.phoneNumber}}</td>
+                    <td>{{application.email}}</td>
+                    <td>
+                      <span class="d-block text-gray-sm">{{ application.status }}</span>
+                      <span class="d-block text-truncate" style="max-width: 200px;">
+                        {{ application.statusAt }}
+                      </span>
+                    </td>
+                    <td>
+                      <a class="edit-btn h-100 d-flex align-items-center gap-1 w-auto me-2"
+                        [routerLink]="['/job-openings/view-applicant-details', application.id]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                          <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <path
-                                d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
-                            <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
-                        </g>
-                    </svg>
-                    <span>View</span>
-                </a>
-            </td>
-        </ng-template>
-    </div>
+                              d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                              <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+                            </g>
+                          </svg>
+                          <span>View</span>
+                        </a>
+                      </td>
+                    </ng-template>
+                  </div>
 
 
 
-</div>
+                </div>

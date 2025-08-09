@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,7 +12,7 @@ import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 
 @Component({
   selector: 'app-create-workflow',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './create-workflow.component.html',
   styleUrl: './create-workflow.component.css'
