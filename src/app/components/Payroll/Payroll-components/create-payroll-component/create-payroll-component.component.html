@@ -4,7 +4,7 @@
     { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
     { label: 'Create New Component'},
   ]" title="Create New Component" create="13/06/2025">
-    <button class="btn btn-lg btn-success w-auto">
+    <button class="btn btn-lg btn-success w-auto" (click)="createComponent()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
@@ -29,64 +29,76 @@
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="createPayrollForm" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="compCode">Component Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="compCode" class="form-control custom-date-input"
-                        placeholder="0050" />
+                    <input type="number" id="compCode" class="form-control custom-date-input" placeholder="0050"
+                        formControlName="componentCode" />
                 </div>
-
             </div>
+
             <div class="input">
                 <label for="compName">Component Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" id="compName" class="form-control custom-date-input"
-                        placeholder="Enter Component Name" />
+                        placeholder="Enter Component Name" formControlName="name" />
                 </div>
-                <!-- <p class="error-msg"
-                    *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']">
+                @if (createPayrollForm.get('name')?.touched && createPayrollForm.get('name')?.errors?.['required']) {
+                <p class="error-msg">
                     Component Name is required.
-                </p> -->
+                </p>
+                }
             </div>
+
             <div class="input">
                 <label for="type">Type <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="type" id="type" class="form-select">
-                            <option value="" disabled hidden>Select Level</option>
-                            <option value="Variable">Variable</option>
-                            <option value="Fixed">Fixed</option>
+                        <select name="type" id="type" class="form-select" formControlName="type">
+                            <option value="" disabled hidden>Select Type</option>
+                            @for (c of componentTypes ; track c.id) {
+                            <option [value]="c.id">{{ c.name }}</option>
+                            }
                         </select>
                     </div>
                 </div>
-                <!-- <p class="error-msg"
-                    *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
-                    Management Level is required.
-                </p> -->
+                @if (createPayrollForm.get('type')?.touched && createPayrollForm.get('type')?.errors?.['required']) {
+                <p class="error-msg">
+                    Component Type is required.
+                </p>
+                }
             </div>
+
             <div class="input">
                 <label for="Classification">Classification <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="Classification" id="Classification" class="form-select">
-                            <option value="" disabled hidden>Select Level</option>
-                            <option value="Earning">Earning</option>
-                            <option value="Deduction">Deduction</option>
+                        <select name="Classification" id="Classification" class="form-select"
+                            formControlName="classification">
+                            <option value="" disabled hidden>Select Classification</option>
+                            @for (c of classifications ; track c.id) {
+                            <option [value]="c.id">{{ c.name }}</option>
+                            }
                         </select>
+
                     </div>
                 </div>
-                <!-- <p class="error-msg"
-                    *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
-                    Management Level is required.
-                </p> -->
+                @if (createPayrollForm.get('classification')?.touched &&
+                createPayrollForm.get('classification')?.errors?.['required']) {
+                <p class="error-msg">
+                    classification is required.
+                </p>
+                }
             </div>
+
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                <input class="form-check-input m-0" type="checkbox" id="shown">
+                <input class="form-check-input m-0" type="checkbox" id="shown" formControlName="shownInPayslip">
                 <label class="form-check-label m-0" for="shown">
                     Shown in Employee Payslip
                 </label>
             </div>
+
         </form>
     </div>
 </div>
