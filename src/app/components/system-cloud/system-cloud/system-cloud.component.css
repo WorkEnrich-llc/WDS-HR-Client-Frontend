@@ -180,10 +180,10 @@
     border: 1px solid var(--color-primary-500);
 }
 
-.template{
+.template,.file{
     position: relative;
 }
-.template button {
+.template button ,.file .btns{
     position: absolute;
     bottom: var(--spacing-8);
     left: 50%;
@@ -199,11 +199,11 @@
     min-width: auto; 
 }
 
-.template:hover h6 {
+.template:hover h6 ,.file:hover h6 {
     opacity: 0;
 }
 
-.template:hover button {
+.template:hover button ,.file:hover .btns {
     opacity: 1;
     transform: translate(-50%, 0);
     pointer-events: auto;
@@ -410,4 +410,10 @@ table tbody tr td {
 }
 .cursor-pointer{
     cursor: pointer !important;
+}
+
+
+.folder-hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
 }

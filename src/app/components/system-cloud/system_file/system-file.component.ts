@@ -4,7 +4,7 @@ import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sheet/smart-grid-sheet.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 export interface HeaderItem {
@@ -17,7 +17,7 @@ export interface HeaderItem {
 
 @Component({
   selector: 'app-system-file',
-  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule],
+  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule,RouterLink],
   templateUrl: './system-file.component.html',
   styleUrl: './system-file.component.css',
   encapsulation: ViewEncapsulation.None

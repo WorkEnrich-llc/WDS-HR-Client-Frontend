@@ -56,6 +56,7 @@ export class SystemCloudService {
     // rename file
     renameFile(id: string, folderData: any): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/files/${id}/`;
+        //   console.log('🌐 PATCH request from service:', { url, folderData });
         return this._HttpClient.patch(url, folderData);
     }
 
@@ -68,9 +69,9 @@ export class SystemCloudService {
 
 
     // save system file
-     updateSheet(id: string,fileData: any): Observable<any> {
+    updateSheet(id: string, fileData: any): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
-        return this._HttpClient.put(url,fileData);
-    }    
+        return this._HttpClient.put(url, fileData);
+    }
 
 }
