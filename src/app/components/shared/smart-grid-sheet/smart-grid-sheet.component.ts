@@ -178,9 +178,23 @@ export class SmartGridSheetComponent {
 
   startSelection(rowIndex: number, colName: string, event: MouseEvent) {
     const target = event.target as HTMLElement;
+
     if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.isContentEditable) {
+      this.isSelecting = false;
+      this.startRow = rowIndex;
+      this.startCol = this.columns.findIndex(c => c.name === colName);
+
+      // قم بتركيز العنصر فقط عند single click (ليس double click)
+      if (!this.isDoubleClick) {
+        // تأكد من أن العنصر موجود ونداء الـ focus عليه
+        (target as HTMLInputElement | HTMLSelectElement).focus();
+
+        // إزالة التحديد السابق عند التركيز single click
+        this.selectedCells = [];
+      }
       return;
     }
+
     if (event.buttons === 1) {
       this.isSelecting = true;
       this.hasMoved = false;
@@ -189,13 +203,16 @@ export class SmartGridSheetComponent {
     }
   }
 
-
   continueSelection(rowIndex: number, colName: string, event: MouseEvent) {
+    if (!this.isSelecting && this.startRow !== null && this.startCol !== null) {
+      this.isSelecting = true;
+    }
     if (this.isSelecting && event.buttons === 1) {
       this.hasMoved = true;
       this.updateSelection(rowIndex, colName);
     }
   }
+
 
   stopSelection() {
     if ((this.hasMoved || this.isDoubleClick) && this.startRow !== null && this.startCol !== null) {
@@ -258,9 +275,52 @@ export class SmartGridSheetComponent {
     event.preventDefault();
     this.selectedCells.forEach(cell => {
       const control = this.rows()[cell.row].get(cell.col);
-      control?.setValue('');
+      if (control) {
+        control.setValue('');
+      }
     });
     this.selectedCells = [];
+  }
+  // =================== move with attows ===================
+  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+    const key = event.key;
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) {
+      event.preventDefault();
+
+      let newRow = rowIndex;
+      let newCol = colIndex;
+
+      switch (key) {
+        case 'ArrowUp':
+          newRow = Math.max(0, rowIndex - 1);
+          break;
+        case 'ArrowDown':
+        case 'Enter':
+          newRow = Math.min(this.rows().length - 1, rowIndex + 1);
+          break;
+        case 'ArrowLeft':
+          newCol = Math.max(0, colIndex - 1);
+          break;
+        case 'ArrowRight':
+          newCol = Math.min(this.columns.length - 1, colIndex + 1);
+          break;
+      }
+
+      this.focusCell(newRow, newCol);
+    }
+  }
+
+  focusCell(row: number, col: number) {
+    const selector = `td[data-row="${row}"][data-col="${col}"]`;
+    const tdElement = document.querySelector(selector);
+
+    if (!tdElement) return;
+
+    const inputOrSelect = tdElement.querySelector('input, select') as HTMLElement;
+    if (inputOrSelect) {
+      inputOrSelect.focus();
+    }
   }
 
   // =================== Error Popup ===================

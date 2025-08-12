@@ -15,9 +15,11 @@
       <tr class="table-row">
         <td class="text-end">{{ rowIndex + 1 }}</td>
         @for (col of columns; track col; let colIndex = $index) {
-        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"  [class.selected-cell]="isSelected(rowIndex, col.name)"
-        (mousedown)="startSelection(rowIndex, col.name, $event)"
-        (mouseover)="continueSelection(rowIndex, col.name, $event)" (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
+        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
+          [class.selected-cell]="isSelected(rowIndex, col.name)"
+          (mousedown)="startSelection(rowIndex, col.name, $event)"
+          (mousemove)="continueSelection(rowIndex, col.name, $event)"
+          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
           <div class="position-relative w-100 p-0">
             @if (col.type === 'select') {
             <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
@@ -25,7 +27,8 @@
             'invalid': isCellInvalid(form, col),
             'placeholder-selected': getFormControl(form, col).value === '' || getFormControl(form, col).value === null
           }" (focus)="handleFocus(rowIndex, col.name)"
-              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()">
+              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+              (keydown)="handleKeyDown($event, rowIndex, colIndex)">
 
               <option value="" disabled hidden selected>Select</option>
 
@@ -46,7 +49,8 @@
               (input)="inputChanged.emit()" class="form-control no-radius no-padding-input ps-4"
               [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }" (paste)="paste($event, rowIndex, col.name)"
               (focus)="handleFocus(rowIndex, col.name)"
-              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()" />
+              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+              (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
             }
             @if (isCellInvalid(form, col)) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="position-absolute" [ngStyle]="{'inset-inline-end': col.type === 'select' ? '30px' : '8px',
