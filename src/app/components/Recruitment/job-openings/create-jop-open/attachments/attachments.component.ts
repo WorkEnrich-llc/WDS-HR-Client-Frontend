@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-attachments',
-  imports: [RouterLink,FormsModule,CommonModule],
+  imports: [RouterLink, FormsModule],
   templateUrl: './attachments.component.html',
   styleUrls: ['./../../../../shared/table/table.component.css','./attachments.component.css']
 })

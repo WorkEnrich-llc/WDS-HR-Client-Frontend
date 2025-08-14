@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
@@ -15,7 +15,7 @@ export interface LocationData {
 @Component({
   selector: 'app-google-maps-location',
   standalone: true,
-  imports: [CommonModule, FormsModule, GoogleMapsModule],
+  imports: [FormsModule, GoogleMapsModule],
   templateUrl: './google-maps-location.component.html',
   styleUrl: './google-maps-location.component.css',
   encapsulation: ViewEncapsulation.None,

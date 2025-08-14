@@ -10,10 +10,12 @@ import { CommonModule } from '@angular/common';
     <div class="version-display" [ngClass]="{'production': versionService.isProduction(), 'staging': versionService.isStaging(), 'development': versionService.isDevelopment()}">
       <small>
         <span class="version-text">{{versionService.getVersionString()}}</span>
-        <span class="branch-text" *ngIf="!versionService.isProduction()">{{versionService.getBranch()}}</span>
+        @if (!versionService.isProduction()) {
+          <span class="branch-text">{{versionService.getBranch()}}</span>
+        }
       </small>
     </div>
-  `,
+    `,
   styles: [`
     .version-display {
       position: fixed;

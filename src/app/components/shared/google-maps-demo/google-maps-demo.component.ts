@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-google-maps-demo',
   standalone: true,
-  imports: [CommonModule, GoogleMapsModule],
+  imports: [GoogleMapsModule],
   templateUrl: './google-maps-demo.component.html',
   styleUrls: ['./google-maps-demo.component.css']
 })

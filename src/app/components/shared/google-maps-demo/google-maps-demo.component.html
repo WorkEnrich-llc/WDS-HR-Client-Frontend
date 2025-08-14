@@ -21,58 +21,58 @@
           </button>
         </div>
       </div>
-      
+
       <div class="col-md-6">
         <div class="control-group">
           <h5>Search Location</h5>
           <div class="input-group">
-            <input 
-              type="text" 
-              class="form-control" 
+            <input
+              type="text"
+              class="form-control"
               placeholder="Enter address or place name"
               #searchInput
               (keyup.enter)="searchPlace(searchInput.value)">
-            <button class="btn btn-outline-secondary" (click)="searchPlace(searchInput.value)">
-              <i class="fas fa-search"></i> Search
-            </button>
+              <button class="btn btn-outline-secondary" (click)="searchPlace(searchInput.value)">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Map Container -->
-  <div class="map-container">
-    <google-map
-      height="500px"
-      width="100%"
-      [center]="center"
-      [zoom]="zoom"
-      [options]="mapOptions"
-      (mapClick)="onMapClick($event)">
-      
-      <!-- Markers -->
-      <map-marker
-        *ngFor="let marker of markers; let i = index"
-        [position]="marker"
-        [options]="markerOptions"
-        (mapClick)="onMarkerClick(marker, i)">
-        
-        <!-- Info Window -->
-        <map-info-window [options]="infoWindowOptions">
-          <div class="info-window-content">
-            <h6>Location {{ i + 1 }}</h6>
-            <p>{{ infoWindowContent }}</p>
-            <p><strong>Coordinates:</strong><br>
-               Lat: {{ marker.lat.toFixed(6) }}<br>
-               Lng: {{ marker.lng.toFixed(6) }}
-            </p>
-            <button class="btn btn-sm btn-danger" (click)="removeMarker(i)">
-              <i class="fas fa-trash"></i> Remove Marker
-            </button>
-          </div>
-        </map-info-window>
-      </map-marker>
+    <!-- Map Container -->
+    <div class="map-container">
+      <google-map
+        height="500px"
+        width="100%"
+        [center]="center"
+        [zoom]="zoom"
+        [options]="mapOptions"
+        (mapClick)="onMapClick($event)">
+
+        <!-- Markers -->
+        @for (marker of markers; track marker; let i = $index) {
+          <map-marker
+            [position]="marker"
+            [options]="markerOptions"
+            (mapClick)="onMarkerClick(marker, i)">
+            <!-- Info Window -->
+            <map-info-window [options]="infoWindowOptions">
+              <div class="info-window-content">
+                <h6>Location {{ i + 1 }}</h6>
+                <p>{{ infoWindowContent }}</p>
+                <p><strong>Coordinates:</strong><br>
+                Lat: {{ marker.lat.toFixed(6) }}<br>
+                Lng: {{ marker.lng.toFixed(6) }}
+              </p>
+              <button class="btn btn-sm btn-danger" (click)="removeMarker(i)">
+                <i class="fas fa-trash"></i> Remove Marker
+              </button>
+            </div>
+          </map-info-window>
+        </map-marker>
+      }
     </google-map>
   </div>
 
@@ -89,20 +89,22 @@
           </p>
         </div>
       </div>
-      
+
       <div class="col-md-6">
         <div class="info-card">
           <h5><i class="fas fa-map-pin"></i> Markers ({{ markers.length }})</h5>
           <div class="markers-list">
-            <div *ngFor="let marker of markers; let i = index" class="marker-item">
-              <span class="marker-number">{{ i + 1 }}</span>
-              <span class="marker-coords">
-                {{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}
-              </span>
-              <button class="btn btn-sm btn-outline-danger" (click)="removeMarker(i)">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
+            @for (marker of markers; track marker; let i = $index) {
+              <div class="marker-item">
+                <span class="marker-number">{{ i + 1 }}</span>
+                <span class="marker-coords">
+                  {{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}
+                </span>
+                <button class="btn btn-sm btn-outline-danger" (click)="removeMarker(i)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            }
           </div>
         </div>
       </div>

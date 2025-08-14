@@ -3,76 +3,78 @@
   <table class="min-w-100">
     <thead>
       @if (columns) {
-      <tr>
-        <th></th>
-        <th *ngFor="let col of columns">{{ col.label }}</th>
-      </tr>
+        <tr>
+          <th></th>
+          @for (col of columns; track col) {
+            <th>{{ col.label }}</th>
+          }
+        </tr>
       }
 
     </thead>
     <tbody>
       @for (form of rows(); track form; let rowIndex = $index) {
-      <tr class="table-row">
-        <td class="text-end">{{ rowIndex + 1 }}</td>
-        @for (col of columns; track col; let colIndex = $index) {
-        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
-          [class.selected-cell]="isSelected(rowIndex, col.name)"
-          (mousedown)="startSelection(rowIndex, col.name, $event)"
-          (mousemove)="continueSelection(rowIndex, col.name, $event)"
-          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
-          <div class="position-relative w-100 p-0">
-            @if (col.type === 'select') {
-            <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
+        <tr class="table-row">
+          <td class="text-end">{{ rowIndex + 1 }}</td>
+          @for (col of columns; track col; let colIndex = $index) {
+            <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
+              [class.selected-cell]="isSelected(rowIndex, col.name)"
+              (mousedown)="startSelection(rowIndex, col.name, $event)"
+              (mousemove)="continueSelection(rowIndex, col.name, $event)"
+              (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
+              <div class="position-relative w-100 p-0">
+                @if (col.type === 'select') {
+                  <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
               class="form-select no-radius no-padding-input" [ngClass]="{
             'invalid': isCellInvalid(form, col),
             'placeholder-selected': getFormControl(form, col).value === '' || getFormControl(form, col).value === null
           }" (focus)="handleFocus(rowIndex, col.name)"
-              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
-              (keydown)="handleKeyDown($event, rowIndex, colIndex)">
+                    (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+                    (keydown)="handleKeyDown($event, rowIndex, colIndex)">
 
-              <option value="" disabled hidden selected>Select</option>
+                    <option value="" disabled hidden selected>Select</option>
 
-              @if (!rowOptions[rowIndex][col.name].length) {
-              <option value="" disabled>No options</option>
+                    @if (!rowOptions[rowIndex][col.name].length) {
+                      <option value="" disabled>No options</option>
+                    }
+                    @else {
+                    @for (opt of rowOptions[rowIndex][col.name]; track opt) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  }
+                </select>
               }
+
+
               @else {
-              @for (opt of rowOptions[rowIndex][col.name]; track opt) {
-              <option [value]="opt.value">{{ opt.label }}</option>
+              <input [type]="col.type === 'date' ? 'date' : 'text'" [formControl]="getFormControl(form, col)"
+                (input)="inputChanged.emit()" class="form-control no-radius no-padding-input ps-4"
+                [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }" (paste)="paste($event, rowIndex, col.name)"
+                (focus)="handleFocus(rowIndex, col.name)"
+                (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
+                (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
               }
-              }
-            </select>
-            }
-
-
-            @else {
-            <input [type]="col.type === 'date' ? 'date' : 'text'" [formControl]="getFormControl(form, col)"
-              (input)="inputChanged.emit()" class="form-control no-radius no-padding-input ps-4"
-              [ngClass]="{ 'is-invalid': isCellInvalid(form, col) }" (paste)="paste($event, rowIndex, col.name)"
-              (focus)="handleFocus(rowIndex, col.name)"
-              (blur)="getFormControl(form, col).markAsTouched(); emitUpdatedRows()"
-              (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
-            }
-            @if (isCellInvalid(form, col)) {
+              @if (isCellInvalid(form, col)) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="position-absolute" [ngStyle]="{'inset-inline-end': col.type === 'select' ? '30px' : '8px',
     top: '50%',
     transform: 'translateY(-50%)',
     cursor: 'pointer',
     'z-index': 0
   }" (click)="showErrorPopup(form, col)" viewBox="0 0 24 24">
-              <g fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#e04f5f" stroke-width="1.5" />
-                <path stroke="#e04f5f" stroke-linecap="round" stroke-width="1.5" d="M12 17v-6" />
-                <circle cx="1" cy="1" r="1" fill="#e04f5f" transform="matrix(1 0 0 -1 11 9)" />
-              </g>
-            </svg>
-            }
-          </div>
-        </td>
+                  <g fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#e04f5f" stroke-width="1.5" />
+                    <path stroke="#e04f5f" stroke-linecap="round" stroke-width="1.5" d="M12 17v-6" />
+                    <circle cx="1" cy="1" r="1" fill="#e04f5f" transform="matrix(1 0 0 -1 11 9)" />
+                  </g>
+                </svg>
+              }
+            </div>
+          </td>
         }
       </tr>
-      }
-    </tbody>
-  </table>
+    }
+  </tbody>
+</table>
 </div>
 
 

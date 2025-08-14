@@ -1,12 +1,12 @@
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-cv',
     standalone: true,
-  imports: [OverlayFilterBoxComponent, PdfViewerModule,CommonModule],
+  imports: [OverlayFilterBoxComponent, PdfViewerModule],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',
   encapsulation:ViewEncapsulation.None

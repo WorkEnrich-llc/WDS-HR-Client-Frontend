@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   Component,
   inject,
@@ -22,15 +22,14 @@ import { ContractDetailsStepComponent } from './contract-details-step/contract-d
   standalone: true,
   selector: 'app-create-employee',
   imports: [
-    PageHeaderComponent, 
-    CommonModule, 
-    ReactiveFormsModule, 
+    PageHeaderComponent,
+    ReactiveFormsModule,
     PopupComponent,
     StepperNavigationComponent,
     MainInformationStepComponent,
     JobDetailsStepComponent,
     ContractDetailsStepComponent
-  ],
+],
   providers: [DatePipe],
   templateUrl: './create-employee.component.html',
   styleUrls: ['./create-employee.component.css'],

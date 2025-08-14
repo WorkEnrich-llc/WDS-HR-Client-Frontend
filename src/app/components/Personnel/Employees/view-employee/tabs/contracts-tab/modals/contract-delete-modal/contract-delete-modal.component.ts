@@ -1,12 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { PopupComponent } from '../../../../../../../shared/popup/popup.component';
 
 @Component({
   standalone: true,
   selector: 'app-contract-delete-modal',
-  imports: [CommonModule, PopupComponent],
+  imports: [PopupComponent],
   templateUrl: './contract-delete-modal.component.html',
   styleUrl: './contract-delete-modal.component.css'
 })
