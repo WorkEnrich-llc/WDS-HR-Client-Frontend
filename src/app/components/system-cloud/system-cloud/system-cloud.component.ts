@@ -6,7 +6,7 @@ import { SystemCloudService } from '../../../core/services/system-cloud/system-c
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 interface FileItem {
   id: string;
   name: string;
@@ -22,13 +22,13 @@ interface storageInfo {
 };
 @Component({
   selector: 'app-system-cloud',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule,RouterLink],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class SystemCloudComponent implements OnInit {
-  constructor(private _systemCloudService: SystemCloudService, private http: HttpClient, private toasterService: ToastrService
+  constructor(private _systemCloudService: SystemCloudService, private http: HttpClient, private toasterService: ToastrService, private router: Router
   ) { }
   // load data and spinner show
   dataLoaded: boolean = false;
@@ -106,7 +106,7 @@ export class SystemCloudComponent implements OnInit {
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
-        // console.log(this.allFiles);
+        console.log(this.allFiles);
         this.dataLoaded = true;
         this.storageInfo = response?.data?.storage_size_info;
         // console.log(this.storageInfo);
@@ -144,6 +144,8 @@ export class SystemCloudComponent implements OnInit {
       this.breadcrumb = [{ id: null, name: 'My Drive' }];
     }
   }
+
+
 
   filterFolders() {
     const search = this.searchFolderText.trim().toLowerCase();
@@ -193,6 +195,11 @@ export class SystemCloudComponent implements OnInit {
     }
 
     this.getAllFoldersFiles(folder.id);
+  }
+
+  // open system file
+  openSystemFile(folder: any) {
+    this.router.navigate(['/cloud/system-file', folder.id]);
   }
 
   // go to folder from 
@@ -657,6 +664,77 @@ export class SystemCloudComponent implements OnInit {
         this.toasterService.error(errorMessage);
       },
     });
+
   }
+
+
+
+
+
+
+  // ================= drag and drop moving files in folder 
+  draggedFileIdForMove: string | null = null;
+
+  onFileDragStart(event: DragEvent, file: any) {
+    this.draggedFileIdForMove = file.id;
+    event.dataTransfer?.setData('text/plain', file.id);
+  }
+
+  onFolderDragOver(event: DragEvent) {
+    event.preventDefault();
+
+    (event.currentTarget as HTMLElement).classList.add('folder-hover');
+  }
+
+  onFolderDrop(event: DragEvent, targetFolder: any) {
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).classList.remove('folder-hover');
+
+    const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
+    if (!fileId || targetFolder.type !== 'Folder') return;
+
+    const formData = new FormData();
+    formData.append('parent', targetFolder.id);
+
+    this._systemCloudService.renameFile(fileId, formData).subscribe({
+      next: () => {
+        const movedFile = this.allFiles.find(f => f.id === fileId);
+        if (!movedFile) return;
+
+        movedFile.parent = targetFolder.id;
+
+        this.files = this.files.filter(f => f.id !== fileId);
+        this.filteredFiles = this.filteredFiles.filter(f => f.id !== fileId);
+
+        if (this.openedFolderId === targetFolder.id) {
+          this.files.push(movedFile);
+          this.filteredFiles.push(movedFile);
+        }
+
+        const index = this.allFiles.findIndex(f => f.id === fileId);
+        if (index > -1) this.allFiles[index] = movedFile;
+
+        this.filteredFiles.sort((a, b) => {
+          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        });
+      }
+      ,
+      error: (err) => {
+        console.error(err);
+      }
+    });
+
+    this.draggedFileIdForMove = null;
+  }
+
+
+  onFolderDragLeave(event: DragEvent) {
+    (event.currentTarget as HTMLElement).classList.remove('folder-hover');
+  }
+
+
+
 
 }

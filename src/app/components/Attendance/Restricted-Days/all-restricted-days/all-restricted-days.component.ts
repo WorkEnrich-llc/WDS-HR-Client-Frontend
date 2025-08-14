@@ -12,7 +12,7 @@ import { RestrictedService } from '../../../../core/services/personnel/restricte
 
 @Component({
   selector: 'app-all-restricted-days',
-  imports: [PageHeaderComponent, TableComponent,ReactiveFormsModule, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
   templateUrl: './all-restricted-days.component.html',
   styleUrl: './all-restricted-days.component.css'
 })
@@ -100,6 +100,7 @@ export class AllRestrictedDaysComponent {
     });
   }
 
+
 sortBy() {
   this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
 
@@ -114,6 +115,7 @@ sortBy() {
     }
   });
 }
+
 
   resetFilterForm(): void {
     this.filterForm.reset({
