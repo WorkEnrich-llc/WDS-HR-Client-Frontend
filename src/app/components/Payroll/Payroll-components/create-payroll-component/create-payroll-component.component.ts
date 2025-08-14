@@ -51,40 +51,12 @@ export class CreatePayrollComponentComponent implements OnInit {
 
   private initFormModel(): void {
     this.createPayrollForm = this.fb.group({
-      componentCode: [''],
+      code: [''],
       name: ['', [Validators.required]],
-      type: ['', [Validators.required]],
+      component_type: ['', [Validators.required]],
       classification: ['', [Validators.required]],
-      shownInPayslip: [false]
+      show_in_payslip: [false]
     });
-  }
-
-  createsComponent(): void {
-    if (!this.createPayrollForm.valid) {
-      this.createPayrollForm.markAllAsTouched();
-      return;
-    }
-    if (this.createPayrollForm.valid) {
-      const formData: PayrollComponent = {
-        ...this.createPayrollForm.value,
-        type: +this.createPayrollForm.value.type,
-        classification: +this.createPayrollForm.value.classification
-      };
-      console.log('Form Submitted', formData);
-      this.confirmAction();
-
-      this.payrollService.createComponent(formData).subscribe({
-        next: (response) => {
-          console.log('Component created successfully:', response);
-          this.router.navigate(['/payroll-components/all-payroll-components']);
-        },
-        error: (err) => {
-          console.error('Error creating component:', err);
-        }
-      });
-
-    }
-
   }
 
   async createComponent(): Promise<void> {
@@ -95,11 +67,11 @@ export class CreatePayrollComponentComponent implements OnInit {
     this.isSubmitting = true;
     const formValues = this.createPayrollForm.value;
     const formData: PayrollComponent = {
-      ...formValues,
-      type: +formValues.type,
+      ...this.createPayrollForm.value,
+      component_type: +formValues.component_type,
       classification: +formValues.classification
     };
-
+    console.log('Form Submitted', formData);
     try {
       await firstValueFrom(this.payrollService.createComponent(formData));
       this.toasterService.showSuccess('Component created successfully');
@@ -110,6 +82,7 @@ export class CreatePayrollComponentComponent implements OnInit {
       this.isSubmitting = false;
     }
   }
+
 
 
 }

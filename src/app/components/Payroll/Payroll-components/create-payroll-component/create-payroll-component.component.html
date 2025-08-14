@@ -33,8 +33,8 @@
             <div class="input">
                 <label for="compCode">Component Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="number" id="compCode" class="form-control custom-date-input" placeholder="0050"
-                        formControlName="componentCode" />
+                    <input type="text" id="compCode" class="form-control custom-date-input" placeholder="0050"
+                        formControlName="code" />
                 </div>
             </div>
 
@@ -55,7 +55,7 @@
                 <label for="type">Type <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="type" id="type" class="form-select" formControlName="type">
+                        <select name="type" id="type" class="form-select" formControlName="component_type">
                             <option value="" disabled hidden>Select Type</option>
                             @for (c of componentTypes ; track c.id) {
                             <option [value]="c.id">{{ c.name }}</option>
@@ -63,7 +63,8 @@
                         </select>
                     </div>
                 </div>
-                @if (createPayrollForm.get('type')?.touched && createPayrollForm.get('type')?.errors?.['required']) {
+                @if (createPayrollForm.get('component_type')?.touched &&
+                createPayrollForm.get('component_type')?.errors?.['required']) {
                 <p class="error-msg">
                     Component Type is required.
                 </p>
@@ -93,7 +94,7 @@
             </div>
 
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                <input class="form-check-input m-0" type="checkbox" id="shown" formControlName="shownInPayslip">
+                <input class="form-check-input m-0" type="checkbox" id="shown" formControlName="show_in_payslip">
                 <label class="form-check-label m-0" for="shown">
                     Shown in Employee Payslip
                 </label>

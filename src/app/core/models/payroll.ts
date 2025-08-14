@@ -1,10 +1,9 @@
 
-
 export interface PayrollComponent {
    id?: string;
-   code: number;
+   code: string;
    name: string;
-   type: number;
+   component_type: number;
    classification: number;
-   shownInPayslip: boolean;
+   show_in_payslip: boolean;
 }

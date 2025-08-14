@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -8,15 +8,18 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
+import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 
 
 @Component({
   selector: 'app-all-payroll-components',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule,RouterLink],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule, RouterLink],
   templateUrl: './all-payroll-components.component.html',
   styleUrl: './all-payroll-components.component.css'
 })
-export class AllPayrollComponentsComponent {
+export class AllPayrollComponentsComponent implements OnInit {
+
+  private payrollService = inject(PayrollComponentsService);
   constructor(
     private route: ActivatedRoute,
     private toasterMessageService: ToasterMessageService,
@@ -54,6 +57,9 @@ export class AllPayrollComponentsComponent {
 
 
   ngOnInit(): void {
+    this.payrollService.getAllComponents().subscribe((data) => {
+      console.log('Payroll Components:', data);
+    });
     this.route.queryParams.subscribe(params => {
       // this.currentPage = +params['page'] || 1;
       // this.getAllDepartment(this.currentPage);

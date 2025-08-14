@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { PayrollComponent } from 'app/core/models/payroll';
 import { environment } from 'environments/environment';
@@ -16,10 +16,14 @@ export class PayrollComponentsService {
   constructor() { }
 
 
-  createComponent(componentData: PayrollComponent): Observable<PayrollComponent> {
+  createComponent(componentData: any): Observable<PayrollComponent> {
     const data = { request_data: componentData };
     return this.http.post<PayrollComponent>(this.url, data);
   }
+
+  // createComponent(componentData: any): Observable<any> {
+  //   return this.http.post<any>(this.url, componentData);
+  // }
 
   // update component
   updateComponent(id: number, componentData: PayrollComponent): Observable<PayrollComponent> {
@@ -28,7 +32,7 @@ export class PayrollComponentsService {
   }
 
   // Get all payroll components
-  getComponents(): Observable<PayrollComponent[]> {
+  getAllComponents(): Observable<PayrollComponent[]> {
     return this.http.get<PayrollComponent[]>(this.url);
   }
 
