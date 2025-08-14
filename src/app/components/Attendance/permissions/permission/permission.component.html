@@ -33,10 +33,6 @@
       <span>{{ (permissions?.late_arrive?.minutes / 60) | number:'2.0-0' }}:
         {{ (permissions?.late_arrive?.minutes % 60) | number:'2.0-0' }} hr</span>
     </div>
-    <!-- <div class="info">
-      <h6>Status</h6>
-      <span>Linked to attendance policy</span>
-    </div> -->
     <div class="info">
       <h6>Notes</h6>
       <span>{{permissions?.late_arrive?.notes || 'No notes available.'}}</span>
@@ -83,17 +79,10 @@
 
       </span>
     </div>
-    <!-- <div class="info">
-      <h6>Status</h6>
-      <span>Linked to attendance policy</span>
-    </div> -->
     <div class="info">
       <h6>Notes</h6>
       <span>{{permissions?.early_leave?.notes || 'No notes available.'}}</span>
     </div>
-
-
-
 
   </div>
 

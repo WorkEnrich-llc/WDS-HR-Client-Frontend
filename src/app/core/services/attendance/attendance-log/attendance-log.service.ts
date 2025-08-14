@@ -15,6 +15,8 @@ export class AttendanceLogService {
 
   // get Attendance Log
   getAttendanceLog(
+    pageNumber: number,
+    perPage: number,
     date: string,
     filters?: {
       employee?: string;
@@ -23,14 +25,17 @@ export class AttendanceLogService {
     const url = `${this.apiBaseUrl}personnel/attendance-log`;
 
     let params = new HttpParams()
-      .set('date', date)
+      .set('page', pageNumber.toString())
+      .set('per_page', perPage.toString())
+      .set('date', date);
 
-    if (filters) {
-      if (filters.employee) params = params.set('employee', filters.employee);
+    if (filters?.employee) {
+      params = params.set('employee', filters.employee);
     }
 
     return this._HttpClient.get(url, { params });
   }
+
 
 
 }
