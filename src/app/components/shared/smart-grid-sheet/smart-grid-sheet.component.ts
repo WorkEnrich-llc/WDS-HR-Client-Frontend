@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, signal, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, signal, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { PopupComponent } from '../popup/popup.component';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 export interface TableColumn {
   key: string;
@@ -31,11 +31,12 @@ export class SmartGridSheetComponent {
   @Output() inputChanged = new EventEmitter<void>();
 
   @Output() rowsChange = new EventEmitter<any[]>();
-
   rows = signal<FormGroup[]>([]);
   rowOptions: { [rowIndex: number]: { [colName: string]: { value: any; label: string }[] } } = {};
 
+  private destroy$ = new Subject<void>();
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) { }
+
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['columns'] && this.columns.length && this.rows().length === 0 && !this.rowsInput?.length) {
@@ -91,23 +92,20 @@ export class SmartGridSheetComponent {
   }
 
 
-  addRow(initialData: any = {}) {
-    const group: any = {};
+  addRow(rowData: any = {}): void {
+    const formGroup = this.fb.group({});
     const rowIndex = this.rows().length;
 
     this.rowOptions[rowIndex] = {};
 
     for (const col of this.columns) {
-      const control = new FormControl(
-        initialData[col.name] ?? '',
-        col.validators || []
-      );
+      // formGroup.addControl(col.name, new FormControl(rowData[col.name] || ''));
+      formGroup.addControl(col.name, new FormControl(rowData[col.name] || '', col.validators || []));
 
-      control.valueChanges
         .pipe(debounceTime(300), distinctUntilChanged())
         .subscribe(() => this.emitUpdatedRows());
 
-      group[col.name] = control;
+      if (col.type === 'select') {
 
       if (col.reliability) {
         this.rowOptions[rowIndex][col.name] = [];
@@ -115,8 +113,6 @@ export class SmartGridSheetComponent {
         this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
     }
-
-    const formGroup = this.fb.group(group);
 
     for (const col of this.columns) {
       if (col.reliability) {
@@ -128,7 +124,6 @@ export class SmartGridSheetComponent {
             this.cdr.detectChanges();
             return;
           }
-
           const filteredOptions = (col.rawData || []).filter(item => {
             const parentField = item[col.reliability!];
             return Array.isArray(parentField)
@@ -140,7 +135,6 @@ export class SmartGridSheetComponent {
             value: opt.id,
             label: opt.name
           }));
-
           if (this.rowOptions[rowIndex][col.name].length === 0) {
             this.rowOptions[rowIndex][col.name] = [];
             formGroup.get(col.name)?.setValue('', { emitEvent: false });
@@ -161,11 +155,24 @@ export class SmartGridSheetComponent {
 
         if (initialData[col.reliability]) {
           updateOptions(initialData[col.reliability], true);
-        }
       }
     }
 
-    this.rows.update(r => [...r, formGroup]);
+    this.rows.update(rows => [...rows, formGroup]);
+  }
+
+  private updateChildOptions(rowIndex: number, childCol: TableColumn, parentValue: any) {
+    const filteredOptions = (childCol.rawData || []).filter((item: any) => {
+      const parentField = item[childCol.reliability!];
+      return Array.isArray(parentField)
+        ? parentField.some((p: any) => +p.id === +parentValue)
+        : +parentField === +parentValue;
+    });
+
+    this.rowOptions[rowIndex][childCol.name] = filteredOptions.map((opt: any) => ({
+      value: opt.id,
+      label: opt.name
+    }));
   }
 
 

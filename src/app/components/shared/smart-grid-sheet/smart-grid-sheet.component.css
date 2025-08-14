@@ -71,3 +71,8 @@ select:focus{
   background-color: var(--color-primary-100) !important;
   outline: 1px solid var(--color-primary-500)  !important ;
 }
+
+.selected-cell input,.selected-cell select {
+  outline: 2px solid var(--color-primary-500) !important;
+  background-color: var(--color-primary-100) !important;
+}

@@ -411,3 +411,9 @@ table tbody tr td {
 .cursor-pointer{
     cursor: pointer !important;
 }
+
+
+.folder-hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
+}

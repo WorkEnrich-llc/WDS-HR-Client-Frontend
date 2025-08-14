@@ -10,6 +10,7 @@
         }
       </tr>
       }
+
     </thead>
     <tbody>
       @for (form of rows(); track form; let rowIndex = $index) {
@@ -19,6 +20,8 @@
         <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
           (mousedown)="onCellMouseDown($event, rowIndex, colIndex)"
           (mouseover)="onCellMouseOver($event, rowIndex, colIndex)">
+          (mousemove)="continueSelection(rowIndex, col.name, $event)"
+          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
           <div class="position-relative w-100 p-0">
             @if (col.type === 'select') {
             <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
@@ -35,6 +38,14 @@
               <option *ngIf="!rowOptions[rowIndex][col.name]?.length" value="" disabled>No options</option>
               <option *ngFor="let opt of rowOptions[rowIndex][col.name]" [value]="opt.value">{{ opt.label }}</option>
             </select>
+              }
+              @else {
+              @for (opt of rowOptions[rowIndex][col.name]; track opt) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+              }
+              }
+            </select>
+            }
 
 
             }
