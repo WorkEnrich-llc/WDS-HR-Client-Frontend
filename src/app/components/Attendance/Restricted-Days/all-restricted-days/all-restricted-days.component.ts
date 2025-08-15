@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { RestrictedService } from '../../../../core/services/personnel/restricted-days/restricted.service';
+import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
 
 @Component({
   selector: 'app-all-restricted-days',

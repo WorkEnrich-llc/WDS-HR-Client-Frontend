@@ -4,8 +4,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-update-leave-types',

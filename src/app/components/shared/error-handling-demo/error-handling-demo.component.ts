@@ -13,7 +13,7 @@ import { Observable, throwError } from 'rxjs';
   template: `
     <div class="demo-container">
       <h3>Error Handling Demo</h3>
-      
+    
       <div class="status-section">
         <h4>Network Status</h4>
         <p>Online: {{ (isOnline$ | async) ? 'Yes' : 'No' }}</p>
@@ -21,43 +21,51 @@ import { Observable, throwError } from 'rxjs';
           {{ checkingConnectivity ? 'Checking...' : 'Test Connectivity' }}
         </button>
       </div>
-
+    
       <div class="demo-section">
         <h4>Error Handling Examples</h4>
-        
+    
         <button (click)="simulateNetworkError()" [disabled]="isLoading">
           Simulate Network Error
         </button>
-        
+    
         <button (click)="simulate404Error()" [disabled]="isLoading">
           Simulate 404 Error
         </button>
-        
+    
         <button (click)="simulate500Error()" [disabled]="isLoading">
           Simulate 500 Error
         </button>
-        
+    
         <button (click)="makeApiCallWithHelper()" [disabled]="isLoading">
           API Call with Helper
         </button>
       </div>
-
-      <div class="results-section" *ngIf="errorMessage || successMessage">
-        <h4>Results</h4>
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
+    
+      @if (errorMessage || successMessage) {
+        <div class="results-section">
+          <h4>Results</h4>
+          @if (errorMessage) {
+            <div class="error-message">
+              {{ errorMessage }}
+            </div>
+          }
+          @if (successMessage) {
+            <div class="success-message">
+              {{ successMessage }}
+            </div>
+          }
         </div>
-        <div *ngIf="successMessage" class="success-message">
-          {{ successMessage }}
+      }
+    
+      @if (isLoading) {
+        <div class="loading-section">
+          <div class="spinner"></div>
+          <p>Loading...</p>
         </div>
-      </div>
-
-      <div class="loading-section" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <p>Loading...</p>
-      </div>
+      }
     </div>
-  `,
+    `,
   styles: [`
     .demo-container {
       max-width: 600px;

@@ -6,8 +6,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
-
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
   imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
