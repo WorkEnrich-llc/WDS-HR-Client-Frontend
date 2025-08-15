@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
@@ -30,6 +30,7 @@ interface AttendanceRecord {
 @Component({
   selector: 'app-attendance-tab',
   imports: [CommonModule, TableComponent],
+  providers: [DatePipe],
   templateUrl: './attendance-tab.component.html',
   styleUrl: './attendance-tab.component.css'
 })
@@ -42,13 +43,92 @@ export class AttendanceTabComponent implements OnChanges {
   loading: boolean = false;
   error: string | null = null;
 
-  constructor(private employeeService: EmployeeService) { }
+  // Date slider properties
+  today: Date = new Date();
+  selectedDate!: Date;
+  baseDate: Date = new Date();
+  days: { label: string, date: Date, isToday: boolean }[] = [];
+
+  constructor(private employeeService: EmployeeService, private datePipe: DatePipe) {
+    // Initialize dates
+    this.today.setHours(0, 0, 0, 0);
+    this.selectedDate = new Date(this.today);
+    this.baseDate = this.getStartOfWeek(this.today);
+    this.generateDays(this.baseDate);
+  }
 
   ngOnChanges(changes: SimpleChanges) {
-    // When employee or date changes, fetch attendance
-    if ((changes['employee'] && this.employee) || (changes['date'] && this.date)) {
+    // When employee changes, fetch attendance for selected date
+    if (changes['employee'] && this.employee) {
       this.fetchAttendance();
     }
+    // If date input changes from parent, update selected date
+    if (changes['date'] && this.date) {
+      this.selectedDate = new Date(this.date);
+      this.fetchAttendance();
+    }
+  }
+
+  // Date slider methods
+  generateDays(startDate: Date): void {
+    this.days = [];
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+
+      const label = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const isToday = date.toDateString() === this.today.toDateString();
+
+      this.days.push({ label, date, isToday });
+    }
+  }
+
+  getStartOfWeek(date: Date): Date {
+    const dayOfWeek = date.getDay();
+    const diff = date.getDate() - dayOfWeek;
+    const start = new Date(date);
+    start.setDate(diff);
+    start.setHours(0, 0, 0, 0);
+    return start;
+  }
+
+  prevWeek(): void {
+    this.baseDate.setDate(this.baseDate.getDate() - 7);
+    this.generateDays(this.baseDate);
+  }
+
+  nextWeek(): void {
+    const tempDate = new Date(this.baseDate);
+    tempDate.setDate(tempDate.getDate() + 7);
+
+    if (tempDate > this.getStartOfWeek(this.today)) {
+      return;
+    }
+
+    this.baseDate = tempDate;
+    this.generateDays(this.baseDate);
+  }
+
+  canGoNext(): boolean {
+    const nextStart = new Date(this.baseDate);
+    nextStart.setDate(this.baseDate.getDate() + 7);
+    return nextStart <= this.getStartOfWeek(this.today);
+  }
+
+  selectDate(date: Date): void {
+    if (date > this.today) return;
+
+    this.selectedDate = date;
+    this.fetchAttendance();
+  }
+
+  isSelected(date: Date): boolean {
+    return this.selectedDate.toDateString() === date.toDateString();
+  }
+
+  trackByDate(index: number, day: { date: Date }): number {
+    return new Date(day.date).getTime();
   }
 
   private mapRawToRecord(item: RawAttendanceItem): AttendanceRecord {
@@ -72,14 +152,20 @@ export class AttendanceTabComponent implements OnChanges {
   }
 
   fetchAttendance() {
-    if (!this.employee || !this.date) {
+    if (!this.employee) {
+      this.attendanceData = [];
+      return;
+    }
+
+    const dateToFetch = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd');
+    if (!dateToFetch) {
       this.attendanceData = [];
       return;
     }
 
     this.loading = true;
     this.error = null;
-    this.employeeService.getAttendanceLog(this.date, this.employee.id).subscribe({
+    this.employeeService.getAttendanceLog(dateToFetch, this.employee.id).subscribe({
       next: (res) => {
         try {
           const list: RawAttendanceItem[] = res?.data?.object_info?.list_items || [];
