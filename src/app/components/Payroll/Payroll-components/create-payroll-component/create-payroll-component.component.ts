@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CLASSIFICATIONS, COMPONENT_TYPES } from '@app/constants';
 import { PayrollComponent } from 'app/core/models/payroll';
@@ -22,14 +22,21 @@ export class CreatePayrollComponentComponent implements OnInit {
   private payrollService = inject(PayrollComponentsService);
   private toasterService = inject(ToasterMessageService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   classifications = CLASSIFICATIONS;
   componentTypes = COMPONENT_TYPES
   isSubmitting = false;
+  isEditMode = false;
+  id?: number;
+
+
+
   constructor() { }
 
   ngOnInit(): void {
     this.initFormModel();
+    this.checkModeAndLoadData();
 
   }
   // discard popup
@@ -59,6 +66,26 @@ export class CreatePayrollComponentComponent implements OnInit {
     });
   }
 
+  private checkModeAndLoadData(): void {
+    this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.isEditMode = !!this.id;
+
+    if (this.isEditMode) {
+      this.payrollService.getComponentById(this.id).subscribe({
+        next: (data) => {
+          this.createPayrollForm.patchValue({
+            code: data.code,
+            name: data.name,
+            component_type: data.component_type.id,
+            classification: data.classification.id,
+            show_in_payslip: data.show_in_payslip
+          });
+        },
+        error: (err) => console.error('Failed to load component', err)
+      });
+    }
+  }
+
   async createComponent(): Promise<void> {
     if (this.createPayrollForm.invalid) {
       this.createPayrollForm.markAllAsTouched();
@@ -72,9 +99,17 @@ export class CreatePayrollComponentComponent implements OnInit {
       classification: +formValues.classification
     };
     console.log('Form Submitted', formData);
+    if (this.isEditMode && this.id) {
+      formData.id = String(this.id);
+    }
     try {
-      await firstValueFrom(this.payrollService.createComponent(formData));
-      this.toasterService.showSuccess('Component created successfully');
+      if (this.isEditMode) {
+        await firstValueFrom(this.payrollService.updateComponent(formData));
+        this.toasterService.showSuccess('Component updated successfully');
+      } else {
+        await firstValueFrom(this.payrollService.createComponent(formData));
+        this.toasterService.showSuccess('Component created successfully');
+      }
       this.router.navigate(['/payroll-components/all-payroll-components']);
     } catch (err) {
       console.error('Create component failed', err);

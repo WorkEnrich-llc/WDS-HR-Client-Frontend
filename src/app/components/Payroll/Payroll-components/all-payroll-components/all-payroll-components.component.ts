@@ -29,9 +29,6 @@ export class AllPayrollComponentsComponent implements OnInit {
     private route: ActivatedRoute,
     private toasterMessageService: ToasterMessageService,
     private toastr: ToastrService,
-    private fb: FormBuilder,
-    private datePipe: DatePipe,
-    private router: Router
   ) { }
 
 
@@ -60,11 +57,11 @@ export class AllPayrollComponentsComponent implements OnInit {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  data: any[] = [];
+  data: PayrollComponent[] = [];
+  components: PayrollComponent[] = [];
 
 
   totalPages: number = 0;
-  components: any[] = [];
 
 
 
@@ -176,29 +173,3 @@ export class AllPayrollComponentsComponent implements OnInit {
     this.getAllComponents(this.currentPage);
   }
 }
-
-
-
-// resetFilterForm(): void {
-
-//   this.filterBox.closeOverlay();
-//   // this.getAllDepartment(this.currentPage);
-// }
-
-
-
-
-// getPayrollComponents() {
-//   this.loadData = true;
-//   this.payrollService.getAllComponents().subscribe({
-//     next: (res: any) => {
-//       this.data = res?.data?.list_items || [];
-//       this.totalItems = res?.data?.total || 0;
-//       this.loadData = false;
-//     },
-//     error: (err) => {
-//       console.error(err);
-//       this.loadData = false;
-//     }
-//   });
-// }

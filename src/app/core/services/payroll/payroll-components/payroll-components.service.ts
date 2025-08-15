@@ -22,9 +22,9 @@ export class PayrollComponentsService {
   }
 
   // update component
-  updateComponent(id: number, componentData: PayrollComponent): Observable<PayrollComponent> {
+  updateComponent(componentData: PayrollComponent): Observable<PayrollComponent> {
     const data = { request_data: componentData };
-    return this.http.patch<PayrollComponent>(`${this.url}/${id}`, data);
+    return this.http.put<PayrollComponent>(`${this.url}`, data);
   }
 
   // Get all payroll components
@@ -54,10 +54,9 @@ export class PayrollComponentsService {
       created_to?: string;
       show_in_payslip?: string;
       branch_id?: number;
+      status?: string;
     }
   ): Observable<any> {
-    // const url = `${this.apiBaseUrl}od/departments`;
-
     let params = new HttpParams()
       .set('page', pageNumber)
       .set('per_page', perPage);
