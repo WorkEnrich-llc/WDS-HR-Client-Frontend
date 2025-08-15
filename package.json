@@ -54,5 +54,17 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.8.3"
+  },
+"overrides": {
+  "@fullcalendar/angular": {
+    "@angular/common": "20.0.3",
+    "@angular/core": "20.0.3"
+  },
+  "ngx-country-picker": {
+    "@angular/common": "20.0.3",
+    "@angular/core": "20.0.3"
   }
+}
+
+
 }

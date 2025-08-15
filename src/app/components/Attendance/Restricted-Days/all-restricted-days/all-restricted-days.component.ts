@@ -101,16 +101,20 @@ export class AllRestrictedDaysComponent {
   }
 
 
-  sortBy() {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+sortBy() {
+  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
 
-    this.restrictedDays = this.restrictedDays.sort((a, b) => {
-      const dateA = new Date(a.earliest_date).getTime();
-      const dateB = new Date(b.earliest_date).getTime();
+  this.restrictedDays = this.restrictedDays.sort((a, b) => {
+    const dateA = new Date(a.earliest_date).getTime();
+    const dateB = new Date(b.earliest_date).getTime();
 
-      return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
-    });
-  }
+    if (this.sortDirection === 'asc') {
+      return dateA - dateB;
+    } else {
+      return dateB - dateA;
+    }
+  });
+}
 
 
   resetFilterForm(): void {

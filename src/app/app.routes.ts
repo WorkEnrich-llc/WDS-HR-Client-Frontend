@@ -599,8 +599,8 @@ export const routes: Routes = [
                 title: 'Create Payroll Components',
               },
               {
-                path: 'edit-payroll-components/:id',
-                loadComponent: () => import('./components/Payroll/Payroll-components/update-payroll-component/update-payroll-component.component').then(m => m.UpdatePayrollComponentComponent),
+                path: 'edit/:id',
+                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
                 title: 'Edit Payroll Components',
               },
               {
