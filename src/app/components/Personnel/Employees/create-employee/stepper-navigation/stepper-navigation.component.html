@@ -97,6 +97,42 @@
           d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
       </svg>
       }
-      <span class="nav-link">Contract Details</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+        sharedService.currentStep() === 3 ? '#DDE3EB' :
+        sharedService.currentStep() === 4 ? '#377AFD' :
+        sharedService.currentStep() > 4 ? '#4CA883' :
+        '#DDE3EB'
+    ">
+        <path
+          d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+      </svg>
+        <span class="nav-link">Contract Details</span>
+  </li>
+
+  <li class="nav-item" [ngClass]="{
+        'active': sharedService.currentStep() === 4,
+        'text-success': sharedService.currentStep() > 4, 
+        'bg-light-success': sharedService.currentStep() > 4  
+    }">
+    @if (sharedService.currentStep() <= 4) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+      viewBox="0 0 24 24">
+      <g fill="none" stroke-width="1.5">
+        <path [style.stroke]="sharedService.currentStep() === 4 ? '#007bff' : '#4A6D97'" stroke-linecap="round"
+          d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+        <circle [style.stroke]="sharedService.currentStep() === 4 ? '#007bff' : '#4A6D97'" cx="18" cy="18" r="3" />
+        <path [style.stroke]="sharedService.currentStep() === 4 ? '#007bff' : '#4A6D97'" stroke-linecap="round"
+          d="M20.5 20.5L22 22M2.5 9h19" />
+      </g>
+      </svg>
+      }
+      @if (sharedService.currentStep() > 4) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="sharedService.currentStep() > 4 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Attendance Details</span>
   </li>
 </ul>

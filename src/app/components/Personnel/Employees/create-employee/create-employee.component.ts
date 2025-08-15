@@ -17,6 +17,7 @@ import { StepperNavigationComponent } from './stepper-navigation/stepper-navigat
 import { MainInformationStepComponent } from './main-information-step/main-information-step.component';
 import { JobDetailsStepComponent } from './job-details-step/job-details-step.component';
 import { ContractDetailsStepComponent } from './contract-details-step/contract-details-step.component';
+import { AttendanceDetailsStepComponent } from './attendance-details-step/attendance-details-step.component';
 
 @Component({
   standalone: true,
@@ -28,7 +29,8 @@ import { ContractDetailsStepComponent } from './contract-details-step/contract-d
     StepperNavigationComponent,
     MainInformationStepComponent,
     JobDetailsStepComponent,
-    ContractDetailsStepComponent
+    ContractDetailsStepComponent,
+    AttendanceDetailsStepComponent
 ],
   providers: [DatePipe],
   templateUrl: './create-employee.component.html',
@@ -123,9 +125,9 @@ export class CreateEmployeeComponent implements OnInit {
             start_contract: formData.contract_details.start_contract,
             contract_type: formData.contract_details.contract_type,
             contract_end_date: formData.contract_details.contract_type === 1 ? formData.contract_details.contract_end_date : "",
-            employment_type: parseInt(formData.contract_details.employment_type, 10),
-            work_mode: parseInt(formData.contract_details.work_mode, 10),
-            days_on_site: formData.contract_details.days_on_site ? parseInt(formData.contract_details.days_on_site, 10) : undefined,
+            employment_type: parseInt(formData.attendance_details.employment_type, 10),
+            work_mode: parseInt(formData.attendance_details.work_mode, 10),
+            days_on_site: formData.attendance_details.days_on_site ? parseInt(formData.attendance_details.days_on_site, 10) : undefined,
             salary: parseFloat(formData.contract_details.salary)
           }
         }

@@ -12,7 +12,8 @@
 <form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
   <app-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-main-information-step>
   <app-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-job-details-step>
-  <app-contract-details-step [hidden]="sharedService.currentStep() !== 3" (submitForm)="onSubmit()"></app-contract-details-step>
+  <app-contract-details-step [hidden]="sharedService.currentStep() !== 3"></app-contract-details-step>
+  <app-attendance-details-step [hidden]="sharedService.currentStep() !== 4" (submitForm)="onSubmit()"></app-attendance-details-step>
 </form>
 
 @if (sharedService.isModalOpen()) {
