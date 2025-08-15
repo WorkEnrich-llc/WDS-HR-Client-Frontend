@@ -1,36 +1,36 @@
 <div class="page-header sticky-top">
   <!-- Breadcrumb -->
   <nav>
-    <ng-container *ngFor="let item of breadcrumbs; let last = last">
-      <ng-container *ngIf="!last">
+    @for (item of breadcrumbs; track item; let last = $last) {
+      @if (!last) {
         <a [routerLink]="item.link" class="bread-link">{{ item.label }}</a> &gt;
-      </ng-container>
-      <ng-container *ngIf="last">
+      }
+      @if (last) {
         <span class="bread-active">{{ item.label }}</span>
-      </ng-container>
-    </ng-container>
+      }
+    }
   </nav>
 
   <h2>{{ title }}</h2>
 
   <div class="d-flex align-items-end justify-content-between">
-    <div class="parag d-flex align-items-end gap-5" *ngIf="create || update">
-      <ng-container *ngIf="create && update; else draftCreated">
-        <p class="date-cre mb-0">
-          {{ isApplied ? 'Applied at' : 'Created at' }}:
-          <span class="text-show">{{ create }}</span>
-        </p>
-        <p class="date-cre mb-0">
-          Updated At: <span class="text-show">{{ update }}</span>
-        </p>
-      </ng-container>
-      <ng-template #draftCreated>
-        <p class="date-cre mb-0">
-          Created as a Draft: <span class="text-show">{{ create }}</span>
-        </p>
-      </ng-template>
-
-    </div>
+    @if (create || update) {
+      <div class="parag d-flex align-items-end gap-5">
+        @if (create && update) {
+          <p class="date-cre mb-0">
+            {{ isApplied ? 'Applied at' : 'Created at' }}:
+            <span class="text-show">{{ create }}</span>
+          </p>
+          <p class="date-cre mb-0">
+            Updated At: <span class="text-show">{{ update }}</span>
+          </p>
+        } @else {
+          <p class="date-cre mb-0">
+            Created as a Draft: <span class="text-show">{{ create }}</span>
+          </p>
+        }
+      </div>
+    }
 
     <div class="d-flex gap-2 ms-auto parag">
       <ng-content></ng-content>

@@ -8,7 +8,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-all-leave-types',

@@ -4,127 +4,153 @@
     { label: 'Employees', link: '/employees' },
     { label: 'Edit Employee' }
   ]" title="Edit Employee - Employee ID" create="23/06/2025" update="23/06/2025">
-        <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" [disabled]="employeeForm.pristine || employeeForm.invalid">
-        <span *ngIf="isLoading"  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        <span>Save Changes</span>
-    </button>
+  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" [disabled]="employeeForm.pristine || employeeForm.invalid">
+    @if (isLoading) {
+      <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    @if (!isLoading) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+    }
+    <span>Save Changes</span>
+  </button>
 
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Changes</span>
-    </button>
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Changes</span>
+  </button>
 </app-page-header>
 
 <div class="content-hug" >
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Contact Information</h2>
-        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="w-lg-50 d-flex flex-column gap-2">
-            <div class="input">
-                <label for="empId">ID (Optional)</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="empId" type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
-                </div>
-                <p class="error-msg" *ngIf="hasFieldError('empId')">
-                    {{getFieldError('empId')}}
-                </p>
-            </div>
-
-            <div class="input">
-                <label for="fullName">Full Name <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="fullName" type="text" id="fullName" class="form-control custom-date-input"
-                        placeholder="Enter Full Name" />
-                </div>
-                <p class="error-msg"
-                    *ngIf="employeeForm.get('fullName')?.touched && employeeForm.get('fullName')?.errors?.['required']">
-                    Full Name is required.
-                </p>
-                <p class="error-msg" *ngIf="hasFieldError('fullName')">
-                    {{getFieldError('fullName')}}
-                </p>
-            </div>
-
-            <div class="input">
-                <label for="phone">Phone Number</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="phone" type="text" id="phone" class="form-control custom-date-input"
-                        placeholder="xx xxx xxx xxx" />
-                </div>
-                <p class="error-msg"
-                    *ngIf="employeeForm.get('phone')?.touched && employeeForm.get('phone')?.errors?.['required']">
-                    Phone is required.
-                </p>
-                <p class="error-msg" *ngIf="hasFieldError('phone')">
-                    {{getFieldError('phone')}}
-                </p>
-            </div>
-
-            <div class="input">
-                <label for="email">Personal Email</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="email" type="email" id="email" class="form-control custom-date-input"
-                        placeholder="test@mail.com" />
-                </div>
-                <p class="error-msg"
-                    *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['required']">
-                    Email is required.
-                </p>
-                <p class="error-msg"
-                    *ngIf="employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['email']">
-                    Enter Correct Email.
-                </p>
-                <p class="error-msg" *ngIf="hasFieldError('email')">
-                    {{getFieldError('email')}}
-                </p>
-            </div>
-
-
-            <div class="alert alert-danger mb-0 mt-3" role="alert" *ngIf="errMsg">
-                {{errMsg}}
-            </div>
-
-
-
-        </form>
-
-
-
-        <!-- Save Changes button -->
-        <div class="btn-fixed">
-            <button type="submit" class="btn btn-lg btn-success" (click)="onSubmit()"  [disabled]="employeeForm.pristine || employeeForm.invalid">
-                <span *ngIf="isLoading"  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Save Changes</span>
-            </button>
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Contact Information</h2>
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input">
+        <label for="empId">ID (Optional)</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input formControlName="empId" type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
         </div>
-    </div>
-</div>
+        @if (hasFieldError('empId')) {
+          <p class="error-msg">
+            {{getFieldError('empId')}}
+          </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="fullName">Full Name <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input formControlName="fullName" type="text" id="fullName" class="form-control custom-date-input"
+            placeholder="Enter Full Name" />
+          </div>
+          @if (employeeForm.get('fullName')?.touched && employeeForm.get('fullName')?.errors?.['required']) {
+            <p class="error-msg"
+              >
+              Full Name is required.
+            </p>
+          }
+          @if (hasFieldError('fullName')) {
+            <p class="error-msg">
+              {{getFieldError('fullName')}}
+            </p>
+          }
+        </div>
+
+        <div class="input">
+          <label for="phone">Phone Number</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input formControlName="phone" type="text" id="phone" class="form-control custom-date-input"
+              placeholder="xx xxx xxx xxx" />
+            </div>
+            @if (employeeForm.get('phone')?.touched && employeeForm.get('phone')?.errors?.['required']) {
+              <p class="error-msg"
+                >
+                Phone is required.
+              </p>
+            }
+            @if (hasFieldError('phone')) {
+              <p class="error-msg">
+                {{getFieldError('phone')}}
+              </p>
+            }
+          </div>
+
+          <div class="input">
+            <label for="email">Personal Email</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input formControlName="email" type="email" id="email" class="form-control custom-date-input"
+                placeholder="test@mail.com" />
+              </div>
+              @if (employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Email is required.
+                </p>
+              }
+              @if (employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['email']) {
+                <p class="error-msg"
+                  >
+                  Enter Correct Email.
+                </p>
+              }
+              @if (hasFieldError('email')) {
+                <p class="error-msg">
+                  {{getFieldError('email')}}
+                </p>
+              }
+            </div>
+
+
+            @if (errMsg) {
+              <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+              </div>
+            }
 
 
 
-<!-- Discard popup  -->
-<app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard update Ahmed?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Changes
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>
+          </form>
+
+
+
+          <!-- Save Changes button -->
+          <div class="btn-fixed">
+            <button type="submit" class="btn btn-lg btn-success" (click)="onSubmit()"  [disabled]="employeeForm.pristine || employeeForm.invalid">
+              @if (isLoading) {
+                <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              }
+              @if (!isLoading) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                  </g>
+                </svg>
+              }
+              <span>Save Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Discard popup  -->
+      <app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard update Ahmed?'"
+        [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+        <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+          Discard Changes
+        </button>
+        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+          Cancel
+        </button>
+      </app-popup>

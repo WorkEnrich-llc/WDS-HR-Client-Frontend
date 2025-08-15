@@ -54,8 +54,8 @@
 
         <!-- start Table -->
 
-        <app-table [data]="restrictedDays" [totalItems]="restrictedDays.length" [itemsPerPage]="itemsPerPage"
-            [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+        <app-table [data]="restrictedDays" [isLoading]="loadData" [columnsCount]="6" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="restrictedTableHeader"
             [rowTemplate]="restirectedTableRow" [emptyTemplate]="noRestricted"></app-table>
 
@@ -64,19 +64,23 @@
             <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
                 <div class="d-flex align-items-center justify-content-between">
                     <span>Date Range</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
-                        viewBox=Employees>
+                    @if (sortDirection === 'desc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
                             <path d="M4 8h9m-7 5h7m-5 5h5" />
                             <path stroke-linejoin="round" d="M17 20V4l3 4" />
                         </g>
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
-                        viewBox="0 0 24 24">
+                    }
+
+                    @if (sortDirection === 'asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <path fill="#DDE3EB" fill-rule="evenodd"
                             d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
                             clip-rule="evenodd" />
                     </svg>
+                    }
+
                 </div>
             </th>
 

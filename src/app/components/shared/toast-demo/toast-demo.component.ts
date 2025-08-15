@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 import { ApiToastHelper } from '../../../core/helpers/api-toast.helper';
 
 @Component({
   selector: 'app-toast-demo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="toast-demo-container">
       <h2>Toast Notification Demo</h2>

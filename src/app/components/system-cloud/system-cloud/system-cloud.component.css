@@ -9,11 +9,17 @@
 }
 
 .progress {
-    background-color: var(--color-success-100);
+    background-color: var(--color-secondary-100);
 }
 
-.progress-bar {
+.progress-success {
     background-color: var(--color-success-500);
+}
+.progress-warning{
+    background-color: var(--color-warning-400);
+}
+.progress-danger{
+    background-color: var(--color-danger-500);
 }
 
 .progress,
@@ -174,10 +180,10 @@
     border: 1px solid var(--color-primary-500);
 }
 
-.template{
+.template,.file{
     position: relative;
 }
-.template button {
+.template button ,.file .btns{
     position: absolute;
     bottom: var(--spacing-8);
     left: 50%;
@@ -193,11 +199,11 @@
     min-width: auto; 
 }
 
-.template:hover h6 {
+.template:hover h6 ,.file:hover h6 {
     opacity: 0;
 }
 
-.template:hover button {
+.template:hover button ,.file:hover .btns {
     opacity: 1;
     transform: translate(-50%, 0);
     pointer-events: auto;
@@ -401,4 +407,13 @@ table tbody tr td {
 .breadcrumb-item{
     display: flex;
     align-items: center;
+}
+.cursor-pointer{
+    cursor: pointer !important;
+}
+
+
+.folder-hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border: 2px dashed #007bff;
 }

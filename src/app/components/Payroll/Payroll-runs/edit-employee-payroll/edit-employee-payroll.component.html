@@ -4,86 +4,94 @@
     { label: 'Payroll Runs',link:'/payroll-runs/payroll-runs' },
     { label: 'Edit Employee Payrolls'},
   ]" title="Edit Employee Payrolls" create="13/06/2023" update="13/06/2023">
-    <button class="btn btn-lg btn-success">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        <span>Save Changes</span>
-    </button>
-    <button class="btn btn-lg btn-outline-dark">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Changes</span>
-    </button>
+  <button class="btn btn-lg btn-success">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
+    <span>Save Changes</span>
+  </button>
+  <button class="btn btn-lg btn-outline-dark">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Changes</span>
+  </button>
 </app-page-header>
 
 
 <!-- content -->
 <div class="content-hug">
-    <div class="content-box mt-4">
-        <h2 class="mb-3">Employee Payrolls</h2>
+  <div class="content-box mt-4">
+    <h2 class="mb-3">Employee Payrolls</h2>
 
-        <!-- start Table -->
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>Employee</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24"
-                                    height="24" viewBox="0 0 24 24">
-                                    <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
-                                        <path d="M4 8h9m-7 5h7m-5 5h5" />
-                                        <path stroke-linejoin="round" d="M17 20V4l3 4" />
-                                    </g>
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24"
-                                    height="24" viewBox="0 0 24 24">
-                                    <path fill="#DDE3EB" fill-rule="evenodd"
-                                        d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </th>
-                        <th class="w-10">Basic Salary</th>
-                        <th class="w-10">Insurance</th>
-                        <th class="w-10">Absence</th>
-                        <th class="w-10">Damages</th>
-                        <th class="w-10">Bonus</th>
-                        <th class="w-10">Profit Share</th>
-                        <th class="w-10">Overtime</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let emp of employees; let i = index">
-                        <td class="cursor-pointer">
-                            <span class="d-block text-gray-sm">{{ emp.id.toString().padStart(4, '0') }}</span>
-                            <span class="d-block text-truncate" style="max-width: 200px;">
-                                {{ emp.name }}
-                            </span>
-                        </td>
-                        <td class="cursor-pointer">
-                            {{ emp.basicSalary | number }} {{ emp.currency }}
-                        </td>
-                        <td *ngFor="let field of editableFields">
-                            <div class="position-relative">
-                                <input type="number" min="0" autocomplete="off" class="form-control table-input"
-                                    [ngClass]="{ 'is-invalid': hasError(i, field) }" [(ngModel)]="emp[field]"
-                                    (ngModelChange)="validatePositive(i, field)" />
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- start Table -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
+              <div class="d-flex align-items-center justify-content-between">
+                <span>Employee</span>
+                @if (sortDirection === 'desc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                      <path d="M4 8h9m-7 5h7m-5 5h5" />
+                      <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                    </g>
+                  </svg>
+                }
+                @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
+                    <path fill="#DDE3EB" fill-rule="evenodd"
+                      d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                      clip-rule="evenodd" />
+                    </svg>
+                  }
+                </div>
+              </th>
+              <th class="w-10">Basic Salary</th>
+              <th class="w-10">Insurance</th>
+              <th class="w-10">Absence</th>
+              <th class="w-10">Damages</th>
+              <th class="w-10">Bonus</th>
+              <th class="w-10">Profit Share</th>
+              <th class="w-10">Overtime</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of employees; track emp; let i = $index) {
+              <tr>
+                <td class="cursor-pointer">
+                  <span class="d-block text-gray-sm">{{ emp.id.toString().padStart(4, '0') }}</span>
+                  <span class="d-block text-truncate" style="max-width: 200px;">
+                    {{ emp.name }}
+                  </span>
+                </td>
+                <td class="cursor-pointer">
+                  {{ emp.basicSalary | number }} {{ emp.currency }}
+                </td>
+                @for (field of editableFields; track field) {
+                  <td>
+                    <div class="position-relative">
+                      <input type="number" min="0" autocomplete="off" class="form-control table-input"
+                        [ngClass]="{ 'is-invalid': hasError(i, field) }" [(ngModel)]="emp[field]"
+                        (ngModelChange)="validatePositive(i, field)" />
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
 
+      </div>
     </div>
-</div>

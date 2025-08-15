@@ -14,7 +14,8 @@
       <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
         <!-- Search input -->
         <div data-mdb-input-init class="form-outline w-75">
-          <input type="text" class="form-control" placeholder="Search" />
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="11.5" cy="11.5" r="9.5" />
@@ -35,8 +36,7 @@
 
 
       <button class="btn btn-lg btn-primary" routerLink="/payroll-components/create-payroll-components">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-          viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -48,10 +48,10 @@
 
     <!-- start Table -->
 
-    <app-table [data]="payrollComponents" [isLoading]="loadData" [columnsCount]="9"
-      [totalItems]="payrollComponents.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
-      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
-      [headerTemplate]="payrollTableHeader" [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
+    <app-table [data]="components " [isLoading]="loadData" [columnsCount]="9" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
+      [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
 
     <ng-template #payrollTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
@@ -82,34 +82,37 @@
       <td>
         <span class="d-block text-gray-sm">{{ component.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ component.componentName }}
+          {{ component.name }}
         </span>
       </td>
       <td>
-        {{ component.type }}
+        {{ component.component_type }}
       </td>
       <td>
-        {{component.classfication}}
+        {{component.classification}}
       </td>
       <td>
-        <div class="badge-success" *ngIf="component.show">
+
+        @if(component.show_in_payslip){<div class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <span>Shown</span>
+          <span>{{component.show_in_payslip_label}}</span>
         </div>
-        <div class="badge-gray" *ngIf="!component.show">
+        }
+        @else{<div class="badge-gray">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <span>Hidden</span>
+          <span>{{component.show_in_payslip_label}}</span>
         </div>
+        }
       </td>
       <td>
         <div class="d-flex justify-content-start gap-4 align-items-center w-100">
@@ -124,7 +127,7 @@
             </svg>
           </a>
           <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
-            [routerLink]="['/payroll-components/edit-payroll-components', component.id]">
+            [routerLink]="['/payroll-components/edit', component.id]">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <path fill="currentColor" fill-rule="evenodd"
                 d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75"

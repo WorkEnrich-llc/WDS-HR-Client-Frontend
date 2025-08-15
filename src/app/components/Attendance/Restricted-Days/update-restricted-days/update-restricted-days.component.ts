@@ -1,17 +1,17 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { CommonModule, DatePipe, formatDate } from '@angular/common';
+import { DatePipe, formatDate } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RestrictedService } from '../../../../core/services/personnel/restricted-days/restricted.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
 
 @Component({
   selector: 'app-update-restricted-days',
-  imports: [PageHeaderComponent, PopupComponent, NgxDaterangepickerMd, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, NgxDaterangepickerMd, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './update-restricted-days.component.html',
   styleUrl: './update-restricted-days.component.css'

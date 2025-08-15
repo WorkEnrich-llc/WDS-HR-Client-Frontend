@@ -9,7 +9,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
+import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-edit-work-schedule',
