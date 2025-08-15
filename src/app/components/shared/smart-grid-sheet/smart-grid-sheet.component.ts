@@ -39,18 +39,17 @@ export class SmartGridSheetComponent {
 
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['columns'] && this.columns.length && this.rows().length === 0 && !this.rowsInput?.length) {
+    if (changes['columns'] && this.columns.length && this.rows().length === 0) {
       for (let i = 0; i < 30; i++) {
         this.addRow();
       }
     }
 
-    if (changes['rowsInput'] && this.rowsInput) {
+    if (changes['rowsInput']) {
       this.rows.update(() => []);
+      const rowsLength = this.rowsInput?.length || 0;
 
-      const rowsLength = this.rowsInput.length;
-
-      for (const row of this.rowsInput) {
+      for (const row of this.rowsInput || []) {
         this.addRow(row);
       }
 
@@ -58,39 +57,8 @@ export class SmartGridSheetComponent {
       for (let i = 0; i < remaining; i++) {
         this.addRow();
       }
-
-      setTimeout(() => {
-        this.rows().forEach((formGroup, rowIndex) => {
-          this.columns.forEach(col => {
-            if (col.reliability && formGroup.get(col.reliability)?.value) {
-              const parentValue = formGroup.get(col.reliability)?.value;
-
-              const filteredOptions = (col.rawData || []).filter(item => {
-                const parentField = item[col.reliability!];
-                return Array.isArray(parentField)
-                  ? parentField.some((b: any) => +b.id === +parentValue)
-                  : +parentField === +parentValue;
-              });
-
-              this.rowOptions[rowIndex][col.name] = filteredOptions.map(opt => ({
-                value: opt.id,
-                label: opt.name
-              }));
-
-              const currentValue = formGroup.get(col.name)?.value;
-              const existsInList = this.rowOptions[rowIndex][col.name].some(o => +o.value === +currentValue);
-              if (!existsInList) {
-                formGroup.get(col.name)?.setValue('', { emitEvent: false });
-              }
-            }
-          });
-        });
-
-        this.cdr.detectChanges();
-      });
     }
   }
-
 
   addRow(rowData: any = {}): void {
     const formGroup = this.fb.group({});
@@ -102,14 +70,8 @@ export class SmartGridSheetComponent {
       // formGroup.addControl(col.name, new FormControl(rowData[col.name] || ''));
       formGroup.addControl(col.name, new FormControl(rowData[col.name] || '', col.validators || []));
 
-        .pipe(debounceTime(300), distinctUntilChanged())
-        .subscribe(() => this.emitUpdatedRows());
 
       if (col.type === 'select') {
-
-      if (col.reliability) {
-        this.rowOptions[rowIndex][col.name] = [];
-      } else {
         this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
     }
@@ -117,44 +79,18 @@ export class SmartGridSheetComponent {
     for (const col of this.columns) {
       if (col.reliability) {
         const parentControl = formGroup.get(col.reliability);
-        const updateOptions = (parentValue: any, initialLoad = false) => {
-          if (!parentValue) {
-            this.rowOptions[rowIndex][col.name] = [];
+
+        if (rowData[col.reliability]) {
+          this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+        }
+
+        parentControl?.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((parentValue) => {
+            this.updateChildOptions(rowIndex, col, parentValue);
             formGroup.get(col.name)?.setValue('', { emitEvent: false });
             this.cdr.detectChanges();
-            return;
-          }
-          const filteredOptions = (col.rawData || []).filter(item => {
-            const parentField = item[col.reliability!];
-            return Array.isArray(parentField)
-              ? parentField.some((b: any) => +b.id === +parentValue)
-              : +parentField === +parentValue;
           });
-
-          this.rowOptions[rowIndex][col.name] = filteredOptions.map(opt => ({
-            value: opt.id,
-            label: opt.name
-          }));
-          if (this.rowOptions[rowIndex][col.name].length === 0) {
-            this.rowOptions[rowIndex][col.name] = [];
-            formGroup.get(col.name)?.setValue('', { emitEvent: false });
-          }
-
-          const currentValue = formGroup.get(col.name)?.value;
-          const existsInList = this.rowOptions[rowIndex][col.name].some(o => +o.value === +currentValue);
-
-          if (!existsInList) {
-            formGroup.get(col.name)?.setValue('', { emitEvent: false });
-          }
-
-          this.cdr.detectChanges();
-        };
-
-
-        parentControl?.valueChanges.subscribe(value => updateOptions(value, false));
-
-        if (initialData[col.reliability]) {
-          updateOptions(initialData[col.reliability], true);
       }
     }
 
@@ -174,8 +110,6 @@ export class SmartGridSheetComponent {
       label: opt.name
     }));
   }
-
-
 
 
   onCellValueChanged(rowIndex: number, columnKey: string, value: any) {
@@ -198,7 +132,7 @@ export class SmartGridSheetComponent {
 
   isCellInvalid(form: FormGroup, col: TableColumn): boolean {
     const ctrl = form.get(col.name);
-    return ctrl instanceof FormControl && ctrl.invalid && !!ctrl.value;
+    return ctrl instanceof FormControl && ctrl.invalid && (!!ctrl.value || ctrl.touched || ctrl.dirty);
   }
 
   getFormControl(form: FormGroup, col: TableColumn): FormControl {
@@ -233,176 +167,137 @@ export class SmartGridSheetComponent {
     });
   }
 
-  // delete and selection handling
-  selectedCells = new Set<string>();
-  isMouseDown = false;
-  ignoreNextClick = false;
-  startCell: { row: number; col: number } | null = null;
+  // =============== select and delete ctrl + z and select one cell with double click ===============
 
-  ngOnInit() {
-    document.addEventListener('mouseup', this.onMouseUp.bind(this));
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-    document.addEventListener('click', this.onDocumentClick.bind(this));
+  selectedCells: { row: number; col: string }[] = [];
+  isSelecting = false;
+  hasMoved = false;
+  startRow: number | null = null;
+  startCol: number | null = null;
+  isDoubleClick = false;
 
-  }
+  startSelection(rowIndex: number, colName: string, event: MouseEvent) {
+    const target = event.target as HTMLElement;
 
-  ngOnDestroy() {
-    document.removeEventListener('mouseup', this.onMouseUp.bind(this));
-    document.removeEventListener('keydown', this.onKeyDown.bind(this));
-    document.removeEventListener('click', this.onDocumentClick.bind(this));
-  }
+    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.isContentEditable) {
+      this.isSelecting = false;
+      this.startRow = rowIndex;
+      this.startCol = this.columns.findIndex(c => c.name === colName);
 
+      // قم بتركيز العنصر فقط عند single click (ليس double click)
+      if (!this.isDoubleClick) {
+        // تأكد من أن العنصر موجود ونداء الـ focus عليه
+        (target as HTMLInputElement | HTMLSelectElement).focus();
 
-
-
-
-  onCellMouseDown(event: MouseEvent, row: number, col: number) {
-    this.isMouseDown = true;
-    this.ignoreNextClick = true;
-    this.clearSelection();
-    this.startCell = { row, col };
-    this.selectCell(row, col);
-
-    const cell = document.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
-    if (cell) {
-      const input = cell.querySelector('input, select') as HTMLElement | null;
-      if (input) {
-        setTimeout(() => {
-          input.focus();
-        }, 0);
+        // إزالة التحديد السابق عند التركيز single click
+        this.selectedCells = [];
       }
-    }
-
-    event.preventDefault();
-  }
-
-  onCellMouseOver(event: MouseEvent, row: number, col: number) {
-    if (!this.isMouseDown || !this.startCell) return;
-
-    this.clearSelection();
-
-    const startRow = Math.min(this.startCell.row, row);
-    const endRow = Math.max(this.startCell.row, row);
-    const startCol = Math.min(this.startCell.col, col);
-    const endCol = Math.max(this.startCell.col, col);
-
-    for (let r = startRow; r <= endRow; r++) {
-      for (let c = startCol; c <= endCol; c++) {
-        this.selectCell(r, c);
-      }
-    }
-  }
-
-  onMouseUp() {
-    this.isMouseDown = false;
-    this.startCell = null;
-    setTimeout(() => this.ignoreNextClick = false, 0);
-  }
-
-
-  selectCell(row: number, col: number) {
-    const key = `${row}-${col}`;
-    if (!this.selectedCells.has(key)) {
-      this.selectedCells.add(key);
-      const cell = document.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
-      if (cell) cell.classList.add('selected');
-    }
-  }
-
-  clearSelection() {
-    this.selectedCells.forEach(key => {
-      const [row, col] = key.split('-').map(Number);
-      const cell = document.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
-      if (cell) cell.classList.remove('selected');
-    });
-    this.selectedCells.clear();
-  }
-
-  onKeyDown(event: KeyboardEvent) {
-    const ctrl = event.ctrlKey || event.metaKey;
-
-    if (event.key === 'Backspace' || event.key === 'Delete') {
-      event.preventDefault();
-
-
-      this.selectedCells.forEach(key => {
-        const [row, col] = key.split('-').map(Number);
-        const formGroup = this.rows()[row];
-        const colName = this.columns[col].name;
-
-        const control = formGroup?.get(colName);
-        if (control) {
-          control.setValue(null);
-          control.markAsDirty();
-          control.markAsTouched();
-        }
-      });
-    }
-  }
-
-
-
-
-  onDocumentClick(event: MouseEvent) {
-    if (this.ignoreNextClick) {
       return;
     }
 
-    const target = event.target as HTMLElement;
-    if (!target.closest('td[data-row][data-col]')) {
-      this.clearSelection();
+    if (event.buttons === 1) {
+      this.isSelecting = true;
+      this.hasMoved = false;
+      this.startRow = rowIndex;
+      this.startCol = this.columns.findIndex(c => c.name === colName);
+    }
+  }
+
+  continueSelection(rowIndex: number, colName: string, event: MouseEvent) {
+    if (!this.isSelecting && this.startRow !== null && this.startCol !== null) {
+      this.isSelecting = true;
+    }
+    if (this.isSelecting && event.buttons === 1) {
+      this.hasMoved = true;
+      this.updateSelection(rowIndex, colName);
     }
   }
 
 
-
-  //move with arrows
-  onArrowKey(event: KeyboardEvent, rowIndex: number, colIndex: number) {
-    this.clearSelection();  // تلغي التحديد عند بداية التنقل
-
-    const rows = document.querySelectorAll('.table-row');
-    const currentRow = rows[rowIndex] as HTMLElement;
-    if (!currentRow) return;
-
-    let targetInput: HTMLElement | null = null;
-
-    switch (event.key) {
-      case 'ArrowUp':
-        if (rowIndex > 0) {
-          const prevRow = rows[rowIndex - 1];
-          targetInput = prevRow.querySelectorAll('input, select')[colIndex] as HTMLElement;
-        }
-        break;
-      case 'ArrowDown':
-        if (rowIndex < rows.length - 1) {
-          const nextRow = rows[rowIndex + 1];
-          targetInput = nextRow.querySelectorAll('input, select')[colIndex] as HTMLElement;
-        }
-        break;
-      case 'ArrowLeft':
-        if (colIndex > 0) {
-          targetInput = currentRow.querySelectorAll('input, select')[colIndex - 1] as HTMLElement;
-        } else {
-          (event.target as HTMLElement).blur();
-        }
-        break;
-      case 'ArrowRight':
-        const inputs = currentRow.querySelectorAll('input, select');
-        if (colIndex < inputs.length - 1) {
-          targetInput = inputs[colIndex + 1] as HTMLElement;
-        }
-        break;
+  stopSelection() {
+    if ((this.hasMoved || this.isDoubleClick) && this.startRow !== null && this.startCol !== null) {
+      if (!this.hasMoved) {
+        this.selectedCells = [{
+          row: this.startRow,
+          col: this.columns[this.startCol].name
+        }];
+      }
+    } else {
+      this.selectedCells = [];
     }
 
-    if (targetInput) {
-      targetInput.focus();
-      event.preventDefault();
+    this.isSelecting = false;
+    this.hasMoved = false;
+    this.startRow = null;
+    this.startCol = null;
+    this.isDoubleClick = false;
+  }
+
+  onCellDoubleClick(rowIndex: number, colName: string, event: MouseEvent) {
+    event.preventDefault();
+    this.isDoubleClick = true;
+    this.startRow = rowIndex;
+    this.startCol = this.columns.findIndex(c => c.name === colName);
+    this.stopSelection();
+  }
+
+  updateSelection(rowIndex: number, colName: string) {
+    if (this.startRow === null || this.startCol === null) return;
+
+    const endRow = rowIndex;
+    const endCol = this.columns.findIndex(c => c.name === colName);
+
+    const rowMin = Math.min(this.startRow, endRow);
+    const rowMax = Math.max(this.startRow, endRow);
+    const colMin = Math.min(this.startCol, endCol);
+    const colMax = Math.max(this.startCol, endCol);
+
+    this.selectedCells = [];
+
+    for (let r = rowMin; r <= rowMax; r++) {
+      for (let c = colMin; c <= colMax; c++) {
+        this.selectedCells.push({ row: r, col: this.columns[c].name });
+      }
     }
   }
 
+  isSelected(rowIndex: number, colName: string) {
+    return this.selectedCells.some(c => c.row === rowIndex && c.col === colName);
+  }
 
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.stopSelection();
+  }
 
-  // Error handling for form validation
+  @HostListener('document:keydown.delete', ['$event'])
+  clearSelectedCells(event: KeyboardEvent) {
+    event.preventDefault();
+    this.selectedCells.forEach(cell => {
+      const control = this.rows()[cell.row].get(cell.col);
+      if (control) {
+        control.setValue('');
+      }
+    });
+    this.selectedCells = [];
+  }
+  // =================== move with attows ===================
+  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+  }
+
+  focusCell(row: number, col: number) {
+    const selector = `td[data-row="${row}"][data-col="${col}"]`;
+    const tdElement = document.querySelector(selector);
+
+    if (!tdElement) return;
+
+    const inputOrSelect = tdElement.querySelector('input, select') as HTMLElement;
+    if (inputOrSelect) {
+      inputOrSelect.focus();
+    }
+  }
+
+  // =================== Error Popup ===================
   ErrorPopup: boolean = false;
   errorPopupMessage: string = '';
 
