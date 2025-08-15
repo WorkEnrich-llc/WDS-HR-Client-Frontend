@@ -1,0 +1,113 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Admin Settings', link: '/cloud' },
+    { label: 'Users',link:'/users' },
+    { label: 'User Details'},
+  ]" title="User Details - User 01" create="13/06/2025" update="13/06/2025">
+
+    <!-- <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Activate</span>
+  </button> -->
+    <!-- *ngIf="jobTitleData.is_active" -->
+    <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+</app-page-header>
+
+
+<!-- content -->
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <h2>User Information</h2>
+            <div>
+                <span class="badge-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    <span>Active</span>
+                </span>
+                <!-- <span class="badge-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                        viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                        </g>
+                    </svg>
+                    <span>Not Active</span>
+                </span> -->
+            </div>
+        </div>
+
+        <div class="info">
+            <h6>User ID</h6>
+            <span>01</span>
+        </div>
+        <div class="info">
+            <h6>User Email</h6>
+            <span>a.magdy&#64;gmail.com</span>
+        </div>
+        <div class="info">
+            <h6>Full Name</h6>
+            <span>Ahmed Magdy</span>
+        </div>
+        <div class="info">
+            <h6>Role</h6>
+            <span>HR Manager</span>
+        </div>
+        <div class="info">
+            <h6>Date Added</h6>
+            <span>20/10/2024</span>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- deactivate popup  -->
+<app-popup [title]="'Deactivate User'"
+    [paragraph1]="'Are you sure you want to Deactivate the User “' + 'Name' + '”?'"
+    [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
+    [isOpen]="deactivateOpen" (close)="closeDeactivate()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Deactivate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
+        Cancel
+    </button>
+</app-popup>
+
+<!-- activate popup  -->
+<app-popup [title]="'Activate User'"
+    [paragraph1]="'Are you sure you want to Activate the User “' + 'Name' + '”?'"
+    [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Activate</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+        Cancel
+    </button>
+</app-popup>

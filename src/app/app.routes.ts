@@ -648,6 +648,8 @@ export const routes: Routes = [
         ]
       },
 
+
+      // start Admin settings
       // system cloud layout
       {
         path: '',
@@ -675,10 +677,59 @@ export const routes: Routes = [
 
             ]
           },
-
+          {
+            path: 'roles',
+            loadComponent: () => import('./components/admin-settings/roles/roles/roles.component').then(m => m.RolesComponent),
+            title: 'Roles'
+          },
 
         ]
       },
+      // users
+      {
+        path: '',
+        loadComponent: () =>
+          import('./layouts/cloud-layout/cloud-layout.component').then(
+            m => m.CloudLayoutComponent
+          ),
+        children: [
+          {
+            path: 'users',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-users',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-users',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/users/users/users.component'
+                  ).then(m => m.UsersComponent),
+                title: 'Users'
+              },
+              {
+                path: 'add-user',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/users/add-user/add-user.component'
+                  ).then(m => m.AddUserComponent),
+                title: 'Add User'
+              },
+              {
+                path: 'view-user/:id',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/users/view-user/view-user.component'
+                  ).then(m => m.ViewUserComponent),
+                title: 'View User'
+              }
+            ]
+          }
+        ]
+      },
+
 
 
 

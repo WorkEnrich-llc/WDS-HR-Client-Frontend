@@ -28,6 +28,20 @@
 <!-- end page header -->
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <li class="nav-item" (click)="currentStep=1" [ngClass]="{
+        'active': currentStep === 1
+    }">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path
+                d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
+                opacity=".5" />
+            <path fill-rule="evenodd"
+                d="M6.914 11.25H2v1.5h8.163A3.25 3.25 0 0 1 7 15.25a.75.75 0 0 0 0 1.5a4.75 4.75 0 0 0 4.25-2.626V22h1.5v-7.876A4.75 4.75 0 0 0 17 16.75a.75.75 0 0 0 0-1.5a3.25 3.25 0 0 1-3.163-2.5H22v-1.5h-4.913c.35-.438.613-.955.756-1.527c.538-2.153-1.413-4.103-3.565-3.565a4 4 0 0 0-1.528.756V2h-1.5v4.914a4 4 0 0 0-1.527-.756C7.57 5.62 5.62 7.57 6.158 9.723c.143.572.405 1.089.756 1.527m4.336 0H9.997a2.5 2.5 0 0 1-2.384-1.891A1.44 1.44 0 0 1 9.36 7.613a2.5 2.5 0 0 1 1.891 2.384zm2.753 0H12.75v-1.245a2.5 2.5 0 0 1 1.891-2.392a1.44 1.44 0 0 1 1.746 1.746a2.5 2.5 0 0 1-2.384 1.891"
+                clip-rule="evenodd" />
+        </svg>
+        <span class="nav-link">Grace Period</span>
+    </li>
+    
     <li class="nav-item" (click)="currentStep=2" [ngClass]="{
         'active': currentStep === 2
     }">
@@ -69,26 +83,14 @@
         'active': currentStep === 5
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="currentColor"
+            <path
                 d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8" />
-            <path fill="currentColor" d="M12.5 7H11v6l5.2 3.2l.8-1.3l-4.5-2.7V7z" />
+            <path d="M12.5 7H11v6l5.2 3.2l.8-1.3l-4.5-2.7V7z" />
         </svg>
         <span class="nav-link">Overtime</span>
     </li>
 
-    <li class="nav-item" (click)="currentStep=1" [ngClass]="{
-        'active': currentStep === 1
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path
-                d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
-                opacity=".5" />
-            <path fill-rule="evenodd"
-                d="M6.914 11.25H2v1.5h8.163A3.25 3.25 0 0 1 7 15.25a.75.75 0 0 0 0 1.5a4.75 4.75 0 0 0 4.25-2.626V22h1.5v-7.876A4.75 4.75 0 0 0 17 16.75a.75.75 0 0 0 0-1.5a3.25 3.25 0 0 1-3.163-2.5H22v-1.5h-4.913c.35-.438.613-.955.756-1.527c.538-2.153-1.413-4.103-3.565-3.565a4 4 0 0 0-1.528.756V2h-1.5v4.914a4 4 0 0 0-1.527-.756C7.57 5.62 5.62 7.57 6.158 9.723c.143.572.405 1.089.756 1.527m4.336 0H9.997a2.5 2.5 0 0 1-2.384-1.891A1.44 1.44 0 0 1 9.36 7.613a2.5 2.5 0 0 1 1.891 2.384zm2.753 0H12.75v-1.245a2.5 2.5 0 0 1 1.891-2.392a1.44 1.44 0 0 1 1.746 1.746a2.5 2.5 0 0 1-2.384 1.891"
-                clip-rule="evenodd" />
-        </svg>
-        <span class="nav-link">Grace Period</span>
-    </li>
+    
 </ul>
 
 <!-- Grace Period -->
@@ -109,8 +111,8 @@
                 <label for="maxCarryover">Allowed Minutes</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" [disabled]="!allowGrace" id="maxCarryover"
-                        class="form-control custom-date-input" placeholder="Per Day" 
-                        [(ngModel)]="graceMinutes" [ngModelOptions]="{ standalone: true }" />
+                        class="form-control custom-date-input" placeholder="Per Day" [(ngModel)]="graceMinutes"
+                        [ngModelOptions]="{ standalone: true }" />
                 </div>
             </div>
 
@@ -187,8 +189,8 @@
         <div class="d-flex align-items-center justify-content-between">
             <h2>Early Leave</h2>
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                <input class="form-check-input m-0" type="checkbox" id="sameLatness" 
-                    [(ngModel)]="sameAsLateness" [ngModelOptions]="{ standalone: true }" />
+                <input class="form-check-input m-0" type="checkbox" id="sameLatness" [(ngModel)]="sameAsLateness"
+                    [ngModelOptions]="{ standalone: true }" />
                 <label class="form-check-label m-0" for="sameLatness">
                     Same as Lateness
                 </label>
