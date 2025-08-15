@@ -14,7 +14,8 @@
       <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
         <!-- Search input -->
         <div data-mdb-input-init class="form-outline w-75">
-          <input type="text" class="form-control" placeholder="Search" />
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="11.5" cy="11.5" r="9.5" />
@@ -35,8 +36,7 @@
 
 
       <button class="btn btn-lg btn-primary" routerLink="/payroll-components/create-payroll-components">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-          viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -48,10 +48,10 @@
 
     <!-- start Table -->
 
-    <app-table [data]="payrollComponents" [isLoading]="loadData" [columnsCount]="9"
-      [totalItems]="payrollComponents.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
-      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
-      [headerTemplate]="payrollTableHeader" [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
+    <app-table [data]="components " [isLoading]="loadData" [columnsCount]="9" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
+      [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
 
     <ng-template #payrollTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
@@ -82,34 +82,37 @@
       <td>
         <span class="d-block text-gray-sm">{{ component.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ component.componentName }}
+          {{ component.name }}
         </span>
       </td>
       <td>
-        {{ component.type }}
+        {{ component.component_type }}
       </td>
       <td>
-        {{component.classfication}}
+        {{component.classification}}
       </td>
       <td>
-        <div class="badge-success" *ngIf="component.show">
+
+        @if(component.show_in_payslip){<div class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <span>Shown</span>
+          <span>{{component.show_in_payslip_label}}</span>
         </div>
-        <div class="badge-gray" *ngIf="!component.show">
+        }
+        @else{<div class="badge-gray">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <span>Hidden</span>
+          <span>{{component.show_in_payslip_label}}</span>
         </div>
+        }
       </td>
       <td>
         <div class="d-flex justify-content-start gap-4 align-items-center w-100">
