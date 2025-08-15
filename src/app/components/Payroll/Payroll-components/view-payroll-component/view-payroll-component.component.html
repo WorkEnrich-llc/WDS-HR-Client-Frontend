@@ -40,7 +40,7 @@
         <h2>Main Information</h2>
         <div class="info">
             <h6>Component ID</h6>
-            <span>{{ componentData.id }}</span>
+            <span>{{ componentData.id?.toString()?.padStart(4, '0') }}</span>
         </div>
         <div class="info">
             <h6>Component Name</h6>
