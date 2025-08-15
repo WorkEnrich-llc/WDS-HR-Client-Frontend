@@ -89,10 +89,12 @@ export class CreateEmployeeSharedService {
         start_contract: ['', Validators.required],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
+        salary: ['', [Validators.required, Validators.min(0)]]
+      }),
+      attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
         work_mode: [null, Validators.required],
-        days_on_site: [''],
-        salary: ['', [Validators.required, Validators.min(0)]]
+        days_on_site: ['']
       })
     });
   }
@@ -110,8 +112,8 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for work mode changes to handle days on site requirement
-    this.contractDetails.get('work_mode')?.valueChanges.subscribe(workMode => {
-      const daysOnSiteControl = this.contractDetails.get('days_on_site');
+    this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workMode: any) => {
+      const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
       if (workMode === 3) { // Hybrid
         daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
       } else if (workMode === 1) { // On site
@@ -125,7 +127,7 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for job title changes to update salary ranges
-    this.jobDetails.get('job_title_id')?.valueChanges.subscribe(jobTitleId => {
+    this.jobDetails.get('job_title_id')?.valueChanges.subscribe((jobTitleId: any) => {
       if (jobTitleId) {
         const selectedTitle = this.jobTitles().find(title => title.id == jobTitleId);
         this.selectedJobTitle.set(selectedTitle || null);
@@ -137,7 +139,7 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for employment type changes to update salary range and validators
-    this.contractDetails.get('employment_type')?.valueChanges.subscribe(employmentType => {
+    this.attendanceDetails.get('employment_type')?.valueChanges.subscribe((employmentType: any) => {
       this.updateSalaryRange();
     });
 
@@ -156,6 +158,7 @@ export class CreateEmployeeSharedService {
   get mainInformation() { return this.employeeForm.get('main_information') as FormGroup; }
   get jobDetails() { return this.employeeForm.get('job_details') as FormGroup; }
   get contractDetails() { return this.employeeForm.get('contract_details') as FormGroup; }
+  get attendanceDetails() { return this.employeeForm.get('attendance_details') as FormGroup; }
   get mobileGroup() { return this.mainInformation.get('mobile') as FormGroup; }
 
   // Country methods
@@ -193,7 +196,7 @@ export class CreateEmployeeSharedService {
   // Salary range methods
   updateSalaryRange(): void {
     const selectedTitle = this.selectedJobTitle();
-    const employmentType = +this.contractDetails.get('employment_type')?.value;
+    const employmentType = +this.attendanceDetails.get('employment_type')?.value;
     
     if (!selectedTitle || !selectedTitle.salary_ranges || !employmentType) {
       this.currentSalaryRange.set(null);
@@ -288,6 +291,22 @@ export class CreateEmployeeSharedService {
     return '';
   }
 
+  // Method to clear field errors and reset touched state
+  clearFieldErrors(fieldName: string, formGroup?: FormGroup): void {
+    const group = formGroup || this.employeeForm;
+    const field = group.get(fieldName);
+    if (field) {
+      field.setErrors(null);
+      field.markAsUntouched();
+      field.markAsPristine();
+    }
+  }
+
+  // Method to clear all error messages
+  clearErrorMessages(): void {
+    this.errMsg.set('');
+  }
+
   validateCurrentStep(): boolean {
     let isValid = true;
     this.errMsg.set('');
@@ -328,6 +347,13 @@ export class CreateEmployeeSharedService {
         }
         break;
       case 3:
+        this.attendanceDetails.markAllAsTouched();
+        if (this.attendanceDetails.invalid) {
+          isValid = false;
+          this.errMsg.set('Please fill in all required fields in Attendance Details');
+        }
+        break;
+      case 4:
         this.contractDetails.markAllAsTouched();
         if (this.contractDetails.invalid) {
           isValid = false;

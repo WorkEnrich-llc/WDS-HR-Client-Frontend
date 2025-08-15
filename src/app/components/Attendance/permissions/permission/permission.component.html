@@ -20,29 +20,22 @@
       </button>
     </div>
 
-    
-    <!-- <div class="info">
+    @if (!permissions?.late_arrive?.enabled
+    && !permissions?.late_arrive?.minutes
+    && !permissions?.late_arrive?.note) {
+    <div class="info">
       <span class="d-block">Late Arrive permissions are disabled</span>
       <span class="d-block">Edit the permission to enable</span>
     </div>
-     -->
+    }
     <div class="info">
       <h6>Maximum requirements per month</h6>
-      <span>02 : 30 hr</span>
-    </div>
-    <div class="info">
-      <h6>Status</h6>
-      <span>Linked to attendance policy</span>
+      <span>{{ (permissions?.late_arrive?.minutes / 60) | number:'2.0-0' }}:
+        {{ (permissions?.late_arrive?.minutes % 60) | number:'2.0-0' }} hr</span>
     </div>
     <div class="info">
       <h6>Notes</h6>
-      <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla venenatis nulla quis convallis ullamcorper.
-        Donec eget laoreet leo. Nulla vel blandit erat. Quisque ligula augue, luctus non nunc in, commodo porta mauris.
-        Sed a nunc vel risus maximus tincidunt. In at ipsum sed nisi vestibulum ultricies ut vitae quam. Maecenas orci
-        risus, viverra efficitur dictum in, rhoncus id risus. Sed et nibh eu odio luctus vestibulum sit amet non tellus.
-        Praesent finibus tellus eget ex consequat, finibus pretium nibh dictum. Donec consequat semper lorem vitae
-        dapibus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-      </span>
+      <span>{{permissions?.late_arrive?.notes || 'No notes available.'}}</span>
     </div>
 
 
@@ -67,33 +60,29 @@
       </button>
     </div>
 
+    @if (!permissions?.early_leave?.enabled
+    && !permissions?.early_leave?.minutes
+    && !permissions?.early_leave?.note) {
     <div class="info">
       <span class="d-block">Early Leave permissions are disabled</span>
       <span class="d-block">Edit the permission to enable</span>
     </div>
-    
+    }
 
-     <!-- <div class="info">
-      <h6>Maximum requirements per month</h6>
-      <span>02 : 30 hr</span>
-    </div>
+
+
     <div class="info">
-      <h6>Status</h6>
-      <span>Linked to attendance policy</span>
+      <h6>Maximum requirements per month</h6>
+      <span>
+        {{ (permissions?.early_leave?.minutes / 60) | number:'2.0-0' }}:
+        {{ (permissions?.early_leave?.minutes % 60) | number:'2.0-0' }} hr
+
+      </span>
     </div>
     <div class="info">
       <h6>Notes</h6>
-      <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla venenatis nulla quis convallis ullamcorper.
-        Donec eget laoreet leo. Nulla vel blandit erat. Quisque ligula augue, luctus non nunc in, commodo porta mauris.
-        Sed a nunc vel risus maximus tincidunt. In at ipsum sed nisi vestibulum ultricies ut vitae quam. Maecenas orci
-        risus, viverra efficitur dictum in, rhoncus id risus. Sed et nibh eu odio luctus vestibulum sit amet non tellus.
-        Praesent finibus tellus eget ex consequat, finibus pretium nibh dictum. Donec consequat semper lorem vitae
-        dapibus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-      </span>
-    </div> -->
-
-
-
+      <span>{{permissions?.early_leave?.notes || 'No notes available.'}}</span>
+    </div>
 
   </div>
 

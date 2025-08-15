@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, signal, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, signal, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { PopupComponent } from '../popup/popup.component';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 export interface TableColumn {
   key: string;
@@ -31,93 +31,84 @@ export class SmartGridSheetComponent {
   @Output() inputChanged = new EventEmitter<void>();
 
   @Output() rowsChange = new EventEmitter<any[]>();
-
   rows = signal<FormGroup[]>([]);
+  rowOptions: { [rowIndex: number]: { [colName: string]: { value: any; label: string }[] } } = {};
 
+  private destroy$ = new Subject<void>();
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) { }
 
+
   ngOnChanges(changes: SimpleChanges): void {
-  if (changes['columns'] && this.columns.length && this.rows().length === 0) {
-    for (let i = 0; i < 20; i++) {
-      this.addRow();
+    if (changes['columns'] && this.columns.length && this.rows().length === 0) {
+      for (let i = 0; i < 30; i++) {
+        this.addRow();
+      }
+    }
+
+    if (changes['rowsInput']) {
+      this.rows.update(() => []);
+      const rowsLength = this.rowsInput?.length || 0;
+
+      for (const row of this.rowsInput || []) {
+        this.addRow(row);
+      }
+
+      const remaining = 30 - rowsLength;
+      for (let i = 0; i < remaining; i++) {
+        this.addRow();
+      }
     }
   }
 
-  if (changes['rowsInput']) {
-    this.rows.update(() => []);
-    const rowsLength = this.rowsInput?.length || 0;
+  addRow(rowData: any = {}): void {
+    const formGroup = this.fb.group({});
+    const rowIndex = this.rows().length;
 
-    for (const row of this.rowsInput || []) {
-      this.addRow(row);
-    }
+    this.rowOptions[rowIndex] = {};
 
-    const remaining = 20 - rowsLength;
-    for (let i = 0; i < remaining; i++) {
-      this.addRow();
-    }
-  }
-}
-
-  addRow(initialData: any = {}) {
-    const group: any = {};
     for (const col of this.columns) {
-      const control = new FormControl(
-        initialData[col.name] ?? '',
-        col.validators || []
-      );
+      // formGroup.addControl(col.name, new FormControl(rowData[col.name] || ''));
+      formGroup.addControl(col.name, new FormControl(rowData[col.name] || '', col.validators || []));
 
-      control.valueChanges
-        .pipe(
-          debounceTime(3000),
-          distinctUntilChanged()
-        )
-        .subscribe(() => {
-          this.emitUpdatedRows();
-        });
 
-      group[col.name] = control;
+      if (col.type === 'select') {
+        this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
+      }
     }
-
-    const formGroup = this.fb.group(group);
 
     for (const col of this.columns) {
       if (col.reliability) {
         const parentControl = formGroup.get(col.reliability);
-        const colIndex = this.columns.findIndex(c => c.name === col.name);
-        if (colIndex !== -1) {
-          this.columns[colIndex] = { ...this.columns[colIndex], options: [] };
+
+        if (rowData[col.reliability]) {
+          this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
         }
 
-        if (parentControl) {
-          parentControl.valueChanges.subscribe(parentValue => {
-            const filteredOptions = (col.rawData || []).filter(item => {
-              const parentField = item[col.reliability!];
-              return Array.isArray(parentField)
-                ? parentField.some((b: any) => +b.id === +parentValue)
-                : +parentField === +parentValue;
-            });
-
-            const newOptions = filteredOptions.map(opt => ({
-              value: opt.id,
-              label: opt.name
-            }));
-
-            const colIndex = this.columns.findIndex(c => c.name === col.name);
-            if (colIndex !== -1) {
-              this.columns[colIndex] = {
-                ...this.columns[colIndex],
-                options: [...newOptions]
-              };
-            }
-
+        parentControl?.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((parentValue) => {
+            this.updateChildOptions(rowIndex, col, parentValue);
             formGroup.get(col.name)?.setValue('', { emitEvent: false });
             this.cdr.detectChanges();
           });
-        }
       }
     }
 
-    this.rows.update(r => [...r, formGroup]);
+    this.rows.update(rows => [...rows, formGroup]);
+  }
+
+  private updateChildOptions(rowIndex: number, childCol: TableColumn, parentValue: any) {
+    const filteredOptions = (childCol.rawData || []).filter((item: any) => {
+      const parentField = item[childCol.reliability!];
+      return Array.isArray(parentField)
+        ? parentField.some((p: any) => +p.id === +parentValue)
+        : +parentField === +parentValue;
+    });
+
+    this.rowOptions[rowIndex][childCol.name] = filteredOptions.map((opt: any) => ({
+      value: opt.id,
+      label: opt.name
+    }));
   }
 
 
@@ -139,14 +130,14 @@ export class SmartGridSheetComponent {
     }
   }
 
-isCellInvalid(form: FormGroup, col: TableColumn): boolean {
-  const ctrl = form.get(col.name);
-  return ctrl instanceof FormControl && ctrl.invalid && !!ctrl.value;
-}
+  isCellInvalid(form: FormGroup, col: TableColumn): boolean {
+    const ctrl = form.get(col.name);
+    return ctrl instanceof FormControl && ctrl.invalid && (!!ctrl.value || ctrl.touched || ctrl.dirty);
+  }
 
-getFormControl(form: FormGroup, col: TableColumn): FormControl {
-  return form.get(col.name) as FormControl;
-}
+  getFormControl(form: FormGroup, col: TableColumn): FormControl {
+    return form.get(col.name) as FormControl;
+  }
 
 
   paste(event: ClipboardEvent, startRow: number, startColName: string) {
@@ -176,6 +167,163 @@ getFormControl(form: FormGroup, col: TableColumn): FormControl {
     });
   }
 
+  // =============== select and delete ctrl + z and select one cell with double click ===============
+
+  selectedCells: { row: number; col: string }[] = [];
+  isSelecting = false;
+  hasMoved = false;
+  startRow: number | null = null;
+  startCol: number | null = null;
+  isDoubleClick = false;
+
+  startSelection(rowIndex: number, colName: string, event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.isContentEditable) {
+      this.isSelecting = false;
+      this.startRow = rowIndex;
+      this.startCol = this.columns.findIndex(c => c.name === colName);
+
+      // قم بتركيز العنصر فقط عند single click (ليس double click)
+      if (!this.isDoubleClick) {
+        // تأكد من أن العنصر موجود ونداء الـ focus عليه
+        (target as HTMLInputElement | HTMLSelectElement).focus();
+
+        // إزالة التحديد السابق عند التركيز single click
+        this.selectedCells = [];
+      }
+      return;
+    }
+
+    if (event.buttons === 1) {
+      this.isSelecting = true;
+      this.hasMoved = false;
+      this.startRow = rowIndex;
+      this.startCol = this.columns.findIndex(c => c.name === colName);
+    }
+  }
+
+  continueSelection(rowIndex: number, colName: string, event: MouseEvent) {
+    if (!this.isSelecting && this.startRow !== null && this.startCol !== null) {
+      this.isSelecting = true;
+    }
+    if (this.isSelecting && event.buttons === 1) {
+      this.hasMoved = true;
+      this.updateSelection(rowIndex, colName);
+    }
+  }
+
+
+  stopSelection() {
+    if ((this.hasMoved || this.isDoubleClick) && this.startRow !== null && this.startCol !== null) {
+      if (!this.hasMoved) {
+        this.selectedCells = [{
+          row: this.startRow,
+          col: this.columns[this.startCol].name
+        }];
+      }
+    } else {
+      this.selectedCells = [];
+    }
+
+    this.isSelecting = false;
+    this.hasMoved = false;
+    this.startRow = null;
+    this.startCol = null;
+    this.isDoubleClick = false;
+  }
+
+  onCellDoubleClick(rowIndex: number, colName: string, event: MouseEvent) {
+    event.preventDefault();
+    this.isDoubleClick = true;
+    this.startRow = rowIndex;
+    this.startCol = this.columns.findIndex(c => c.name === colName);
+    this.stopSelection();
+  }
+
+  updateSelection(rowIndex: number, colName: string) {
+    if (this.startRow === null || this.startCol === null) return;
+
+    const endRow = rowIndex;
+    const endCol = this.columns.findIndex(c => c.name === colName);
+
+    const rowMin = Math.min(this.startRow, endRow);
+    const rowMax = Math.max(this.startRow, endRow);
+    const colMin = Math.min(this.startCol, endCol);
+    const colMax = Math.max(this.startCol, endCol);
+
+    this.selectedCells = [];
+
+    for (let r = rowMin; r <= rowMax; r++) {
+      for (let c = colMin; c <= colMax; c++) {
+        this.selectedCells.push({ row: r, col: this.columns[c].name });
+      }
+    }
+  }
+
+  isSelected(rowIndex: number, colName: string) {
+    return this.selectedCells.some(c => c.row === rowIndex && c.col === colName);
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.stopSelection();
+  }
+
+  @HostListener('document:keydown.delete', ['$event'])
+  clearSelectedCells(event: KeyboardEvent) {
+    event.preventDefault();
+    this.selectedCells.forEach(cell => {
+      const control = this.rows()[cell.row].get(cell.col);
+      if (control) {
+        control.setValue('');
+      }
+    });
+    this.selectedCells = [];
+  }
+  // =================== move with attows ===================
+  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+    const key = event.key;
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) {
+      event.preventDefault();
+
+      let newRow = rowIndex;
+      let newCol = colIndex;
+
+      switch (key) {
+        case 'ArrowUp':
+          newRow = Math.max(0, rowIndex - 1);
+          break;
+        case 'ArrowDown':
+        case 'Enter':
+          newRow = Math.min(this.rows().length - 1, rowIndex + 1);
+          break;
+        case 'ArrowLeft':
+          newCol = Math.max(0, colIndex - 1);
+          break;
+        case 'ArrowRight':
+          newCol = Math.min(this.columns.length - 1, colIndex + 1);
+          break;
+      }
+
+      this.focusCell(newRow, newCol);
+    }
+  }
+
+  focusCell(row: number, col: number) {
+    const selector = `td[data-row="${row}"][data-col="${col}"]`;
+    const tdElement = document.querySelector(selector);
+
+    if (!tdElement) return;
+
+    const inputOrSelect = tdElement.querySelector('input, select') as HTMLElement;
+    if (inputOrSelect) {
+      inputOrSelect.focus();
+    }
+  }
+
+  // =================== Error Popup ===================
   ErrorPopup: boolean = false;
   errorPopupMessage: string = '';
 

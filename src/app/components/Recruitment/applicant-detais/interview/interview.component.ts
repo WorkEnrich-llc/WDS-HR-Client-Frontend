@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 
 @Component({
   selector: 'app-interview',
-  imports: [CommonModule, OverlayFilterBoxComponent],
+  imports: [OverlayFilterBoxComponent],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })

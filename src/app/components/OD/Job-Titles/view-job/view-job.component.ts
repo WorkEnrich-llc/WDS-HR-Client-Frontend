@@ -3,11 +3,11 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { DatePipe, CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-job',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-job.component.html',
   styleUrl: './view-job.component.css'

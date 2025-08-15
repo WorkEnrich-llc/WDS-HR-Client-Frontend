@@ -54,7 +54,7 @@
 
         <!-- start Table -->
 
-        <app-table [data]="restrictedDays" [totalItems]="restrictedDays.length" [itemsPerPage]="itemsPerPage"
+        <app-table [data]="restrictedDays"  [isLoading]="loadData" [columnsCount]="6" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
             [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="restrictedTableHeader"
             [rowTemplate]="restirectedTableRow" [emptyTemplate]="noRestricted"></app-table>
@@ -65,7 +65,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <span>Date Range</span>
                     <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
-                        viewBox=Employees>
+                        viewBox="0 0 24 24">
                         <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
                             <path d="M4 8h9m-7 5h7m-5 5h5" />
                             <path stroke-linejoin="round" d="M17 20V4l3 4" />

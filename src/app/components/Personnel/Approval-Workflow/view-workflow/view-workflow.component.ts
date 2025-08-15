@@ -3,11 +3,11 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-workflow',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent,CommonModule],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-workflow.component.html',
   styleUrl: './view-workflow.component.css'

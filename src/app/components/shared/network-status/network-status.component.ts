@@ -8,22 +8,24 @@ import { Observable } from 'rxjs';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div 
-      *ngIf="!(isOnline$ | async)" 
-      class="network-status-banner offline"
-      role="alert">
-      <i class="fas fa-wifi"></i>
-      <span>No internet connection. Please check your connection.</span>
-    </div>
+    @if (!(isOnline$ | async)) {
+      <div
+        class="network-status-banner offline"
+        role="alert">
+        <i class="fas fa-wifi"></i>
+        <span>No internet connection. Please check your connection.</span>
+      </div>
+    }
     
-    <div 
-      *ngIf="showOnlineMessage && (isOnline$ | async)" 
-      class="network-status-banner online"
-      role="alert">
-      <i class="fas fa-wifi"></i>
-      <span>Connection restored!</span>
-    </div>
-  `,
+    @if (showOnlineMessage && (isOnline$ | async)) {
+      <div
+        class="network-status-banner online"
+        role="alert">
+        <i class="fas fa-wifi"></i>
+        <span>Connection restored!</span>
+      </div>
+    }
+    `,
   styles: [`
     .network-status-banner {
       position: fixed;

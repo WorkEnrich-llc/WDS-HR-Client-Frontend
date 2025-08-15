@@ -8,8 +8,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-work-schedule',

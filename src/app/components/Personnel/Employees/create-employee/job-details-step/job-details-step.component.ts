@@ -1,16 +1,16 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
 import { BranchesService } from '../../../../../core/services/od/branches/branches.service';
 import { DepartmentsService } from '../../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
-import { WorkSchaualeService } from '../../../../../core/services/personnel/work-schaduale/work-schauale.service';
+import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-job-details-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './job-details-step.component.html',
   styleUrls: ['./job-details-step.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]
@@ -25,10 +25,22 @@ export class JobDetailsStepComponent implements OnInit {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupJobDetailsWatchers();
+    
+    // Clear any previous error messages when entering this step
+    this.sharedService.clearErrorMessages();
+    
     // Initially disable department, section, and job title selects until a branch/department is chosen
-    this.sharedService.jobDetails.get('department_id')?.disable();
-    this.sharedService.jobDetails.get('section_id')?.disable();
-    this.sharedService.jobDetails.get('job_title_id')?.disable();
+    const deptControl = this.sharedService.jobDetails.get('department_id');
+    const sectionControl = this.sharedService.jobDetails.get('section_id');
+    const jobTitleControl = this.sharedService.jobDetails.get('job_title_id');
+    
+    // If no branch is selected, disable department
+    if (!this.sharedService.jobDetails.get('branch_id')?.value) {
+      deptControl?.disable();
+    }
+    
+    sectionControl?.disable();
+    jobTitleControl?.disable();
   }
 
   private loadInitialData(): void {
@@ -47,8 +59,11 @@ export class JobDetailsStepComponent implements OnInit {
     // Watch for branch changes to fetch departments and manage field states
     this.sharedService.jobDetails.get('branch_id')?.valueChanges.subscribe(branchId => {
       if (branchId) {
-        // enable department select
-        this.sharedService.jobDetails.get('department_id')?.enable();
+        // enable department select and clear any previous errors
+        const deptControl = this.sharedService.jobDetails.get('department_id');
+        deptControl?.enable();
+        this.sharedService.clearFieldErrors('department_id', this.sharedService.jobDetails);
+        
         this.loadDepartmentsByBranch(branchId);
         // Reset dependent fields
         this.sharedService.jobDetails.get('department_id')?.setValue(null);
@@ -76,10 +91,18 @@ export class JobDetailsStepComponent implements OnInit {
       // reset dependent fields
       this.sharedService.jobDetails.get('section_id')?.setValue(null);
       this.sharedService.jobDetails.get('job_title_id')?.setValue(null);
+      
       if (departmentId) {
+        // Clear error messages and field errors when department is selected
+        this.sharedService.clearErrorMessages();
+        this.sharedService.clearFieldErrors('department_id', this.sharedService.jobDetails);
+        this.sharedService.clearFieldErrors('section_id', this.sharedService.jobDetails);
+        this.sharedService.clearFieldErrors('job_title_id', this.sharedService.jobDetails);
+        
         // enable section and job title selects
         this.sharedService.jobDetails.get('section_id')?.enable();
         this.sharedService.jobDetails.get('job_title_id')?.enable();
+        
         // fetch all job titles for selected department
         this.jobsService.getAllJobTitles(1, 100, { department: departmentId.toString() }).subscribe({
           next: res => {
@@ -136,10 +159,28 @@ export class JobDetailsStepComponent implements OnInit {
   }
 
   goNext() {
-    this.sharedService.goNext();
+    // Clear any previous error messages before validation
+    this.sharedService.clearErrorMessages();
+    
+    // Validate job details before proceeding
+    if (this.sharedService.validateCurrentStep()) {
+      this.sharedService.goNext();
+    }
   }
 
   goPrev() {
+    // Clear any error messages when going back
+    this.sharedService.clearErrorMessages();
     this.sharedService.goPrev();
+  }
+
+  // Helper method to reset form field state
+  private resetFieldState(fieldName: string): void {
+    const control = this.sharedService.jobDetails.get(fieldName);
+    if (control) {
+      control.setErrors(null);
+      control.markAsUntouched();
+      control.markAsPristine();
+    }
   }
 }

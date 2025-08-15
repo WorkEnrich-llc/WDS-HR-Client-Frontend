@@ -4,8 +4,8 @@ import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sheet/smart-grid-sheet.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
-import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+
 
 export interface HeaderItem {
   label: string;
@@ -17,7 +17,7 @@ export interface HeaderItem {
 
 @Component({
   selector: 'app-system-file',
-  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule],
+  imports: [PageHeaderComponent, SmartGridSheetComponent, RouterLink],
   templateUrl: './system-file.component.html',
   styleUrl: './system-file.component.css',
   encapsulation: ViewEncapsulation.None
@@ -122,7 +122,7 @@ export class SystemFileComponent implements OnInit {
     this._systemCloudService.getSystemFileData(fileId).subscribe({
       next: (response) => {
         this.systemFileData = response.data.object_info;
-        console.log(this.systemFileData);
+        // console.log(this.systemFileData);
 
         if (this.systemFileData.header) {
           this.customColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.header);
