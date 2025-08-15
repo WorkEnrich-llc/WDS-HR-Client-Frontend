@@ -13,13 +13,13 @@
 
   <!-- Table Row Template -->
   <ng-template #rowTemplate let-request>
-    <td class="text-start">{{ getFormattedDate(request.requestedAt) }}</td>
-    <td class="text-start">{{ request.currentStep }}</td>
-    <td class="text-start">{{ request.leaveType }}</td>
-    <td class="text-start">{{ request.dateRange }}</td>
+    <td class="text-start">{{ getFormattedDate(request.created_at) }}</td>
+    <td class="text-start">{{ getCurrentStep(request) }}</td>
+    <td class="text-start">{{ request.name }}</td>
+    <td class="text-start">{{ getDateRange(request) }}</td>
     <td class="text-start">
-      <span [ngClass]="getStatusClass(request.status)">
-        @if (request.status === 'Pending') {
+      <span [ngClass]="getStatusClass(request.status.name)">
+        @if (request.status.name === 'Pending') {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
             >
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -28,7 +28,7 @@
             </g>
           </svg>
         }
-        @if (request.status === 'Active') {
+        @if (request.status.name === 'Approved' || request.status.name === 'Active') {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
             >
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -37,7 +37,7 @@
             </g>
           </svg>
         }
-        @if (request.status === 'Disabled') {
+        @if (request.status.name === 'Rejected' || request.status.name === 'Disabled') {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
             >
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -46,7 +46,7 @@
             </g>
           </svg>
         }
-        @if (request.status === 'Inactive') {
+        @if (request.status.name === 'Expired' || request.status.name === 'Inactive') {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
             >
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -55,11 +55,11 @@
             </g>
           </svg>
         }
-        <span>{{ request.status }}</span>
+        <span>{{ request.status.name }}</span>
       </span>
     </td>
     <td class="text-start">
-      <a [routerLink]="['/requests/view-requests/4']" class="view-btn">
+      <a [routerLink]="['/requests/view-requests/', request.id]" class="view-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z"/>
