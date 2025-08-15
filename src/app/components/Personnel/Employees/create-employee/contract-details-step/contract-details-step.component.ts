@@ -20,10 +20,6 @@ export class ContractDetailsStepComponent {
     this.sharedService.goPrev();
   }
 
-  goNext() {
-    this.sharedService.goNext();
-  }
-
   onSubmit() {
     this.submitForm.emit();
   }

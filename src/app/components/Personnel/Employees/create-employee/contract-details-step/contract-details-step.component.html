@@ -101,7 +101,7 @@
                     }
                   </div>
 
-                  <!-- prev and next buttons -->
+                  <!-- prev and submit buttons -->
                   <div class="btn-fixed d-flex align-items-stretch gap-2">
                     <button type="button"
                       class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
@@ -111,14 +111,21 @@
                           stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                         </svg>
                       </button>
-                      <button type="button" class="btn btn-lg btn-success" (click)="goNext()">
+                      <button type="button" class="btn btn-lg btn-success" (click)="onSubmit()">
+                        @if (sharedService.isLoading()) {
+                          <span class="spinner-grow spinner-grow-sm" role="status"
+                          aria-hidden="true"></span>
+                        }
                         @if (!sharedService.isLoading()) {
-                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                              stroke-width="2" d="m9 6l6 6l-6 6" />
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <circle cx="12" cy="12" r="10" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                            </g>
                           </svg>
                         }
-                        <span>Next</span>
+                        <span>Create Employee</span>
                       </button>
                     </div>
                   </div>

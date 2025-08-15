@@ -347,17 +347,17 @@ export class CreateEmployeeSharedService {
         }
         break;
       case 3:
-        this.contractDetails.markAllAsTouched();
-        if (this.contractDetails.invalid) {
-          isValid = false;
-          this.errMsg.set('Please fill in all required fields in Contract Details');
-        }
-        break;
-      case 4:
         this.attendanceDetails.markAllAsTouched();
         if (this.attendanceDetails.invalid) {
           isValid = false;
           this.errMsg.set('Please fill in all required fields in Attendance Details');
+        }
+        break;
+      case 4:
+        this.contractDetails.markAllAsTouched();
+        if (this.contractDetails.invalid) {
+          isValid = false;
+          this.errMsg.set('Please fill in all required fields in Contract Details');
         }
         break;
     }
