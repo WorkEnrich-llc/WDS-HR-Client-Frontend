@@ -288,6 +288,22 @@ export class CreateEmployeeSharedService {
     return '';
   }
 
+  // Method to clear field errors and reset touched state
+  clearFieldErrors(fieldName: string, formGroup?: FormGroup): void {
+    const group = formGroup || this.employeeForm;
+    const field = group.get(fieldName);
+    if (field) {
+      field.setErrors(null);
+      field.markAsUntouched();
+      field.markAsPristine();
+    }
+  }
+
+  // Method to clear all error messages
+  clearErrorMessages(): void {
+    this.errMsg.set('');
+  }
+
   validateCurrentStep(): boolean {
     let isValid = true;
     this.errMsg.set('');
