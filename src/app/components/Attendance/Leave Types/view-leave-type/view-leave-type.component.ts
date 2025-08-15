@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { CommonModule, DatePipe } from '@angular/common';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-view-leave-type',

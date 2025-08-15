@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { RestrictedService } from '../../../../core/services/personnel/restricted-days/restricted.service';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
 
 @Component({
   selector: 'app-view-restricted-days',

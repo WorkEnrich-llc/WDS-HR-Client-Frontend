@@ -2,74 +2,35 @@ import { Component, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
-import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
+import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
+import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 
 @Component({
   selector: 'app-attendance-log',
-  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, CommonModule, ReactiveFormsModule, FormsModule],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
   styleUrl: './attendance-log.component.css'
 })
 export class AttendanceLogComponent {
-  filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+
+  constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
-attendanceLogs = [
-  {
-    id: '12',
-    name: 'Ahmed Ali',
-    arriveTime: '09:00 AM',
-    leaveTime: '05:00 PM',
-    in: '09:00 AM',
-    out: '04:00 PM',
-    date: '2023-10-01',
-    dayType: 'Working Day',
-    worksHours: '8',
-    workHours: '7',
-    missingHours: '1',
-    deduction: '0.25 Day'
-  },
-  {
-    id: '13',
-    name: 'Sara Mostafa',
-    arriveTime: '09:00 AM',
-    leaveTime: '05:00 PM',
-    in: '08:45 AM',
-    out: '05:00 PM',
-    date: '2023-10-02',
-    dayType: 'Working Day',
-    worksHours: '8',
-    workHours: '8',
-    missingHours: '',
-    deduction: ''
-  },
-  {
-    id: '14',
-    name: 'Mohamed Ibrahim',
-    arriveTime: '09:00 AM',
-    leaveTime: '05:00 PM',
-    in: '09:15 AM',
-    out: '04:30 PM',
-    date: '2023-10-03',
-    dayType: 'Working Day',
-    worksHours: '8',
-    workHours: '6.5',
-    missingHours: '1.5',
-    deduction: '0.5 Day'
-  }
-];
+
+
+
+  attendanceLogs: any[] = [];
 
 
   // error text 
@@ -100,8 +61,8 @@ attendanceLogs = [
     return hours * 60 + minutes;
   }
 
-
   searchTerm: string = '';
+  filterForm!: FormGroup;
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
@@ -115,17 +76,19 @@ attendanceLogs = [
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
-
-
   ngOnInit(): void {
+    this.filterForm = this.fb.group({
+      search: ['']
+    });
     this.today.setHours(0, 0, 0, 0);
     this.selectedDate = new Date(this.today);
     this.baseDate = this.getStartOfWeek(this.today);
     this.generateDays(this.baseDate);
 
+    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
+
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
-      // this.getAllWorkSchedule(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -133,15 +96,41 @@ attendanceLogs = [
       .subscribe(msg => {
         this.toastr.clear();
         this.toastr.success(msg, '', { timeOut: 3000 });
-
         this.toasterMessageService.clearMessage();
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllWorkSchedule(this.currentPage, value);
+      const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+      this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, value, formattedDate);
     });
 
+  }
 
+
+  getAllAttendanceLog(pageNumber: number, perPage: number, searchTerm: string = '', date?: string): void {
+
+    this.loadData = true;
+    const targetDate = date || this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+
+    this._AttendanceLogService
+      .getAttendanceLog(pageNumber, perPage, targetDate, { employee: searchTerm })
+      .subscribe({
+        next: (data) => {
+          console.log('Attendance logs fetched successfully:', data);
+          this.attendanceLogs = data.data.object_info.list_items;
+          this.totalItems = data.data.total_items;
+          this.totalpages = data.data.total_pages;
+          console.log(this.attendanceLogs);
+          this.loadData = false;
+        },
+        error: (error) => {
+          console.error('Error fetching attendance logs:', error);
+        }
+      });
+  }
+
+  onSearchChange() {
+    this.searchSubject.next(this.searchTerm);
   }
 
   sortBy() {
@@ -157,6 +146,29 @@ attendanceLogs = [
       }
     });
   }
+
+  toTime(timeString: string | null): Date | null {
+    if (!timeString) return null;
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  }
+
+getRowStatus(isWorkingDay: boolean): string {
+  const allFalse = this.attendanceLogs.every(a => !a.is_working_day);
+  const hasTrue = this.attendanceLogs.some(a => a.is_working_day);
+
+  if (allFalse) {
+    return 'Holiday';
+  }
+
+  if (hasTrue && !allFalse) {
+    return isWorkingDay ? 'Working Day' : 'Day Off';
+  }
+
+  return 'Working Day';
+}
 
   // calender 
   generateDays(startDate: Date): void {
@@ -210,24 +222,36 @@ attendanceLogs = [
 
   selectDate(date: Date): void {
     if (date > this.today) return;
+
     this.selectedDate = date;
-    console.log('Selected date:', date.toDateString());
+
+    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+    console.log('Selected date:', formattedDate);
+
+    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
+
   }
 
   isSelected(date: Date): boolean {
     return this.selectedDate.toDateString() === date.toDateString();
   }
-
+  trackByDate(index: number, day: { date: Date }): number {
+    return new Date(day.date).getTime();
+  }
   // end calender
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllWorkSchedule(this.currentPage);
+    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
   }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllWorkSchedule(this.currentPage);
+    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
   }
+
 
 }

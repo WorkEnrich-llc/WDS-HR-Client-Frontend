@@ -5,10 +5,10 @@ import { DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-create-workflow',

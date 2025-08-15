@@ -277,7 +277,7 @@
                                                                                 <h2 class="accordion-header" id="headingThree">
                                                                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                                                                     data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                                                                    @if (currentRoute.includes('attendance') || currentRoute.includes('restricted-days') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('permissions')) {
+                                                                                    @if (currentRoute.includes('attendance') || currentRoute.includes('attendance-rules') || currentRoute.includes('restricted-days') || currentRoute.includes('schedule') || currentRoute.includes('leave-types') || currentRoute.includes('permissions')) {
                                                                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="svg-active-accordion"
                                                                                         viewBox="0 0 24 24">
                                                                                         <path
@@ -318,7 +318,7 @@
                                                                                                   </a>
                                                                                                 </li>
                                                                                                 <!-- Attendance Rules Link -->
-                                                                                                <li class="sidenav-nav-item" routerLink="/attendance/attendance-rules"
+                                                                                                <li class="sidenav-nav-item" routerLink="/attendance-rules"
                                                                                                   routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
                                                                                                   <a class="sidenav-nav-link d-flex align-items-center">
                                                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

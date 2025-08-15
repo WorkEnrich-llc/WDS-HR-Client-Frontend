@@ -92,6 +92,12 @@ export class EmployeeService {
     return this.http.get<any>(url);
   }
 
+  // Get attendance log for a specific date and employee
+  getAttendanceLog(date: string, employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/attendance-log?date=${date}&employee=${employeeId}`;
+    return this.http.get<any>(url);
+  }
+
   // Delete an uploaded employee document
   deleteEmployeeDocument(documentId: number, employeeId: number): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/employees-documents/${documentId}/`;

@@ -7,8 +7,8 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
 @Component({
   selector: 'app-update-workflow',

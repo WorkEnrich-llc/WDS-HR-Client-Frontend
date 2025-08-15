@@ -10,8 +10,8 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ContractsTabComponent } from '../view-employee/tabs/contracts-tab/contracts-tab.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
-import { WorkSchaualeService } from '../../../../core/services/personnel/work-schaduale/work-schauale.service';
 import { WorkSchedule } from '../../../../core/interfaces/work-schedule';
+import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
   selector: 'app-view-new-joiner',

@@ -301,7 +301,7 @@ export const routes: Routes = [
 
         children: [
 
-          // Attendance Rules routes
+          // Attendance log routes
           {
             path: 'attendance',
             children: [
@@ -314,6 +314,18 @@ export const routes: Routes = [
                 path: 'attendance-log',
                 loadComponent: () => import('./components/Attendance/attendance-log/attendance-log/attendance-log.component').then(m => m.AttendanceLogComponent),
                 title: 'Attendance Log',
+              }
+            ]
+          },
+
+          // attendance rules
+          {
+            path: 'attendance-rules',
+            children: [
+              {
+                path: '',
+                redirectTo: 'attendance-rules',
+                pathMatch: 'full'
               },
               {
                 path: 'attendance-rules',

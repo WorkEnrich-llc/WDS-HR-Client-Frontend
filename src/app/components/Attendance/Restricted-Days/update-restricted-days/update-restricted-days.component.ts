@@ -5,9 +5,9 @@ import { DatePipe, formatDate } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RestrictedService } from '../../../../core/services/personnel/restricted-days/restricted.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
 
 @Component({
   selector: 'app-update-restricted-days',
