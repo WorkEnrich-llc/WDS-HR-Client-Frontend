@@ -291,6 +291,23 @@ export const routes: Routes = [
               },
             ]
           },
+          
+          // onboarding routes
+          {
+            path: 'onboarding',
+            children: [
+              {
+                path: '',
+                redirectTo: 'create-onboarding',
+                pathMatch: 'full'
+              },
+              {
+                path: 'create-onboarding',
+                loadComponent: () => import('./components/Personnel/onboarding/onboarding/onboarding.component').then(m => m.OnboardingComponent),
+                title: 'Onboarding List',
+              },
+            ]
+          },
         ]
       },
 

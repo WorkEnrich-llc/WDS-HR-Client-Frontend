@@ -160,7 +160,7 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
             @if (currentRoute.includes('dashboard') || currentRoute.includes('employees') ||
-            currentRoute.includes('workflow') || currentRoute.includes('requests')) {
+            currentRoute.includes('workflow') || currentRoute.includes('requests')|| currentRoute.includes('onboarding')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
               class="svg-active-accordion">
               <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
@@ -258,6 +258,20 @@
                   </svg>
                   @if (collapsed) {
                   <span>Requests</span>
+                  }
+                </a>
+              </li>
+              <li class="sidenav-nav-item" routerLink="/onboarding" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                      d="M8.136 1.603a.75.75 0 0 1-.238 1.033l-4 2.5a.75.75 0 0 1-.796-1.272l4-2.5a.75.75 0 0 1 1.034.239m7.728 0a.75.75 0 0 1 1.034-.239l4 2.5a.75.75 0 1 1-.796 1.272l-4-2.5a.75.75 0 0 1-.238-1.033M12 4.75a8.25 8.25 0 1 0 0 16.5a8.25 8.25 0 0 0 0-16.5M2.25 13c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75s-4.365 9.75-9.75 9.75S2.25 18.385 2.25 13M12 9.25a.75.75 0 0 1 .75.75v2.25H15a.75.75 0 0 1 0 1.5h-2.25V16a.75.75 0 0 1-1.5 0v-2.25H9a.75.75 0 0 1 0-1.5h2.25V10a.75.75 0 0 1 .75-.75"
+                      clip-rule="evenodd" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Onboarding List</span>
                   }
                 </a>
               </li>
@@ -617,7 +631,8 @@
                 </a>
               </li>
               <!-- Roles link -->
-              <li class="sidenav-nav-item" routerLink="/roles" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+              <li class="sidenav-nav-item" routerLink="/roles" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -632,7 +647,8 @@
                 </a>
               </li>
               <!-- Users link -->
-              <li class="sidenav-nav-item" routerLink="/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+              <li class="sidenav-nav-item" routerLink="/users" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -680,20 +696,113 @@
       </a>
     </li>
     <!-- notifications button -->
-    <li class="sidenav-nav-item" (click)="closeAllAccordions()">
-      <a class="sidenav-nav-link d-flex align-items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path
-            d="M18.75 9v.704c0 .845.24 1.671.692 2.374l1.108 1.723c1.011 1.574.239 3.713-1.52 4.21a25.8 25.8 0 0 1-14.06 0c-1.759-.497-2.531-2.636-1.52-4.21l1.108-1.723a4.4 4.4 0 0 0 .693-2.374V9c0-3.866 3.022-7 6.749-7s6.75 3.134 6.75 7"
-            opacity=".5" />
-          <path d="M7.243 18.545a5.002 5.002 0 0 0 9.513 0c-3.145.59-6.367.59-9.513 0" />
-        </svg>
+    <li class="sidenav-nav-item" [class.active]="isNotificationOpen" (click)="handleNotificationClick()">
+      <a class="sidenav-nav-link d-flex align-items-center position-relative">
+        <div class="position-relative">
+          <svg class="notification-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path
+              d="M18.75 9v.704c0 .845.24 1.671.692 2.374l1.108 1.723c1.011 1.574.239 3.713-1.52 4.21a25.8 25.8 0 0 1-14.06 0c-1.759-.497-2.531-2.636-1.52-4.21l1.108-1.723a4.4 4.4 0 0 0 .693-2.374V9c0-3.866 3.022-7 6.749-7s6.75 3.134 6.75 7"
+              opacity=".5" />
+            <path d="M7.243 18.545a5.002 5.002 0 0 0 9.513 0c-3.145.59-6.367.59-9.513 0" />
+          </svg>
+          @if (hasNewNotifications) {
+          <div class="notification-dot"></div>
+          }
+        </div>
+
         @if (collapsed) {
         <span>Notifications</span>
         }
+
       </a>
     </li>
+
+
   </ul>
 
 </aside>
 <!-- end side bar -->
+
+
+
+
+
+<!-- Notifications popup -->
+<app-overlay-filter-box #notificationsBox [title]="'Notifications'">
+  <div class="notification">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12"
+          opacity=".5" />
+        <path fill="currentColor"
+          d="M7 16.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zm0-3.5a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5zM22 5a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
+      </svg>
+    </div>
+    <div class="noti-content">
+      <div class="d-flex align-items-center justify-content-between">
+        <h6>Label</h6>
+        <span>2 hr ago</span>
+      </div>
+      <p class="m-0">
+        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed morbi
+      </p>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-dark">Decline</button>
+        <button class="btn btn-dark">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification success">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12"
+          opacity=".5" />
+        <path fill="currentColor"
+          d="M7 16.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zm0-3.5a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5zM22 5a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
+      </svg>
+    </div>
+    <div class="noti-content">
+      <div class="d-flex align-items-center justify-content-between">
+        <h6>Label</h6>
+        <span>2 hr ago</span>
+      </div>
+      <p class="m-0">
+        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed morbi
+      </p>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-success">Decline</button>
+        <button class="btn btn-success">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification danger">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12"
+          opacity=".5" />
+        <path fill="currentColor"
+          d="M7 16.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zm0-3.5a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5zM22 5a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
+      </svg>
+    </div>
+    <div class="noti-content">
+      <div class="d-flex align-items-center justify-content-between">
+        <h6>Label</h6>
+        <span>2 hr ago</span>
+      </div>
+      <p class="m-0">
+        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed morbi
+      </p>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-danger">Decline</button>
+        <button class="btn btn-danger">Accept</button>
+      </div>
+    </div>
+  </div>
+
+
+</app-overlay-filter-box>
