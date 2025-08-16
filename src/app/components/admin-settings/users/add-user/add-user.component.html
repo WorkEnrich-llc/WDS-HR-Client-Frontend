@@ -1,0 +1,139 @@
+<app-page-header [breadcrumbs]="[
+    { label: 'Admin settings', link: '/cloud' },
+    { label: 'Users', link: '/users' },
+    {  label: 'Add User'}
+  ]" title="Add User" [create]="todayFormatted">
+    <button class="btn btn-lg btn-success">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isLoading) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Invite user</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard</span>
+    </button>
+</app-page-header>
+
+<!-- start content -->
+<div class="content-hug">
+    <div class="d-flex flex-column gap-4">
+
+        <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
+            <h2>User Information</h2>
+            <form class="w-lg-50 d-flex flex-column gap-2">
+
+                <div class="input">
+                    <label for="userId">User ID (Optional)</label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="userId" class="form-control custom-date-input" placeholder="0050" />
+                    </div>
+                </div>
+
+                <div class="input">
+                    <label for="userName">User Name <span>*</span></label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="userName" class="form-control custom-date-input"
+                            placeholder="User Name" />
+                    </div>
+                    <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name min length must be 3.
+                </p>
+              }
+              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['maxLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name max length must be 100.
+                </p>
+              }
+              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name is required.
+                </p>
+              } -->
+                </div>
+                <div class="input">
+                    <label for="email">Email <span>*</span></label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="email" class="form-control custom-date-input" placeholder="Email" />
+                    </div>
+                    <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name min length must be 3.
+                </p>
+              }
+              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['maxLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name max length must be 100.
+                </p>
+              }
+              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name is required.
+                </p>
+              } -->
+                </div>
+
+
+
+                <div class="input">
+                    <label for="userRole">User Role</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select name="userRole" id="userRole" class="form-select">
+                                <option value="" disabled selected hidden>Select one User Role</option>
+                                <!-- @for (item of departments; track item) {
+                      <option [value]="item.id">{{item.name}}</option>
+                    } -->
+                            </select>
+                        </div>
+                    </div>
+                    <!-- @if (workflow1.get('department_id')?.touched && workflow1.get('department_id')?.errors?.['required']) {
+                <p class="error-msg"
+                  >
+                  Department is required.
+                </p>
+              } -->
+                </div>
+                <!-- @if (errMsg) {
+              <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+              </div>
+            } -->
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- discard -->
+<app-popup [title]="'Discard New User'" [paragraph1]="'Are you sure you want to discard creating the new User?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard User
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

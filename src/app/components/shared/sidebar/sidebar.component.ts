@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
 
 interface SideNavToggle {
   screenWidth: number;
@@ -9,7 +10,7 @@ interface SideNavToggle {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, OverlayFilterBoxComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
@@ -20,6 +21,34 @@ export class SidebarComponent implements OnInit {
 
 
   @Output() onToggleSideNav: EventEmitter<SideNavToggle> = new EventEmitter();
+
+  // start notification popup
+  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+
+  isNotificationOpen = false;
+hasNewNotifications = true;
+
+  handleNotificationClick() {
+    this.closeAllAccordions();
+
+    if (this.isNotificationOpen) {
+      this.overlay.closeOverlay();
+    } else {
+      this.overlay.openOverlay();
+      this.isNotificationOpen = true;
+    }
+  }
+
+  ngAfterViewInit() {
+    this.overlay.onClose.subscribe(() => {
+      this.isNotificationOpen = false;
+    });
+  }
+  // end notification popup
+
+
+
+
   collapsed = true;
   screenWidth = 0;
   showText = false;
@@ -39,10 +68,10 @@ export class SidebarComponent implements OnInit {
       screenWidth: this.screenWidth,
     });
   }
-// close accourdions opens when click one out accourdion 
-@ViewChild('accordionWrapper') accordionWrapper!: ElementRef;
+  // close accourdions opens when click one out accourdion 
+  @ViewChild('accordionWrapper') accordionWrapper!: ElementRef;
 
-closeAllAccordions(): void {
+  closeAllAccordions(): void {
     const accordions = this.accordionWrapper.nativeElement.querySelectorAll('.accordion-collapse.show');
 
     accordions.forEach((el: HTMLElement) => {

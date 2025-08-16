@@ -27,7 +27,8 @@ export class AttendanceRuleComponent implements OnInit {
     this.loading = true;
     this.attendanceRulesService.getAttendanceRules().subscribe({
       next: (response) => {
-        this.attendanceRulesData = response.data;
+        this.attendanceRulesData = response?.data;
+        console.log(this.attendanceRulesData);
         this.loading = false;
       },
       error: (error) => {

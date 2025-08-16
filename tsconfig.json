@@ -16,7 +16,13 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022",
+       "baseUrl": "./src/",
+      "paths": {
+      "@app/models": ["app/core/models"],
+      "@app/enums": ["app/core/enums"],
+      "@app/constants": ["app/core/constants"],
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

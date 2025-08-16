@@ -7,16 +7,22 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PermissionsService {
-  
- private apiBaseUrl: string;
+
+  private apiBaseUrl: string;
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
 
   // get permissions
-    getPermissions(): Observable<any> {
-      const url = `${this.apiBaseUrl}personnel/permissions-view`;
-      return this._HttpClient.get(url);
-    }
+  getPermissions(): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/permissions-view`;
+    return this._HttpClient.get(url);
+  }
+
+  // update permissions
+  updatePermission(permissionData: any): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/permissions-update`;
+    return this._HttpClient.put(url, permissionData);
+  }
 }

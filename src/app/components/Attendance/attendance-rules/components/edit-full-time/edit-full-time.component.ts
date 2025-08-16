@@ -85,7 +85,7 @@ export class EditFullTimeComponent {
   }
 
   // steps navigation
-  currentStep = 2;
+  currentStep = 1;
 
   goNext() {
     this.currentStep++;
@@ -111,81 +111,56 @@ export class EditFullTimeComponent {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/attendance']);
+    this.router.navigate(['/attendance-rules']);
   }
 
   // Save function
   saveChanges() {
-    const requestData = {
-      "request_data": {
-        "settings": {
-          "full_time": {
-            "lateness": this.latenessEntries.map((entry, index) => ({
-              "index": index + 1,
-              "value": entry.value || 0
-            })),
-            "early_leave": {
-              "same_as_lateness": this.sameAsLateness,
-              "entries": this.earlyLeaveRows.map((row, index) => ({
-                "index": index + 1,
-                "value": row.deduction || 0
-              }))
-            },
-            "absence": this.absenceEntries.map((entry, index) => ({
-              "index": index + 1,
-              "value": entry.value || 0
-            })),
-            "grace_period": {
-              "status": this.allowGrace,
-              "minutes": this.graceMinutes || 0
-            },
-            "overtime": {
-              "status": this.allowOvertime,
-              "type": this.overtimeType,
-              "flat_rate": this.overtimeType === 'flatRate' ? (this.flatRateValue || 0) : null,
-              "custom_hours": this.overtimeType === 'customHours' ? this.overtimeEntries.map((entry, index) => ({
-                "index": index + 1,
-                "from": entry.from || "",
-                "to": entry.to || "",
-                "rate": entry.rate || 0
-              })) : null
-            }
-          },
-          "part_time": {
-            // TODO: Add part-time settings when implemented
-            "lateness": [],
-            "early_leave": {
-              "same_as_lateness": false,
-              "entries": []
-            },
-            "absence": [],
-            "grace_period": {
-              "status": false,
-              "minutes": 0
-            },
-            "overtime": {
-              "status": false,
-              "type": "flatRate",
-              "flat_rate": null,
-              "custom_hours": null
-            }
+  const requestData = {
+    request_data: {
+      settings: {
+        full_time: {
+          lateness: this.latenessEntries.map((entry, index) => ({
+            index: index + 1,
+            value: entry.value || 0
+          })),
+          early_leave: this.earlyLeaveRows.map((row, index) => ({
+            index: index + 1,
+            value: row.deduction || 0
+          })),
+          absence: this.absenceEntries.map((entry, index) => ({
+            index: index + 1,
+            value: entry.value || 0
+          })),
+          grace_period: {
+            status: this.allowGrace,
+            minutes: this.graceMinutes || 0
+          }
+        },
+        part_time: {
+          lateness: [],
+          early_leave: [],
+          absence: [],
+          grace_period: {
+            status: false,
+            minutes: 0
           }
         }
       }
-    };
+    }
+  };
 
-    console.log('Save Data:', requestData);
-    // TODO: Send to API
-    // Example API call:
-    // this.attendanceService.saveFullTimeRules(requestData).subscribe(
-    //   response => {
-    //     console.log('Rules saved successfully:', response);
-    //     // Show success message
-    //   },
-    //   error => {
-    //     console.error('Error saving rules:', error);
-    //     // Show error message
-    //   }
-    // );
-  }
+  console.log('Save Data:', requestData);
+
+  // إرسال البيانات للـ API
+  // this.attendanceService.saveFullTimeRules(requestData).subscribe(
+  //   response => {
+  //     console.log('Rules saved successfully:', response);
+  //   },
+  //   error => {
+  //     console.error('Error saving rules:', error);
+  //   }
+  // );
+}
+
 }

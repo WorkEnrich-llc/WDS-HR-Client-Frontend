@@ -283,32 +283,6 @@ export class SmartGridSheetComponent {
   }
   // =================== move with attows ===================
   handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
-    const key = event.key;
-
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) {
-      event.preventDefault();
-
-      let newRow = rowIndex;
-      let newCol = colIndex;
-
-      switch (key) {
-        case 'ArrowUp':
-          newRow = Math.max(0, rowIndex - 1);
-          break;
-        case 'ArrowDown':
-        case 'Enter':
-          newRow = Math.min(this.rows().length - 1, rowIndex + 1);
-          break;
-        case 'ArrowLeft':
-          newCol = Math.max(0, colIndex - 1);
-          break;
-        case 'ArrowRight':
-          newCol = Math.min(this.columns.length - 1, colIndex + 1);
-          break;
-      }
-
-      this.focusCell(newRow, newCol);
-    }
   }
 
   focusCell(row: number, col: number) {

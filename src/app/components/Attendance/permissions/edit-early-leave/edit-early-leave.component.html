@@ -4,14 +4,19 @@
     { label: 'Permissions', link: '/permissions' },
     { label: 'Edit Early Leave' }
   ]" title="Edit Early Leave permission">
-    <button class="btn btn-lg btn-success">
-        <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+    <button class="btn btn-lg btn-success" [disabled]="!isChanged || (allowPermission && !minutes)"
+        (click)="saveChanges()">
+       
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        } @else {
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
         </svg>
+        }
         <span>Save Changes</span>
     </button>
 
@@ -42,31 +47,38 @@
 
             <!-- Number input -->
             <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
-                <label for="jobTitle">Maximum Requested Minutes <span>*</span></label>
+                <label for="minutes">Maximum Requested Minutes <span *ngIf="allowPermission">*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="number" id="jobTitle" class="form-control custom-date-input" placeholder="Per month"
-                        [disabled]="!allowPermission" />
+                    <input type="number" id="minutes" class="form-control custom-date-input" placeholder="Per month"
+                        [disabled]="!allowPermission" [(ngModel)]="minutes" name="minutes" [required]="allowPermission"
+                        min="1" />
                 </div>
             </div>
 
+
             <!-- Second checkbox -->
-            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
+            <!-- <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
                 [style.opacity]="allowPermission ? 1 : 0.5">
                 <input class="form-check-input m-0" type="checkbox" id="linkedPolicy" [disabled]="!allowPermission"
                     [(ngModel)]="linkedPolicy" name="linkedPolicy" />
                 <label class="form-check-label m-0" for="linkedPolicy">
                     Linked to attendance Policy
                 </label>
-            </div>
+            </div> -->
 
             <!-- Notes textarea -->
             <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
-                <label for="jobDesc">Notes (Optional)</label>
+                <label for="note">Notes (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea id="jobDesc" class="form-control" placeholder="Add additional Notes"
-                        [disabled]="!allowPermission"></textarea>
+                    <textarea id="note" class="form-control" placeholder="Add additional Notes"
+                        [disabled]="!allowPermission" [(ngModel)]="note" name="note"></textarea>
                 </div>
             </div>
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+            </div>
+            }
         </form>
 
     </div>
