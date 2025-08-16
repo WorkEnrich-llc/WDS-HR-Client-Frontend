@@ -25,36 +25,38 @@
         }
       </div>
 
-      <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-        <input class="form-check-input m-0" type="checkbox" id="withEnd" [checked]="sharedService.withEndDate"
-          (change)="sharedService.contractDetails.get('contract_type')?.setValue($any($event.target).checked ? 1 : 2)" />
-        <label class="form-check-label m-0" for="withEnd">
-          With end date
-        </label>
-      </div>
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+              <input class="form-check-input m-0" type="checkbox" id="withEnd" [checked]="sharedService.withEndDate"
+                (change)="sharedService.contractDetails.get('contract_type')?.setValue($any($event.target).checked ? 1 : 2)" />
+              <label class="form-check-label m-0" for="withEnd">
+                With end date
+              </label>
+            </div>
 
-      <div class="input">
-        <label for="contract_end_date">Contract End Date</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="date" id="contract_end_date" formControlName="contract_end_date"
-              class="form-control custom-date-input" [disabled]="!sharedService.withEndDate" />
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <g fill="none" stroke-width="1.5">
-                <path stroke-linecap="round"
-                  d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                <circle cx="18" cy="18" r="3" />
-                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-              </g>
-            </svg>
-          </div>
-        </div>
-        @if (sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)) {
-        <p class="error-msg">
-          {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
-        </p>
-        }
-      </div>
+            @if (sharedService.withEndDate) {
+            <div class="input">
+              <label for="contract_end_date">Contract End Date</label>
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <input type="date" id="contract_end_date" formControlName="contract_end_date"
+                    class="form-control custom-date-input" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                      <g fill="none" stroke-width="1.5">
+                        <path stroke-linecap="round"
+                          d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                          <circle cx="18" cy="18" r="3" />
+                          <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                      </svg>
+                    </div>
+                  </div>
+                  @if (sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)) {
+                    <p class="error-msg">
+                      {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
+                    </p>
+                  }
+                </div>
+            }
 
       <div class="input">
         <label for="salary">Salary <span>*</span></label>
