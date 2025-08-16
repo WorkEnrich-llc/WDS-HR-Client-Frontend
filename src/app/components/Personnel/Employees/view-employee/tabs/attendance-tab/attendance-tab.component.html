@@ -55,8 +55,8 @@
 
   <!-- Row Template -->
   <ng-template #rowTemplate let-row>
-    <td>{{ row.in }}</td>
-    <td>{{ row.out }}</td>
+    <td>{{ row.in | timeFormat }}</td>
+    <td>{{ row.out | timeFormat }}</td>
     <td>{{ row.date }}</td>
     <td>{{ row.dayType }}</td>
     <td [ngClass]="{'text-primary': row.workingHrs === 'Holiday'}">{{ row.workingHrs }}</td>

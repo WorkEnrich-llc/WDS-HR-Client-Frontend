@@ -10,7 +10,7 @@ import { ApprovalRequestItem } from '../../../../../../core/interfaces/approval-
   selector: 'app-requests-tab',
   imports: [CommonModule, RouterLink, TableComponent],
   templateUrl: './requests-tab.component.html',
-  styleUrl: './requests-tab.component.css'
+  styleUrls: ['./requests-tab.component.css']
 })
 export class RequestsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
@@ -99,8 +99,12 @@ export class RequestsTabComponent implements OnInit, OnChanges {
   }
 
   getDateRange(request: ApprovalRequestItem): string {
-    const fromDate = new Date(request.dates.from_date);
-    const toDate = new Date(request.dates.to_date);
+    const from = request.dates?.from_date;
+    const to = request.dates?.to_date;
+    if (!from || !to) return '';
+
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
 
     const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
       month: '2-digit',
@@ -108,24 +112,18 @@ export class RequestsTabComponent implements OnInit, OnChanges {
       year: 'numeric'
     });
 
-    if (request.dates.from_date === request.dates.to_date) {
-      return formatDate(fromDate);
-    } else {
-      return `${formatDate(fromDate)} - ${formatDate(toDate)}`;
-    }
+    if (from === to) return formatDate(fromDate);
+    return `${formatDate(fromDate)} - ${formatDate(toDate)}`;
   }
 
   getCurrentStep(request: ApprovalRequestItem): string {
-    // Since current step is not provided in the API response,
-    // we'll show a placeholder or status-based message
-    if (request.status.name.toLowerCase() === 'pending') {
-      return 'Pending Approval';
-    } else if (request.status.name.toLowerCase() === 'approved') {
-      return 'Approved';
-    } else if (request.status.name.toLowerCase() === 'rejected') {
-      return 'Rejected';
-    } else {
-      return request.status.name;
-    }
+    // Use API field `current_step` when available, otherwise fallback to status
+  const currentStep = (request as any).current_step;
+  if (currentStep) return currentStep;
+  const name = request.status?.name || '';
+    if (name.toLowerCase() === 'pending') return 'Pending Approval';
+    if (name.toLowerCase() === 'approved' || name.toLowerCase() === 'accepted') return 'Approved';
+    if (name.toLowerCase() === 'rejected') return 'Rejected';
+    return name;
   }
 }

@@ -26,22 +26,21 @@
             }
           </div>
 
-          <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-            <input class="form-check-input m-0" type="checkbox" id="withEnd" [checked]="sharedService.withEndDate"
-              (change)="sharedService.contractDetails.get('contract_type')?.setValue($any($event.target).checked ? 1 : 2)" />
+            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+              <input class="form-check-input m-0" type="checkbox" id="withEnd" [checked]="sharedService.withEndDate"
+                (change)="sharedService.contractDetails.get('contract_type')?.setValue($any($event.target).checked ? 1 : 2)" />
               <label class="form-check-label m-0" for="withEnd">
                 With end date
               </label>
             </div>
 
+            @if (sharedService.withEndDate) {
             <div class="input">
               <label for="contract_end_date">Contract End Date</label>
               <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                   <input type="date" id="contract_end_date" formControlName="contract_end_date"
-                    class="form-control custom-date-input"
-
-                    [disabled]="!sharedService.withEndDate" />
+                    class="form-control custom-date-input" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                       <g fill="none" stroke-width="1.5">
                         <path stroke-linecap="round"
@@ -58,6 +57,7 @@
                     </p>
                   }
                 </div>
+            }
 
                   <div class="input">
                     <label for="salary">Salary <span>*</span></label>
