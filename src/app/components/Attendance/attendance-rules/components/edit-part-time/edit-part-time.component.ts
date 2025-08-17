@@ -59,6 +59,22 @@ export class EditPartTimeComponent {
     }
   }
 
+  // step 5 - Overtime
+  allowOvertime: boolean = false;
+  overtimeType: string = 'flatRate';
+  flatRateValue: string = '';
+  overtimeEntries = [{ from: '', to: '', rate: null }];
+
+  addOvertimeRow() {
+    this.overtimeEntries.push({ from: '', to: '', rate: null });
+  }
+
+  removeOvertimeRow(index: number) {
+    if (this.overtimeEntries.length > 1) {
+      this.overtimeEntries.splice(index, 1);
+    }
+  }
+
   getOccurrenceLabel(index: number): string {
     const number = index + 1;
     if (number === 1) return '1st time';
@@ -106,6 +122,12 @@ export class EditPartTimeComponent {
             grace_period: {
               status: false,
               minutes: 0
+            },
+            overtime: {
+              status: false,
+              type: 'flatRate',
+              flatRate: '',
+              customRanges: []
             }
           },
           part_time: {
@@ -124,6 +146,17 @@ export class EditPartTimeComponent {
             grace_period: {
               status: this.allowGrace,
               minutes: this.graceMinutes || 0
+            },
+            overtime: {
+              status: this.allowOvertime,
+              type: this.overtimeType,
+              flatRate: this.flatRateValue,
+              customRanges: this.overtimeEntries.map((entry, index) => ({
+                index: index + 1,
+                from: entry.from,
+                to: entry.to,
+                rate: entry.rate || 0
+              }))
             }
           }
         }

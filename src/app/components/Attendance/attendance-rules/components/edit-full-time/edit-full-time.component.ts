@@ -135,6 +135,17 @@ export class EditFullTimeComponent {
           grace_period: {
             status: this.allowGrace,
             minutes: this.graceMinutes || 0
+          },
+          overtime: {
+            status: this.allowOvertime,
+            type: this.overtimeType,
+            flatRate: this.flatRateValue,
+            customRanges: this.overtimeEntries.map((entry, index) => ({
+              index: index + 1,
+              from: entry.from,
+              to: entry.to,
+              rate: entry.rate || 0
+            }))
           }
         },
         part_time: {
@@ -144,6 +155,12 @@ export class EditFullTimeComponent {
           grace_period: {
             status: false,
             minutes: 0
+          },
+          overtime: {
+            status: false,
+            type: 'flatRate',
+            flatRate: '',
+            customRanges: []
           }
         }
       }
