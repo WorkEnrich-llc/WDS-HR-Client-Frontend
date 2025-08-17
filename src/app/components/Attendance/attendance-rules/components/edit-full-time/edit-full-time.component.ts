@@ -1,9 +1,11 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
+import { AttendanceRulesService } from '../../service/attendance-rules.service';
+import { AttendanceRulesData } from '../../models/attendance-rules.interface';
 
 @Component({
   selector: 'app-edit-full-time',
@@ -12,17 +14,87 @@ import { PopupComponent } from '../../../../shared/popup/popup.component';
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-full-time.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class EditFullTimeComponent {
+export class EditFullTimeComponent implements OnInit {
+
+  attendanceRulesData: AttendanceRulesData | null = null;
+  loading: boolean = true;
+  error: string | null = null;
 
   constructor(
-    private router: Router
+    private router: Router,
+    private attendanceRulesService: AttendanceRulesService
   ) { }
+
+  ngOnInit(): void {
+    this.loadAttendanceRules();
+  }
+
+  loadAttendanceRules(): void {
+    this.loading = true;
+    this.attendanceRulesService.getAttendanceRules().subscribe({
+      next: (response) => {
+        this.attendanceRulesData = response?.data;
+        this.mapDataToForm();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading attendance rules:', error);
+        this.error = 'Failed to load attendance rules';
+        this.loading = false;
+      }
+    });
+  }
+
+  mapDataToForm(): void {
+    if (!this.attendanceRulesData?.object_info?.settings?.full_time) return;
+
+    const fullTimeSettings = this.attendanceRulesData.object_info.settings.full_time;
+
+    // Map Grace Period
+    this.allowGrace = fullTimeSettings.grace_period?.status || false;
+    this.graceMinutes = fullTimeSettings.grace_period?.minutes || 0;
+
+    // Map Lateness entries
+    if (fullTimeSettings.lateness && fullTimeSettings.lateness.length > 0) {
+      this.latenessEntries = fullTimeSettings.lateness.map(item => ({ value: item.value }));
+    }
+
+    // Map Early Leave entries
+    if (fullTimeSettings.early_leave && fullTimeSettings.early_leave.length > 0) {
+      this.earlyLeaveRows = fullTimeSettings.early_leave.map(item => ({ deduction: item.value }));
+    }
+
+    // Map Absence entries
+    if (fullTimeSettings.absence && fullTimeSettings.absence.length > 0) {
+      this.absenceEntries = fullTimeSettings.absence.map(item => ({ value: item.value }));
+    }
+
+    // Map Overtime settings
+    const overtimeSettings = (fullTimeSettings as any).overtime;
+    if (overtimeSettings) {
+      this.allowOvertime = overtimeSettings.flat_rate?.status || overtimeSettings.custom_hours?.status || false;
+
+      if (overtimeSettings.flat_rate?.status) {
+        this.overtimeType = 'flatRate';
+        this.flatRateValue = overtimeSettings.flat_rate.value?.toString() || '';
+      } else if (overtimeSettings.custom_hours?.status) {
+        this.overtimeType = 'customHours';
+        if (overtimeSettings.custom_hours.value && overtimeSettings.custom_hours.value.length > 0) {
+          this.overtimeEntries = overtimeSettings.custom_hours.value.map((item: any) => ({
+            from: item.from_time || '',
+            to: item.to_time || '',
+            rate: item.rate || null
+          }));
+        }
+      }
+    }
+  }
   // step 1 - Grace Period
   allowGrace: boolean = false;
   graceMinutes: number = 0;
-  
+
   // step 2 - Lateness
-  latenessEntries = [{ value: null }];
+  latenessEntries = [{ value: null as number | null }];
 
   addLatenessRow() {
     this.latenessEntries.push({ value: null });
@@ -35,7 +107,7 @@ export class EditFullTimeComponent {
   }
 
   // step 3 - Early Leave
-  earlyLeaveRows = [{ deduction: null }];
+  earlyLeaveRows = [{ deduction: null as number | null }];
   sameAsLateness: boolean = false;
 
   addRow() {
@@ -52,7 +124,7 @@ export class EditFullTimeComponent {
   allowOvertime: boolean = false;
   overtimeType: string = 'flatRate';
   flatRateValue: string = '';
-  overtimeEntries = [{ from: '', to: '', rate: null }];
+  overtimeEntries = [{ from: '', to: '', rate: null as number | null }];
 
   addOvertimeRow() {
     this.overtimeEntries.push({ from: '', to: '', rate: null });
@@ -63,9 +135,16 @@ export class EditFullTimeComponent {
       this.overtimeEntries.splice(index, 1);
     }
   }
+  /**
+   * Handle rate input change to ensure value is stored as float
+   */
+  onRateChange(value: string | number, entry: { from: string; to: string; rate: number | null }): void {
+    const parsed = parseFloat(value as any);
+    entry.rate = isNaN(parsed) ? null : parsed;
+  }
 
   // step 5 - Absence
-  absenceEntries = [{ value: null }];
+  absenceEntries = [{ value: null as number | null }];
 
   addAbsenceRow() {
     this.absenceEntries.push({ value: null });
@@ -116,68 +195,96 @@ export class EditFullTimeComponent {
 
   // Save function
   saveChanges() {
-  const requestData = {
-    request_data: {
-      settings: {
-        full_time: {
-          lateness: this.latenessEntries.map((entry, index) => ({
-            index: index + 1,
-            value: entry.value || 0
-          })),
-          early_leave: this.earlyLeaveRows.map((row, index) => ({
-            index: index + 1,
-            value: row.deduction || 0
-          })),
-          absence: this.absenceEntries.map((entry, index) => ({
-            index: index + 1,
-            value: entry.value || 0
-          })),
-          grace_period: {
-            status: this.allowGrace,
-            minutes: this.graceMinutes || 0
-          },
-          overtime: {
-            status: this.allowOvertime,
-            type: this.overtimeType,
-            flatRate: this.flatRateValue,
-            customRanges: this.overtimeEntries.map((entry, index) => ({
+    if (!this.attendanceRulesData?.object_info?.settings) {
+      console.error('No existing data available');
+      return;
+    }
+
+    // Get existing part_time settings from API data
+    const existingPartTimeSettings = this.attendanceRulesData.object_info.settings.part_time;
+    const requestData = {
+      request_data: {
+        settings: {
+          full_time: {
+            lateness: this.latenessEntries.map((entry, index) => ({
               index: index + 1,
-              from: entry.from,
-              to: entry.to,
-              rate: entry.rate || 0
-            }))
-          }
-        },
-        part_time: {
-          lateness: [],
-          early_leave: [],
-          absence: [],
-          grace_period: {
-            status: false,
-            minutes: 0
+              value: entry.value || 0
+            })),
+            early_leave: this.earlyLeaveRows.map((row, index) => ({
+              index: index + 1,
+              value: row.deduction || 0
+            })),
+            absence: this.absenceEntries.map((entry, index) => ({
+              index: index + 1,
+              value: entry.value || 0
+            })),
+            grace_period: {
+              status: this.allowGrace,
+              minutes: parseFloat((this.graceMinutes || 0).toString())
+            },
+            overtime: {
+              flat_rate: {
+                status: this.allowOvertime && this.overtimeType === 'flatRate',
+                value: parseFloat((this.overtimeType === 'flatRate' ? parseFloat(this.flatRateValue) || 0 : 0).toString())
+              },
+              custom_hours: {
+                status: this.allowOvertime && this.overtimeType === 'customHours',
+                value: this.overtimeType === 'customHours' ? this.overtimeEntries.map((entry) => ({
+                  from_time: entry.from || '0:0',
+                  to_time: entry.to || '0:0',
+                  rate: parseFloat((entry.rate || 0).toString())
+                })) : [{ from_time: '0:0', to_time: '0:0', rate: 0.0 }]
+              }
+            }
           },
-          overtime: {
-            status: false,
-            type: 'flatRate',
-            flatRate: '',
-            customRanges: []
+          part_time: {
+            lateness: existingPartTimeSettings.lateness || [],
+            early_leave: existingPartTimeSettings.early_leave || [],
+            absence: existingPartTimeSettings.absence || [],
+            grace_period: existingPartTimeSettings.grace_period ? {
+              status: existingPartTimeSettings.grace_period.status,
+              minutes: parseFloat((existingPartTimeSettings.grace_period.minutes || 0).toString())
+            } : {
+              status: false,
+              minutes: 0.0
+            },
+            overtime: {
+              flat_rate: (existingPartTimeSettings as any).overtime?.flat_rate ? {
+                status: (existingPartTimeSettings as any).overtime.flat_rate.status,
+                value: parseFloat(((existingPartTimeSettings as any).overtime.flat_rate.value || 0).toString())
+              } : {
+                status: false,
+                value: 0.0
+              },
+              custom_hours: (existingPartTimeSettings as any).overtime?.custom_hours ? {
+                status: (existingPartTimeSettings as any).overtime.custom_hours.status,
+                value: (existingPartTimeSettings as any).overtime.custom_hours.value.map((item: any) => ({
+                  from_time: item.from_time || '0:0',
+                  to_time: item.to_time || '0:0',
+                  rate: parseFloat(parseFloat(item.rate || 0).toFixed(1))
+                }))
+              } : {
+                status: false,
+                value: [{ from_time: '0:0', to_time: '0:0', rate: 0.0 }]
+              }
+            }
           }
         }
       }
-    }
-  };
+    };
 
-  console.log('Save Data:', requestData);
+    console.log('Save Data:', requestData);
 
-  // إرسال البيانات للـ API
-  // this.attendanceService.saveFullTimeRules(requestData).subscribe(
-  //   response => {
-  //     console.log('Rules saved successfully:', response);
-  //   },
-  //   error => {
-  //     console.error('Error saving rules:', error);
-  //   }
-  // );
-}
+    // Send data to API
+    this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
+      next: (response) => {
+        console.log('Rules saved successfully:', response);
+        this.router.navigate(['/attendance-rules']);
+      },
+      error: (error) => {
+        console.error('Error saving rules:', error);
+      }
+    });
+  }
 
 }
