@@ -661,6 +661,29 @@ export const routes: Routes = [
 
             ]
           },
+         
+          // Salary Portions routes
+          {
+            path: 'salary-portions',
+            children: [
+              {
+                path: '',
+                redirectTo: 'salary-portions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'salary-portions',
+                loadComponent: () => import('./components/Payroll/salary-portions/salary-potions/salary-potions.component').then(m => m.SalaryPotionsComponent),
+                title: 'Salary Portions',
+              },
+              {
+                path: 'edit-salary-portions',
+                loadComponent: () => import('./components/Payroll/salary-portions/edit-salary-portions/edit-salary-portions.component').then(m => m.EditSalaryPortionsComponent),
+                title: 'Edit Salary Portions',
+              },
+
+            ]
+          },
 
         ]
       },

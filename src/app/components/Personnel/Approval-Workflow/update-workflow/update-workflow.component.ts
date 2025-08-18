@@ -71,6 +71,7 @@ export class UpdateWorkflowComponent {
         this.workflow1.patchValue({
           code: this.workflowData.code,
           name: this.workflowData.name,
+          workflow_type: this.workflowData.workflow_type,
           leave_id: this.workflowData.leave?.id,
           department_id: this.workflowData.department?.id,
         });
@@ -120,6 +121,7 @@ export class UpdateWorkflowComponent {
   workflow1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    workflow_type: new FormControl('', [Validators.required]),
     leave_id: new FormControl('', [Validators.required]),
     department_id: new FormControl('', [Validators.required]),
   });
@@ -288,6 +290,7 @@ export class UpdateWorkflowComponent {
         id: this.workflowData.id,
         code: this.workflow1.value.code,
         name: this.workflow1.value.name,
+        workflow_type: this.workflow1.value.workflow_type,
         leave_id: Number(this.workflow1.value.leave_id),
         department_id: Number(this.workflow1.value.department_id),
         steps: [...currentSteps, ...removedSteps]

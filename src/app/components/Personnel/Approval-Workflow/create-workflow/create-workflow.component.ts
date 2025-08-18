@@ -50,6 +50,7 @@ export class CreateWorkflowComponent {
   workflow1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    workflow_type: new FormControl('', [Validators.required]),
     leave_id: new FormControl('', [Validators.required]),
     department_id: new FormControl('', [Validators.required]),
   });
@@ -174,6 +175,7 @@ const request_data = {
   request_data: {
     code: this.workflow1.value.code,
     name: this.workflow1.value.name,
+    workflow_type: this.workflow1.value.workflow_type,
     leave_id: Number(this.workflow1.value.leave_id),
     department_id: Number(this.workflow1.value.department_id),
     steps: this.steps.map((step, index) => ({

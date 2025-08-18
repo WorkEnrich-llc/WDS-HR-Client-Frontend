@@ -1,3 +1,6 @@
+.page-header button{
+    margin-top: -3rem;
+}
 @media (min-width:991px) {
     .width-fix{
         width: 450px !important;
@@ -5,4 +8,7 @@
     .w-lg-50{
         width: 50% !important;
     }
+}
+tbody td{
+    padding: var(--spacing-20) !important;
 }
