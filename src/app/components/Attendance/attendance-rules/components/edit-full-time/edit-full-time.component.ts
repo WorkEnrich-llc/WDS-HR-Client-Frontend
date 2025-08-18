@@ -6,6 +6,7 @@ import { PageHeaderComponent } from '../../../../shared/page-header/page-header.
 import { PopupComponent } from '../../../../shared/popup/popup.component';
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData } from '../../models/attendance-rules.interface';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-full-time',
@@ -22,7 +23,8 @@ export class EditFullTimeComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private attendanceRulesService: AttendanceRulesService
+    private attendanceRulesService: AttendanceRulesService,
+    private toasterMessageService: ToasterMessageService
   ) { }
 
   ngOnInit(): void {
@@ -278,7 +280,7 @@ export class EditFullTimeComponent implements OnInit {
     // Send data to API
     this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
       next: (response) => {
-        console.log('Rules saved successfully:', response);
+       this.toasterMessageService.showSuccess('Full-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);
       },
       error: (error) => {

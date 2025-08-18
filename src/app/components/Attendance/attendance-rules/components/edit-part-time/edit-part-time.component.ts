@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData } from '../../models/attendance-rules.interface';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-part-time',
@@ -21,7 +22,8 @@ export class EditPartTimeComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private attendanceRulesService: AttendanceRulesService
+    private attendanceRulesService: AttendanceRulesService,
+    @Inject(ToasterMessageService) private toasterMessageService: ToasterMessageService
   ) { }
 
   ngOnInit(): void {
@@ -271,6 +273,7 @@ export class EditPartTimeComponent implements OnInit {
     this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
       next: (response) => {
         console.log('Rules saved successfully:', response);
+        this.toasterMessageService.showSuccess('Part-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);
       },
       error: (error) => {
