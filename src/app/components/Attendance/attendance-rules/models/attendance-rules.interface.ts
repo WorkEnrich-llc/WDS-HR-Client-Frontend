@@ -53,11 +53,29 @@ export interface GracePeriod {
   minutes: number;
 }
 
+export interface OvertimeValue {
+  from_time: string;
+  to_time: string;
+  rate: number;
+}
+
+export interface OvertimeSettings {
+  flat_rate: {
+    status: boolean;
+    value: number;
+  };
+  custom_hours: {
+    status: boolean;
+    value: OvertimeValue[];
+  };
+}
+
 export interface WorkTypeSettings {
   lateness: PenaltyRule[];
   early_leave: PenaltyRule[];
   absence: PenaltyRule[];
   grace_period: GracePeriod;
+  overtime?: OvertimeSettings;
 }
 
 export interface AttendanceRulesSettings {
