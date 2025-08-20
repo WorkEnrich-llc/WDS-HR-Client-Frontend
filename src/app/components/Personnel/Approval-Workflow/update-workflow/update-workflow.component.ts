@@ -42,6 +42,13 @@ export class UpdateWorkflowComponent {
   ) {
   }
   ngOnInit(): void {
+    this.updateLeaveControlState(this.workflow1.get('workflow_type')?.value);
+
+   this.workflow1.get('workflow_type')?.valueChanges.subscribe(value => {
+    this.updateLeaveControlState(value);
+    // this.isChanges = true; 
+  });
+
     this.getAllLeaveTypes();
     this.getAllDepartments();
     this.getAllJobTitles();
@@ -52,7 +59,25 @@ export class UpdateWorkflowComponent {
     }
 
   }
+  private updateLeaveControlState(workflowType: string | null | undefined) {
+    const leaveControl = this.workflow1.get('leave_id');
+    if (workflowType === 'leave') {
+      leaveControl?.enable({ emitEvent: false });
+    } else {
+      leaveControl?.disable({ emitEvent: false });
+    }
+  }
 
+  loadExisting(workflowData: any) {
+    this.workflow1.patchValue({
+      code: workflowData.code,
+      name: workflowData.name,
+      workflow_type: workflowData.workflow_type,
+      leave_id: workflowData.leave_id,
+      department_id: workflowData.department_id,
+    });
+    this.updateLeaveControlState(this.workflow1.get('workflow_type')?.value);
+  }
 
   getWorkflow(workId: number) {
     this._WorkflowService.showWorkflow(workId).subscribe({
@@ -67,15 +92,26 @@ export class UpdateWorkflowComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
+        console.log(this.workflowData);
+        let workflowType: string | null = null;
+        let leaveId: number | null = null;
+
+        if (this.workflowData.permission) {
+          workflowType = 'permission';
+        } else if (this.workflowData.overtime) {
+          workflowType = 'overtime';
+        } else if (this.workflowData.leave) {
+          workflowType = 'leave';
+          leaveId = this.workflowData.leave.id;
+        }
 
         this.workflow1.patchValue({
           code: this.workflowData.code,
           name: this.workflowData.name,
-          workflow_type: this.workflowData.workflow_type,
-          leave_id: this.workflowData.leave?.id,
+          workflow_type: workflowType,
+          leave_id: leaveId,
           department_id: this.workflowData.department?.id,
         });
-
         this.originalSteps = this.workflowData.steps.map((step: any) => ({
           id: step.id,
           name: step.name,
@@ -105,6 +141,7 @@ export class UpdateWorkflowComponent {
         this.workflow1.valueChanges.subscribe(() => {
           this.isChanges = true;
         });
+
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -122,7 +159,7 @@ export class UpdateWorkflowComponent {
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     workflow_type: new FormControl('', [Validators.required]),
-    leave_id: new FormControl('', [Validators.required]),
+    leave_id: new FormControl({ value: '', disabled: true }, [Validators.required]),
     department_id: new FormControl('', [Validators.required]),
   });
 

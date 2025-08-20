@@ -23,7 +23,7 @@ export class CompanyChartComponent {
     this.chartsService.companyChart().subscribe({
       next: (response) => {
         const list = response.data.list_items;
-        console.log(list);
+        // console.log(list);
         this.companyData = this.mapToCompanyData(list[0]);
         // console.log(this.companyData);
         this.cd.detectChanges();
@@ -36,46 +36,47 @@ export class CompanyChartComponent {
   }
 
   mapToCompanyData(item: any): any {
-  const levelMapping: any = {
-    "company": "Executive",
-    "branch": "Senior Management",
-    "department": "Middle Management",
-    "section": "Team Leadership",
-    "job_title": "Non-Managerial"
-  };
+    const levelMapping: any = {
+      "company": "Executive",
+      "branch": "Senior Management",
+      "department": "Middle Management",
+      "section": "Team Leadership",
+      "job_title": "Non-Managerial"
+    };
 
-  let nodeLevelClass: string | null = levelMapping[item.type] || item.type;
+    let nodeLevelClass: string | null = levelMapping[item.type] || item.type;
 
-  let nodeLevel: string | null = null;
-
-if (item.jobTitleId || item.jobTitleCode) {
-  nodeLevel = `<tspan class="node-label">ID:</tspan> <tspan class="node-value">${item.jobTitleId ?? item.jobTitleCode}</tspan>`;
-} else if (item.location) {
-  nodeLevel = `<tspan class="node-label">Location:</tspan> <tspan class="node-value">${item.location}</tspan>`;
-} else if (item.max_employee) {
-  nodeLevel = `<tspan class="node-label">Max Employees:</tspan> <tspan class="node-value">${item.max_employee}</tspan>`;
-} else if (item.number_employees) {
-  nodeLevel = `<tspan class="node-label">Employees:</tspan> <tspan class="node-value">${item.number_employees}</tspan>`;
-} else if (item.code && item.code.trim() !== "") {
-  nodeLevel = `<tspan class="node-label">Code:</tspan> <tspan class="node-value">${item.code}</tspan>`;
-} else {
-  const paddedId = item.id.toString().padStart(4, "0");
-  nodeLevel = `<tspan class="node-label">ID:</tspan> <tspan class="node-value">${paddedId}</tspan>`;
-}
+    let nodeLevel: string | null = null;
 
 
-  return {
-    name: item.name,
-    type: item.type,
-    position: item.type,
-    jobTitleCode: item.jobTitleCode ?? item.id,
-    class: this.getNodeTag(item),
-    level: nodeLevel,
-    expanded: item.expanded ?? false,
-    firstNode: item.firstNode ?? false,
-    children: item.children ? item.children.map((c: any) => this.mapToCompanyData(c)) : []
-  };
-}
+    if (item.max_employee) {
+      nodeLevel = `<tspan class="node-label">Max Employees:</tspan> <tspan class="node-value">${item.max_employee}</tspan>`;
+    } else if (item.number_employees) {
+      nodeLevel = `<tspan class="node-label">Employees:</tspan> <tspan class="node-value">${item.number_employees}</tspan>`;
+    } else if (item.location) {
+      nodeLevel = `<tspan class="node-label">Location:</tspan> <tspan class="node-value">${item.location}</tspan>`;
+    } else if (item.jobTitleId || item.jobTitleCode) {
+      nodeLevel = `<tspan class="node-label">ID:</tspan> <tspan class="node-value">${item.jobTitleId ?? item.jobTitleCode}</tspan>`;
+    } else if (item.code && item.code.trim() !== "") {
+      nodeLevel = `<tspan class="node-label">Code:</tspan> <tspan class="node-value">${item.code}</tspan>`;
+    } else {
+      const paddedId = item.id.toString().padStart(4, "0");
+      nodeLevel = `<tspan class="node-label">ID:</tspan> <tspan class="node-value">${paddedId}</tspan>`;
+    }
+
+
+    return {
+      name: item.name,
+      type: item.type,
+      position: item.type,
+      jobTitleCode: item.jobTitleCode ?? item.id,
+      class: this.getNodeTag(item),
+      level: nodeLevel,
+      expanded: item.expanded ?? false,
+      firstNode: item.firstNode ?? false,
+      children: item.children ? item.children.map((c: any) => this.mapToCompanyData(c)) : []
+    };
+  }
 
 
   getNodeTag(node: any): string {
