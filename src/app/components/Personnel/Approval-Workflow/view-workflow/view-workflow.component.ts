@@ -40,7 +40,7 @@ ngOnInit(): void {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.workflowData);
+        console.log(this.workflowData);
 
       },
       error: (err) => {
