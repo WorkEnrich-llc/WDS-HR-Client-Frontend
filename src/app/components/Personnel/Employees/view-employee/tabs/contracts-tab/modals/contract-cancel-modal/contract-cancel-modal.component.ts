@@ -7,8 +7,8 @@ import { PopupComponent } from '../../../../../../../shared/popup/popup.componen
   standalone: true,
   selector: 'app-contract-cancel-modal',
   imports: [PopupComponent],
-  templateUrl: './contract-delete-modal.component.html',
-  styleUrl: './contract-delete-modal.component.css'
+  templateUrl: './contract-cancel-modal.component.html',
+  styleUrl: './contract-cancel-modal.component.css'
 })
 export class ContractCancelModalComponent {
   @Input() isOpen = false;
