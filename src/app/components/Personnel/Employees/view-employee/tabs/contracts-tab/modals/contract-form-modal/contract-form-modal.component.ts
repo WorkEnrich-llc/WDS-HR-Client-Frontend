@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
@@ -7,7 +8,7 @@ import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-f
 @Component({
   standalone: true,
   selector: 'app-contract-form-modal',
-  imports: [FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent],
   templateUrl: './contract-form-modal.component.html',
   styleUrl: './contract-form-modal.component.css'
 })
@@ -22,26 +23,15 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
   constructor(private fb: FormBuilder) {
     this.contractForm = this.fb.group({
+      adjustmentType: [1], // 1- Appraisal, 2- Correction, 3- Raise (only for edit mode)
       salary: [null, [Validators.required, Validators.min(0)]],
       startDate: [null, Validators.required],
-      withEndDate: [true],
-      endDate: [null]
-    });
-
-    // Watch for changes in withEndDate to control endDate validation
-    this.contractForm.get('withEndDate')?.valueChanges.subscribe(value => {
-      const endDateControl = this.contractForm.get('endDate');
-      if (value) {
-        endDateControl?.setValidators([Validators.required]);
-      } else {
-        endDateControl?.clearValidators();
-        endDateControl?.setValue(null);
-      }
-      endDateControl?.updateValueAndValidity();
+      withEndDate: [false], // checkbox for new contracts
+      endDate: [null] // conditional field
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contract'] && this.contract && this.isEditMode) {
@@ -49,29 +39,45 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
       this.resetForm();
     }
+
+    // Set up conditional validation for end date
+    this.setupConditionalValidation();
+  }
+
+  private setupConditionalValidation(): void {
+    const withEndDateControl = this.contractForm.get('withEndDate');
+    const endDateControl = this.contractForm.get('endDate');
+
+    if (withEndDateControl && endDateControl) {
+      withEndDateControl.valueChanges.subscribe(withEndDate => {
+        if (withEndDate) {
+          endDateControl.setValidators([Validators.required]);
+        } else {
+          endDateControl.clearValidators();
+          endDateControl.setValue(null);
+        }
+        endDateControl.updateValueAndValidity();
+      });
+    }
   }
 
   private populateForm(): void {
     if (!this.contract) return;
-
-    // Format dates for form inputs (convert from display format to ISO format)
+    // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
     const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
-    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
-    const hasEndDate = !!this.contract.endDate;
-
     this.contractForm.patchValue({
+      adjustmentType: 1,
       salary: this.contract.salary,
-      startDate: formattedStartDate,
-      withEndDate: hasEndDate,
-      endDate: formattedEndDate
+      startDate: formattedStartDate
     });
   }
 
   private resetForm(): void {
     this.contractForm.reset({
+      adjustmentType: 1,
       salary: null,
       startDate: null,
-      withEndDate: true,
+      withEndDate: false,
       endDate: null
     });
   }
@@ -89,15 +95,28 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     }
 
     const formValue = this.contractForm.value;
-    const contractData = {
-      salary: formValue.salary,
-      startDate: this.convertFormDateToDisplayDate(formValue.startDate),
-      endDate: formValue.withEndDate ? this.convertFormDateToDisplayDate(formValue.endDate) : '',
-      isEdit: this.isEditMode,
-      contractId: this.contract?.id
-    };
 
-    this.onSave.emit(contractData);
+    if (this.isEditMode) {
+      // For edit mode (adjustment)
+      const contractData = {
+        adjustmentType: formValue.adjustmentType,
+        salary: formValue.salary,
+        startDate: formValue.startDate,
+        isEdit: true,
+        contractId: this.contract?.id
+      };
+      this.onSave.emit(contractData);
+    } else {
+      // For new contract
+      const contractData = {
+        salary: formValue.salary,
+        startDate: formValue.startDate,
+        endDate: formValue.withEndDate ? formValue.endDate : null,
+        withEndDate: formValue.withEndDate,
+        isEdit: false
+      };
+      this.onSave.emit(contractData);
+    }
   }
 
   // Helper method to convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
@@ -137,14 +156,14 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   }
 
   getModalTitle(): string {
-    return this.isEditMode ? 'Edit Contract' : 'New Contract';
+    return this.isEditMode ? 'Contract Adjustment' : 'New Contract';
   }
 
   getSaveButtonText(): string {
-    return this.isEditMode ? 'Update Contract' : 'Save Contract';
+    return this.isEditMode ? 'Save Adjustment' : 'Save Contract';
   }
 
   getSalaryLabel(): string {
-    return this.isEditMode ? 'Edit Salary' : 'New Salary';
+    return this.isEditMode ? 'New Salary' : 'New Salary';
   }
 }

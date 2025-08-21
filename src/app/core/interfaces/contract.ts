@@ -70,3 +70,23 @@ export interface ContractHistoryResponse {
     total_items: number;
   };
 }
+// Interface for contract adjustments
+export interface ContractAdjustment {
+  id: number;
+  adjustment_type: string;
+  new_salary: number;
+  start_date: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface ContractAdjustmentsResponse {
+  details: string;
+  data: {
+    subscription?: any;
+    // List of adjustments for the contract
+    list_items: ContractAdjustment[];
+    // Optional error handling info
+    error_handling?: any[];
+  };
+}

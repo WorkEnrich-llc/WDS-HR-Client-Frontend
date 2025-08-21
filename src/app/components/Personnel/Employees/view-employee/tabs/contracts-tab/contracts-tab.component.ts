@@ -213,55 +213,53 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
     if (contractData.isEdit && this.selectedContract) {
-      // Update existing contract
-      const updatedContract: Contract = {
-        ...this.selectedContract,
-        salary: contractData.salary,
-        start_contract: contractData.startDate,
-        end_contract: contractData.endDate,
-        startDate: this.formatDateToDisplay(contractData.startDate),
-        endDate: this.formatDateToDisplay(contractData.endDate),
-        created_at: new Date().toISOString()
+      // Adjust existing contract via API
+      const payload = {
+        contract_id: this.selectedContract.id,
+        adjustment_type: contractData.adjustmentType,
+        new_salary: contractData.salary,
+        start_date: contractData.startDate
       };
-
-      const index = this.contractsData.findIndex(c => c.id === this.selectedContract!.id);
-      if (index !== -1) {
-        this.contractsData[index] = updatedContract;
-      }
+      this.employeeService.adjustEmployeeContractAdjustment(payload).subscribe({
+        next: () => {
+          // Reload contracts after adjustment
+          this.loadEmployeeContracts();
+          this.closeAddModal();
+        },
+        error: (error) => {
+          console.error('Error adjusting contract:', error);
+          // Show error message
+        }
+      });
     } else {
-      // Add new contract
-      const newId = this.contractsData.length ? Math.max(...this.contractsData.map(c => c.id)) + 1 : 1;
-      const newContract: Contract = {
-        id: newId,
-        expired: false,
-        trial: false,
-        start_contract: contractData.startDate,
-        end_contract: contractData.endDate,
-        salary: contractData.salary,
-        insurance_salary: 0,
-        status: 'Upcoming',
-        created_at: new Date().toISOString(),
-        created_by: 'Current User',
-        // UI compatibility fields
-        contractNumber: ('00' + newId).slice(-3),
-        startDate: this.formatDateToDisplay(contractData.startDate),
-        endDate: this.formatDateToDisplay(contractData.endDate),
-        employmentType: { id: 0, name: '' },
-        contractType: { id: 0, name: '' },
-        workMode: { id: 0, name: '' },
-        insuranceSalary: 0,
-        currency: 'EGP',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        branch: { id: 0, name: '' },
-        department: { id: 0, name: '' },
-        jobTitle: { id: 0, name: '' }
-      };
-      this.contractsData.unshift(newContract);
-      this.totalItems = this.contractsData.length;
-    }
+      // Add new contract via API
+      if (!this.employee?.id) {
+        console.error('Employee ID is required to create contract');
+        return;
+      }
 
-    this.closeAddModal();
+      const payload = {
+        employee_id: this.employee.id,
+        contract_type: 1, // Default contract type
+        start_contract: contractData.startDate,
+        end_contract: contractData.endDate || '2030-12-31', // Default far future date if no end date
+        salary: contractData.salary,
+        insurance_salary: contractData.insuranceSalary || 0
+      };
+
+      this.employeeService.createEmployeeContract(payload).subscribe({
+        next: (response) => {
+          // Reload contracts to get updated list
+          this.loadEmployeeContracts();
+          this.closeAddModal();
+          // Show success message
+        },
+        error: (error) => {
+          console.error('Error creating contract:', error);
+          // Show error message
+        }
+      });
+    }
   }
   
   // View contract history
@@ -278,109 +276,26 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   }
 
   private loadContractHistory(contractId: number): void {
-    // Mock history data - replace with real API call
-    this.contractHistory = [
-      {
-        id: 1,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Admin',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
+    // Load adjustment history from API
+    this.employeeService.getEmployeeContractAdjustments(contractId).subscribe({
+      next: response => {
+        const adjustments = response.data.list_items;
+        this.contractHistory = adjustments.map(adj => ({
+          id: adj.id,
+          contractId: contractId,
+          action: adj.adjustment_type,
+          changedBy: adj.created_by,
+          changeDate: this.getFormattedDate(adj.start_date || adj.created_at),
+          previousValue: '',
+          newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
+          reason: ''
+        }));
       },
-      {
-        id: 2,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Manager',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 3,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Specialist',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 4,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Admin',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 5,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Manager',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 6,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Specialist',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 7,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Admin',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 8,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Manager',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 9,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Specialist',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
-      },
-      {
-        id: 10,
-        contractId: contractId,
-        action: 'Appraisal',
-        changedBy: 'HR Admin',
-        changeDate: '2/5/2025',
-        previousValue: '7,000 EGP',
-        newValue: '7,000 EGP',
-        reason: 'Annual appraisal'
+      error: error => {
+        console.error('Error loading contract history:', error);
+        this.contractHistory = [];
       }
-    ];
+    });
   }
 
   getFormattedDateTime(dateString: string): string {
