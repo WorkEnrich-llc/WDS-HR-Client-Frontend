@@ -36,10 +36,10 @@
         <span class="fw-bold">{{ contract.contractNumber }}</span>
       </div>
     </td>
-    <td class="text-start">{{ contract.startDate }}</td>
-    <td class="text-start">{{ contract.endDate }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency) }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary, contract.currency) }}</td>
+    <td class="text-start">{{ contract.startDate || contract.start_contract }}</td>
+    <td class="text-start">{{ contract.endDate || contract.end_contract }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency || 'EGP') }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary || contract.insurance_salary, contract.currency || 'EGP') }}</td>
     <td class="text-start">
       <span [ngClass]="getStatusClass(contract.status)">
         @if (contract.status === 'Upcoming') {
@@ -92,22 +92,25 @@
 
         </a>
         <!-- Edit Action -->
-        <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-            <path d="m15 5 4 4"/>
-          </svg>
-          Edit
-        </a>
-        <!-- Delete Action -->
-        <a (click)="openDeleteModal(contract)" class="view-btn delete-btn" title="Delete Contract">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v>2"/>
+        @if (contract.status !== 'Cancelled' && contract.status !== 'Expired') {
+          <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+              <path d="m15 5 4 4"/>
             </svg>
-            Delete
+            Edit
           </a>
+        }
+        <!-- Cancel Action -->
+        @if (contract.status !== 'Cancelled' && contract.status !== 'Expired') {
+          <a (click)="openCancelModal(contract)" class="view-btn cancel-btn" title="Cancel Contract">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"/>
+              <path d="m6 6 12 12"/>
+            </svg>
+            Cancel
+          </a>
+        }
         </div>
       </td>
     </ng-template>
@@ -138,13 +141,13 @@
     </app-table>
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <app-contract-delete-modal
-    [isOpen]="isDeleteModalOpen"
+  <!-- Cancel Confirmation Modal -->
+  <app-contract-cancel-modal
+    [isOpen]="isCancelModalOpen"
     [contract]="selectedContract"
-    (onClose)="closeDeleteModal()"
-    (onDelete)="onContractDelete($event)">
-  </app-contract-delete-modal>
+    (onClose)="closeCancelModal()"
+    (onCancel)="onContractCancel($event)">
+  </app-contract-cancel-modal>
 
   <!-- Contract History Modal -->
   <app-contract-history-modal

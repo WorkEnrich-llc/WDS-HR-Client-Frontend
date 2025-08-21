@@ -1,35 +1,44 @@
 export interface Contract {
   id: number;
-  contractNumber: string;
-  startDate: string;
-  endDate: string | null;
-  employmentType: {
-    id: number;
-    name: string; // 'Full Time', 'Part Time', 'Per Hour'
-  };
-  contractType: {
-    id: number;
-    name: string; // 'Permanent', 'Fixed Term', 'Probation'
-  };
-  workMode: {
-    id: number;
-    name: string; // 'On Site', 'Remote', 'Hybrid'
-  };
+  expired: boolean;
+  trial: boolean;
+  start_contract: string;
+  end_contract: string;
   salary: number;
-  insuranceSalary: number;
-  currency: string;
+  insurance_salary: number;
   status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired';
-  createdAt: string;
-  updatedAt: string;
-  branch: {
+  created_at: string;
+  created_by: string;
+  
+  // Mapped properties for compatibility with existing UI
+  contractNumber?: string;
+  startDate?: string;
+  endDate?: string;
+  employmentType?: {
     id: number;
     name: string;
   };
-  department: {
+  contractType?: {
     id: number;
     name: string;
   };
-  jobTitle: {
+  workMode?: {
+    id: number;
+    name: string;
+  };
+  insuranceSalary?: number;
+  currency?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  branch?: {
+    id: number;
+    name: string;
+  };
+  department?: {
+    id: number;
+    name: string;
+  };
+  jobTitle?: {
     id: number;
     name: string;
   };
@@ -47,12 +56,10 @@ export interface ContractHistory {
 }
 
 export interface ContractsResponse {
-  success: boolean;
+  details: string;
   data: {
-    contracts: Contract[];
-    total_items: number;
-    page: number;
-    total_pages: number;
+    subscription?: any;
+    list_items: Contract[];
   };
 }
 

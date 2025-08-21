@@ -55,7 +55,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     if (!this.contract) return;
 
     // Format dates for form inputs (convert from display format to ISO format)
-    const formattedStartDate = this.convertDisplayDateToFormDate(this.contract.startDate);
+    const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
     const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
     const hasEndDate = !!this.contract.endDate;
 
