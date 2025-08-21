@@ -13,9 +13,19 @@
             <option [value]="3">Raise</option>
           </select>
         </div>
+        @if (shouldShowSalaryRanges()) {
+          <div class="d-flex justify-content-between mb-2">
+            <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+            <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+          </div>
+        }
+      }
+
+      <!-- Salary range display for new contract mode -->
+      @if (!isEditMode && shouldShowSalaryRanges()) {
         <div class="d-flex justify-content-between mb-2">
-          <small>Min. Salary {{ contract?.salary | number:'1.0-0' }} EGP</small>
-          <small>Max Salary {{ contract?.salary | number:'1.0-0' }} EGP</small>
+          <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+          <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
         </div>
       }
       
@@ -29,7 +39,18 @@
           <div *ngIf="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
             class="invalid-feedback">
             <div *ngIf="contractForm.get('salary')?.errors?.['required']">Salary is required</div>
-            <div *ngIf="contractForm.get('salary')?.errors?.['min']">Salary must be greater than 0</div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['min']">
+              @if (shouldShowSalaryRanges()) {
+                Salary must be at least {{ getSalaryRanges()!.minimum }} {{ getSalaryRanges()!.currency }}
+              } @else {
+                Salary must be greater than 0
+              }
+            </div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['max']">
+              @if (shouldShowSalaryRanges()) {
+                Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}
+              }
+            </div>
           </div>
         </div>
       </div>

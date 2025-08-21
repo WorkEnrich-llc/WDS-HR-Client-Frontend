@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
+import { Employee } from '../../../../../../../../core/interfaces/employee';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
 
 @Component({
@@ -16,6 +17,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
   @Input() contract: Contract | null = null;
+  @Input() employee: Employee | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<any>();
 
@@ -42,6 +44,11 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
     // Set up conditional validation for end date
     this.setupConditionalValidation();
+    
+    // Set up salary range validation when employee data changes
+    if (changes['employee'] && this.employee) {
+      this.setupSalaryValidation();
+    }
   }
 
   private setupConditionalValidation(): void {
@@ -61,6 +68,24 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     }
   }
 
+  private setupSalaryValidation(): void {
+    const salaryControl = this.contractForm.get('salary');
+    if (salaryControl && this.shouldShowSalaryRanges()) {
+      const ranges = this.getSalaryRanges();
+      if (ranges) {
+        const minSalary = parseFloat(ranges.minimum);
+        const maxSalary = parseFloat(ranges.maximum);
+        
+        salaryControl.setValidators([
+          Validators.required,
+          Validators.min(minSalary),
+          Validators.max(maxSalary)
+        ]);
+        salaryControl.updateValueAndValidity();
+      }
+    }
+  }
+
   private populateForm(): void {
     if (!this.contract) return;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
@@ -70,6 +95,9 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: this.contract.salary,
       startDate: formattedStartDate
     });
+    
+    // Set up salary validation after populating
+    this.setupSalaryValidation();
   }
 
   private resetForm(): void {
@@ -80,6 +108,9 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       withEndDate: false,
       endDate: null
     });
+    
+    // Set up salary validation after reset
+    this.setupSalaryValidation();
   }
 
   closeModal(): void {
@@ -150,7 +181,24 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const field = this.contractForm.get(fieldName);
     if (field && field.errors && field.touched) {
       if (field.errors['required']) return `${fieldName} is required`;
-      if (field.errors['min']) return `${fieldName} must be greater than 0`;
+      
+      if (fieldName === 'salary') {
+        if (field.errors['min']) {
+          if (this.shouldShowSalaryRanges()) {
+            const ranges = this.getSalaryRanges()!;
+            return `Salary must be at least ${ranges.minimum} ${ranges.currency}`;
+          }
+          return 'Salary must be greater than 0';
+        }
+        if (field.errors['max']) {
+          if (this.shouldShowSalaryRanges()) {
+            const ranges = this.getSalaryRanges()!;
+            return `Salary cannot exceed ${ranges.maximum} ${ranges.currency}`;
+          }
+        }
+      } else if (field.errors['min']) {
+        return `${fieldName} must be greater than 0`;
+      }
     }
     return '';
   }
@@ -165,5 +213,42 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
   getSalaryLabel(): string {
     return this.isEditMode ? 'New Salary' : 'New Salary';
+  }
+
+  // Get salary ranges based on employment type
+  getSalaryRanges(): { minimum: string; maximum: string; currency: string } | null {
+    if (!this.employee?.job_info?.job_title?.salary_ranges || !this.employee?.job_info?.employment_type) {
+      return null;
+    }
+
+    const employmentTypeName = this.employee.job_info.employment_type.name.toLowerCase();
+    const salaryRanges = this.employee.job_info.job_title.salary_ranges;
+
+    if (employmentTypeName === 'full time' && salaryRanges.full_time?.status) {
+      return {
+        minimum: salaryRanges.full_time.minimum,
+        maximum: salaryRanges.full_time.maximum,
+        currency: salaryRanges.full_time.currency
+      };
+    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status) {
+      return {
+        minimum: salaryRanges.part_time.minimum,
+        maximum: salaryRanges.part_time.maximum,
+        currency: salaryRanges.part_time.currency
+      };
+    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status) {
+      return {
+        minimum: salaryRanges.per_hour.minimum,
+        maximum: salaryRanges.per_hour.maximum,
+        currency: salaryRanges.per_hour.currency
+      };
+    }
+
+    return null;
+  }
+
+  // Check if salary ranges should be displayed
+  shouldShowSalaryRanges(): boolean {
+    return this.getSalaryRanges() !== null;
   }
 }
