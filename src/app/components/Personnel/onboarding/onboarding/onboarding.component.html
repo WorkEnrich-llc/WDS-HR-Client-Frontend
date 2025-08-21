@@ -2,18 +2,20 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Onboarding List' }
-  ]" title=" Onboarding List" create="16/08/2025" update="16/08/2025">
-    <button class="btn btn-lg btn-success">
-        <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+  ]" title="Onboarding List">
+    <button class="btn btn-lg btn-primary w-100 px-5" routerLink="/onboarding/edit-onboarding">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+            viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                <path stroke-linecap="round"
+                    d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                    d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
             </g>
         </svg>
-        <span>Activate checklist</span>
+        <span>Edit checklist</span>
     </button>
-
+    <!-- 
     <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -22,108 +24,37 @@
             </g>
         </svg>
         <span>Discard</span>
-    </button>
+    </button> -->
 </app-page-header>
 
 <!-- page content -->
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
-        <h2>Onboarding Checklist</h2>
-        <form [formGroup]="checkForm" (ngSubmit)="addCheck()" class="w-lg-50 d-flex align-items-end gap-3">
-            <div class="input w-100">
-                <label for="checkName">Add a new check</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="checkName" class="form-control custom-date-input"
-                        placeholder="Enter new check" formControlName="checkName" />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-lg btn-primary w-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#ffffff" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                    </g>
-                </svg>
-                <span>Add new</span>
-            </button>
-        </form>
+        <h2>Checklist</h2>
+        
 
         @if (checks.length > 0) {
-        <div class="checks pt-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <h2 class="fw-semibold">List</h2>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="edit-btn" (click)="startEditSelected()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round"
-                                    d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-                                <path
-                                    d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-                            </g>
-                        </svg>
-                        <span>Edit</span>
-                    </button>
-                    <button class="remove-btn" (click)="deleteSelected()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                                d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
-                        </svg>
-                        <span>Delete</span>
-                    </button>
-                </div>
-            </div>
+        <div class="checks">
+            
 
             @for (check of checks; track $index; let i = $index) {
-            <label class="onecheck d-flex align-items-center justify-content-between" draggable="true"
-         (dragstart)="onDragStart(i)"
-         (dragend)="onDragEnd()"
-         (dragover)="allowDrop($event, i)"
-         (drop)="onDrop($event, i)"
-         [class.dragging]="draggedIndex === i"
-         [class.drag-over]="dragOverIndex === i">
+            <label class="onecheck d-flex align-items-center justify-content-between" >
                 <div class="d-flex align-items-center gap-3">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_2046_57271)">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M17 3.25C17.2361 3.25 17.4584 3.36115 17.6 3.55L20.6 7.55C20.8485 7.88137 20.7814 8.35147 20.45 8.6C20.1186 8.84853 19.6485 8.78137 19.4 8.45L17.75 6.25V17.75L19.4 15.55C19.6485 15.2186 20.1186 15.1515 20.45 15.4C20.7814 15.6485 20.8485 16.1186 20.6 16.45L17.6 20.45C17.4584 20.6389 17.2361 20.75 17 20.75C16.7639 20.75 16.5416 20.6389 16.4 20.45L13.4 16.45C13.1515 16.1186 13.2186 15.6485 13.55 15.4C13.8814 15.1515 14.3515 15.2186 14.6 15.55L16.25 17.75V6.25L14.6 8.45C14.3515 8.78137 13.8814 8.84853 13.55 8.6C13.2186 8.35147 13.1515 7.88137 13.4 7.55L16.4 3.55C16.5416 3.36115 16.7639 3.25 17 3.25ZM3.25 7C3.25 6.58579 3.58579 6.25 4 6.25H11C11.4142 6.25 11.75 6.58579 11.75 7C11.75 7.41421 11.4142 7.75 11 7.75H4C3.58579 7.75 3.25 7.41421 3.25 7ZM3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H11C11.4142 11.25 11.75 11.5858 11.75 12C11.75 12.4142 11.4142 12.75 11 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12ZM3.25 17C3.25 16.5858 3.58579 16.25 4 16.25H11C11.4142 16.25 11.75 16.5858 11.75 17C11.75 17.4142 11.4142 17.75 11 17.75H4C3.58579 17.75 3.25 17.4142 3.25 17Z"
-                                fill="#4A6D97" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_2046_57271">
-                                <rect width="24" height="24" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-                    @if (!check.editing) {
+                    <span class="number">{{$index + 1 }}</span>
                     <p class="m-0">{{ check.name }}</p>
-                    } @else {
-                    <input type="text" class="form-control" [value]="check.name" (blur)="finishEdit(check, $event)"
-                        autofocus>
-                    }
+                    
 
                 </div>
-                <input class="form-check-input m-0" type="checkbox" [checked]="check.completed"
-                    (change)="toggleCheck(i)" />
             </label>
             }
 
 
         </div>
+        }@else{
+        <p class="text-secondary">No checks available.</p>
         }
 
     </div>
 </div>
 
 
-<!-- Discard popup  -->
-<app-popup [title]="'Discard  Onboarding List'"
-    [paragraph1]="'Are you sure you want to discard creating the new  Onboarding List?'"
-    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Onboarding
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>

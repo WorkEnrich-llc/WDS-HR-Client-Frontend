@@ -172,6 +172,23 @@ export const routes: Routes = [
                 path: 'chart',
                 loadComponent: () => import('./components/OD/Organizational-Chart/org-chart/org-chart.component').then(m => m.OrgChartComponent),
                 title: 'Organizational Chart',
+                children: [
+                  {
+                    path: '',
+                    redirectTo: 'company-chart',
+                    pathMatch: 'full'
+                  },
+                  {
+                    path: 'company-chart',
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/company-chart/company-chart.component').then(m => m.CompanyChartComponent),
+                    title: 'Company Chart'
+                  },
+                  {
+                    path: 'organizational-chart',
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                    title: 'organizational Chart'
+                  },
+                ]
               },
             ]
           }
@@ -291,19 +308,24 @@ export const routes: Routes = [
               },
             ]
           },
-          
+
           // onboarding routes
           {
             path: 'onboarding',
             children: [
               {
                 path: '',
-                redirectTo: 'create-onboarding',
+                redirectTo: 'view-onboarding',
                 pathMatch: 'full'
               },
               {
-                path: 'create-onboarding',
+                path: 'view-onboarding',
                 loadComponent: () => import('./components/Personnel/onboarding/onboarding/onboarding.component').then(m => m.OnboardingComponent),
+                title: 'Onboarding List',
+              },
+              {
+                path: 'edit-onboarding',
+                loadComponent: () => import('./components/Personnel/onboarding/edit-onboarding/edit-onboarding.component').then(m => m.EditOnboardingComponent),
                 title: 'Onboarding List',
               },
             ]
@@ -662,6 +684,29 @@ export const routes: Routes = [
             ]
           },
 
+          // Salary Portions routes
+          {
+            path: 'salary-portions',
+            children: [
+              {
+                path: '',
+                redirectTo: 'salary-portions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'salary-portions',
+                loadComponent: () => import('./components/Payroll/salary-portions/salary-potions/salary-potions.component').then(m => m.SalaryPotionsComponent),
+                title: 'Salary Portions',
+              },
+              {
+                path: 'edit-salary-portions',
+                loadComponent: () => import('./components/Payroll/salary-portions/edit-salary-portions/edit-salary-portions.component').then(m => m.EditSalaryPortionsComponent),
+                title: 'Edit Salary Portions',
+              },
+
+            ]
+          },
+
         ]
       },
 
@@ -702,7 +747,7 @@ export const routes: Routes = [
 
         ]
       },
-     
+
       // users
       {
         path: '',

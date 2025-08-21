@@ -1,91 +1,115 @@
 <!-- Contract Form Modal -->
-<app-overlay-filter-box
-  [title]="getModalTitle()"
-  [customWidth]="'700px'"
-  [isOverlayVisible]="isOpen"
+<app-overlay-filter-box [title]="getModalTitle()" [customWidth]="'500px'" [isOverlayVisible]="isOpen"
   (onClose)="closeModal()">
   <div modal-content>
     <form [formGroup]="contractForm">
+      <!-- Salary range display for edit mode only -->
+      @if (isEditMode) {
+        <div class="input mb-3">
+          <label for="adjustmentType">Adjustment Type</label>
+          <select id="adjustmentType" class="form-select" formControlName="adjustmentType">
+            <option [value]="1">Appraisal</option>
+            <option [value]="2">Correction</option>
+            <option [value]="3">Raise</option>
+          </select>
+        </div>
+        @if (shouldShowSalaryRanges()) {
+          <div class="d-flex justify-content-between mb-2">
+            <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+            <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+          </div>
+        }
+      }
+
+      <!-- Salary range display for new contract mode -->
+      @if (!isEditMode && shouldShowSalaryRanges()) {
+        <div class="d-flex justify-content-between mb-2">
+          <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+          <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+        </div>
+      }
+      
+      <!-- New Salary Field -->
       <div class="input mb-3">
         <label for="newSalary">{{ getSalaryLabel() }}</label>
         <div class="form-outline w-100 position-relative">
-          <input
-            id="newSalary"
-            type="number"
-            class="form-control custom-date-input"
+          <input id="newSalary" type="number" class="form-control custom-date-input"
             [class.is-invalid]="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
-            placeholder="In EGP"
-            formControlName="salary" />
-            @if (contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched) {
-              <div class="invalid-feedback">
-                @if (contractForm.get('salary')?.errors?.['required']) {
-                  <div>Salary is required</div>
-                }
-                @if (contractForm.get('salary')?.errors?.['min']) {
-                  <div>Salary must be greater than 0</div>
-                }
-              </div>
-            }
+            placeholder="In EGP" formControlName="salary" />
+          <div *ngIf="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
+            class="invalid-feedback">
+            <div *ngIf="contractForm.get('salary')?.errors?.['required']">Salary is required</div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['min']">
+              @if (shouldShowSalaryRanges()) {
+                Salary must be at least {{ getSalaryRanges()!.minimum }} {{ getSalaryRanges()!.currency }}
+              } @else {
+                Salary must be greater than 0
+              }
+            </div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['max']">
+              @if (shouldShowSalaryRanges()) {
+                Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}
+              }
+            </div>
           </div>
         </div>
-        <div class="input mb-3">
-          <label for="startDate">Start Date</label>
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input
-              id="startDate"
-              type="date"
-              class="form-control custom-date-input"
-              [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
-              placeholder="Select Start Date"
-              formControlName="startDate" />
-              @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
-                <div class="invalid-feedback">
-                  Start date is required
-                </div>
+      </div>
+
+
+      <!-- Start Date Field -->
+      <div class="input mb-3">
+        <label for="startDate">Start Date</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input id="startDate" type="date" class="form-control custom-date-input"
+            [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
+            placeholder="Select Start Date" formControlName="startDate" />
+          @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
+          <div class="invalid-feedback">
+            Start date is required
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- With end date checkbox - only for new contracts -->
+      @if (!isEditMode) {
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="withEndDate" formControlName="withEndDate">
+          <label class="form-check-label" for="withEndDate">
+            With end date
+          </label>
+        </div>
+
+        <!-- End Date Field - only show if checkbox is checked -->
+        @if (contractForm.get('withEndDate')?.value) {
+          <div class="input mb-3">
+            <label for="endDate">End Date Date</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input id="endDate" type="date" class="form-control custom-date-input"
+                [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+                placeholder="Select Start Date" formControlName="endDate" />
+              @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
+              <div class="invalid-feedback">
+                End date is required when with end date is selected
+              </div>
               }
             </div>
           </div>
-          <div class="form-check mb-3">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="withEnd"
-              formControlName="withEndDate" />
-              <label class="form-check-label" for="withEnd">With end date</label>
-            </div>
-            @if (contractForm.get('withEndDate')?.value) {
-              <div>
-                <div class="input mb-3">
-                  <label for="endDate">End Date</label>
-                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input
-                      id="endDate"
-                      type="date"
-                      class="form-control custom-date-input"
-                      [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-                      placeholder="Select End Date"
-                      formControlName="endDate" />
-                      @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
-                        <div class="invalid-feedback">
-                          End date is required when "With end date" is selected
-                        </div>
-                      }
-                    </div>
-                  </div>
-                </div>
-              }
-            </form>
-          </div>
-          <button modal-btn-left class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2" (click)="saveContract()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6"/>
-            </svg>
-            <span>{{ getSaveButtonText() }}</span>
-          </button>
-          <button modal-btn-right class="btn btn-lg btn-outline-dark w-100 d-flex align-items-center justify-content-center gap-2" (click)="closeModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12H4m0 0l6 6m-6-6l6-6"/>
-            </svg>
-            <span>Close</span>
-          </button>
-        </app-overlay-filter-box>
+        }
+      }
+    </form>
+  </div>
+  <div class="d-flex align-items-center gap-4 mt-4">
+    <button type="button" (click)="saveContract()"
+      style="border:none;outline:none;background:#2563eb;color:#fff;font-weight:500;font-size:16px;padding:0.75rem 2.5rem;border-radius:1.75rem;display:flex;align-items:center;gap:0.5rem;box-shadow:none;transition:background 0.2s;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem;">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="1.5" />
+        <path d="M12 8v4l2 2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+      <span>{{ getSaveButtonText() }}</span>
+    </button>
+    <button type="button" (click)="closeModal()"
+      style="background:none;border:none;outline:none;color:#334155;font-weight:600;font-size:16px;padding:0;box-shadow:none;">Close</button>
+  </div>
+</app-overlay-filter-box>

@@ -1,0 +1,83 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Payroll', link: '/payroll-components' },
+    { label: 'Salary Portions', link: '/salary-portions' },
+    { label: 'Edit Salary Portions' }
+  ]" title="Edit Salary Portions" create="17/08/2025" update="17/08/2025">
+    <button class="btn btn-lg btn-success">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isLoading) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Changes</span>
+    </button>
+</app-page-header>
+
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Salary Portions</h2>
+
+        <form [formGroup]="portionsForm" class="w-lg-50 d-flex flex-column gap-2">
+            <div formArrayName="portions">
+                <div class="w-100 d-flex align-items-start gap-2"
+                    *ngFor="let portion of portions.controls; let i = index" [formGroupName]="i">
+
+                    <input type="checkbox" class="form-check-input m-0" formControlName="enabled" />
+
+                    <!-- Portion Input -->
+                    <div class="input w-100" [class.opacity-50]="!portion.get('enabled')?.value">
+                        <label [for]="'Portion' + i">Portion {{ i + 1 }}</label>
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="text" [id]="'Portion' + i" class="form-control custom-date-input"
+                                formControlName="portion" />
+                        </div>
+                    </div>
+
+                    <!-- Percentage Input -->
+                    <div class="input w-100" [class.opacity-50]="!portion.get('enabled')?.value">
+                        <label [for]="'Percentage' + i">Percentage</label>
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input type="text" [id]="'Percentage' + i" class="form-control custom-date-input"
+                                formControlName="percentage" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+
+
+    </div>
+</div>
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Salary Portion'"
+    [paragraph1]="'Are you sure you want to discard creating the new Salary Portion?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

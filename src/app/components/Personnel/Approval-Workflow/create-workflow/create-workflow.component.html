@@ -4,17 +4,18 @@
     { label: 'Workflows', link: '/workflow' },
     {  label: 'Create New Workflow'}
   ]" title="Create New Workflow" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success w-auto" (click)="createWorkflow()" [disabled]="!workflow1.valid || !areAllStepsValid() || steps.length <= 0">
+  <button class="btn btn-lg btn-success w-auto" (click)="createWorkflow()"
+    [disabled]="!workflow1.valid || !areAllStepsValid() || steps.length <= 0">
     @if (isLoading) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
     @if (!isLoading) {
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
     }
     <span>Create Workflow</span>
   </button>
@@ -43,177 +44,191 @@
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" formControlName="code" id="workflowId" class="form-control custom-date-input"
               placeholder="0050" />
-            </div>
           </div>
+        </div>
 
-          <div class="input">
-            <label for="workflowName">Workflow Name <span>*</span></label>
+        <div class="input">
+          <label for="workflowName">Workflow Name <span>*</span></label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" formControlName="name" id="workflowName" class="form-control custom-date-input"
+              placeholder="Workflow Name" />
+          </div>
+          @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
+          <p class="error-msg">
+            Workflow Name min length must be 3.
+          </p>
+          }
+          @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['maxLength']) {
+          <p class="error-msg">
+            Workflow Name max length must be 100.
+          </p>
+          }
+          @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['required']) {
+          <p class="error-msg">
+            Workflow Name is required.
+          </p>
+          }
+        </div>
+
+        <div class="input">
+          <label for="workflowtype">Workflow Type <span>*</span></label>
+          <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input type="text" formControlName="name" id="workflowName"
-                class="form-control custom-date-input" placeholder="Workflow Name" />
-              </div>
-              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
-                <p class="error-msg"
-                  >
-                  Workflow Name min length must be 3.
-                </p>
-              }
-              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['maxLength']) {
-                <p class="error-msg"
-                  >
-                  Workflow Name max length must be 100.
-                </p>
-              }
-              @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  Workflow Name is required.
-                </p>
-              }
+              <select name="workflowtype" formControlName="workflow_type" id="workflowtype" class="form-select">
+                <option value="" disabled selected hidden>Select one Leave Type</option>
+                <option value="permission">Permission</option>
+                <option value="overtime">Overtime</option>
+                <option value="leave">Leave</option>
+              </select>
             </div>
-
-            <div class="input">
-              <label for="leavetype">Leave Type</label>
-              <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                  <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select">
-                    <option value="" disabled selected hidden>Select one Leave Type</option>
-                    @for (item of leaveTypes; track item) {
-                      <option [value]="item.id">{{item.name}}</option>
-                    }
-                  </select>
-                </div>
-              </div>
-              @if (workflow1.get('leave_id')?.touched && workflow1.get('leave_id')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  Leave Type is required.
-                </p>
-              }
-            </div>
-
-            <div class="input">
-              <label for="department">Department</label>
-              <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                  <select name="department" formControlName="department_id" id="department" class="form-select">
-                    <option value="" disabled selected hidden>Select one Department</option>
-                    @for (item of departments; track item) {
-                      <option [value]="item.id">{{item.name}}</option>
-                    }
-                  </select>
-                </div>
-              </div>
-              @if (workflow1.get('department_id')?.touched && workflow1.get('department_id')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  Department is required.
-                </p>
-              }
-            </div>
-            @if (errMsg) {
-              <div class="alert alert-danger mb-0 mt-3" role="alert">
-                {{errMsg}}
-              </div>
-            }
-          </form>
+          </div>
+          @if (workflow1.get('workflow_type')?.touched && workflow1.get('workflow_type')?.errors?.['required']) {
+          <p class="error-msg">
+            Workflow Type is required.
+          </p>
+          }
         </div>
 
+        <div class="input" [class.opacity-50]="workflow1.get('workflow_type')?.value !== 'leave'">
+          <label for="leavetype">Leave Type <span>*</span></label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select"
+                
+                [disabled]="workflow1.get('workflow_type')?.value !== 'leave'">
 
-        <div class="content-box p-0 row w-100 mx-auto">
-          <div class="steps col-3">
-            <h4>Steps</h4>
-            <ul class="steps-links">
-              @for (step of steps; track step; let i = $index) {
-                <li class="link" [class.active]="i === selectedStepIndex"
-                  (click)="selectedStepIndex = i">
-                  {{ step.form.value.stepName || 'Step ' + (i + 1) }}
-                  @if (!step.form.value.mandatory) {
-                    <small class="ms-2 fw-light">Optional</small>
-                  }
-                </li>
-              }
-            </ul>
-            <button type="button" (click)="addStep()"
-              class="view-btn py-3 mb-4 d-flex align-items-center w-100 gap-2 justify-content-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                </g>
-              </svg>
-              <span>Add Step</span>
-            </button>
-          </div>
-          <div class="col-9">
-            @if (steps[selectedStepIndex]) {
-              <form class="step-form w-75 d-flex flex-column gap-2"
-                [formGroup]="steps[selectedStepIndex].form">
-                <div class="input">
-                  <label for="stepName">Step Name</label>
-                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="stepName" formControlName="stepName"
-                      class="form-control custom-date-input" placeholder="Enter Step Name" />
-                    </div>
-                    @if (steps[selectedStepIndex].form.get('stepName')?.invalid && (steps[selectedStepIndex].form.get('stepName')?.touched || showErrors)) {
-                      <p class="error-msg"
-                        >
-                        Step Name is required.
-                      </p>
-                    }
-                  </div>
-                  <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                    <input class="form-check-input m-0" formControlName="mandatory" type="checkbox" id="mandatory">
-                    <label class="form-check-label m-0" for="mandatory">
-                      Mandatory
-                    </label>
-                  </div>
-                  <div class="input">
-                    <label for="directManager">Assignee</label>
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="directManager" formControlName="assignee" id="directManager"
-                          class="form-select">
-                          <option value="" disabled selected hidden>Direct Manager</option>
-                          @for (item of jobTitles; track item) {
-                            <option [value]="item.id">{{item.name}}</option>
-                          }
-                        </select>
-                      </div>
-                    </div>
-                    @if (steps[selectedStepIndex].form.get('assignee')?.invalid && (steps[selectedStepIndex].form.get('assignee')?.touched || showErrors)) {
-                      <p class="error-msg"
-                        >
-                        Direct Manager is required.
-                      </p>
-                    }
-                  </div>
-                  <button (click)="removeStep(selectedStepIndex)"
-                    class="btn btn-outline-danger py-2 w-auto mt-2 align-self-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                        d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
-                      </svg>
-                      <span>Remove Step</span>
-                    </button>
-                  </form>
+                <option value="" disabled selected hidden>Select one Leave Type</option>
+                @for (item of leaveTypes; track item) {
+                <option [value]="item.id">{{ item.name }}</option>
                 }
-              </div>
+              </select>
             </div>
-
           </div>
+
+          @if (workflow1.get('leave_id')?.touched && workflow1.get('leave_id')?.errors?.['required']) {
+          <p class="error-msg">Leave Type is required.</p>
+          }
         </div>
 
 
+        <div class="input">
+          <label for="department">Department <span>*</span></label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <select name="department" formControlName="department_id" id="department" class="form-select">
+                <option value="" disabled selected hidden>Select one Department</option>
+                @for (item of departments; track item) {
+                <option [value]="item.id">{{item.name}}</option>
+                }
+              </select>
+            </div>
+          </div>
+          @if (workflow1.get('department_id')?.touched && workflow1.get('department_id')?.errors?.['required']) {
+          <p class="error-msg">
+            Department is required.
+          </p>
+          }
+        </div>
+        @if (errMsg) {
+        <div class="alert alert-danger mb-0 mt-3" role="alert">
+          {{errMsg}}
+        </div>
+        }
+      </form>
+    </div>
 
 
-        <!-- discard -->
-        <app-popup [title]="'Discard New Workflow'" [paragraph1]="'Are you sure you want to discard creating the new Workflow?'"
-          [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-          <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-            Discard Workflow
+    <div class="content-box p-0 row w-100 mx-auto">
+      <div class="steps col-3">
+        <h4>Steps</h4>
+        <ul class="steps-links">
+          @for (step of steps; track step; let i = $index) {
+          <li class="link" [class.active]="i === selectedStepIndex" (click)="selectedStepIndex = i">
+            {{ step.form.value.stepName || 'Step ' + (i + 1) }}
+            @if (!step.form.value.mandatory) {
+            <small class="ms-2 fw-light">Optional</small>
+            }
+          </li>
+          }
+        </ul>
+        <button type="button" (click)="addStep()"
+          class="view-btn py-3 mb-4 d-flex align-items-center w-100 gap-2 justify-content-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+            </g>
+          </svg>
+          <span>Add Step</span>
+        </button>
+      </div>
+      <div class="col-9">
+        @if (steps[selectedStepIndex]) {
+        <form class="step-form w-75 d-flex flex-column gap-2" [formGroup]="steps[selectedStepIndex].form">
+          <div class="input">
+            <label for="stepName">Step Name</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="stepName" formControlName="stepName" class="form-control custom-date-input"
+                placeholder="Enter Step Name" />
+            </div>
+            @if (steps[selectedStepIndex].form.get('stepName')?.invalid &&
+            (steps[selectedStepIndex].form.get('stepName')?.touched || showErrors)) {
+            <p class="error-msg">
+              Step Name is required.
+            </p>
+            }
+          </div>
+          <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <input class="form-check-input m-0" formControlName="mandatory" type="checkbox" id="mandatory">
+            <label class="form-check-label m-0" for="mandatory">
+              Mandatory
+            </label>
+          </div>
+          <div class="input">
+            <label for="directManager">Assignee</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <select name="directManager" formControlName="assignee" id="directManager" class="form-select">
+                  <option value="" disabled selected hidden>Direct Manager</option>
+                  @for (item of jobTitles; track item) {
+                  <option [value]="item.id">{{item.name}}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            @if (steps[selectedStepIndex].form.get('assignee')?.invalid &&
+            (steps[selectedStepIndex].form.get('assignee')?.touched || showErrors)) {
+            <p class="error-msg">
+              Direct Manager is required.
+            </p>
+            }
+          </div>
+          <button (click)="removeStep(selectedStepIndex)"
+            class="btn btn-outline-danger py-2 w-auto mt-2 align-self-start">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
+            </svg>
+            <span>Remove Step</span>
           </button>
-          <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-            Cancel
-          </button>
-        </app-popup>
+        </form>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+<!-- discard -->
+<app-popup [title]="'Discard New Workflow'" [paragraph1]="'Are you sure you want to discard creating the new Workflow?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+    Discard Workflow
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Cancel
+  </button>
+</app-popup>

@@ -144,7 +144,8 @@
                     </g>
                   </svg>
                   @if (collapsed) {
-                  <span>Organizational Chart</span>
+                  <!-- <span>Organizational Chart</span> -->
+                  <span>Org Structure</span>
                   }
                 </a>
               </li>
@@ -160,7 +161,8 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
             @if (currentRoute.includes('dashboard') || currentRoute.includes('employees') ||
-            currentRoute.includes('workflow') || currentRoute.includes('requests')|| currentRoute.includes('onboarding')) {
+            currentRoute.includes('workflow') || currentRoute.includes('requests')||
+            currentRoute.includes('onboarding')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
               class="svg-active-accordion">
               <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
@@ -264,8 +266,7 @@
               <li class="sidenav-nav-item" routerLink="/onboarding" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
                       d="M8.136 1.603a.75.75 0 0 1-.238 1.033l-4 2.5a.75.75 0 0 1-.796-1.272l4-2.5a.75.75 0 0 1 1.034.239m7.728 0a.75.75 0 0 1 1.034-.239l4 2.5a.75.75 0 1 1-.796 1.272l-4-2.5a.75.75 0 0 1-.238-1.033M12 4.75a8.25 8.25 0 1 0 0 16.5a8.25 8.25 0 0 0 0-16.5M2.25 13c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75s-4.365 9.75-9.75 9.75S2.25 18.385 2.25 13M12 9.25a.75.75 0 0 1 .75.75v2.25H15a.75.75 0 0 1 0 1.5h-2.25V16a.75.75 0 0 1-1.5 0v-2.25H9a.75.75 0 0 1 0-1.5h2.25V10a.75.75 0 0 1 .75-.75"
                       clip-rule="evenodd" />
@@ -515,7 +516,8 @@
         <h2 class="accordion-header" id="headingFive">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-            @if (currentRoute.includes('payroll-components') || currentRoute.includes('payroll-runs')) {
+            @if (currentRoute.includes('payroll-components') || currentRoute.includes('payroll-runs')||
+            currentRoute.includes('salary-portions')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
               class="svg-active-accordion">
               <path
@@ -572,6 +574,22 @@
                   </svg>
                   @if (collapsed) {
                   <span>Payroll Runs</span>
+                  }
+                </a>
+              </li>
+              <!-- Salary Portions link -->
+              <li class="sidenav-nav-item" routerLink="/salary-portions" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                      d="M14.254 1.365c-1.096-.306-2.122.024-2.851.695c-.719.66-1.153 1.646-1.153 2.7v6.695a2.295 2.295 0 0 0 2.295 2.295h6.694c1.055 0 2.042-.434 2.701-1.153c.67-.729 1.001-1.755.695-2.851a12.1 12.1 0 0 0-8.38-8.381M11.75 4.76c0-.652.27-1.232.668-1.597c.386-.355.886-.508 1.433-.355c3.55.991 6.349 3.79 7.34 7.34c.153.548 0 1.048-.355 1.434c-.365.397-.945.667-1.597.667h-6.694a.795.795 0 0 1-.795-.795z"
+                      clip-rule="evenodd" />
+                    <path
+                      d="M8.672 4.716a.75.75 0 0 0-.45-1.432C4.183 4.554 1.25 8.328 1.25 12.79c0 5.501 4.46 9.961 9.96 9.961a9.96 9.96 0 0 0 9.505-6.973a.75.75 0 1 0-1.43-.45a8.465 8.465 0 0 1-8.074 5.923a8.46 8.46 0 0 1-8.461-8.46a8.465 8.465 0 0 1 5.922-8.074" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Salary Portions</span>
                   }
                 </a>
               </li>
@@ -684,14 +702,22 @@
     <li class="sidenav-nav-item" routerLink="/settings" routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: false }" (click)="closeAllAccordions()">
       <a class="sidenav-nav-link d-flex align-items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M14.279 2.152C13.909 2 13.439 2 12.5 2s-1.408 0-1.779.152a2 2 0 0 0-1.09 1.083c-.094.223-.13.484-.145.863a1.62 1.62 0 0 1-.796 1.353a1.64 1.64 0 0 1-1.579.008c-.338-.178-.583-.276-.825-.308a2.03 2.03 0 0 0-1.49.396c-.318.242-.553.646-1.022 1.453c-.47.807-.704 1.21-.757 1.605c-.07.526.074 1.058.4 1.479c.148.192.357.353.68.555c.477.297.783.803.783 1.361s-.306 1.064-.782 1.36c-.324.203-.533.364-.682.556a2 2 0 0 0-.399 1.479c.053.394.287.798.757 1.605s.704 1.21 1.022 1.453c.424.323.96.465 1.49.396c.242-.032.487-.13.825-.308a1.64 1.64 0 0 1 1.58.008c.486.28.774.795.795 1.353c.015.38.051.64.145.863c.204.49.596.88 1.09 1.083c.37.152.84.152 1.779.152s1.409 0 1.779-.152a2 2 0 0 0 1.09-1.083c.094-.223.13-.483.145-.863c.02-.558.309-1.074.796-1.353a1.64 1.64 0 0 1 1.579-.008c.338.178.583.276.825.308c.53.07 1.066-.073 1.49-.396c.318-.242.553-.646 1.022-1.453c.47-.807.704-1.21.757-1.605a2 2 0 0 0-.4-1.479c-.148-.192-.357-.353-.68-.555c-.477-.297-.783-.803-.783-1.361s.306-1.064.782-1.36c.324-.203.533-.364.682-.556a2 2 0 0 0 .399-1.479c-.053-.394-.287-.798-.757-1.605s-.704-1.21-1.022-1.453a2.03 2.03 0 0 0-1.49-.396c-.242.032-.487.13-.825.308a1.64 1.64 0 0 1-1.58-.008a1.62 1.62 0 0 1-.795-1.353c-.015-.38-.051-.64-.145-.863a2 2 0 0 0-1.09-1.083"
             clip-rule="evenodd" opacity=".5" />
           <path d="M15.523 12c0 1.657-1.354 3-3.023 3s-3.023-1.343-3.023-3S10.83 9 12.5 9s3.023 1.343 3.023 3" />
+        </svg> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+          viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
+          <path  d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
+            opacity=".5" />
+          <path 
+            d="M16.807 19.011A8.46 8.46 0 0 1 12 20.5a8.46 8.46 0 0 1-4.807-1.489c-.604-.415-.862-1.205-.51-1.848C7.41 15.83 8.91 15 12 15s4.59.83 5.318 2.163c.35.643.093 1.433-.511 1.848M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
         </svg>
         @if (collapsed) {
-        <span>Settings</span>
+        <!-- <span>Settings</span> -->
+        <span>Profile</span>
         }
       </a>
     </li>

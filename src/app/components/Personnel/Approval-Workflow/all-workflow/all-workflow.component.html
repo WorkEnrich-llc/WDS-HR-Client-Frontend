@@ -53,13 +53,13 @@
 
     <!-- start Table -->
 
-    <app-table [data]="workflows" [isLoading]="loadData" [columnsCount]="7" [totalItems]="workflows.length" [itemsPerPage]="itemsPerPage"
-      [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+    <app-table [data]="workflows" [isLoading]="loadData" [columnsCount]="7" [totalItems]="workflows.length"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="workflowTableHeader"
       [rowTemplate]="workflowTableRow" [emptyTemplate]="noWorkflow"></app-table>
 
     <ng-template #workflowTableHeader>
-      <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+      <th (click)="sortBy()" style="cursor: pointer;" class="w-25">
         <div class="d-flex align-items-center justify-content-between">
           <span>Approval Workflow</span>
           <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
@@ -79,23 +79,36 @@
       </th>
 
 
-      <th>Leave Type</th>
-      <th>Department</th>
+      <th class="w-10">Workflow Type</th>
+      <th class="w-15">Leave Type</th>
+      <th class="w-25">Department</th>
       <th>Status</th>
       <th>Created at</th>
       <th>Updated at</th>
       <th>Actions</th>
     </ng-template>
-
     <ng-template #workflowTableRow let-workflow let-i="index">
       <td class="width-fix">
-         <span class="d-block text-gray-sm">{{ workflow.id.toString().padStart(4, '0') }}</span>
-                <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ workflow.name }}
-                </span>
+        <span class="d-block text-gray-sm">
+          {{ workflow.id.toString().padStart(4, '0') }}
+        </span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          {{ workflow.name }}
+        </span>
       </td>
-      <td>{{workflow.leave.name}}</td>
-      <td>{{workflow.department.name}}</td>
+      <td>
+        @if(workflow?.leave) {
+        <span>Leave</span>
+        } @if (workflow?.overtime) {
+        <span>Overtime</span>
+        } @if (workflow?.permission) {
+        <span>Permission</span>
+        }
+      </td>
+      <td>{{ workflow.leave?.name }}</td>
+      <td>{{ workflow.department?.name }}</td>
+
+
       <td>
         <span class="badge-success" *ngIf="workflow.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -106,6 +119,7 @@
           </svg>
           <span>Active</span>
         </span>
+
         <span class="badge-danger" *ngIf="!workflow.is_active">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -116,10 +130,14 @@
           <span>Not Active</span>
         </span>
       </td>
-      <td>{{workflow.created_at | date:'dd/MM/yyyy'}}</td>
-      <td>{{workflow.updated_at | date:'dd/MM/yyyy'}}</td>
+
+      <td>{{ workflow.created_at | date:'dd/MM/yyyy' }}</td>
+      <td>{{ workflow.updated_at | date:'dd/MM/yyyy' }}</td>
+
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
+
+          <!-- View Button -->
           <a [routerLink]="['/workflow/view-workflows', workflow.id]"
             class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -131,6 +149,8 @@
             </svg>
             <span>View</span>
           </a>
+
+          <!-- Edit Button -->
           <a [routerLink]="['/workflow/update-workflows', workflow.id]"
             class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -143,10 +163,9 @@
             </svg>
             <span>Edit</span>
           </a>
+
         </div>
-
       </td>
-
     </ng-template>
 
     <ng-template #noWorkflow>
