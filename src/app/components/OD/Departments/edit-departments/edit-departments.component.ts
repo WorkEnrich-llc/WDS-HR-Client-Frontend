@@ -48,10 +48,11 @@ export class EditDepartmentsComponent implements OnInit {
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-
+        console.log(this.departmentData);
         this.deptStep1.patchValue({
           code: this.departmentData.code || '',
           name: this.departmentData.name || '',
+          department_type: this.departmentData.department_type.id || '',
           objectives: this.departmentData.objectives || ''
         });
 
@@ -93,6 +94,7 @@ export class EditDepartmentsComponent implements OnInit {
   deptStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });
 
@@ -211,6 +213,7 @@ updateDept() {
       id: this.departmentData.id,
       code: form1Data.code,
       name: form1Data.name,
+      department_type: Number(form1Data.department_type), 
       objectives: form1Data.objectives,
       sections: allSections
     }

@@ -105,11 +105,26 @@
         <label for="deptName">Department Name <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input formControlName="name" type="text" id="deptName" class="form-control custom-date-input"
-            placeholder="Recruitment" />
+            placeholder="Department" />
         </div>
         @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']) {
         <p class="error-msg">
           Department Name is required.
+        </p>
+        }
+      </div>
+      <div class="input">
+        <label for="deptType">Department Type <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select id="deptType" formControlName="department_type" class="form-select">
+            <option value="" selected disabled hidden>Select Department Type</option>
+            <option [ngValue]="1">Support</option>
+            <option [ngValue]="2">Technical</option>
+          </select>
+        </div>
+        @if (deptStep1.get('department_type')?.touched && deptStep1.get('department_type')?.errors?.['required']) {
+        <p class="error-msg">
+          Department Type is required.
         </p>
         }
       </div>
@@ -125,12 +140,16 @@
         </p>
         }
       </div>
+
+      @if (errMsg) {
+      <div class="alert alert-danger mb-0 mt-2" role="alert">
+        {{errMsg}}
+      </div>
+      }
+
+
     </form>
-    @if (errMsg) {
-    <div class="alert alert-danger mb-0 mt-2" role="alert">
-      {{errMsg}}
-    </div>
-    }
+
     <!-- next button -->
     <div class="btn-fixed">
       <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid" (click)="goNext()">

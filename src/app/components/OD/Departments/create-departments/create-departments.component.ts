@@ -43,6 +43,7 @@ export class CreateDepartmentsComponent {
     // Optional code must include both letters and numbers when provided
     code: new FormControl('', [Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$')]),
     name: new FormControl('', [Validators.required]),
+    department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });
 
@@ -94,16 +95,18 @@ export class CreateDepartmentsComponent {
       };
     });
 
-    const finalData = {
-      request_data: {
-        code: form1Data.code,
-        name: form1Data.name,
-        objectives: form1Data.objectives,
-        sections: sections
-      }
-    };
+   const finalData = {
+  request_data: {
+    code: form1Data.code,
+    name: form1Data.name,
+    department_type: Number(form1Data.department_type), 
+    objectives: form1Data.objectives,
+    sections: sections
+  }
+};
 
-    // console.log(finalData);
+
+    console.log(finalData);
     this.isLoading = true;
     this._DepartmentsService.createDepartment(finalData).subscribe({
 
