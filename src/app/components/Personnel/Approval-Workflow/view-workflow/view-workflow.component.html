@@ -55,10 +55,16 @@
                 <span>{{workflowData?.name}}</span>
               </div>
             }
-            @if (workflowData?.workflow_type) {
+            @if (workflowData) {
               <div class="info">
                 <h6>Workflow Type</h6>
-                <span>{{workflowData?.workflow_type}}</span>
+                @if(workflowData?.leave) {
+                  <span>Leave</span>
+                } @if (workflowData?.overtime) {
+                  <span>Overtime</span>
+                } @if (workflowData?.permission) {
+                  <span>Permission</span>
+                }
               </div>
             }
             @if (workflowData?.leave?.name) {

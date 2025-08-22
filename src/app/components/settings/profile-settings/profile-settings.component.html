@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="input opacity-50">
+            <!-- <div class="input opacity-50">
                 <label for="dept"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path
                             d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
@@ -62,28 +62,19 @@
                         </select>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="d-flex align-items-center gap-3 mt-3">
-                <button class="btn btn-lg btn-success w-100">
+                <button class="btn btn-lg btn-success w-auto">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                         </g>
                     </svg>
-                    <span>Create Department</span>
+                    <span>Save Changes</span>
                 </button>
             
-                <button class="btn btn-lg btn-outline-dark w-100" type="button" (click)="openModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                        </g>
-                    </svg>
-                    <span>Discard Department</span>
-                </button>
             </div>
 
 
@@ -91,15 +82,3 @@
 
     </div>
 </div>
-
-
-<!-- Discard popup  -->
-<app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard the changes you made to your profile?'"
-    [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-        Discard Changes
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Keep Editing
-    </button>
-</app-popup>

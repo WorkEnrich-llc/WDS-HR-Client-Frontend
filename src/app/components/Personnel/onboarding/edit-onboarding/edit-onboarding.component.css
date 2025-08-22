@@ -1,7 +1,12 @@
-.page-header .parag {
-    margin-top: -2.8rem;
+.page-header .parag{
+    margin-top: -2.8rem;}
+.checks {
+    border-top: 1px solid var(--color-secondary-300);
 }
 
+.checks label {
+    cursor: pointer;
+}
 
 .onecheck {
     padding: var(--spacing-16);
@@ -19,6 +24,9 @@
     -o-transition: 0.3s;
 }
 
+.onecheck:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .onecheck p ,.onecheck .number {
     font-weight: 600;
@@ -31,13 +39,12 @@
 .onecheck:has(input:checked) p {
     color: var(--color-secondary-700);
 }
-
 .onecheck.dragging {
-    opacity: 0.5;
-    background: #f0f0f0;
+  opacity: 0.5;
+  background: #f0f0f0;
 }
 
 .onecheck.drag-over {
-    border: 2px dashed #007bff;
-    background: #e9f5ff;
+  border: 2px dashed #007bff;
+  background: #e9f5ff;
 }

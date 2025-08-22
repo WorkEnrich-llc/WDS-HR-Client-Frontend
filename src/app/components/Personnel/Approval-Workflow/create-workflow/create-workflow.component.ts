@@ -37,11 +37,36 @@ export class CreateWorkflowComponent {
   }
 
   ngOnInit(): void {
+    this.updateLeaveControlState(this.workflow1.get('workflow_type')?.value);
+
+    this.workflow1.get('workflow_type')?.valueChanges.subscribe(value => {
+      this.updateLeaveControlState(value);
+    });
+
     this.getAllLeaveTypes();
     this.getAllDepartments();
     this.getAllJobTitles();
+
+  }
+  private updateLeaveControlState(workflowType: string | null | undefined) {
+    const leaveControl = this.workflow1.get('leave_id');
+    if (workflowType === 'leave') {
+      leaveControl?.enable({ emitEvent: false });
+    } else {
+      leaveControl?.disable({ emitEvent: false });
+    }
   }
 
+  loadExisting(workflowData: any) {
+    this.workflow1.patchValue({
+      code: workflowData.code,
+      name: workflowData.name,
+      workflow_type: workflowData.workflow_type,
+      leave_id: workflowData.leave_id,
+      department_id: workflowData.department_id,
+    });
+    this.updateLeaveControlState(this.workflow1.get('workflow_type')?.value);
+  }
   // steps
   showErrors = false;
   steps: { form: FormGroup, name: string }[] = [];
@@ -51,15 +76,16 @@ export class CreateWorkflowComponent {
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     workflow_type: new FormControl('', [Validators.required]),
-    leave_id: new FormControl('', [Validators.required]),
+    leave_id: new FormControl({ value: '', disabled: true }, [Validators.required]),
     department_id: new FormControl('', [Validators.required]),
   });
+
 
   leaveTypes: any[] = [];
   departments: any[] = [];
   jobTitles: any[] = [];
   loadData: boolean = true;
-  
+
   getAllLeaveTypes(
     searchTerm: string = '',
     filters?: {
@@ -100,7 +126,7 @@ export class CreateWorkflowComponent {
     });
   }
 
-   
+
   getAllJobTitles(
     searchTerm: string = '',
     filters?: {
@@ -158,8 +184,8 @@ export class CreateWorkflowComponent {
       this.selectedStepIndex = this.steps.length - 1;
     }
   }
-  
-  
+
+
   // steps valid
   areAllStepsValid(): boolean {
     return this.steps.every(step => step.form.valid);
@@ -171,33 +197,34 @@ export class CreateWorkflowComponent {
   createWorkflow() {
     this.isLoading = true;
 
-const request_data = {
-  request_data: {
-    code: this.workflow1.value.code,
-    name: this.workflow1.value.name,
-    workflow_type: this.workflow1.value.workflow_type,
-    leave_id: Number(this.workflow1.value.leave_id),
-    department_id: Number(this.workflow1.value.department_id),
-    steps: this.steps.map((step, index) => ({
-      index: index + 1,
-      id: index,
-      record_type: "add",
-      name: step.form.value.stepName,
-      mandatory: step.form.value.mandatory,
-      assignee_id: Number(step.form.value.assignee)
-    }))
-  }
-};
+    const request_data: any = {
+      request_data: {
+        code: this.workflow1.value.code,
+        name: this.workflow1.value.name,
+        workflow_type: this.workflow1.value.workflow_type,
+        department_id: Number(this.workflow1.value.department_id),
+        steps: this.steps.map((step, index) => ({
+          index: index + 1,
+          id: index,
+          record_type: "add",
+          name: step.form.value.stepName,
+          mandatory: step.form.value.mandatory,
+          assignee_id: Number(step.form.value.assignee)
+        }))
+      }
+    };
 
-    // console.log({ request_data });
+    if (this.workflow1.value.workflow_type === 'leave') {
+      request_data.request_data.leave_id = Number(this.workflow1.value.leave_id);
+    }
+
     this._WorkflowService.createWorkFlow(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
         // create success
         this.router.navigate(['/workflow/all-workflows']);
-        this.toasterMessageService.sendMessage("Workflow created successfully");
-
+        // this.toasterMessageService.sendMessage("Workflow created successfully");
       },
       error: (err) => {
         this.isLoading = false;
@@ -215,11 +242,10 @@ const request_data = {
           this.errMsg = "An unexpected error occurred. Please try again later.";
         }
       }
-
     });
   }
-  
-  
+
+
   // popups
   isModalOpen = false;
   isSuccessModalOpen = false;

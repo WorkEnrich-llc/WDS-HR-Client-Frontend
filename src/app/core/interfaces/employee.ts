@@ -75,6 +75,26 @@ export interface Employee {
     job_title: {
       id: number;
       name: string;
+      salary_ranges?: {
+        per_hour: {
+          status: boolean;
+          maximum: string;
+          minimum: string;
+          currency: string;
+        };
+        full_time: {
+          status: boolean;
+          maximum: string;
+          minimum: string;
+          currency: string;
+        };
+        part_time: {
+          status: boolean;
+          maximum: string;
+          minimum: string;
+          currency: string;
+        };
+      };
     };
     work_schedule: {
       id: number;
