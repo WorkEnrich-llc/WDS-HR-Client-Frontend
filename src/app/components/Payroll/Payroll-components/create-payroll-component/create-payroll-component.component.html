@@ -93,6 +93,49 @@
                 }
             </div>
 
+            <div class="input">
+                <label for="Calculation">Calculation <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Calculation" id="Calculation" class="form-select" formControlName="calculation">
+                            <option value="" disabled hidden>Select Calculation</option>
+                            @for (c of calculations ; track c.key) {
+                            <option [value]="c.key">{{ c.value }}</option>
+                            }
+                        </select>
+
+                    </div>
+                </div>
+                @if (createPayrollForm.get('calculation')?.touched &&
+                createPayrollForm.get('calculation')?.errors?.['required']) {
+                <p class="error-msg">
+                    calculation is required.
+                </p>
+                }
+            </div>
+
+            <div class="input">
+                <label for="portion">Select salary portion <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="portion" id="portion" class="form-select" formControlName="portion">
+                            <option value="" disabled hidden>Select Portion</option>
+                            @for (p of salaryPortions; track p.index) {
+                            <option [value]="p.index">
+                                {{ p.name }} ({{ p.percentage }}%)
+                            </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @if (createPayrollForm.get('portion')?.touched &&
+                createPayrollForm.get('portion')?.errors?.['required']) {
+                <p class="error-msg">Portion is required.</p>
+                }
+
+
+            </div>
+
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                 <input class="form-check-input m-0" type="checkbox" id="shown" formControlName="show_in_payslip">
                 <label class="form-check-label m-0" for="shown">

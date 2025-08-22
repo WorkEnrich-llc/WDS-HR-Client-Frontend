@@ -1,3 +1,4 @@
+import { calculation } from './../../../../core/enums/index';
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -8,6 +9,8 @@ import { PayrollComponent } from 'app/core/models/payroll';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
+import { KeyValue } from '@angular/common';
 
 @Component({
   selector: 'app-create-payroll-component',
@@ -20,6 +23,7 @@ export class CreatePayrollComponentComponent implements OnInit {
   public createPayrollForm!: FormGroup;
   private fb = inject(FormBuilder);
   private payrollService = inject(PayrollComponentsService);
+  private salaryPortionService = inject(SalaryPortionsService);
   private toasterService = inject(ToasterMessageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -29,6 +33,9 @@ export class CreatePayrollComponentComponent implements OnInit {
   isSubmitting = false;
   isEditMode = false;
   id?: number;
+  salaryPortions: any[] = [];
+  calculations: Array<KeyValue<number, string>> = calculation;
+
 
 
 
@@ -36,7 +43,25 @@ export class CreatePayrollComponentComponent implements OnInit {
 
   ngOnInit(): void {
     this.initFormModel();
+    this.loadSalaryPortions();
     this.checkModeAndLoadData();
+    this.createPayrollForm.get('calculation')?.valueChanges.subscribe(value => {
+      const portionControl = this.createPayrollForm.get('portion');
+      const calcValue = +value;
+      if (calcValue === 1) { // RawValue
+        portionControl?.setValue(1);
+        portionControl?.disable();
+        portionControl?.clearValidators();
+      } else if (calcValue === 2) { // Days
+        console.log('Days selected → enable portion');
+        portionControl?.enable();
+        portionControl?.setValidators([Validators.required]);
+        portionControl?.reset();
+      }
+
+
+      portionControl?.updateValueAndValidity();
+    });
 
   }
   // discard popup
@@ -62,6 +87,8 @@ export class CreatePayrollComponentComponent implements OnInit {
       name: ['', [Validators.required]],
       component_type: ['', [Validators.required]],
       classification: ['', [Validators.required]],
+      portion: [''],
+      calculation: ['', [Validators.required]],
       show_in_payslip: [false]
     });
   }
@@ -78,12 +105,24 @@ export class CreatePayrollComponentComponent implements OnInit {
             name: data.name,
             component_type: data.component_type.id,
             classification: data.classification.id,
+            portion: data.portion?.index ?? '',
+            calculation: data.calculation?.key ?? '',
             show_in_payslip: data.show_in_payslip
           });
         },
         error: (err) => console.error('Failed to load component', err)
       });
     }
+  }
+
+  private loadSalaryPortions(): void {
+    this.salaryPortionService.single().subscribe({
+      next: (data) => {
+        console.log('Single salary portion data:', data);
+        this.salaryPortions = data.settings
+      },
+      error: (err) => console.error('Failed to load single salary portion', err)
+    });
   }
 
   async createComponent(): Promise<void> {
@@ -96,7 +135,9 @@ export class CreatePayrollComponentComponent implements OnInit {
     const formData: PayrollComponent = {
       ...this.createPayrollForm.value,
       component_type: +formValues.component_type,
-      classification: +formValues.classification
+      classification: +formValues.classification,
+      portion: +formValues.portion,
+      calculation: +formValues.calculation
     };
     console.log('Form Submitted', formData);
     if (this.isEditMode && this.id) {
@@ -117,6 +158,9 @@ export class CreatePayrollComponentComponent implements OnInit {
       this.isSubmitting = false;
     }
   }
+
+
+
 
 
 
