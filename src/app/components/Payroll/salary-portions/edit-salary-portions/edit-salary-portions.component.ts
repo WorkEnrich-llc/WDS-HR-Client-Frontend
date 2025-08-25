@@ -122,28 +122,57 @@ export class EditSalaryPortionsComponent implements OnInit {
     });
   }
 
+
+
+  get isSaveDisabled(): boolean {
+    if (this.isLoading) return true;
+    return this.portions.controls.some(portion => {
+      const enabled = portion.get('enabled')?.value;
+      const name = portion.get('name')?.value;
+      const percentage = portion.get('percentage')?.value;
+      return enabled && (!name || !percentage);
+    });
+  }
+
   updateSalaryPortion(): void {
-    if (this.portionsForm.invalid) {
+    const formValue = this.portionsForm.getRawValue();
+    const invalidPortion = this.portions.controls.some(portion => {
+      const enabled = portion.get('enabled')?.value;
+      const name = portion.get('name')?.value;
+      const percentage = portion.get('percentage')?.value;
+      return enabled && (!name || !percentage);
+    });
+
+    if (invalidPortion) {
       this.portionsForm.markAllAsTouched();
-      if (this.portionsForm.hasError('totalIs100')) {
-        this.toasterService.showError('The total percentages cannot be 100%.');
-      }
+      this.toasterService.showError('Please fill in all enabled portions before saving.');
       return;
     }
-    const formValue = this.portionsForm.getRawValue();
+    const total = this.portions.controls.reduce((sum, group) => {
+      const enabled = group.get('enabled')?.value;
+      if (!enabled) return sum;
+      const num = Number(group.get('percentage')?.value) || 0;
+      return sum + num;
+    }, 0);
+
+    if (total > 100) {
+      this.toasterService.showError('The total percentages cannot be more than 100%.');
+      return;
+    }
+
+    this.isLoading = true;
     this.salaryPortionService.updateSalaryPortion(formValue).subscribe({
-      next: (response) => {
-        console.log('Salary portion updated successfully:', response);
+      next: () => {
         this.toasterService.showSuccess('Salary portion updated successfully');
         this.router.navigate(['/salary-portions']);
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error updating salary portion:', error);
+        this.isLoading = false;
       }
     });
   }
-
 
   // discard popup
   isModalOpen = false;

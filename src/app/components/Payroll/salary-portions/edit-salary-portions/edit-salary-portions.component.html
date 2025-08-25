@@ -7,8 +7,7 @@
     [update]="(salaryPortion?.updated_at | date:'dd/MM/yyyy') ?? ''">
 
 
-    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()"
-        [disabled]="portionsForm.invalid || isLoading">
+    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()" [disabled]="isSaveDisabled || isLoading">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
