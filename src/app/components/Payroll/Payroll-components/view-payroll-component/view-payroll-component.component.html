@@ -3,7 +3,8 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
     { label: 'View Component 001'},
-  ]" title="View Component 001" create="13/06/2025" update="13/06/2025">
+  ]" title="View Component 001" [create]="(componentData.created_at | date:'dd/MM/yyyy') ?? ''"
+    [update]="(componentData.updated_at | date:'dd/MM/yyyy') ?? ''">
     <button class="btn btn-lg btn-primary" [routerLink]="['/payroll-components/edit',componentData.id]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -16,14 +17,17 @@
         <span>Edit</span>
     </button>
 
-    <!-- <button *ngIf="!jobTitleData.is_active" class="btn btn-lg btn-outline-success" (click)="openActivate()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-    </svg>
-    <span>Activate</span>
-  </button> -->
-    <!-- *ngIf="jobTitleData.is_active" -->
+    @if (!componentData.is_active) {
+    <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </svg>
+        <span>Activate</span>
+    </button>
+    }
+
+    @if (componentData.is_active) {
     <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
@@ -31,6 +35,7 @@
         </svg>
         <span>Deactivate</span>
     </button>
+    }
 </app-page-header>
 
 
@@ -84,7 +89,7 @@
 
 <!-- deactivate popup  -->
 <app-popup [title]="'Deactivate Payroll Component'"
-    [paragraph1]="'Are you sure you want to Deactivate the Payroll Component “' + 'Name' + '”?'"
+    [paragraph1]="'Are you sure you want to Deactivate the Payroll Component “' + componentData.name  + '”?'"
     [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
     [isOpen]="deactivateOpen" (close)="closeDeactivate()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
@@ -101,7 +106,7 @@
 
 <!-- activate popup  -->
 <app-popup [title]="'Activate Payroll Component'"
-    [paragraph1]="'Are you sure you want to Activate the Payroll Component “' + 'Name' + '”?'"
+    [paragraph1]="'Are you sure you want to Activate the Payroll Component “' + componentData.name + '”?'"
     [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
     <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

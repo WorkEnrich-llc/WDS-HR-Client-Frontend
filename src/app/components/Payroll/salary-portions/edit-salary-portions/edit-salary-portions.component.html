@@ -3,8 +3,12 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Salary Portions', link: '/salary-portions' },
     { label: 'Edit Salary Portions' }
-  ]" title="Edit Salary Portions" create="17/08/2025" update="17/08/2025">
-    <button class="btn btn-lg btn-success">
+  ]" title="Edit Salary Portions" [create]="(salaryPortion?.created_at | date:'dd/MM/yyyy') ?? ''"
+    [update]="(salaryPortion?.updated_at | date:'dd/MM/yyyy') ?? ''">
+
+
+    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()"
+        [disabled]="portionsForm.invalid || isLoading">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -36,8 +40,8 @@
 
         <form [formGroup]="portionsForm" class="w-lg-50 d-flex flex-column gap-2">
             <div formArrayName="portions">
-                <div class="w-100 d-flex align-items-start gap-2"
-                    *ngFor="let portion of portions.controls; let i = index" [formGroupName]="i">
+                @for(portion of portions.controls; track $index; let i = $index) { <div
+                    class="w-100 d-flex align-items-start gap-2" [formGroupName]="i">
 
                     <input type="checkbox" class="form-check-input m-0" formControlName="enabled" />
 
@@ -46,7 +50,7 @@
                         <label [for]="'Portion' + i">Portion {{ i + 1 }}</label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="text" [id]="'Portion' + i" class="form-control custom-date-input"
-                                formControlName="portion" />
+                                formControlName="name" />
                         </div>
                     </div>
 
@@ -60,8 +64,12 @@
                     </div>
 
                 </div>
+                }
             </div>
-
+            @if(portions.hasError('totalIs100')){<p class="error-msg">
+                Total percentages must be less than 100%.
+            </p>
+            }
         </form>
 
 
