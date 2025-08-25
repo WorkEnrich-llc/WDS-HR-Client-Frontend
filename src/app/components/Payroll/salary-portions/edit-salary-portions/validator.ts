@@ -4,7 +4,6 @@ import { AbstractControl, ValidationErrors, FormArray } from '@angular/forms';
 
 export function atLeastOnePortionFilled(control: AbstractControl): ValidationErrors | null {
    const formArray = control as FormArray;
-
    const hasData = formArray.controls.some(group => {
       const enabled = group.get('enabled')?.value;
       const name = group.get('name')?.value;
