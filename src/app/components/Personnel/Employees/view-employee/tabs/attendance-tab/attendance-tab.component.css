@@ -24,7 +24,6 @@
   align-items: center;
   justify-content: center;
   color: var(--color-secondary-700);
-  border-radius: 8px;
   transition: all 0.2s ease;
 }
 

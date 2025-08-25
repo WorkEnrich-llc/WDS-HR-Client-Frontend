@@ -25,10 +25,14 @@
 
   <!-- Header Template -->
   <ng-template #documentsTableHeader>
-    <th>Document</th>
-    <th>Upload Date</th>
-    <th>Size<br>File Name</th>
-    <th>Actions</th>
+    <th class="w-30">Document</th>
+    <th class="w-20">Upload Date</th>
+    <th class="w-20">
+       <span class="d-block text-gray fw-light">Size</span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          File Name
+        </span>
+    <th class="w-30">Actions</th>
   </ng-template>
 
   <!-- Row Template -->
@@ -54,29 +58,29 @@
     <td>
       @if (document.uploaded) {
         <div class="d-flex align-items-center gap-2">
-          <button class="btn btn-sm btn-outline-primary" (click)="onViewDocument(document.url)" title="View">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="view-btn" (click)="onViewDocument(document.url)" title="View">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
           </button>
           @if (uploadProgress[document.key] !== undefined) {
-          <button class="btn btn-sm btn-outline-primary d-flex align-items-center" disabled title="Uploading">
+          <button class="view-btn" disabled title="Uploading">
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             <small>{{ uploadProgress[document.key] }}%</small>
           </button>
           } @else {
-          <button class="btn btn-sm btn-outline-primary" (click)="onUpload(document.key, fileInput)" title="Upload">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7,10 12,15 17,10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
+          <button class="view-btn" (click)="onUpload(document.key, fileInput)" title="Upload">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17,8 12,3 7,8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
             Upload
           </button>
           }
-          <button class="btn btn-sm btn-outline-danger" (click)="onDelete(document.key)" title="Delete">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="remove-btn" (click)="onDelete(document.key)" title="Delete">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3,6 5,6 21,6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
             </svg>
@@ -85,13 +89,13 @@
         </div>
       } @else {
         @if (uploadProgress[document.key] !== undefined) {
-        <button class="btn btn-sm btn-outline-primary d-flex align-items-center" disabled title="Uploading">
+        <button class="view-btn d-flex align-items-center" disabled title="Uploading">
           <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           <small>{{ uploadProgress[document.key] }}%</small>
         </button>
         } @else {
-        <button class="btn btn-sm btn-outline-primary" (click)="onUpload(document.key, fileInput)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="view-btn" (click)="onUpload(document.key, fileInput)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="17,8 12,3 7,8"/>
             <line x1="12" y1="3" x2="12" y2="15"/>
@@ -108,7 +112,7 @@
     <tr>
       <td colspan="4" class="text-center py-4">
         <div class="no-data">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" class="text-muted mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" class="text-muted mb-2">
             <path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
           </svg>
           <p class="text-muted">No documents required</p>
