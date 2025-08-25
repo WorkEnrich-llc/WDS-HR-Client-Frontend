@@ -15,6 +15,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getMessaging, provideMessaging } from '@angular/fire/messaging';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { environment } from './environments/environment';
+import { subscriptionInterceptor } from 'app/core/interceptors/subscription.interceptor';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -23,7 +24,13 @@ export function HttpLoaderFactory(http: HttpClient) {
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(NgxDaterangepickerMd.forRoot()),
-    provideHttpClient(withInterceptors([authInterceptor, errorHandlingInterceptor,toastInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        authInterceptor, 
+        errorHandlingInterceptor,
+        toastInterceptor,
+        subscriptionInterceptor
+      ])),
     // provideHttpClient(withInterceptors([authInterceptor, toastInterceptor])),
 
     provideAnimations(),
@@ -69,6 +76,7 @@ if ('serviceWorker' in navigator) {
       // console.log('SW registered', registration);
     }).catch(err => console.error('SW registration failed', err));
 }
+
 
 // function withScrollPositionRestoration(arg0: string): import("@angular/router").RouterFeatures {
 //   throw new Error('Function not implemented.');
