@@ -45,14 +45,15 @@ export class EditSalaryPortionsComponent implements OnInit {
 
 
 
-  private createPortion(p: any = null, isDefault = false): FormGroup {
+  private createPortion(p: any = null, isBasic = false): FormGroup {
+    const hasValue = p && (p.name || p.percentage);
     const portionGroup = this.fb.group({
-      enabled: new FormControl({ value: !isDefault, disabled: isDefault }),
-      name: new FormControl({ value: p?.name || '', disabled: isDefault }),
-      percentage: new FormControl({ value: p?.percentage || '', disabled: isDefault })
+      enabled: new FormControl({ value: hasValue, disabled: isBasic }),
+      name: new FormControl({ value: p?.name || '', disabled: isBasic || !hasValue }),
+      percentage: new FormControl({ value: p?.percentage || '', disabled: isBasic || !hasValue })
     });
 
-    if (!isDefault) {
+    if (!isBasic) {
       portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
         if (enabled) {
           portionGroup.get('name')?.enable();
