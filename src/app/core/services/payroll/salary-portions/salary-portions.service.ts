@@ -11,25 +11,18 @@ export class SalaryPortionsService {
 
   http = inject(HttpClient);
   private readonly url = `${environment.apiBaseUrl}payroll/salary-portions`;
+  datePipe: any;
 
-
-  constructor() { }
-
-  // update component
-  // updateSalaryPortion(data: SalaryPortion): Observable<SalaryPortion> {
-  //   const requestData = { request_data: data };
-  //   return this.http.put<SalaryPortion>(`${this.url}`, requestData);
-  // }
 
   updateSalaryPortion(
-    data: { portions: { enabled: boolean; portion: string; percentage: number }[] }
+    data: { portions: { enabled: boolean; name: string; percentage: number }[] }
   ): Observable<any> {
     const requestData = {
       request_data: {
         settings: data.portions
           .filter((p: any) => p.enabled)
           .map((p: any) => ({
-            name: p.portion,
+            name: p.name,
             percentage: Number(p.percentage)
           }))
       }
@@ -44,5 +37,7 @@ export class SalaryPortionsService {
       map((res: any) => res.data?.object_info ?? null)
     );
   }
+
+
 
 }

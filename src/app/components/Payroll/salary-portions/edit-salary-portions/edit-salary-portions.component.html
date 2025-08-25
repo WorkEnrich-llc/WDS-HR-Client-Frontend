@@ -3,7 +3,10 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Salary Portions', link: '/salary-portions' },
     { label: 'Edit Salary Portions' }
-  ]" title="Edit Salary Portions" create="17/08/2025" update="17/08/2025">
+  ]" title="Edit Salary Portions" [create]="(salaryPortion?.created_at | date:'dd/MM/yyyy') ?? ''"
+    [update]="(salaryPortion?.updated_at | date:'dd/MM/yyyy') ?? ''">
+
+
     <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()"
         [disabled]="portionsForm.invalid || isLoading">
         @if (isLoading) {
@@ -47,7 +50,7 @@
                         <label [for]="'Portion' + i">Portion {{ i + 1 }}</label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="text" [id]="'Portion' + i" class="form-control custom-date-input"
-                                formControlName="portion" />
+                                formControlName="name" />
                         </div>
                     </div>
 

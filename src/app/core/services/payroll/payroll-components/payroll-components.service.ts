@@ -32,10 +32,13 @@ export class PayrollComponentsService {
     return this.http.get<PayrollComponent[]>(this.url);
   }
 
-  // Get payroll component by ID 
-  // getComponentById(id: number): Observable<PayrollComponent> {
-  //   return this.http.get<PayrollComponent>(`${this.url}/${id}`);
-  // }
+
+  updateComponentStatus(id: number, status: any): Observable<any> {
+    const url = `${this.url}/${id}/`;
+    return this.http.patch(url, status);
+  }
+
+
 
   getComponentById(id: number) {
     return this.http.get<PayrollComponent>(`${this.url}/${id}`).pipe(
@@ -53,7 +56,7 @@ export class PayrollComponentsService {
       created_from?: string;
       created_to?: string;
       show_in_payslip?: string;
-      branch_id?: number;
+      component_id?: number;
       status?: string;
     }
   ): Observable<any> {
@@ -68,7 +71,8 @@ export class PayrollComponentsService {
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
       if (filters.show_in_payslip) params = params.set('show_in_payslip', filters.show_in_payslip);
-      if (filters.branch_id != null) params = params.set('branch_id', filters.branch_id.toString());
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters.component_id != null) params = params.set('component_id', filters.component_id.toString());
     }
 
     return this.http.get(this.url, { params });

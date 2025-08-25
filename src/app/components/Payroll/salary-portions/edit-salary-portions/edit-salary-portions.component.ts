@@ -7,6 +7,7 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { atLeastOnePortionFilled, totalPercentageValidator } from './validator';
+import { SalaryPortion } from 'app/core/models/salary-portions';
 
 @Component({
   selector: 'app-edit-salary-portions',
@@ -19,6 +20,9 @@ export class EditSalaryPortionsComponent implements OnInit {
   isLoading = false;
   private salaryPortionService = inject(SalaryPortionsService);
   private toasterService = inject(ToasterMessageService);
+  salaryPortions: SalaryPortion[] = [];
+  salaryPortion?: SalaryPortion;
+
   constructor(
     private router: Router,
     private fb: FormBuilder
@@ -26,42 +30,99 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.portionsForm = this.fb.group({
-      portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator])
+      portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
     });
 
     for (let i = 0; i < 3; i++) {
-      this.addPortion();
+      this.createPortion();
     }
-
+    this.loadSalaryPortions();
   }
 
   get portions(): FormArray {
     return this.portionsForm.get('portions') as FormArray;
   }
 
-  addPortion(): void {
+
+
+  private createPortion(p: any = null, isDefault = false): FormGroup {
     const portionGroup = this.fb.group({
-      enabled: new FormControl(false),
-      portion: new FormControl({ value: '', disabled: true }),
-      percentage: new FormControl({ value: '', disabled: true })
+      enabled: new FormControl({ value: !isDefault, disabled: isDefault }),
+      name: new FormControl({ value: p?.name || '', disabled: isDefault }),
+      percentage: new FormControl({ value: p?.percentage || '', disabled: isDefault })
     });
 
+    if (!isDefault) {
+      portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
+        if (enabled) {
+          portionGroup.get('name')?.enable();
+          portionGroup.get('percentage')?.enable();
+        } else {
+          portionGroup.get('name')?.disable();
+          portionGroup.get('percentage')?.disable();
+        }
+      });
+    }
 
-    portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
-      if (enabled) {
-        portionGroup.get('portion')?.enable();
-        portionGroup.get('percentage')?.enable();
-      } else {
-        portionGroup.get('portion')?.disable();
-        portionGroup.get('percentage')?.disable();
-      }
-    });
-
-    this.portions.push(portionGroup);
+    return portionGroup;
   }
 
 
+  private loadSalaryPortions(): void {
+    this.salaryPortionService.single().subscribe({
+      next: (data) => {
+        this.salaryPortion = data;
+        this.salaryPortions = data.settings || [];
+        this.portions.clear();
 
+        if (this.salaryPortions.length > 0) {
+          const returnedFormArray = this.salaryPortions.map((p: any) =>
+            this.createPortion(p, p.default)
+          );
+
+          // If returned data less than 3 inputs, add empty inputs
+          while (returnedFormArray.length < 3) {
+            returnedFormArray.push(this.createPortion());
+          }
+
+          this.portionsForm.setControl(
+            'portions',
+            this.fb.array(
+              returnedFormArray,
+              [atLeastOnePortionFilled, totalPercentageValidator()]
+            )
+          );
+        } else {
+          // Default case for first time
+          this.portionsForm.setControl(
+            'portions',
+            this.fb.array(
+              [
+                this.createPortion({ name: 'basic', percentage: 100 }, true),
+                this.createPortion(),
+                this.createPortion()
+              ],
+              [atLeastOnePortionFilled, totalPercentageValidator()]
+            )
+          );
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load single salary portion', err);
+        this.portionsForm.setControl(
+          'portions',
+          this.fb.array(
+            [
+              this.createPortion({ name: 'basic', percentage: 100 }, true),
+              this.createPortion(),
+              this.createPortion()
+            ],
+            [atLeastOnePortionFilled, totalPercentageValidator()]
+          )
+        );
+      }
+    });
+  }
 
   updateSalaryPortion(): void {
     if (this.portionsForm.invalid) {

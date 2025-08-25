@@ -35,7 +35,7 @@ export class CreatePayrollComponentComponent implements OnInit {
   id?: number;
   salaryPortions: any[] = [];
   calculations: Array<KeyValue<number, string>> = calculation;
-
+  createDate: string = '';
 
 
 
@@ -49,17 +49,14 @@ export class CreatePayrollComponentComponent implements OnInit {
       const portionControl = this.createPayrollForm.get('portion');
       const calcValue = +value;
       if (calcValue === 1) { // RawValue
-        portionControl?.setValue(1);
+        portionControl?.setValue(0);
         portionControl?.disable();
         portionControl?.clearValidators();
       } else if (calcValue === 2) { // Days
-        console.log('Days selected → enable portion');
         portionControl?.enable();
         portionControl?.setValidators([Validators.required]);
         portionControl?.reset();
       }
-
-
       portionControl?.updateValueAndValidity();
     });
 
@@ -109,9 +106,14 @@ export class CreatePayrollComponentComponent implements OnInit {
             calculation: data.calculation?.key ?? '',
             show_in_payslip: data.show_in_payslip
           });
+          this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
         },
         error: (err) => console.error('Failed to load component', err)
       });
+    }
+    else {
+      const today = new Date().toLocaleDateString('en-GB');
+      this.createDate = today;
     }
   }
 

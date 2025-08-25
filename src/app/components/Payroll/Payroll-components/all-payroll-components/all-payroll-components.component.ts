@@ -2,7 +2,7 @@ import { Component, inject, OnInit, ViewChild, ViewEncapsulation } from '@angula
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, filter, map, Observable, Subject, Subscription } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -14,14 +14,14 @@ import { PayrollComponent } from 'app/core/models/payroll';
 
 @Component({
   selector: 'app-all-payroll-components',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule],
   templateUrl: './all-payroll-components.component.html',
   styleUrl: './all-payroll-components.component.css',
   providers: [DatePipe],
 })
 export class AllPayrollComponentsComponent implements OnInit {
-
   private payrollService = inject(PayrollComponentsService);
+  private fb = inject(FormBuilder);
   payrollComponentsList: PayrollComponent[] = [];
   payrollComponents: PayrollComponent[] = [];
   filteredList: PayrollComponent[] = [];
@@ -89,17 +89,21 @@ export class AllPayrollComponentsComponent implements OnInit {
       this.getAllComponents(this.currentPage, value);
     });
 
+    this.filterForm = this.fb.group({
+      status: [''],
+      createdFrom: [''],
+    });
+
   }
+
+
 
   getAllComponents(
     pageNumber: number,
     searchTerm: string = '',
     filters?: {
       status?: string;
-      updated_from?: string;
-      updated_to?: string;
       created_from?: string;
-      created_to?: string;
     }
   ) {
     this.loadData = true;
@@ -117,7 +121,8 @@ export class AllPayrollComponentsComponent implements OnInit {
           classification: item.classification.name,
           component_type: item.component_type.name,
           show_in_payslip: item.show_in_payslip,
-          show_in_payslip_label: item.show_in_payslip ? 'Shown' : 'Hidden'
+          show_in_payslip_label: item.show_in_payslip ? 'Shown' : 'Hidden',
+          status: item.is_active ? 'Active' : 'Inactive',
         }));
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
@@ -142,6 +147,19 @@ export class AllPayrollComponentsComponent implements OnInit {
         return nameB.localeCompare(nameA);
       }
     });
+  }
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      const filters = {
+        status: rawFilters.status || undefined,
+        created_from: rawFilters.createdFrom || undefined,
+      };
+      this.filterBox.closeOverlay();
+      this.getAllComponents(this.currentPage, '', filters);
+    }
   }
 
   applyFilters() {
