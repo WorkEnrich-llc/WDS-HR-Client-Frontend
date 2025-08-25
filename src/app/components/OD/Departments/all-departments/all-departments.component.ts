@@ -31,6 +31,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
     private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder, public subService: SubscriptionService) { }
 
   subscription: any;
+  
   departments: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -41,23 +42,19 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this.subService.subscription$
-      .pipe(filter(sub => !!sub))
-      .subscribe(sub => {
-        // Main Feature
-        const operationalDev = sub.features.find((f: { main: { name: string; }; }) => f.main.name === "Operational Development");
-        console.log("Operational Development:", operationalDev);
+    this.subService.subscription$.subscribe(sub => {
+      const departmentsSub = sub?.Departments;
 
-        // Sub Feature داخل Operational Development
-        const departmentsFeature = operationalDev?.sub_list.find((s: string) => s.sub.name === "Departments");
-        console.log("Departments:", departmentsFeature);
+      if (departmentsSub) {
+        console.log("info:", departmentsSub.info);
+        console.log("create:", departmentsSub.create);
+        console.log("update:", departmentsSub.update);
+        console.log("delete:", departmentsSub.delete);
+      }
+    });
 
-        // أو الوصول مباشرة لأي sub
-        const employees = sub.features
-          .flatMap((f: { sub_list: any; }) => f.sub_list)
-          .find((s: string) => s.sub.name === "Employees");
-        console.log("Employees:", employees);
-      });
+
+
 
 
     this.route.queryParams.subscribe(params => {

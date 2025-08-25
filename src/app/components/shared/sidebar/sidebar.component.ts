@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, View
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 interface SideNavToggle {
   screenWidth: number;
@@ -16,7 +17,10 @@ interface SideNavToggle {
 })
 export class SidebarComponent implements OnInit {
   currentRoute: string = '';
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    public subService: SubscriptionService
+  ) { }
 
 
 
@@ -26,7 +30,7 @@ export class SidebarComponent implements OnInit {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
 
   isNotificationOpen = false;
-hasNewNotifications = true;
+  hasNewNotifications = true;
 
   handleNotificationClick() {
     this.closeAllAccordions();
@@ -52,7 +56,7 @@ hasNewNotifications = true;
   collapsed = true;
   screenWidth = 0;
   showText = false;
-
+  features: any = {};
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.screenWidth = window.innerWidth;
@@ -86,6 +90,14 @@ hasNewNotifications = true;
   }
   // screen responsive in start page
   ngOnInit(): void {
+    // supscription all feature supported 
+    this.subService.allFeatures$.subscribe(features => {
+      if (features && Object.keys(features).length > 0) {
+        this.features = features;
+        console.log(this.features);
+      }
+    });
+
     // route contain to active icon 
     this.currentRoute = this.router.url;
     this.router.events.subscribe(() => {

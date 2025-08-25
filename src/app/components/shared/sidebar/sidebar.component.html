@@ -87,6 +87,7 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- Departments link -->
+              @if(features.Departments){
               <li class="sidenav-nav-item" routerLink="/departments" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -101,7 +102,11 @@
                   }
                 </a>
               </li>
+              }
+
+
               <!-- branches link -->
+              @if(features.Branches){
               <li class="sidenav-nav-item" routerLink="/branches" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -115,7 +120,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- job Titles link -->
+              @if(features.Job_Titles){
               <li class="sidenav-nav-item" routerLink="/jobs" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -129,6 +137,8 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- ORGANIZATIONAL chart link -->
               <li class="sidenav-nav-item" routerLink="/organizational-Chart" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
@@ -193,6 +203,7 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- Dashboard persoal calender link -->
+              @if(features.Calendar){
               <li class="sidenav-nav-item" routerLink="/dashboard" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -211,7 +222,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Employees link -->
+              @if(features.Employees){
               <li class="sidenav-nav-item" routerLink="/employees" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -231,7 +245,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Approval Workflow link -->
+              @if(features.Workflow){
               <li class="sidenav-nav-item" routerLink="/workflow" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -245,7 +262,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Approval Requests link -->
+              @if(features.Requests){
               <li class="sidenav-nav-item" routerLink="/requests" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -263,6 +283,10 @@
                   }
                 </a>
               </li>
+              }
+
+              <!-- onboarding link -->
+              @if(features.Onboarding){
               <li class="sidenav-nav-item" routerLink="/onboarding" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -276,7 +300,7 @@
                   }
                 </a>
               </li>
-
+              }
 
             </ul>
           </div>
@@ -317,6 +341,7 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- Attendance log Link -->
+              @if(features.Attendance_Log){
               <li class="sidenav-nav-item" routerLink="/attendance/attendance-log" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -330,7 +355,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Attendance Rules Link -->
+              @if(features.Attendance_Rules){
               <li class="sidenav-nav-item" routerLink="/attendance-rules" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -346,7 +374,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Restricted Days link -->
+              @if(features.Restricted){
               <li class="sidenav-nav-item" routerLink="/restricted-days" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -360,7 +391,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Work Schedule link -->
+              @if(features.Work_Schedule){
               <li class="sidenav-nav-item" routerLink="/schedule" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -374,7 +408,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Leave Types link -->
+              @if(features.Leave_Types){
               <li class="sidenav-nav-item" routerLink="/leave-types" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -389,7 +426,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- permissions Link -->
+              @if(features.Permissions_Control){
               <li class="sidenav-nav-item" routerLink="/permissions" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -403,6 +443,8 @@
                   }
                 </a>
               </li>
+
+              }
 
 
 
@@ -451,6 +493,7 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- Calendar link -->
+              @if(features.Calendar){
               <li class="sidenav-nav-item" routerLink="/calendar" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -468,7 +511,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Job Openings link -->
+              @if(features.Job_Openings){
               <li class="sidenav-nav-item" routerLink="/job-openings" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -488,7 +534,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Archived Openings link -->
+              @if(features.Archived_Openings){
               <li class="sidenav-nav-item" routerLink="/archived-openings" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -505,6 +554,7 @@
                   }
                 </a>
               </li>
+              }
 
             </ul>
           </div>
@@ -550,7 +600,8 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- payroll components link -->
-              <li class="sidenav-nav-item" routerLink="/payroll-components" routerLinkActive="active"
+               @if(features.Payroll_Components){
+                 <li class="sidenav-nav-item" routerLink="/payroll-components" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -563,7 +614,10 @@
                   }
                 </a>
               </li>
+               }
+             
               <!-- payroll runs link -->
+              
               <li class="sidenav-nav-item" routerLink="/payroll-runs" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -578,6 +632,7 @@
                 </a>
               </li>
               <!-- Salary Portions link -->
+             
               <li class="sidenav-nav-item" routerLink="/salary-portions" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -710,9 +765,8 @@
         </svg> -->
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
-          <path  d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
-            opacity=".5" />
-          <path 
+          <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+          <path
             d="M16.807 19.011A8.46 8.46 0 0 1 12 20.5a8.46 8.46 0 0 1-4.807-1.489c-.604-.415-.862-1.205-.51-1.848C7.41 15.83 8.91 15 12 15s4.59.83 5.318 2.163c.35.643.093 1.433-.511 1.848M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
         </svg>
         @if (collapsed) {

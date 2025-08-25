@@ -6,6 +6,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsM
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-edit-departments',
@@ -18,6 +19,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 export class EditDepartmentsComponent implements OnInit {
   constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute, private fb: FormBuilder,
     private router: Router,
+    private subService: SubscriptionService,
     private datePipe: DatePipe, private toasterMessageService: ToasterMessageService) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -33,6 +35,7 @@ export class EditDepartmentsComponent implements OnInit {
   currentPage: number = 1;
 
   ngOnInit(): void {
+    
     this.deptId = this.route.snapshot.paramMap.get('id');
     // this.getDepartment(Number(this.deptId));
     if (this.deptId) {

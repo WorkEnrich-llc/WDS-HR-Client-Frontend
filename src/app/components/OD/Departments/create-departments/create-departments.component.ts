@@ -6,6 +6,7 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-create-departments',
@@ -26,7 +27,8 @@ export class CreateDepartmentsComponent {
     private router: Router,
     private datePipe: DatePipe,
     private _DepartmentsService: DepartmentsService,
-    private toasterMessageService: ToasterMessageService
+    private toasterMessageService: ToasterMessageService,
+    private subService: SubscriptionService
   ) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -39,6 +41,12 @@ export class CreateDepartmentsComponent {
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
     // console.log(this.todayFormatted); 
   }
+  
+  ngOnInit() { 
+   
+  }
+  
+  
   deptStep1: FormGroup = new FormGroup({
     // Optional code must include both letters and numbers when provided
     code: new FormControl('', [Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$')]),
