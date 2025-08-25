@@ -43,7 +43,8 @@
                 @for(portion of portions.controls; track $index; let i = $index) { <div
                     class="w-100 d-flex align-items-start gap-2" [formGroupName]="i">
 
-                    <input type="checkbox" class="form-check-input m-0" formControlName="enabled" />
+                    <input type="checkbox" class="form-check-input m-0" formControlName="enabled"
+                        [style.visibility]="portion.get('name')?.value.toLowerCase() === 'basic' ? 'hidden' : 'visible'" />
 
                     <!-- Portion Input -->
                     <div class="input w-100" [class.opacity-50]="!portion.get('enabled')?.value">
