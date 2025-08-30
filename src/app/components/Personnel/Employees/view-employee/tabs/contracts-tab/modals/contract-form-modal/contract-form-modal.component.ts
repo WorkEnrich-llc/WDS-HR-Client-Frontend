@@ -29,7 +29,8 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: [null, [Validators.required, Validators.min(0)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
-      endDate: [null] // conditional field
+      endDate: [null], // conditional field
+      noticePeriod: [60, [Validators.required, Validators.min(1)]] // notice period in days
     });
   }
 
@@ -90,10 +91,13 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     if (!this.contract) return;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
     const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
+    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
     this.contractForm.patchValue({
       adjustmentType: 1,
       salary: this.contract.salary,
-      startDate: formattedStartDate
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      noticePeriod: 60
     });
     
     // Set up salary validation after populating
@@ -106,7 +110,8 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: null,
       startDate: null,
       withEndDate: false,
-      endDate: null
+      endDate: null,
+      noticePeriod: 60
     });
     
     // Set up salary validation after reset
@@ -133,6 +138,8 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         adjustmentType: formValue.adjustmentType,
         salary: formValue.salary,
         startDate: formValue.startDate,
+        endDate: formValue.endDate,
+        noticePeriod: formValue.noticePeriod,
         isEdit: true,
         contractId: this.contract?.id
       };
@@ -144,6 +151,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         startDate: formValue.startDate,
         endDate: formValue.withEndDate ? formValue.endDate : null,
         withEndDate: formValue.withEndDate,
+        noticePeriod: formValue.noticePeriod,
         isEdit: false
       };
       this.onSave.emit(contractData);

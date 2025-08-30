@@ -71,9 +71,26 @@
         </div>
       </div>
 
+      <!-- End Date Field - for edit mode (contract adjustments) -->
+      @if (isEditMode) {
+        <div class="input mb-3">
+          <label for="endDate">End Date</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input id="endDate" type="date" class="form-control custom-date-input"
+              [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+              placeholder="Select End Date" formControlName="endDate" />
+            @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
+            <div class="invalid-feedback">
+              End date is required
+            </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- With end date checkbox - only for new contracts -->
       @if (!isEditMode) {
-        <div class="form-check mb-3">
+        <div class="form-check mb-3 d-flex align-items-center gap-2">
           <input class="form-check-input" type="checkbox" id="withEndDate" formControlName="withEndDate">
           <label class="form-check-label" for="withEndDate">
             With end date
@@ -97,11 +114,26 @@
           </div>
         }
       }
+
+      <!-- Notice Period Field - for both new contracts and adjustments -->
+      <div class="input mb-3">
+        <label for="noticePeriod">{{ isEditMode ? 'Notice Period (in Days)' : 'Notice Period' }}</label>
+        <div class="form-outline w-100 position-relative">
+          <input id="noticePeriod" type="number" class="form-control custom-date-input"
+            [class.is-invalid]="contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched"
+            placeholder="{{ isEditMode ? '60' : '60 days' }}" formControlName="noticePeriod" />
+          @if (contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched) {
+          <div class="invalid-feedback">
+            <div *ngIf="contractForm.get('noticePeriod')?.errors?.['required']">Notice period is required</div>
+            <div *ngIf="contractForm.get('noticePeriod')?.errors?.['min']">Notice period must be at least 1 day</div>
+          </div>
+          }
+        </div>
+      </div>
     </form>
   </div>
   <div class="d-flex align-items-center gap-4 mt-4">
-    <button type="button" (click)="saveContract()"
-      style="border:none;outline:none;background:#2563eb;color:#fff;font-weight:500;font-size:16px;padding:0.75rem 2.5rem;border-radius:1.75rem;display:flex;align-items:center;gap:0.5rem;box-shadow:none;transition:background 0.2s;">
+    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem;">
         <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="1.5" />
         <path d="M12 8v4l2 2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
@@ -110,6 +142,6 @@
       <span>{{ getSaveButtonText() }}</span>
     </button>
     <button type="button" (click)="closeModal()"
-      style="background:none;border:none;outline:none;color:#334155;font-weight:600;font-size:16px;padding:0;box-shadow:none;">Close</button>
+      class="btn btn-lg btn-outline-dark border-0 w-100">Close</button>
   </div>
 </app-overlay-filter-box>

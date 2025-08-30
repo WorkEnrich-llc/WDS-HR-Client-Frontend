@@ -1,0 +1,33 @@
+<!-- Resigned Contract View Modal -->
+<app-overlay-filter-box
+  [title]="'Resigned Contract'"
+  [customWidth]="'500px'"
+  [isOverlayVisible]="isOpen"
+  (onClose)="closeModal()">
+  <div modal-content>
+    <div class="contract-details">
+      <div class="detail-item">
+        <label class="detail-label">Resign Date</label>
+        <div class="detail-value">{{ formatDate(resignationData?.resignDate) }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label class="detail-label">Last Day</label>
+        <div class="detail-value">{{ formatDate(resignationData?.lastDay) }}</div>
+      </div>
+
+      <div class="detail-item">
+        <label class="detail-label">Reason</label>
+        <div class="detail-value reason-text">
+          {{ resignationData?.reason || 'No reason provided' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Close
+      </button>
+    </div>
+  </div>
+</app-overlay-filter-box>

@@ -36,10 +36,19 @@
                 </thead>
 
                 <tbody>
-                    <tr>
+                    @if(salaryPortions.length === 0){<tr>
                         <td>Basic</td>
                         <td>100 %</td>
                     </tr>
+                    }
+                    @else{
+                    @for (p of salaryPortions; track p.index){<tr>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.percentage }}%</td>
+                    </tr>
+                    }
+                    }
+
                 </tbody>
             </table>
         </div>
