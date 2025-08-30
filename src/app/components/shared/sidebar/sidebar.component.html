@@ -314,7 +314,8 @@
             data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
             @if (currentRoute.includes('attendance') || currentRoute.includes('attendance-rules') ||
             currentRoute.includes('restricted-days') || currentRoute.includes('schedule') ||
-            currentRoute.includes('leave-types') || currentRoute.includes('permissions')) {
+            currentRoute.includes('leave-types') || currentRoute.includes('leave-balance') ||
+            currentRoute.includes('permissions')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="svg-active-accordion"
               viewBox="0 0 24 24">
               <path
@@ -423,6 +424,23 @@
                   </svg>
                   @if (collapsed) {
                   <span>Leave Types</span>
+                  }
+                </a>
+              </li>
+              }
+              <!-- Leave Balance link -->
+              @if(features.Leave_Balance || true){
+              <li class="sidenav-nav-item" routerLink="/leave-types/leave-balance" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="currentColor"
+                      d="M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6z" opacity=".5" />
+                    <path fill="currentColor"
+                      d="M7 9.25a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5A.75.75 0 0 1 7 9.25zm0 3a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5A.75.75 0 0 1 7 12.25zm0 3a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5A.75.75 0 0 1 7 15.25z" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Leave Balance</span>
                   }
                 </a>
               </li>
@@ -600,8 +618,8 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- payroll components link -->
-               @if(features.Payroll_Components){
-                 <li class="sidenav-nav-item" routerLink="/payroll-components" routerLinkActive="active"
+              @if(features.Payroll_Components){
+              <li class="sidenav-nav-item" routerLink="/payroll-components" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -614,10 +632,10 @@
                   }
                 </a>
               </li>
-               }
-             
+              }
+
               <!-- payroll runs link -->
-              
+
               <li class="sidenav-nav-item" routerLink="/payroll-runs" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -632,7 +650,7 @@
                 </a>
               </li>
               <!-- Salary Portions link -->
-             
+
               <li class="sidenav-nav-item" routerLink="/salary-portions" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
