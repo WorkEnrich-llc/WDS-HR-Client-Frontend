@@ -401,6 +401,14 @@
             </svg>
             <span class="nav-link">Contracts</span>
           </li>
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'leave-balance' }" (click)="setCurrentTab('leave-balance')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 20V8m5 12V4m5 16v-6m5 6V10" />
+              </g>
+            </svg>
+            <span class="nav-link">Leave Balance</span>
+          </li>
         </ul>
 
         <!-- Tab Content -->
@@ -418,6 +426,8 @@
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
           <app-contracts-tab [employee]="employee"> </app-contracts-tab>
+          } @if (currentTab === 'leave-balance') {
+          <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
           }
         </div>
       </div>

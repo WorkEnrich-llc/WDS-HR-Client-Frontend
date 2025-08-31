@@ -6,7 +6,7 @@ export interface Contract {
   end_contract: string;
   salary: number;
   insurance_salary: number;
-  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired';
+  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned';
   created_at: string;
   created_by: string;
   
@@ -41,6 +41,18 @@ export interface Contract {
   jobTitle?: {
     id: number;
     name: string;
+  };
+  
+  // Additional data for terminated/resigned contracts
+  terminationData?: {
+    lastDay: string;
+    reason: string;
+  };
+  resignationData?: {
+    resignDate: string;
+    noticePeriod: number;
+    lastDay: string;
+    reason: string;
   };
 }
 

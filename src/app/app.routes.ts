@@ -487,6 +487,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Attendance/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
                 title: 'Update Leave Type',
               },
+              {
+                path: 'leave-balance',
+                loadComponent: () => import('./components/Attendance/Leave Types/leave-balance/leave-balance.component').then(m => m.LeaveBalanceComponent),
+                title: 'Leave Balance',
+              },
             ]
           },
 
