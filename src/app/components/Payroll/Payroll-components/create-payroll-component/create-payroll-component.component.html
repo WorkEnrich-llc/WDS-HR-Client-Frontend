@@ -1,9 +1,9 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
-    { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
-    { label: 'Create New Component'},
-  ]" title="Create New Component" [create]="createDate">
+    { label: 'Payroll Component', link: '/payroll-components/all-payroll-components' },
+    { label: isEditMode ? 'Edit Component ' + id : 'Create New Component'}
+]" [title]="isEditMode ? 'Edit Component ' + id : 'Create New Component'" [create]="createDate" [update]="updatedDate">
     <button class="btn btn-lg btn-success w-auto" (click)="createComponent()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
