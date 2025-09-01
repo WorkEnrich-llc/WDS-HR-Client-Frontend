@@ -302,6 +302,11 @@ export const routes: Routes = [
                 title: 'All Requests',
               },
               {
+                path: 'create-request',
+                loadComponent: () => import('./components/Personnel/Approval-Requests/create-request/create-request.component').then(m => m.CreateRequestComponent),
+                title: 'Create New Request',
+              },
+              {
                 path: 'view-requests/:id',
                 loadComponent: () => import('./components/Personnel/Approval-Requests/view-assigned-request/view-assigned-request.component').then(m => m.ViewAssignedRequestComponent),
                 title: 'View Requests',

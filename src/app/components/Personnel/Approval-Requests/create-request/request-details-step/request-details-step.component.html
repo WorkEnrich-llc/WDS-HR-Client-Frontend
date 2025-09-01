@@ -1,0 +1,138 @@
+<div class="content-hug">
+  <div class="content-box">
+    <div class="row">
+      <div class="col-12">
+        <h4 class="section-title mb-4">Request Details</h4>
+      </div>
+    </div>
+
+    <div [formGroup]="sharedService.requestDetails" class="row g-4">
+      <!-- Leave Type (conditional) -->
+      @if (isLeaveRequest()) {
+        <div class="col-md-6">
+          <div class="input">
+            <label for="leave_type">Leave Type <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="leave_type"
+              [class.is-invalid]="sharedService.requestDetails.get('leave_type')?.invalid && sharedService.requestDetails.get('leave_type')?.touched">
+              <option value="">Select Leave Type</option>
+              @for (type of sharedService.leaveTypes(); track type.id) {
+                <option [value]="type.id">{{ type.name }}</option>
+              }
+            </select>
+            @if (sharedService.requestDetails.get('leave_type')?.invalid && sharedService.requestDetails.get('leave_type')?.touched) {
+              <div class="invalid-feedback">
+                Please select a leave type
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- From Date -->
+      <div class="col-md-6">
+        <div class="input">
+          <label for="from_date">From Date <span class="text-danger">*</span></label>
+          <input 
+            type="date" 
+            class="form-control" 
+            formControlName="from_date"
+            [class.is-invalid]="sharedService.requestDetails.get('from_date')?.invalid && sharedService.requestDetails.get('from_date')?.touched">
+          @if (sharedService.requestDetails.get('from_date')?.invalid && sharedService.requestDetails.get('from_date')?.touched) {
+            <div class="invalid-feedback">
+              Please select a from date
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- To Date -->
+      <div class="col-md-6">
+        <div class="input">
+          <label for="to_date">To Date <span class="text-danger">*</span></label>
+          <input 
+            type="date" 
+            class="form-control" 
+            formControlName="to_date"
+            [class.is-invalid]="sharedService.requestDetails.get('to_date')?.invalid && sharedService.requestDetails.get('to_date')?.touched">
+          @if (sharedService.requestDetails.get('to_date')?.invalid && sharedService.requestDetails.get('to_date')?.touched) {
+            <div class="invalid-feedback">
+              Please select a to date
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="col-12">
+        <div class="input">
+          <label for="reason">Reason <span class="text-danger">*</span></label>
+          <textarea 
+            class="form-control" 
+            formControlName="reason"
+            rows="4"
+            placeholder="Please provide a detailed reason for your request..."
+            [class.is-invalid]="sharedService.requestDetails.get('reason')?.invalid && sharedService.requestDetails.get('reason')?.touched"></textarea>
+          @if (sharedService.requestDetails.get('reason')?.invalid && sharedService.requestDetails.get('reason')?.touched) {
+            <div class="invalid-feedback">
+              @if (sharedService.requestDetails.get('reason')?.errors?.['required']) {
+                Please provide a reason for your request
+              }
+              @if (sharedService.requestDetails.get('reason')?.errors?.['minlength']) {
+                Reason must be at least 10 characters long
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Notes (Optional) -->
+      <div class="col-12">
+        <div class="input">
+          <label for="notes">Additional Notes</label>
+          <textarea 
+            class="form-control" 
+            formControlName="notes"
+            rows="3"
+            placeholder="Any additional information or notes..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    @if (sharedService.errMsg()) {
+      <div class="alert alert-danger mt-3">
+        {{ sharedService.errMsg() }}
+      </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="d-flex justify-content-between">
+          <button 
+            type="button" 
+            class="btn btn-lg btn-outline-secondary"
+            (click)="onPrevious()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M11.4 12l3.9 3.9c.4.4.4 1 0 1.4s-1 .4-1.4 0l-4.6-4.6c-.4-.4-.4-1 0-1.4l4.6-4.6c.4-.4 1-.4 1.4 0s.4 1 0 1.4L11.4 12z"/>
+            </svg>
+            <span>Previous</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn btn-lg btn-primary"
+            (click)="onSubmit()"
+            [disabled]="sharedService.isLoading()">
+            @if (sharedService.isLoading()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            <span>{{ sharedService.isLoading() ? 'Submitting...' : 'Submit Request' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
