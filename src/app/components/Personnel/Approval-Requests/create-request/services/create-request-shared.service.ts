@@ -43,17 +43,36 @@ export class CreateRequestSharedService {
   }
 
   private initializeForm(): void {
+    // Split request details into typed sub-groups (leave, overtime, permission)
+    // This keeps each type's logic isolated and makes it easy to add fields later.
     this.requestForm = this.fb.group({
       main_information: this.fb.group({
         employee_id: [null, Validators.required],
         request_type: [null, Validators.required]
       }),
       request_details: this.fb.group({
-        leave_type: [null],
-        from_date: ['', Validators.required],
-        to_date: ['', Validators.required],
-        reason: ['', [Validators.required, Validators.minLength(10)]],
-        notes: ['']
+        // Leave-specific fields
+        leave: this.fb.group({
+          leave_type: [null, Validators.required],
+          from_date: ['',Validators.required],
+          to_date: [''],
+          reason: ['']
+        }),
+        // Permission-specific fields
+        permission: this.fb.group({
+          permission_type: ['early',Validators.required], // 'early' | 'late'
+          date: ['',Validators.required],
+          time: ['']
+        }),
+        // Overtime-specific fields
+        overtime: this.fb.group({
+          date: ['',Validators.required],
+          employee_logged: [false],
+          from: [''],
+          to: [''],
+          override_rates: [false],
+          custom_rate: ['']
+        })
       })
     });
   }
@@ -61,13 +80,58 @@ export class CreateRequestSharedService {
   private setupFormWatchers(): void {
     // Watch for request type changes to handle leave type requirement
     this.mainInformation.get('request_type')?.valueChanges.subscribe(requestType => {
-      const leaveTypeControl = this.requestDetails.get('leave_type');
+      const details = this.requestDetails;
+
+      // Clear validators for all type-specific controls first
+      // Leave
+      const leave = details.get('leave') as FormGroup;
+      const leaveType = leave.get('leave_type');
+
+      // Permission
+      const permission = details.get('permission') as FormGroup;
+      const permDate = permission.get('date');
+      const permTime = permission.get('time');
+      const permType = permission.get('permission_type');
+
+      // Overtime
+      const overtime = details.get('overtime') as FormGroup;
+      const otDate = overtime.get('date');
+      const otFrom = overtime.get('from');
+      const otTo = overtime.get('to');
+
+      // Reset validators
+      leaveType?.clearValidators();
+      leave.get('from_date')?.clearValidators();
+      leave.get('to_date')?.clearValidators();
+      leave.get('reason')?.clearValidators();
+
+      permDate?.clearValidators();
+      permTime?.clearValidators();
+      permType?.clearValidators();
+
+      otDate?.clearValidators();
+      otFrom?.clearValidators();
+      otTo?.clearValidators();
+
+      // Apply validators based on selected type
       if (requestType === 1) { // Leave Request
-        leaveTypeControl?.setValidators([Validators.required]);
-      } else {
-        leaveTypeControl?.clearValidators();
+        leaveType?.setValidators([Validators.required]);
+        leave.get('from_date')?.setValidators([Validators.required]);
+        leave.get('to_date')?.setValidators([Validators.required]);
+        leave.get('reason')?.setValidators([Validators.required, Validators.minLength(10)]);
+      } else if (requestType === 2) { // Overtime Request
+        otDate?.setValidators([Validators.required]);
+        otFrom?.setValidators([Validators.required]);
+        otTo?.setValidators([Validators.required]);
+      } else if (requestType === 3) { // Permission Request
+        permType?.setValidators([Validators.required]);
+        permDate?.setValidators([Validators.required]);
+        permTime?.setValidators([Validators.required]);
       }
-      leaveTypeControl?.updateValueAndValidity();
+
+      // Update validity of all changed controls
+      [leaveType, leave.get('from_date'), leave.get('to_date'), leave.get('reason'), permType, permDate, permTime, otDate, otFrom, otTo]
+        .forEach(c => c?.updateValueAndValidity());
     });
   }
 
