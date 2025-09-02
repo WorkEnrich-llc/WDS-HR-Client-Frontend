@@ -1,20 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-view-user',
-  imports: [PageHeaderComponent,PopupComponent,CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, CommonModule],
   templateUrl: './view-user.component.html',
   styleUrl: './view-user.component.css'
 })
 export class ViewUserComponent {
 
+  @Input() isEditMode!: boolean;
 
-
-
+  private router = inject(Router)
 
 
 
@@ -37,7 +37,7 @@ export class ViewUserComponent {
       }
     };
 
-    
+
   }
 
   openActivate() {
@@ -55,6 +55,10 @@ export class ViewUserComponent {
       }
     };
 
-    
+
+  }
+
+  editUser(): void {
+    this.router.navigate(['/users/add-user', 1]);
   }
 }

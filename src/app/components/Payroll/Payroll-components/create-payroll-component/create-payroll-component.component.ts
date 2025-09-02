@@ -36,6 +36,7 @@ export class CreatePayrollComponentComponent implements OnInit {
   salaryPortions: any[] = [];
   calculations: Array<KeyValue<number, string>> = calculation;
   createDate: string = '';
+  updatedDate: string = '';
 
 
 
@@ -107,6 +108,7 @@ export class CreatePayrollComponentComponent implements OnInit {
             show_in_payslip: data.show_in_payslip
           });
           this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
+          this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
         },
         error: (err) => console.error('Failed to load component', err)
       });

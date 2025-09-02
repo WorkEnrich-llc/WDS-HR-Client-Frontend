@@ -358,6 +358,16 @@ export const routes: Routes = [
                 path: 'attendance-log',
                 loadComponent: () => import('./components/Attendance/attendance-log/attendance-log/attendance-log.component').then(m => m.AttendanceLogComponent),
                 title: 'Attendance Log',
+              },
+              {
+                path: 'manage-attendance',
+                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+                title: 'Create Attendance Log',
+              },
+              {
+                path: 'manage-attendance/:id',
+                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+                title: 'Edit Attendance Log',
               }
             ]
           },
@@ -784,6 +794,14 @@ export const routes: Routes = [
               },
               {
                 path: 'add-user',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/users/add-user/add-user.component'
+                  ).then(m => m.AddUserComponent),
+                title: 'Add User'
+              },
+              {
+                path: 'add-user/:id',
                 loadComponent: () =>
                   import(
                     './components/admin-settings/users/add-user/add-user.component'

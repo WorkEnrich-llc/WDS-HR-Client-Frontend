@@ -1,9 +1,9 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
-    { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
-    { label: 'View Component 001'},
-  ]" title="View Component 001" [create]="(componentData.created_at | date:'dd/MM/yyyy') ?? ''"
+    { label: 'Payroll Component', link:'/payroll-components/all-payroll-components' },
+    { label: 'View Component '  + componentData.id },
+  ]" [title]="'View Component ' + componentData.id" [create]="(componentData.created_at | date:'dd/MM/yyyy') ?? ''"
     [update]="(componentData.updated_at | date:'dd/MM/yyyy') ?? ''">
     <button class="btn btn-lg btn-primary" [routerLink]="['/payroll-components/edit',componentData.id]">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
