@@ -1,0 +1,36 @@
+/* Component specific styles */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.custom-date-input {
+  padding-right: 2.5rem;
+}
+
+.custom-date-wrapper svg {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6c757d;
+}

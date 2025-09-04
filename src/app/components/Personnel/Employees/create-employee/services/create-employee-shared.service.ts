@@ -82,19 +82,23 @@ export class CreateEmployeeSharedService {
         department_id: [null, Validators.required],
         section_id: [null],
         job_title_id: [null, Validators.required],
-        work_schedule_id: [null, Validators.required],
-        activate_attendance_rules: [false]
+        years_of_experience: [null]
       }),
       contract_details: this.fb.group({
         start_contract: ['', Validators.required],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
-        salary: ['', [Validators.required, Validators.min(0)]]
+        include_probation: [false],
+        notice_period: [null],
+        salary: ['', [Validators.required, Validators.min(0)]],
+        insurance_salary: ['']
       }),
       attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
         work_mode: [null, Validators.required],
-        days_on_site: ['']
+        days_on_site: [''],
+        work_schedule_id: [null],
+        activate_attendance_rules: [false]
       })
     });
   }
@@ -197,7 +201,7 @@ export class CreateEmployeeSharedService {
   updateSalaryRange(): void {
     const selectedTitle = this.selectedJobTitle();
     const employmentType = +this.attendanceDetails.get('employment_type')?.value;
-    
+
     if (!selectedTitle || !selectedTitle.salary_ranges || !employmentType) {
       this.currentSalaryRange.set(null);
       this.updateSalaryValidators(null);
@@ -205,7 +209,7 @@ export class CreateEmployeeSharedService {
     }
 
     let salaryRange = null;
-    
+
     switch (employmentType) {
       case 1: // Full Time
         salaryRange = selectedTitle.salary_ranges.full_time;
@@ -238,7 +242,7 @@ export class CreateEmployeeSharedService {
     if (salaryRange) {
       const minValue = Number(salaryRange.minimum);
       const maxValue = Number(salaryRange.maximum);
-      
+
       salaryControl.setValidators([
         Validators.required,
         Validators.min(minValue),
@@ -250,14 +254,14 @@ export class CreateEmployeeSharedService {
         Validators.min(0)
       ]);
     }
-    
+
     salaryControl.updateValueAndValidity();
   }
 
   getSalaryRangeDisplay(): { min: string, max: string, currency: string } | null {
     const range = this.currentSalaryRange();
     if (!range) return null;
-    
+
     return {
       min: this.formatCurrency(range.minimum),
       max: this.formatCurrency(range.maximum),
@@ -368,7 +372,7 @@ export class CreateEmployeeSharedService {
   goNext() {
     // Debug form state before validation
     this.debugFormState();
-    
+
     if (this.validateCurrentStep()) {
       this.currentStep.set(this.currentStep() + 1);
     }
@@ -388,6 +392,9 @@ export class CreateEmployeeSharedService {
     // Set default values after reset
     this.mobileGroup.get('country_id')?.setValue(1);
     this.contractDetails.get('contract_type')?.setValue(2);
+    this.contractDetails.get('include_probation')?.setValue(false);
+    this.contractDetails.get('notice_period')?.setValue(null);
+    this.contractDetails.get('insurance_salary')?.setValue('');
     this.currentStep.set(1);
     this.errMsg.set('');
     this.selectedJobTitle.set(null);
