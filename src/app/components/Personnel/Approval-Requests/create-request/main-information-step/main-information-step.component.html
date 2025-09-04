@@ -1,0 +1,52 @@
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Main Information</h2>
+    <div [formGroup]="sharedService.mainInformation" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input mb-3">
+        <label for="employee_id">Employee <span class="text-danger">*</span></label>
+        <select
+          id="employee_id"
+          class="form-select"
+          formControlName="employee_id"
+          [class.is-invalid]="sharedService.mainInformation.get('employee_id')?.invalid && sharedService.mainInformation.get('employee_id')?.touched">
+          <option value="">Select Employee</option>
+          <option *ngFor="let employee of sharedService.employees()" [ngValue]="employee.id">{{ employee.name }}</option>
+        </select>
+        <div *ngIf="sharedService.mainInformation.get('employee_id')?.invalid && sharedService.mainInformation.get('employee_id')?.touched" class="invalid-feedback">
+          Please select an employee
+        </div>
+      </div>
+
+      <div class="input mb-3">
+        <label for="request_type">Request Type <span class="text-danger">*</span></label>
+        <select
+          id="request_type"
+          class="form-select"
+          formControlName="request_type"
+          [class.is-invalid]="sharedService.mainInformation.get('request_type')?.invalid && sharedService.mainInformation.get('request_type')?.touched">
+          <option value="">Select Request Type</option>
+          <option *ngFor="let type of sharedService.requestTypes()" [ngValue]="type.id">{{ type.name }}</option>
+        </select>
+        <div *ngIf="sharedService.mainInformation.get('request_type')?.invalid && sharedService.mainInformation.get('request_type')?.touched" class="invalid-feedback">
+          Please select a request type
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-end gap-3">
+          <button
+            type="button"
+            class="btn btn-lg btn-primary"
+            (click)="onNext()">
+            <span>Next</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12.6 12L8.7 8.1c-.4-.4-.4-1 0-1.4s1-.4 1.4 0l4.6 4.6c.4.4.4 1 0 1.4l-4.6 4.6c-.4.4-1 .4-1.4 0s-.4-1 0-1.4l3.9-3.9z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
