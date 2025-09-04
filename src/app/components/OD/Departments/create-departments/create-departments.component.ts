@@ -42,9 +42,7 @@ export class CreateDepartmentsComponent {
     // console.log(this.todayFormatted); 
   }
   
-  ngOnInit() { 
-   
-  }
+
   
   
   deptStep1: FormGroup = new FormGroup({

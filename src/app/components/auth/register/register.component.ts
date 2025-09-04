@@ -367,10 +367,10 @@ export class RegisterComponent implements OnDestroy, OnInit {
           // console.log('company_info:', companyInfo);
         }
 
-        if (subscription) {
-          localStorage.setItem('subscription_info', JSON.stringify(subscription));
-          // console.log('subscription_info:', subscription);
-        }
+        // if (subscription) {
+        //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+        //   // console.log('subscription_info:', subscription);
+        // }
         const domain = response.data?.company_info?.domain;
         if (domain) {
           // window.location.href = `https://${domain}/departments`;

@@ -1,0 +1,289 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Admin Settings', link: '/cloud' },
+    { label: 'Roles', link: '/roles' },
+    { label: 'Create New Role' }
+  ]" title="Create New Role" create="09/04/2025">
+
+    <button class="btn btn-lg btn-success">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isLoading) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Create Role</span>
+    </button>
+    <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Role</span>
+    </button>
+</app-page-header>
+<!-- end page header -->
+
+<!-- steps navigation -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+    <!-- Step 1 -->
+    <li class="nav-item" [ngClass]="{
+      'active': currentStep === 1,
+      'text-success': currentStep > 1, 
+      'bg-light-success': currentStep > 1  
+  }">
+        @if (currentStep == 1) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+        </svg>
+        }
+        @if (currentStep > 1) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+            [style.fill]="currentStep === 1 ? '#007bff' : '#4A6D97'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        }
+        <span class="nav-link">Main Information</span>
+    </li>
+
+    <!-- Arrow -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 2 ? '#28a745' : (currentStep > 1 ? '#377AFD' : '#DDE3EB')">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <!-- Step 2 -->
+    <li class="nav-item" [ngClass]="{
+      'active': currentStep === 2,
+      'text-success': currentStep > 2, 
+      'bg-light-success': currentStep > 2  
+  }">
+        @if (currentStep <= 2 ) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+             [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'">
+            <path fill-rule="evenodd"
+                d="M14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14v-4c0-3.771 0-5.657 1.172-6.828S6.239 2 10.03 2c.606 0 1.091 0 1.5.017q-.02.12-.02.244l-.01 2.834c0 1.097 0 2.067.105 2.848c.114.847.375 1.694 1.067 2.386c.69.69 1.538.952 2.385 1.066c.781.105 1.751.105 2.848.105h4.052c.043.534.043 1.19.043 2.063V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22"
+                clip-rule="evenodd" opacity=".5" />
+            <path
+                d="M6 13.75a.75.75 0 0 0 0 1.5h8a.75.75 0 0 0 0-1.5zm0 3.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm5.51-14.99l-.01 2.835c0 1.097 0 2.066.105 2.848c.114.847.375 1.694 1.067 2.385c.69.691 1.538.953 2.385 1.067c.781.105 1.751.105 2.848.105h4.052q.02.232.028.5H22c0-.268 0-.402-.01-.56a5.3 5.3 0 0 0-.958-2.641c-.094-.128-.158-.204-.285-.357C19.954 7.494 18.91 6.312 18 5.5c-.81-.724-1.921-1.515-2.89-2.161c-.832-.556-1.248-.834-1.819-1.04a6 6 0 0 0-.506-.154c-.384-.095-.758-.128-1.285-.14z" />
+        </svg>
+        }
+        @if (currentStep > 2) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+            [style.fill]="'currentColor'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        }
+        <span class="nav-link">Permissions</span>
+    </li>
+
+    <!-- Arrow -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 3 ? '#28a745' : (currentStep > 2 ? '#377AFD' : '#DDE3EB')">
+        <path
+            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+    </svg>
+
+
+    <!-- Step 3 -->
+    <li class="nav-item" [ngClass]="{
+      'active': currentStep === 3,
+      'text-success': currentStep > 3, 
+      'bg-light-success': currentStep > 3  
+  }">
+        @if (currentStep <= 3) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+            [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'">
+            <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
+            <path d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
+                opacity=".4" />
+            <path d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
+            <path
+                d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
+                opacity=".4" />
+        </svg>
+        }
+        @if (currentStep > 3) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+            [style.fill]="'currentColor'">
+            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+            <path
+                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+        </svg>
+        }
+        <span class="nav-link">Users <span class="small fw-light">Optional</span></span>
+
+    </li>
+</ul>
+
+
+<!-- step 1 -->
+@if (currentStep === 1) {
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="roleId">Role ID (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="roleId" class="form-control custom-date-input" placeholder="001" />
+                </div>
+                <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name min length must be 3.
+                </p>
+              }
+              } -->
+            </div>
+            <div class="input">
+                <label for="roleName">Role Name<span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="roleName" class="form-control custom-date-input" placeholder="Enter Role Name" />
+                </div>
+                <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
+                <p class="error-msg"
+                  >
+                  Workflow Name min length must be 3.
+                </p>
+              }
+              } -->
+            </div>
+
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-2" role="alert">
+                {{errMsg}}
+            </div>
+            }
+
+
+        </form>
+
+        <!-- next button -->
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" [disabled]="isLoading" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (1/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- step 2 -->
+@if (currentStep === 2) {
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Permissions</h2>
+        <form>
+
+            <!-- Add Section Button -->
+            <div class="mt-3">
+                <a type="button" class="view-btn add-sec d-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                        </g>
+                    </svg>
+                    <span>Add Section</span>
+                </a>
+            </div>
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+            </div>
+            }
+        </form>
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-primary" [disabled]="isLoading" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next (2/3)</span>
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- step 3 -->
+@if (currentStep === 3) {
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Users</h2>
+        <form>
+
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+            </div>
+            }
+        </form>
+        <!-- prev and confirm buttons -->
+        <div class="btn-fixed d-flex align-items-stretch gap-2">
+            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goPrev()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                </svg>
+            </button>
+            <button class="btn btn-lg btn-success">
+                @if (isLoading) {
+                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                }
+                @if (!isLoading) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                }
+                <span>Create Role</span>
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Role'" [paragraph1]="'Are you sure you want to discard creating the new Role?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Role
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

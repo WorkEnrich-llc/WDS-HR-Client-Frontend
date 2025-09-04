@@ -45,7 +45,7 @@
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
           </g>
         </svg>
-        <span>Add User</span>
+        <span>Add Roles</span>
       </button>
 
     </div>
@@ -58,38 +58,47 @@
       [rowTemplate]="rolesTableRow" [emptyTemplate]="noroles"></app-table>
 
     <ng-template #rolesTableHeader>
-      <th (click)="sortBy()" style="cursor: pointer;" class="w-10">
+      <th (click)="sortBy()" style="cursor: pointer;" class="w-40">
         <div class="d-flex align-items-center justify-content-between">
-          <span>ID</span>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
-            viewBox=Employees>
+          <span>Role</span>
+          @if (sortDirection === 'desc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
               <path d="M4 8h9m-7 5h7m-5 5h5" />
               <path stroke-linejoin="round" d="M17 20V4l3 4" />
             </g>
           </svg>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
-            viewBox="0 0 24 24">
+          }
+          @if (sortDirection === 'asc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path fill="#DDE3EB" fill-rule="evenodd"
               d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
               clip-rule="evenodd" />
           </svg>
+          }
         </div>
       </th>
-      <th class="w-50">Role</th>
-      <th class="w-20">Added Date</th>
+      <th class="w-20">Allowed Permissions</th>
+      <th class="w-20">Active Users</th>
       <th>Status</th>
     </ng-template>
 
-    <ng-template #rolesTableRow let-user let-i="index">
+    <ng-template #rolesTableRow let-role let-i="index">
       <td class="cursor-pointer">
-        <span>{{ user.id.toString().padStart(2, '0') }}</span>
-
+        <span class="d-block text-gray-sm">{{ role.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          {{ role.role }}
+        </span>
       </td>
-      <td class="cursor-pointer">{{ user.role}}</td>
-      <td class="cursor-pointer">{{user.added_date | date :'dd/MM/yyyy'}}</td>
       <td class="cursor-pointer">
-        <span class="badge-success" *ngIf="user.status === 'active'">
+        <span class="d-block text-gray-sm"><span>4</span> Modules</span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          <span>89</span> Permissions
+        </span>
+      </td>
+      <td class="cursor-pointer"><span>15</span> Users</td>
+      <td class="cursor-pointer">
+        <span class="badge-success" *ngIf="role.status === 'active'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -98,7 +107,7 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-gray" *ngIf="user.status === 'inactive'">
+        <span class="badge-gray" *ngIf="role.status === 'inactive'">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
@@ -106,16 +115,6 @@
             </g>
           </svg>
           <span>Inactive</span>
-        </span>
-        <span class="badge-newjoiner" *ngIf="user.status === 'pending'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <path
-                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-              <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-            </g>
-          </svg>
-          <span>Pending</span>
         </span>
       </td>
 
@@ -142,10 +141,10 @@
 <app-overlay-filter-box #filterBox [title]="'Filters'">
   <form class="w-100 d-flex flex-column gap-3">
     <div class="input">
-      <label for="department">Department</label>
+      <label for="Status">Status</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="department" id="department" class="form-select">
+          <select name="Status" id="Status" class="form-select">
             <option value="" selected disabled hidden>Select</option>
             <!-- <option *ngFor="let dept of departments" [value]=dept.id>{{dept.name}}</option> -->
           </select>
@@ -167,15 +166,37 @@
     </div>
 
     <div class="input">
-      <label for="schedules_type">Schedules Type</label>
+      <label for="active_modules">Active Modules</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="schedules_type" id="schedules_type" class="form-select">
+          <select name="active_modules" id="active_modules" class="form-select">
             <option value="" selected disabled hidden>Select</option>
-            <option value=1>Full-time</option>
-            <option value=2>Part-time</option>
-            <option value=3>Per Hour</option>
-            <option value=4>Freelance</option>
+            <option value=1>1</option>
+          </select>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="active_services">Active Services</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="active_services" id="active_services" class="form-select">
+            <option value="" selected disabled hidden>Select</option>
+            <option value=1>1</option>
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

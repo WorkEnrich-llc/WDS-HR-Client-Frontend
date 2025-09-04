@@ -72,9 +72,9 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
-          if (subscription) {
-            localStorage.setItem('subscription_info', JSON.stringify(subscription));
-          }
+          // if (subscription) {
+          //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+          // }
 
           // window.location.href = `https://${domain}/departments`;
           this._Router.navigate(['/departments']);

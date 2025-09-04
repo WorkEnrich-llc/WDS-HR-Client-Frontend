@@ -90,6 +90,7 @@ export class SidebarComponent implements OnInit {
   }
   // screen responsive in start page
   ngOnInit(): void {
+    
     // supscription all feature supported 
     this.subService.allFeatures$.subscribe(features => {
       if (features && Object.keys(features).length > 0) {
