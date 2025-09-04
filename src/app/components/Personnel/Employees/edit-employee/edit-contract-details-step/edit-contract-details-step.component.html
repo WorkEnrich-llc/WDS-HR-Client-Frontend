@@ -1,0 +1,124 @@
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Contract Details</h2>
+    <div class="contract-info mb-3">
+      <p class="text-primary mb-1">
+        You can edit the current contract, or 
+        <a href="#" class="text-decoration-underline">create a new one in the employee page</a>
+      </p>
+    </div>
+    
+    <div class="w-lg-50 d-flex flex-column gap-2">
+      <!-- Read-only fields -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input">
+            <label for="join_date">Join Date</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="join_date" 
+                [value]="getJoinDate()" 
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input">
+            <label for="notice_period">Notice Period</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="notice_period" 
+                [value]="getNoticePeriod()" 
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input">
+            <label for="current_salary">Current Salary</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="current_salary" 
+                [value]="getCurrentSalary()" 
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input">
+            <label for="min_salary">Min. Salary</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="min_salary" 
+                [value]="getMinSalary()" 
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input">
+            <label for="max_salary">Max. Salary</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="max_salary" 
+                [value]="getMaxSalary()" 
+                class="form-control"
+                readonly />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable Insurance Salary -->
+      <div [formGroup]="sharedService.contractDetails" class="input">
+        <label for="insurance_salary">Insurance Salary</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="insurance_salary" 
+            formControlName="insurance_salary"
+            class="form-control custom-date-input"
+            placeholder="14,000 EGP" 
+            min="0" />
+        </div>
+        @if (sharedService.isFieldInvalid('insurance_salary', sharedService.contractDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('insurance_salary', sharedService.contractDetails)}}
+          </p>
+        }
+      </div>
+
+      @if (sharedService.errMsg()) {
+        <div class="alert alert-danger mb-0 mt-3" role="alert">
+          {{sharedService.errMsg()}}
+        </div>
+      }
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="btn-fixed d-flex gap-3">
+      <button type="button" class="btn btn-lg btn-outline-primary" (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+            stroke-width="1.5" d="m20 12l-16 0m0 0l6-6m-6 6l6 6" />
+        </svg>
+        <span>Previous</span>
+      </button>
+      <button type="button" class="btn btn-lg btn-success" (click)="onSubmit()"
+        [disabled]="sharedService.employeeForm.invalid || sharedService.isLoading()">
+        @if (sharedService.isLoading()) {
+          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!sharedService.isLoading()) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+        }
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </div>
+</div>
