@@ -33,24 +33,28 @@ export class EditSalaryPortionsComponent implements OnInit {
       portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
     });
 
+    this.portionsForm.valueChanges.subscribe(() => {
+      this.updateBasicPercentage();
+    });
+
     for (let i = 0; i < 3; i++) {
       this.createPortion();
     }
     this.loadSalaryPortions();
   }
 
-  get portions(): FormArray {
-    return this.portionsForm.get('portions') as FormArray;
-  }
 
 
   private createPortion(p: any = null, isDefault = false): FormGroup {
     const hasValue = !!(p?.name || p?.percentage);
+    const enabled = isDefault ? false : hasValue;
+
     const portionGroup = this.fb.group({
-      enabled: new FormControl({ value: isDefault ? false : hasValue, disabled: isDefault }),
-      name: new FormControl({ value: p?.name || '', disabled: isDefault }),
-      percentage: new FormControl({ value: p?.percentage || '', disabled: isDefault })
+      enabled: new FormControl({ value: enabled, disabled: isDefault }),
+      name: new FormControl({ value: p?.name || '', disabled: !enabled || isDefault }),
+      percentage: new FormControl({ value: p?.percentage || '', disabled: !enabled || isDefault })
     });
+
     if (!isDefault) {
       portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
         if (enabled) {
@@ -62,6 +66,7 @@ export class EditSalaryPortionsComponent implements OnInit {
         }
       });
     }
+
     return portionGroup;
   }
 
@@ -126,12 +131,17 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   get isSaveDisabled(): boolean {
     if (this.isLoading) return true;
+    if (this.portionsForm.invalid) return true;
     return this.portions.controls.some(portion => {
       const enabled = portion.get('enabled')?.value;
       const name = portion.get('name')?.value;
       const percentage = portion.get('percentage')?.value;
       return enabled && (!name || !percentage);
     });
+  }
+
+  get portions(): FormArray<FormGroup> {
+    return this.portionsForm.get('portions') as FormArray<FormGroup>;
   }
 
   updateSalaryPortion(): void {
@@ -172,6 +182,34 @@ export class EditSalaryPortionsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+
+  // Update the basic portion percentage in runtime
+  private updateBasicPercentage(): void {
+    if (!this.portions || !this.portions.length) return;
+    let total = 0;
+    let basicPortion: FormGroup | undefined;
+
+    this.portions.controls.forEach(group => {
+      const fGroup = group as FormGroup;
+      const name = String(fGroup.get('name')?.value || '').toLowerCase();
+      const enabled = fGroup.get('enabled')?.value;
+      const percentage = Number(fGroup.get('percentage')?.value) || 0;
+
+      if (name === 'basic') {
+        basicPortion = fGroup;
+      } else if (enabled) {
+        total += percentage;
+      }
+    });
+    if (basicPortion) {
+      const newValue = 100 - total;
+      basicPortion.get('percentage')?.setValue(
+        newValue < 0 ? 0 : newValue,
+        { emitEvent: false }
+      );
+    }
   }
 
   // discard popup
