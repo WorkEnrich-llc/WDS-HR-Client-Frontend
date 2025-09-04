@@ -119,7 +119,8 @@ export class CreateEmployeeComponent implements OnInit {
             department_id: parseInt(formData.job_details.department_id, 10),
             section_id: formData.job_details.section_id ? parseInt(formData.job_details.section_id, 10) : undefined,
             job_title_id: parseInt(formData.job_details.job_title_id, 10),
-            work_schedule_id: parseInt(formData.job_details.work_schedule_id, 10)
+            // work_schedule_id now lives under attendance_details
+            work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10)
           },
           contract_details: {
             start_contract: formData.contract_details.start_contract,

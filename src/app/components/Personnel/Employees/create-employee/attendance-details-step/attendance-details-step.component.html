@@ -56,6 +56,31 @@
         }
       </div>
 
+      <div class="input">
+        <label for="work_schedule_id">Work Schedule <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select">
+              <option value="" disabled hidden>Select Work Schedule</option>
+              @for (schedule of sharedService.workSchedules(); track schedule.id) {
+                <option [value]="schedule.id">{{ schedule.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails)}}
+          </p>
+        }
+      </div>
+
+      <div class="input form-check">
+        <input type="checkbox" id="activate_attendance_rules" formControlName="activate_attendance_rules"
+          class="form-check-input" />
+        <label class="form-check-label" for="activate_attendance_rules">Activate Attendance Rules</label>
+      </div>
+
       @if (sharedService.errMsg()) {
         <div class="alert alert-danger mb-0 mt-3" role="alert">
           {{sharedService.errMsg()}}
