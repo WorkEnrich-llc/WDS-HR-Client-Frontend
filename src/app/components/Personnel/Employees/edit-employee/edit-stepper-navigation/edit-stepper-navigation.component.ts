@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
-import { SharedStepperNavigationComponent, StepperNavigationConfig } from '../../../../shared/stepper-navigation/shared-stepper-navigation.component';
+import { SharedStepperNavigationComponent, StepperNavigationConfig } from '../../shared/stepper-navigation/shared-stepper-navigation.component';
 
 @Component({
   standalone: true,
