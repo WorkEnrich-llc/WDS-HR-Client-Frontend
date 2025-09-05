@@ -15,13 +15,16 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
+
+  isPasswordVisible = false
   ngOnInit(): void {
+
     this.toasterMessageService.currentMessage$.subscribe(msg => {
-    if (msg) {
-      this.toastr.success(msg);
-      this.toasterMessageService.sendMessage('');
-    }
-  });
+      if (msg) {
+        this.toastr.success(msg);
+        this.toasterMessageService.sendMessage('');
+      }
+    });
   }
   errMsg: string = '';
   isLoading: boolean = false;
@@ -31,8 +34,8 @@ export class LoginComponent implements OnInit {
   });
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService,  private toasterMessageService: ToasterMessageService,
-  private toastr: ToastrService
+    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService, private toasterMessageService: ToasterMessageService,
+    private toastr: ToastrService
   ) { }
 
 
@@ -40,11 +43,11 @@ export class LoginComponent implements OnInit {
   login(): void {
     this.isLoading = true;
     this.errMsg = '';
-    const device_token=localStorage.getItem('device_token');
+    const device_token = localStorage.getItem('device_token');
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
-    formData.append('device_token', device_token! ); 
+    formData.append('device_token', device_token!);
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
@@ -69,9 +72,9 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
-          if (subscription) {
-            localStorage.setItem('subscription_info', JSON.stringify(subscription));
-          }
+          // if (subscription) {
+          //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+          // }
 
           // window.location.href = `https://${domain}/departments`;
           this._Router.navigate(['/departments']);
@@ -87,6 +90,10 @@ export class LoginComponent implements OnInit {
     });
   }
 
+
+  togglePassword(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
 
 
 }

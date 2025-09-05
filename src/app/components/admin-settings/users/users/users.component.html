@@ -11,10 +11,10 @@
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <!-- start search and filter -->
-        <div
+        <!-- <div
             class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
-                <!-- Search input -->
+                Search input
                 <div data-mdb-input-init class="form-outline w-75">
                     <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
                         placeholder="Search" />
@@ -26,7 +26,7 @@
                     </svg>
                 </div>
 
-                <!-- Filter button -->
+                Filter button
                 <button class="btn btn-lg btn-outline-primary" (click)="overlay.openOverlay()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                         <path fill="none" stroke-width="1.5"
@@ -37,7 +37,7 @@
 
             </div>
 
-            <!-- Add User button -->
+            Add User button
             <button class="btn btn-lg btn-primary" routerLink="/users/add-user">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                     <g fill="none" stroke="#ffffff" stroke-width="1.5">
@@ -48,6 +48,65 @@
                 <span>Add User</span>
             </button>
 
+        </div> -->
+
+
+
+
+        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+
+                <!-- Search input -->
+                <div class="form-outline w-75">
+                    <input type="text" class="form-control" placeholder="Search for an employee"
+                        [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <circle cx="11.5" cy="11.5" r="9.5" />
+                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Filter button -->
+                <button class="btn  btn-outline-primary custom-btn" (click)="overlay.openOverlay()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="none" stroke-width="1.5"
+                            d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+                    </svg>
+                    <span>Filter</span>
+                </button>
+
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end gap-2 w-100 w-lg-50">
+                <!-- Import Button -->
+
+                <button class="btn-outline-primary import-btn" (click)="overlay.openOverlay()">
+                    <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M8.85225 5.85225C9.07192 5.63258 9.42808 5.63258 9.64775 5.85225C9.86742 6.07192 9.86742 6.42808 9.64775 6.64775L7.39775 8.89775C7.17808 9.11742 6.82192 9.11742 6.60225 8.89775L4.35225 6.64775C4.13258 6.42808 4.13258 6.07192 4.35225 5.85225C4.57192 5.63258 4.92808 5.63258 5.14775 5.85225L6.4375 7.142V1C6.4375 0.68934 6.68934 0.4375 7 0.4375C7.31066 0.4375 7.5625 0.68934 7.5625 1V7.142L8.85225 5.85225Z"
+                            fill="#377AFD" />
+                        <path
+                            d="M13.5625 7C13.5625 6.68934 13.3107 6.4375 13 6.4375C12.6893 6.4375 12.4375 6.68934 12.4375 7C12.4375 10.003 10.003 12.4375 7 12.4375C3.99695 12.4375 1.5625 10.003 1.5625 7C1.5625 6.68934 1.31066 6.4375 1 6.4375C0.68934 6.4375 0.4375 6.68934 0.4375 7C0.4375 10.6244 3.37563 13.5625 7 13.5625C10.6244 13.5625 13.5625 10.6244 13.5625 7Z"
+                            fill="#377AFD" />
+                    </svg>
+                    <span>Import</span>
+                </button>
+
+
+                <!-- Add User button -->
+                <button class="btn btn-lg btn-primary" routerLink="/users/add-user">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <g fill="none" stroke="#ffffff" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                        </g>
+                    </svg>
+                    <span>Add User</span>
+                </button>
+
+            </div>
         </div>
 
         <!-- start Table -->
@@ -58,9 +117,10 @@
             [rowTemplate]="usersTableRow" [emptyTemplate]="noUsers"></app-table>
 
         <ng-template #usersTableHeader>
-            <th (click)="sortBy()" style="cursor: pointer;" class="w-10">
-                <div class="d-flex align-items-center justify-content-between">
-                    <span>ID</span>
+            <th class="w-20">User</th>
+
+            <th (click)="sortBy()" style="cursor: pointer;" class="w-20">
+                <div class="d-flex align-items-center justify-content-start gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
                         viewBox=Employees>
                         <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
@@ -74,33 +134,32 @@
                             d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
                             clip-rule="evenodd" />
                     </svg>
+                    <span class="w-10">Email</span>
                 </div>
             </th>
 
-
-            <th class="w-20">Full Name</th>
-            <th class="w-20">Email</th>
-            <th class="w-10"></th>
-            <th>Role</th>
-            <th>Added Date</th>
+            <th class=""></th>
+            <th class="w-20">Role(s)</th>
+            <th class="">Added Date</th>
             <th>Status</th>
         </ng-template>
 
         <ng-template #usersTableRow let-user let-i="index">
-            <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
-                <span>{{ user.id.toString().padStart(2, '0') }}</span>
 
+            <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
+                <span class="d-block text-gray-sm">{{ user.id.toString().padStart(2, '0') }}</span>
+                <span class="d-block text-truncate">{{ user.name }} </span>
             </td>
-            <td class="cursor-pointer"  [routerLink]="['/users/view-user', user.id]">
+            <!-- <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
                 <span>
                     {{ user.name }}
                 </span>
-            </td>
+            </td> -->
 
-            <td class="cursor-pointer"  [routerLink]="['/users/view-user', user.id]">{{ user.email}}</td>
+            <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">{{ user.email}}</td>
             <td>
                 <div class="d-flex align-items-center justify-content-start gap-2">
-                    <button class="edit-btn copy-btn"  (click)="copyEmail(user.email, user)" data-bs-toggle="tooltip"
+                    <button class="edit-btn copy-btn" (click)="copyEmail(user.email, user)" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Copy Mail">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -121,8 +180,10 @@
                     </span>
                 </div>
             </td>
+
             <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">{{ user.role}}</td>
-            <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">{{user.added_date | date :'dd/MM/yyyy'}}</td>
+            <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">{{user.added_date | date
+                :'dd/MM/yyyy'}}</td>
             <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
                 <span class="badge-success" *ngIf="user.status === 'active'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">

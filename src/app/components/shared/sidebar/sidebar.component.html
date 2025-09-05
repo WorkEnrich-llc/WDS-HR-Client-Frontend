@@ -284,6 +284,22 @@
                 </a>
               </li>
               }
+              <!-- Delegation link -->
+              @if(features.Delegation){
+              <li class="sidenav-nav-item" routerLink="/delegation" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <!-- sample delegation icon -->
+                    <path
+                      d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3s-3 1.343-3 3s1.343 3 3 3zm-8 0c1.657 0 3-1.343 3-3S9.657 5 8 5s-3 1.343-3 3s1.343 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C9 14.17 4.33 13 2 13zm8 0c-.29 0-.618.02-.968.05c.64.53 1.45.95 2.402.95c.95 0 1.76-.42 2.4-.95C14.62 13.02 14.29 13 14 13c-1.33 0-2.48.05-4 .05z" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Delegation</span>
+                  }
+                </a>
+              </li>
+              }
 
               <!-- onboarding link -->
               @if(features.Onboarding){

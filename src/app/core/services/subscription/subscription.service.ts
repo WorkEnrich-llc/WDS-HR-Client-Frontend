@@ -1,8 +1,15 @@
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, map } from "rxjs";
+import { environment } from "environments/environment";
+import { BehaviorSubject, map, Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
+   private apiBaseUrl: string;
+
+    constructor(private _HttpClient: HttpClient) {
+        this.apiBaseUrl = environment.apiBaseUrl;
+    }
   private _sub$ = new BehaviorSubject<any>(null);
   subscription$ = this._sub$.asObservable();
 
@@ -57,5 +64,18 @@ export class SubscriptionService {
         }, {} as Record<string, boolean>);
     })
   );
+
+
+
+getSubscription(): Observable<any> {
+  const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
+  return this._HttpClient.get<any>(url).pipe(
+    map(res => {
+      const features = res?.data?.features ?? null;
+      return features ? { features } : null;
+    })
+  );
+}
+
 
 }

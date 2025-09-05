@@ -10,7 +10,9 @@ body {
 .page-header nav {
     display: none;
 }
-
+.nav-item{
+    cursor: pointer;
+}
 .nav-item.active {
     position: relative;
 }

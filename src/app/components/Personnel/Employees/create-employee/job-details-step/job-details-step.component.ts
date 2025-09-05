@@ -5,7 +5,7 @@ import { CreateEmployeeSharedService } from '../services/create-employee-shared.
 import { BranchesService } from '../../../../../core/services/od/branches/branches.service';
 import { DepartmentsService } from '../../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
-import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
+// Work schedule moved to attendance step
 
 @Component({
   selector: 'app-job-details-step',
@@ -20,7 +20,6 @@ export class JobDetailsStepComponent implements OnInit {
   private branchesService = inject(BranchesService);
   private departmentsService = inject(DepartmentsService);
   private jobsService = inject(JobsService);
-  private workScheduleService = inject(WorkSchaualeService);
 
   ngOnInit(): void {
     this.loadInitialData();
@@ -48,10 +47,7 @@ export class JobDetailsStepComponent implements OnInit {
       next: (res) => this.sharedService.branches.set(res.data.list_items),
       error: (err) => console.error('Error loading branches', err),
     });
-    this.workScheduleService.getAllWorkSchadule(1, 100).subscribe({
-      next: (res) => this.sharedService.workSchedules.set(res.data.list_items),
-      error: (err) => console.error('Error loading work schedules', err),
-    });
+  // Work schedules are now loaded in the Attendance step component
   }
 
   private setupJobDetailsWatchers(): void {
@@ -116,17 +112,7 @@ export class JobDetailsStepComponent implements OnInit {
         const deptSections = selectedDept && Array.isArray(selectedDept.sections) ? selectedDept.sections : [];
         this.sharedService.sections.set(deptSections);
 
-        // Optionally update work schedules for the department (keeps previous behavior)
-        this.workScheduleService.getAllWorkSchadule(1, 100, { department: departmentId.toString() }).subscribe({
-          next: res => {
-            const schedules = res.data?.list_items || [];
-            this.sharedService.workSchedules.set(schedules);
-            if (schedules.length) {
-              this.sharedService.jobDetails.get('work_schedule_id')?.setValue(schedules[0].id);
-            }
-          },
-          error: err => console.error('Error loading work schedules for department', err)
-        });
+  // Work schedule updates moved to AttendanceDetailsStepComponent
       } else {
         this.sharedService.jobTitles.set([]);
         // disable section and job title when no department

@@ -12,6 +12,7 @@ import { environment } from '../environments/environment';
 import { NetworkStatusComponent } from './components/shared/network-status/network-status.component';
 import { VersionService } from './core/services/version.service';
 import { VersionDisplayComponent } from './components/shared/version-display/version-display.component';
+import { SubscriptionService } from './core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +31,8 @@ export class AppComponent {
     private _AuthenticationService: AuthenticationService,
     private router: Router,
     private viewportScroller: ViewportScroller,
-    private versionService: VersionService
+    private versionService: VersionService,
+    private subService: SubscriptionService
   ) {
     const lang = localStorage.getItem('lang') || 'en';
     this.translate.setDefaultLang('en');
@@ -62,6 +64,15 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
+    // get supsciption
+     this.subService.getSubscription().subscribe({
+    next: (sub) => {
+      if (sub) {
+        this.subService.setSubscription(sub); 
+      }
+    }
+  });
+
     const existingToken = localStorage.getItem('device_token');
     if (existingToken && existingToken.trim() !== '') {
       // console.log('Device already registered, skipping registration.');

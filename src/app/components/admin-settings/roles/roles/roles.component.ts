@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, filter, Subject } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
@@ -11,7 +11,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-roles',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, CommonModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, CommonModule,RouterLink],
   providers: [DatePipe],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.css'
@@ -44,7 +44,7 @@ export class RolesComponent {
       id: 3,
       role: "Viewer",
       added_date: "2025-08-10",
-      status: "pending"
+      status: "active"
     }
   ];
   searchTerm: string = '';

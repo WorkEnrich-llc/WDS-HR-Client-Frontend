@@ -10,11 +10,15 @@ export const subscriptionInterceptor: HttpInterceptorFn = (req, next) => {
     tap(event => {
       if (event instanceof HttpResponse && event.body) {
         const body: any = event.body;
-        const sub = body && body.data ? body.data.subscription ?? null : null;
-        if (sub) {
+        const sub = body?.data?.subscription ?? null;
+
+        if (!sub && body?.data?.features) {
+          subService.setSubscription({ features: body.data.features });
+        } else if (sub) {
           subService.setSubscription(sub);
         }
       }
     })
   );
 };
+
