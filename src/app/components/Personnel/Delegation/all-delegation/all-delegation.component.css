@@ -1,0 +1,28 @@
+/* Component-specific styles for all-delegation component */
+.width-fix {
+  min-width: 200px;
+}
+
+.badge-active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.badge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.badge-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #6c757d;
+}

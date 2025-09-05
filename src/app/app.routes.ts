@@ -372,6 +372,31 @@ export const routes: Routes = [
               },
             ]
           },
+          {
+            path: 'delegation',
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-delegation',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-delegation',
+                loadComponent: () => import('./components/Personnel/Delegation/all-delegation/all-delegation.component').then(m => m.AllDelegationComponent),
+                title: 'All Delegations',
+              },
+              {
+                path: 'create',
+                loadComponent: () => import('./components/Personnel/Delegation/manage-delegation/manage-delegation.component').then(m => m.ManageDelegationComponent),
+                title: 'Create Delegation',
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () => import('./components/Personnel/Delegation/manage-delegation/manage-delegation.component').then(m => m.ManageDelegationComponent),
+                title: 'Edit Delegation',
+              },
+            ]
+          },
         ]
       },
 
