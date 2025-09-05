@@ -17,7 +17,7 @@ export class RolesService {
 
   // get all roles
   getroles(): Observable<any> {
-    const url = `${this.apiBaseUrl}main/access/all-roles`;
+    const url = `${this.apiBaseUrl}main/admin-settings/all-roles`;
     return this._HttpClient.get(url);
   }
 }

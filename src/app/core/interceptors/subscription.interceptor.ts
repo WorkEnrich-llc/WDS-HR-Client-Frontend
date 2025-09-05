@@ -9,16 +9,19 @@ export const subscriptionInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     tap(event => {
       if (event instanceof HttpResponse && event.body) {
-        const body: any = event.body;
-        const sub = body?.data?.subscription ?? null;
+        try {
+          const body: any = event.body;
+          const sub = body?.data?.subscription ?? null;
 
-        if (!sub && body?.data?.features) {
-          subService.setSubscription({ features: body.data.features });
-        } else if (sub) {
-          subService.setSubscription(sub);
+          if (sub && typeof sub === 'object') {
+            subService.setSubscription(sub);
+          } else if (body?.data?.features && Array.isArray(body.data.features)) {
+            subService.setSubscription({ features: body.data.features });
+          }
+        } catch (e) {
+          console.error('Error parsing subscription response:', e);
         }
       }
     })
   );
 };
-
