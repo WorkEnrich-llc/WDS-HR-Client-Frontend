@@ -1030,6 +1030,13 @@ export const routes: Routes = [
     title: 'Google Maps Demo'
   },
 
+  // Charts Demo (standalone route)
+  {
+    path: 'charts-demo',
+    loadComponent: () => import('./components/charts-demo/charts-demo.component').then(m => m.ChartsDemoComponent),
+    title: 'Charts Demo'
+  },
+
 
   // page not font 404
   {
