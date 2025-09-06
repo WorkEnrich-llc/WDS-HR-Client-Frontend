@@ -2,7 +2,7 @@
 
     <div class="content-box d-flex flex-column gap-3">
         <h2>Your Profile Information</h2>
-        <form action="" class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="profileForm" action="" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
                 <label for="name"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <circle cx="12" cy="6" r="4" />
@@ -10,8 +10,19 @@
                             opacity=".5" />
                     </svg> Name</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="name" class="form-control custom-date-input" placeholder="Full Name" />
+                    <input formControlName="name" type="text" id="name" class="form-control custom-date-input"
+                        placeholder="Full Name" />
                 </div>
+                @if (profileForm.get('name')?.touched && profileForm.get('name')?.errors?.['fourWords']) {
+                <p class="error-msg">
+                    Full name must contain at least four parts.
+                </p>
+                }
+                @if (profileForm.get('name')?.touched && profileForm.get('name')?.errors?.['wordTooShort']) {
+                <p class="error-msg">
+                    Each part of the full name must be at least 3 characters long.
+                </p>
+                }
             </div>
 
             <div class="input">
@@ -19,30 +30,40 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path
                             d="m16.556 12.906l-.455.453s-1.083 1.076-4.038-1.862s-1.872-4.014-1.872-4.014l.286-.286c.707-.702.774-1.83.157-2.654L9.374 2.86C8.61 1.84 7.135 1.705 6.26 2.575l-1.57 1.56c-.433.432-.723.99-.688 1.61c.09 1.587.808 5 4.812 8.982c4.247 4.222 8.232 4.39 9.861 4.238c.516-.048.964-.31 1.325-.67l1.42-1.412c.96-.953.69-2.588-.538-3.255l-1.91-1.039c-.806-.437-1.787-.309-2.417.317" />
-                    </svg> Phone
+                    </svg> Phone Number
                 </label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="tel" id="phone" class="form-control custom-date-input"
-                        placeholder="+20 000 000 0000" />
+                    <span class="prefix">+20</span>
+                    <input formControlName="phone" type="tel" id="phone"
+                        class="form-control custom-date-input with-prefix" placeholder="000 000 0000" />
                 </div>
+                @if (profileForm.get('phone')?.touched && profileForm.get('phone')?.errors?.['required']) {
+                <p class="error-msg">
+                    Phone number is required.
+                </p>
+                }
+                @if (profileForm.get('phone')?.touched && profileForm.get('phone')?.errors?.['pattern']) {
+                <p class="error-msg">
+                    Phone number must be a valid 10-digit number.
+                </p>
+                }
             </div>
 
             <div class="input opacity-50">
                 <label for="mail">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                        viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path fill-rule="evenodd"
                             d="M3.172 5.172C2 6.343 2 8.229 2 12s0 5.657 1.172 6.828S6.229 20 10 20h4c3.771 0 5.657 0 6.828-1.172S22 15.771 22 12s0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172M18.576 7.52a.75.75 0 0 1-.096 1.056l-2.196 1.83c-.887.74-1.605 1.338-2.24 1.746c-.66.425-1.303.693-2.044.693s-1.384-.269-2.045-.693c-.634-.408-1.352-1.007-2.239-1.745L5.52 8.577a.75.75 0 0 1 .96-1.153l2.16 1.799c.933.777 1.58 1.315 2.128 1.667c.529.34.888.455 1.233.455s.704-.114 1.233-.455c.547-.352 1.195-.89 2.128-1.667l2.159-1.8a.75.75 0 0 1 1.056.097"
                             clip-rule="evenodd" />
                     </svg> Email
                 </label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="tel" id="mail" class="form-control custom-date-input"
-                        placeholder="johndoe@mail.com" disabled/>
+                    <input formControlName="email" type="email" id="mail" class="form-control custom-date-input"
+                        placeholder="johndoe@mail.com" />
                 </div>
             </div>
 
-            <!-- <div class="input opacity-50">
+            <div class="input opacity-50">
                 <label for="dept"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path
                             d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
@@ -55,17 +76,16 @@
                     </svg> Department</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="dept" id="dept" class="form-select" disabled>
-                            <option value="" disabled selected>Not Assigned</option>
-                            <option value="">1</option>
-                            <option value="">2</option>
+                        <select formControlName="department" name="dept" id="dept" class="form-select">
+                            <option [value]="profile.department.name" disabled selected>{{ profile.department.name
+                                }}</option>
                         </select>
                     </div>
                 </div>
-            </div> -->
+            </div>
 
-            <div class="d-flex align-items-center gap-3 mt-3">
-                <button class="btn btn-lg btn-success w-auto">
+            <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+                <button class="btn btn-lg btn-success w-50" (click)="saveChanges()" [disabled]="profileForm.invalid">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -74,10 +94,17 @@
                     </svg>
                     <span>Save Changes</span>
                 </button>
-            
+
+                <button class="btn btn-lg btn-outline-dark w-50" (click)="discardChanges()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    <span>Discard Changes</span>
+                </button>
             </div>
-
-
         </form>
 
     </div>
