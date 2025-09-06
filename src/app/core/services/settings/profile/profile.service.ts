@@ -20,9 +20,8 @@ export class ProfileService {
   }
 
 
-
-  updateProfile(profileData: Profile) {
-    return this.http.put<Profile>(`${this.url}`, profileData).pipe(
+  updateProfile(profileData: FormData) {
+    return this.http.put<any>(`${this.url}`, profileData).pipe(
       map((res: any) => res.data?.object_info ?? null)
     );
   }

@@ -854,15 +854,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/settings/notifications-settings/notifications-settings.component').then(m => m.NotificationsSettingsComponent),
                 title: 'Notifications Settings'
               },
-              // {
-              //   path: 'password-settings',
-              //   loadComponent: () => import('./components/settings/password-settings/password-settings.component').then(m => m.PasswordSettingsComponent),
-              //   title: 'Password Settings'
-              // },
               {
-                path: 'change-password',
-                loadComponent: () => import('./components/settings/change-password/change-password.component').then(m => m.ChangePasswordComponent),
-                title: 'Change Password'
+                path: 'password-settings',
+                loadComponent: () => import('./components/settings/password-settings/password-settings.component').then(m => m.PasswordSettingsComponent),
+                title: 'Password Settings'
               },
               {
                 path: 'google-maps-demo',
