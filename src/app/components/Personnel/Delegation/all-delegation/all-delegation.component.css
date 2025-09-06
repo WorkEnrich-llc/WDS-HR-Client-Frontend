@@ -26,3 +26,11 @@
   font-style: italic;
   color: #6c757d;
 }
+@media (min-width:991px) {
+    .width-fix{
+        width: 450px !important;
+    }    
+    .w-lg-50{
+        width: 50% !important;
+    }
+}

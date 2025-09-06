@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 import { SubscriptionService } from '../services/subscription/subscription.service';
 
 @Injectable({
@@ -10,36 +10,44 @@ import { SubscriptionService } from '../services/subscription/subscription.servi
 export class SubscriptionGuard implements CanActivate {
   constructor(private subService: SubscriptionService, private router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-  const featureKey = route.data['feature'];
-  const requiredAction = route.data['action'];
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+    const featureKey = route.data['feature'];
+    const requiredAction = route.data['action'];
 
-  return this.subService.subscription$.pipe(
-    map(sub => {
-      if (!sub) return false;
+    return this.subService.subscription$.pipe(
+      switchMap(sub => {
+        if (sub) return of(sub);
 
-      const normalizedKey = featureKey.replace(/\s+/g, "_");
-      const feature = Object.keys(sub)
-        .map(k => [k.replace(/\s+/g, "_"), sub[k]] as [string, any])
-        .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as Record<string, any>)
-        [normalizedKey];
+        // لو مفيش اشتراك متخزن، هنعمله fetch من السيرفر
+        return this.subService.getSubscription().pipe(
+          tap(fetched => {
+            if (fetched) this.subService.setSubscription(fetched);
+          })
+        );
+      }),
+      map(sub => {
+        if (!sub) {
+          return this.router.createUrlTree(['/not-authorized']);
+        }
 
-      if (!feature) {
-        this.router.navigate(['/not-authorized']);
-        return false;
-      }
+        const normalizedKey = featureKey.replace(/\s+/g, "_");
+        const feature = Object.keys(sub)
+          .map(k => [k.replace(/\s+/g, "_"), sub[k]] as [string, any])
+          .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as Record<string, any>)
+          [normalizedKey];
 
-      if (requiredAction && !feature[requiredAction]) {
-        this.router.navigate(['/not-authorized']);
-        return false;
-      }
+        if (!feature) {
+          return this.router.createUrlTree(['/not-authorized']);
+        }
 
-      if (feature.info?.is_support) return true;
+        if (requiredAction && !feature[requiredAction]) {
+          return this.router.createUrlTree(['/not-authorized']);
+        }
 
-      this.router.navigate(['/not-authorized']);
-      return false;
-    })
-  );
-}
-
+        return feature.info?.is_support === true
+          ? true
+          : this.router.createUrlTree(['/not-authorized']);
+      })
+    );
+  }
 }
