@@ -153,14 +153,14 @@ export const routes: Routes = [
                 path: 'create',
                 loadComponent: () => import('./components/OD/Branches/create-new-branch/create-new-branch.component').then(m => m.CreateNewBranchComponent),
                 title: 'Create Branch',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Branches', action: 'create' }
               },
               {
                 path: 'edit/:id',
                 loadComponent: () => import('./components/OD/Branches/edit-branch-info/edit-branch-info.component').then(m => m.EditBranchInfoComponent),
                 title: 'Edit Branch',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Branches', action: 'update' }
               },
             ]
@@ -191,14 +191,14 @@ export const routes: Routes = [
                 path: 'create',
                 loadComponent: () => import('./components/OD/Job-Titles/create-new-job-title/create-new-job-title.component').then(m => m.CreateNewJobTitleComponent),
                 title: 'Create job',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Job_Titles', action: 'create' }
               },
               {
                 path: 'edit/:id',
                 loadComponent: () => import('./components/OD/Job-Titles/edit-job/edit-job.component').then(m => m.EditJobComponent),
                 title: 'Edit job',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Job_Titles', action: 'update' }
               },
             ]
@@ -283,7 +283,7 @@ export const routes: Routes = [
                 path: 'create-employee',
                 loadComponent: () => import('./components/Personnel/Employees/create-employee/create-employee.component').then(m => m.CreateEmployeeComponent),
                 title: 'Create Employees',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Employees', action: 'create' }
               },
               {
@@ -775,7 +775,7 @@ export const routes: Routes = [
           // payroll components routes
           {
             path: 'payroll-components',
-             canActivate: [SubscriptionGuard],
+            canActivate: [SubscriptionGuard],
             data: { feature: 'Payroll_Components' },
             children: [
               {
@@ -903,14 +903,14 @@ export const routes: Routes = [
       },
 
       // roles
-       {
+      {
         path: '',
         loadComponent: () => import('./layouts/cloud-layout/cloud-layout.component').then(m => m.CloudLayoutComponent),
 
         children: [
           {
-            path:'roles',
-            children:[
+            path: 'roles',
+            children: [
               {
                 path: '',
                 redirectTo: 'all-role',
@@ -932,10 +932,18 @@ export const routes: Routes = [
                   ).then(m => m.AddRoleComponent),
                 title: 'Add Role'
               },
+              {
+                path: 'edit-role/:id',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/roles/add-role/add-role.component'
+                  ).then(m => m.AddRoleComponent),
+                title: 'Edit Role'
+              },
             ]
           }
         ]
-       },
+      },
 
       // users
       {
@@ -1070,7 +1078,7 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () => import('./components/errors/not-found/not-found.component').then(m => m.NotFoundComponent),
-    title:'Page Not Found'
+    title: 'Page Not Found'
   }
 
 
