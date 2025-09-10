@@ -58,6 +58,32 @@ export const routes: Routes = [
     children: [
 
 
+      // start Admin dashboard layout
+      {
+        path: '',
+        loadComponent: () => import('./layouts/admin-layout/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+
+        children: [
+          // admin dashboard routes
+          {
+            path: 'admin-dash',
+            children: [
+              {
+                path: '',
+                redirectTo: 'admin-dash',
+                pathMatch: 'full'
+              },
+              {
+                path: 'admin-dash',
+                loadComponent: () => import('./components/admin-dashboard/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+                title: 'Dashboard',
+              },
+            ]
+          },
+
+        ]
+      },
+
       // start OD layout
       {
         path: '',
@@ -372,6 +398,8 @@ export const routes: Routes = [
               },
             ]
           },
+
+          // delegation routes
           {
             path: 'delegation',
             children: [

@@ -31,6 +31,7 @@
     "device-detector-js": "^3.0.3",
     "firebase": "^11.9.1",
     "ng-otp-input": "^2.0.7",
+    "ng2-charts": "^8.0.0",
     "ng2-pdf-viewer": "^10.4.0",
     "ngx-cookie-service": "^20.0.0",
     "ngx-country-picker": "^3.0.0",
