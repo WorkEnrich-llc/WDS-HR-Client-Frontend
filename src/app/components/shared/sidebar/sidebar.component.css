@@ -187,11 +187,6 @@
     background-color: var(--color-secondary-100);
 }
 
-.admin .sidenav-nav-item:hover {
-    cursor: default;
-    background-color: white;
-}
-
 .accordion .accordion-button:not(.collapsed) svg:not(.stroke) {
     fill: var(--color-primary-500);
 }

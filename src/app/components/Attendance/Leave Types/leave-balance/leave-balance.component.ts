@@ -24,7 +24,7 @@ export class LeaveBalanceComponent {
         private fb: FormBuilder
     ) { }
 
-        // Overlay references
+    // Overlay references
     @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
     @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
 
@@ -89,7 +89,7 @@ export class LeaveBalanceComponent {
             this.leaveBalances = [
                 {
                     id: 1,
-                    employee: { id: 'EMP001', name: 'Employee Name' },
+                    employee: { id: 1, name: 'Employee Name' },
                     leaveType: { id: 1, name: 'Leave Name' },
                     total: 21,
                     used: 8,
@@ -98,7 +98,7 @@ export class LeaveBalanceComponent {
                 },
                 {
                     id: 2,
-                    employee: { id: 'EMP002', name: 'Employee Name' },
+                    employee: { id: 2, name: 'Employee Name' },
                     leaveType: { id: 1, name: 'Leave Name' },
                     total: 21,
                     used: 8,
@@ -107,70 +107,7 @@ export class LeaveBalanceComponent {
                 },
                 {
                     id: 3,
-                    employee: { id: 'EMP003', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 4,
-                    employee: { id: 'EMP004', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 22,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 5,
-                    employee: { id: 'EMP005', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 44,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 6,
-                    employee: { id: 'EMP006', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 7,
-                    employee: { id: 'EMP007', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 8,
-                    employee: { id: 'EMP008', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 9,
-                    employee: { id: 'EMP009', name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 10,
-                    employee: { id: 'EMP010', name: 'Employee Name' },
+                    employee: { id: 3, name: 'Employee Name' },
                     leaveType: { id: 1, name: 'Leave Name' },
                     total: 21,
                     used: 8,
@@ -201,47 +138,61 @@ export class LeaveBalanceComponent {
 
     sortBy(): void {
         this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-        // Add sorting logic here
+
+        this.leaveBalances.sort((a, b) => {
+            const nameA = a.employee.name.toLowerCase();
+            const nameB = b.employee.name.toLowerCase();
+
+            if (nameA < nameB) return this.sortDirection === 'asc' ? -1 : 1;
+            if (nameA > nameB) return this.sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
     }
 
-        applyFilters(): void {
-            this.currentPage = 1;
-            this.getLeaveBalances(this.currentPage);
-                this.filterBox.closeOverlay();
-        }
+    applyFilters(): void {
+        this.currentPage = 1;
+        this.getLeaveBalances(this.currentPage);
+        this.filterBox.closeOverlay();
+    }
 
-        clearFilters(): void {
-            this.filterForm.reset();
-            this.currentPage = 1;
-            this.getLeaveBalances(this.currentPage);
-        }
+
+
+    resetFilterForm(): void {
+        this.filterForm.reset({
+            employeeId: '',
+            leaveType: '',
+            status: ''
+        });
+        this.filterBox.closeOverlay();
+        this.getLeaveBalances(this.currentPage);
+    }
 
     // Edit modal support
     selectedBalance: any = null;
-        editTotal: number = 0;
+    editTotal: number = 0;
 
     openEditModal(balance: any): void {
-            this.selectedBalance = { ...balance };
-            this.editTotal = this.selectedBalance.total;
-            this.editBox.openOverlay();
-        }
+        this.selectedBalance = { ...balance };
+        this.editTotal = this.selectedBalance.total;
+        this.editBox.openOverlay();
+    }
 
-        saveChanges(): void {
-            if (this.selectedBalance) {
-                // Update the total and recalculate available
-                this.selectedBalance.total = this.editTotal;
-                this.selectedBalance.available = this.editTotal - this.selectedBalance.used;
-                // Replace the item in the array
-                const idx = this.leaveBalances.findIndex(b => b.id === this.selectedBalance.id);
-                if (idx !== -1) {
-                    this.leaveBalances[idx] = this.selectedBalance;
-                }
+    saveChanges(): void {
+        if (this.selectedBalance) {
+            // Update the total and recalculate available
+            this.selectedBalance.total = this.editTotal;
+            this.selectedBalance.available = this.editTotal - this.selectedBalance.used;
+            // Replace the item in the array
+            const idx = this.leaveBalances.findIndex(b => b.id === this.selectedBalance.id);
+            if (idx !== -1) {
+                this.leaveBalances[idx] = this.selectedBalance;
             }
-            this.editBox.closeOverlay();
         }
+        this.editBox.closeOverlay();
+    }
 
-        discardChanges(): void {
-            this.selectedBalance = null;
-            this.editBox.closeOverlay();
-        }
+    discardChanges(): void {
+        this.selectedBalance = null;
+        this.editBox.closeOverlay();
+    }
 }

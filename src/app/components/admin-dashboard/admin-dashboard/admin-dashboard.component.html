@@ -1,0 +1,353 @@
+<!-- pageheader and progress -->
+<app-page-header title="Admin Dashboard">
+    <div class="filter-contain">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select name="" id="status" class="form-select">
+                <option value="all">All Department</option>
+                <option value="">Dept 1</option>
+                <option value="">Dept 2</option>
+            </select>
+        </div>
+    </div>
+</app-page-header>
+
+
+<!-- start page content -->
+<div class="content-hug">
+    <!-- first Grid -->
+    <div class="dashboard-grid mb-4">
+        <div class="column">
+
+            <!-- active employee card -->
+            <div class="content-box d-flex flex-column flex-fill gap-3 h-100 ">
+                <h2>Active Employees</h2>
+                <div class="d-flex align-items-center mt-auto gap-4">
+                    <!-- Doughnut -->
+                    <div style="height:200px;">
+                        <canvas baseChart [data]="activeEmployeeData" [type]="activeEmployeeType"
+                            [options]="activeEmployeeOptions"></canvas>
+                    </div>
+                    <!-- Stickers -->
+                    <div class="d-flex flex-column gap-2">
+                        @for (val of activeEmployeeValues; track $index) {
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="activeEmployeeColors[$index]"></div>
+                            <p>{{ activeEmployeeLabels[$index] }}</p>
+                        </div>
+                        }
+                        <hr>
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ activeEmployeeTotal }}</div>
+                            <div class="label" style="background-color: transparent;"></div>
+                            <p>Total</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- leave balance card -->
+            <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2>Leave Balance</h2>
+                    <div class="form-outline select-inner">
+                        <select name="" id="status" class="form-select">
+                            <option value="all">All Leave Types</option>
+                            <option value="">leave 1</option>
+                            <option value="">leave 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mt-auto gap-4">
+                    <div style="height:200px;">
+                        <canvas baseChart [data]="leaveBalanceData" [type]="leaveBalanceType"
+                            [options]="leaveBalanceOptions"></canvas>
+                    </div>
+                    <!-- Stickers -->
+                    <div class="d-flex flex-column gap-2">
+                        @for (val of leaveBalanceValues; track $index) {
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="leaveBalanceColors[$index]"></div>
+                            <p>{{ leaveBalanceLabels[$index] }}</p>
+                        </div>
+                        }
+                        <hr>
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ leaveBalanceTotal }}</div>
+                            <div class="label" style="background-color: transparent;"></div>
+                            <p>Total</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="column">
+
+            <!-- Requests card -->
+            <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2>Requests</h2>
+                    <div class="form-outline select-inner">
+                        <select name="" id="status" class="form-select">
+                            <option value="ThisMonth">This Month</option>
+                            <option value="">Dept 1</option>
+                            <option value="">Dept 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mt-auto gap-4">
+                    <div style="height:200px;">
+                        <canvas baseChart [data]="requestsData" [type]="requestsType"
+                            [options]="requestsOptions"></canvas>
+                    </div>
+                    <!-- Stickers -->
+                    <div class="d-flex flex-column gap-2">
+                        @for (val of requestsValues; track $index) {
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="requestsColors[$index]"></div>
+                            <p>{{ requestsLabels[$index] }}</p>
+                        </div>
+                        }
+                        <hr>
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ requestsTotal }}</div>
+                            <div class="label" style="background-color: transparent;"></div>
+                            <p>Total</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals card -->
+            <div class="content-box d-flex flex-column flex-fill gap-3 h-100">
+                <h2>Goals</h2>
+                <div class="d-flex align-items-center mt-auto gap-4">
+                    <div style="height:200px;">
+                        <canvas baseChart [data]="goalsData" [type]="goalsType" [options]="goalsOptions"></canvas>
+                    </div>
+                    <!-- Stickers -->
+                    <div class="d-flex flex-column gap-2">
+                        @for (val of goalsValues; track $index) {
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="goalsColors[$index]"></div>
+                            <p>{{ goalsLabels[$index] }}</p>
+                        </div>
+                        }
+                        <hr>
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ goalsTotal }}</div>
+                            <div class="label" style="background-color: transparent;"></div>
+                            <p>Total</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="column last-column">
+            <!-- alerts Card -->
+            <div class="content-box alerts flex-fill d-flex flex-column h-100">
+                <h2>Alerts</h2>
+                <div>
+                    @for (alert of alerts; track $index) {
+                    <div class="alert">
+                        <div class="icon">
+                            @if(alert.number) {
+                            <span>{{ alert.number }}</span>
+                            } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10"
+                                    opacity=".5" />
+                                <path fill="currentColor"
+                                    d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+                            </svg>
+                            }
+                        </div>
+
+                        <div class="alert-content">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h6>{{ alert.title }}</h6>
+                            </div>
+                            <p class="m-0">{{ alert.content }}</p>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="row g-4 align-items-stretch">
+        <!-- Turnover -->
+        <div class="col-12">
+            <div class="content-box flex-fill d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2>Turnover</h2>
+                    <div class="form-outline w-50 select-inner">
+                        <select name="" id="status" class="form-select">
+                            <option value="all">This Year</option>
+                            <option value="">Last Year</option>
+                            <option value="">2023</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex-fill mt-3" style="width: 100%; height: 300px;">
+                    <canvas baseChart [data]="turnoverData" [type]="turnoverType" [options]="turnoverOptions"  style="width: 100%; height: 100%;">
+                    </canvas>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Employees -->
+        <div class="col-12">
+            <div class="content-box flex-fill d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2>Employees</h2>
+                    <div class="form-outline w-50 select-inner">
+                        <select name="" id="status" class="form-select">
+                            <option value="all">This Year</option>
+                            <option value="">Last Year</option>
+                            <option value="">2023</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3" style="height: 300px; width: 100%;">
+                    <canvas  baseChart [data]="employeeData" [type]="employeeType" [options]="employeeOptions" style="width: 100%; height: 100%;">
+                    </canvas>
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-5 mt-2">
+                    <div class="sticker">
+                        <div class="label" style="background-color: #98DFC0"></div>
+                        <p>Hired</p>
+                    </div>
+                    <div class="sticker">
+                        <div class="label" style="background-color:#B83D4A"></div>
+                        <p>Terminated</p>
+                    </div>
+                    <div class="sticker">
+                        <div class="label" style="background-color:#FF8F8F"></div>
+                        <p>Resigned</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Guidelines -->
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="content-box flex-fill d-flex flex-column h-100">
+                <h2>Department Guidelines</h2>
+                <div class="d-flex align-items-center mt-auto gap-2">
+                    <div style="height: 200px;">
+                        <canvas baseChart [data]="deptGuidelinesData" [type]="deptGuidelinesType"
+                            [options]="deptGuidelinesOptions">
+                        </canvas>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2">
+                        <div *ngFor="let val of deptGuidelinesValues; let i = index" class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="deptGuidelinesColors[i]"></div>
+                            <p>{{ deptGuidelinesLabels[i] }}</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Departments -->
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="content-box flex-fill d-flex flex-column h-100 gap-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h2>Active Departments</h2>
+                    <div class="form-outline select-inner">
+                        <select name="" id="status" class="form-select">
+                            <option value="all">All Branches</option>
+                            <option value="">branch 1</option>
+                            <option value="">branch 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mt-auto gap-4">
+                    <div style="height: 200px;">
+                        <canvas baseChart [data]="activeDepartmentsData" [type]="activeDepartmentsType"
+                            [options]="activeDepartmentsOptions">
+                        </canvas>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 mt-3">
+                        <div *ngFor="let val of activeDepartmentsValues; let i = index" class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="label" [style.background-color]="activeDepartmentsColors[i]"></div>
+                            <p>{{ activeDepartmentsLabels[i] }}</p>
+                        </div>
+                        <hr>
+                        <div class="sticker">
+                            <div style="width: 20px;" class="number text-end">{{ activeDepartmentsTotal }}</div>
+                            <div class="label" style="background-color: transparent;"></div>
+                            <p>Total</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Payroll Status -->
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="content-box flex-fill d-flex flex-column h-100">
+                <h2>Payroll Status Summary</h2>
+                <div class="mt-auto">
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <span class="month text-center w-100">July</span>
+                        <div class="w-100">
+                            <span class="badge-success m-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                    </g>
+                                </svg>
+                                <span>Posted</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <div class="info-dark text-center d-flex flex-column gap-1 w-100">
+                            <div class="strong">840,000</div>
+                            <span>Total Salaries</span>
+                        </div>
+                        <div class="info-dark text-center d-flex flex-column gap-1 w-100 border-start">
+                            <div class="strong">120</div>
+                            <span>Employees</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between py-2">
+                        <div class="info-danger text-center d-flex flex-column gap-1 w-100">
+                            <div class="strong">120,000</div>
+                            <span>Total Deductions</span>
+                        </div>
+                        <div class="info-success text-center d-flex flex-column gap-1 w-100 border-start">
+                            <div class="strong">120,000</div>
+                            <span>Total Earnings</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

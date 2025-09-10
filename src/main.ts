@@ -16,6 +16,7 @@ import { getMessaging, provideMessaging } from '@angular/fire/messaging';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { environment } from './environments/environment';
 import { subscriptionInterceptor } from 'app/core/interceptors/subscription.interceptor';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -26,7 +27,7 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(NgxDaterangepickerMd.forRoot()),
     provideHttpClient(
       withInterceptors([
-        authInterceptor, 
+        authInterceptor,
         errorHandlingInterceptor,
         toastInterceptor,
         subscriptionInterceptor
@@ -59,7 +60,8 @@ bootstrapApplication(AppComponent, {
         }
       }),
 
-    )
+    ),
+    provideCharts(withDefaultRegisterables())
   ]
 }).catch(err => console.error(err));
 
