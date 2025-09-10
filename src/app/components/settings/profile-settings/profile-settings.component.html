@@ -13,16 +13,23 @@
                     <input formControlName="name" type="text" id="name" class="form-control custom-date-input"
                         placeholder="Full Name" />
                 </div>
-                @if (profileForm.get('name')?.touched && profileForm.get('name')?.errors?.['fourWords']) {
-                <p class="error-msg">
-                    Full name must contain at least four parts.
-                </p>
-                }
                 @if (profileForm.get('name')?.touched && profileForm.get('name')?.errors?.['wordTooShort']) {
                 <p class="error-msg">
                     Each part of the full name must be at least 3 characters long.
                 </p>
                 }
+                @if (profileForm.get('name')?.touched && profileForm.get('name')?.errors?.['fourParts']) {
+                <p class="error-msg">
+                    Full name must contain at least four parts.
+                </p>
+                }
+                @if (profileForm.get('name')?.touched &&
+                profileForm.get('name')?.errors?.['required']) {
+                <p class="error-msg">
+                    Full name is required.
+                </p>
+                }
+
             </div>
 
             <div class="input">
