@@ -2,10 +2,11 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Admin Settings', link: '/cloud' },
     { label: 'Roles', link: '/roles' },
-    { label: 'Create New Role' }
-  ]" title="Create New Role" create="09/04/2025">
+     { label: isEditMode ? 'Edit Role ' + id : 'Create New Role' }
+  ]" [title]="isEditMode ? 'Edit Role ' + id : 'Create New Role'" [create]="createDate" [update]="updatedDate">
 
-    <button class="btn btn-lg btn-success">
+    <button class="btn btn-lg btn-success" (click)="createRole()"
+        [disabled]="createRoleForm.invalid || !hasAnySelectedPermission()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -17,7 +18,7 @@
             </g>
         </svg>
         }
-        <span>Create Role</span>
+        <span>{{isEditMode ? 'Save Changes' : 'Create Role'}}</span>
     </button>
     <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -131,15 +132,16 @@
 
 
 <!-- step 1 -->
-@if (currentStep === 1) {
-<div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Main Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
-            <div class="input">
+<form [formGroup]="createRoleForm" class="">
+    @if (currentStep === 1) {
+    <div class="content-hug">
+        <div class="content-box d-flex flex-column gap-3">
+            <h2>Main Information</h2>
+            <div class="input w-lg-50 d-flex flex-column gap-2">
                 <label for="roleId">Role ID (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="roleId" class="form-control custom-date-input" placeholder="001" />
+                    <input formControlName="code" type="text" id="roleId" class="form-control custom-date-input"
+                        placeholder="001" />
                 </div>
                 <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
                 <p class="error-msg"
@@ -151,17 +153,15 @@
             </div>
             <div class="input">
                 <label for="roleName">Role Name<span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="roleName" class="form-control custom-date-input"
+                <div class="form-outline w-50 position-relative custom-date-wrapper">
+                    <input formControlName="name" type="text" id="roleName" class="form-control custom-date-input"
                         placeholder="Enter Role Name" />
                 </div>
-                <!-- @if (workflow1.get('name')?.touched && workflow1.get('name')?.errors?.['minLength']) {
-                <p class="error-msg"
-                  >
-                  Workflow Name min length must be 3.
+                @if (createRoleForm.get('name')?.touched && createRoleForm.get('name')?.errors?.['required']) {
+                <p class="error-msg">
+                    Role Name is required.
                 </p>
-              }
-              } -->
+                }
             </div>
 
             @if (errMsg) {
@@ -171,336 +171,338 @@
             }
 
 
-        </form>
 
-        <!-- next button -->
-        <div class="btn-fixed">
-            <button class="btn btn-lg btn-primary" [disabled]="isLoading" (click)="goNext()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                </svg>
-                <span>Next (1/3)</span>
-            </button>
+
+            <!-- next button -->
+            <div class="btn-fixed">
+                <button class="btn btn-lg btn-primary" [disabled]="isLoading || createRoleForm.invalid"
+                    (click)="goNext()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                    </svg>
+                    <span>Next (1/3)</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
-}
+    }
 
-<!-- step 2 -->
-@if (currentStep === 2) {
-<div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Permissions</h2>
-        <div class="d-flex align-items-stretch w-100">
-            <div class="column">
-                <div class="header">Modules</div>
-                <ul class="col-data">
-                    @for (feature of mappedData | keyvalue; track feature.key) {
-                    <li class="sidenav-nav-item" [class.active]="selectedMain?.name === feature.value.name"
-                        (click)="selectMain(feature.value)">
-                        <a class="sidenav-nav-link w-100 d-flex align-items-center justify-content-between">
-                            <div>
-                                @switch (feature.value.code) {
-                            <!--admin icon  -->
-                            @case (9000) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path
-                                    d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
-                                    opacity=".5" />
-                                <path fill-rule="evenodd"
-                                    d="M21.963 8.413a5.73 5.73 0 0 1-1.649 3.413a5.75 5.75 0 0 1-5.507 1.504a.9.9 0 0 0-.864.215l-1.53 1.53l-.002-.003l-1.458-1.441a.75.75 0 1 0-1.055 1.066l1.455 1.439l-.503.503a1.23 1.23 0 0 1-1.009.354l-1.74-.194a.82.82 0 0 1-.49-.235l-.174-.174a.82.82 0 0 1-.236-.49l-.193-1.741a1.23 1.23 0 0 1 .353-1.008l3.094-3.094a.9.9 0 0 0 .215-.864a5.75 5.75 0 0 1 1.505-5.507a5.73 5.73 0 0 1 3.413-1.648c.906.033 1.68.096 2.348.215a5.7 5.7 0 0 1 2.378 1.433a5.7 5.7 0 0 1 1.433 2.378c.12.668.182 1.442.216 2.349m-6.975-1.758a1.667 1.667 0 1 1 2.357 2.357a1.667 1.667 0 0 1-2.357-2.357"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            }
-                            <!-- attendance -->
-                            @case (8000) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
-                                    opacity=".5" />
-                                <path
-                                    d="M10.543 7.517a.75.75 0 1 0-1.086-1.034l-2.314 2.43l-.6-.63a.75.75 0 1 0-1.086 1.034l1.143 1.2a.75.75 0 0 0 1.086 0zM13 8.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5zm-2.457 6.267a.75.75 0 1 0-1.086-1.034l-2.314 2.43l-.6-.63a.75.75 0 1 0-1.086 1.034l1.143 1.2a.75.75 0 0 0 1.086 0zM13 15.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z" />
-                            </svg>
-                            }
-                            <!-- Operation development -->
-                            @case (1000) {
-                            <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor">
-                                <path
-                                    d="M22.0638 15.3321C23.5186 15.3321 24.6979 14.1527 24.6979 12.6979C24.6979 11.2431 23.5186 10.0638 22.0638 10.0638C20.609 10.0638 19.4296 11.2431 19.4296 12.6979C19.4296 14.1527 20.609 15.3321 22.0638 15.3321Z" />
-                                <path
-                                    d="M22.0638 5.96621C23.5186 5.96621 24.6979 4.78686 24.6979 3.33206C24.6979 1.87727 23.5186 0.697918 22.0638 0.697918C20.609 0.697918 19.4296 1.87727 19.4296 3.33206C19.4296 4.78686 20.609 5.96621 22.0638 5.96621Z" />
-                                <path
-                                    d="M22.0638 24.6979C23.5186 24.6979 24.6979 23.5186 24.6979 22.0638C24.6979 20.609 23.5186 19.4296 22.0638 19.4296C20.609 19.4296 19.4296 20.609 19.4296 22.0638C19.4296 23.5186 20.609 24.6979 22.0638 24.6979Z" />
-                                <path
-                                    d="M3.33206 15.3321C4.78686 15.3321 5.96621 14.1527 5.96621 12.6979C5.96621 11.2431 4.78686 10.0638 3.33206 10.0638C1.87726 10.0638 0.697914 11.2431 0.697914 12.6979C0.697914 14.1527 1.87726 15.3321 3.33206 15.3321Z" />
-                                <path opacity="0.4"
-                                    d="M20.893 13.576C21.373 13.576 21.7711 13.1779 21.7711 12.6979C21.7711 12.2179 21.373 11.8199 20.893 11.8199H12.4052V6.84426C12.4052 4.9945 13.1896 4.21011 15.0394 4.21011H20.893C21.373 4.21011 21.7711 3.81206 21.7711 3.33206C21.7711 2.85206 21.373 2.45401 20.893 2.45401H15.0394C12.2062 2.45401 10.6491 4.01109 10.6491 6.84426V11.8199H4.5028C4.0228 11.8199 3.62475 12.2179 3.62475 12.6979C3.62475 13.1779 4.0228 13.576 4.5028 13.576H10.6491V18.5516C10.6491 21.3847 12.2062 22.9418 15.0394 22.9418H20.893C21.373 22.9418 21.7711 22.5438 21.7711 22.0638C21.7711 21.5838 21.373 21.1857 20.893 21.1857H15.0394C13.1896 21.1857 12.4052 20.4013 12.4052 18.5516V13.576H20.893Z" />
-                            </svg>
-                            }
-                            <!-- payroll -->
-                            @case (6000) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path
-                                    d="M9 20h6c1.885 0 2.828 0 3.414-.586c.471-.471.563-1.174.581-2.414H5.004c.018 1.24.11 1.943.581 2.414C6.171 20 7.114 20 9 20"
-                                    opacity=".5" />
-                                <path
-                                    d="M11.25 6H9c-1.886 0-2.828 0-3.414.586S5 8.114 5 10v6q-.001.551.004 1h13.992q.005-.449.004-1v-6c0-1.886 0-2.828-.586-3.414S16.886 6 15 6h-2.25v4.973l.68-.794a.75.75 0 1 1 1.14.976l-2 2.333a.75.75 0 0 1-1.14 0l-2-2.333a.75.75 0 0 1 1.14-.976l.68.794z" />
-                                <path
-                                    d="M18.111 3H5.89C3.74 3 2 4.8 2 7.02c0 1.905 1.28 3.5 3 3.915V10c0-1.886 0-2.828.586-3.414S7.114 6 9 6h6c1.886 0 2.828 0 3.414.586S19 8.114 19 10v.935c1.72-.415 3-2.01 3-3.915C22 4.8 20.259 3 18.111 3"
-                                    opacity=".5" />
-                            </svg>
-                            }
-                            <!-- personnel -->
-                            @case (3000) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
-                                <path
-                                    d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
-                                    opacity=".4" />
-                                <path
-                                    d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
-                                <path
-                                    d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
-                                    opacity=".4" />
-                            </svg>
-                            }
-                            <!-- recruitment -->
-                            @case (2000) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor">
-                                <path d="M16 6a4 4 0 1 1-8 0a4 4 0 0 1 8 0" />
-                                <path
-                                    d="M14.477 21.92c-.726.053-1.547.08-2.477.08c-8 0-8-2.015-8-4.5S7.582 13 12 13c2.88 0 5.406.856 6.814 2.141C18.298 15 17.574 15 16.5 15c-1.65 0-2.475 0-2.987.513C13 16.025 13 16.85 13 18.5s0 2.475.513 2.987c.237.238.542.365.964.434"
-                                    opacity=".5" />
-                                <path
-                                    d="M16.5 22c-1.65 0-2.475 0-2.987-.513C13 20.975 13 20.15 13 18.5s0-2.475.513-2.987C14.025 15 14.85 15 16.5 15s2.475 0 2.987.513C20 16.025 20 16.85 20 18.5s0 2.475-.513 2.987C18.975 22 18.15 22 16.5 22m.583-5.056a.583.583 0 1 0-1.166 0v.973h-.973a.583.583 0 1 0 0 1.166h.973v.973a.583.583 0 1 0 1.166 0v-.973h.973a.583.583 0 1 0 0-1.166h-.973z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            }
-
-
-                            @default {
-                            <svg width="24" height="24" fill="currentColor">
-                                <circle cx="12" cy="12" r="10" />
-                            </svg>
-                            }
-                            }
-                            <span>{{ feature.value.name }}</span>
+    <!-- step 2 -->
+    @if (currentStep === 2) {
+    <div class="content-hug">
+        <div class="content-box d-flex flex-column gap-3">
+            <h2>Permissions</h2>
+            <div class="d-flex align-items-stretch w-100">
+                <div class="column">
+                    <div class="header">Modules</div>
+                    <ul class="col-data">
+                        @for (feature of mappedData | keyvalue; track feature.key) {
+                        <li class="sidenav-nav-item" [class.active]="selectedMain?.name === feature.value.name"
+                            (click)="selectMain(feature.value)">
+                            <a class="sidenav-nav-link w-100 d-flex align-items-center justify-content-between">
+                                <div>
+                                    @switch (feature.value.code) {
+                                    <!--admin icon  -->
+                                    @case (9000) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path
+                                            d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
+                                            opacity=".5" />
+                                        <path fill-rule="evenodd"
+                                            d="M21.963 8.413a5.73 5.73 0 0 1-1.649 3.413a5.75 5.75 0 0 1-5.507 1.504a.9.9 0 0 0-.864.215l-1.53 1.53l-.002-.003l-1.458-1.441a.75.75 0 1 0-1.055 1.066l1.455 1.439l-.503.503a1.23 1.23 0 0 1-1.009.354l-1.74-.194a.82.82 0 0 1-.49-.235l-.174-.174a.82.82 0 0 1-.236-.49l-.193-1.741a1.23 1.23 0 0 1 .353-1.008l3.094-3.094a.9.9 0 0 0 .215-.864a5.75 5.75 0 0 1 1.505-5.507a5.73 5.73 0 0 1 3.413-1.648c.906.033 1.68.096 2.348.215a5.7 5.7 0 0 1 2.378 1.433a5.7 5.7 0 0 1 1.433 2.378c.12.668.182 1.442.216 2.349m-6.975-1.758a1.667 1.667 0 1 1 2.357 2.357a1.667 1.667 0 0 1-2.357-2.357"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    }
+                                    <!-- attendance -->
+                                    @case (8000) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
+                                            opacity=".5" />
+                                        <path
+                                            d="M10.543 7.517a.75.75 0 1 0-1.086-1.034l-2.314 2.43l-.6-.63a.75.75 0 1 0-1.086 1.034l1.143 1.2a.75.75 0 0 0 1.086 0zM13 8.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5zm-2.457 6.267a.75.75 0 1 0-1.086-1.034l-2.314 2.43l-.6-.63a.75.75 0 1 0-1.086 1.034l1.143 1.2a.75.75 0 0 0 1.086 0zM13 15.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z" />
+                                    </svg>
+                                    }
+                                    <!-- Operation development -->
+                                    @case (1000) {
+                                    <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor">
+                                        <path
+                                            d="M22.0638 15.3321C23.5186 15.3321 24.6979 14.1527 24.6979 12.6979C24.6979 11.2431 23.5186 10.0638 22.0638 10.0638C20.609 10.0638 19.4296 11.2431 19.4296 12.6979C19.4296 14.1527 20.609 15.3321 22.0638 15.3321Z" />
+                                        <path
+                                            d="M22.0638 5.96621C23.5186 5.96621 24.6979 4.78686 24.6979 3.33206C24.6979 1.87727 23.5186 0.697918 22.0638 0.697918C20.609 0.697918 19.4296 1.87727 19.4296 3.33206C19.4296 4.78686 20.609 5.96621 22.0638 5.96621Z" />
+                                        <path
+                                            d="M22.0638 24.6979C23.5186 24.6979 24.6979 23.5186 24.6979 22.0638C24.6979 20.609 23.5186 19.4296 22.0638 19.4296C20.609 19.4296 19.4296 20.609 19.4296 22.0638C19.4296 23.5186 20.609 24.6979 22.0638 24.6979Z" />
+                                        <path
+                                            d="M3.33206 15.3321C4.78686 15.3321 5.96621 14.1527 5.96621 12.6979C5.96621 11.2431 4.78686 10.0638 3.33206 10.0638C1.87726 10.0638 0.697914 11.2431 0.697914 12.6979C0.697914 14.1527 1.87726 15.3321 3.33206 15.3321Z" />
+                                        <path opacity="0.4"
+                                            d="M20.893 13.576C21.373 13.576 21.7711 13.1779 21.7711 12.6979C21.7711 12.2179 21.373 11.8199 20.893 11.8199H12.4052V6.84426C12.4052 4.9945 13.1896 4.21011 15.0394 4.21011H20.893C21.373 4.21011 21.7711 3.81206 21.7711 3.33206C21.7711 2.85206 21.373 2.45401 20.893 2.45401H15.0394C12.2062 2.45401 10.6491 4.01109 10.6491 6.84426V11.8199H4.5028C4.0228 11.8199 3.62475 12.2179 3.62475 12.6979C3.62475 13.1779 4.0228 13.576 4.5028 13.576H10.6491V18.5516C10.6491 21.3847 12.2062 22.9418 15.0394 22.9418H20.893C21.373 22.9418 21.7711 22.5438 21.7711 22.0638C21.7711 21.5838 21.373 21.1857 20.893 21.1857H15.0394C13.1896 21.1857 12.4052 20.4013 12.4052 18.5516V13.576H20.893Z" />
+                                    </svg>
+                                    }
+                                    <!-- payroll -->
+                                    @case (6000) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path
+                                            d="M9 20h6c1.885 0 2.828 0 3.414-.586c.471-.471.563-1.174.581-2.414H5.004c.018 1.24.11 1.943.581 2.414C6.171 20 7.114 20 9 20"
+                                            opacity=".5" />
+                                        <path
+                                            d="M11.25 6H9c-1.886 0-2.828 0-3.414.586S5 8.114 5 10v6q-.001.551.004 1h13.992q.005-.449.004-1v-6c0-1.886 0-2.828-.586-3.414S16.886 6 15 6h-2.25v4.973l.68-.794a.75.75 0 1 1 1.14.976l-2 2.333a.75.75 0 0 1-1.14 0l-2-2.333a.75.75 0 0 1 1.14-.976l.68.794z" />
+                                        <path
+                                            d="M18.111 3H5.89C3.74 3 2 4.8 2 7.02c0 1.905 1.28 3.5 3 3.915V10c0-1.886 0-2.828.586-3.414S7.114 6 9 6h6c1.886 0 2.828 0 3.414.586S19 8.114 19 10v.935c1.72-.415 3-2.01 3-3.915C22 4.8 20.259 3 18.111 3"
+                                            opacity=".5" />
+                                    </svg>
+                                    }
+                                    <!-- personnel -->
+                                    @case (3000) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path d="M15.5 7.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0" />
+                                        <path
+                                            d="M19.5 7.5a2.5 2.5 0 1 1-5 0a2.5 2.5 0 0 1 5 0m-15 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 0 0-5 0"
+                                            opacity=".4" />
+                                        <path
+                                            d="M18 16.5c0 1.933-2.686 3.5-6 3.5s-6-1.567-6-3.5S8.686 13 12 13s6 1.567 6 3.5" />
+                                        <path
+                                            d="M22 16.5c0 1.38-1.79 2.5-4 2.5s-4-1.12-4-2.5s1.79-2.5 4-2.5s4 1.12 4 2.5m-20 0C2 17.88 3.79 19 6 19s4-1.12 4-2.5S8.21 14 6 14s-4 1.12-4 2.5"
+                                            opacity=".4" />
+                                    </svg>
+                                    }
+                                    <!-- recruitment -->
+                                    @case (2000) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path d="M16 6a4 4 0 1 1-8 0a4 4 0 0 1 8 0" />
+                                        <path
+                                            d="M14.477 21.92c-.726.053-1.547.08-2.477.08c-8 0-8-2.015-8-4.5S7.582 13 12 13c2.88 0 5.406.856 6.814 2.141C18.298 15 17.574 15 16.5 15c-1.65 0-2.475 0-2.987.513C13 16.025 13 16.85 13 18.5s0 2.475.513 2.987c.237.238.542.365.964.434"
+                                            opacity=".5" />
+                                        <path
+                                            d="M16.5 22c-1.65 0-2.475 0-2.987-.513C13 20.975 13 20.15 13 18.5s0-2.475.513-2.987C14.025 15 14.85 15 16.5 15s2.475 0 2.987.513C20 16.025 20 16.85 20 18.5s0 2.475-.513 2.987C18.975 22 18.15 22 16.5 22m.583-5.056a.583.583 0 1 0-1.166 0v.973h-.973a.583.583 0 1 0 0 1.166h.973v.973a.583.583 0 1 0 1.166 0v-.973h.973a.583.583 0 1 0 0-1.166h-.973z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    }
 
 
-                            </div>
-                            
-                            @if(hasSelectedInMain(feature.value)){
-                                 <div class="number">
-                                {{ getMainProgress(feature.value) }}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                    viewBox="0 0 24 24">
-                                    <path fill="currentColor"
-                                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            }
-                           
-                        </a>
-                    </li>
-                    }
-                </ul>
+                                    @default {
+                                    <svg width="24" height="24" fill="currentColor">
+                                        <circle cx="12" cy="12" r="10" />
+                                    </svg>
+                                    }
+                                    }
+                                    <span>{{ feature.value.name }}</span>
 
 
-            </div>
-            <div class="column">
-                <div class="header">Services</div>
-                <ul class="col-data">
-                    @if (selectedMain) {
-                    @for (sub of selectedMain.sub_list; track sub.sub.id) {
-                    <li class="sidenav-nav-item" [class.active]="selectedSub?.sub?.id === sub.sub.id"
-                        (click)="selectSub(sub)">
-                        <a class="sidenav-nav-link w-100 d-flex align-items-center justify-content-between">
-                            <div>
-                                @switch (sub.sub.code) {
-                                <!-- user -->
-                                @case (1602) {
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M9 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M5.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
-                                        clip-rule="evenodd" />
-                                    <path
-                                        d="M15 2.25a.75.75 0 0 0 0 1.5a2.25 2.25 0 0 1 0 4.5a.75.75 0 0 0 0 1.5a3.75 3.75 0 1 0 0-7.5" />
-                                    <path fill-rule="evenodd"
-                                        d="M3.678 13.52c1.4-.8 3.283-1.27 5.322-1.27s3.922.47 5.322 1.27c1.378.788 2.428 1.99 2.428 3.48s-1.05 2.692-2.428 3.48c-1.4.8-3.283 1.27-5.322 1.27s-3.922-.47-5.322-1.27C2.3 19.692 1.25 18.49 1.25 17s1.05-2.692 2.428-3.48m.744 1.303C3.267 15.483 2.75 16.28 2.75 17s.517 1.517 1.672 2.177C5.556 19.825 7.173 20.25 9 20.25s3.444-.425 4.578-1.073c1.155-.66 1.672-1.458 1.672-2.177s-.517-1.517-1.672-2.177C12.444 14.175 10.827 13.75 9 13.75s-3.444.425-4.578 1.073"
-                                        clip-rule="evenodd" />
-                                    <path
-                                        d="M18.16 13.267a.75.75 0 0 0-.32 1.466c.792.173 1.425.472 1.843.814s.567.677.567.953c0 .25-.12.545-.453.854c-.335.311-.85.598-1.513.798a.75.75 0 1 0 .432 1.437c.823-.248 1.558-.631 2.102-1.136c.546-.507.932-1.174.932-1.953c0-.865-.474-1.588-1.117-2.114c-.644-.527-1.51-.908-2.472-1.119" />
-                                </svg>
-                                }
-                                <!-- roles -->
-                                @case (1601) {
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M15.75 6a3.75 3.75 0 1 0-7.5 0a3.75 3.75 0 0 0 7.5 0M12 3.75a2.25 2.25 0 1 1 0 4.5a2.25 2.25 0 0 1 0-4.5M9.25 18a3.75 3.75 0 1 0-7.5 0a3.75 3.75 0 0 0 7.5 0M5.5 15.75a2.25 2.25 0 1 1 0 4.5a2.25 2.25 0 0 1 0-4.5m13-1.5a3.75 3.75 0 1 1 0 7.5a3.75 3.75 0 0 1 0-7.5M20.75 18a2.25 2.25 0 1 0-4.5 0a2.25 2.25 0 0 0 4.5 0"
-                                        clip-rule="evenodd" />
-                                    <path
-                                        d="M7.205 7.562a.75.75 0 0 0-.993-1.124A8.73 8.73 0 0 0 3.25 13a.75.75 0 0 0 1.5 0a7.23 7.23 0 0 1 2.455-5.438m10.583-1.124a.75.75 0 0 0-.993 1.124A7.23 7.23 0 0 1 19.25 13a.75.75 0 0 0 1.5 0a8.73 8.73 0 0 0-2.962-6.562m-7.601 13.584a.75.75 0 1 0-.374 1.452a8.8 8.8 0 0 0 4.374 0a.75.75 0 1 0-.374-1.452A7.3 7.3 0 0 1 12 20.25a7.3 7.3 0 0 1-1.813-.228" />
-                                </svg>
-                                }
-                                @default {
-                                <svg width="24" height="24" fill="currentColor">
-                                    <circle cx="12" cy="12" r="10" />
-                                </svg>
-                                }
-                                }
-                                <span>{{ sub.sub.name }}</span>
-                            </div>
-                            @if((selectedActionsMap.get(sub.sub.id)?.size || 0) > 0){
+                                </div>
+
+                                @if(hasSelectedInMain(feature.value)){
                                 <div class="number">
-                               {{ getSubProgress(sub) }}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                    viewBox="0 0 24 24">
-                                    <path fill="currentColor"
-                                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            }
-                            
+                                    {{ getMainProgress(feature.value) }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                                        <path fill="currentColor" fill-rule="evenodd"
+                                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                }
 
-                        </a>
-                    </li>
-                    }
-                    }
-                </ul>
+                            </a>
+                        </li>
+                        }
+                    </ul>
 
-            </div>
-            <div class="column">
-                <div class="header">Actions</div>
-                <div class="col-data">
-                    @if (selectedSub) {
-                    <div class="action-head mt-2 d-flex align-items-center justify-content-between p-3 mb-2" [ngClass]="{ 'active-head': hasAnySelected(selectedSub) }">
-                        <h6 class="mb-0">{{ selectedSub.sub.name }} - Actions</h6>
 
-                        <div class="form-check d-flex align-items-center m-0">
-                            <!-- input مخفي -->
-                            <input class="d-none" type="checkbox" [id]="'selectAll-' + selectedSub.sub.id"
-                                (change)="toggleSelectAllForSub(selectedSub, $event)"
-                                [checked]="isAllSelected(selectedSub)">
-
-                            <label class="form-check-label m-0 d-flex align-items-center gap-2"
-                                [for]="'selectAll-' + selectedSub.sub.id">
-
-                                <span [ngClass]="{ 'fw-bold': isAllSelected(selectedSub) }">
-                                    Select All
-                                </span>
-
-                                <span class="d-flex align-items-center justify-content-center"
-                                    style="width:22px; height:22px">
-                                    @if (isAllSelected(selectedSub)) {
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                </div>
+                <div class="column">
+                    <div class="header">Services</div>
+                    <ul class="col-data">
+                        @if (selectedMain) {
+                        @for (sub of selectedMain.sub_list; track sub.sub.id) {
+                        <li class="sidenav-nav-item" [class.active]="selectedSub?.sub?.id === sub.sub.id"
+                            (click)="selectSub(sub)">
+                            <a class="sidenav-nav-link w-100 d-flex align-items-center justify-content-between">
+                                <div>
+                                    @switch (sub.sub.code) {
+                                    <!-- user -->
+                                    @case (1602) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <path fill-rule="evenodd"
-                                            d="M15.493 6.935a.75.75 0 0 1 .072 1.058l-7.857 9a.75.75 0 0 1-1.13 0l-3.143-3.6a.75.75 0 0 1 1.13-.986l2.578 2.953l7.292-8.353a.75.75 0 0 1 1.058-.072m5.025.085c.3.285.311.76.025 1.06l-8.571 9a.75.75 0 0 1-1.14-.063l-.429-.563a.75.75 0 0 1 1.076-1.032l7.978-8.377a.75.75 0 0 1 1.06-.026"
+                                            d="M9 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M5.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
+                                            clip-rule="evenodd" />
+                                        <path
+                                            d="M15 2.25a.75.75 0 0 0 0 1.5a2.25 2.25 0 0 1 0 4.5a.75.75 0 0 0 0 1.5a3.75 3.75 0 1 0 0-7.5" />
+                                        <path fill-rule="evenodd"
+                                            d="M3.678 13.52c1.4-.8 3.283-1.27 5.322-1.27s3.922.47 5.322 1.27c1.378.788 2.428 1.99 2.428 3.48s-1.05 2.692-2.428 3.48c-1.4.8-3.283 1.27-5.322 1.27s-3.922-.47-5.322-1.27C2.3 19.692 1.25 18.49 1.25 17s1.05-2.692 2.428-3.48m.744 1.303C3.267 15.483 2.75 16.28 2.75 17s.517 1.517 1.672 2.177C5.556 19.825 7.173 20.25 9 20.25s3.444-.425 4.578-1.073c1.155-.66 1.672-1.458 1.672-2.177s-.517-1.517-1.672-2.177C12.444 14.175 10.827 13.75 9 13.75s-3.444.425-4.578 1.073"
+                                            clip-rule="evenodd" />
+                                        <path
+                                            d="M18.16 13.267a.75.75 0 0 0-.32 1.466c.792.173 1.425.472 1.843.814s.567.677.567.953c0 .25-.12.545-.453.854c-.335.311-.85.598-1.513.798a.75.75 0 1 0 .432 1.437c.823-.248 1.558-.631 2.102-1.136c.546-.507.932-1.174.932-1.953c0-.865-.474-1.588-1.117-2.114c-.644-.527-1.51-.908-2.472-1.119" />
+                                    </svg>
+                                    }
+                                    <!-- roles -->
+                                    @case (1601) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M15.75 6a3.75 3.75 0 1 0-7.5 0a3.75 3.75 0 0 0 7.5 0M12 3.75a2.25 2.25 0 1 1 0 4.5a2.25 2.25 0 0 1 0-4.5M9.25 18a3.75 3.75 0 1 0-7.5 0a3.75 3.75 0 0 0 7.5 0M5.5 15.75a2.25 2.25 0 1 1 0 4.5a2.25 2.25 0 0 1 0-4.5m13-1.5a3.75 3.75 0 1 1 0 7.5a3.75 3.75 0 0 1 0-7.5M20.75 18a2.25 2.25 0 1 0-4.5 0a2.25 2.25 0 0 0 4.5 0"
+                                            clip-rule="evenodd" />
+                                        <path
+                                            d="M7.205 7.562a.75.75 0 0 0-.993-1.124A8.73 8.73 0 0 0 3.25 13a.75.75 0 0 0 1.5 0a7.23 7.23 0 0 1 2.455-5.438m10.583-1.124a.75.75 0 0 0-.993 1.124A7.23 7.23 0 0 1 19.25 13a.75.75 0 0 0 1.5 0a8.73 8.73 0 0 0-2.962-6.562m-7.601 13.584a.75.75 0 1 0-.374 1.452a8.8 8.8 0 0 0 4.374 0a.75.75 0 1 0-.374-1.452A7.3 7.3 0 0 1 12 20.25a7.3 7.3 0 0 1-1.813-.228" />
+                                    </svg>
+                                    }
+                                    @default {
+                                    <svg width="24" height="24" fill="currentColor">
+                                        <circle cx="12" cy="12" r="10" />
+                                    </svg>
+                                    }
+                                    }
+                                    <span>{{ sub.sub.name }}</span>
+                                </div>
+                                <!-- @if((selectedActionsMap.get(sub.sub.id.toString())?.size || 0) > 0){ -->
+                                @if(getSelectedCount(sub) > 0) {
+                                <div class="number">
+                                    {{ getSubProgress(sub) }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                                        <path fill="currentColor" fill-rule="evenodd"
+                                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                }
+
+
+                            </a>
+                        </li>
+                        }
+                        }
+                    </ul>
+
+                </div>
+                <div class="column">
+                    <div class="header">Actions</div>
+                    <div class="col-data">
+                        @if (selectedSub) {
+                        <div class="action-head mt-2 d-flex align-items-center justify-content-between p-3 mb-2"
+                            [ngClass]="{ 'active-head': hasAnySelected(selectedSub) }">
+                            <h6 class="mb-0">{{ selectedSub.sub.name }} - Actions</h6>
+
+                            <div class="form-check d-flex align-items-center m-0">
+                                <!-- input مخفي -->
+                                <input class="d-none" type="checkbox" [id]="'selectAll-' + selectedSub.sub.id"
+                                    (change)="toggleSelectAllForSub(selectedSub, $event)"
+                                    [checked]="isAllSelected(selectedSub)">
+
+                                <label class="form-check-label m-0 d-flex align-items-center gap-2"
+                                    [for]="'selectAll-' + selectedSub.sub.id">
+
+                                    <span [ngClass]="{ 'fw-bold': isAllSelected(selectedSub) }">
+                                        Select All
+                                    </span>
+
+                                    <span class="d-flex align-items-center justify-content-center"
+                                        style="width:22px; height:22px">
+                                        @if (isAllSelected(selectedSub)) {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                            viewBox="0 0 24 24" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M15.493 6.935a.75.75 0 0 1 .072 1.058l-7.857 9a.75.75 0 0 1-1.13 0l-3.143-3.6a.75.75 0 0 1 1.13-.986l2.578 2.953l7.292-8.353a.75.75 0 0 1 1.058-.072m5.025.085c.3.285.311.76.025 1.06l-8.571 9a.75.75 0 0 1-1.14-.063l-.429-.563a.75.75 0 0 1 1.076-1.032l7.978-8.377a.75.75 0 0 1 1.06-.026"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        } @else {
+                                        <span class="d-inline-block bg-light border rounded"
+                                            style="width:18px; height:2px"></span>
+                                        }
+                                    </span>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <div class="p-3 mt-2 d-flex align-items-center gap-3 flex-wrap">
+                            @if (getFilteredActions(selectedSub).length > 0) {
+                            @for (action of getFilteredActions(selectedSub); track action.name) {
+                            <label class="form-check action-box d-flex align-items-center gap-2"
+                                [class.active]="isSelected(selectedSub, action.name)">
+                                <span class="d-flex align-items-center justify-content-center"
+                                    style="width:22px; height:22px">
+                                    @if (isSelected(selectedSub, action.name)) {
+                                    <!-- checked icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                                        <path fill="currentColor" fill-rule="evenodd"
+                                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                                             clip-rule="evenodd" />
                                     </svg>
                                     } @else {
-                                    <span class="d-inline-block bg-light border rounded"
-                                        style="width:18px; height:2px"></span>
+                                    <!-- plus icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25z" />
+                                        <path fill="currentColor" fill-rule="evenodd"
+                                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                            clip-rule="evenodd" />
+                                    </svg>
                                     }
                                 </span>
+
+                                <input class="form-check-input d-none" type="checkbox"
+                                    [checked]="isSelected(selectedSub, action.name)"
+                                    (change)="toggleActionForSub(selectedSub, action.name, $event)">
+                                <span class="form-check-label m-0">{{ action.name }}</span>
                             </label>
+                            }
+                            } @else {
+                            <p class="text-muted">No Actions Available</p>
+                            }
                         </div>
 
-                    </div>
 
-                    <div class="p-3 mt-2 d-flex align-items-center gap-3 flex-wrap">
-                        @if (getFilteredActions(selectedSub).length > 0) {
-                        @for (action of getFilteredActions(selectedSub); track action.name) {
-                        <label class="form-check action-box d-flex align-items-center gap-2"
-                            [class.active]="isSelected(selectedSub, action.name)">
-                            <span class="d-flex align-items-center justify-content-center"
-                                style="width:22px; height:22px">
-                                @if (isSelected(selectedSub, action.name)) {
-                                <!-- checked icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                    <path fill="currentColor"
-                                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                } @else {
-                                <!-- plus icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                    <path fill="currentColor"
-                                        d="M12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25z" />
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                }
-                            </span>
-
-                            <input class="form-check-input d-none" type="checkbox"
-                                [checked]="isSelected(selectedSub, action.name)"
-                                (change)="toggleActionForSub(selectedSub, action.name, $event)">
-                            <span class="form-check-label m-0">{{ action.name }}</span>
-                        </label>
-                        }
-                        } @else {
-                        <p class="text-muted">No Actions Available</p>
                         }
                     </div>
-
-
-                    }
                 </div>
             </div>
-        </div>
 
 
-        @if (errMsg) {
-        <div class="alert alert-danger mb-0 mt-3" role="alert">
-            {{errMsg}}
-        </div>
-        }
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg btn-primary" [disabled]="isLoading" (click)="goNext()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                </svg>
-                <span>Next (2/3)</span>
-            </button>
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-3" role="alert">
+                {{errMsg}}
+            </div>
+            }
+            <!-- prev and confirm buttons -->
+            <div class="btn-fixed d-flex align-items-stretch gap-2">
+                <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                    (click)="goPrev()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                    </svg>
+                </button>
+                <button class="btn btn-lg btn-primary" (click)="goNext()"
+                    [disabled]="isLoading || !hasAnySelectedPermission()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                    </svg>
+                    <span>Next (2/3)</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
-}
+    }
 
-<!-- step 3 -->
-@if (currentStep === 3) {
-<div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Users</h2>
-        <form>
+    <!-- step 3 -->
+    @if (currentStep === 3) {
+    <div class="content-hug">
+        <div class="content-box d-flex flex-column gap-3">
+            <h2>Users</h2>
+            <!-- <form> -->
 
             @if (errMsg) {
             <div class="alert alert-danger mb-0 mt-3" role="alert">
@@ -521,36 +523,36 @@
                     <span>Add User</span>
                 </a>
             </div>
-        </form>
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg btn-success">
-                @if (isLoading) {
-                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                }
-                @if (!isLoading) {
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                }
-                <span>Create Role</span>
-            </button>
+            <!-- </form> -->
+            <!-- prev and confirm buttons -->
+            <div class="btn-fixed d-flex align-items-stretch gap-2">
+                <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                    (click)="goPrev()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                    </svg>
+                </button>
+                <button class="btn btn-lg btn-success" (click)="createRole()">
+                    @if (isLoading) {
+                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                    }
+                    @if (!isLoading) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    }
+                    <span>{{isEditMode ? 'Save Changes' : 'Create Role'}}</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
-}
+    }
 
-
+</form>
 
 <!-- Discard popup  -->
 <app-popup [title]="'Discard Role'" [paragraph1]="'Are you sure you want to discard creating the new Role?'"
