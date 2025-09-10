@@ -1,0 +1,28 @@
+<app-page-header
+  [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Requests', link: '/requests' },
+    { label: 'Create New Request' }
+  ]" 
+  title="Create New Request">
+</app-page-header>
+
+<app-stepper-navigation></app-stepper-navigation>
+
+<form [formGroup]="sharedService.requestForm" (ngSubmit)="onSubmit()">
+  <app-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-main-information-step>
+  <app-request-details-step [hidden]="sharedService.currentStep() !== 2" (submitForm)="onSubmit()"></app-request-details-step>
+</form>
+
+@if (sharedService.isModalOpen()) {
+  <app-popup
+    (confirmAction)="confirmAction()"
+    (cancelAction)="closeModal()">
+  </app-popup>
+}
+
+@if (sharedService.isSuccessModalOpen()) {
+  <app-popup
+    (confirmAction)="viewRequests()">
+  </app-popup>
+}

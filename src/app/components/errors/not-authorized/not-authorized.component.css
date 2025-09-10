@@ -1,0 +1,17 @@
+img{
+    width:270px;
+}
+h2{
+    font-weight: 600;
+    color: var(--color-danger-500);
+    font-size: var(--font-size-h1);
+}
+h3{
+    font-weight: 600;
+    color: var(--color-danger-700);
+    font-size: var(--font-size-b1);
+}
+p{
+    color: var(--color-secondary-600);
+    font-size: var(--font-size-b2);
+}

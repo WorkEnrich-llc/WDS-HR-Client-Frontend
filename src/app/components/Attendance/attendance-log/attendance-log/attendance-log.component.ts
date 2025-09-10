@@ -1,6 +1,6 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -22,10 +22,12 @@ import { AttendanceLogService } from '../../../../core/services/attendance/atten
 export class AttendanceLogComponent {
 
   constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private fb: FormBuilder) { }
+    private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+
+
 
 
 
@@ -155,26 +157,26 @@ export class AttendanceLogComponent {
     return date;
   }
 
-getRowStatus(isWorkingDay: boolean): string {
-  const allFalse = this.attendanceLogs.every(a => !a.is_working_day);
-  const hasTrue = this.attendanceLogs.some(a => a.is_working_day);
+  getRowStatus(isWorkingDay: boolean): string {
+    const allFalse = this.attendanceLogs.every(a => !a.is_working_day);
+    const hasTrue = this.attendanceLogs.some(a => a.is_working_day);
 
-  if (allFalse) {
-    return 'Holiday';
+    if (allFalse) {
+      return 'Holiday';
+    }
+
+    if (hasTrue && !allFalse) {
+      return isWorkingDay ? 'Working Day' : 'Day Off';
+    }
+
+    return 'Working Day';
   }
-
-  if (hasTrue && !allFalse) {
-    return isWorkingDay ? 'Working Day' : 'Day Off';
-  }
-
-  return 'Working Day';
-}
 
   // calender 
   generateDays(startDate: Date): void {
     this.days = [];
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 13; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
 
@@ -253,5 +255,10 @@ getRowStatus(isWorkingDay: boolean): string {
     this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
   }
 
+
+  navigateToNewLog(): void {
+    console.log("Navigate to new log");
+    this.router.navigate(['/attendance/manage-attendance']);
+  }
 
 }

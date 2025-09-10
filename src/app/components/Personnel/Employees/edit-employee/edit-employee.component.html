@@ -1,14 +1,20 @@
-<!-- page header -->
-<app-page-header [breadcrumbs]="[
+<app-page-header
+  [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
     { label: 'Edit Employee' }
-  ]" title="Edit Employee - Employee ID" create="23/06/2025" update="23/06/2025">
-  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" [disabled]="employeeForm.pristine || employeeForm.invalid">
-    @if (isLoading) {
-      <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+  ]" 
+  title="Edit Employee - Employee ID" 
+  create="23/06/2025" 
+  update="23/06/2025">
+  
+  <button class="btn btn-lg btn-success w-auto" 
+    (click)="onSubmit()" 
+    [disabled]="sharedService.employeeForm.invalid || sharedService.isLoading()">
+    @if (sharedService.isLoading()) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
-    @if (!isLoading) {
+    @if (!sharedService.isLoading()) {
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10" />
@@ -30,127 +36,27 @@
   </button>
 </app-page-header>
 
-<div class="content-hug" >
-  <div class="content-box d-flex flex-column gap-3">
-    <h2>Contact Information</h2>
-    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="w-lg-50 d-flex flex-column gap-2">
-      <div class="input">
-        <label for="empId">ID (Optional)</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input formControlName="empId" type="text" id="empId" class="form-control custom-date-input" placeholder="0050" />
-        </div>
-        @if (hasFieldError('empId')) {
-          <p class="error-msg">
-            {{getFieldError('empId')}}
-          </p>
-        }
-      </div>
+<app-edit-stepper-navigation></app-edit-stepper-navigation>
 
-      <div class="input">
-        <label for="fullName">Full Name <span>*</span></label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input formControlName="fullName" type="text" id="fullName" class="form-control custom-date-input"
-            placeholder="Enter Full Name" />
-          </div>
-          @if (employeeForm.get('fullName')?.touched && employeeForm.get('fullName')?.errors?.['required']) {
-            <p class="error-msg"
-              >
-              Full Name is required.
-            </p>
-          }
-          @if (hasFieldError('fullName')) {
-            <p class="error-msg">
-              {{getFieldError('fullName')}}
-            </p>
-          }
-        </div>
+<form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
+  <app-edit-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-edit-main-information-step>
+  <app-edit-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-edit-job-details-step>
+  <app-edit-attendance-details-step [hidden]="sharedService.currentStep() !== 3"></app-edit-attendance-details-step>
+  <app-edit-contract-details-step [hidden]="sharedService.currentStep() !== 4" (submitForm)="onSubmit()"></app-edit-contract-details-step>
+</form>
 
-        <div class="input">
-          <label for="phone">Phone Number</label>
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input formControlName="phone" type="text" id="phone" class="form-control custom-date-input"
-              placeholder="xx xxx xxx xxx" />
-            </div>
-            @if (employeeForm.get('phone')?.touched && employeeForm.get('phone')?.errors?.['required']) {
-              <p class="error-msg"
-                >
-                Phone is required.
-              </p>
-            }
-            @if (hasFieldError('phone')) {
-              <p class="error-msg">
-                {{getFieldError('phone')}}
-              </p>
-            }
-          </div>
-
-          <div class="input">
-            <label for="email">Personal Email</label>
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input formControlName="email" type="email" id="email" class="form-control custom-date-input"
-                placeholder="test@mail.com" />
-              </div>
-              @if (employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  Email is required.
-                </p>
-              }
-              @if (employeeForm.get('email')?.touched && employeeForm.get('email')?.errors?.['email']) {
-                <p class="error-msg"
-                  >
-                  Enter Correct Email.
-                </p>
-              }
-              @if (hasFieldError('email')) {
-                <p class="error-msg">
-                  {{getFieldError('email')}}
-                </p>
-              }
-            </div>
-
-
-            @if (errMsg) {
-              <div class="alert alert-danger mb-0 mt-3" role="alert">
-                {{errMsg}}
-              </div>
-            }
-
-
-
-          </form>
-
-
-
-          <!-- Save Changes button -->
-          <div class="btn-fixed">
-            <button type="submit" class="btn btn-lg btn-success" (click)="onSubmit()"  [disabled]="employeeForm.pristine || employeeForm.invalid">
-              @if (isLoading) {
-                <span  class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-              }
-              @if (!isLoading) {
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                  </g>
-                </svg>
-              }
-              <span>Save Changes</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-
-
-      <!-- Discard popup  -->
-      <app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard update Ahmed?'"
-        [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-        <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-          Discard Changes
-        </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-          Cancel
-        </button>
-      </app-popup>
+@if (sharedService.isModalOpen()) {
+  <app-popup
+    [title]="'Discard Changes'"
+    [paragraph1]="'Are you sure you want to discard changes?'"
+    [paragraph2]="'This action cannot be undone!'"
+    [isOpen]="sharedService.isModalOpen()"
+    (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+      Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+      Cancel
+    </button>
+  </app-popup>
+}

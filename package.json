@@ -27,9 +27,11 @@
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.5.0",
     "device-detector-js": "^3.0.3",
     "firebase": "^11.9.1",
     "ng-otp-input": "^2.0.7",
+    "ng2-charts": "^8.0.0",
     "ng2-pdf-viewer": "^10.4.0",
     "ngx-cookie-service": "^20.0.0",
     "ngx-country-picker": "^3.0.0",
@@ -55,16 +57,14 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.8.3"
   },
-"overrides": {
-  "@fullcalendar/angular": {
-    "@angular/common": "20.0.3",
-    "@angular/core": "20.0.3"
-  },
-  "ngx-country-picker": {
-    "@angular/common": "20.0.3",
-    "@angular/core": "20.0.3"
+  "overrides": {
+    "@fullcalendar/angular": {
+      "@angular/common": "20.0.3",
+      "@angular/core": "20.0.3"
+    },
+    "ngx-country-picker": {
+      "@angular/common": "20.0.3",
+      "@angular/core": "20.0.3"
+    }
   }
-}
-
-
 }

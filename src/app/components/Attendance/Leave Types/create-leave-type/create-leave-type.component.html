@@ -134,26 +134,7 @@
                             </p>
                           }
                         </div>
-                        <div class="input">
-                          <label for="permissionType">Permission Type</label>
-                          <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                              <select name="permissionType" formControlName="PermissionType" id="permissionType"
-                                class="form-select">
-                                <option value="" disabled selected hidden>Select Type</option>
-                                <option value="early_leave">Early Leave</option>
-                                <option value="late_arrive">Late Arrive</option>
-                                <option value="day_off">Day Off</option>
-                              </select>
-                            </div>
-                          </div>
-                          @if (leaveType1.get('PermissionType')?.touched && leaveType1.get('PermissionType')?.errors?.['required']) {
-                            <p class="error-msg"
-                              >
-                              Permission Type is required.
-                            </p>
-                          }
-                        </div>
+                        
                         <div class="input">
                           <label for="desc">Leave Type Description (Optional)</label>
                           <div class="form-outline w-100 position-relative custom-date-wrapper">

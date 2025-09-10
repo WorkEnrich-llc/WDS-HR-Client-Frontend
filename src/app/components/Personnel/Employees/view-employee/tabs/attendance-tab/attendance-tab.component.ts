@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
+import { TimeFormatPipe } from './time-format.pipe';
 
 interface RawAttendanceItem {
   emp_id: number;
@@ -29,7 +30,7 @@ interface AttendanceRecord {
 
 @Component({
   selector: 'app-attendance-tab',
-  imports: [CommonModule, TableComponent],
+  imports: [CommonModule, TableComponent, TimeFormatPipe],
   providers: [DatePipe],
   templateUrl: './attendance-tab.component.html',
   styleUrl: './attendance-tab.component.css'
@@ -145,7 +146,7 @@ export class AttendanceTabComponent implements OnChanges {
       out: formatTime(item.working_check_out || item.actual_check_out),
       date: item.date || '-',
       dayType: item.is_working_day ? 'Working Day' : 'Non-working Day',
-      workingHrs: item.is_working_day ? (item.work_hours ? `${item.work_hours}` : '-') : 'Holiday',
+      workingHrs: item.is_working_day ? (item.work_hours ? `${item.work_hours}` : '-') : 'NA',
       missingHrs: item.missing_hrs === null || item.missing_hrs === undefined ? '-' : `${item.missing_hrs} Hr${item.missing_hrs !== 1 ? 's' : ''}`,
       deduction: item.deduction === null || item.deduction === undefined ? '-' : (item.deduction === 0 ? '-' : `${item.deduction}`)
     } as AttendanceRecord;

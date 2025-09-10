@@ -55,8 +55,8 @@
 
   <!-- Row Template -->
   <ng-template #rowTemplate let-row>
-    <td>{{ row.in }}</td>
-    <td>{{ row.out }}</td>
+    <td>{{ row.in | timeFormat }}</td>
+    <td>{{ row.out | timeFormat }}</td>
     <td>{{ row.date }}</td>
     <td>{{ row.dayType }}</td>
     <td [ngClass]="{'text-primary': row.workingHrs === 'Holiday'}">{{ row.workingHrs }}</td>
@@ -66,8 +66,8 @@
 
   <!-- Empty Template -->
   <ng-template #emptyTemplate>
-    <tr>
-      <td colspan="7" class="text-center no-data">No attendance records found</td>
+    <tr >
+      <td colspan="7" class="py-3">No attendance records found</td>
     </tr>
   </ng-template>
 </div>

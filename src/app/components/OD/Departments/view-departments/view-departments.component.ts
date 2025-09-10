@@ -5,6 +5,7 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-view-departments',
@@ -15,7 +16,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
   styleUrls: ['./view-departments.component.css']
 })
 export class ViewDepartmentsComponent implements OnInit {
-  constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute,private datePipe: DatePipe) { }
+  constructor(private _DepartmentsService: DepartmentsService,private subService:SubscriptionService, private route: ActivatedRoute,private datePipe: DatePipe) { }
   departmentData: any = { sections: [] };
 formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
@@ -27,6 +28,8 @@ formattedCreatedAt: string = '';
   itemsPerPage: number = 10;
   currentPage: number = 1;
   ngOnInit(): void {
+     
+
     this.deptId = this.route.snapshot.paramMap.get('id');
     // this.getDepartment(Number(this.deptId));
     if (this.deptId) {

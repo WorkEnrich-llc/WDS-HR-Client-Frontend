@@ -48,16 +48,13 @@ export class UpdateLeaveTypesComponent {
       const settings = this.leaveTypeData.settings;
       this.carryoverAllowed = settings.allow_carryover;
 
-      // تعبئة الفورم 1
       this.leaveType1.patchValue({
         code: this.leaveTypeData.code,
         name: this.leaveTypeData.name,
-        PermissionType: this.leaveTypeData.permission,
         description: this.leaveTypeData.description,
         employmentType: this.leaveTypeData.employment_type?.id || ''
       });
 
-      // تعبئة الفورم 2
       this.leaveType2.patchValue({
         accrual_rate: settings.accrual_rate,
         leave_limits: settings.leave_limits,
@@ -65,13 +62,10 @@ export class UpdateLeaveTypesComponent {
         maximum_carryover_days: settings.maximum_carryover_days
       });
 
-      // تعديل صلاحية maximum_carryover_days
       this.toggleCarryoverValidators();
 
-      // مراقبة التغييرات
       this.monitorFormChanges();
 
-      // تواريخ الإنشاء والتحديث
       const created = this.leaveTypeData?.created_at;
       const updated = this.leaveTypeData?.updated_at;
       if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
@@ -105,7 +99,6 @@ monitorFormChanges() {
   leaveType1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required,Validators.minLength(3),Validators.maxLength(100)]),
-    PermissionType: new FormControl('', [Validators.required]),
     description: new FormControl(''),
     employmentType: new FormControl('', [Validators.required]),
   });
@@ -135,7 +128,6 @@ monitorFormChanges() {
       id:Number(this.leaveTypeData.id),
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
-      permission: this.leaveType1.get('PermissionType')?.value,
       description: this.leaveType1.get('description')?.value,
       employment_type: Number(this.leaveType1.get('employmentType')?.value),
       settings: {

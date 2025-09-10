@@ -1,18 +1,16 @@
 <!-- Contract Form Modal -->
-<app-contract-form-modal
-  [isOpen]="isAddModalOpen"
-  [isEditMode]="isEditMode"
-  [contract]="selectedContract"
-  (onClose)="closeAddModal()"
-  (onSave)="onContractSave($event)">
+<app-contract-form-modal [isOpen]="isAddModalOpen" [isEditMode]="isEditMode" [contract]="selectedContract"
+  [employee]="employee" (onClose)="closeAddModal()" (onSave)="onContractSave($event)">
 </app-contract-form-modal>
 <div class="contracts-content">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Work Contracts</h3>
-    <button class="btn btn-primary d-flex align-items-center gap-2" (click)="addContract()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/>
-        <path d="M12 5v14"/>
+    <h2>Work Contracts</h2>
+    <button class="view-btn" (click)="addContract()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+        </g>
       </svg>
       Add Contract
     </button>
@@ -36,120 +34,204 @@
         <span class="fw-bold">{{ contract.contractNumber }}</span>
       </div>
     </td>
-    <td class="text-start">{{ contract.startDate }}</td>
-    <td class="text-start">{{ contract.endDate }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency) }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary, contract.currency) }}</td>
+    <td class="text-start">{{ contract.startDate || contract.start_contract }}</td>
+    <td class="text-start">{{ contract.endDate || contract.end_contract }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency || 'EGP') }}</td>
+    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary || contract.insurance_salary,
+      contract.currency || 'EGP') }}</td>
     <td class="text-start">
       <span [ngClass]="getStatusClass(contract.status)">
         @if (contract.status === 'Upcoming') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            >
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="M12 7v5l3 3" />
-            </g>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M12 7v5l3 3" />
+          </g>
+        </svg>
         }
         @if (contract.status === 'Active') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            >
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
         }
         @if (contract.status === 'Cancelled') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            >
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
         }
         @if (contract.status === 'Expired') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-            >
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
-            </g>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+          </g>
+        </svg>
+        }
+        @if (contract.status === 'Terminated') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
+        }
+        @if (contract.status === 'Resigned') {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16,17 21,12 16,7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </g>
+        </svg>
         }
         <span>{{ contract.status }}</span>
       </span>
     </td>
     <td class="text-start">
-      <div class="d-flex align-items-center gap-2">
-        <!-- History Action -->
+      <div class="d-flex align-items-center gap-3">
+        <!-- History Action - Available for all -->
         <a (click)="viewHistory(contract)" class="view-btn" title="Contract History">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 8v4l3 3" />
             <circle cx="12" cy="12" r="10" />
           </svg>
-
         </a>
-        <!-- Edit Action -->
-        <a (click)="editContract(contract)" class="view-btn edit-btn" title="Edit Contract">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-            <path d="m15 5 4 4"/>
+
+        <!-- Edit Action - Only for Upcoming and Active -->
+        @if (contract.status === 'Upcoming' || contract.status === 'Active') {
+        <a (click)="editContract(contract)" class="edit-btn" title="Edit Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+            <path d="m15 5 4 4" />
           </svg>
           Edit
         </a>
-        <!-- Delete Action -->
-        <a (click)="openDeleteModal(contract)" class="view-btn delete-btn" title="Delete Contract">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v>2"/>
+        }
+
+        <!-- Actions for Active Status -->
+        @if (contract.status === 'Active') {
+        <!-- Custom dropdown for Active contracts -->
+        <div class="custom-dropdown" [class.open]="selectedContract?.id === contract.id">
+          <button class="dropdown-toggle action-btn" type="button" (click)="toggleDropdown(contract)">
+            Actions
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6,9 12,15 18,9"></polyline>
             </svg>
-            Delete
-          </a>
+          </button>
+          <ul class="dropdown-menu" [class.show]="selectedContract?.id === contract.id">
+            <li>
+              <a class="dropdown-item terminate-item" (click)="openTerminateModal(contract); closeDropdown()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="m14.5 9.5-5 5m0-5 5 5"/>
+                </svg>
+                Terminate
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item resign-item" (click)="openResignModal(contract); closeDropdown()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16,17 21,12 16,7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Resign
+              </a>
+            </li>
+          </ul>
+        </div>
+        }
+
+        <!-- Cancel Action - Only for Upcoming -->
+        @if (contract.status === 'Upcoming') {
+        <a (click)="openCancelModal(contract)" class="remove-btn" title="Cancel Contract">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+          Cancel
+        </a>
+        }
+
+        <!-- View Action - Only for Terminated and Resigned -->
+        @if (contract.status === 'Terminated') {
+        <a (click)="viewTerminatedContract(contract)" class="view-btn" title="View Termination Details">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View
+        </a>
+        }
+
+        @if (contract.status === 'Resigned') {
+        <a (click)="viewResignedContract(contract)" class="view-btn" title="View Resignation Details">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View
+        </a>
+        }
+      </div>
+    </td>
+  </ng-template>
+
+  <!-- Empty Template -->
+  <ng-template #emptyTemplate>
+    <tr>
+      <td colspan="7" class="text-center py-4">
+        <div class="no-data">
+          No contracts found
         </div>
       </td>
-    </ng-template>
+    </tr>
+  </ng-template>
 
-    <!-- Empty Template -->
-    <ng-template #emptyTemplate>
-      <tr>
-        <td colspan="7" class="text-center py-4">
-          <div class="no-data">
-            No contracts found
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+  <app-table [data]="contractsData" [totalItems]="totalItems" [currentPage]="currentPage" [itemsPerPage]="itemsPerPage"
+    [isLoading]="isLoading" [columnsCount]="7" [headerTemplate]="headerTemplate" [rowTemplate]="rowTemplate"
+    [emptyTemplate]="emptyTemplate" (pageChange)="onPageChange($event)"
+    (itemsPerPageChange)="onItemsPerPageChange($event)">
+  </app-table>
+</div>
 
-    <app-table
-      [data]="contractsData"
-      [totalItems]="totalItems"
-      [currentPage]="currentPage"
-      [itemsPerPage]="itemsPerPage"
-      [isLoading]="isLoading"
-      [columnsCount]="7"
-      [headerTemplate]="headerTemplate"
-      [rowTemplate]="rowTemplate"
-      [emptyTemplate]="emptyTemplate"
-      (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)">
-    </app-table>
-  </div>
+<!-- Cancel Confirmation Modal -->
+<app-contract-cancel-modal [isOpen]="isCancelModalOpen" [contract]="selectedContract" (onClose)="closeCancelModal()"
+  (onCancel)="onContractCancel($event)">
+</app-contract-cancel-modal>
 
-  <!-- Delete Confirmation Modal -->
-  <app-contract-delete-modal
-    [isOpen]="isDeleteModalOpen"
-    [contract]="selectedContract"
-    (onClose)="closeDeleteModal()"
-    (onDelete)="onContractDelete($event)">
-  </app-contract-delete-modal>
+<!-- Contract History Modal -->
+<app-contract-history-modal [isOpen]="isHistoryModalOpen" [contract]="selectedContract" [historyData]="contractHistory"
+  (onClose)="closeHistoryModal()">
+</app-contract-history-modal>
 
-  <!-- Contract History Modal -->
-  <app-contract-history-modal
-    [isOpen]="isHistoryModalOpen"
-    [contract]="selectedContract"
-    [historyData]="contractHistory"
-    (onClose)="closeHistoryModal()">
-  </app-contract-history-modal>
+<!-- Terminate Contract Modal -->
+<app-contract-terminate-modal [isOpen]="isTerminateModalOpen" [contract]="selectedContract" 
+  (onClose)="closeTerminateModal()" (onTerminate)="onContractTerminate($event)">
+</app-contract-terminate-modal>
+
+<!-- Resign Contract Modal -->
+<app-contract-resign-modal [isOpen]="isResignModalOpen" [contract]="selectedContract" 
+  (onClose)="closeResignModal()" (onResign)="onContractResign($event)">
+</app-contract-resign-modal>
+
+<!-- Terminated Contract View Modal -->
+<app-contract-terminated-view-modal [isOpen]="isTerminatedViewModalOpen" [contract]="selectedContract" 
+  [terminationData]="contractTerminationData" (onClose)="closeTerminatedViewModal()">
+</app-contract-terminated-view-modal>
+
+<!-- Resigned Contract View Modal -->
+<app-contract-resigned-view-modal [isOpen]="isResignedViewModalOpen" [contract]="selectedContract" 
+  [resignationData]="contractResignationData" (onClose)="closeResignedViewModal()">
+</app-contract-resigned-view-modal>

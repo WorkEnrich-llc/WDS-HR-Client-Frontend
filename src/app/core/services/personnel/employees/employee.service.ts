@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './../../../../../environments/environment';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
+import { ContractsResponse, ContractAdjustmentsResponse } from '../../../interfaces/contract';
 
 @Injectable({
   providedIn: 'root'
@@ -105,5 +106,42 @@ export class EmployeeService {
     formData.append('employee_id', employeeId.toString());
     // Send employee_id in body as form-data
     return this.http.delete<any>(url, { body: formData });
+  }
+
+  // Get employee contracts
+  getEmployeeContracts(employeeId: number): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-contracts/${employeeId}/`;
+    return this.http.get<ContractsResponse>(url);
+  }
+
+  // Create new employee contract
+  createEmployeeContract(requestData: {
+    employee_id: number;
+    contract_type: number;
+    start_contract: string;
+    end_contract: string;
+    salary: number;
+    insurance_salary: number;
+  }): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-contracts`;
+    return this.http.post<ContractsResponse>(url, { request_data: requestData });
+  }
+
+  // Cancel employee contract
+  cancelEmployeeContract(contractId: number): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-contracts/${contractId}/`;
+    return this.http.patch<ContractsResponse>(url, {});
+  }
+  
+  // Adjust employee contract (appraisal, correction, raise)
+  adjustEmployeeContractAdjustment(requestData: { contract_id: number; adjustment_type: number; new_salary: number; start_date: string; }): Observable<ContractAdjustmentsResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments`;
+    return this.http.post<ContractAdjustmentsResponse>(url, { request_data: requestData });
+  }
+  
+  // Get contract adjustments history for a specific contract
+  getEmployeeContractAdjustments(contractId: number): Observable<ContractAdjustmentsResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments/${contractId}/`;
+    return this.http.get<ContractAdjustmentsResponse>(url);
   }
 }

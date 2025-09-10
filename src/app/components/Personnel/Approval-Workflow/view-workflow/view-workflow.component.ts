@@ -16,12 +16,12 @@ export class ViewWorkflowComponent {
 
 
 
- constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workflowData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   workId: string | null = null;
-ngOnInit(): void {
+  ngOnInit(): void {
     this.workId = this.route.snapshot.paramMap.get('id');
     if (this.workId) {
       this.getWorkflow(Number(this.workId));
@@ -40,7 +40,7 @@ ngOnInit(): void {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.workflowData);
+        console.log(this.workflowData);
 
       },
       error: (err) => {

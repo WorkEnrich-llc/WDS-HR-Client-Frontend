@@ -1,9 +1,9 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
-    { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
-    { label: 'Create New Component'},
-  ]" title="Create New Component" create="13/06/2025">
+    { label: 'Payroll Component', link: '/payroll-components/all-payroll-components' },
+    { label: isEditMode ? 'Edit Component ' + id : 'Create New Component'}
+]" [title]="isEditMode ? 'Edit Component ' + id : 'Create New Component'" [create]="createDate" [update]="updatedDate">
     <button class="btn btn-lg btn-success w-auto" (click)="createComponent()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -91,6 +91,49 @@
                     classification is required.
                 </p>
                 }
+            </div>
+
+            <div class="input">
+                <label for="Calculation">Calculation <span>*</span></label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="Calculation" id="Calculation" class="form-select" formControlName="calculation">
+                            <option value="" disabled hidden>Select Calculation</option>
+                            @for (c of calculations ; track c.key) {
+                            <option [value]="c.key">{{ c.value }}</option>
+                            }
+                        </select>
+
+                    </div>
+                </div>
+                @if (createPayrollForm.get('calculation')?.touched &&
+                createPayrollForm.get('calculation')?.errors?.['required']) {
+                <p class="error-msg">
+                    calculation is required.
+                </p>
+                }
+            </div>
+
+            <div class="input">
+                <label for="portion">Select salary portion </label>
+                <div class="d-flex align-items-center gap-4">
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="portion" id="portion" class="form-select" formControlName="portion">
+                            <option value="" disabled hidden>Select Portion</option>
+                            @for (p of salaryPortions; track p.index) {
+                            <option [value]="p.index">
+                                {{ p.name }}
+                            </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @if (createPayrollForm.get('portion')?.touched &&
+                createPayrollForm.get('portion')?.errors?.['required']) {
+                <p class="error-msg">Portion is required.</p>
+                }
+
+
             </div>
 
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">

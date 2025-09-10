@@ -4,11 +4,12 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { PayrollComponent } from 'app/core/models/payroll';
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-view-payroll-component',
-  imports: [PageHeaderComponent, PopupComponent, RouterLink],
+  imports: [PageHeaderComponent, PopupComponent, RouterLink, DatePipe],
   templateUrl: './view-payroll-component.component.html',
   styleUrl: './view-payroll-component.component.css'
 })
@@ -54,13 +55,32 @@ export class ViewPayrollComponentComponent implements OnInit {
   confirmDeactivate() {
     this.deactivateOpen = false;
 
-    const deptStatus = {
+    const compStatus = {
       request_data: {
         status: false
       }
     };
+    this.payrollService.updateComponentStatus(this.id, compStatus).subscribe({
+      next: () => {
+        this.loadComponentData();
+      },
+      error: (err) => console.error('Failed to update status', err)
+    });
+  }
 
-
+  confirmActivate() {
+    this.activateOpen = false;
+    const compStatus = {
+      request_data: {
+        status: true
+      }
+    };
+    this.payrollService.updateComponentStatus(this.id, compStatus).subscribe({
+      next: () => {
+        this.loadComponentData();
+      },
+      error: (err) => console.error('Failed to update status', err)
+    });
   }
 
   openActivate() {
@@ -70,14 +90,8 @@ export class ViewPayrollComponentComponent implements OnInit {
   closeActivate() {
     this.activateOpen = false;
   }
-  confirmActivate() {
-    this.activateOpen = false;
-    const deptStatus = {
-      request_data: {
-        status: true
-      }
-    };
 
 
-  }
+
+
 }

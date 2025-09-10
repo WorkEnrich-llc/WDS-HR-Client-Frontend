@@ -1,37 +1,58 @@
 export interface Contract {
   id: number;
-  contractNumber: string;
-  startDate: string;
-  endDate: string | null;
-  employmentType: {
-    id: number;
-    name: string; // 'Full Time', 'Part Time', 'Per Hour'
-  };
-  contractType: {
-    id: number;
-    name: string; // 'Permanent', 'Fixed Term', 'Probation'
-  };
-  workMode: {
-    id: number;
-    name: string; // 'On Site', 'Remote', 'Hybrid'
-  };
+  expired: boolean;
+  trial: boolean;
+  start_contract: string;
+  end_contract: string;
   salary: number;
-  insuranceSalary: number;
-  currency: string;
-  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired';
-  createdAt: string;
-  updatedAt: string;
-  branch: {
+  insurance_salary: number;
+  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned';
+  created_at: string;
+  created_by: string;
+  
+  // Mapped properties for compatibility with existing UI
+  contractNumber?: string;
+  startDate?: string;
+  endDate?: string;
+  employmentType?: {
     id: number;
     name: string;
   };
-  department: {
+  contractType?: {
     id: number;
     name: string;
   };
-  jobTitle: {
+  workMode?: {
     id: number;
     name: string;
+  };
+  insuranceSalary?: number;
+  currency?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  branch?: {
+    id: number;
+    name: string;
+  };
+  department?: {
+    id: number;
+    name: string;
+  };
+  jobTitle?: {
+    id: number;
+    name: string;
+  };
+  
+  // Additional data for terminated/resigned contracts
+  terminationData?: {
+    lastDay: string;
+    reason: string;
+  };
+  resignationData?: {
+    resignDate: string;
+    noticePeriod: number;
+    lastDay: string;
+    reason: string;
   };
 }
 
@@ -47,12 +68,10 @@ export interface ContractHistory {
 }
 
 export interface ContractsResponse {
-  success: boolean;
+  details: string;
   data: {
-    contracts: Contract[];
-    total_items: number;
-    page: number;
-    total_pages: number;
+    subscription?: any;
+    list_items: Contract[];
   };
 }
 
@@ -61,5 +80,25 @@ export interface ContractHistoryResponse {
   data: {
     history: ContractHistory[];
     total_items: number;
+  };
+}
+// Interface for contract adjustments
+export interface ContractAdjustment {
+  id: number;
+  adjustment_type: string;
+  new_salary: number;
+  start_date: string;
+  created_at: string;
+  created_by: string;
+}
+
+export interface ContractAdjustmentsResponse {
+  details: string;
+  data: {
+    subscription?: any;
+    // List of adjustments for the contract
+    list_items: ContractAdjustment[];
+    // Optional error handling info
+    error_handling?: any[];
   };
 }

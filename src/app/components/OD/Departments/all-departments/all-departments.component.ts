@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 
 @Component({
@@ -27,9 +28,10 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder) { }
+    private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder, public subService: SubscriptionService) { }
 
-
+  subscription: any;
+  
   departments: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -39,6 +41,22 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+
+    this.subService.subscription$.subscribe(sub => {
+      const departmentsSub = sub?.Departments;
+
+      if (departmentsSub) {
+        console.log("info:", departmentsSub.info);
+        console.log("create:", departmentsSub.create);
+        console.log("update:", departmentsSub.update);
+        console.log("delete:", departmentsSub.delete);
+      }
+    });
+
+
+
+
+
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
       this.getAllDepartment(this.currentPage);
@@ -128,7 +146,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData:boolean =true;
+  loadData: boolean = true;
   getAllDepartment(
     pageNumber: number,
     searchTerm: string = '',
@@ -140,7 +158,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
       created_to?: string;
     }
   ) {
-    this.loadData=true;
+    this.loadData = true;
     this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
@@ -159,11 +177,11 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
       }
     });
   }
