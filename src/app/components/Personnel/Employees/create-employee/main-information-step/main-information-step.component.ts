@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ElementRef, HostListener, inject, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
@@ -9,7 +9,7 @@ import { Validators } from '@angular/forms';
 @Component({
   standalone: true,
   selector: 'app-main-information-step',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './main-information-step.component.html',
   styleUrls: ['./main-information-step.component.css'],
   // removed viewProviders as using explicit [formGroup] in template

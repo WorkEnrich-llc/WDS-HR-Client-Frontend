@@ -6,8 +6,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LeaveTypeService } from '../../../../core/services/personnel/leave-type/leave-type.service';
-
+import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
   imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
@@ -34,7 +33,6 @@ export class CreateLeaveTypeComponent {
   leaveType1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required,Validators.minLength(3),Validators.maxLength(100)]),
-    PermissionType: new FormControl('', [Validators.required]),
     description: new FormControl(''),
     employmentType: new FormControl('', [Validators.required]),
   });
@@ -65,7 +63,6 @@ export class CreateLeaveTypeComponent {
     const request_data = {
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
-      permission: this.leaveType1.get('PermissionType')?.value,
       description: this.leaveType1.get('description')?.value,
       employment_type: Number(this.leaveType1.get('employmentType')?.value),
       settings: {

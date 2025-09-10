@@ -3,11 +3,11 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-workflow',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent,CommonModule],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-workflow.component.html',
   styleUrl: './view-workflow.component.css'
@@ -16,12 +16,12 @@ export class ViewWorkflowComponent {
 
 
 
- constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workflowData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   workId: string | null = null;
-ngOnInit(): void {
+  ngOnInit(): void {
     this.workId = this.route.snapshot.paramMap.get('id');
     if (this.workId) {
       this.getWorkflow(Number(this.workId));
@@ -40,7 +40,7 @@ ngOnInit(): void {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.workflowData);
+        console.log(this.workflowData);
 
       },
       error: (err) => {

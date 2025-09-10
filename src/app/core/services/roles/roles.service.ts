@@ -1,0 +1,23 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { environment } from 'environments/environment';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RolesService {
+
+  private apiBaseUrl: string;
+  constructor(private _HttpClient: HttpClient) {
+    this.apiBaseUrl = environment.apiBaseUrl;
+  }
+
+
+
+  // get all roles
+  getroles(): Observable<any> {
+    const url = `${this.apiBaseUrl}main/admin-settings/all-roles`;
+    return this._HttpClient.get(url);
+  }
+}

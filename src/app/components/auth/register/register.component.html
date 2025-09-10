@@ -1,568 +1,626 @@
 <div class="card-top">
-    <div class="row align-items-center g-3">
-        <div class="col-8">
-            <h2>Create Account</h2>
-            <p>Welcome to Workenrich Platform!
-                We need a little bit of information to create your account</p>
-            <p class="link">Do you already have an account? <a href="" routerLink="/auth/login">Log in</a></p>
-        </div>
-        <div class="col-4">
-            <img src="./images/WDS Logo.svg" alt="WDS logo">
-        </div>
+  <div class="row align-items-center g-3">
+    <div class="col-8">
+      <h2>Create Account</h2>
+      <p>Welcome to Workenrich Platform!
+        We need a little bit of information to create your account</p>
+      <p class="link">Do you already have an account? <a href="" routerLink="/auth/login">Log in</a></p>
     </div>
+    <div class="col-4">
+      <img src="./images/WDS Logo.svg" alt="WDS logo">
+    </div>
+  </div>
 </div>
 
 
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" [ngClass]="{
+  <li class="nav-item" [ngClass]="{
         'active': currentStep === 1,
         'text-success': currentStep > 1, 
         'bg-light-success': currentStep > 1  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep == 1" viewBox="0 0 24 24">
-            <circle cx="12" cy="6" r="4" fill="#377AFD" />
-            <ellipse cx="12" cy="17" fill="#377AFD" opacity=".5" rx="7" ry="4" />
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 1" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
-            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-            <path
-                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-        </svg>
-        <span class="nav-link">User Information</span>
-    </li>
+    @if (currentStep == 1) {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <circle cx="12" cy="6" r="4" fill="#377AFD" />
+      <ellipse cx="12" cy="17" fill="#377AFD" opacity=".5" rx="7" ry="4" />
+    </svg>
+    }
+    @if (currentStep > 1) {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+      [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+      <path
+        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+    </svg>
+    }
+    <span class="nav-link">User Information</span>
+  </li>
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentStep === 1 ? '#DDE3EB' :
     currentStep === 2 ? '#377AFD' :
     currentStep > 2 ? '#4CA883' :
     '#DDE3EB'
   ">
-        <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
 
 
-    <li class="nav-item" [ngClass]="{
+  <li class="nav-item" [ngClass]="{
         'active': currentStep === 2,
         'text-success': currentStep > 2, 
         'bg-light-success': currentStep > 2  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep<=2" viewBox="0 0 24 24">
-            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
-                d="M7 5h4c1.886 0 2.828 0 3.414.586S15 7.114 15 9v12.25h7a.75.75 0 0 1 0 1.5H2a.75.75 0 0 1 0-1.5h1V9c0-1.886 0-2.828.586-3.414S5.114 5 7 5M5.25 8A.75.75 0 0 1 6 7.25h6a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 5.25 8m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75M9 18.25a.75.75 0 0 1 .75.75v2.25h-1.5V19a.75.75 0 0 1 .75-.75"
-                clip-rule="evenodd" />
-            <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
-                d="M15 2h2c1.886 0 2.828 0 3.414.586S21 4.114 21 6v15.25h-6V9c0-1.886 0-2.828-.586-3.414C13.842 5.013 12.928 5 11.126 5V3.5c.084-.387.225-.68.46-.914C12.17 2 13.114 2 15 2"
-                opacity=".5" />
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 2" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
-            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-            <path
-                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-        </svg>
-        <span class="nav-link">Company</span>
-    </li>
+    @if (currentStep<=2) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+        d="M7 5h4c1.886 0 2.828 0 3.414.586S15 7.114 15 9v12.25h7a.75.75 0 0 1 0 1.5H2a.75.75 0 0 1 0-1.5h1V9c0-1.886 0-2.828.586-3.414S5.114 5 7 5M5.25 8A.75.75 0 0 1 6 7.25h6a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 5.25 8m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m0 3a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75M9 18.25a.75.75 0 0 1 .75.75v2.25h-1.5V19a.75.75 0 0 1 .75-.75"
+        clip-rule="evenodd" />
+      <path [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'"
+        d="M15 2h2c1.886 0 2.828 0 3.414.586S21 4.114 21 6v15.25h-6V9c0-1.886 0-2.828-.586-3.414C13.842 5.013 12.928 5 11.126 5V3.5c.084-.387.225-.68.46-.914C12.17 2 13.114 2 15 2"
+        opacity=".5" />
+      </svg>
+      }
+      @if (currentStep > 2) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Company</span>
+  </li>
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentStep === 2 ? '#DDE3EB' :
     currentStep === 3 ? '#377AFD' :
     currentStep > 3 ? '#4CA883' :
     '#DDE3EB'
   ">
-        <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
 
 
-    <li class="nav-item" [ngClass]="{
+  <li class="nav-item" [ngClass]="{
         'active': currentStep === 3,
         'text-success': currentStep > 3, 
         'bg-light-success': currentStep > 3  
     }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep <=3" viewBox="0 0 24 24">
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
-                d="M13.11 13.5a1.71 1.71 0 0 0-2.22 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973a1.71 1.71 0 0 0 0 2.219a1.7 1.7 0 0 1 .403.973a1.71 1.71 0 0 0 1.57 1.57c.358.028.699.169.973.402a1.71 1.71 0 0 0 2.218 0a1.7 1.7 0 0 1 .973-.403a1.71 1.71 0 0 0 1.57-1.569c.028-.358.169-.7.402-.973a1.71 1.71 0 0 0 0-2.219a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403m.902 3.603a.75.75 0 1 0-1.024-1.097l-1.63 1.523l-.346-.323a.75.75 0 0 0-1.024 1.097l.857.8a.75.75 0 0 0 1.024 0z"
-                clip-rule="evenodd" />
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
-                d="M2 12V8c0-2.828 0-4.243.879-5.121C3.757 2 5.172 2 8 2h8c2.828 0 4.243 0 5.121.879C22 3.757 22 5.172 22 8v4c0 2.828 0 4.243-.879 5.121c-.835.836-2.156.877-4.717.879a1.71 1.71 0 0 0-.35-1.555a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403a1.71 1.71 0 0 0-2.219 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973A1.71 1.71 0 0 0 7.595 18c-2.56-.002-3.88-.043-4.716-.879C2 16.243 2 14.828 2 12"
-                opacity=".5" />
-            <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
-                d="M8.25 6A.75.75 0 0 1 9 5.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 6M7 8.75a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5z" />
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" *ngIf="currentStep > 3" viewBox="0 0 24 24"
-            [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
-            <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-            <path
-                d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-        </svg>
-        <span class="nav-link">Verify</span>
-    </li>
+    @if (currentStep <=3) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+        d="M13.11 13.5a1.71 1.71 0 0 0-2.22 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973a1.71 1.71 0 0 0 0 2.219a1.7 1.7 0 0 1 .403.973a1.71 1.71 0 0 0 1.57 1.57c.358.028.699.169.973.402a1.71 1.71 0 0 0 2.218 0a1.7 1.7 0 0 1 .973-.403a1.71 1.71 0 0 0 1.57-1.569c.028-.358.169-.7.402-.973a1.71 1.71 0 0 0 0-2.219a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403m.902 3.603a.75.75 0 1 0-1.024-1.097l-1.63 1.523l-.346-.323a.75.75 0 0 0-1.024 1.097l.857.8a.75.75 0 0 0 1.024 0z"
+        clip-rule="evenodd" />
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+        d="M2 12V8c0-2.828 0-4.243.879-5.121C3.757 2 5.172 2 8 2h8c2.828 0 4.243 0 5.121.879C22 3.757 22 5.172 22 8v4c0 2.828 0 4.243-.879 5.121c-.835.836-2.156.877-4.717.879a1.71 1.71 0 0 0-.35-1.555a1.7 1.7 0 0 1-.403-.973a1.71 1.71 0 0 0-1.569-1.569a1.7 1.7 0 0 1-.973-.403a1.71 1.71 0 0 0-2.219 0a1.7 1.7 0 0 1-.973.403a1.71 1.71 0 0 0-1.569 1.569c-.028.359-.17.7-.403.973A1.71 1.71 0 0 0 7.595 18c-2.56-.002-3.88-.043-4.716-.879C2 16.243 2 14.828 2 12"
+        opacity=".5" />
+      <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+        d="M8.25 6A.75.75 0 0 1 9 5.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 6M7 8.75a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5z" />
+      </svg>
+      }
+      @if (currentStep > 3) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 1 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Verify</span>
+  </li>
 
 
 </ul>
 
 <div class="card-bottom">
-    <!-- step1 -->
-    <div class="user-info" *ngIf="currentStep===1">
-        <div class="row align-items-center g-4">
-            <div class="col-md-6">
-                <form [formGroup]="registerForm1" class="w-100 d-flex flex-column gap-2">
-
-                    <div class="input">
-                        <label for="name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <circle cx="12" cy="6" r="4" />
-                                    <ellipse cx="12" cy="17" rx="7" ry="4" />
-                                </g>
-                            </svg> Name</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input formControlName="name" type="text" id="name" class="form-control"
-                                    placeholder="What would you like us to call you?" [ngClass]="{
+  <!-- step1 -->
+  @if (currentStep===1) {
+  <div class="user-info">
+    <div class="row align-items-center g-4">
+      <div class="col-md-6">
+        <form [formGroup]="registerForm1" class="w-100 d-flex flex-column gap-2">
+          <div class="input">
+            <label for="name"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                  <circle cx="12" cy="6" r="4" />
+                  <ellipse cx="12" cy="17" rx="7" ry="4" />
+                </g>
+              </svg> Name</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input formControlName="name" type="text" id="name" class="form-control"
+                  placeholder="What would you like us to call you?" [ngClass]="{
     'error-input': registerForm1.get('name')?.touched && registerForm1.get('name')?.invalid,
     'success-input': registerForm1.get('name')?.touched && registerForm1.get('name')?.valid
   }">
-                            </div>
-
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['required']">
-                            Name is required.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['minlength']">
-                            Name must be at least 3 characters.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['maxlength']">
-                            Name must not exceed 100 characters.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['pattern']">
-                            Name must contain at least one alphabetical character.
-                        </p>
-                    </div>
-
-                    <div class="input">
-                        <label for="email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <path
-                                        d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
-                                    <path stroke-linecap="round"
-                                        d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
-                                </g>
-                            </svg> Email</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input formControlName="email" (blur)="checkEmail()" type="email" id="email"
-                                    class="form-control" placeholder="What’s your Business Email?" [ngClass]="{
+              </div>
+            </div>
+            @if (registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['required']) {
+            <p class="error-msg">
+              Name is required.
+            </p>
+            }
+            @if (registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['minlength']) {
+            <p class="error-msg">
+              Name must be at least 3 characters.
+            </p>
+            }
+            @if (registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['maxlength']) {
+            <p class="error-msg">
+              Name must not exceed 100 characters.
+            </p>
+            }
+            @if (registerForm1.get('name')?.touched && registerForm1.get('name')?.errors?.['pattern']) {
+            <p class="error-msg">
+              Name must contain at least one alphabetical character.
+            </p>
+            }
+          </div>
+          <div class="input">
+            <label for="email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                  <path
+                    d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+                  <path stroke-linecap="round"
+                    d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+                </g>
+              </svg> Email</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input formControlName="email" (blur)="checkEmail()" type="email" id="email" class="form-control"
+                  placeholder="What’s your Business Email?" [ngClass]="{
           'error-input': registerForm1.get('email')?.touched && registerForm1.get('email')?.invalid,
           'success-input': registerForm1.get('email')?.touched && registerForm1.get('email')?.valid
         }">
-                            </div>
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['required']">
-                            Email is required.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['email']">
-                            Please enter a valid email address.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['emailTaken']">
-                            {{ emailMsg }}
-                        </p>
-
-                        <p class="success-msg"
-                            *ngIf="registerForm1.get('email')?.touched && !registerForm1.get('email')?.errors && emailAvailable">
-                            {{ emailMsg }}
-                        </p>
-                    </div>
-
-                    <div class="input">
-                        <label for="job"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <path
-                                        d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
-                                    <path
-                                        d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
-                                    <path stroke-linecap="round"
-                                        d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
-                                </g>
-                            </svg> Job Title</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <select formControlName="jobTitle" name="job" id="job" class="form-select" [ngClass]="{
+              </div>
+            </div>
+            @if (registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['required']) {
+            <p class="error-msg">
+              Email is required.
+            </p>
+            }
+            @if (registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['email']) {
+            <p class="error-msg">
+              Please enter a valid email address.
+            </p>
+            }
+            @if (registerForm1.get('email')?.touched && registerForm1.get('email')?.errors?.['emailTaken']) {
+            <p class="error-msg">
+              {{ emailMsg }}
+            </p>
+            }
+            @if (registerForm1.get('email')?.touched && !registerForm1.get('email')?.errors && emailAvailable) {
+            <p class="success-msg">
+              {{ emailMsg }}
+            </p>
+            }
+          </div>
+          <div class="input">
+            <label for="job"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                  <path
+                    d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
+                  <path
+                    d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
+                  <path stroke-linecap="round"
+                    d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
+                </g>
+              </svg> Job Title</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <select formControlName="jobTitle" name="job" id="job" class="form-select" [ngClass]="{
           'error-input': registerForm1.get('jobTitle')?.touched && registerForm1.get('jobTitle')?.invalid,
           'success-input': registerForm1.get('jobTitle')?.touched && registerForm1.get('jobTitle')?.valid
         }">
-                                    <option value="" selected disabled hidden>What’s your official Job Title?</option>
-                                    <optgroup *ngFor="let group of groupedJobs" [label]="group.name">
-                                        <option *ngFor="let job of group.jobs" [value]="job.id">
-                                            {{ job.name }}
-                                        </option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.get('jobTitle')?.touched && registerForm1.get('jobTitle')?.errors?.['required']">
-                            Job title is required.
-                        </p>
-                    </div>
-
-                    <div class="input">
-                        <label for="password"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none">
-                                    <path stroke-width="1.5"
-                                        d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
-                                    <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 16h.009m3.982 0H12m3.991 0H16" />
-                                </g>
-                            </svg> Password</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input formControlName="password" type="password" id="password" class="form-control"
-                                    placeholder="Enter a strong Password" [ngClass]="{
+                  <option value="" selected disabled hidden>What’s your official Job Title?</option>
+                  @for (group of groupedJobs; track group) {
+                  <optgroup [label]="group.name">
+                    @for (job of group.jobs; track job) {
+                    <option [value]="job.id">
+                      {{ job.name }}
+                    </option>
+                    }
+                  </optgroup>
+                  }
+                </select>
+              </div>
+            </div>
+            @if (registerForm1.get('jobTitle')?.touched && registerForm1.get('jobTitle')?.errors?.['required']) {
+            <p class="error-msg">
+              Job title is required.
+            </p>
+            }
+          </div>
+          <div class="input">
+            <label for="password"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none">
+                  <path stroke-width="1.5"
+                    d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
+                  <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 16h.009m3.982 0H12m3.991 0H16" />
+                </g>
+              </svg> Password</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input formControlName="password" [type]="isPasswordVisible ? 'text' : 'password'" id="password"
+                  class="form-control" placeholder="Enter a strong Password" [ngClass]="{
          'error-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.invalid,
          'success-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.valid
        }">
-                            </div>
-                        </div>
-                        <div *ngIf="registerForm1.controls['password'].errors && registerForm1.controls['password'].touched"
-                            class="text-danger mt-1">
-                            <p class="error-msg" *ngFor="let err of getPasswordErrors()">{{ err }}</p>
-                        </div>
-                    </div>
+                <a type="button"
+                  class="btn p-0 border-0 shadow-none position-absolute end-0 top-50 translate-middle-y toggle-password"
+                  (click)="togglePassword()">
+                  @if(!isPasswordVisible){
+                  <svg width="18" height="9" viewBox="0 0 18 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M16.7216 0.732973C17.0071 0.855347 17.1394 1.18603 17.017 1.47157L16.5 1.24999C17.017 1.47157 17.0171 1.47144 17.017 1.47157L17.0165 1.47283L17.0157 1.47469L17.0133 1.48021L17.0053 1.49827C16.9985 1.51337 16.9889 1.53453 16.9765 1.5613C16.9515 1.61481 16.915 1.6908 16.8666 1.78561C16.77 1.97509 16.6257 2.2405 16.4314 2.55234C16.1122 3.06462 15.6543 3.70823 15.0465 4.34763L15.7727 5.07387C15.9924 5.29354 15.9924 5.6497 15.7727 5.86937C15.5531 6.08904 15.1969 6.08904 14.9773 5.86937L14.2268 5.11893C13.7321 5.53345 13.1647 5.92252 12.5213 6.24216L13.2215 7.31821C13.3909 7.5786 13.3172 7.92704 13.0568 8.09647C12.7964 8.2659 12.448 8.19216 12.2785 7.93177L11.4617 6.67635C10.8771 6.86723 10.2443 6.99695 9.5625 7.04346V8.37499C9.5625 8.68565 9.31066 8.93749 9 8.93749C8.68934 8.93749 8.4375 8.68565 8.4375 8.37499V7.04346C7.77673 6.99839 7.16188 6.87515 6.59243 6.69379L5.78687 7.93182C5.61744 8.19221 5.269 8.26595 5.00861 8.09652C4.74822 7.92709 4.67448 7.57865 4.84391 7.31826L5.52822 6.26657C4.87994 5.94998 4.30792 5.56262 3.80887 5.14868L3.08814 5.86942C2.86847 6.08909 2.51231 6.08909 2.29264 5.86942C2.07297 5.64975 2.07297 5.29359 2.29264 5.07392L2.98547 4.3811C2.36705 3.73633 1.9015 3.08491 1.57713 2.56599C1.37994 2.25052 1.2335 1.98173 1.13547 1.78976C1.08642 1.69371 1.04938 1.6167 1.02408 1.56247C1.01143 1.53535 1.0017 1.5139 0.994868 1.4986L0.986773 1.48031L0.984341 1.47473L0.983527 1.47284L0.983221 1.47213C0.983164 1.472 0.982981 1.47157 1.5 1.24999L0.983221 1.47213C0.860846 1.18659 0.992879 0.855348 1.27842 0.732973C1.56373 0.610698 1.8941 0.742653 2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771L2.01743 1.02935L2.02199 1.03964C2.02641 1.04953 2.0336 1.06542 2.0436 1.08685C2.0636 1.12972 2.09478 1.19468 2.13738 1.2781C2.22265 1.44506 2.35327 1.6852 2.5311 1.96969C2.8878 2.54035 3.42873 3.28031 4.16676 3.96619C4.81619 4.56972 5.612 5.12566 6.56379 5.49185C7.27966 5.76726 8.08909 5.93749 9 5.93749C9.93128 5.93749 10.7566 5.75956 11.4844 5.4731C12.4304 5.10074 13.2208 4.54118 13.865 3.93648C14.5922 3.25397 15.1252 2.52136 15.4766 1.95739C15.6518 1.67622 15.7805 1.43919 15.8645 1.27449C15.9064 1.19221 15.9371 1.12817 15.9568 1.08593C15.9667 1.06481 15.9738 1.04916 15.9781 1.03942L15.9826 1.02931L15.983 1.02841C15.9829 1.02849 15.983 1.02834 15.983 1.02841M16.7216 0.732973C16.4361 0.610629 16.1054 0.743023 15.983 1.02841L16.7216 0.732973ZM2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771V1.02771Z"
+                      fill="#4A6D97" />
+                  </svg>
+                  }
 
-                    <div class="input">
-                        <label for="repassword"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none">
-                                    <path stroke-width="1.5"
-                                        d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
-                                    <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 16h.009m3.982 0H12m3.991 0H16" />
-                                </g>
-                            </svg> Confirm Password</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input formControlName="rePassword" type="password" id="repassword" class="form-control"
-                                    placeholder="Confirm your Password" [ngClass]="{
+                  @if(isPasswordVisible){
+                  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M9 4.1875C7.4467 4.1875 6.1875 5.4467 6.1875 7C6.1875 8.5533 7.4467 9.8125 9 9.8125C10.5533 9.8125 11.8125 8.5533 11.8125 7C11.8125 5.4467 10.5533 4.1875 9 4.1875ZM7.3125 7C7.3125 6.06802 8.06802 5.3125 9 5.3125C9.93198 5.3125 10.6875 6.06802 10.6875 7C10.6875 7.93198 9.93198 8.6875 9 8.6875C8.06802 8.6875 7.3125 7.93198 7.3125 7Z"
+                      fill="#4A6D97" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M9 0.4375C5.6144 0.4375 3.33397 2.46565 2.01043 4.18515L1.98656 4.21615C1.68723 4.6049 1.41155 4.96294 1.22452 5.3863C1.02423 5.83965 0.9375 6.33377 0.9375 7C0.9375 7.66623 1.02423 8.16035 1.22452 8.6137C1.41155 9.03706 1.68723 9.3951 1.98656 9.78386L2.01043 9.81485C3.33397 11.5344 5.6144 13.5625 9 13.5625C12.3856 13.5625 14.666 11.5344 15.9896 9.81485L16.0134 9.78387C16.3128 9.39511 16.5885 9.03707 16.7755 8.6137C16.9758 8.16035 17.0625 7.66623 17.0625 7C17.0625 6.33377 16.9758 5.83965 16.7755 5.3863C16.5885 4.96293 16.3128 4.60489 16.0134 4.21613L15.9896 4.18515C14.666 2.46565 12.3856 0.4375 9 0.4375ZM2.90191 4.87135C4.12398 3.28369 6.11277 1.5625 9 1.5625C11.8872 1.5625 13.876 3.28369 15.0981 4.87135C15.427 5.29869 15.6197 5.55404 15.7464 5.84091C15.8649 6.10901 15.9375 6.4367 15.9375 7C15.9375 7.5633 15.8649 7.89099 15.7464 8.15909C15.6197 8.44596 15.427 8.70131 15.0981 9.12865C13.876 10.7163 11.8872 12.4375 9 12.4375C6.11277 12.4375 4.12398 10.7163 2.90191 9.12865C2.57298 8.70131 2.3803 8.44596 2.25357 8.15909C2.13513 7.89099 2.0625 7.5633 2.0625 7C2.0625 6.4367 2.13513 6.10901 2.25357 5.84091C2.3803 5.55404 2.57298 5.29869 2.90191 4.87135Z"
+                      fill="#4A6D97" />
+                  </svg>
+                  }
+                </a>
+              </div>
+            </div>
+            @if (registerForm1.controls['password'].errors && registerForm1.controls['password'].touched) {
+            <div class="text-danger mt-1">
+              @for (err of getPasswordErrors(); track err) {
+              <p class="error-msg">{{ err }}</p>
+              }
+            </div>
+            }
+          </div>
+          <div class="input">
+            <label for="repassword"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none">
+                  <path stroke-width="1.5"
+                    d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
+                  <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 16h.009m3.982 0H12m3.991 0H16" />
+                </g>
+              </svg> Confirm Password</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input formControlName="rePassword" [type]="isPasswordVisible ? 'text' : 'password'" id="repassword"
+                  class="form-control" placeholder="Confirm your Password" [ngClass]="{
          'error-input': registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched,
          'success-input': !registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched && registerForm1.get('rePassword')?.valid
        }">
-                            </div>
 
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched">
-                            Passwords do not match.
-                        </p>
-                    </div>
+                <a type="button"
+                  class="btn p-0 border-0 shadow-none position-absolute end-0 top-50 translate-middle-y toggle-password"
+                  (click)="togglePassword()">
+                  @if(!isPasswordVisible){
+                  <svg width="18" height="9" viewBox="0 0 18 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M16.7216 0.732973C17.0071 0.855347 17.1394 1.18603 17.017 1.47157L16.5 1.24999C17.017 1.47157 17.0171 1.47144 17.017 1.47157L17.0165 1.47283L17.0157 1.47469L17.0133 1.48021L17.0053 1.49827C16.9985 1.51337 16.9889 1.53453 16.9765 1.5613C16.9515 1.61481 16.915 1.6908 16.8666 1.78561C16.77 1.97509 16.6257 2.2405 16.4314 2.55234C16.1122 3.06462 15.6543 3.70823 15.0465 4.34763L15.7727 5.07387C15.9924 5.29354 15.9924 5.6497 15.7727 5.86937C15.5531 6.08904 15.1969 6.08904 14.9773 5.86937L14.2268 5.11893C13.7321 5.53345 13.1647 5.92252 12.5213 6.24216L13.2215 7.31821C13.3909 7.5786 13.3172 7.92704 13.0568 8.09647C12.7964 8.2659 12.448 8.19216 12.2785 7.93177L11.4617 6.67635C10.8771 6.86723 10.2443 6.99695 9.5625 7.04346V8.37499C9.5625 8.68565 9.31066 8.93749 9 8.93749C8.68934 8.93749 8.4375 8.68565 8.4375 8.37499V7.04346C7.77673 6.99839 7.16188 6.87515 6.59243 6.69379L5.78687 7.93182C5.61744 8.19221 5.269 8.26595 5.00861 8.09652C4.74822 7.92709 4.67448 7.57865 4.84391 7.31826L5.52822 6.26657C4.87994 5.94998 4.30792 5.56262 3.80887 5.14868L3.08814 5.86942C2.86847 6.08909 2.51231 6.08909 2.29264 5.86942C2.07297 5.64975 2.07297 5.29359 2.29264 5.07392L2.98547 4.3811C2.36705 3.73633 1.9015 3.08491 1.57713 2.56599C1.37994 2.25052 1.2335 1.98173 1.13547 1.78976C1.08642 1.69371 1.04938 1.6167 1.02408 1.56247C1.01143 1.53535 1.0017 1.5139 0.994868 1.4986L0.986773 1.48031L0.984341 1.47473L0.983527 1.47284L0.983221 1.47213C0.983164 1.472 0.982981 1.47157 1.5 1.24999L0.983221 1.47213C0.860846 1.18659 0.992879 0.855348 1.27842 0.732973C1.56373 0.610698 1.8941 0.742653 2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771L2.01743 1.02935L2.02199 1.03964C2.02641 1.04953 2.0336 1.06542 2.0436 1.08685C2.0636 1.12972 2.09478 1.19468 2.13738 1.2781C2.22265 1.44506 2.35327 1.6852 2.5311 1.96969C2.8878 2.54035 3.42873 3.28031 4.16676 3.96619C4.81619 4.56972 5.612 5.12566 6.56379 5.49185C7.27966 5.76726 8.08909 5.93749 9 5.93749C9.93128 5.93749 10.7566 5.75956 11.4844 5.4731C12.4304 5.10074 13.2208 4.54118 13.865 3.93648C14.5922 3.25397 15.1252 2.52136 15.4766 1.95739C15.6518 1.67622 15.7805 1.43919 15.8645 1.27449C15.9064 1.19221 15.9371 1.12817 15.9568 1.08593C15.9667 1.06481 15.9738 1.04916 15.9781 1.03942L15.9826 1.02931L15.983 1.02841C15.9829 1.02849 15.983 1.02834 15.983 1.02841M16.7216 0.732973C16.4361 0.610629 16.1054 0.743023 15.983 1.02841L16.7216 0.732973ZM2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771V1.02771Z"
+                      fill="#4A6D97" />
+                  </svg>
+                  }
 
-                    <div class="alert alert-danger" role="alert" *ngIf="errMsg">
-                        {{errMsg}}
-                    </div>
-
-                    <button type="button" [disabled]="!registerForm1.valid" class="btn btn-lg btn-primary w-100"
-                        (click)="currentStep=2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                        </svg>
-                        <span>Next (1/3)</span>
-                    </button>
-                </form>
-
+                  @if(isPasswordVisible){
+                  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M9 4.1875C7.4467 4.1875 6.1875 5.4467 6.1875 7C6.1875 8.5533 7.4467 9.8125 9 9.8125C10.5533 9.8125 11.8125 8.5533 11.8125 7C11.8125 5.4467 10.5533 4.1875 9 4.1875ZM7.3125 7C7.3125 6.06802 8.06802 5.3125 9 5.3125C9.93198 5.3125 10.6875 6.06802 10.6875 7C10.6875 7.93198 9.93198 8.6875 9 8.6875C8.06802 8.6875 7.3125 7.93198 7.3125 7Z"
+                      fill="#4A6D97" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M9 0.4375C5.6144 0.4375 3.33397 2.46565 2.01043 4.18515L1.98656 4.21615C1.68723 4.6049 1.41155 4.96294 1.22452 5.3863C1.02423 5.83965 0.9375 6.33377 0.9375 7C0.9375 7.66623 1.02423 8.16035 1.22452 8.6137C1.41155 9.03706 1.68723 9.3951 1.98656 9.78386L2.01043 9.81485C3.33397 11.5344 5.6144 13.5625 9 13.5625C12.3856 13.5625 14.666 11.5344 15.9896 9.81485L16.0134 9.78387C16.3128 9.39511 16.5885 9.03707 16.7755 8.6137C16.9758 8.16035 17.0625 7.66623 17.0625 7C17.0625 6.33377 16.9758 5.83965 16.7755 5.3863C16.5885 4.96293 16.3128 4.60489 16.0134 4.21613L15.9896 4.18515C14.666 2.46565 12.3856 0.4375 9 0.4375ZM2.90191 4.87135C4.12398 3.28369 6.11277 1.5625 9 1.5625C11.8872 1.5625 13.876 3.28369 15.0981 4.87135C15.427 5.29869 15.6197 5.55404 15.7464 5.84091C15.8649 6.10901 15.9375 6.4367 15.9375 7C15.9375 7.5633 15.8649 7.89099 15.7464 8.15909C15.6197 8.44596 15.427 8.70131 15.0981 9.12865C13.876 10.7163 11.8872 12.4375 9 12.4375C6.11277 12.4375 4.12398 10.7163 2.90191 9.12865C2.57298 8.70131 2.3803 8.44596 2.25357 8.15909C2.13513 7.89099 2.0625 7.5633 2.0625 7C2.0625 6.4367 2.13513 6.10901 2.25357 5.84091C2.3803 5.55404 2.57298 5.29869 2.90191 4.87135Z"
+                      fill="#4A6D97" />
+                  </svg>
+                  }
+                </a>
+              </div>
             </div>
-            <div class="d-none d-md-block col-md-6 text-center">
-                <img src="./images/userauth.svg" alt="WDS logo">
-            </div>
-        </div>
+            @if (registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched) {
+            <p class="error-msg">
+              Passwords do not match.
+            </p>
+            }
+          </div>
+          @if (errMsg) {
+          <div class="alert alert-danger" role="alert">
+            {{errMsg}}
+          </div>
+          }
+          <button type="button" [disabled]="!registerForm1.valid" class="btn btn-lg btn-primary w-100"
+            (click)="currentStep=2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+            </svg>
+            <span>Next (1/3)</span>
+          </button>
+        </form>
+      </div>
+      <div class="d-none d-md-block col-md-6 text-center">
+        <img src="./images/userauth.svg" alt="WDS logo">
+      </div>
     </div>
+  </div>
+  }
 
-    <!-- step 2 -->
-    <div class="company-info" *ngIf="currentStep===2">
-        <div class="row align-items-center g-4">
-            <div class="col-md-6">
-                <form [formGroup]="registerForm2" class="w-100 d-flex flex-column gap-2">
-                    <div class="form-group">
-                        <label for="logoInput" class="upload-box w-100 text-center" (click)="markLogoTouched()">
-                            <div class="upload-content" *ngIf="!previewUrl">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                        d="M17.5 11c-2.121 0-3.182 0-3.841-.659S13 8.621 13 6.5s0-3.182.659-3.841S15.379 2 17.5 2s3.182 0 3.841.659S22 4.379 22 6.5s0 3.182-.659 3.841S19.621 11 17.5 11m.75-6.5a.75.75 0 0 0-1.5 0v1.25H15.5a.75.75 0 0 0 0 1.5h1.25V8.5a.75.75 0 0 0 1.5 0V7.25h1.25a.75.75 0 0 0 0-1.5h-1.25z"
-                                        clip-rule="evenodd" />
-                                    <path fill="currentColor"
-                                        d="M22 12.698c-.002 1.47-.013 2.718-.096 3.743c-.097 1.19-.296 2.184-.74 3.009a4.2 4.2 0 0 1-.73.983c-.833.833-1.893 1.21-3.237 1.39C15.884 22 14.2 22 12.053 22h-.106c-2.148 0-3.83 0-5.144-.177c-1.343-.18-2.404-.557-3.236-1.39c-.738-.738-1.12-1.656-1.322-2.795c-.2-1.12-.236-2.512-.243-4.241Q1.999 12.737 2 12v-.054c0-2.148 0-3.83.177-5.144c.18-1.343.557-2.404 1.39-3.236s1.893-1.21 3.236-1.39c1.168-.157 2.67-.175 4.499-.177a.697.697 0 1 1 0 1.396c-1.855.002-3.234.018-4.313.163c-1.189.16-1.906.464-2.436.994S3.72 5.8 3.56 6.99C3.397 8.2 3.395 9.788 3.395 12v.784l.932-.814a2.14 2.14 0 0 1 2.922.097l3.99 3.99a1.86 1.86 0 0 0 2.385.207l.278-.195a2.79 2.79 0 0 1 3.471.209l2.633 2.37c.265-.557.423-1.288.507-2.32c.079-.972.09-2.152.091-3.63a.698.698 0 0 1 1.396 0"
-                                        opacity=".5" />
-                                </svg>
-                                <div class="fw-bold">Company logo</div>
-                                <span>Upload a PNG file Recomended (500x500) up to 5MB.</span>
-                            </div>
-
-                            <img *ngIf="previewUrl" [src]="previewUrl" class="preview-img" alt="Logo preview" />
-
-                            <input type="file" id="logoInput" accept="image/png" (change)="onFileSelected($event)"
-                                hidden />
-                        </label>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['required']">
-                            Logo is required.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['invalidFormat']">
-                            Only PNG images are allowed.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['maxSize']">
-                            Image size must be less than 5MB.
-                        </p>
-                    </div>
-
-
-
-                    <div class="input">
-                        <label for="compName"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <path stroke-linecap="round" d="M22 22H2" />
-                                    <path
-                                        d="M21 22V6c0-1.886 0-2.828-.586-3.414S18.886 2 17 2h-2c-1.886 0-2.828 0-3.414.586c-.472.471-.564 1.174-.582 2.414" />
-                                    <path
-                                        d="M15 22V9c0-1.886 0-2.828-.586-3.414S12.886 5 11 5H7c-1.886 0-2.828 0-3.414.586S3 7.114 3 9v13" />
-                                    <path stroke-linecap="round" d="M9 22v-3M6 8h6m-6 3h6m-6 3h6" />
-                                </g>
-                            </svg> Company Name
-                        </label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input formControlName="companyName" type="text" id="compName" class="form-control"
-                                    placeholder="What’s the name of your company?" [ngClass]="{
+  <!-- step 2 -->
+  @if (currentStep===2) {
+  <div class="company-info">
+    <div class="row align-items-center g-4">
+      <div class="col-md-6">
+        <form [formGroup]="registerForm2" class="w-100 d-flex flex-column gap-2">
+          <div class="form-group">
+            <label for="logoInput" class="upload-box w-100 text-center" (click)="markLogoTouched()">
+              @if (!previewUrl) {
+              <div class="upload-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M17.5 11c-2.121 0-3.182 0-3.841-.659S13 8.621 13 6.5s0-3.182.659-3.841S15.379 2 17.5 2s3.182 0 3.841.659S22 4.379 22 6.5s0 3.182-.659 3.841S19.621 11 17.5 11m.75-6.5a.75.75 0 0 0-1.5 0v1.25H15.5a.75.75 0 0 0 0 1.5h1.25V8.5a.75.75 0 0 0 1.5 0V7.25h1.25a.75.75 0 0 0 0-1.5h-1.25z"
+                    clip-rule="evenodd" />
+                  <path fill="currentColor"
+                    d="M22 12.698c-.002 1.47-.013 2.718-.096 3.743c-.097 1.19-.296 2.184-.74 3.009a4.2 4.2 0 0 1-.73.983c-.833.833-1.893 1.21-3.237 1.39C15.884 22 14.2 22 12.053 22h-.106c-2.148 0-3.83 0-5.144-.177c-1.343-.18-2.404-.557-3.236-1.39c-.738-.738-1.12-1.656-1.322-2.795c-.2-1.12-.236-2.512-.243-4.241Q1.999 12.737 2 12v-.054c0-2.148 0-3.83.177-5.144c.18-1.343.557-2.404 1.39-3.236s1.893-1.21 3.236-1.39c1.168-.157 2.67-.175 4.499-.177a.697.697 0 1 1 0 1.396c-1.855.002-3.234.018-4.313.163c-1.189.16-1.906.464-2.436.994S3.72 5.8 3.56 6.99C3.397 8.2 3.395 9.788 3.395 12v.784l.932-.814a2.14 2.14 0 0 1 2.922.097l3.99 3.99a1.86 1.86 0 0 0 2.385.207l.278-.195a2.79 2.79 0 0 1 3.471.209l2.633 2.37c.265-.557.423-1.288.507-2.32c.079-.972.09-2.152.091-3.63a.698.698 0 0 1 1.396 0"
+                    opacity=".5" />
+                </svg>
+                <div class="fw-bold">Company logo</div>
+                <span>Upload a PNG file Recomended (500x500) up to 5MB.</span>
+              </div>
+              }
+              @if (previewUrl) {
+              <img [src]="previewUrl" class="preview-img" alt="Logo preview" />
+              }
+              <input type="file" id="logoInput" accept="image/png" (change)="onFileSelected($event)" hidden />
+            </label>
+            @if (registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['required']) {
+            <p class="error-msg">
+              Logo is required.
+            </p>
+            }
+            @if (registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['invalidFormat']) {
+            <p class="error-msg">
+              Only PNG images are allowed.
+            </p>
+            }
+            @if (registerForm2.get('logo')?.touched && registerForm2.get('logo')?.errors?.['maxSize']) {
+            <p class="error-msg">
+              Image size must be less than 5MB.
+            </p>
+            }
+          </div>
+          <div class="input">
+            <label for="compName"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                  <path stroke-linecap="round" d="M22 22H2" />
+                  <path
+                    d="M21 22V6c0-1.886 0-2.828-.586-3.414S18.886 2 17 2h-2c-1.886 0-2.828 0-3.414.586c-.472.471-.564 1.174-.582 2.414" />
+                  <path
+                    d="M15 22V9c0-1.886 0-2.828-.586-3.414S12.886 5 11 5H7c-1.886 0-2.828 0-3.414.586S3 7.114 3 9v13" />
+                  <path stroke-linecap="round" d="M9 22v-3M6 8h6m-6 3h6m-6 3h6" />
+                </g>
+              </svg> Company Name
+            </label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input formControlName="companyName" type="text" id="compName" class="form-control"
+                  placeholder="What’s the name of your company?" [ngClass]="{
   'error-input': registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.invalid,
   'success-input': registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.valid
 }">
-                            </div>
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['required']">
-                            Company Name is required.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['minlength']">
-                            Company Name must be at least 3 characters.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['maxlength']">
-                            Company Name must not exceed 100 characters.
-                        </p>
-                    </div>
-
-
-                    <div class="input w-100">
-                        <label for="domain"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                                        d="M22 19h-8M2 19h8m2-2v-3" />
-                                    <circle cx="12" cy="19" r="2" stroke="currentColor" stroke-width="1.5" />
-                                    <path stroke="currentColor" stroke-width="1.5"
-                                        d="M2 11a3 3 0 0 1 3-3h14a3 3 0 1 1 0 6H5a3 3 0 0 1-3-3Zm0-6a3 3 0 0 1 3-3h14a3 3 0 1 1 0 6H5a3 3 0 0 1-3-3Z" />
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                                        d="M13 5h6m-6 6h6" />
-                                    <circle cx="6" cy="5" r="1" fill="currentColor" />
-                                    <circle cx="6" cy="11" r="1" fill="currentColor" />
-                                </g>
-                            </svg> Subdomain
-                        </label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="w-100">
-                                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <input formControlName="domain" (blur)="checkDomain()" type="text" id="domain"
-                                        class="form-control" placeholder="Company-domain" [ngClass]="{
+              </div>
+            </div>
+            @if (registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['required']) {
+            <p class="error-msg">
+              Company Name is required.
+            </p>
+            }
+            @if (registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['minlength']) {
+            <p class="error-msg">
+              Company Name must be at least 3 characters.
+            </p>
+            }
+            @if (registerForm2.get('companyName')?.touched && registerForm2.get('companyName')?.errors?.['maxlength']) {
+            <p class="error-msg">
+              Company Name must not exceed 100 characters.
+            </p>
+            }
+          </div>
+          <div class="input w-100">
+            <label for="domain"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M22 19h-8M2 19h8m2-2v-3" />
+                  <circle cx="12" cy="19" r="2" stroke="currentColor" stroke-width="1.5" />
+                  <path stroke="currentColor" stroke-width="1.5"
+                    d="M2 11a3 3 0 0 1 3-3h14a3 3 0 1 1 0 6H5a3 3 0 0 1-3-3Zm0-6a3 3 0 0 1 3-3h14a3 3 0 1 1 0 6H5a3 3 0 0 1-3-3Z" />
+                  <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M13 5h6m-6 6h6" />
+                  <circle cx="6" cy="5" r="1" fill="currentColor" />
+                  <circle cx="6" cy="11" r="1" fill="currentColor" />
+                </g>
+              </svg> Subdomain
+            </label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="w-100">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <input formControlName="domain" (blur)="checkDomain()" type="text" id="domain" class="form-control"
+                    placeholder="Company-domain" [ngClass]="{
     'error-input': registerForm2.get('domain')?.touched && registerForm2.get('domain')?.invalid,
     'success-input': registerForm2.get('domain')?.touched && registerForm2.get('domain')?.valid
   }">
-                                </div>
-
-                            </div>
-
-                            <span class="domain-com w-100 text-center">.workenrich.com</span>
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['required']">
-                            Domain is required.
-                        </p>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['pattern']">
-                            The domain can contain letters, numbers, or - only.
-                        </p>
-
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['domainTaken']">
-                            {{ domainMsg }}
-                        </p>
-
-                        <p class="success-msg"
-                            *ngIf="registerForm2.get('domain')?.touched && !registerForm2.get('domain')?.errors && domainAvailable">
-                            {{ domainMsg }}
-                        </p>
-
-                        <div *ngIf="!domainAvailable && domainSuggestions.length > 0" class="suggestions mt-2">
-                            <ul class="list-disc">
-                                <li *ngFor="let suggestion of domainSuggestions" (click)="selectSuggestion(suggestion)"
-                                    class="cursor-pointer hover:underline">
-                                    {{ suggestion }}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-
-
-                    <div class="input">
-                        <label for="noEmp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke-width="1.5">
-                                    <circle cx="12" cy="6" r="4" />
-                                    <path stroke-linecap="round"
-                                        d="M18 9c1.657 0 3-1.12 3-2.5S19.657 4 18 4M6 9C4.343 9 3 7.88 3 6.5S4.343 4 6 4" />
-                                    <ellipse cx="12" cy="17" rx="6" ry="4" />
-                                    <path stroke-linecap="round"
-                                        d="M20 19c1.754-.385 3-1.359 3-2.5s-1.246-2.115-3-2.5M4 19c-1.754-.385-3-1.359-3-2.5s1.246-2.115 3-2.5" />
-                                </g>
-                            </svg> No. of Employees</label>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <select formControlName="numOfEmployee" id="noEmp" class="form-select" [ngClass]="{
+                </div>
+              </div>
+              <span class="domain-com w-100 text-center">.workenrich.com</span>
+            </div>
+            @if (registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['required']) {
+            <p class="error-msg">
+              Domain is required.
+            </p>
+            }
+            @if (registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['pattern']) {
+            <p class="error-msg">
+              The domain can contain letters, numbers, or - only.
+            </p>
+            }
+            @if (registerForm2.get('domain')?.touched && registerForm2.get('domain')?.errors?.['domainTaken']) {
+            <p class="error-msg">
+              {{ domainMsg }}
+            </p>
+            }
+            @if (registerForm2.get('domain')?.touched && !registerForm2.get('domain')?.errors && domainAvailable) {
+            <p class="success-msg">
+              {{ domainMsg }}
+            </p>
+            }
+            @if (!domainAvailable && domainSuggestions.length > 0) {
+            <div class="suggestions mt-2">
+              <ul class="list-disc">
+                @for (suggestion of domainSuggestions; track suggestion) {
+                <li (click)="selectSuggestion(suggestion)" class="cursor-pointer hover:underline">
+                  {{ suggestion }}
+                </li>
+                }
+              </ul>
+            </div>
+            }
+          </div>
+          <div class="input">
+            <label for="noEmp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                  <circle cx="12" cy="6" r="4" />
+                  <path stroke-linecap="round"
+                    d="M18 9c1.657 0 3-1.12 3-2.5S19.657 4 18 4M6 9C4.343 9 3 7.88 3 6.5S4.343 4 6 4" />
+                  <ellipse cx="12" cy="17" rx="6" ry="4" />
+                  <path stroke-linecap="round"
+                    d="M20 19c1.754-.385 3-1.359 3-2.5s-1.246-2.115-3-2.5M4 19c-1.754-.385-3-1.359-3-2.5s1.246-2.115 3-2.5" />
+                </g>
+              </svg> No. of Employees</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <select formControlName="numOfEmployee" id="noEmp" class="form-select" [ngClass]="{
           'error-input': registerForm2.get('numOfEmployee')?.touched && registerForm2.get('numOfEmployee')?.invalid,
           'success-input': registerForm2.get('numOfEmployee')?.touched && registerForm2.get('numOfEmployee')?.valid
         }">
-                                    <option value="" disabled selected hidden>How many Employees do you have?</option>
-                                    <option value="1 - 50">1 - 50</option>
-                                    <option value="50 - 100">50 - 100</option>
-                                    <option value="100 - 500">100 - 500</option>
-                                    <option value="More than 500">More than 500</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <p class="error-msg"
-                            *ngIf="registerForm2.get('numOfEmployee')?.touched && registerForm2.get('numOfEmployee')?.errors?.['required']">
-                            Number of Employee is required.
-                        </p>
-                    </div>
-
-                    <div class="alert alert-danger" role="alert" *ngIf="errMsg">
-                        {{errMsg}}
-                    </div>
-
-                    <div class="d-flex align-items-stretch gap-2">
-                        <button type="button"
-                            class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
-                            (click)="goPrev()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                            </svg>
-                        </button>
-
-                        <button type="button" [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid"
-                            class="btn btn-lg btn-primary w-100" (click)="sendOtp()">
-                            <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status"
-                                aria-hidden="true"></span>
-                            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                viewBox="0 0 24 24">
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                            </svg>
-                            <span>Next (2/3)</span>
-                        </button>
-                    </div>
-                </form>
-
+                  <option value="" disabled selected hidden>How many Employees do you have?</option>
+                  <option value="1 - 50">1 - 50</option>
+                  <option value="50 - 100">50 - 100</option>
+                  <option value="100 - 500">100 - 500</option>
+                  <option value="More than 500">More than 500</option>
+                </select>
+              </div>
             </div>
-            <div class="d-none d-md-block col-md-6 text-center">
-                <img src="./images/companyauth.svg" alt="WDS logo">
-            </div>
-        </div>
+            @if (registerForm2.get('numOfEmployee')?.touched &&
+            registerForm2.get('numOfEmployee')?.errors?.['required']) {
+            <p class="error-msg">
+              Number of Employee is required.
+            </p>
+            }
+          </div>
+          @if (errMsg) {
+          <div class="alert alert-danger" role="alert">
+            {{errMsg}}
+          </div>
+          }
+          <div class="d-flex align-items-stretch gap-2">
+            <button type="button" class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
+              (click)="goPrev()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+              </svg>
+            </button>
+            <button type="button" [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid"
+              class="btn btn-lg btn-primary w-100" (click)="sendOtp()">
+              @if (isLoading) {
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              }
+              @if (!isLoading) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+              </svg>
+              }
+              <span>Next (2/3)</span>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="d-none d-md-block col-md-6 text-center">
+        <img src="./images/companyauth.svg" alt="WDS logo">
+      </div>
     </div>
+  </div>
+  }
 
-    <!-- step 3 -->
-    <div class="verify" *ngIf="currentStep===3">
-        <div class="row align-items-center g-4">
-            <form [formGroup]="otpForm" class="col-md-6">
-                <div class="w-100 d-flex flex-column gap-2">
-                    <p class="verify-text">We’ve just sent you an email with a Code.
-                        Please enter it below to Verify your Email.</p>
-
-
-                    <ng-otp-input
-                        [config]="{ length: 6, inputClass: 'otp-input form-control m-auto my-3 rounded-3', isPasswordInput: true }"
-                        (onInputChange)="onOtpChange($event)">
-                    </ng-otp-input>
-
-                    <p class="error-msg"
-                        *ngIf="otpForm.get('otp')?.touched && otpForm.get('otp')?.errors?.['required']">
-                        OTP is required.
-                    </p>
-                    <p class="error-msg"
-                        *ngIf="otpForm.get('otp')?.touched && otpForm.get('otp')?.errors?.['minlength']">
-                        OTP must be 6 digits.
-                    </p>
-                    <div class="alert alert-danger" role="alert" *ngIf="errMsg">
-                        {{errMsg}}
-                    </div>
-                    <div class="d-flex align-items-stretch gap-2">
-                        <button type="button"
-                            class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
-                            (click)="goPrev()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                            </svg>
-                        </button>
-                        <button class="btn btn-lg btn-success w-100" (click)="createAccount()"
-                            [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid || !otpForm.valid">
-                            <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status"
-                                aria-hidden="true"></span>
-                            <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                </g>
-                            </svg>
-                            <span>Create Account</span>
-                        </button>
-                    </div>
-                    <p class="resend-otp">
-                        <a href="#" type="button" (click)="resendEmail($event)"
-                            [class.disabled]="!canResend || isLoading"
-                            [style.pointer-events]="(canResend && !isLoading) ? 'auto' : 'none'">
-                            Resend Email
-                        </a>
-                        <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
-                    </p>
-
-
-                </div>
-
-            </form>
-            <div class="d-none d-md-block col-md-6 text-center">
-                <img src="./images/verify.svg" alt="WDS logo" class="img-fluid">
-            </div>
+  <!-- step 3 -->
+  @if (currentStep===3) {
+  <div class="verify">
+    <div class="row align-items-center g-4">
+      <form [formGroup]="otpForm" class="col-md-6">
+        <div class="w-100 d-flex flex-column gap-2">
+          <p class="verify-text">We’ve just sent you an email with a Code.
+            Please enter it below to Verify your Email.</p>
+          <ng-otp-input
+            [config]="{ length: 6, inputClass: 'otp-input form-control m-auto my-3 rounded-3', isPasswordInput: true }"
+            (onInputChange)="onOtpChange($event)">
+          </ng-otp-input>
+          @if (otpForm.get('otp')?.touched && otpForm.get('otp')?.errors?.['required']) {
+          <p class="error-msg">
+            OTP is required.
+          </p>
+          }
+          @if (otpForm.get('otp')?.touched && otpForm.get('otp')?.errors?.['minlength']) {
+          <p class="error-msg">
+            OTP must be 6 digits.
+          </p>
+          }
+          @if (errMsg) {
+          <div class="alert alert-danger" role="alert">
+            {{errMsg}}
+          </div>
+          }
+          <div class="d-flex align-items-stretch gap-2">
+            <button type="button" class="btn btn-outline-dark bg-white d-flex justify-content-center align-items-center"
+              (click)="goPrev()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+              </svg>
+            </button>
+            <button class="btn btn-lg btn-success w-100" (click)="createAccount()"
+              [disabled]="isLoading || !registerForm1.valid || !registerForm2.valid || !otpForm.valid">
+              @if (isLoading) {
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              }
+              @if (!isLoading) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+              </svg>
+              }
+              <span>Create Account</span>
+            </button>
+          </div>
+          <p class="resend-otp">
+            <a href="#" type="button" (click)="resendEmail($event)" [class.disabled]="!canResend || isLoading"
+              [style.pointer-events]="(canResend && !isLoading) ? 'auto' : 'none'">
+              Resend Email
+            </a>
+            <span class="time">{{ minutes }}:{{ seconds | number: '2.0' }}</span>
+          </p>
         </div>
+      </form>
+      <div class="d-none d-md-block col-md-6 text-center">
+        <img src="./images/verify.svg" alt="WDS logo" class="img-fluid">
+      </div>
     </div>
+  </div>
+  }
 </div>

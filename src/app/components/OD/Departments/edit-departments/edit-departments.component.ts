@@ -6,6 +6,7 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsM
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-edit-departments',
@@ -18,6 +19,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 export class EditDepartmentsComponent implements OnInit {
   constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute, private fb: FormBuilder,
     private router: Router,
+    private subService: SubscriptionService,
     private datePipe: DatePipe, private toasterMessageService: ToasterMessageService) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -33,6 +35,7 @@ export class EditDepartmentsComponent implements OnInit {
   currentPage: number = 1;
 
   ngOnInit(): void {
+    
     this.deptId = this.route.snapshot.paramMap.get('id');
     // this.getDepartment(Number(this.deptId));
     if (this.deptId) {
@@ -48,10 +51,11 @@ export class EditDepartmentsComponent implements OnInit {
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-
+        console.log(this.departmentData);
         this.deptStep1.patchValue({
           code: this.departmentData.code || '',
           name: this.departmentData.name || '',
+          department_type: this.departmentData.department_type.id || '',
           objectives: this.departmentData.objectives || ''
         });
 
@@ -93,6 +97,7 @@ export class EditDepartmentsComponent implements OnInit {
   deptStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });
 
@@ -211,6 +216,7 @@ updateDept() {
       id: this.departmentData.id,
       code: form1Data.code,
       name: form1Data.name,
+      department_type: Number(form1Data.department_type), 
       objectives: form1Data.objectives,
       sections: allSections
     }

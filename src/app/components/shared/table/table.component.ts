@@ -41,6 +41,13 @@ export class TableComponent {
   get totalPages(): number {
   return Math.ceil(this.totalItems / this.itemsPerPage);
 }
+getColumnsArray(count: number): number[] {
+  return Array(count).fill(0);
+}
+indexFn(index: number, item: any) {
+  return index; // أو أي مفتاح فريد بناءً على الـ item
+}
+
 
   
 }

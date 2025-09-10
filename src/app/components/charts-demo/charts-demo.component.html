@@ -1,0 +1,204 @@
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4 text-center">Chart.js Demo Dashboard</h1>
+      <p class="text-center text-muted mb-4">
+        Interactive charts powered by Chart.js library showcasing different chart types
+      </p>
+      
+      <!-- Update Button -->
+      <div class="text-center mb-4">
+        <button 
+          type="button" 
+          class="btn btn-primary btn-lg"
+          (click)="updateCharts()">
+          <i class="fas fa-sync-alt me-2"></i>
+          Update Charts with Random Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="row g-4">
+    <!-- Line Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-line me-2"></i>
+            Line Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #lineChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-bar me-2"></i>
+            Bar Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #barChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-warning text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-pie me-2"></i>
+            Pie Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #pieChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doughnut Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-dot-circle me-2"></i>
+            Doughnut Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #doughnutChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Polar Area Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-compass me-2"></i>
+            Polar Area Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #polarChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="col-lg-6 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-danger text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-spider me-2"></i>
+            Radar Chart
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas #radarChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Chart.js Features Demonstrated
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="fw-bold">Chart Types:</h6>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i>Line Chart - Time series data</li>
+                <li><i class="fas fa-check text-success me-2"></i>Bar Chart - Categorical data comparison</li>
+                <li><i class="fas fa-check text-success me-2"></i>Pie Chart - Part-to-whole relationships</li>
+                <li><i class="fas fa-check text-success me-2"></i>Doughnut Chart - Similar to pie with center space</li>
+                <li><i class="fas fa-check text-success me-2"></i>Polar Area Chart - Circular bar chart</li>
+                <li><i class="fas fa-check text-success me-2"></i>Radar Chart - Multi-dimensional data</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="fw-bold">Features:</h6>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i>Responsive design</li>
+                <li><i class="fas fa-check text-success me-2"></i>Interactive tooltips</li>
+                <li><i class="fas fa-check text-success me-2"></i>Dynamic data updates</li>
+                <li><i class="fas fa-check text-success me-2"></i>Custom colors and styling</li>
+                <li><i class="fas fa-check text-success me-2"></i>Smooth animations</li>
+                <li><i class="fas fa-check text-success me-2"></i>Multiple datasets support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Example Section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-code me-2"></i>
+            Quick Start Example
+          </h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">To create a simple chart in your Angular component:</p>
+          <pre class="bg-light p-3 rounded"><code>import &#123; Chart, registerables &#125; from 'chart.js';
+
+// Register Chart.js components
+Chart.register(...registerables);
+
+// In your component
+const ctx = document.getElementById('myChart') as HTMLCanvasElement;
+const myChart = new Chart(ctx, &#123;
+  type: 'bar',
+  data: &#123;
+    labels: ['Red', 'Blue', 'Yellow'],
+    datasets: [&#123;
+      label: 'My Dataset',
+      data: [12, 19, 3],
+      backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 205, 86, 0.2)']
+    &#125;]
+  &#125;,
+  options: &#123;
+    responsive: true
+  &#125;
+&#125;);</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

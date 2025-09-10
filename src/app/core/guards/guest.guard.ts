@@ -8,7 +8,7 @@ export class GuestGuard implements CanActivate {
   canActivate(): boolean {
     const isLoggedIn = !!localStorage.getItem('user_info');
     if (isLoggedIn) {
-      this.router.navigate(['/departments']);
+      this.router.navigate(['/admin-dash']);
       return false;
     }
     return true;

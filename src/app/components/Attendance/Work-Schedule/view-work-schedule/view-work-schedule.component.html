@@ -3,7 +3,7 @@
     { label: 'Work Schedule', link: '/schedule' },
     {  label: 'View Work Schedule - '+workScduleData.name}
   ]" [title]="'View Work Schedule - '+workScduleData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-primary" [routerLink]="['/schedule/edit-schedule', 1]">
+  <button class="btn btn-lg btn-primary" [routerLink]="['/schedule/edit-schedule', workScduleData.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round"

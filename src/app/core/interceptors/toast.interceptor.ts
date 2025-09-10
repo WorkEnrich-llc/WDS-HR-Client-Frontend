@@ -76,6 +76,8 @@ function getDefaultErrorMessage(error: HttpErrorResponse): string {
       return 'Validation error. Please check your input.';
     case 500:
       return 'Server error. Please try again later.';
+    case 502:
+      return 'Bad gateway. Please try again later.';
     case 0:
       return 'Network error. Please check your connection.';
     default:

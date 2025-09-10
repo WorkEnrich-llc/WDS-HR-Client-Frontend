@@ -14,6 +14,7 @@ import { CookieService } from 'ngx-cookie-service';
   styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnDestroy, OnInit {
+  isPasswordVisible = false
   private _currentStep = 1;
   get currentStep() {
     return this._currentStep;
@@ -255,7 +256,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
   domainMsg: string = '';
   domainAvailable: boolean = false;
-  domainSuggestions: string[] = []; 
+  domainSuggestions: string[] = [];
 
   checkDomain(): void {
     const domainControl = this.registerForm2.get('domain');
@@ -265,7 +266,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
       next: (response) => {
         this.domainMsg = 'Domain is available';
         this.domainAvailable = true;
-        this.domainSuggestions = []; 
+        this.domainSuggestions = [];
 
         domainControl.markAsTouched();
 
@@ -290,10 +291,10 @@ export class RegisterComponent implements OnDestroy, OnInit {
       }
     });
   }
-selectSuggestion(suggestion: string): void {
-  this.registerForm2.get('domain')?.setValue(suggestion);
-  this.checkDomain(); 
-}
+  selectSuggestion(suggestion: string): void {
+    this.registerForm2.get('domain')?.setValue(suggestion);
+    this.checkDomain();
+  }
 
   timeLeftResend: number = 0;
   sendOtp(): void {
@@ -324,7 +325,7 @@ selectSuggestion(suggestion: string): void {
   createAccount(): void {
     this.isLoading = true;
     this.errMsg = '';
-    const device_token=localStorage.getItem('device_token');
+    const device_token = localStorage.getItem('device_token');
     const formData = new FormData();
     formData.append('name', this.registerForm1.get('name')?.value);
     formData.append('email', this.registerForm1.get('email')?.value);
@@ -336,8 +337,8 @@ selectSuggestion(suggestion: string): void {
     formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
     formData.append('company_logo', this.registerForm2.get('logo')?.value);
     formData.append('verification_code', this.otpForm.get('otp')?.value);
-    formData.append('device_token', device_token! ); 
-    
+    formData.append('device_token', device_token!);
+
     // for (let pair of formData.entries()) {
     //   console.log(`${pair[0]}:`, pair[1]);
     // }
@@ -366,10 +367,10 @@ selectSuggestion(suggestion: string): void {
           // console.log('company_info:', companyInfo);
         }
 
-        if (subscription) {
-          localStorage.setItem('subscription_info', JSON.stringify(subscription));
-          // console.log('subscription_info:', subscription);
-        }
+        // if (subscription) {
+        //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+        //   // console.log('subscription_info:', subscription);
+        // }
         const domain = response.data?.company_info?.domain;
         if (domain) {
           // window.location.href = `https://${domain}/departments`;
@@ -467,6 +468,10 @@ selectSuggestion(suggestion: string): void {
     if (this.countdown) {
       clearInterval(this.countdown);
     }
+  }
+
+  togglePassword(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
   }
 
 }

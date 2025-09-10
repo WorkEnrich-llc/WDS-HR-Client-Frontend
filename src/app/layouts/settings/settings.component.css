@@ -11,6 +11,13 @@ body {
     display: none;
 }
 
+.nav .nav-item{
+    cursor: pointer;
+    padding: unset;
+}
+.nav .nav-item a{
+    padding: var(--spacing-8) var(--spacing-16);
+}
 .nav-item.active {
     position: relative;
 }

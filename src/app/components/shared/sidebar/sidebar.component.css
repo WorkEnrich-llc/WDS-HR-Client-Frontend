@@ -1,7 +1,7 @@
 .sidenav {
     position: fixed;
     top: 0;
-    /* z-index: 999 !important; */
+    /* z-index        : 999 !important; */
     width: 78px;
     bottom: 0;
     padding: var(--spacing-36) 0 0 0;
@@ -9,17 +9,20 @@
     border-right: 1px solid var(--color-neutral-200);
     transition: all 0.5s ease;
     overflow-y: auto;
-    scrollbar-width: none;       
-  -ms-overflow-style: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
-.sidenav::-webkit-scrollbar {     
+
+.sidenav::-webkit-scrollbar {
     display: none;
-  }
+}
+
 @media (max-width:768px) {
-    .sidenav{
+    .sidenav {
         z-index: 999;
     }
 }
+
 .svg-active-accordion {
     fill: var(--color-primary-500) !important;
 }
@@ -156,11 +159,14 @@
     border-top: 1px solid var(--color-secondary-100);
     border-bottom: 1px solid var(--color-secondary-100);
 }
-.sidenav-collapsed .bottom-nav .sidenav-nav-item{
+
+.sidenav-collapsed .bottom-nav .sidenav-nav-item {
     border-color: transparent;
 }
+
 .sidenav-collapsed .sidenav-nav-item,
-.sidenav-collapsed .admin .sidenav-nav-item ,.sidenav-collapsed .bottom-nav .sidenav-nav-item{
+.sidenav-collapsed .admin .sidenav-nav-item,
+.sidenav-collapsed .bottom-nav .sidenav-nav-item {
     padding: var(--spacing-16) var(--spacing-24);
     display: block;
     cursor: pointer;
@@ -179,11 +185,6 @@
 .bottom-nav .sidenav-nav-item:hover,
 .accordion .accordion-button:hover {
     background-color: var(--color-secondary-100);
-}
-
-.admin .sidenav-nav-item:hover {
-    cursor: default;
-    background-color: white;
 }
 
 .accordion .accordion-button:not(.collapsed) svg:not(.stroke) {
@@ -269,17 +270,116 @@
 .sidenav-collapsed .sidenav-nav-item {
     padding: var(--spacing-16) var(--spacing-48);
 }
-.accordion-body .sidenav-nav-item{
+
+.accordion-body .sidenav-nav-item {
     border-color: transparent;
 }
-.link-button-outer{
+
+.link-button-outer {
     padding: var(--spacing-16) var(--spacing-24) !important;
-    border-top:0 ;
+    border-top: 0;
 }
-.accordion-item:last-of-type > .accordion-header .accordion-button.collapsed,.accordion-item:last-of-type,.accordion-item:first-of-type{
+
+.accordion-item:last-of-type>.accordion-header .accordion-button.collapsed,
+.accordion-item:last-of-type,
+.accordion-item:first-of-type {
     border-radius: 0 !important;
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     -ms-border-radius: 0 !important;
     -o-border-radius: 0 !important;
+}
+
+.sidenav .admin .sidenav-nav-item {
+    justify-content: center;
+}
+
+/* notification */
+
+
+.notification-dot {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    right: 7px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-danger-500);
+    border-radius: 50%;
+}
+
+.notification {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    border-bottom: 1px solid var(--color-secondary-300);
+    padding: var(--spacing-16) 0;
+}
+
+.notification .icon {
+    width: 63px;
+    height: 63px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-secondary-100);
+    padding: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+}
+
+.notification .icon svg {
+    width: 50%;
+    height: 50%;
+    max-width: 100%;
+    max-height: 100%;
+
+}
+
+.notification .icon svg path {
+    fill: var(--color-secondary-500);
+}
+.notification.success .icon{
+    background-color: var(--color-success-100);
+}
+.notification.success .icon svg path {
+    fill: var(--color-success-500);
+}
+.notification.danger .icon{
+    background-color: var(--color-danger-100);
+}
+.notification.danger .icon svg path {
+fill: var(--color-danger-500);
+}
+.notification .noti-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+}
+
+.notification .noti-content h6 {
+    color: var(--color-secondary-700);
+    font-size: var(--font-size-b2);
+    line-height: var(--line-height-xss);
+    margin: 0;
+}
+
+.notification .noti-content span {
+    color: var(--color-secondary-500);
+    font-size: var(--font-size-b3);
+}
+
+.notification .noti-content p {
+    color: var(--color-secondary-700);
+    font-size: var(--font-size-b3);
+}
+
+.notification .noti-content button {
+    border-radius: 25px !important;
+    -webkit-border-radius: 25px !important;
+    -moz-border-radius: 25px !important;
+    -ms-border-radius: 25px !important;
+    -o-border-radius: 25px !important;
 }

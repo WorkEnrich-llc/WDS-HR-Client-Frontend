@@ -1,0 +1,112 @@
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Attendance Details</h2>
+    <div formGroupName="attendance_details" class="w-lg-50 d-flex flex-column gap-2">
+      
+      <div class="input">
+        <label for="employment_type">Employment Type <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select id="employment_type" formControlName="employment_type" class="form-select">
+              <option value="" disabled hidden>Select Employment Type</option>
+              @for (type of sharedService.employmentTypes(); track type) {
+                <option [value]="type.id">{{ type.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('employment_type', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('employment_type', sharedService.attendanceDetails)}}
+          </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="work_mode">Work Mode <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select id="work_mode" formControlName="work_mode" class="form-select">
+              <option value="" disabled hidden>Select Work Mode</option>
+              @for (mode of sharedService.workModes(); track mode) {
+                <option [value]="mode.id">{{ mode.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('work_mode', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('work_mode', sharedService.attendanceDetails)}}
+          </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="days_on_site">No. of Days on site</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="days_on_site" formControlName="days_on_site"
+            class="form-control custom-date-input"
+            placeholder="Max: 7"
+            min="0" max="7" />
+        </div>
+        @if (sharedService.isFieldInvalid('days_on_site', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('days_on_site', sharedService.attendanceDetails)}}
+          </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="work_schedule_id">Work Schedule <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select">
+              <option value="" disabled hidden>Select Work Schedule</option>
+              @for (schedule of sharedService.workSchedules(); track schedule.id) {
+                <option [value]="schedule.id">{{ schedule.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails)}}
+          </p>
+        }
+      </div>
+
+      <div class="input form-check">
+        <input type="checkbox" id="activate_attendance_rules" formControlName="activate_attendance_rules"
+          class="form-check-input" />
+        <label class="form-check-label" for="activate_attendance_rules">Activate Attendance Rules</label>
+      </div>
+
+      @if (sharedService.errMsg()) {
+        <div class="alert alert-danger mb-0 mt-3" role="alert">
+          {{sharedService.errMsg()}}
+        </div>
+      }
+    </div>
+
+    <!-- prev and next buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+      <button type="button"
+        class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+            stroke-width="2" d="m15 6l-6 6l6 6" />
+        </svg>
+      </button>
+      <button type="button" class="btn btn-lg btn-success" (click)="goNext()">
+        @if (!sharedService.isLoading()) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+              stroke-width="2" d="m9 6l6 6l-6 6" />
+          </svg>
+        }
+        <span>Next</span>
+      </button>
+    </div>
+  </div>
+</div>

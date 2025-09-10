@@ -1,6 +1,8 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 interface SideNavToggle {
   screenWidth: number;
@@ -9,21 +11,52 @@ interface SideNavToggle {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, OverlayFilterBoxComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
   currentRoute: string = '';
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    public subService: SubscriptionService
+  ) { }
 
 
 
   @Output() onToggleSideNav: EventEmitter<SideNavToggle> = new EventEmitter();
+
+  // start notification popup
+  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+
+  isNotificationOpen = false;
+  hasNewNotifications = true;
+
+  handleNotificationClick() {
+    this.closeAllAccordions();
+
+    if (this.isNotificationOpen) {
+      this.overlay.closeOverlay();
+    } else {
+      this.overlay.openOverlay();
+      this.isNotificationOpen = true;
+    }
+  }
+
+  ngAfterViewInit() {
+    this.overlay.onClose.subscribe(() => {
+      this.isNotificationOpen = false;
+    });
+  }
+  // end notification popup
+
+
+
+
   collapsed = true;
   screenWidth = 0;
   showText = false;
-
+  features: any = {};
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.screenWidth = window.innerWidth;
@@ -39,10 +72,10 @@ export class SidebarComponent implements OnInit {
       screenWidth: this.screenWidth,
     });
   }
-// close accourdions opens when click one out accourdion 
-@ViewChild('accordionWrapper') accordionWrapper!: ElementRef;
+  // close accourdions opens when click one out accourdion 
+  @ViewChild('accordionWrapper') accordionWrapper!: ElementRef;
 
-closeAllAccordions(): void {
+  closeAllAccordions(): void {
     const accordions = this.accordionWrapper.nativeElement.querySelectorAll('.accordion-collapse.show');
 
     accordions.forEach((el: HTMLElement) => {
@@ -57,6 +90,15 @@ closeAllAccordions(): void {
   }
   // screen responsive in start page
   ngOnInit(): void {
+    
+    // supscription all feature supported 
+    this.subService.allFeatures$.subscribe(features => {
+      if (features && Object.keys(features).length > 0) {
+        this.features = features;
+        console.log(this.features);
+      }
+    });
+
     // route contain to active icon 
     this.currentRoute = this.router.url;
     this.router.events.subscribe(() => {

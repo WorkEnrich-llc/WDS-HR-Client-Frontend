@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink } from '@angular/router';
 type Applicant = {
@@ -13,7 +13,7 @@ type Applicant = {
 };
 @Component({
   selector: 'app-view-jop-open',
-  imports: [PageHeaderComponent, CommonModule, TableComponent,RouterLink],
+  imports: [PageHeaderComponent, TableComponent, RouterLink],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
 })

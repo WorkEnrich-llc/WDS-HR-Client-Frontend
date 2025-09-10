@@ -1,5 +1,5 @@
 <!-- start page header -->
-<app-page-header [breadcrumbs]="[
+<!-- <app-page-header [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Component',link:'/payroll-components/all-payroll-components' },
     { label: 'Edit Component 00232'},
@@ -23,10 +23,10 @@
         </svg>
         <span>Discard Changes</span>
     </button>
-</app-page-header>
+</app-page-header> -->
 
 
-<div class="content-hug">
+<!-- <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
         <form class="w-lg-50 d-flex flex-column gap-2">
@@ -44,10 +44,10 @@
                     <input type="text" id="compName" class="form-control custom-date-input"
                         placeholder="Enter Component Name" />
                 </div>
-                <!-- <p class="error-msg"
+                <p class="error-msg"
                     *ngIf="deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']">
                     Component Name is required.
-                </p> -->
+                </p>
             </div>
             <div class="input">
                 <label for="type">Type <span>*</span></label>
@@ -60,10 +60,10 @@
                         </select>
                     </div>
                 </div>
-                <!-- <p class="error-msg"
+                <p class="error-msg"
                     *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
                     Management Level is required.
-                </p> -->
+                </p>
             </div>
             <div class="input">
                 <label for="Classification">Classification <span>*</span></label>
@@ -76,10 +76,10 @@
                         </select>
                     </div>
                 </div>
-                <!-- <p class="error-msg"
+                <p class="error-msg"
                     *ngIf="jobStep1.get('managementLevel')?.touched && jobStep1.get('managementLevel')?.errors?.['required']">
                     Management Level is required.
-                </p> -->
+                </p>
             </div>
             <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                 <input class="form-check-input m-0" type="checkbox" id="shown">
@@ -89,12 +89,12 @@
             </div>
         </form>
     </div>
-</div>
+</div> -->
 
 
 
 <!-- Discard popup  -->
-<app-popup [title]="'Discard Changes Payroll Component'"
+<!-- <app-popup [title]="'Discard Changes Payroll Component'"
     [paragraph1]="'Are you sure you want to discard creating the new Payroll Component?'"
     [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
     <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
@@ -103,4 +103,4 @@
     <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
         Cancel
     </button>
-</app-popup>
+</app-popup> -->

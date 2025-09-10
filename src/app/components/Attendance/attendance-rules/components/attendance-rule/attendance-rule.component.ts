@@ -1,13 +1,13 @@
 import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData, WorkTypeSettings } from '../../models/attendance-rules.interface';
 
 @Component({
   selector: 'app-attendance-rule',
-  imports: [PageHeaderComponent, RouterLink, CommonModule],
+  imports: [PageHeaderComponent, RouterLink],
   templateUrl: './attendance-rule.component.html',
   styleUrls: ['../../../../shared/table/table.component.css', './attendance-rule.component.css'],
   encapsulation: ViewEncapsulation.None
@@ -27,7 +27,8 @@ export class AttendanceRuleComponent implements OnInit {
     this.loading = true;
     this.attendanceRulesService.getAttendanceRules().subscribe({
       next: (response) => {
-        this.attendanceRulesData = response.data;
+        this.attendanceRulesData = response?.data;
+        console.log(this.attendanceRulesData);
         this.loading = false;
       },
       error: (error) => {

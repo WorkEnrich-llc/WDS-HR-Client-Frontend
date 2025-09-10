@@ -1,0 +1,28 @@
+/* Main component styles */
+.content-hug {
+  padding: 1rem;
+}
+
+.content-box {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+/* Form styles */
+form {
+  margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-hug {
+    padding: 0.5rem;
+  }
+  
+  .content-box {
+    padding: 1rem;
+  }
+}

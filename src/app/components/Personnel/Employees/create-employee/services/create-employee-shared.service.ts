@@ -82,17 +82,23 @@ export class CreateEmployeeSharedService {
         department_id: [null, Validators.required],
         section_id: [null],
         job_title_id: [null, Validators.required],
-        work_schedule_id: [null, Validators.required],
-        activate_attendance_rules: [false]
+        years_of_experience: [null]
       }),
       contract_details: this.fb.group({
         start_contract: ['', Validators.required],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
+        include_probation: [false],
+        notice_period: [null],
+        salary: ['', [Validators.required, Validators.min(0)]],
+        insurance_salary: ['']
+      }),
+      attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
         work_mode: [null, Validators.required],
         days_on_site: [''],
-        salary: ['', [Validators.required, Validators.min(0)]]
+        work_schedule_id: [null],
+        activate_attendance_rules: [false]
       })
     });
   }
@@ -110,8 +116,8 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for work mode changes to handle days on site requirement
-    this.contractDetails.get('work_mode')?.valueChanges.subscribe(workMode => {
-      const daysOnSiteControl = this.contractDetails.get('days_on_site');
+    this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workMode: any) => {
+      const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
       if (workMode === 3) { // Hybrid
         daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
       } else if (workMode === 1) { // On site
@@ -125,7 +131,7 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for job title changes to update salary ranges
-    this.jobDetails.get('job_title_id')?.valueChanges.subscribe(jobTitleId => {
+    this.jobDetails.get('job_title_id')?.valueChanges.subscribe((jobTitleId: any) => {
       if (jobTitleId) {
         const selectedTitle = this.jobTitles().find(title => title.id == jobTitleId);
         this.selectedJobTitle.set(selectedTitle || null);
@@ -137,7 +143,7 @@ export class CreateEmployeeSharedService {
     });
 
     // Watch for employment type changes to update salary range and validators
-    this.contractDetails.get('employment_type')?.valueChanges.subscribe(employmentType => {
+    this.attendanceDetails.get('employment_type')?.valueChanges.subscribe((employmentType: any) => {
       this.updateSalaryRange();
     });
 
@@ -156,6 +162,7 @@ export class CreateEmployeeSharedService {
   get mainInformation() { return this.employeeForm.get('main_information') as FormGroup; }
   get jobDetails() { return this.employeeForm.get('job_details') as FormGroup; }
   get contractDetails() { return this.employeeForm.get('contract_details') as FormGroup; }
+  get attendanceDetails() { return this.employeeForm.get('attendance_details') as FormGroup; }
   get mobileGroup() { return this.mainInformation.get('mobile') as FormGroup; }
 
   // Country methods
@@ -193,8 +200,8 @@ export class CreateEmployeeSharedService {
   // Salary range methods
   updateSalaryRange(): void {
     const selectedTitle = this.selectedJobTitle();
-    const employmentType = +this.contractDetails.get('employment_type')?.value;
-    
+    const employmentType = +this.attendanceDetails.get('employment_type')?.value;
+
     if (!selectedTitle || !selectedTitle.salary_ranges || !employmentType) {
       this.currentSalaryRange.set(null);
       this.updateSalaryValidators(null);
@@ -202,7 +209,7 @@ export class CreateEmployeeSharedService {
     }
 
     let salaryRange = null;
-    
+
     switch (employmentType) {
       case 1: // Full Time
         salaryRange = selectedTitle.salary_ranges.full_time;
@@ -235,7 +242,7 @@ export class CreateEmployeeSharedService {
     if (salaryRange) {
       const minValue = Number(salaryRange.minimum);
       const maxValue = Number(salaryRange.maximum);
-      
+
       salaryControl.setValidators([
         Validators.required,
         Validators.min(minValue),
@@ -247,14 +254,14 @@ export class CreateEmployeeSharedService {
         Validators.min(0)
       ]);
     }
-    
+
     salaryControl.updateValueAndValidity();
   }
 
   getSalaryRangeDisplay(): { min: string, max: string, currency: string } | null {
     const range = this.currentSalaryRange();
     if (!range) return null;
-    
+
     return {
       min: this.formatCurrency(range.minimum),
       max: this.formatCurrency(range.maximum),
@@ -286,6 +293,22 @@ export class CreateEmployeeSharedService {
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
     }
     return '';
+  }
+
+  // Method to clear field errors and reset touched state
+  clearFieldErrors(fieldName: string, formGroup?: FormGroup): void {
+    const group = formGroup || this.employeeForm;
+    const field = group.get(fieldName);
+    if (field) {
+      field.setErrors(null);
+      field.markAsUntouched();
+      field.markAsPristine();
+    }
+  }
+
+  // Method to clear all error messages
+  clearErrorMessages(): void {
+    this.errMsg.set('');
   }
 
   validateCurrentStep(): boolean {
@@ -328,6 +351,13 @@ export class CreateEmployeeSharedService {
         }
         break;
       case 3:
+        this.attendanceDetails.markAllAsTouched();
+        if (this.attendanceDetails.invalid) {
+          isValid = false;
+          this.errMsg.set('Please fill in all required fields in Attendance Details');
+        }
+        break;
+      case 4:
         this.contractDetails.markAllAsTouched();
         if (this.contractDetails.invalid) {
           isValid = false;
@@ -342,7 +372,7 @@ export class CreateEmployeeSharedService {
   goNext() {
     // Debug form state before validation
     this.debugFormState();
-    
+
     if (this.validateCurrentStep()) {
       this.currentStep.set(this.currentStep() + 1);
     }
@@ -362,6 +392,9 @@ export class CreateEmployeeSharedService {
     // Set default values after reset
     this.mobileGroup.get('country_id')?.setValue(1);
     this.contractDetails.get('contract_type')?.setValue(2);
+    this.contractDetails.get('include_probation')?.setValue(false);
+    this.contractDetails.get('notice_period')?.setValue(null);
+    this.contractDetails.get('insurance_salary')?.setValue('');
     this.currentStep.set(1);
     this.errMsg.set('');
     this.selectedJobTitle.set(null);

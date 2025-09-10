@@ -30,17 +30,48 @@ export class SystemCloudService {
         const url = `${this.apiBaseUrl}cloud/files/`;
         return this._HttpClient.post(url, folderData);
     }
-    
+
+    // create system File
+    createSystemFile(folderData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/`;
+        return this._HttpClient.post(url, folderData);
+    }
+
     // create upload file
-  createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
-  const url = `${this.apiBaseUrl}cloud/files/`;
+    createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
+        const url = `${this.apiBaseUrl}cloud/files/`;
 
-  const req = new HttpRequest('POST', url, fileData, {
-    reportProgress: true
-  });
+        const req = new HttpRequest('POST', url, fileData, {
+            reportProgress: true
+        });
+        return this._HttpClient.request(req);
+    }
 
-  return this._HttpClient.request(req);
-}
+    // delete file and folder
+    deleteFile(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/${id}/`;
+        return this._HttpClient.delete(url);
+    }
 
+    // rename file
+    renameFile(id: string, folderData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files/${id}/`;
+        //   console.log('🌐 PATCH request from service:', { url, folderData });
+        return this._HttpClient.patch(url, folderData);
+    }
+
+
+    // get system file data 
+    getSystemFileData(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
+        return this._HttpClient.get(url);
+    }
+
+
+    // save system file
+    updateSheet(id: string, fileData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
+        return this._HttpClient.put(url, fileData);
+    }
 
 }

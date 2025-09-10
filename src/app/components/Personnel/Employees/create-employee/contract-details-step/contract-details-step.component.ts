@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
@@ -6,7 +6,7 @@ import { CreateEmployeeSharedService } from '../services/create-employee-shared.
 @Component({
   selector: 'app-contract-details-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './contract-details-step.component.html',
   styleUrls: ['./contract-details-step.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]

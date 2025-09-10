@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { VersionService } from '../../../core/services/version.service';
 import { CommonModule } from '@angular/common';
+import { versionInfo } from '../../../../environments/version';
 
 @Component({
   selector: 'app-version-display',
@@ -9,11 +10,12 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="version-display" [ngClass]="{'production': versionService.isProduction(), 'staging': versionService.isStaging(), 'development': versionService.isDevelopment()}">
       <small>
-        <span class="version-text">{{versionService.getVersionString()}}</span>
-        <span class="branch-text" *ngIf="!versionService.isProduction()">{{versionService.getBranch()}}</span>
+        <span class="version-text">v{{ versionInfo.version }}</span>
+        <span class="build-date-text" *ngIf="versionInfo.buildDate">&nbsp;•&nbsp;{{ versionInfo.buildDate | date:'short' }}</span>
+        <span class="branch-text" *ngIf="!versionService.isProduction() && versionService.getBranch()">{{ versionService.getBranch() }}</span>
       </small>
     </div>
-  `,
+    `,
   styles: [`
     .version-display {
       position: fixed;
@@ -65,5 +67,7 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class VersionDisplayComponent {
+  public versionInfo = versionInfo;
+
   constructor(public versionService: VersionService) {}
 }

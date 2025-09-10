@@ -1,135 +1,74 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
-
-interface EmployeeRequest {
-  id: number;
-  requestedAt: string;
-  currentStep: string;
-  leaveType: string;
-  dateRange: string;
-  status: 'Pending' | 'Active' | 'Disabled' | 'Inactive';
-}
+import { ApprovalRequestsService } from '../../../../../../core/services/personnel/approval-requests/approval-requests.service';
+import { ApprovalRequestItem } from '../../../../../../core/interfaces/approval-request';
 
 @Component({
   selector: 'app-requests-tab',
   imports: [CommonModule, RouterLink, TableComponent],
   templateUrl: './requests-tab.component.html',
-  styleUrl: './requests-tab.component.css'
+  styleUrls: ['./requests-tab.component.css']
 })
-export class RequestsTabComponent implements OnInit {
+export class RequestsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @Input() isEmployeeActive: boolean = false;
 
-  requests: EmployeeRequest[] = [];
+  requests: ApprovalRequestItem[] = [];
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
   loading: boolean = false;
 
+  constructor(private approvalRequestsService: ApprovalRequestsService) { }
+
   ngOnInit(): void {
-    this.loadDummyRequests();
+    if (this.employee?.id) {
+      this.loadEmployeeRequests();
+    }
   }
 
-  loadDummyRequests(): void {
-    // Dummy data for the requests table - matching the screenshot data
-    this.requests = [
-      {
-        id: 1,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['employee'] && this.employee?.id) {
+      this.currentPage = 1; // Reset to first page when employee changes
+    }
+  }
+
+  loadEmployeeRequests(): void {
+    if (!this.employee?.id) return;
+
+    this.loading = true;
+    this.approvalRequestsService.getEmployeeRequests(
+      this.employee.id,
+      this.currentPage,
+      this.itemsPerPage
+    ).subscribe({
+      next: (response) => {
+        this.requests = response.data.list_items;
+        this.totalItems = response.data.total_items;
+        this.loading = false;
       },
-      {
-        id: 2,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Active'
-      },
-      {
-        id: 3,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Disabled'
-      },
-      {
-        id: 4,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Inactive'
-      },
-      {
-        id: 5,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
-      },
-      {
-        id: 6,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
-      },
-      {
-        id: 7,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
-      },
-      {
-        id: 8,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
-      },
-      {
-        id: 9,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
-      },
-      {
-        id: 10,
-        requestedAt: '2025-01-12T00:00:00Z',
-        currentStep: 'Direct Manager\'s Approval',
-        leaveType: 'Sick Leave',
-        dateRange: '12/1/2025',
-        status: 'Pending'
+      error: (error) => {
+        console.error('Error loading employee requests:', error);
+        this.loading = false;
+        // Keep empty array to show no data message
+        this.requests = [];
+        this.totalItems = 0;
       }
-    ];
-    
-    this.totalItems = this.requests.length;
+    });
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    // In a real application, you would load data for the new page here
+    this.loadEmployeeRequests();
   }
 
   onItemsPerPageChange(newItemsPerPage: number): void {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // In a real application, you would reload data with new page size here
+    this.loadEmployeeRequests();
   }
 
   getFormattedDate(dateString: string): string {
@@ -145,14 +84,46 @@ export class RequestsTabComponent implements OnInit {
     switch (status.toLowerCase()) {
       case 'pending':
         return 'badge-warning';
+      case 'approved':
       case 'active':
         return 'badge-success';
+      case 'rejected':
       case 'disabled':
         return 'badge-danger';
+      case 'expired':
       case 'inactive':
         return 'badge-gray';
       default:
         return 'badge-gray';
     }
+  }
+
+  getDateRange(request: ApprovalRequestItem): string {
+    const from = request.dates?.from_date;
+    const to = request.dates?.to_date;
+    if (!from || !to) return '';
+
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    const formatDate = (date: Date) => date.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    });
+
+    if (from === to) return formatDate(fromDate);
+    return `${formatDate(fromDate)} - ${formatDate(toDate)}`;
+  }
+
+  getCurrentStep(request: ApprovalRequestItem): string {
+    // Use API field `current_step` when available, otherwise fallback to status
+  const currentStep = (request as any).current_step;
+  if (currentStep) return currentStep;
+  const name = request.status?.name || '';
+    if (name.toLowerCase() === 'pending') return 'Pending Approval';
+    if (name.toLowerCase() === 'approved' || name.toLowerCase() === 'accepted') return 'Approved';
+    if (name.toLowerCase() === 'rejected') return 'Rejected';
+    return name;
   }
 }

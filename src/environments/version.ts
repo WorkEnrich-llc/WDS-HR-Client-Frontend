@@ -1,9 +1,7 @@
 // This file is auto-generated. Do not edit manually.
 export const versionInfo = {
-  "version": "0.0.1",
-  "branch": "task/personnel/employee",
-  "commit": "db52dd7",
-  "buildDate": "2025-08-03T16:44:59.690Z",
+  "version": "0.0.103",
+  "buildDate": "2025-09-06T00:00:00.690Z",
   "buildTimestamp": 1754239499691
 };
 

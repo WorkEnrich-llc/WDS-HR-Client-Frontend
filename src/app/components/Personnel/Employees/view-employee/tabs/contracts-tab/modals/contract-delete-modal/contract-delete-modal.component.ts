@@ -1,28 +1,28 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { PopupComponent } from '../../../../../../../shared/popup/popup.component';
 
 @Component({
   standalone: true,
-  selector: 'app-contract-delete-modal',
-  imports: [CommonModule, PopupComponent],
+  selector: 'app-contract-cancel-modal',
+  imports: [PopupComponent],
   templateUrl: './contract-delete-modal.component.html',
   styleUrl: './contract-delete-modal.component.css'
 })
-export class ContractDeleteModalComponent {
+export class ContractCancelModalComponent {
   @Input() isOpen = false;
   @Input() contract: Contract | null = null;
   @Output() onClose = new EventEmitter<void>();
-  @Output() onDelete = new EventEmitter<Contract>();
+  @Output() onCancel = new EventEmitter<Contract>();
 
   closeModal(): void {
     this.onClose.emit();
   }
 
-  confirmDelete(): void {
+  confirmCancel(): void {
     if (this.contract) {
-      this.onDelete.emit(this.contract);
+      this.onCancel.emit(this.contract);
     }
   }
 
