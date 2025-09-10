@@ -27,7 +27,7 @@ export class ProfileSettingsComponent implements OnInit {
 
   private initFormModel(): void {
     this.profileForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), fourPartsValidator()]],
+      name: ['', [Validators.required, fourPartsValidator()]],
       phone: ['', [Validators.required, Validators.pattern(/^[1-9][0-9]{9,}$/)]],
       email: [{ value: '', disabled: true }],
       department: [{ value: '', disabled: true }],
