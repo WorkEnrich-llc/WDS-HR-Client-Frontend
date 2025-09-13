@@ -88,18 +88,20 @@
       <td class="cursor-pointer">
         <span class="d-block text-gray-sm">{{ role.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ role.role }}
+          {{ role.name }}
         </span>
       </td>
       <td class="cursor-pointer">
-        <span class="d-block text-gray-sm"><span>4</span> Modules</span>
+        <span class="d-block text-gray-sm"><span>{{ getModuleCount(role) }}</span> Modules</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          <span>89</span> Permissions
+          <span>{{ getPermissionsCount(role) }}</span> Permissions
         </span>
       </td>
       <td class="cursor-pointer"><span>15</span> Users</td>
+
       <td class="cursor-pointer">
-        <span class="badge-success" *ngIf="role.status === 'active'">
+        @if(role.status){
+        <span class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -108,7 +110,9 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-gray" *ngIf="role.status === 'inactive'">
+        }
+        @else {
+        <span class="badge-gray">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
@@ -117,9 +121,13 @@
           </svg>
           <span>Inactive</span>
         </span>
+        }
+
+
       </td>
       <td>
-        <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+        <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+          [routerLink]="['/roles/edit-role', role.id]">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round"
@@ -151,14 +159,15 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-  <form class="w-100 d-flex flex-column gap-3">
+  <form class="w-100 d-flex flex-column gap-3" [formGroup]="filterForm" (ngSubmit)="filter()">
     <div class="input">
       <label for="Status">Status</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="Status" id="Status" class="form-select">
-            <option value="" selected disabled hidden>Select</option>
-            <!-- <option *ngFor="let dept of departments" [value]=dept.id>{{dept.name}}</option> -->
+          <select formControlName="status" name="Status" id="Status" class="form-select">
+            <option value="" selected>Select</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -181,9 +190,9 @@
       <label for="active_modules">Active Modules</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="active_modules" id="active_modules" class="form-select">
-            <option value="" selected disabled hidden>Select</option>
-            <option value=1>1</option>
+          <select formControlName="activeModules" id="active_modules" class="form-select">
+            <option value="" selected>Select</option>
+            <option *ngFor="let module of moduleNames" [value]="module">{{ module }}</option>
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -206,9 +215,9 @@
       <label for="active_services">Active Services</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="active_services" id="active_services" class="form-select">
-            <option value="" selected disabled hidden>Select</option>
-            <option value=1>1</option>
+          <select formControlName="activeServices" name="active_services" id="active_services" class="form-select">
+            <option value="" selected>Select</option>
+            <option *ngFor="let service of serviceNames" [value]="service">{{ service }}</option>
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
