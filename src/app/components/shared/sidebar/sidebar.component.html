@@ -27,7 +27,8 @@
     <!-- admin dashboard -->
     <ul class="admin mb-0">
       <li class="sidenav-nav-item" routerLink="/admin-dash" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+        [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+        [attr.title]="!collapsed ? 'Admin Dashboard' : null">
         <a class="sidenav-nav-link d-flex align-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path
@@ -49,7 +50,8 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
             @if (currentRoute.includes('departments') || currentRoute.includes('branches') ||
-            currentRoute.includes('jobs') || currentRoute.includes('organizational-Chart')) {
+            currentRoute.includes('jobs') || currentRoute.includes('organizational-Chart') ||
+            currentRoute.includes('goals')) {
             <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"
               class="svg-active-accordion">
               <path
@@ -90,7 +92,8 @@
               <!-- Departments link -->
               @if(features.Departments){
               <li class="sidenav-nav-item" routerLink="/departments" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Departments' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -109,7 +112,8 @@
               <!-- branches link -->
               @if(features.Branches){
               <li class="sidenav-nav-item" routerLink="/branches" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Branches' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -126,7 +130,8 @@
               <!-- job Titles link -->
               @if(features.Job_Titles){
               <li class="sidenav-nav-item" routerLink="/jobs" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Job Titles' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -142,7 +147,8 @@
 
               <!-- ORGANIZATIONAL chart link -->
               <li class="sidenav-nav-item" routerLink="/organizational-Chart" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Org Structure' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg class="stroke" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <g fill="none">
@@ -157,6 +163,25 @@
                   @if (collapsed) {
                   <!-- <span>Organizational Chart</span> -->
                   <span>Org Structure</span>
+                  }
+                </a>
+              </li>
+
+              <!-- Goals link -->
+              <li class="sidenav-nav-item" routerLink="/goals" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Goals' : null">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
+                    <path 
+                      d="M9.25 12a.75.75 0 0 1 .75-.75h1.25V10a.75.75 0 0 1 1.5 0v1.25H14a.75.75 0 0 1 0 1.5h-1.25V14a.75.75 0 0 1-1.5 0v-1.25H10a.75.75 0 0 1-.75-.75" />
+                    <path  fill-rule="evenodd"
+                      d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25m-.75 1.53a9.25 9.25 0 0 0-8.47 8.47H5a.75.75 0 0 1 0 1.5H2.78a9.25 9.25 0 0 0 8.47 8.47V19a.75.75 0 0 1 1.5 0v2.22a9.25 9.25 0 0 0 8.47-8.47H19a.75.75 0 0 1 0-1.5h2.22a9.25 9.25 0 0 0-8.47-8.47V5a.75.75 0 0 1-1.5 0z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Goals</span>
                   }
                 </a>
               </li>
@@ -206,7 +231,8 @@
               <!-- Dashboard persoal calender link -->
               @if(features.Calendar){
               <li class="sidenav-nav-item" routerLink="/dashboard" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Calender' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -228,7 +254,8 @@
               <!-- Employees link -->
               @if(features.Employees){
               <li class="sidenav-nav-item" routerLink="/employees" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Employees' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -251,7 +278,8 @@
               <!-- Approval Workflow link -->
               @if(features.Workflow){
               <li class="sidenav-nav-item" routerLink="/workflow" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Workflow' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -268,7 +296,8 @@
               <!-- Approval Requests link -->
               @if(features.Requests){
               <li class="sidenav-nav-item" routerLink="/requests" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Requests' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -288,7 +317,8 @@
               <!-- Delegation link -->
               @if(features.Delegation){
               <li class="sidenav-nav-item" routerLink="/delegation" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Delegation' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <!-- sample delegation icon -->
@@ -305,7 +335,8 @@
               <!-- onboarding link -->
               @if(features.Onboarding){
               <li class="sidenav-nav-item" routerLink="/onboarding" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Onboarding List' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -361,7 +392,8 @@
               <!-- Attendance log Link -->
               @if(features.Attendance_Log){
               <li class="sidenav-nav-item" routerLink="/attendance/attendance-log" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Attendance Log' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -378,7 +410,8 @@
               <!-- Attendance Rules Link -->
               @if(features.Attendance_Rules){
               <li class="sidenav-nav-item" routerLink="/attendance-rules" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Attendance Rules' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -397,7 +430,8 @@
               <!-- Restricted Days link -->
               @if(features.Restricted){
               <li class="sidenav-nav-item" routerLink="/restricted-days" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Restricted Days' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -414,7 +448,8 @@
               <!-- Work Schedule link -->
               @if(features.Work_Schedule){
               <li class="sidenav-nav-item" routerLink="/schedule" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Work Schedule' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -431,7 +466,8 @@
               <!-- Leave Types link -->
               @if(features.Leave_Types){
               <li class="sidenav-nav-item" routerLink="/leave-types" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Leave Types' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -448,10 +484,10 @@
               <!-- Leave Balance link -->
               @if(features.Leave_Balance || true){
               <li class="sidenav-nav-item" routerLink="/leave-balance" routerLinkActive="active"
+                data-bs-toggle="tooltip" data-bs-placement="right" [attr.title]="!collapsed ? 'Leave Balance' : null"
                 [routerLinkActiveOptions]="{ exact: false }">
                 <a class="sidenav-nav-link d-flex align-items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
                       d="M18.955 1.25c-.433 0-.83 0-1.152.043c-.356.048-.731.16-1.04.47s-.422.684-.47 1.04c-.043.323-.043.72-.043 1.152v13.09c0 .433 0 .83.043 1.152c.048.356.16.731.47 1.04s.684.422 1.04.47c.323.043.72.043 1.152.043h.09c.433 0 .83 0 1.152-.043c.356-.048.731-.16 1.04-.47s.422-.684.47-1.04c.043-.323.043-.72.043-1.152V3.955c0-.433 0-.83-.043-1.152c-.048-.356-.16-.731-.47-1.04s-.684-.422-1.04-.47c-.323-.043-.72-.043-1.152-.043zm-1.13 1.572l-.002.001l-.001.003l-.005.01a.7.7 0 0 0-.037.167c-.028.21-.03.504-.03.997v13c0 .493.002.787.03.997a.7.7 0 0 0 .042.177l.001.003l.003.001l.003.002l.007.003c.022.009.07.024.167.037c.21.028.504.03.997.03s.787-.002.997-.03a.7.7 0 0 0 .177-.042l.003-.001l.001-.003l.005-.01a.7.7 0 0 0 .037-.167c.028-.21.03-.504.03-.997V4c0-.493-.002-.787-.03-.997a.7.7 0 0 0-.042-.177l-.001-.003l-.003-.001l-.01-.005a.7.7 0 0 0-.167-.037c-.21-.028-.504-.03-.997-.03s-.787.002-.997.03a.7.7 0 0 0-.177.042M11.955 4.25h.09c.433 0 .83 0 1.152.043c.356.048.731.16 1.04.47s.422.684.47 1.04c.043.323.043.72.043 1.152v10.09c0 .433 0 .83-.043 1.152c-.048.356-.16.731-.47 1.04s-.684.422-1.04.47c-.323.043-.72.043-1.152.043h-.09c-.432 0-.83 0-1.152-.043c-.356-.048-.731-.16-1.04-.47s-.422-.684-.47-1.04c-.043-.323-.043-.72-.043-1.152V6.955c0-.433 0-.83.043-1.152c.048-.356.16-.731.47-1.04s.684-.422 1.04-.47c.323-.043.72-.043 1.152-.043m-1.132 1.573l.003-.001l-.003 12.355l-.001-.003l-.005-.01a.7.7 0 0 1-.037-.167c-.028-.21-.03-.504-.03-.997V7c0-.493.002-.787.03-.997a.7.7 0 0 1 .042-.177zm0 12.354l.003-12.355l.003-.002l.007-.003a.7.7 0 0 1 .167-.037c.21-.028.504-.03.997-.03s.787.002.997.03a.7.7 0 0 1 .177.042l.003.001l.001.003l.005.01c.009.022.024.07.037.167c.028.21.03.504.03.997v10c0 .493-.002.787-.03.997a.7.7 0 0 1-.042.177l-.001.003l-.003.001l-.01.005a.7.7 0 0 1-.167.037c-.21.028-.504.03-.997.03s-.787-.002-.997-.03a.7.7 0 0 1-.177-.042zM4.955 8.25c-.433 0-.83 0-1.152.043c-.356.048-.731.16-1.04.47s-.422.684-.47 1.04c-.043.323-.043.72-.043 1.152v6.09c0 .433 0 .83.043 1.152c.048.356.16.731.47 1.04s.684.422 1.04.47c.323.043.72.043 1.152.043h.09c.433 0 .83 0 1.152-.043c.356-.048.731-.16 1.04-.47s.422-.684.47-1.04c.043-.323.043-.72.043-1.152v-6.09c0-.433 0-.83-.043-1.152c-.048-.356-.16-.731-.47-1.04s-.684-.422-1.04-.47c-.323-.043-.72-.043-1.152-.043zm-1.13 1.572l-.002.001l-.001.003l-.005.01a.7.7 0 0 0-.037.167c-.028.21-.03.504-.03.997v6c0 .493.002.787.03.997a.7.7 0 0 0 .042.177v.002l.004.002l.01.005c.022.009.07.024.167.037c.21.028.504.03.997.03s.787-.002.997-.03a.7.7 0 0 0 .177-.042l.003-.001l.001-.003l.002-.004l.003-.006a.7.7 0 0 0 .037-.167c.028-.21.03-.504.03-.997v-6c0-.493-.002-.787-.03-.997a.7.7 0 0 0-.042-.177l-.001-.003l-.003-.001l-.01-.005a.7.7 0 0 0-.167-.037c-.21-.028-.504-.03-.997-.03s-.787.002-.997.03a.7.7 0 0 0-.177.042"
                       clip-rule="evenodd" />
@@ -467,7 +503,8 @@
               <!-- permissions Link -->
               @if(features.Permissions_Control){
               <li class="sidenav-nav-item" routerLink="/permissions" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Permissions' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -531,7 +568,8 @@
               <!-- Calendar link -->
               @if(features.Calendar){
               <li class="sidenav-nav-item" routerLink="/calendar" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Calendar' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -552,7 +590,8 @@
               <!-- Job Openings link -->
               @if(features.Job_Openings){
               <li class="sidenav-nav-item" routerLink="/job-openings" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Job Openings' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -575,7 +614,8 @@
               <!-- Archived Openings link -->
               @if(features.Archived_Openings){
               <li class="sidenav-nav-item" routerLink="/archived-openings" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Archived Openings' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -638,7 +678,8 @@
               <!-- payroll components link -->
               @if(features.Payroll_Components){
               <li class="sidenav-nav-item" routerLink="/payroll-components" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Payroll Components' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -655,7 +696,8 @@
               <!-- payroll runs link -->
 
               <li class="sidenav-nav-item" routerLink="/payroll-runs" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Payroll Runs' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -670,7 +712,8 @@
               <!-- Salary Portions link -->
 
               <li class="sidenav-nav-item" routerLink="/salary-portions" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Salary Portions' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -725,7 +768,8 @@
             <ul class="sidenav-nav">
               <!-- System Cloud link -->
               <li class="sidenav-nav-item" routerLink="/cloud" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'System Cloud' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -741,7 +785,8 @@
               </li>
               <!-- Roles link -->
               <li class="sidenav-nav-item" routerLink="/roles" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Roles' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -757,7 +802,8 @@
               </li>
               <!-- Users link -->
               <li class="sidenav-nav-item" routerLink="/users" routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: false }">
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Users' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -791,7 +837,8 @@
   <ul class="bottom-nav mb-0 mt-auto">
     <!-- setting button -->
     <li class="sidenav-nav-item" routerLink="/settings" routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: false }" (click)="closeAllAccordions()">
+      [routerLinkActiveOptions]="{ exact: false }" (click)="closeAllAccordions()" data-bs-toggle="tooltip"
+      data-bs-placement="right" [attr.title]="!collapsed ? 'Profile' : null">
       <a class="sidenav-nav-link d-flex align-items-center">
         <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
@@ -812,7 +859,8 @@
       </a>
     </li>
     <!-- notifications button -->
-    <li class="sidenav-nav-item" [class.active]="isNotificationOpen" (click)="handleNotificationClick()">
+    <li class="sidenav-nav-item" [class.active]="isNotificationOpen" (click)="handleNotificationClick()"
+      data-bs-toggle="tooltip" data-bs-placement="right" [attr.title]="!collapsed ? 'Notifications' : null">
       <a class="sidenav-nav-link d-flex align-items-center position-relative">
         <div class="position-relative">
           <svg class="notification-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
