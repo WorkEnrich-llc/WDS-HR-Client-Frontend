@@ -374,7 +374,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
         const domain = response.data?.company_info?.domain;
         if (domain) {
           // window.location.href = `https://${domain}/departments`;
-          this._Router.navigate(['/departments']);
+          this._Router.navigate(['/admin-dash']);
         } else {
           this.errMsg = 'Invalid company domain';
         }
