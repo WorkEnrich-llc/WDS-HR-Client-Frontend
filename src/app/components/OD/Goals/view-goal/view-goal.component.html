@@ -1,1 +1,128 @@
-<p>view-goal works!</p>
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/departments' },
+    { label: 'Goals', link: '/goals' },
+    {  label: 'View Goal ' + goalData.name }
+  ]" [title]="'View Goal - ' + goalData.name" [create]="goalData.createdAt" [update]="goalData.updatedAt">
+  <button class="btn btn-lg btn-primary" [routerLink]="['/goals/edit', goalData.id]">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round"
+          d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+        <path
+          d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+      </g>
+    </svg>
+    <span>Edit</span>
+  </button>
+
+  <button class="btn btn-lg btn-outline-success" (click)="openReopen()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
+    </svg>
+    <span>Reopen</span>
+  </button>
+
+
+</app-page-header>
+
+<div class="content-hug d-flex flex-column gap-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <div class="info">
+          <h6>Goal ID</h6>
+          <span>{{goalData.id.toString().padStart(4, '0') || 'N/A'}}</span>
+        </div>
+
+        <div class="info">
+          <h6>Goal Name</h6>
+          <span>{{goalData.name}}</span>
+        </div>
+
+        <div class="info">
+          <h6>Goal Department Type</h6>
+          <span>{{goalData.goalDepartmentType}}</span>
+        </div>
+
+        <div class="info">
+          <h6>Priority</h6>
+          <span>{{goalData.priority}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="content-box d-flex flex-column gap-3">
+        <h2>Assign Information</h2>
+        @if (goalData.status ==='Assigned') {
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Assigned</span>
+        </span>
+        }
+        @if (goalData.status ==='Unassigned') {
+        <span class="badge-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
+              <circle cx="12" cy="12" r="10" />
+            </g>
+          </svg>
+          <span>Unassigned</span>
+        </span>
+        }
+        @for (item of goalData.assignedDepartments; track $index) {
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="info">
+            <h6>Assigned Department #{{ $index + 1 }}</h6>
+            <span>{{ item.name }}</span>
+          </div>
+          <button [routerLink]="['/departmet/view-department', 1]" class="view-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+              viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                <path
+                  d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+              </g>
+            </svg>
+          </button>
+        </div>
+        }
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+  <!-- reopen popup -->
+  <app-popup [title]="'Reopen Goal'" [paragraph1]="'Are you sure you want to Reopen Goal “' + goalData.name + '”?'"
+    [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="reOpenOpen" (close)="closeReopen()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmReopen()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor"
+          d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
+      </svg>
+      <span>ReOpen</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeReopen()">
+      Cancel
+    </button>
+  </app-popup>

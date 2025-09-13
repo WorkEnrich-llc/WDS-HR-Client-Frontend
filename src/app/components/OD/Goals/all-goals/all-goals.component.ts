@@ -37,7 +37,7 @@ export class AllGoalsComponent {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData: boolean = true;
+  loadData: boolean = false;
   sortDirection: string = 'asc';
 
   private searchSubject = new Subject<string>();

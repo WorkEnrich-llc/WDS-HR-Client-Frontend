@@ -49,13 +49,13 @@
 
     <!-- start Table -->
 
-    <app-table [isLoading]="loadData" [columnsCount]="4" [data]="goals" [totalItems]="totalItems"
+    <app-table [isLoading]="loadData" [columnsCount]="4" [data]="goals" [totalItems]="goals.length"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="goalsTableHeader"
       [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
 
     <ng-template #goalsTableHeader>
-      <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+      <th (click)="sortBy()" style="cursor: pointer;" class="w-50">
         <div class="d-flex align-items-center justify-content-between">
           <span>Goal</span>
           @if (sortDirection === 'desc') {
@@ -103,17 +103,18 @@
         }
         @if (goal.status ==='Unassigned') {
         <span class="badge-danger">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
               <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
             </g>
           </svg>
           <span>Unassigned</span>
         </span>
         }
       </td>
-      <td>{{goal.departmet}}</td>
+      <td>{{goal.department}}</td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
           <a [routerLink]="['/goals/view-goal', goal.id]"

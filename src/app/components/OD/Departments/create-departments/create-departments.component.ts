@@ -183,6 +183,6 @@ export class CreateDepartmentsComponent {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/departments/all-departments']);
+    this.router.navigate(['/departments']);
   }
 }
