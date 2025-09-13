@@ -274,6 +274,30 @@ export const routes: Routes = [
                 // data: { feature: 'Goals', action: 'update' }
               },
             ]
+          },
+
+          // department checklists routes
+          {
+            path: 'dept-check',
+            // canActivate: [SubscriptionGuard],
+            // data: { feature: 'Department_Checklists' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'view-checklist',
+                pathMatch: 'full'
+              },
+              {
+                path: 'view-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/department-checklist/department-checklist.component').then(m => m.DepartmentChecklistComponent),
+                title: 'Department Checklists',
+              },
+              {
+                path: 'edit-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/edit-department-checklists/edit-department-checklists.component').then(m => m.EditDepartmentChecklistsComponent),
+                title: 'Edit Department Checklists',
+              },
+            ]
           }
         ]
       },

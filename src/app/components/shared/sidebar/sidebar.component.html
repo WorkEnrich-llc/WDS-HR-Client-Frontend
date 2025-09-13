@@ -51,7 +51,7 @@
             data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
             @if (currentRoute.includes('departments') || currentRoute.includes('branches') ||
             currentRoute.includes('jobs') || currentRoute.includes('organizational-Chart') ||
-            currentRoute.includes('goals')) {
+            currentRoute.includes('goals') || currentRoute.includes('dept-check')) {
             <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg"
               class="svg-active-accordion">
               <path
@@ -172,16 +172,32 @@
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Goals' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <path 
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path
                       d="M9.25 12a.75.75 0 0 1 .75-.75h1.25V10a.75.75 0 0 1 1.5 0v1.25H14a.75.75 0 0 1 0 1.5h-1.25V14a.75.75 0 0 1-1.5 0v-1.25H10a.75.75 0 0 1-.75-.75" />
-                    <path  fill-rule="evenodd"
+                    <path fill-rule="evenodd"
                       d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25m-.75 1.53a9.25 9.25 0 0 0-8.47 8.47H5a.75.75 0 0 1 0 1.5H2.78a9.25 9.25 0 0 0 8.47 8.47V19a.75.75 0 0 1 1.5 0v2.22a9.25 9.25 0 0 0 8.47-8.47H19a.75.75 0 0 1 0-1.5h2.22a9.25 9.25 0 0 0-8.47-8.47V5a.75.75 0 0 1-1.5 0z"
                       clip-rule="evenodd" />
                   </svg>
                   @if (collapsed) {
                   <span>Goals</span>
+                  }
+                </a>
+              </li>
+
+              <!-- Department checklist link -->
+              <li class="sidenav-nav-item" routerLink="/dept-check" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Department Checklist' : null">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                      d="M8.136 1.603a.75.75 0 0 1-.238 1.033l-4 2.5a.75.75 0 0 1-.796-1.272l4-2.5a.75.75 0 0 1 1.034.239m7.728 0a.75.75 0 0 1 1.034-.239l4 2.5a.75.75 0 1 1-.796 1.272l-4-2.5a.75.75 0 0 1-.238-1.033M12 4.75a8.25 8.25 0 1 0 0 16.5a8.25 8.25 0 0 0 0-16.5M2.25 13c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75s-4.365 9.75-9.75 9.75S2.25 18.385 2.25 13M12 9.25a.75.75 0 0 1 .75.75v2.25H15a.75.75 0 0 1 0 1.5h-2.25V16a.75.75 0 0 1-1.5 0v-2.25H9a.75.75 0 0 1 0-1.5h2.25V10a.75.75 0 0 1 .75-.75"
+                      clip-rule="evenodd" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Department Checks</span>
                   }
                 </a>
               </li>
