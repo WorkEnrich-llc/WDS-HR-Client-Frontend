@@ -77,7 +77,7 @@ export class LoginComponent implements OnInit {
           // }
 
           // window.location.href = `https://${domain}/departments`;
-          this._Router.navigate(['/departments']);
+          this._Router.navigate(['/admin-dash']);
         } else {
           this.errMsg = 'Invalid response from server.';
         }

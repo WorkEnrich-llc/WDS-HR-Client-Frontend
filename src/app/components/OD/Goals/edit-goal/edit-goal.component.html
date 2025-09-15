@@ -1,0 +1,114 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/departments' },
+    { label: 'Goals', link: '/goals' },
+    { label: 'Edit Goal' }
+  ]" title="Edit Goal" create="01/09/2025" update="05/09/2025">
+    <button class="btn btn-lg btn-success">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isLoading) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Goal</span>
+    </button>
+</app-page-header>
+
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="goalCode">Goal ID (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="goalCode" class="form-control custom-date-input" placeholder="0050" />
+                </div>
+                <!-- @if (deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']) {
+        <p class="error-msg">
+          Department Code must include both letters and numbers.
+        </p>
+        } -->
+            </div>
+
+            <div class="input">
+                <label for="deptName">Goal Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="deptName" class="form-control custom-date-input"
+                        placeholder="Enter Goal Name" />
+                </div>
+                <!-- @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']) {
+        <p class="error-msg">
+          Department Name is required.
+        </p>
+        } -->
+            </div>
+
+            <div class="input">
+                <label for="deptType">Goal Department Type <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select id="deptType" class="form-select">
+                        <option value="" selected disabled hidden>Select Goal Department Type</option>
+                        <option value="1">Support</option>
+                        <option value="2">Technical</option>
+                    </select>
+                </div>
+                <!-- @if (deptStep1.get('department_type')?.touched && deptStep1.get('department_type')?.errors?.['required']) {
+        <p class="error-msg">
+          Department Type is required.
+        </p>
+        } -->
+            </div>
+
+            
+
+            <div class="input">
+                <label for="deptType">Priority <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select id="deptType" class="form-select">
+                        <option value="" selected disabled hidden>Select Priority</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <!-- @if (deptStep1.get('department_type')?.touched && deptStep1.get('department_type')?.errors?.['required']) {
+        <p class="error-msg">
+          Department Type is required.
+        </p>
+        } -->
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Edit Goal'" [paragraph1]="'Are you sure you want to discard Edit Goal?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

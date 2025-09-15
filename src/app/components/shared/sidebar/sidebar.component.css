@@ -383,3 +383,6 @@ fill: var(--color-danger-500);
     -ms-border-radius: 25px !important;
     -o-border-radius: 25px !important;
 }
+.sidenav-nav-item{
+    cursor: pointer;
+}

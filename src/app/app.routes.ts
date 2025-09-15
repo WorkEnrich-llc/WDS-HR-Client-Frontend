@@ -236,6 +236,68 @@ export const routes: Routes = [
                 ]
               },
             ]
+          },
+
+          // Goals routes
+          {
+            path: 'goals',
+            // canActivate: [SubscriptionGuard],
+            // data: { feature: 'Goals' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-goals',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-goals',
+                loadComponent: () => import('./components/OD/Goals/all-goals/all-goals.component').then(m => m.AllGoalsComponent),
+                title: 'Goals',
+              },
+              {
+                path: 'view-goal/:id',
+                loadComponent: () => import('./components/OD/Goals/view-goal/view-goal.component').then(m => m.ViewGoalComponent),
+                title: 'View Goal'
+              },
+              {
+                path: 'create',
+                loadComponent: () => import('./components/OD/Goals/new-goal/new-goal.component').then(m => m.NewGoalComponent),
+                title: 'Create Goal',
+                // canActivate: [SubscriptionGuard],
+                // data: { feature: 'Goals', action: 'create' }
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () => import('./components/OD/Goals/edit-goal/edit-goal.component').then(m => m.EditGoalComponent),
+                title: 'Edit Goal',
+                // canActivate: [SubscriptionGuard],
+                // data: { feature: 'Goals', action: 'update' }
+              },
+            ]
+          },
+
+          // department checklists routes
+          {
+            path: 'dept-check',
+            // canActivate: [SubscriptionGuard],
+            // data: { feature: 'Department_Checklists' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'view-checklist',
+                pathMatch: 'full'
+              },
+              {
+                path: 'view-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/department-checklist/department-checklist.component').then(m => m.DepartmentChecklistComponent),
+                title: 'Department Checklists',
+              },
+              {
+                path: 'edit-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/edit-department-checklists/edit-department-checklists.component').then(m => m.EditDepartmentChecklistsComponent),
+                title: 'Edit Department Checklists',
+              },
+            ]
           }
         ]
       },
