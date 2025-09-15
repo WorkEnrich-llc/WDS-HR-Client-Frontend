@@ -55,7 +55,7 @@
           <label for="userId">User ID (Optional)</label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="userId" class="form-control custom-date-input" placeholder="0050"
-              formControlName="userId" />
+              formControlName="code" />
           </div>
         </div>
 
@@ -95,17 +95,56 @@
 
 
         <div class="input">
-          <label for="userRole">User Role</label>
+          <!-- <label for="userRole">User Role</label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <select name="userRole" id="userRole" class="form-select" formControlName="userRole">
+              <select name="userRole" id="userRole" class="form-select" (change)="onSelectRole($event)"
+                formControlName="permissions">
                 <option value="" disabled selected hidden>Select one User Role</option>
-                <!-- @for (role of userRoles; track role) {
-                      <option [value]="role.id">{{role.name}}</option>
-                    } -->
+                @for (role of userRoles; track role) {
+                <option [value]="role.id">{{role.name}}</option>
+                }
               </select>
             </div>
+          </div> -->
+
+
+          <label for="userRole">User Role</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper" appCloseDropdown
+              (appCloseDropdown)="isDropdownOpen = false">
+              <div class="form-select custom-select" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
+                <div class="selected-tags ">
+                  @for( role of selectedRoles; track role.id){
+                  <span class="badge bg-primary d-flex align-items-center gap-1">
+                    {{ role.name }}
+                    <button type="button" class="btn-close btn-close-white"
+                      (click)="removeRole(role.id!); $event.stopPropagation();"></button>
+                  </span>
+                  }
+                  @if(!selectedRoles.length) {
+                  <span>
+                    Select one User Roles
+                  </span>
+                  }
+                </div>
+              </div>
+              @if(isDropdownOpen){
+              <ul class="dropdown-list">
+                @for (role of userRoles; track role.id) {
+                <li (click)="selectRole(role)" [class.selected]="isRoleSelected(role.id!)">
+                  {{ role.name }}
+                </li>
+                }
+              </ul>
+              }
+
+            </div>
           </div>
+
+
+
+
           <!-- @if (usersForm.get('userRole')?.touched && usersForm.get('userRole')?.errors?.['required']) {
                 <p class="error-msg"
                   >
