@@ -99,6 +99,12 @@ export class CreateEmployeeSharedService {
         days_on_site: [''],
         work_schedule_id: [null],
         activate_attendance_rules: [false]
+      }),
+      insurance_details: this.fb.group({
+        include_insurance_salary: [false],
+        insurance_salary: [''],
+        include_gross_insurance_salary: [false],
+        gross_insurance_salary: ['']
       })
     });
   }
@@ -156,6 +162,30 @@ export class CreateEmployeeSharedService {
         }
       }
     });
+
+    // Watch for insurance salary inclusion changes
+    this.insuranceDetails.get('include_insurance_salary')?.valueChanges.subscribe(includeInsurance => {
+      const insuranceSalaryControl = this.insuranceDetails.get('insurance_salary');
+      if (includeInsurance) {
+        insuranceSalaryControl?.setValidators([Validators.required, Validators.min(0)]);
+      } else {
+        insuranceSalaryControl?.clearValidators();
+        insuranceSalaryControl?.setValue('');
+      }
+      insuranceSalaryControl?.updateValueAndValidity();
+    });
+
+    // Watch for gross insurance salary inclusion changes
+    this.insuranceDetails.get('include_gross_insurance_salary')?.valueChanges.subscribe(includeGrossInsurance => {
+      const grossInsuranceSalaryControl = this.insuranceDetails.get('gross_insurance_salary');
+      if (includeGrossInsurance) {
+        grossInsuranceSalaryControl?.setValidators([Validators.required, Validators.min(0)]);
+      } else {
+        grossInsuranceSalaryControl?.clearValidators();
+        grossInsuranceSalaryControl?.setValue('');
+      }
+      grossInsuranceSalaryControl?.updateValueAndValidity();
+    });
   }
 
   // Form getters
@@ -163,6 +193,7 @@ export class CreateEmployeeSharedService {
   get jobDetails() { return this.employeeForm.get('job_details') as FormGroup; }
   get contractDetails() { return this.employeeForm.get('contract_details') as FormGroup; }
   get attendanceDetails() { return this.employeeForm.get('attendance_details') as FormGroup; }
+  get insuranceDetails() { return this.employeeForm.get('insurance_details') as FormGroup; }
   get mobileGroup() { return this.mainInformation.get('mobile') as FormGroup; }
 
   // Country methods
@@ -364,6 +395,13 @@ export class CreateEmployeeSharedService {
           this.errMsg.set('Please fill in all required fields in Contract Details');
         }
         break;
+      case 5:
+        this.insuranceDetails.markAllAsTouched();
+        if (this.insuranceDetails.invalid) {
+          isValid = false;
+          this.errMsg.set('Please fill in all required fields in Insurance Details');
+        }
+        break;
     }
     return isValid;
   }
@@ -395,6 +433,10 @@ export class CreateEmployeeSharedService {
     this.contractDetails.get('include_probation')?.setValue(false);
     this.contractDetails.get('notice_period')?.setValue(null);
     this.contractDetails.get('insurance_salary')?.setValue('');
+    this.insuranceDetails.get('include_insurance_salary')?.setValue(false);
+    this.insuranceDetails.get('insurance_salary')?.setValue('');
+    this.insuranceDetails.get('include_gross_insurance_salary')?.setValue(false);
+    this.insuranceDetails.get('gross_insurance_salary')?.setValue('');
     this.currentStep.set(1);
     this.errMsg.set('');
     this.selectedJobTitle.set(null);

@@ -135,4 +135,39 @@
     }
     <span class="nav-link">Contract Details</span>
   </li>
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+        stepperConfig.currentStep() === 4 ? '#DDE3EB' :
+        stepperConfig.currentStep() === 5 ? '#377AFD' :
+        stepperConfig.currentStep() > 5 ? '#4CA883' :
+        '#DDE3EB'
+    ">
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
+
+  <li class="nav-item" [ngClass]="{
+        'active': stepperConfig.currentStep() === 5,
+        'text-success': stepperConfig.currentStep() > 5, 
+        'bg-light-success': stepperConfig.currentStep() > 5  
+    }" (click)="goToStep(5)">
+    @if (stepperConfig.currentStep() <= 5) { 
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path [style.fill]="stepperConfig.currentStep() === 5 ? '#007bff' : '#4A6D97'"
+          d="M2 14c0-3.771 0-5.657 1.172-6.828C4.343 6 6.229 6 10 6h4c3.771 0 5.657 0 6.828 1.172C22 8.343 22 10.229 22 14s0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14"
+          opacity=".5" />
+        <path [style.fill]="stepperConfig.currentStep() === 5 ? '#007bff' : '#4A6D97'"
+          d="M18.562 7.5h-3.125c-.431 0-.781.35-.781.781s.35.781.781.781h3.125c.431 0 .781-.35.781-.781S18.993 7.5 18.562 7.5m-9.375 2.344c0-.431-.35-.781-.781-.781H5.281c-.431 0-.781.35-.781.781s.35.781.781.781h3.125c.431 0 .781-.35.781-.781m9.375 1.562h-3.125c-.431 0-.781.35-.781.781s.35.781.781.781h3.125c.431 0 .781-.35.781-.781s-.35-.781-.781-.781m-9.375 2.344c0-.431-.35-.781-.781-.781H5.281c-.431 0-.781.35-.781.781s.35.781.781.781h3.125c.431 0 .781-.35.781-.781m9.375 1.562h-3.125c-.431 0-.781.35-.781.781s.35.781.781.781h3.125c.431 0 .781-.35.781-.781s-.35-.781-.781-.781" />
+      </svg>
+    }
+    @if (stepperConfig.currentStep() > 5) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="stepperConfig.currentStep() > 5 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+    }
+    <span class="nav-link">Insurance Details</span>
+  </li>
 </ul>

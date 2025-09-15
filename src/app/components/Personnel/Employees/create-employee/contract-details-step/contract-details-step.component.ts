@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { CreateEmployeeSharedService } from '../services/create-employee-shared.service';
 
@@ -12,15 +12,15 @@ import { CreateEmployeeSharedService } from '../services/create-employee-shared.
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]
 })
 export class ContractDetailsStepComponent {
-  @Output() submitForm = new EventEmitter<void>();
-  
   sharedService = inject(CreateEmployeeSharedService);
 
   goPrev() {
     this.sharedService.goPrev();
   }
 
-  onSubmit() {
-    this.submitForm.emit();
+  goNext() {
+    if (this.sharedService.validateCurrentStep()) {
+      this.sharedService.goNext();
+    }
   }
 }
