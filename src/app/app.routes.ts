@@ -223,10 +223,15 @@ export const routes: Routes = [
                     redirectTo: 'company-chart',
                     pathMatch: 'full'
                   },
+                  // {
+                  //   path: 'company-chart',
+                  //   loadComponent: () => import('./components/OD/Organizational-Chart/components/company-chart/company-chart.component').then(m => m.CompanyChartComponent),
+                  //   title: 'Company Chart'
+                  // },
                   {
                     path: 'company-chart',
-                    loadComponent: () => import('./components/OD/Organizational-Chart/components/company-chart/company-chart.component').then(m => m.CompanyChartComponent),
-                    title: 'Company Chart'
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/company-test-chart/company-test-chart.component').then(m => m.CompanyTestChartComponent),
+                    title: 'Company Test Chart'
                   },
                   {
                     path: 'organizational-chart',

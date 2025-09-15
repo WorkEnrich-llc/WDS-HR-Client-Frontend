@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <title>OrgChart Simulation</title>
+</head>
+
+<body>
+   <h2>Waiting for OrgChart data...</h2>
+   <div id="chart"></div>
+
+   <script>
+      window.addEventListener("message", (event) => {
+         if (event.origin !== "http://localhost:4200") return;
+
+         console.log("Data received from Angular:", event.data);
+
+         document.querySelector("h2").innerText = "OrgChart Data Received!";
+         document.getElementById("chart").innerText = JSON.stringify(event.data, null, 2);
+
+         event.source.postMessage(
+            { type: "orgChartReady", payload: "Data loaded successfully" },
+            event.origin
+         );
+      });
+   </script>
+</body>
+
+</html>
