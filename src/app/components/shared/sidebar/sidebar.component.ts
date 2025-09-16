@@ -32,6 +32,13 @@ export class SidebarComponent implements OnInit {
   isNotificationOpen = false;
   hasNewNotifications = true;
 
+  // get logo from local storage
+ companyInfo = localStorage.getItem('company_info');
+ parsedCompanyInfo = this.companyInfo ? JSON.parse(this.companyInfo) : null;
+ logo = this.parsedCompanyInfo ? this.parsedCompanyInfo.logo : null;
+ companyName = this.parsedCompanyInfo ? this.parsedCompanyInfo.name : null;
+
+
   handleNotificationClick() {
     this.closeAllAccordions();
 
@@ -90,7 +97,7 @@ export class SidebarComponent implements OnInit {
   }
   // screen responsive in start page
   ngOnInit(): void {
-    
+    // console.log(this.logo);
     // supscription all feature supported 
     this.subService.allFeatures$.subscribe(features => {
       if (features && Object.keys(features).length > 0) {
