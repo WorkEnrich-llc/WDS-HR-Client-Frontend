@@ -4,9 +4,14 @@
       <iframe #iframeRef src="https://orgchart.talentdot.org" width="100%" height="600" style="border:none;">
       </iframe>
 
-   </div>
-   <button (click)="sendData()">Send Data</button>
+      <div class="d-flex gap-2 justify-content-center my-3">
 
+         <button class="btn btn-primary" type="button" (click)="sendData()">Send Data</button>
+         <button class="btn btn-secondary" type="button" (click)="sendDataToIframe()">Send </button>
+      </div>
+
+
+   </div>
 
 
    <div class="btn-fixed">
