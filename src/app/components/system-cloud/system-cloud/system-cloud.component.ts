@@ -106,7 +106,7 @@ export class SystemCloudComponent implements OnInit {
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
-        // console.log(this.allFiles);
+        console.log(this.allFiles);
         this.dataLoaded = true;
         this.storageInfo = response?.data?.storage_size_info;
         // console.log(this.storageInfo);
@@ -560,6 +560,8 @@ export class SystemCloudComponent implements OnInit {
     this.newName = folderName;
   }
 
+
+  // rename folder
   renameFolder() {
     this.isLoading = true;
     this.errMsg = '';
@@ -668,12 +670,75 @@ export class SystemCloudComponent implements OnInit {
   }
 
 
+  // duplicate file
+  dublicatePOP = false;
+  folderIdToDublicate: string = '';
+  folderNameToDublicate: string = '';
+  openModalDublicate(folderId: string, folderName: string) {
+    this.folderIdToDublicate = folderId;
+    this.folderNameToDublicate = folderName;
+    this.dublicatePOP = true;
+  }
+
+  closeModalDublicate() {
+    this.dublicatePOP = false;
+  }
+
+  duplicateFile(id: string, name: string): void {
+    this.errMsg = '';
+
+    this._systemCloudService.duplicateFile(id).subscribe({
+      next: (response) => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        const timestamp = `${year}-${month}-${day}-${hours}:${minutes}:${seconds}`;
+
+        const duplicatedName = `${name}-${timestamp}-copy`;
+
+        const duplicatedFile = {
+          ...response?.data?.object_info,
+          name: duplicatedName,
+          parent: this.openedFolderId ?? null
+        };
+
+        this.allFiles.push(duplicatedFile);
+
+        if (
+          this.openedFolderId === duplicatedFile.parent ||
+          (!this.openedFolderId && !duplicatedFile.parent)
+        ) {
+          this.files.push(duplicatedFile);
+          this.filteredFiles.push(duplicatedFile);
+        }
+
+        this.filteredFiles = [...this.filteredFiles].sort((a, b) => {
+          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        });
+        this.closeModalDublicate();
+      },
+      error: () => {
+        this.errMsg = 'Could not duplicate file.';
+      }
+    });
+  }
+
+
 
 
 
 
   // ================= drag and drop moving files in folder 
   draggedFileIdForMove: string | null = null;
+  dragOverCrumbId: string = '';
+
 
   onFileDragStart(event: DragEvent, file: any) {
     this.draggedFileIdForMove = file.id;
@@ -714,11 +779,11 @@ export class SystemCloudComponent implements OnInit {
         const index = this.allFiles.findIndex(f => f.id === fileId);
         if (index > -1) this.allFiles[index] = movedFile;
 
-        this.filteredFiles.sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
-        });
+        // this.filteredFiles.sort((a, b) => {
+        //   if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+        //   if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+        //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        // });
       }
       ,
       error: (err) => {
@@ -733,6 +798,59 @@ export class SystemCloudComponent implements OnInit {
   onFolderDragLeave(event: DragEvent) {
     (event.currentTarget as HTMLElement).classList.remove('folder-hover');
   }
+
+  onCrumbDragOver(event: DragEvent, crumb: any) {
+    event.preventDefault();
+    this.dragOverCrumbId = crumb.id;
+  }
+
+  onCrumbDragLeave(event: DragEvent, crumb: any) {
+    if (this.dragOverCrumbId === crumb.id) {
+      this.dragOverCrumbId = '';
+    }
+  }
+
+  onCrumbDrop(event: DragEvent, crumb: any) {
+  event.preventDefault();
+  this.dragOverCrumbId = '';
+
+  const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
+  if (!fileId) return;
+
+  const parentId = crumb.id ?? null;
+
+  const formData = new FormData();
+  formData.append('parent', parentId ?? '');
+
+  this._systemCloudService.renameFile(fileId, formData).subscribe({
+    next: () => {
+      const movedFile = this.allFiles.find(f => f.id === fileId);
+      if (!movedFile) return;
+
+      movedFile.parent = parentId;
+
+      this.files = this.files.filter(f => f.id !== fileId);
+      this.filteredFiles = this.filteredFiles.filter(f => f.id !== fileId);
+
+      if (this.openedFolderId === parentId) {
+        this.files.push(movedFile);
+        this.filteredFiles.push(movedFile);
+      }
+
+      const index = this.allFiles.findIndex(f => f.id === fileId);
+      if (index > -1) this.allFiles[index] = movedFile;
+
+      
+    },
+    error: (err) => {
+      console.error(err);
+    }
+  });
+
+  this.draggedFileIdForMove = null;
+}
+
+
 
 
 
