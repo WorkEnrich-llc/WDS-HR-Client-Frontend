@@ -146,7 +146,7 @@ export class SystemFileComponent implements OnInit {
   }
 
 
-  generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
+generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
   return headers.map(header => {
     let type: 'input' | 'select' | 'date' | 'time' = 'input';
 
@@ -182,12 +182,22 @@ export class SystemFileComponent implements OnInit {
 
       case 'phone':
         validators.push(Validators.pattern(/^\d+$/));
-        errorMessage = 'Please enter a valid phone number';
+        errorMessage = 'Please enter a valid phone number (digits only)';
+        break;
+
+      case 'int': 
+        validators.push(Validators.pattern(/^(0|[1-9][0-9]*)$/));
+        errorMessage = 'Please enter a valid integer (no leading zeros)';
+        break;
+
+      case 'double': 
+        validators.push(Validators.pattern(/^(0|[1-9][0-9]*)\.[0-9]+$/));
+        errorMessage = 'Please enter a valid decimal number (e.g. 12.34, not starting with zero)';
         break;
 
       case 'BigInt':
-      case 'number':
-        validators.push(Validators.pattern(/^\d+$/));
+      case 'number': 
+        validators.push(Validators.pattern(/^\d+(\.\d+)?$/));
         errorMessage = 'Please enter a valid number';
         break;
 
@@ -207,7 +217,6 @@ export class SystemFileComponent implements OnInit {
       type,
       validators,
       errorMessage,
-      // هنا الشرط الأساسي 👇
       editable: this.fileEditable ? header.editable : false,
       ...(options ? { options } : {}),
       reliability: header.reliability ?? undefined,
@@ -215,7 +224,6 @@ export class SystemFileComponent implements OnInit {
     };
   });
 }
-
 
 
 }
