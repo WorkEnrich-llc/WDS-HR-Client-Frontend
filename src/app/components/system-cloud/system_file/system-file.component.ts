@@ -13,6 +13,8 @@ export interface HeaderItem {
   type: string;
   data: any[];
   reliability?: string | null;
+  required?: boolean; 
+  editable?: boolean; 
 }
 
 @Component({
@@ -115,6 +117,7 @@ export class SystemFileComponent implements OnInit {
 
 
 
+  fileEditable:boolean = false;
 
   getSystemFileData(fileId: string) {
     this.loadData = true;
@@ -123,7 +126,8 @@ export class SystemFileComponent implements OnInit {
       next: (response) => {
         this.systemFileData = response.data.object_info;
         // console.log(this.systemFileData);
-
+        this.fileEditable = this.systemFileData.file.editable;
+        // console.log('File editable:', this.fileEditable);
         if (this.systemFileData.header) {
           this.customColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.header);
         }
@@ -143,62 +147,75 @@ export class SystemFileComponent implements OnInit {
 
 
   generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
-    return headers.map(header => {
-      let type: 'input' | 'select' | 'date' = 'input';
+  return headers.map(header => {
+    let type: 'input' | 'select' | 'date' | 'time' = 'input';
 
-      const validators: ValidatorFn[] = [Validators.required];
-      let options: { value: any, label: string }[] | undefined;
-      let errorMessage = 'This field is required';
+    const validators: ValidatorFn[] = [];
+    let options: { value: any, label: string }[] | undefined;
+    let errorMessage = '';
 
-      switch (header.type) {
-        case 'dropdown':
-          type = 'select';
+    if (header.required) {
+      validators.push(Validators.required);
+      errorMessage = 'This field is required';
+    }
 
-          options = header.reliability ? [] : header.data.map(opt => ({
-            value: opt.id,
-            label: opt.name
-          }));
+    switch (header.type) {
+      case 'dropdown':
+        type = 'select';
 
-          validators.push((control: { value: number }) => {
-            return control.value === 0 ? { required: true } : null;
-          });
+        options = header.reliability ? [] : header.data.map(opt => ({
+          value: opt.id,
+          label: opt.name
+        }));
 
-          errorMessage = 'Please select a valid option';
-          break;
+        validators.push((control: { value: number }) => {
+          return control.value === 0 ? { required: true } : null;
+        });
 
-        case 'email':
-          validators.push(Validators.email);
-          errorMessage = 'Please enter a valid email address';
-          break;
+        errorMessage = 'Please select a valid option';
+        break;
 
-        case 'phone':
-          validators.push(Validators.pattern(/^\d+$/));
-          errorMessage = 'Please enter a valid phone number';
-          break;
+      case 'email':
+        validators.push(Validators.email);
+        errorMessage = 'Please enter a valid email address';
+        break;
 
-        case 'BigInt':
-        case 'number':
-          validators.push(Validators.pattern(/^\d+$/));
-          errorMessage = 'Please enter a valid number';
-          break;
-        case 'date':
-          type = 'date';
-          break;
-      }
+      case 'phone':
+        validators.push(Validators.pattern(/^\d+$/));
+        errorMessage = 'Please enter a valid phone number';
+        break;
 
-      return {
-        key: header.key,
-        name: header.key,
-        label: header.label,
-        type,
-        validators,
-        errorMessage,
-        ...(options ? { options } : {}),
-        reliability: header.reliability ?? undefined,
-        rawData: header.data
-      };
-    });
-  }
+      case 'BigInt':
+      case 'number':
+        validators.push(Validators.pattern(/^\d+$/));
+        errorMessage = 'Please enter a valid number';
+        break;
+
+      case 'date':
+        type = 'date';
+        break;
+
+      case 'time':
+        type = 'time';
+        break;
+    }
+
+    return {
+      key: header.key,
+      name: header.key,
+      label: header.label,
+      type,
+      validators,
+      errorMessage,
+      // هنا الشرط الأساسي 👇
+      editable: this.fileEditable ? header.editable : false,
+      ...(options ? { options } : {}),
+      reliability: header.reliability ?? undefined,
+      rawData: header.data
+    };
+  });
+}
+
 
 
 }

@@ -37,6 +37,12 @@ export class SystemCloudService {
         return this._HttpClient.post(url, folderData);
     }
 
+    // duplicate file
+    duplicateFile(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/files-duplicate/${id}/`;
+        return this._HttpClient.post(url, {});
+    }
+    
     // create upload file
     createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
         const url = `${this.apiBaseUrl}cloud/files/`;

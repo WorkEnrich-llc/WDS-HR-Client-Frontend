@@ -8,12 +8,14 @@ export interface TableColumn {
   key: string;
   name: string;
   label: string;
-  type: 'input' | 'select' | 'date';
+  type: 'input' | 'select' | 'date' | 'time';
   validators?: ValidatorFn[];
   options?: { value: any; label: string }[];
   errorMessage?: string;
   reliability?: string;
   rawData?: any[];
+  required?: boolean;  
+  editable?: boolean; 
 }
 
 @Component({
@@ -27,6 +29,7 @@ export class SmartGridSheetComponent {
   @Input() columns: TableColumn[] = [];
   @Input() initialRows: any[] = [];
   @Input() rowsInput: any[] = [];
+  @Input() fileEditable: boolean = true;
 
   @Output() inputChanged = new EventEmitter<void>();
 
@@ -61,41 +64,48 @@ export class SmartGridSheetComponent {
   }
 
   addRow(rowData: any = {}): void {
-    const formGroup = this.fb.group({});
-    const rowIndex = this.rows().length;
+  const formGroup = this.fb.group({});
+  const rowIndex = this.rows().length;
 
-    this.rowOptions[rowIndex] = {};
+  this.rowOptions[rowIndex] = {};
 
-    for (const col of this.columns) {
-      // formGroup.addControl(col.name, new FormControl(rowData[col.name] || ''));
-      formGroup.addControl(col.name, new FormControl(rowData[col.name] || '', col.validators || []));
+  for (const col of this.columns) {
+    const isEditable = this.fileEditable && col.editable !== false;
 
+    formGroup.addControl(
+      col.name,
+      new FormControl(
+        { value: rowData[col.name] || '', disabled: !isEditable },
+        col.validators || []
+      )
+    );
 
-      if (col.type === 'select') {
-        this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
-      }
+    if (col.type === 'select') {
+      this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
     }
-
-    for (const col of this.columns) {
-      if (col.reliability) {
-        const parentControl = formGroup.get(col.reliability);
-
-        if (rowData[col.reliability]) {
-          this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
-        }
-
-        parentControl?.valueChanges
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((parentValue) => {
-            this.updateChildOptions(rowIndex, col, parentValue);
-            formGroup.get(col.name)?.setValue('', { emitEvent: false });
-            this.cdr.detectChanges();
-          });
-      }
-    }
-
-    this.rows.update(rows => [...rows, formGroup]);
   }
+
+  for (const col of this.columns) {
+    if (col.reliability) {
+      const parentControl = formGroup.get(col.reliability);
+
+      if (rowData[col.reliability]) {
+        this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+      }
+
+      parentControl?.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((parentValue) => {
+          this.updateChildOptions(rowIndex, col, parentValue);
+          formGroup.get(col.name)?.setValue('', { emitEvent: false });
+          this.cdr.detectChanges();
+        });
+    }
+  }
+
+  this.rows.update(rows => [...rows, formGroup]);
+}
+
 
   private updateChildOptions(rowIndex: number, childCol: TableColumn, parentValue: any) {
     const filteredOptions = (childCol.rawData || []).filter((item: any) => {
