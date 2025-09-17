@@ -1,21 +1,23 @@
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, Subject } from 'rxjs';
+import { debounceTime, filter, Observable, Subject } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
+import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
+import { IUser } from 'app/core/models/users';
 
 @Component({
   selector: 'app-users',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent,FormsModule, ReactiveFormsModule,RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink],
   providers: [DatePipe],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class UsersComponent {
 
@@ -27,6 +29,10 @@ export class UsersComponent {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+
+  private userService = inject(AdminUsersService);
+  allUsers$!: Observable<IUser[]>;
+  // allUsers: IUser[] = [];
 
   users = [
     {
@@ -71,6 +77,24 @@ export class UsersComponent {
       // this.getAllWorkSchedule(this.currentPage);
     });
 
+    // this.userService.getAllUsers().subscribe({
+    //   next: users => {
+    //     this.allUsers = users;
+    //     console.log('Users:', this.allUsers);
+    //   },
+    //   error: err => console.error(err)
+    // });
+
+    this.allUsers$ = this.userService.getAllUsers();
+
+    // this.userService.getAllUsers().subscribe(users => {
+    //   this.allUsers = new Observable<IUser[]>(observer => {
+    //     observer.next(users);
+    //     observer.complete();
+    //   });
+    //   console.log('users created', users);
+    // });
+
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -91,16 +115,16 @@ export class UsersComponent {
     });
   }
 
-sortBy() {
-  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-  this.users = this.users.sort((a, b) => {
-    if (this.sortDirection === 'asc') {
-      return a.id - b.id; 
-    } else {
-      return b.id - a.id; 
-    }
-  });
-}
+  sortBy() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.users = this.users.sort((a, b) => {
+      if (this.sortDirection === 'asc') {
+        return a.id - b.id;
+      } else {
+        return b.id - a.id;
+      }
+    });
+  }
 
 
   onSearchChange() {
@@ -141,12 +165,12 @@ sortBy() {
   }
 
 
-copyEmail(email: string, user: any) {
-  navigator.clipboard.writeText(email).then(() => {
-    user.copied = true;
-    setTimeout(() => user.copied = false, 2000); 
-  });
-}
+  copyEmail(email: string, user: any) {
+    navigator.clipboard.writeText(email).then(() => {
+      user.copied = true;
+      setTimeout(() => user.copied = false, 2000);
+    });
+  }
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;

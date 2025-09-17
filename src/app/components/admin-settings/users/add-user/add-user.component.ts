@@ -8,6 +8,8 @@ import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { Roles } from 'app/core/models/roles';
 import { CloseDropdownDirective } from 'app/core/directives/close-dropdown.directive';
+import { firstValueFrom } from 'rxjs';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-add-user',
@@ -24,6 +26,7 @@ export class AddUserComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private usersService = inject(AdminUsersService);
   private rolesService = inject(AdminRolesService);
+  private toasterService = inject(ToasterMessageService);
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
@@ -32,6 +35,7 @@ export class AddUserComponent implements OnInit {
   isEditMode = false;
   userRoles: Roles[] = [];
   selectedRoles: Roles[] = [];
+  userId!: number;
 
   isDropdownOpen = false;
 
@@ -126,6 +130,79 @@ export class AddUserComponent implements OnInit {
       permissions: this.selectedRoles.map(r => r.id),
     });
   }
+
+  async inviteUser(): Promise<void> {
+    if (this.usersForm.invalid) {
+      this.usersForm.markAllAsTouched();
+      return;
+    }
+    this.isLoading = true;
+    const formValues = this.usersForm.value;
+    // const formData: PayrollComponent = {
+    //   ...this.usersForm.value,
+    //   component_type: +formValues.component_type,
+    //   classification: +formValues.classification,
+    //   portion: +formValues.portion,
+    //   calculation: +formValues.calculation
+    // };
+    console.log('Form Submitted', formValues);
+    //  if (this.isEditMode && this.userId) {
+    //     formValues.id = String(this.userId);
+    //   }
+    try {
+      if (this.isEditMode) {
+        await firstValueFrom(this.usersService.createUser(formValues));
+        this.toasterService.showSuccess('User updated successfully');
+      } else {
+        console.log('formValues', formValues);
+        // await firstValueFrom(this.usersService.createUser(formValues));
+        // this.toasterService.showSuccess('User created successfully');
+      }
+      this.router.navigate(['/admin-settings/users']);
+    } catch (err) {
+      console.error('Create component failed', err);
+    } finally {
+      this.isEditMode = false;
+    }
+  }
+
+  // createUser(): void {
+  //   if (this.usersForm.invalid) {
+  //     this.errMsg = "Please fill required fields";
+  //     return;
+  //   }
+
+  //   // const roleModel = this.buildRoleModel();
+  //   this.isLoading = true;
+  //   if (this.isEditMode) {
+  //     roleModel.id = this.roleId;
+  //     this.adminRolesService.updateRole(roleModel).subscribe({
+  //       next: (res) => {
+  //         this.isLoading = false;
+  //         this.toasterService.showSuccess('Role updated successfully');
+  //         this.router.navigate(['/roles']);
+  //       },
+  //       error: (err) => {
+  //         this.isLoading = false;
+  //         console.error("Error updating role", err);
+  //         this.errMsg = err.error?.message || "Error updating role";
+  //       }
+  //     });
+  //   } else {
+  //     this.adminRolesService.createRole(roleModel).subscribe({
+  //       next: (res) => {
+  //         this.isLoading = false;
+  //         this.toasterService.showSuccess('Role created successfully');
+  //         this.router.navigate(['/roles']);
+  //       },
+  //       error: (err) => {
+  //         this.isLoading = false;
+  //         console.error("Error creating role", err);
+  //         this.errMsg = err.error?.message || "Error creating role";
+  //       }
+  //     });
+  //   }
+  // }
 
   // popups
   isModalOpen = false;

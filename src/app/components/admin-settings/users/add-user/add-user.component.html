@@ -3,7 +3,7 @@
     { label: 'Users', link: '/users' },
     {  label: 'Add User'}
   ]" title="Users - User information" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success">
+  <button class="btn btn-lg btn-success" (click)="inviteUser()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }

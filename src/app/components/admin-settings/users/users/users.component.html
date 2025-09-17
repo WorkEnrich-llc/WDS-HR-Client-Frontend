@@ -111,10 +111,12 @@
 
         <!-- start Table -->
 
-        <app-table [data]="users" [isLoading]="loadData" [columnsCount]="6" [totalItems]="users.length"
-            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="usersTableHeader"
-            [rowTemplate]="usersTableRow" [emptyTemplate]="noUsers"></app-table>
+
+
+        <app-table [data]="(allUsers$ | async) ?? []" [isLoading]="loadData" [columnsCount]="6"
+            [totalItems]="users.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+            [headerTemplate]="usersTableHeader" [rowTemplate]="usersTableRow" [emptyTemplate]="noUsers"></app-table>
 
         <ng-template #usersTableHeader>
             <th class="w-20">User</th>
@@ -146,10 +148,13 @@
 
         <ng-template #usersTableRow let-user let-i="index">
 
+            @for(user of allUsers$ | async; track user.id){
             <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
-                <span class="d-block text-gray-sm">{{ user.id.toString().padStart(2, '0') }}</span>
+                <!-- <span class="d-block text-gray-sm">{{ user.id.toString().padStart(2, '0') }}</span> -->
                 <span class="d-block text-truncate">{{ user.name }} </span>
             </td>
+            }
+
             <!-- <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">
                 <span>
                     {{ user.name }}
