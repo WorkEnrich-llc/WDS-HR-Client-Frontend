@@ -49,8 +49,36 @@ export const routes: Routes = [
     ]
   },
 
+  // Activate Acount layout
+  {
+    path: '',
+    loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [
+      {
+        path: 'activate',
+        children: [
+          {
+            path: '',
+            redirectTo: 'activate-account',
+            pathMatch: 'full'
+          },
+          {
+            path: 'activate-account',
+            loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
+            title: 'Activate Your Account',
+          },
+        ]
+      },
 
 
+    ]
+  },
+
+
+
+
+
+  // system layout
   {
     path: '',
     loadComponent: () => import('./layouts/system-layout/system-layout.component').then(m => m.SystemLayoutComponent),

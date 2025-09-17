@@ -698,7 +698,6 @@ export class SystemCloudComponent implements OnInit {
         const seconds = String(now.getSeconds()).padStart(2, '0');
 
         const timestamp = `${year}-${month}-${day}-${hours}:${minutes}:${seconds}`;
-
         const duplicatedName = `${name}-${timestamp}-copy`;
 
         const duplicatedFile = {
@@ -707,21 +706,18 @@ export class SystemCloudComponent implements OnInit {
           parent: this.openedFolderId ?? null
         };
 
-        this.allFiles.push(duplicatedFile);
+        this.allFiles = [...this.allFiles, duplicatedFile];
 
-        if (
-          this.openedFolderId === duplicatedFile.parent ||
-          (!this.openedFolderId && !duplicatedFile.parent)
-        ) {
-          this.files.push(duplicatedFile);
-          this.filteredFiles.push(duplicatedFile);
+        if (this.openedFolderId === duplicatedFile.parent || (!this.openedFolderId && !duplicatedFile.parent)) {
+          this.files = [...this.files, duplicatedFile];
         }
 
-        this.filteredFiles = [...this.filteredFiles].sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
-        });
+        // this.filteredFiles = [...this.files].sort((a, b) => {
+        //   if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+        //   if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+        //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        // });
+
         this.closeModalDublicate();
       },
       error: () => {
@@ -729,6 +725,7 @@ export class SystemCloudComponent implements OnInit {
       }
     });
   }
+
 
 
 
@@ -768,24 +765,20 @@ export class SystemCloudComponent implements OnInit {
 
         movedFile.parent = targetFolder.id;
 
+        this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
+
         this.files = this.files.filter(f => f.id !== fileId);
-        this.filteredFiles = this.filteredFiles.filter(f => f.id !== fileId);
 
         if (this.openedFolderId === targetFolder.id) {
-          this.files.push(movedFile);
-          this.filteredFiles.push(movedFile);
+          this.files = [...this.files, movedFile];
         }
 
-        const index = this.allFiles.findIndex(f => f.id === fileId);
-        if (index > -1) this.allFiles[index] = movedFile;
-
-        // this.filteredFiles.sort((a, b) => {
+        // this.filteredFiles = [...this.files].sort((a, b) => {
         //   if (a.type === 'Folder' && b.type !== 'Folder') return -1;
         //   if (a.type !== 'Folder' && b.type === 'Folder') return 1;
         //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
         // });
-      }
-      ,
+      },
       error: (err) => {
         console.error(err);
       }
@@ -810,45 +803,50 @@ export class SystemCloudComponent implements OnInit {
     }
   }
 
+
   onCrumbDrop(event: DragEvent, crumb: any) {
-  event.preventDefault();
-  this.dragOverCrumbId = '';
+    event.preventDefault();
+    this.dragOverCrumbId = '';
 
-  const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
-  if (!fileId) return;
+    const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
+    if (!fileId) return;
 
-  const parentId = crumb.id ?? null;
+    const parentId = crumb.id ?? null;
 
-  const formData = new FormData();
-  formData.append('parent', parentId ?? '');
+    const formData = new FormData();
+    formData.append('parent', parentId ?? '');
 
-  this._systemCloudService.renameFile(fileId, formData).subscribe({
-    next: () => {
-      const movedFile = this.allFiles.find(f => f.id === fileId);
-      if (!movedFile) return;
+    this._systemCloudService.renameFile(fileId, formData).subscribe({
+      next: () => {
+        const movedFile = this.allFiles.find(f => f.id === fileId);
+        if (!movedFile) return;
 
-      movedFile.parent = parentId;
+        movedFile.parent = parentId;
 
-      this.files = this.files.filter(f => f.id !== fileId);
-      this.filteredFiles = this.filteredFiles.filter(f => f.id !== fileId);
+        this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
 
-      if (this.openedFolderId === parentId) {
-        this.files.push(movedFile);
-        this.filteredFiles.push(movedFile);
+        this.files = this.files.filter(f => f.id !== fileId);
+
+        if (this.openedFolderId === parentId) {
+          this.files = [...this.files, movedFile];
+        }
+
+        this.filteredFiles = [...this.files].sort((a, b) => {
+          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+          return a.name.localeCompare(b.name, undefined, {
+            numeric: true,
+            sensitivity: 'base'
+          });
+        });
+      },
+      error: (err) => {
+        console.error(err);
       }
+    });
 
-      const index = this.allFiles.findIndex(f => f.id === fileId);
-      if (index > -1) this.allFiles[index] = movedFile;
-
-      
-    },
-    error: (err) => {
-      console.error(err);
-    }
-  });
-
-  this.draggedFileIdForMove = null;
-}
+    this.draggedFileIdForMove = null;
+  }
 
 
 

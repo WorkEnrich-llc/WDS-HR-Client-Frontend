@@ -1,0 +1,118 @@
+<div class="card-top">
+    <div class="row align-items-center g-3">
+        <div class="col-8">
+            <h2>Activate Your Account</h2>
+            <p><span class="text-primary me-2">Ahmed Wael</span>has invited you to</p>
+            <p><span class="text-primary me-2">companyname.workenrich.com</span></p>
+
+        </div>
+        <div class="col-4">
+            <img src="./images/logo_with_slog.png" alt="WDS logo">
+        </div>
+    </div>
+</div>
+
+<div class="card-bottom">
+    <!-- step1 -->
+    <div class="login-info">
+        <div class="row align-items-center g-4">
+            <div class="col-6">
+                <form class="w-100 d-flex flex-column gap-2">
+                    <div class="d-flex flex-column gap-2 align-items-center text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                            viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+                                <path stroke-linecap="round"
+                                    d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+                            </g>
+                        </svg>
+                        <p>assemosama&#64;yahoo.com</p>
+                    </div>
+                    <div class="input">
+                        <label for="email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none" stroke-width="1.5">
+                                    <path
+                                        d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+                                    <path stroke-linecap="round"
+                                        d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+                                </g>
+                            </svg> Email</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input formControlName="email" type="email" id="email" class="form-control"
+                                    placeholder="Input Here">
+                            </div>
+                        </div>
+
+                        <!-- @if (activateForm.get('email')?.touched && activateForm.get('email')?.errors?.['required']) {
+            <p class="error-msg">
+              Email is required.
+            </p>
+            }
+            @if (activateForm.get('email')?.touched && activateForm.get('email')?.errors?.['email']) {
+            <p class="error-msg">
+              Please enter a valid email address.
+            </p>
+            } -->
+                    </div>
+
+
+
+                    <div class="input">
+                        <label for="password"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <g fill="none">
+                                    <path stroke-width="1.5"
+                                        d="M2 16c0-2.828 0-4.243.879-5.121C3.757 10 5.172 10 8 10h8c2.828 0 4.243 0 5.121.879C22 11.757 22 13.172 22 16s0 4.243-.879 5.121C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.879C2 20.243 2 18.828 2 16Z" />
+                                    <path stroke-linecap="round" stroke-width="1.5" d="M6 10V8a6 6 0 1 1 12 0v2" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16h.009m3.982 0H12m3.991 0H16" />
+                                </g>
+                            </svg> Password</label>
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input formControlName="password" type="password" id="password" class="form-control"
+                                    placeholder="Input Here">
+                            </div>
+                        </div>
+                        <!-- 
+
+            @if (activateForm.get('password')?.touched && activateForm.get('password')?.errors?.['required']) {
+            <p class="error-msg">
+              Password is required.
+            </p>
+            } -->
+                    </div>
+
+
+                    @if (errMsg) {
+                    <div class="alert alert-danger mb-0 mt-2" role="alert">
+                        {{errMsg}}
+                    </div>
+                    }
+
+
+                    <button class="btn btn-lg btn-primary w-100">
+                        @if (isLoading) {
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        }
+                        @if (!isLoading) {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                        </svg>
+                        }
+                        <span>Login</span>
+                    </button>
+                </form>
+
+            </div>
+            <div class="d-none d-md-block col-md-6 text-center">
+                <img src="./images/verify.svg" alt="WDS logo">
+            </div>
+        </div>
+    </div>
+</div>
