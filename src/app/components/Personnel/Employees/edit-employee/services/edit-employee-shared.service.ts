@@ -73,6 +73,12 @@ export class EditEmployeeSharedService {
         salary: [{ value: '', disabled: true }],
         insurance_salary: ['', [Validators.min(0)]]
       }),
+      insurance_details: this.fb.group({
+        include_insurance_salary: [false],
+        insurance_salary: [''],
+        include_gross_insurance_salary: [false],
+        gross_insurance_salary: ['']
+      }),
       attendance_details: this.fb.group({
         employment_type: [{ value: null, disabled: true }],   // read-only
         work_mode: [{ value: null, disabled: true }],        // read-only
@@ -106,7 +112,33 @@ export class EditEmployeeSharedService {
         }
       }
     });
+
+    // Watch for insurance salary inclusion changes (edit)
+    this.insuranceDetails.get('include_insurance_salary')?.valueChanges.subscribe(includeInsurance => {
+      const insuranceSalaryControl = this.insuranceDetails.get('insurance_salary');
+      if (includeInsurance) {
+        insuranceSalaryControl?.setValidators([Validators.required, Validators.min(0)]);
+      } else {
+        insuranceSalaryControl?.clearValidators();
+        insuranceSalaryControl?.setValue('');
+      }
+      insuranceSalaryControl?.updateValueAndValidity();
+    });
+
+    this.insuranceDetails.get('include_gross_insurance_salary')?.valueChanges.subscribe(includeGross => {
+      const grossControl = this.insuranceDetails.get('gross_insurance_salary');
+      if (includeGross) {
+        grossControl?.setValidators([Validators.required, Validators.min(0)]);
+      } else {
+        grossControl?.clearValidators();
+        grossControl?.setValue('');
+      }
+      grossControl?.updateValueAndValidity();
+    });
   }
+
+  // Form getter for insurance details
+  get insuranceDetails() { return this.employeeForm.get('insurance_details') as FormGroup; }
 
   // Form getters
   get mainInformation() { return this.employeeForm.get('main_information') as FormGroup; }
@@ -249,7 +281,7 @@ export class EditEmployeeSharedService {
 
   // Step navigation
   goNext() {
-    if (this.currentStep() < 4) {
+    if (this.currentStep() < 5) {
       this.currentStep.set(this.currentStep() + 1);
     }
   }
@@ -261,7 +293,7 @@ export class EditEmployeeSharedService {
   }
 
   goToStep(step: number) {
-    if (step >= 1 && step <= 4) {
+    if (step >= 1 && step <= 5) {
       this.currentStep.set(step);
     }
   }
@@ -304,7 +336,10 @@ export class EditEmployeeSharedService {
           work_mode: originalData.job_info.work_mode?.id,
           days_on_site: originalData.job_info.days_on_site,
           salary: originalData.job_info.salary,
-          insurance_salary: formData.contract_details.insurance_salary ? parseFloat(formData.contract_details.insurance_salary) : undefined
+          insurance_salary: formData.contract_details.insurance_salary ? parseFloat(formData.contract_details.insurance_salary) : undefined,
+          include_insurance_salary: formData.insurance_details?.include_insurance_salary || false,
+          include_gross_insurance_salary: formData.insurance_details?.include_gross_insurance_salary || false,
+          gross_insurance_salary: formData.insurance_details?.gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : undefined
         }
       }
     };
