@@ -1,8 +1,13 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-
+import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
+interface CheckItem {
+  name: string;
+  completed: boolean;
+}
 @Component({
   selector: 'app-department-checklist',
   imports: [PageHeaderComponent,RouterLink,PopupComponent],
@@ -11,14 +16,39 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
   encapsulation:ViewEncapsulation.None
 })
 export class DepartmentChecklistComponent {
-checks = [
-  { name: 'Verify department goals are documented' },
-  { name: 'Ensure team members are assigned tasks' },
-  { name: 'Confirm budget allocation is approved' },
-  { name: 'Review department KPIs' },
-  { name: 'Schedule weekly progress meeting' }
-];
 
+ checks: CheckItem[] = [];
+  checkForm: FormGroup;
+  constructor(
+    private router: Router, 
+    private fb: FormBuilder, 
+    private departmentChecklistService: DepartmentChecklistService) {
+    this.checkForm = this.fb.group({
+      checkName: ['', Validators.required]
+    });
+  }
+  ngOnInit() {
+
+    this.getOnboarding();
+  }
+
+
+  getOnboarding() {
+    this.departmentChecklistService.getDepartmetChecks().subscribe({
+      next: (response) => {
+
+        const list = response.data.object_info || [];
+        this.checks = list.map((item: any) => ({
+          name: item.title,
+          completed: false,
+          editing: false
+        }));
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
 
 

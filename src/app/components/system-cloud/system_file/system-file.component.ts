@@ -4,7 +4,9 @@ import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sheet/smart-grid-sheet.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
+import { CommonModule } from '@angular/common';
 
 
 export interface HeaderItem {
@@ -13,20 +15,26 @@ export interface HeaderItem {
   type: string;
   data: any[];
   reliability?: string | null;
-  required?: boolean; 
-  editable?: boolean; 
+  required?: boolean;
+  editable?: boolean;
 }
 
 @Component({
   selector: 'app-system-file',
-  imports: [PageHeaderComponent, SmartGridSheetComponent, RouterLink],
+  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule],
   templateUrl: './system-file.component.html',
   styleUrl: './system-file.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class SystemFileComponent implements OnInit {
-  constructor(private _systemCloudService: SystemCloudService, private route: ActivatedRoute) { }
+  constructor(
+    private _systemCloudService: SystemCloudService,
+    private route: ActivatedRoute,
+    private breadcrumbService: BreadcrumbService,
+    private router: Router
+  ) { }
 
+  breadcrumb: { id: string, name: string }[] = [];
   systemFileData: any = { sections: [] };
   SystemFileId: string | null = null;
   loadData: boolean = false;
@@ -61,10 +69,29 @@ export class SystemFileComponent implements OnInit {
   ngOnInit(): void {
     this.SystemFileId = this.route.snapshot.paramMap.get('id');
 
+    this.breadcrumb = this.breadcrumbService.getBreadcrumb();
+
+
     if (this.SystemFileId) {
       this.getSystemFileData(this.SystemFileId);
     }
   }
+
+
+  goToFolder(crumb: any) {
+    const index = this.breadcrumb.findIndex(c => c.id === crumb.id);
+    const newBreadcrumb = this.breadcrumb.slice(0, index + 1);
+
+    this.breadcrumbService.setBreadcrumb(newBreadcrumb);
+    this.breadcrumbService.setCurrentFolder(crumb);
+
+    this.breadcrumbService.setReturnFolderId(crumb.id);
+
+    this.router.navigate(['/cloud/cloud-system']);
+  }
+
+
+
 
 
   collectFilledRows() {
@@ -117,7 +144,7 @@ export class SystemFileComponent implements OnInit {
 
 
 
-  fileEditable:boolean = false;
+  fileEditable: boolean = false;
 
   getSystemFileData(fileId: string) {
     this.loadData = true;
@@ -146,84 +173,84 @@ export class SystemFileComponent implements OnInit {
   }
 
 
-generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
-  return headers.map(header => {
-    let type: 'input' | 'select' | 'date' | 'time' = 'input';
+  generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
+    return headers.map(header => {
+      let type: 'input' | 'select' | 'date' | 'time' = 'input';
 
-    const validators: ValidatorFn[] = [];
-    let options: { value: any, label: string }[] | undefined;
-    let errorMessage = '';
+      const validators: ValidatorFn[] = [];
+      let options: { value: any, label: string }[] | undefined;
+      let errorMessage = '';
 
-    if (header.required) {
-      validators.push(Validators.required);
-      errorMessage = 'This field is required';
-    }
+      if (header.required) {
+        validators.push(Validators.required);
+        errorMessage = 'This field is required';
+      }
 
-    switch (header.type) {
-      case 'dropdown':
-        type = 'select';
+      switch (header.type) {
+        case 'dropdown':
+          type = 'select';
 
-        options = header.reliability ? [] : header.data.map(opt => ({
-          value: opt.id,
-          label: opt.name
-        }));
+          options = header.reliability ? [] : header.data.map(opt => ({
+            value: opt.id,
+            label: opt.name
+          }));
 
-        validators.push((control: { value: number }) => {
-          return control.value === 0 ? { required: true } : null;
-        });
+          validators.push((control: { value: number }) => {
+            return control.value === 0 ? { required: true } : null;
+          });
 
-        errorMessage = 'Please select a valid option';
-        break;
+          errorMessage = 'Please select a valid option';
+          break;
 
-      case 'email':
-        validators.push(Validators.email);
-        errorMessage = 'Please enter a valid email address';
-        break;
+        case 'email':
+          validators.push(Validators.email);
+          errorMessage = 'Please enter a valid email address';
+          break;
 
-      case 'phone':
-        validators.push(Validators.pattern(/^\d+$/));
-        errorMessage = 'Please enter a valid phone number (digits only)';
-        break;
+        case 'phone':
+          validators.push(Validators.pattern(/^\d+$/));
+          errorMessage = 'Please enter a valid phone number (digits only)';
+          break;
 
-      case 'int': 
-        validators.push(Validators.pattern(/^(0|[1-9][0-9]*)$/));
-        errorMessage = 'Please enter a valid integer (no leading zeros)';
-        break;
+        case 'int':
+          validators.push(Validators.pattern(/^(0|[1-9][0-9]*)$/));
+          errorMessage = 'Please enter a valid integer (no leading zeros)';
+          break;
 
-      case 'double': 
-        validators.push(Validators.pattern(/^(0|[1-9][0-9]*)\.[0-9]+$/));
-        errorMessage = 'Please enter a valid decimal number (e.g. 12.34, not starting with zero)';
-        break;
+        case 'double':
+          validators.push(Validators.pattern(/^(0|[1-9][0-9]*)\.[0-9]+$/));
+          errorMessage = 'Please enter a valid decimal number (e.g. 12.34, not starting with zero)';
+          break;
 
-      case 'BigInt':
-      case 'number': 
-        validators.push(Validators.pattern(/^\d+(\.\d+)?$/));
-        errorMessage = 'Please enter a valid number';
-        break;
+        case 'BigInt':
+        case 'number':
+          validators.push(Validators.pattern(/^\d+(\.\d+)?$/));
+          errorMessage = 'Please enter a valid number';
+          break;
 
-      case 'date':
-        type = 'date';
-        break;
+        case 'date':
+          type = 'date';
+          break;
 
-      case 'time':
-        type = 'time';
-        break;
-    }
+        case 'time':
+          type = 'time';
+          break;
+      }
 
-    return {
-      key: header.key,
-      name: header.key,
-      label: header.label,
-      type,
-      validators,
-      errorMessage,
-      editable: this.fileEditable ? header.editable : false,
-      ...(options ? { options } : {}),
-      reliability: header.reliability ?? undefined,
-      rawData: header.data
-    };
-  });
-}
+      return {
+        key: header.key,
+        name: header.key,
+        label: header.label,
+        type,
+        validators,
+        errorMessage,
+        editable: this.fileEditable ? header.editable : false,
+        ...(options ? { options } : {}),
+        reliability: header.reliability ?? undefined,
+        rawData: header.data
+      };
+    });
+  }
 
 
 }

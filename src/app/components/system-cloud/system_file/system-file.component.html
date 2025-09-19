@@ -4,12 +4,24 @@
 
 
 <div class="content-hug">
-  <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <!-- <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a type="button" routerLink="/cloud/cloud-system">Drive</a></li>
       <li class="breadcrumb-item active"><a href="#">New Hires</a></li>
     </ol>
+  </nav> -->
+
+  <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      @for (crumb of breadcrumb; track $index; let i = $index) {
+      <li class="breadcrumb-item" [class.active]="i === breadcrumb.length - 1" style="cursor: pointer"
+        (click)="goToFolder(crumb)">
+        <a>{{ crumb.name }}</a>
+      </li>
+      }
+    </ol>
   </nav>
+
 
   <div class="d-flex align-items-center justify-content-between mt-3">
 

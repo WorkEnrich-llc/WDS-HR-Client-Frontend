@@ -3,12 +3,17 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
+import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
 
 interface CheckItem {
+  id: number;
   name: string;
   completed: boolean;
   editing?: boolean;
+  record_type: 'create' | 'update' | 'delete';
+  ranking: number;
 }
+
 
 @Component({
   selector: 'app-edit-department-checklists',
@@ -18,53 +23,63 @@ interface CheckItem {
   encapsulation: ViewEncapsulation.None
 })
 export class EditDepartmentChecklistsComponent {
-  checks: CheckItem[] = [
-    { name: 'Verify department goals are documented', completed: false },
-    { name: 'Ensure team members are assigned tasks', completed: false },
-    { name: 'Confirm budget allocation is approved', completed: false },
-    { name: 'Review department KPIs', completed: false },
-    { name: 'Schedule weekly progress meeting', completed: false }
-  ];
 
+  checks: CheckItem[] = [];
+  deletedChecks: CheckItem[] = []; 
+  showInput = false;
   checkForm: FormGroup;
-  showInput = false; 
-  constructor(private router: Router, private fb: FormBuilder) {
+
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private departmentChecklistService: DepartmentChecklistService
+  ) {
     this.checkForm = this.fb.group({
       checkName: ['', Validators.required]
     });
   }
 
   ngOnInit() {
-    // this.getOnboarding();
+    this.getOnboarding();
   }
 
   getOnboarding() {
-    /*
-    this.onboardingService.getOnboarding().subscribe({
+    this.departmentChecklistService.getDepartmetChecks().subscribe({
       next: (response) => {
-        const list = response.data.object_info.onboarding_list || [];
-        this.checks = list.map((item: any) => ({
+        const list = response.data.object_info || [];
+        this.checks = list.map((item: any, index: number) => ({
+          id: item.id,
           name: item.title,
           completed: false,
-          editing: false
+          editing: false,
+          record_type: 'update',
+          ranking: index + 1
         }));
       },
       error: (err) => {
         console.log(err.error?.details);
       }
     });
-    */
   }
 
   // add new check
   addCheck() {
     if (this.checkForm.valid) {
-      this.checks.push({
-        name: this.checkForm.value.checkName,
-        completed: false
+      this.checks.forEach(item => {
+        if (item.record_type !== 'delete') {
+          item.record_type = 'update';
+        }
       });
-      this.checkForm.reset();
 
+      this.checks.push({
+        id: 0,
+        name: this.checkForm.value.checkName,
+        completed: false,
+        record_type: 'create',
+        ranking: this.checks.length + 1
+      });
+
+      this.checkForm.reset();
       this.showInput = false;
 
       this.printData();
@@ -72,10 +87,8 @@ export class EditDepartmentChecklistsComponent {
   }
 
   showAddInput() {
-    this.showInput = true; 
+    this.showInput = true;
   }
-
-
 
   // drag & drop reorder
   draggedIndex: number | null = null;
@@ -98,55 +111,72 @@ export class EditDepartmentChecklistsComponent {
     this.checks.splice(this.draggedIndex, 1);
     this.checks.splice(dropIndex, 0, draggedItem);
 
+    this.checks.forEach(item => {
+        item.record_type = 'update';
+    });
+
     this.draggedIndex = null;
     this.dragOverIndex = null;
 
     this.printData();
   }
+
 
   onDragEnd() {
     this.draggedIndex = null;
     this.dragOverIndex = null;
   }
 
-  printData() {
-    /*
-    const request_data = {
-      onboarding_list: this.checks.map(c => ({
-        title: c.name,
-        status: true
-      }))
-    };
-    this.onboardingService.createOnboarding({ request_data }).subscribe({
+ printData() {
+  const allItems = [...this.checks, ...this.deletedChecks];
+
+  const raw = {
+    request_data: {
+      list_items: allItems.map((item, index) => {
+        if (item.record_type !== 'delete') {
+          item.ranking = index + 1;
+        }
+
+        return {
+          id: item.id,
+          record_type: item.record_type,
+          name: item.name,
+          ranking: item.ranking
+        };
+      })
+    }
+  };
+
+  // console.log('Raw checklist payload:', raw);
+   this.departmentChecklistService.createDeptCheck({ raw }).subscribe({
       next: (response) => {
         console.log('Onboarding data saved successfully:', response);
+        this.checks=response?.data?.list_items||[];
       },
       error: (err) => {
         console.error('Error saving onboarding data:', err);
       }
     });
-    */
-    console.log('Current checklist (local only):', this.checks);
-  }
+}
 
-  removeCheck(index: number) {
-    this.checks.splice(index, 1);
-    this.printData();
-  }
 
-  // discard popup
-  isModalOpen = false;
 
-  openModal() {
-    this.isModalOpen = true;
-  }
+removeCheck(index: number) {
+  const removed = this.checks[index];
 
-  closeModal() {
-    this.isModalOpen = false;
-  }
+  removed.record_type = 'delete';
 
-  confirmAction() {
-    this.isModalOpen = false;
-    this.router.navigate(['/dashboard']);
-  }
+  this.deletedChecks.push(removed);
+
+  this.checks.splice(index, 1);
+
+  this.checks.forEach(item => {
+    if (item.record_type !== 'create' && item.record_type !== 'delete') {
+      item.record_type = 'update';
+    }
+  });
+
+  this.printData();
+}
+
 }

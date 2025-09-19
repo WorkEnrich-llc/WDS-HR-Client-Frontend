@@ -31,7 +31,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
     private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder, public subService: SubscriptionService) { }
 
   subscription: any;
-  
+
   departments: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';

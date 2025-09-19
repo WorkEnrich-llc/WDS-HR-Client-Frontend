@@ -95,11 +95,6 @@
           <input formControlName="code" type="text" id="deptCode" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
-        @if (deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']) {
-        <p class="error-msg">
-          Department Code must include both letters and numbers.
-        </p>
-        }
       </div>
       <div class="input">
         <label for="deptName">Department Name <span>*</span></label>

@@ -47,7 +47,7 @@ export class CreateDepartmentsComponent {
   
   deptStep1: FormGroup = new FormGroup({
     // Optional code must include both letters and numbers when provided
-    code: new FormControl('', [Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$')]),
+    code: new FormControl('', []),
     name: new FormControl('', [Validators.required]),
     department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),

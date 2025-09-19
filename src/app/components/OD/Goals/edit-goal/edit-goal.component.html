@@ -2,9 +2,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Operations Development', link: '/departments' },
     { label: 'Goals', link: '/goals' },
-    { label: 'Edit Goal' }
-  ]" title="Edit Goal" create="01/09/2025" update="05/09/2025">
-    <button class="btn btn-lg btn-success">
+    { label: 'Edit Goal' + goalData.name  }
+  ]" [title]="'Edit Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-success" (click)="updateGoal()" [disabled]="goalForm.pristine || goalForm.invalid || isLoading">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -33,70 +33,72 @@
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
-        <form class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="goalForm" class="w-lg-50 d-flex flex-column gap-2">
             <div class="input">
-                <label for="goalCode">Goal ID (Optional)</label>
+                <label for="code">Goal Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="goalCode" class="form-control custom-date-input" placeholder="0050" />
+                    <input type="text" id="code" formControlName="code" class="form-control custom-date-input"
+                        placeholder="0050" />
                 </div>
-                <!-- @if (deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['pattern']) {
-        <p class="error-msg">
-          Department Code must include both letters and numbers.
-        </p>
-        } -->
+
             </div>
 
             <div class="input">
-                <label for="deptName">Goal Name <span>*</span></label>
+                <label for="name">Goal Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="deptName" class="form-control custom-date-input"
+                    <input type="text" id="name" formControlName="name" class="form-control custom-date-input"
                         placeholder="Enter Goal Name" />
                 </div>
-                <!-- @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']) {
-        <p class="error-msg">
-          Department Name is required.
-        </p>
-        } -->
+                @if (goalForm.get('name')?.touched && goalForm.get('name')?.errors?.['required']) {
+                <p class="error-msg">
+                    Goal Name is required.
+                </p>
+                }
             </div>
 
             <div class="input">
-                <label for="deptType">Goal Department Type <span>*</span></label>
+                <label for="department_type">Goal Department Type <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select id="deptType" class="form-select">
+                    <select id="department_type" formControlName="department_type" class="form-select">
                         <option value="" selected disabled hidden>Select Goal Department Type</option>
-                        <option value="1">Support</option>
-                        <option value="2">Technical</option>
+                        <option value=1>Support</option>
+                        <option value=2>Technical</option>
                     </select>
                 </div>
-                <!-- @if (deptStep1.get('department_type')?.touched && deptStep1.get('department_type')?.errors?.['required']) {
-        <p class="error-msg">
-          Department Type is required.
-        </p>
-        } -->
+                @if (goalForm.get('department_type')?.touched && goalForm.get('department_type')?.errors?.['required'])
+                {
+                <p class="error-msg">
+                    Department Type is required.
+                </p>
+                }
             </div>
 
-            
+
 
             <div class="input">
-                <label for="deptType">Priority <span>*</span></label>
+                <label for="Priority">Priority <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select id="deptType" class="form-select">
+                    <select id="Priority" formControlName="Priority" class="form-select">
                         <option value="" selected disabled hidden>Select Priority</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
+                        <option value=1>1</option>
+                        <option value=2>2</option>
+                        <option value=3>3</option>
+                        <option value=4>4</option>
+                        <option value=5>5</option>
                     </select>
                 </div>
-                <!-- @if (deptStep1.get('department_type')?.touched && deptStep1.get('department_type')?.errors?.['required']) {
-        <p class="error-msg">
-          Department Type is required.
-        </p>
-        } -->
+                @if (goalForm.get('Priority')?.touched && goalForm.get('Priority')?.errors?.['required']) {
+                <p class="error-msg">
+                    Priority is required.
+                </p>
+                }
             </div>
 
-
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-2" role="alert">
+                {{errMsg}}
+            </div>
+            }
         </form>
     </div>
 </div>

@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 interface FileItem {
   id: string;
   name: string;
@@ -28,7 +29,12 @@ interface storageInfo {
   encapsulation: ViewEncapsulation.None
 })
 export class SystemCloudComponent implements OnInit {
-  constructor(private _systemCloudService: SystemCloudService, private http: HttpClient, private toasterService: ToastrService, private router: Router
+  constructor(
+    private _systemCloudService: SystemCloudService,
+    private http: HttpClient,
+    private toasterService: ToastrService,
+    private router: Router,
+    private breadcrumbService: BreadcrumbService
   ) { }
   // load data and spinner show
   dataLoaded: boolean = false;
@@ -57,10 +63,37 @@ export class SystemCloudComponent implements OnInit {
   searchText: string = '';
   filteredTemplates: any[] = [];
 
+
   ngOnInit(): void {
+    const tempFolderId = this.breadcrumbService.getReturnFolderId();
+    // check from route or systemfile id
+    if (tempFolderId) {
+      this.getAllFoldersFiles(tempFolderId);
+      this.breadcrumb = this.breadcrumbService.getBreadcrumb();
+      this.openedFolderId = tempFolderId;
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 300);
+
+      this.breadcrumbService.clearReturnFolderId();
+    } else {
+      this.breadcrumbService.clear();
+      this.getAllFoldersFiles(null);
+      this.breadcrumb = [{ id: null, name: 'My Drive' }];
+      this.openedFolderId = null;
+    }
+
     this.getAllSystemTemplates();
-    this.getAllFoldersFiles();
   }
+
+
+
+
+
   // check all loaded
   get isAllLoaded(): boolean {
     return !this.loadData && !this.loadFiles;
@@ -140,9 +173,14 @@ export class SystemCloudComponent implements OnInit {
       return a.name.localeCompare(b.name);
     });
 
-    if (parentId === null) {
+    // if (parentId === null) {
+    //   this.breadcrumb = [{ id: null, name: 'My Drive' }];
+    // }
+    // if return from systemfile breadcrumb
+    if (parentId === null && this.breadcrumb.length === 0) {
       this.breadcrumb = [{ id: null, name: 'My Drive' }];
     }
+
   }
 
 
@@ -194,11 +232,18 @@ export class SystemCloudComponent implements OnInit {
       this.breadcrumb.push({ id: folder.id, name: folder.name });
     }
 
+    this.breadcrumbService.setBreadcrumb(this.breadcrumb);
+    this.breadcrumbService.setCurrentFolder(folder);
+
     this.getAllFoldersFiles(folder.id);
   }
 
   // open system file
   openSystemFile(folder: any) {
+    // send breadcramb
+    const newBreadcrumb = [...this.breadcrumb, { id: folder.id, name: folder.name }];
+    this.breadcrumbService.setBreadcrumb(newBreadcrumb);
+
     this.router.navigate(['/cloud/system-file', folder.id]);
   }
 
@@ -221,6 +266,15 @@ export class SystemCloudComponent implements OnInit {
 
     const index = this.breadcrumb.findIndex(b => b.id === folderId);
     this.breadcrumb = this.breadcrumb.slice(0, index + 1);
+
+
+    // update service
+    this.breadcrumbService.setBreadcrumb(this.breadcrumb);
+
+    const current = this.breadcrumb.find(b => b.id === folderId);
+    if (current) {
+      this.breadcrumbService.setCurrentFolder(current);
+    }
   }
 
   // create new folder

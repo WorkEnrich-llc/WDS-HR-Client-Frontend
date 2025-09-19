@@ -171,7 +171,7 @@
         <ol class="breadcrumb">
           @for (crumb of breadcrumb; track crumb; let i = $index) {
           <li class="breadcrumb-item" [ngClass]="{
-              'active': crumb.id === openedFolderId,
+              'active': i === breadcrumb.length - 1,
               'crumb-hover': crumb.id === 'root' || dragOverCrumbId === crumb.id
             }" (click)="goToFolder(crumb.id)" (dragover)="onCrumbDragOver($event, crumb)"
             (dragleave)="onCrumbDragLeave($event, crumb)" (drop)="onCrumbDrop($event, crumb)" style="cursor: pointer">
