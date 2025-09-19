@@ -9,7 +9,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
-import { IPermission, IUser, IUserApi } from 'app/core/models/users';
+import { IUser, IUserApi } from 'app/core/models/users';
 import { UserStatus } from '@app/enums';
 
 @Component({
@@ -188,18 +188,18 @@ export class UsersComponent {
   }
 
 
-  filters(): void {
-    if (this.filterForm.valid) {
-      const rawFilters = this.filterForm.value;
-      const filters = {
-        name: rawFilters.name || undefined,
-      };
-      this.currentPage = 1;
-      this.filterBox.closeOverlay();
-      this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
-      console.log(filters);
-    }
-  }
+  // filters(): void {
+  //   if (this.filterForm.valid) {
+  //     const rawFilters = this.filterForm.value;
+  //     const filters = {
+  //       name: rawFilters.name || undefined,
+  //     };
+  //     this.currentPage = 1;
+  //     this.filterBox.closeOverlay();
+  //     this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
+  //     console.log(filters);
+  //   }
+  // }
 
 
   filter(): void {
