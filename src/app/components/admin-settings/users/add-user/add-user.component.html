@@ -1,9 +1,10 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Admin settings', link: '/cloud' },
     { label: 'Users', link: '/users' },
-    {  label: 'Add User'}
-  ]" title="Users - User information" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success" (click)="inviteUser()">
+     { label: isEditMode ? 'Edit User ' + userId : 'Create New User' }
+  ]" [title]="isEditMode ? 'Edit User ' + userId : 'Create New User'" [create]="createDate" [update]="updatedDate">
+  <!-- [create]="todayFormatted" -->
+  <button class="btn btn-lg btn-success" (click)="inviteUser()" [disabled]="usersForm.invalid">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
@@ -41,14 +42,20 @@
           <label for="email">Email <span>*</span></label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="email" class="form-control custom-date-input" placeholder="Email"
-              formControlName="email" />
+              formControlName="email" (blur)="checkEmailExists()" />
           </div>
-          @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['required']) {
+          @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['required']
+          ) {
           <p class="error-msg">
             Email is required.
           </p>
           }
-
+          @if (usersForm.get('email')?.errors?.['email']) {
+          <p class="error-msg">This email is invalid.</p>
+          }
+          @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['exists']) {
+          <p class="error-msg">This user is in your employee list.</p>
+          }
         </div>
 
         <div class="input">
@@ -95,20 +102,6 @@
 
 
         <div class="input">
-          <!-- <label for="userRole">User Role</label>
-          <div class="d-flex align-items-center gap-4">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <select name="userRole" id="userRole" class="form-select" (change)="onSelectRole($event)"
-                formControlName="permissions">
-                <option value="" disabled selected hidden>Select one User Role</option>
-                @for (role of userRoles; track role) {
-                <option [value]="role.id">{{role.name}}</option>
-                }
-              </select>
-            </div>
-          </div> -->
-
-
           <label for="userRole">User Role</label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper" appCloseDropdown
@@ -116,9 +109,9 @@
               <div class="form-select custom-select" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
                 <div class="selected-tags ">
                   @for( role of selectedRoles; track role.id){
-                  <span class="badge bg-primary d-flex align-items-center gap-1">
+                  <span class="badge text-muted d-flex align-items-center gap-1">
                     {{ role.name }}
-                    <button type="button" class="btn-close btn-close-white"
+                    <button type="button" class="small btn-close btn-close-grey"
                       (click)="removeRole(role.id!); $event.stopPropagation();"></button>
                   </span>
                   }

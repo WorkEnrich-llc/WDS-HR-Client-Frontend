@@ -9,7 +9,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
-import { IUser } from 'app/core/models/users';
+import { IPermission, IUser, IUserApi } from 'app/core/models/users';
+import { UserStatus } from '@app/enums';
 
 @Component({
   selector: 'app-users',
@@ -21,18 +22,22 @@ import { IUser } from 'app/core/models/users';
 })
 export class UsersComponent {
 
-
+  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private toasterService = inject(ToasterMessageService);
   filterForm!: FormGroup;
   toasterSubscription: any;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
-  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
-  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+
 
   private userService = inject(AdminUsersService);
-  allUsers$!: Observable<IUser[]>;
-  // allUsers: IUser[] = [];
+  // allUsers!: Observable<IUser[]>;
+  totalPages: number = 0;
+  allUsers: IUser[] = [];
+  filteredList: IUser[] = [];
+  userStatus = UserStatus
 
   users = [
     {
@@ -71,29 +76,13 @@ export class UsersComponent {
   private searchSubject = new Subject<string>();
 
 
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
-      // this.getAllWorkSchedule(this.currentPage);
+      this.getAllUsers(this.currentPage);
     });
 
-    // this.userService.getAllUsers().subscribe({
-    //   next: users => {
-    //     this.allUsers = users;
-    //     console.log('Users:', this.allUsers);
-    //   },
-    //   error: err => console.error(err)
-    // });
-
-    this.allUsers$ = this.userService.getAllUsers();
-
-    // this.userService.getAllUsers().subscribe(users => {
-    //   this.allUsers = new Observable<IUser[]>(observer => {
-    //     observer.next(users);
-    //     observer.complete();
-    //   });
-    //   console.log('users created', users);
-    // });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -105,23 +94,78 @@ export class UsersComponent {
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllWorkSchedule(this.currentPage, value);
+      this.getAllUsers(this.currentPage, value);
     });
-    // this.getAllDepartment(1);
+
+
     this.filterForm = this.fb.group({
-      department: '',
-      schedules_type: '',
-      work_schedule_type: ''
+      name: [''],
+      user_id: ['']
+      // email: [''],
     });
+  }
+
+
+  getAllUsers(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      name?: string;
+    }
+  ) {
+    this.userService.getAllUsers(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        console.log('API response:', response);
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalPages = response.data.total_pages;
+        this.allUsers = response.data.list_items.map((item: IUserApi) => ({
+          id: item.id,
+          name: item.user?.name ?? '',
+          email: item.user?.email ?? '',
+          code: item.user?.code ?? '',
+          status: this.mapToStatus(item),
+          created_at: item?.created_at ?? '',
+          permissions: (item.permissions ?? []).map((p: any) => ({
+            id: p.role?.id,
+            name: p.role?.name
+          }))
+        })) as IUser[];
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+        this.loadData = false;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        console.log('API error:', err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
+
+  getRoleNames(user: IUser): string {
+    return user.permissions.map(p => p.name).join(', ');
+  }
+
+  private mapToStatus(item: any): UserStatus {
+    if (item.status === 'Pending') return UserStatus.Pending;
+    if (item.status === 'Expired') return UserStatus.Expired;
+    return item.is_active ? UserStatus.Active : UserStatus.Inactive;
   }
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.users = this.users.sort((a, b) => {
+    this.allUsers.sort((a, b) => {
+      const nameA = a.name?.toLowerCase() || '';
+      const nameB = b.name?.toLowerCase() || '';
       if (this.sortDirection === 'asc') {
-        return a.id - b.id;
+        return nameA.localeCompare(nameB);
       } else {
-        return b.id - a.id;
+        return nameB.localeCompare(nameA);
       }
     });
   }
@@ -130,39 +174,71 @@ export class UsersComponent {
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
+
+
   resetFilterForm(): void {
     this.filterForm.reset({
-      department: '',
-      schedules_type: '',
-      work_schedule_type: ''
+      name: '',
     });
-
     this.filterBox.closeOverlay();
-
     const filters = {
-      department: undefined,
-      schedules_type: undefined,
-      work_schedule_type: undefined
+      name: undefined,
     };
-
-    // this.getAllWorkSchedule(this.currentPage, '', filters);
+    this.getAllUsers(this.currentPage, '', filters);
   }
+
+
+  filters(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+      const filters = {
+        name: rawFilters.name || undefined,
+      };
+      this.currentPage = 1;
+      this.filterBox.closeOverlay();
+      this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
+      console.log(filters);
+    }
+  }
+
+
   filter(): void {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
-
       const filters = {
-        department: rawFilters.department || undefined,
-        schedules_type: rawFilters.schedules_type || undefined,
-        work_schedule_type: rawFilters.work_schedule_type || undefined
+        name: rawFilters.name || undefined,
+        // user_id: rawFilters.user_id ? Number(rawFilters.user_id) : undefined,
       };
-
-
-      console.log('Filters submitted:', filters);
+      this.currentPage = 1;
       this.filterBox.closeOverlay();
-      // this.getAllWorkSchedule(this.currentPage, '', filters);
+      this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
+      console.log(filters);
     }
   }
+
+
+  applyFilters() {
+    this.filteredList = this.allUsers.filter(item =>
+      item.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+    this.sortBy();
+  }
+
+
+  resendInvitation(email: string) {
+    this.userService.searchUser(email).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('Invitation resent successfully');
+      },
+      error: (err) => {
+        console.error('Failed to resend invitation', err);
+        this.toasterService.showError('Failed to resend invitation');
+      }
+    });
+  }
+
+
+
 
 
   copyEmail(email: string, user: any) {
@@ -171,13 +247,15 @@ export class UsersComponent {
       setTimeout(() => user.copied = false, 2000);
     });
   }
+
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllWorkSchedule(this.currentPage);
+    this.getAllUsers(this.currentPage);
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllWorkSchedule(this.currentPage);
+    this.getAllUsers(this.currentPage);
   }
 }

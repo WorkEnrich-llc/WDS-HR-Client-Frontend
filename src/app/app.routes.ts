@@ -1073,12 +1073,12 @@ export const routes: Routes = [
                 title: 'Add User'
               },
               {
-                path: 'add-user/:id',
+                path: 'edit-user/:id',
                 loadComponent: () =>
                   import(
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
-                title: 'Add User'
+                title: 'Edit User'
               },
               {
                 path: 'view-user/:id',
