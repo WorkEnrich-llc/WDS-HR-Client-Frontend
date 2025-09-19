@@ -78,12 +78,6 @@ export class RolesComponent {
       this.getAllRoles(this.currentPage);
     });
 
-
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllRoles(this.currentPage);
-    });
-
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -155,9 +149,6 @@ export class RolesComponent {
   }
 
 
-
-
-
   getPermissionsCounts(role: Roles): number {
     return role.permissions.reduce((total, module) => {
       return total + module.subModules.reduce((subTotal, sub) => subTotal + sub.actions.length, 0);
@@ -175,7 +166,6 @@ export class RolesComponent {
       }, 0);
     }, 0);
   }
-
 
 
   sortBy() {
@@ -196,11 +186,11 @@ export class RolesComponent {
     this.searchSubject.next(this.searchTerm);
   }
 
-  resetFilterForsm(): void {
-    this.filterBox.closeOverlay();
-    this.searchTerm = '';
-    this.filteredList = [...this.roles];
-  }
+  // resetFilterForsm(): void {
+  //   this.filterBox.closeOverlay();
+  //   this.searchTerm = '';
+  //   this.filteredList = [...this.roles];
+  // }
 
   resetFilterForm() {
     this.filterForm.reset();
