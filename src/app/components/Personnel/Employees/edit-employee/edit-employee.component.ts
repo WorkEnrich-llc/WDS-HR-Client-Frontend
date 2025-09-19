@@ -11,7 +11,6 @@ import { EditStepperNavigationComponent } from './edit-stepper-navigation/edit-s
 import { EditMainInformationStepComponent } from './edit-main-information-step/edit-main-information-step.component';
 import { EditJobDetailsStepComponent } from './edit-job-details-step/edit-job-details-step.component';
 import { EditAttendanceDetailsStepComponent } from './edit-attendance-details-step/edit-attendance-details-step.component';
-import { EditContractDetailsStepComponent } from './edit-contract-details-step/edit-contract-details-step.component';
 import { EditInsuranceDetailsStepComponent } from './edit-insurance-details-step/edit-insurance-details-step.component';
 
 @Component({
@@ -25,8 +24,7 @@ import { EditInsuranceDetailsStepComponent } from './edit-insurance-details-step
     EditMainInformationStepComponent,
     EditJobDetailsStepComponent,
     EditAttendanceDetailsStepComponent,
-    EditContractDetailsStepComponent
-    ,EditInsuranceDetailsStepComponent
+    EditInsuranceDetailsStepComponent
   ],
   providers: [DatePipe],
   templateUrl: './edit-employee.component.html',

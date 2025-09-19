@@ -281,7 +281,7 @@ export class EditEmployeeSharedService {
 
   // Step navigation
   goNext() {
-    if (this.currentStep() < 5) {
+    if (this.currentStep() < 4) {
       this.currentStep.set(this.currentStep() + 1);
     }
   }
@@ -293,7 +293,7 @@ export class EditEmployeeSharedService {
   }
 
   goToStep(step: number) {
-    if (step >= 1 && step <= 5) {
+    if (step >= 1 && step <= 4) {
       this.currentStep.set(step);
     }
   }
@@ -322,6 +322,7 @@ export class EditEmployeeSharedService {
           address: formData.main_information.address
         },
         job_details: {
+          years_of_experience: formData.job_details.years_of_experience || 0,
           branch_id: originalData.job_info.branch?.id,
           department_id: originalData.job_info.department?.id,
           section_id: originalData.job_info.section?.id,
@@ -330,16 +331,15 @@ export class EditEmployeeSharedService {
         },
         contract_details: {
           start_contract: this.formatDateForAPI(originalData.job_info.start_contract),
-          contract_type: originalData.job_info.contract_type?.id,
+          contract_type: originalData.job_info.contract_type?.id || 1, // 1 With End Date, 2 Without End Date
           contract_end_date: originalData.job_info.end_contract ? this.formatDateForAPI(originalData.job_info.end_contract) : '',
-          employment_type: originalData.job_info.employment_type?.id,
-          work_mode: originalData.job_info.work_mode?.id,
-          days_on_site: originalData.job_info.days_on_site,
-          salary: originalData.job_info.salary,
-          insurance_salary: formData.contract_details.insurance_salary ? parseFloat(formData.contract_details.insurance_salary) : undefined,
-          include_insurance_salary: formData.insurance_details?.include_insurance_salary || false,
-          include_gross_insurance_salary: formData.insurance_details?.include_gross_insurance_salary || false,
-          gross_insurance_salary: formData.insurance_details?.gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : undefined
+          employment_type: originalData.job_info.employment_type?.id || 1, // 1 Full Time, 2 Part Time, 3 Per Hour
+          work_mode: originalData.job_info.work_mode?.id || 1, // 1 On Site, 2 Remote, 3 Hybrid
+          days_on_site: originalData.job_info.days_on_site || 0,
+          salary: originalData.job_info.salary ? parseFloat(originalData.job_info.salary.toString()) : 0,
+          insurance_salary: formData.contract_details.insurance_salary ? parseFloat(formData.contract_details.insurance_salary) : 0,
+          gross_insurance: formData.insurance_details?.gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : 0,
+          notice_period: formData.contract_details.notice_period || 0
         }
       }
     };
