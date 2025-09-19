@@ -41,6 +41,11 @@ export const routes: Routes = [
             loadComponent: () => import('./components/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
             title: 'Reset Password',
           },
+          {
+            path: 'invitation/set-password',
+            loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
+            title: 'Activate Your Account',
+          },
 
         ]
       },
@@ -1073,12 +1078,12 @@ export const routes: Routes = [
                 title: 'Add User'
               },
               {
-                path: 'add-user/:id',
+                path: 'edit-user/:id',
                 loadComponent: () =>
                   import(
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
-                title: 'Add User'
+                title: 'Edit User'
               },
               {
                 path: 'view-user/:id',
