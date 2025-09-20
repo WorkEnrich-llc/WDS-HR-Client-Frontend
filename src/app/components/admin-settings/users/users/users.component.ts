@@ -39,32 +39,7 @@ export class UsersComponent {
   filteredList: IUser[] = [];
   userStatus = UserStatus
 
-  users = [
-    {
-      id: 1,
-      name: "Ahmed Ali",
-      email: "ahmed.ali@example.com",
-      role: "Admin",
-      added_date: "2025-08-01",
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Sara Mohamed",
-      email: "sara.mohamed@example.com",
-      role: "Editor",
-      added_date: "2025-08-05",
-      status: "inactive"
-    },
-    {
-      id: 3,
-      name: "Omar Khaled",
-      email: "omar.khaled@example.com",
-      role: "Viewer",
-      added_date: "2025-08-10",
-      status: "pending"
-    }
-  ];
+
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -113,12 +88,13 @@ export class UsersComponent {
       name?: string;
     }
   ) {
+    this.loadData = true;
     this.userService.getAllUsers(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
       next: (response) => {
-        console.log('API response:', response);
+        // console.log('API response:', response);
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
@@ -135,7 +111,7 @@ export class UsersComponent {
           }))
         })) as IUser[];
         this.sortDirection = 'desc';
-        this.currentSortColumn = 'id';
+        this.currentSortColumn = 'name';
         this.sortBy();
         this.loadData = false;
       },

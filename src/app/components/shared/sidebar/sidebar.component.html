@@ -17,16 +17,11 @@
           </svg>
         </button>
         <div class="logo-text sidebar-text" [ngClass]="{'text-visible': showText}">
-        @if (logo) {
-  <img [src]="logo"
-       class="img-fluid"
-       [alt]="companyName"
-       (error)="logo=null">
-} @else {
-  <img src="./images/logo_with_slog.png"
-       class="img-fluid"
-       alt="Talentdot logo">
-}
+          @if (logo) {
+          <img [src]="logo" class="img-fluid" [alt]="companyName" (error)="logo=null">
+          } @else {
+          <img src="./images/logo_with_slog.png" class="img-fluid" alt="Talentdot logo">
+          }
 
           <!-- <span class="d-block company-name">Lala company</span>
           <span class="company-info"><span class="me-2">255</span><span>members</span></span> -->
@@ -358,9 +353,12 @@
                 [attr.title]="!collapsed ? 'Delegation' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <!-- sample delegation icon -->
-                    <path
-                      d="M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3s-3 1.343-3 3s1.343 3 3 3zm-8 0c1.657 0 3-1.343 3-3S9.657 5 8 5s-3 1.343-3 3s1.343 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C9 14.17 4.33 13 2 13zm8 0c-.29 0-.618.02-.968.05c.64.53 1.45.95 2.402.95c.95 0 1.76-.42 2.4-.95C14.62 13.02 14.29 13 14 13c-1.33 0-2.48.05-4 .05z" />
+                    <g fill-rule="evenodd" clip-rule="evenodd">
+                      <path
+                        d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12" />
+                      <path
+                        d="M11.003 6.507a.75.75 0 0 1-.072 1.058L9 9.25h8a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1-.493-1.315l3.437-3a.75.75 0 0 1 1.059.072m6.699 7.23A.75.75 0 0 0 17 13.25H7a.75.75 0 0 0 0 1.5h8l-1.93 1.685a.75.75 0 0 0 .986 1.13l3.437-3a.75.75 0 0 0 .21-.828" />
+                    </g>
                   </svg>
                   @if (collapsed) {
                   <span>Delegation</span>

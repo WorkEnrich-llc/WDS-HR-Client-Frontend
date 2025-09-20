@@ -118,9 +118,10 @@
             [rowTemplate]="usersTableRow" [emptyTemplate]="noUsers"></app-table>
 
         <ng-template #usersTableHeader>
-            <th class="w-20">User</th>
-            <th (click)="sortBy()" style="cursor: pointer;" class="w-20">
-                <div class="d-flex align-items-center justify-content-start gap-3">
+           
+            <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <span>User</span>
                     <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
                         viewBox="0 0 24 24">
                         <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
@@ -134,10 +135,10 @@
                             d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
                             clip-rule="evenodd" />
                     </svg>
-                    <span class="w-10">Email</span>
+                    
                 </div>
             </th>
-            <th class=""></th>
+             <th class="w-20">Email</th>
             <th class="w-20">Role(s)</th>
             <th class="">Added Date</th>
             <th>Status</th>
@@ -152,8 +153,7 @@
             </td>
 
             <td class="cursor-pointer" [routerLink]="['/users/view-user', user.id]">{{ user.email}}</td>
-            <td></td>
-
+           
             <td class="roles-cell cursor-pointer" [title]="getRoleNames(user)"
                 [routerLink]="['/users/view-user', user.id]">
                 {{ getRoleNames(user) }}

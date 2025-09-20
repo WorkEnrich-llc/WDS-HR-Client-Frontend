@@ -116,6 +116,8 @@ export class AddRoleComponent implements OnInit {
           "Operational Development",
           "Personnel",
           "Attendance",
+          
+          
           "Recruitment System",
           "Payroll",
           "Admin Settings"
@@ -137,7 +139,7 @@ export class AddRoleComponent implements OnInit {
             };
           }
         });
-        console.log(this.mappedData);
+        // console.log(this.mappedData);
       },
       error: (err) => {
         console.log(err.error?.details);
