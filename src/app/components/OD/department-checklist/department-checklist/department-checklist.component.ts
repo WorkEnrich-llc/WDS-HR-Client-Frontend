@@ -29,26 +29,29 @@ export class DepartmentChecklistComponent {
   }
   ngOnInit() {
 
-    this.getOnboarding();
+    this.getDepartmetCheck();
   }
 
+  getDepartmetCheck() {
+  this.departmentChecklistService.getDepartmetChecks().subscribe({
+    next: (response) => {
+      const list = response.data.list_items || [];
 
-  getOnboarding() {
-    this.departmentChecklistService.getDepartmetChecks().subscribe({
-      next: (response) => {
+      const sortedList = list.sort((a: any, b: any) => a.ranking - b.ranking);
 
-        const list = response.data.object_info || [];
-        this.checks = list.map((item: any) => ({
-          name: item.title,
-          completed: false,
-          editing: false
-        }));
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+      // console.log(sortedList);
+
+      this.checks = sortedList.map((item: any) => ({
+        name: item.name,  
+        completed: false,
+        editing: false
+      }));
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
 
 
 

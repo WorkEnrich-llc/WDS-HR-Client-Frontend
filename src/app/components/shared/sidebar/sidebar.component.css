@@ -396,3 +396,10 @@ fill: var(--color-danger-500);
     height: 70px;
     max-height: 70px;
 }
+.view-btn:hover{
+    transform: unset;
+    -webkit-transform: unset;
+    -moz-transform: unset;
+    -ms-transform: unset;
+    -o-transform: unset;
+}
