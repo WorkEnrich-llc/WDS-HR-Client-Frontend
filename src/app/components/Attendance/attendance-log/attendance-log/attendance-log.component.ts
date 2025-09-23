@@ -1,6 +1,6 @@
 import { Component, ViewChild, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -11,10 +11,12 @@ import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
+import { DateInputDirective } from 'app/core/directives/date.directive';
 
 @Component({
   selector: 'app-attendance-log',
-  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent,
+    CommonModule, ReactiveFormsModule, FormsModule, DateInputDirective, RouterLink],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
   styleUrl: './attendance-log.component.css'
@@ -26,8 +28,6 @@ export class AttendanceLogComponent {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
-
-
 
 
 
@@ -80,6 +80,7 @@ export class AttendanceLogComponent {
   private toasterSubscription!: Subscription;
   ngOnInit(): void {
     this.filterForm = this.fb.group({
+      date: [''],
       search: ['']
     });
     this.today.setHours(0, 0, 0, 0);
