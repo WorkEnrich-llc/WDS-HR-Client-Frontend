@@ -4,7 +4,7 @@
     { label: 'Departments', link: '/departments' },
     { label: 'Edit Department '+ departmentData?.name }
   ]" [title]="'Edit Department - '+ departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success" [disabled]="isLoading || !deptStep1.dirty && !deptStep2.dirty"
+  <button class="btn btn-lg btn-success"  [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges()"
     (click)="updateDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -33,6 +33,7 @@
 
 
 
+
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
   <li class="nav-item" [ngClass]="{
@@ -40,31 +41,39 @@
         'text-success': currentStep > 1, 
         'bg-light-success': currentStep > 1  
     }">
-    @if (currentStep == 1) {
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    @if (currentStep <= 1) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
       <path
         d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
-    </svg>
-    }
-    @if (currentStep > 1) {
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-      [style.fill]="currentStep > 1 ? 'currentColor' : '#4A6D97'">
-      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-      <path
-        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-    </svg>
-    }
-    <span class="nav-link">Main Information</span>
+      </svg>
+      }
+      @if (currentStep > 1) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 1 ? 'currentColor' : '#4A6D97'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Main Information</span>
   </li>
-  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-    [style.fill]="currentStep > 1 ? '#377AFD' : '#DDE3EB'">
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 1 ? '#DDE3EB' :
+    currentStep === 2 ? '#377AFD' :
+    currentStep > 2 ? '#4CA883' :
+    '#DDE3EB'
+  ">
     <path
       d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
   </svg>
 
-  <li class="nav-item" [ngClass]="{ active: currentStep === 2 }">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+  <li class="nav-item" [ngClass]="{
+        'active': currentStep === 2,
+        'text-success': currentStep > 2, 
+        'bg-light-success': currentStep > 2  
+    }">
+    @if (currentStep <= 2) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
       [style.fill]="currentStep === 2 ? '#007bff' : '#4A6D97'">
       <path
         d="M13 15.4c0-2.074 0-3.111.659-3.756S15.379 11 17.5 11s3.182 0 3.841.644C22 12.29 22 13.326 22 15.4v2.2c0 2.074 0 3.111-.659 3.756S19.621 22 17.5 22s-3.182 0-3.841-.644C13 20.71 13 19.674 13 17.6z"
@@ -75,11 +84,52 @@
         d="M2 18.5c0 1.087 0 1.63.171 2.06a2.3 2.3 0 0 0 1.218 1.262c.413.178.938.178 1.986.178h2.25c1.048 0 1.573 0 1.986-.178c.551-.236.99-.69 1.218-1.262c.171-.43.171-.973.171-2.06s0-1.63-.171-2.06a2.3 2.3 0 0 0-1.218-1.262C9.198 15 8.673 15 7.625 15h-2.25c-1.048 0-1.573 0-1.986.178c-.551.236-.99.69-1.218 1.262C2 16.87 2 17.413 2 18.5"
         opacity=".5" />
 
-    </svg>
-    <span class="nav-link">Sections</span>
+      </svg>
+      }
+      @if (currentStep > 2) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 2 ? 'currentColor' : '#4A6D97'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Sections</span>
+  </li>
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+    currentStep === 2 ? '#DDE3EB' :
+    currentStep === 3 ? '#377AFD' :
+    currentStep > 3 ? '#4CA883' :
+    '#DDE3EB'
+  ">
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
+
+  <li class="nav-item" [ngClass]="{
+        'active': currentStep === 3,
+        'text-success': currentStep > 3, 
+        'bg-light-success': currentStep > 3  
+    }">
+    @if (currentStep <= 3) { <svg [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
+      xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+      <path
+        d="M9.25 12a.75.75 0 0 1 .75-.75h1.25V10a.75.75 0 0 1 1.5 0v1.25H14a.75.75 0 0 1 0 1.5h-1.25V14a.75.75 0 0 1-1.5 0v-1.25H10a.75.75 0 0 1-.75-.75m-7.222.75a10 10 0 0 1 0-1.5H5a.75.75 0 0 1 0 1.5zm10.722 9.222a10 10 0 0 1-1.5 0V19a.75.75 0 0 1 1.5 0zm9.222-10.722a10 10 0 0 1 0 1.5H19a.75.75 0 0 1 0-1.5zM12.75 2.028V5a.75.75 0 0 1-1.5 0V2.028a10 10 0 0 1 1.5 0" />
+      </svg>
+      }
+      @if (currentStep > 3) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="currentStep > 3 ? 'currentColor' : '#4A6D97'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+      }
+      <span class="nav-link">Assign Goals</span>
   </li>
 </ul>
-
 
 
 <!-- step 1 -->
@@ -154,13 +204,12 @@
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next (1/2)</span>
+        <span>Next (1/3)</span>
       </button>
     </div>
   </div>
 </div>
 }
-
 
 
 <!-- step 2 -->
@@ -173,57 +222,161 @@
         <table class="table table-hover align-middle">
           <thead>
             <tr>
-              <th class="w-10">Section Code</th>
-              <th class="w-70">Section Name</th>
-              <th class="w-15">Actions</th>
+              <th class="w-5"></th>
+              <th class="w-20">Section Code</th>
+              <th class="w-40">Section Name</th>
+              <th class="w-30">Actions</th>
               <th class="w-5"></th>
             </tr>
           </thead>
           <tbody formArrayName="sections">
             @for (section of sectionsFormArray.controls; track section; let i = $index) {
             <tr [formGroupName]="i">
-              <td>
-                <input type="text" class="form-control table-input" placeholder="Code" formControlName="secCode" />
-                @if (section.get('secCode')?.invalid && section.get('secCode')?.touched) {
-                <p class="error-msg">
-                  Section Code is required
-                </p>
-                }
-              </td>
-              <td>
-                <input type="text" class="form-control table-input" placeholder="Section Name"
-                  formControlName="secName" />
-                @if (section.get('secName')?.invalid && section.get('secName')?.touched) {
-                <p class="error-msg">
-                  Section name is required
-                </p>
-                }
-              </td>
-              <td>
-                <div class="d-flex align-items-center justify-content-start w-100 gap-3">
-                  <a type="button" class="d-flex align-items-center gap-1"
-                    [ngClass]="section.get('status')?.value ? 'view-btn' : 'remove-btn'"
-                    (click)="toggleSectionStatus(i)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-                    </svg>
-                    <span>{{ section.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
-                  </a>
+              <td colspan="5">
+                <div class="row">
+                  <div class="w-5  d-flex align-items-center">
+                    @if (getSubSections(section).length > 0) {
+                    <button class="edit-btn" (click)="toggleCollapse(section)">
+                      @if (section.get('collapsed')?.value) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor" ill-rule="evenodd"
+                          d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
+                          clip-rule="evenodd" />
+                      </svg>
+                      }
+                      @if (!section.get('collapsed')?.value) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor" fill-rule="evenodd"
+                          d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                          clip-rule="evenodd" />
+                      </svg>
+                      }
+                    </button>
+                    }
+
+                  </div>
+                  <div class="w-20 d-flex align-items-center">
+                    <input type="text" class="form-control table-input" placeholder="Code" formControlName="secCode" />
+                    @if (section.get('secCode')?.invalid && section.get('secCode')?.touched) {
+                    <p class="error-msg">
+                      Section Code is required
+                    </p>
+                    }
+                  </div>
+                  <div class="w-40 d-flex align-items-center">
+                    <input type="text" class="form-control table-input" placeholder="Section Name"
+                      formControlName="secName" />
+                    @if (section.get('secName')?.invalid && section.get('secName')?.touched) {
+                    <p class="error-msg">
+                      Section name is required
+                    </p>
+                    }
+                  </div>
+                  <div class="w-30 d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                      <a type="button" class="d-flex align-items-center gap-1" class="edit-btn"
+                        (click)="addSubSection(i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                          <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                          </g>
+                        </svg>
+                        <span>Add Subsection</span>
+                      </a>
+                      <a type="button" class="d-flex align-items-center gap-1"
+                        [ngClass]="section.get('status')?.value ? 'view-btn' : 'remove-btn'"
+                        (click)="toggleSectionStatus(i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                            d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                        </svg>
+                        <span>{{ section.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="w-5 d-flex align-items-center">
+                    @if (i >= 1) {
+                    <button type="button" class="remove-btn" (click)="removeSection(i)" data-bs-toggle="tooltip"
+                      data-bs-placement="top" title="Remove">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                          d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                        <path fill="currentColor"
+                          d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                      </svg>
+                    </button>
+                    }
+                  </div>
                 </div>
-              </td>
-              <td>
-                @if (i >= 1) {
-                <button type="button" class="btn btn-remove p-0 text-lg" (click)="removeSection(i)"
-                  aria-label="Remove section">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
-                    <path fill="#4A6D97"
-                      d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-                    <path fill="#4A6D97"
-                      d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-                  </svg>
-                </button>
+
+                @if(!section.get('collapsed')?.value){
+                <div formArrayName="sub_sections">
+                  @for (sub of getSubSections(section).controls; track sub; let j = $index) {
+                  <div [formGroupName]="j"  class="sub-row">
+                    <div class="ms-3" style="position: relative; width: 70px; height: 48px;">
+
+                      @if(j === getSubSections(section).length - 1){
+                      <svg style="position: absolute; top: 0; left: 0;" width="41" height="25" viewBox="0 0 41 25"
+                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M41 24H7C3.68629 24 1 21.3137 1 18V0" stroke="#4A6D97" stroke-width="1.5" />
+                      </svg>
+
+                      }
+                      @if (j < getSubSections(section).length - 1) { <svg style="position: absolute; top: 0; left: 0;"
+                        width="41" height="25" viewBox="0 0 41 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M41 24H7C3.68629 24 1 21.3137 1 18V0" stroke="#4A6D97" stroke-width="1.5" />
+                        </svg>
+
+                        <svg style="position: absolute; top: 0; left: 0;" width="2" height="48" viewBox="0 0 2 48">
+                          <path d="M1 48V0" stroke="#4A6D97" stroke-width="1.5" />
+                        </svg>
+                        }
+                    </div>
+                    <div class="w-30 d-flex align-items-center">
+
+                      <input type="text" class="form-control table-input" placeholder="Sub Code"
+                        formControlName="secCode" />
+                      @if (sub.get('secCode')?.invalid && sub.get('secCode')?.touched) {
+                      <p class="error-msg">Subsection Code is required</p>
+                      }
+                    </div>
+                    <div class="w-45 d-flex align-items-center">
+                      <input type="text" class="form-control table-input" placeholder="Sub Section Name"
+                        formControlName="secName" />
+                      @if (sub.get('secName')?.invalid && sub.get('secName')?.touched) {
+                      <p class="error-msg">Subsection name is required</p>
+                      }
+                    </div>
+                    <div class="w-15 d-flex align-items-center">
+                      <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                        <a type="button" class="d-flex align-items-center gap-1"
+                          [ngClass]="sub.get('status')?.value ? 'view-btn' : 'remove-btn'"
+                          (click)="toggleSubSectionStatus(i, j)">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                              d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+                          </svg>
+                          <span>{{ sub.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <button type="button" class="remove-btn" (click)="removeSubSection(i, j)" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Remove">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                          <path fill="currentColor"
+                            d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                          <path fill="currentColor"
+                            d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  }
+                </div>
                 }
+
               </td>
             </tr>
             }
@@ -263,7 +416,119 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.dirty && !deptStep2.dirty"
+      <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
+        (click)="goNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+        <span>Next (2/3)</span>
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+
+<!-- step 3 -->
+@if (currentStep === 3) {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <h2>Assigned Goals</h2>
+      <button class="btn btn-lg btn-outline-danger" (click)="removeSelectedGoals()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+          <path fill="currentColor"
+            d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+        </svg>
+        <span>Remove Selected</span>
+      </button>
+    </div>
+
+
+    <!-- start table -->
+    <div>
+      <app-table [data]="addedGoal" [currentPage]="currentPage" [itemsPerPage]="10000" [disablePagination]="true"
+        (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+        [headerTemplate]="goalsTableHeader" [rowTemplate]="goalsTableRow" [emptyTemplate]="goalsTableEmptyRow">
+      </app-table>
+
+      <ng-template #goalsTableHeader>
+        <th class="w-10">
+          <input type="checkbox" class="checkbox" [(ngModel)]="selectAllAdded" (change)="toggleSelectAllSelected()" />
+        </th>
+        <th style="cursor: pointer;" class="w-70">
+          <div class="d-flex align-items-center justify-content-between">
+            <span>Goal</span>
+
+          </div>
+        </th>
+        <th>Action</th>
+      </ng-template>
+
+      <ng-template #goalsTableRow let-SelectedGoal let-i="index">
+        <td><input type="checkbox" class="checkbox checkbox-light" [(ngModel)]="SelectedGoal.selected"
+            (change)="toggleGoal(SelectedGoal)" id="checkbox-{{ SelectedGoal.id }}" /></td>
+        <td class="width-fix">
+          <span class="d-block text-gray-sm">{{ SelectedGoal.id.toString().padStart(4, '0') }}</span>
+          <span class="d-block text-truncate" style="max-width: 300px;">
+            {{ SelectedGoal.name }}
+          </span>
+        </td>
+        <td class="flex-grow-1 ps-3" style="white-space: nowrap;">
+          <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+            <a type="button" class="remove-btn d-flex align-items-center gap-1" (click)="removeGoal(SelectedGoal)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                  clip-rule="evenodd" />
+              </svg>
+              <span>Remove from Department</span>
+            </a>
+          </div>
+        </td>
+      </ng-template>
+
+      <ng-template #goalsTableEmptyRow>
+        <tr>
+          <td colspan="3" class="no-data py-4">
+            No Goasl Added Yet. You must add at least one Goal.
+          </td>
+        </tr>
+      </ng-template>
+    </div>
+
+
+    <!-- Add Goal Button -->
+    <div class="mt-3">
+      <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="openFirstOverlay()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>Add Goal(s)</span>
+      </a>
+    </div>
+    <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+      {{errMsg}}
+    </div>
+    <!-- prev and confirm buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+      <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
+        </svg>
+      </button>
+      <button class="btn btn-lg w-auto btn-success"
+        [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
         (click)="updateDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -276,13 +541,92 @@
           </g>
         </svg>
         }
-        <span>Save Changes</span>
+        <span>Create Department</span>
       </button>
     </div>
   </div>
 </div>
 }
 
+
+<!-- add Goal slider -->
+<app-overlay-filter-box #goalsOverlay [title]="'Select Goals'">
+  <!-- Search input -->
+  <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
+    <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+      placeholder="Search" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <g fill="none" stroke-width="1.5">
+        <circle cx="11.5" cy="11.5" r="9.5" />
+        <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+      </g>
+    </svg>
+  </div>
+  <!-- start table -->
+  <div class="slide-table">
+    <app-table [data]="Goals" [itemsPerPage]="10000" [disablePagination]="true" [currentPage]="currentPage"
+      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+      [headerTemplate]="AllgoalTableHeader" [rowTemplate]="AllGoalTableRow" [emptyTemplate]="noGoals">
+    </app-table>
+
+    <ng-template #AllgoalTableHeader>
+      <th class="width-handle">
+        <input type="checkbox" class="checkbox" [(ngModel)]="selectAllOverlay" (change)="toggleSelectAll()">
+      </th>
+      <th>Goal</th>
+    </ng-template>
+
+    <ng-template #AllGoalTableRow let-goal let-i="index">
+      <td>
+        <input type="checkbox" class="checkbox checkbox-light" [(ngModel)]="goal.selected" (change)="toggleGoal(goal)"
+          id="checkbox-{{ goal.id }}">
+      </td>
+      <td>
+        <label for="checkbox-{{ goal.id }}" class="d-block text-gray-sm" style="cursor: pointer;">
+          <span class="d-block text-gray-sm">{{ goal.id.toString().padStart(4, '0') }}</span>
+          <span class="depart-name d-block text-truncate w-100">
+            {{ goal.name }}
+          </span>
+        </label>
+      </td>
+    </ng-template>
+    <ng-template #noGoals>
+      <tr>
+        <td colspan="3" class="no-data py-4">
+          No Departments Added Yet
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #noGoals>
+      <tr>
+        <td colspan="3" class="no-data py-4">
+          <ng-container *ngIf="searchTerm?.trim(); else noGoals">
+            No Goals match your search.
+          </ng-container>
+          <ng-template #noGoals>
+            No Goal Added Yet. You must add at least one Goal to the branch.
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+  </div>
+
+  <div class="d-flex align-items-center pt-4 gap-3">
+    <button class="btn btn-lg btn-primary w-100" (click)="addSelectedGoals()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <g fill="none" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+      <span>Add Goals</span>
+    </button>
+    <a (click)="discardGoals()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
+      <span>Discard</span>
+    </a>
+  </div>
+
+</app-overlay-filter-box>
 
 
 <!-- Discard popup  -->

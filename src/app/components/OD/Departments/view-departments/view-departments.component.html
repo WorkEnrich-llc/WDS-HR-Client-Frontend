@@ -60,10 +60,44 @@
     </div>
   </div>
 
-  <div class="content-box">
+  <div class="content-box pt-0">
+    <ul class="nav d-flex align-items-center nav-tabs bg-white p-0 px-3 mb-3">
+
+
+      <li class="nav-item" [class.active]="activeTab === 'sections'" (click)="setActiveTab('sections')">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill-rule="evenodd"
+            d="M17.5 2.75a.75.75 0 0 1 .75.75v2.25h2.25a.75.75 0 0 1 0 1.5h-2.25V9.5a.75.75 0 0 1-1.5 0V7.25H14.5a.75.75 0 0 1 0-1.5h2.25V3.5a.75.75 0 0 1 .75-.75"
+            clip-rule="evenodd" />
+          <path
+            d="M2 6.5c0-2.121 0-3.182.659-3.841S4.379 2 6.5 2s3.182 0 3.841.659S11 4.379 11 6.5s0 3.182-.659 3.841S8.621 11 6.5 11s-3.182 0-3.841-.659S2 8.621 2 6.5m11 11c0-2.121 0-3.182.659-3.841S15.379 13 17.5 13s3.182 0 3.841.659S22 15.379 22 17.5s0 3.182-.659 3.841S19.621 22 17.5 22s-3.182 0-3.841-.659S13 19.621 13 17.5" />
+          <path
+            d="M2 17.5c0-2.121 0-3.182.659-3.841S4.379 13 6.5 13s3.182 0 3.841.659S11 15.379 11 17.5s0 3.182-.659 3.841S8.621 22 6.5 22s-3.182 0-3.841-.659S2 19.621 2 17.5"
+            opacity=".5" />
+        </svg>
+        <span class="nav-link">Sections</span>
+
+      </li>
+
+      <li class="nav-item" [class.active]="activeTab === 'goals'" (click)="setActiveTab('goals')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+          <path
+            d="M9.25 12a.75.75 0 0 1 .75-.75h1.25V10a.75.75 0 0 1 1.5 0v1.25H14a.75.75 0 0 1 0 1.5h-1.25V14a.75.75 0 0 1-1.5 0v-1.25H10a.75.75 0 0 1-.75-.75m-7.222.75a10 10 0 0 1 0-1.5H5a.75.75 0 0 1 0 1.5zm10.722 9.222a10 10 0 0 1-1.5 0V19a.75.75 0 0 1 1.5 0zm9.222-10.722a10 10 0 0 1 0 1.5H19a.75.75 0 0 1 0-1.5zM12.75 2.028V5a.75.75 0 0 1-1.5 0V2.028a10 10 0 0 1 1.5 0" />
+        </svg>
+        <span class="nav-link cursor-pointer">Goals</span>
+
+      </li>
+
+    </ul>
+
+
+
+    @if (activeTab === 'sections') {
     <h2 class="mb-3">Sections</h2>
 
-    <app-table [isLoading]="loadData" [columnsCount]="3" [data]="departmentData.sections" [totalItems]="totalItems"
+    <app-table [isLoading]="loadData" [columnsCount]="2" [data]="departmentData.sections" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="sectionsTableHeader"
       [rowTemplate]="sectionsTableRow" [emptyTemplate]="noSections"></app-table>
@@ -91,7 +125,6 @@
       </th>
 
       <th>Status</th>
-      <th>Actions</th>
 
     </ng-template>
 
@@ -126,34 +159,6 @@
         </span>
         }
       </td>
-      <td>
-        <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/sections/view-section', section.id]"
-            class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
-                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
-              </g>
-            </svg>
-            <span>View</span>
-          </a>
-          <a [routerLink]="['/sections/edit-section', section.id]"
-            class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round"
-                  d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-                <path
-                  d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-              </g>
-            </svg>
-            <span>Edit</span>
-          </a>
-        </div>
-      </td>
-
     </ng-template>
 
     <ng-template #noSections>
@@ -163,6 +168,44 @@
         </td>
       </tr>
     </ng-template>
+    }
+
+
+    @if (activeTab === 'goals') {
+      <h2 class="mb-3">Assigned Goals</h2>
+
+    <app-table [isLoading]="loadData" [columnsCount]="1" [data]="departmentData.assigned_goals" [totalItems]="totalItemsGoals"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="goalsTableHeader"
+      [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
+
+    <ng-template #goalsTableHeader>
+      <th style="cursor: pointer;">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Goals</span>
+        </div>
+      </th>
+
+    </ng-template>
+
+    <ng-template #goalsTableRow let-goal let-i="index">
+      <td>
+        <span class="d-block text-gray-sm">{{ goal.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 200px;">
+          {{ goal.name }}
+        </span>
+      </td>
+    </ng-template>
+
+    <ng-template #noGoals>
+      <tr>
+        <td colspan="3" class="no-data py-4">
+          No Goals Added Yet.
+        </td>
+      </tr>
+    </ng-template>
+    }
+
   </div>
 
 
