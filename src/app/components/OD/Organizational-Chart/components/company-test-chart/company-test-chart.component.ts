@@ -128,9 +128,56 @@ export class CompanyTestChartComponent implements AfterViewInit {
 
     iframe.onload = () => {
       console.log('Iframe loaded. Ready to receive messages via postMessage');
-      this.iframeReady = true;
+      this.waitForOrgChartAPI(iframe);
     };
   }
+
+  private waitForOrgChartAPI(iframe: HTMLIFrameElement): void {
+    const checkInterval = setInterval(() => {
+      const chartApi = (iframe.contentWindow as any)?.OrgChartAPI;
+      if (chartApi && typeof chartApi.setData === 'function') {
+        clearInterval(checkInterval);
+        console.log('🚀 OrgChartAPI is ready!');
+        chartApi.setData(this.chartData);
+      }
+    }, 500);
+  }
+
+  sendDataToIframe(): void {
+    const iframe = this.orgChartFrame.nativeElement;
+
+    if (iframe && iframe.contentWindow) {
+      try {
+        // Access the exposed OrgChartAPI inside the iframe
+        const chartApi = (iframe.contentWindow as any).OrgChartAPI;
+
+        if (chartApi && typeof chartApi.setData === 'function') {
+          console.log('📤 Sending data via OrgChartAPI.setData:', this.chartData);
+          chartApi.setData(this.chartData);
+        } else {
+          console.warn('⚠️ OrgChartAPI is not ready yet.');
+        }
+      } catch (err) {
+        console.error('❌ Error while sending data to iframe:', err);
+      }
+    }
+  }
+
+
+  // sendDataToIframe(): void {
+  //   const iframe = this.orgChartFrame.nativeElement;
+  //   if (iframe && iframe.contentWindow) {
+  //     const message = {
+  //       action: 'SET_DATA',
+  //       data: this.chartData
+  //     };
+  //     console.log('📤 Sending data to iframe:', message);
+  //     iframe.contentWindow.postMessage(
+  //       message,
+  //       'https://orgchart.talentdot.org'
+  //     );
+  //   }
+  // }
 
 
 
@@ -149,21 +196,7 @@ export class CompanyTestChartComponent implements AfterViewInit {
   // }
 
 
-  sendDataToIframe(): void {
-    const iframe = this.orgChartFrame.nativeElement;
 
-    if (iframe && iframe.contentWindow) {
-      const message = {
-        action: 'SET_DATA',
-        data: this.chartData
-      };
-      console.log('📤 Sending data to iframe:', message);
-      iframe.contentWindow.postMessage(
-        message,
-        'https://orgchart.talentdot.org'
-      );
-    }
-  }
 
 
 
