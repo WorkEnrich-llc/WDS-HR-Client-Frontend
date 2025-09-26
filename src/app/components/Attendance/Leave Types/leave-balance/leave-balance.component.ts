@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -8,6 +8,8 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
+import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
+import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/core/models/leave-balance';
 
 @Component({
     selector: 'app-leave-balance',
@@ -27,9 +29,9 @@ export class LeaveBalanceComponent {
     // Overlay references
     @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
     @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
-
+    private leaveBalanceService = inject(LeaveBalanceService);
     filterForm!: FormGroup;
-    leaveBalances: any[] = [];
+    // leaveBalances: any[] = [];
     searchTerm: string = '';
     sortDirection: string = 'asc';
     currentSortColumn: string = '';
@@ -37,16 +39,24 @@ export class LeaveBalanceComponent {
     private toasterSubscription!: Subscription;
 
     // Pagination properties
-    currentPage: number = 1;
-    itemsPerPage: number = 10;
-    totalItems: number = 0;
+    // currentPage: number = 1;
+    // itemsPerPage: number = 10;
+    // totalItems: number = 0;
     loadData: boolean = false;
+
+    leaveBalances: ILeaveBalance[] = [];
+    totalItems = 0;
+    totalPages = 0;
+    currentPage = 1;
+    itemsPerPage = 10;
 
     ngOnInit(): void {
         this.route.queryParams.subscribe(params => {
             this.currentPage = +params['page'] || 1;
             this.getLeaveBalances(this.currentPage);
         });
+
+        this.getAllLLeaveBalances(this.currentPage);
 
         this.toasterSubscription = this.toasterMessageService.currentMessage$
             .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -81,44 +91,68 @@ export class LeaveBalanceComponent {
         });
     }
 
+    getAllLLeaveBalances(pageNumber: number, searchTerm: string = '', filters?: ILeaveBalanceFilters): void {
+
+        this.loadData = true;
+        this.leaveBalanceService.getAllLeaveBalance({
+            page: pageNumber,
+            per_page: this.itemsPerPage,
+            search: searchTerm || undefined,
+            ...filters
+
+        }).subscribe({
+            next: (res: ILeaveBalanceResponse) => {
+                this.leaveBalances = res.data.list_items;
+                this.totalItems = res.data.total_items;
+                this.totalPages = res.data.total_pages;
+                this.loadData = false;
+            },
+            error: (err) => {
+                console.error('Error fetching leave balances:', err);
+                this.loadData = false;
+            }
+        });
+
+    }
+
     getLeaveBalances(page: number): void {
         this.loadData = true;
 
         // Mock data for demonstration - replace with actual service call
-        setTimeout(() => {
-            this.leaveBalances = [
-                {
-                    id: 1,
-                    employee: { id: 1, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 2,
-                    employee: { id: 2, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 3,
-                    employee: { id: 3, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                }
-            ];
+        // setTimeout(() => {
+        //     this.leaveBalances = [
+        //         {
+        //             id: 1,
+        //             employee: { id: 1, name: 'Employee Name' },
+        //             leaveType: { id: 1, name: 'Leave Name' },
+        //             total: 21,
+        //             used: 8,
+        //             available: 14,
+        //             updated_at: new Date()
+        //         },
+        //         {
+        //             id: 2,
+        //             employee: { id: 2, name: 'Employee Name' },
+        //             leaveType: { id: 1, name: 'Leave Name' },
+        //             total: 21,
+        //             used: 8,
+        //             available: 14,
+        //             updated_at: new Date()
+        //         },
+        //         {
+        //             id: 3,
+        //             employee: { id: 3, name: 'Employee Name' },
+        //             leaveType: { id: 1, name: 'Leave Name' },
+        //             total: 21,
+        //             used: 8,
+        //             available: 14,
+        //             updated_at: new Date()
+        //         }
+        //     ];
 
-            this.totalItems = this.leaveBalances.length;
-            this.loadData = false;
-        }, 1000);
+        //     this.totalItems = this.leaveBalances.length;
+        //     this.loadData = false;
+        // }, 1000);
     }
 
     onSearchChange(): void {
@@ -136,16 +170,29 @@ export class LeaveBalanceComponent {
         this.getLeaveBalances(this.currentPage);
     }
 
-    sortBy(): void {
+    // sortBy(): void {
+    //     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+
+    //     this.leaveBalances.sort((a, b) => {
+    //         const nameA = a.employee.name.toLowerCase();
+    //         const nameB = b.employee.name.toLowerCase();
+
+    //         if (nameA < nameB) return this.sortDirection === 'asc' ? -1 : 1;
+    //         if (nameA > nameB) return this.sortDirection === 'asc' ? 1 : -1;
+    //         return 0;
+    //     });
+    // }
+
+    sortBy() {
         this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-
         this.leaveBalances.sort((a, b) => {
-            const nameA = a.employee.name.toLowerCase();
-            const nameB = b.employee.name.toLowerCase();
-
-            if (nameA < nameB) return this.sortDirection === 'asc' ? -1 : 1;
-            if (nameA > nameB) return this.sortDirection === 'asc' ? 1 : -1;
-            return 0;
+            const nameA = a.name?.toLowerCase() || '';
+            const nameB = b.name?.toLowerCase() || '';
+            if (this.sortDirection === 'asc') {
+                return nameA.localeCompare(nameB);
+            } else {
+                return nameB.localeCompare(nameA);
+            }
         });
     }
 
