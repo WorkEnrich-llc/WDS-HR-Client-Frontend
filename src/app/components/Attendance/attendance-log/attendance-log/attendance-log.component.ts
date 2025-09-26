@@ -118,11 +118,11 @@ export class AttendanceLogComponent {
       .getAttendanceLog(pageNumber, perPage, targetDate, { employee: searchTerm })
       .subscribe({
         next: (data) => {
-          console.log('Attendance logs fetched successfully:', data);
+          // console.log('Attendance logs fetched successfully:', data);
           this.attendanceLogs = data.data.object_info.list_items;
           this.totalItems = data.data.total_items;
           this.totalpages = data.data.total_pages;
-          console.log(this.attendanceLogs);
+          // console.log(this.attendanceLogs);
           this.loadData = false;
         },
         error: (error) => {
