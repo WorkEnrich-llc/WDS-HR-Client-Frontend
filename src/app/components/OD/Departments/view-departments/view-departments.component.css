@@ -6,3 +6,10 @@
         width: 50% !important;
     }
 }
+.content-box.pt-0{
+    overflow: hidden;
+     padding: 0 var(--spacing-28) var(--spacing-20) var(--spacing-28) !important;
+}
+.nav .nav-item{
+    cursor: pointer;
+}

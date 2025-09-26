@@ -3,6 +3,9 @@ import { PageHeaderComponent } from 'app/components/shared/page-header/page-head
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartOptions, ChartType } from 'chart.js';
 import { CommonModule } from '@angular/common';
+import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-dashboard.service';
+import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
+import { BranchesService } from 'app/core/services/od/branches/branches.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,38 +15,298 @@ import { CommonModule } from '@angular/common';
   encapsulation: ViewEncapsulation.None
 })
 export class AdminDashboardComponent {
+  constructor(
+    private adminDashboardService: AdminDashboardService,
+    private _DepartmentsService: DepartmentsService,
+    protected _BranchesService: BranchesService,
+  ) { }
 
+
+  months: { value: number, label: string }[] = [];
+
+  years: { value: string, label: string }[] = [];
+
+  public chartsData: {
+    [key: string]: { labels: string[], values: number[], colors: string[] }
+  } = {};
+
+  ngOnInit(): void {
+    // get monthes selects 
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    this.months = [];
+    this.months.push({ value: currentMonth, label: "This Month" });
+    if (currentMonth > 1) {
+      this.months.push({ value: currentMonth - 1, label: "Last Month" });
+    }
+    for (let m = currentMonth - 2; m >= 1; m--) {
+      this.months.push({ value: m, label: monthNames[m - 1] });
+    }
+
+    // get last three years
+    this.years = [
+      { value: (currentYear).toString(), label: `This Year` },
+      { value: (currentYear - 1).toString(), label: `Last Year` },
+      { value: (currentYear - 2).toString(), label: (currentYear - 2).toString() }
+    ];
+
+    // defult selects values
+    this.params.request_month = currentMonth;
+    this.params.turnover_year = currentYear.toString();
+    this.params.employees_year = currentYear.toString();
+
+    // get departments and branchs
+    this.getAllDepartment(this.currentPage);
+    this.getAllBranchs(this.currentPage);
+
+    // get dashboard data
+    this.getDashboardData();
+  }
+
+
+
+
+  params: any = {
+    request_month: '',
+    turnover_year: '',
+    employees_year: '',
+    active_departments_branch_id: ''
+  };
+
+  onParamChangeEvent(key: string, event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    // console.log("Changed:", key, value);
+    this.params[key] = value;
+    this.getDashboardData();
+  }
+
+
+  getDashboardData(): void {
+    this.adminDashboardService.viewDashboard(this.params).subscribe({
+      next: (response) => {
+        const dashboardData = response.data.object_info;
+
+        dashboardData.forEach((item: any) => {
+          const valuesArray = Array.isArray(item.value) ? item.value : [];
+
+          this.chartsData[item.title] = {
+            labels: valuesArray.map((v: any) =>
+              v?.label ?? v?.name ?? ''
+            ),
+            values: valuesArray.map((v: any) => v?.value ?? 0),
+            colors: valuesArray.map((v: any) => v?.color_code ?? '#e5e7eb50')
+          };
+        });
+        console.log("Charts Data:", this.chartsData);
+
+        // -----------------------------
+        // Active Employees
+        // -----------------------------
+        const activeEmployees = this.chartsData['Active Employees'];
+        if (activeEmployees) {
+          this.activeEmployeeLabels = activeEmployees.labels;
+          this.activeEmployeeValues = activeEmployees.values;
+          this.activeEmployeeColors = activeEmployees.colors;
+
+          this.activeEmployeeData = {
+            labels: this.activeEmployeeLabels,
+            datasets: [
+              {
+                data: this.activeEmployeeValues.every(v => v === 0) ? [1] : this.activeEmployeeValues,
+                backgroundColor: this.activeEmployeeValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.activeEmployeeColors
+              }
+            ]
+          };
+          if (this.activeEmployeeValues.every(v => v === 0)) {
+            this.activeEmployeeOptions = this.getEmptyChartOptions();
+          }
+        }
+
+        // -----------------------------
+        // Requests
+        // -----------------------------
+        const requests = this.chartsData['Requests'];
+        if (requests) {
+          this.requestsLabels = requests.labels;
+          this.requestsValues = requests.values;
+          this.requestsColors = requests.colors;
+
+          this.requestsData = {
+            labels: this.requestsLabels,
+            datasets: [
+              {
+                data: this.requestsValues.every(v => v === 0) ? [1] : this.requestsValues,
+                backgroundColor: this.requestsValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.requestsColors
+              }
+            ]
+          };
+          if (this.requestsValues.every(v => v === 0)) {
+            this.requestsOptions = this.getEmptyChartOptions();
+          }
+        }
+
+        // -----------------------------
+        // Goals
+        // -----------------------------
+        const goals = this.chartsData['Goals'];
+        if (goals) {
+          this.goalsLabels = goals.labels;
+          this.goalsValues = goals.values;
+          this.goalsColors = goals.colors;
+
+          this.goalsData = {
+            labels: this.goalsLabels,
+            datasets: [
+              {
+                data: this.goalsValues.every(v => v === 0) ? [1] : this.goalsValues,
+                backgroundColor: this.goalsValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.goalsColors
+              }
+            ]
+          };
+          if (this.goalsValues.every(v => v === 0)) {
+            this.goalsOptions = this.getEmptyChartOptions();
+          }
+        }
+        // -----------------------------
+        // Department Guidelines
+        // -----------------------------
+        const deptGuidelines = this.chartsData['Department Guidelines'];
+        if (deptGuidelines) {
+          this.deptGuidelinesLabels = deptGuidelines.labels;
+          this.deptGuidelinesValues = deptGuidelines.values;
+          this.deptGuidelinesColors = deptGuidelines.colors;
+          this.deptGuidelinesData = {
+            labels: this.deptGuidelinesLabels,
+            datasets: [
+              {
+                data: this.deptGuidelinesValues.every((v) => v === 0)
+                  ? [1]
+                  : this.deptGuidelinesValues,
+                backgroundColor: this.deptGuidelinesValues.every((v) => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.deptGuidelinesColors,
+              },
+            ],
+          };
+          if (this.deptGuidelinesValues.every(v => v === 0)) {
+            this.deptGuidelinesOptions = this.getEmptyChartOptions();
+          }
+        }
+        // ------------------
+        // Active Departments
+        // -------------------
+        const activeDeps = this.chartsData['Active Departments'];
+        if (activeDeps) {
+          this.activeDepartmentsLabels = activeDeps.labels;
+          this.activeDepartmentsValues = activeDeps.values;
+          this.activeDepartmentsColors = activeDeps.colors;
+
+          this.activeDepartmentsData = {
+            labels: this.activeDepartmentsLabels,
+            datasets: [
+              {
+                data: this.activeDepartmentsValues.every(v => v === 0)
+                  ? [1]
+                  : this.activeDepartmentsValues,
+                backgroundColor: this.activeDepartmentsValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.activeDepartmentsColors
+              }
+            ]
+          };
+
+          if (this.activeDepartmentsValues.every(v => v === 0)) {
+            this.activeDepartmentsOptions = this.getEmptyChartOptions();
+          }
+        }
+
+
+
+      },
+      error: (error) => {
+        console.error('Error fetching dashboard data:', error);
+      }
+    });
+  }
+
+  // empty chart
+  getEmptyChartOptions(): ChartOptions<'doughnut'> {
+    return {
+      responsive: true,
+      cutout: '50%',
+      animation: {
+        animateRotate: true,
+        animateScale: true
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: () => '',
+            title: () => 'No data'
+          }
+        }
+      }
+    };
+  }
+
+
+
+  departments: any[] = [];
+  branches: any[] = [];
+  selectAll: boolean = false;
+  currentPage: number = 1;
+  totalpages: number = 0;
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.departments = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
+  getAllBranchs(pageNumber: number, searchTerm: string = '') {
+    this._BranchesService.getAllBranches(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+
+        this.branches = response.data.list_items;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
   // -----------------------------
   // Active Employees Chart
   // -----------------------------
   public activeEmployeeType: 'doughnut' = 'doughnut';
 
-  public activeEmployeeLabels = [
-    'On Probation',
-    '>1 Year',
-    '1-3 Years',
-    '3+ Years'
-  ];
+  public activeEmployeeLabels: string[] = [];
+  public activeEmployeeValues: number[] = [];
+  public activeEmployeeColors: string[] = [];
 
-  public activeEmployeeValues = [25, 40, 70, 50];
-
-  public activeEmployeeColors = [
-    '#DDE3EB', // On Probation
-    '#93A7C1', // >1 Year
-    '#4A6D97', // 1-3 Years
-    '#2C435D' // 3+ Years
-  ];
-
-  public activeEmployeeData = {
-    labels: this.activeEmployeeLabels,
-    datasets: [
-      {
-        data: this.activeEmployeeValues,
-        backgroundColor: this.activeEmployeeColors
-      }
-    ]
-  };
-
+  public activeEmployeeData: any;
   public activeEmployeeOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
@@ -83,8 +346,12 @@ export class AdminDashboardComponent {
     labels: this.leaveBalanceLabels,
     datasets: [
       {
-        data: this.leaveBalanceValues,
-        backgroundColor: this.leaveBalanceColors
+        data: this.leaveBalanceValues.every(v => v === 0)
+          ? [1]
+          : this.leaveBalanceValues,
+        backgroundColor: this.leaveBalanceValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.leaveBalanceColors
       }
     ]
   };
@@ -104,37 +371,18 @@ export class AdminDashboardComponent {
   public get leaveBalanceTotal() {
     return this.leaveBalanceValues.reduce((a, b) => a + b, 0);
   }
+
+
   // -----------------------------
   // Requests Chart
   // -----------------------------
   public requestsType: 'doughnut' = 'doughnut';
 
-  public requestsLabels = [
-    'Rejected',
-    'Expired',
-    'Pending',
-    'Approved'
-  ];
+  public requestsLabels: string[] = [];
+  public requestsValues: number[] = [];
+  public requestsColors: string[] = [];
 
-  public requestsValues = [5, 3, 12, 20];
-
-  public requestsColors = [
-    '#FF8F8F',  // Rejected
-    '#B83D4A',  // Expired
-    '#F9B47D',  // Pending
-    '#98DFC0'   // Approved
-  ];
-
-  public requestsData = {
-    labels: this.requestsLabels,
-    datasets: [
-      {
-        data: this.requestsValues,
-        backgroundColor: this.requestsColors
-      }
-    ]
-  };
-
+  public requestsData: any;
   public requestsOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
@@ -150,33 +398,17 @@ export class AdminDashboardComponent {
   public get requestsTotal() {
     return this.requestsValues.reduce((a, b) => a + b, 0);
   }
+
   // -----------------------------
   // Goals Chart
   // -----------------------------
   public goalsType: 'doughnut' = 'doughnut';
 
-  public goalsLabels = [
-    'Active',
-    'Inactive'
-  ];
+  public goalsLabels: string[] = [];
+  public goalsValues: number[] = [];
+  public goalsColors: string[] = [];
 
-  public goalsValues = [18, 7];
-
-  public goalsColors = [
-    '#98DFC0',  // Active
-    '#FF8F8F'   // Inactive
-  ];
-
-  public goalsData = {
-    labels: this.goalsLabels,
-    datasets: [
-      {
-        data: this.goalsValues,
-        backgroundColor: this.goalsColors
-      }
-    ]
-  };
-
+  public goalsData: any;
   public goalsOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
@@ -192,6 +424,7 @@ export class AdminDashboardComponent {
   public get goalsTotal() {
     return this.goalsValues.reduce((a, b) => a + b, 0);
   }
+
 
   // -----------------------------
   // Alerts
@@ -250,15 +483,6 @@ export class AdminDashboardComponent {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      tooltip: {
-        mode: 'nearest',
-        intersect: true, 
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ': ' + context.raw;
-          }
-        }
-      }
     },
     interaction: {
       mode: 'nearest',
@@ -339,9 +563,9 @@ export class AdminDashboardComponent {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-    
+      tooltip: { enabled: false }
     },
-    
+
     scales: {
       x: {
         grid: {
@@ -374,38 +598,15 @@ export class AdminDashboardComponent {
   public employeeType: 'bar' = 'bar';
 
   // -----------------------------
-  // Department Guidelines 
+  // Department Guidelines Chart
   // -----------------------------
   public deptGuidelinesType: 'doughnut' = 'doughnut';
 
-  public deptGuidelinesLabels = [
-    '100% Done',
-    '>80% Done',
-    '50-80% Done',
-    '30-50% Done',
-    '<30% Done'
-  ];
+  public deptGuidelinesLabels: string[] = [];
+  public deptGuidelinesValues: number[] = [];
+  public deptGuidelinesColors: string[] = [];
 
-  public deptGuidelinesValues = [5, 8, 10, 4, 2];
-
-  public deptGuidelinesColors = [
-    '#3F9870',   // 100% Done
-    '#98DFC0',   // >80% Done
-    '#F9B47D',   // 50-80% Done
-    '#FF8F8F',   // 30-50% Done
-    '#B83D4A'    // <30% Done
-  ];
-
-  public deptGuidelinesData = {
-    labels: this.deptGuidelinesLabels,
-    datasets: [
-      {
-        data: this.deptGuidelinesValues,
-        backgroundColor: this.deptGuidelinesColors
-      }
-    ]
-  };
-
+  public deptGuidelinesData: any;
   public deptGuidelinesOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
@@ -423,41 +624,16 @@ export class AdminDashboardComponent {
   // Active Departments Chart
   // -----------------------------
   public activeDepartmentsType: 'doughnut' = 'doughnut';
-
-  public activeDepartmentsLabels = [
-    'Technical',
-    'Support'
-  ];
-
-  public activeDepartmentsValues = [12, 8];
-
-  public activeDepartmentsColors = [
-    '#DDE3EB', // Technical
-    '#93A7C1'  // Support
-  ];
-
-  public activeDepartmentsData = {
-    labels: this.activeDepartmentsLabels,
-    datasets: [
-      {
-        data: this.activeDepartmentsValues,
-        backgroundColor: this.activeDepartmentsColors
-      }
-    ]
-  };
-
+  public activeDepartmentsLabels: string[] = [];
+  public activeDepartmentsValues: number[] = [];
+  public activeDepartmentsColors: string[] = [];
+  public activeDepartmentsData: any;
   public activeDepartmentsOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    plugins: {
-      legend: { display: false }
-    }
+    animation: { animateRotate: true, animateScale: true },
+    plugins: { legend: { display: false } }
   };
-
   public get activeDepartmentsTotal() {
     return this.activeDepartmentsValues.reduce((a, b) => a + b, 0);
   }
