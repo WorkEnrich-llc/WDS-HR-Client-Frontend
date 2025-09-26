@@ -5,14 +5,14 @@
     { label: isEditMode ? 'Edit Attendance Log ' + id : 'Create New Attendance Log'},
   ]" [title]="isEditMode ? 'Edit Attendance Log ' + id : 'Create New Attendance Log'" [create]="createDate">
 
-   <button class="btn btn-lg btn-success w-auto" (click)="createNewLog()">
+   <button class="btn btn-lg btn-success w-auto" (click)="save()">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
          <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
          </g>
       </svg>
-      <span>Create Attendance Log</span>
+      <span>{{isEditMode ? 'Save Changes' : 'Create Attendance Log'}}</span>
    </button>
 
 
@@ -35,21 +35,25 @@
          <div class="input">
             <label for="compCode">Employee<span>*</span></label>
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-               <!-- <input type="text" id="compCode" class="form-control custom-date-input" placeholder="Select an employee"
-                  formControlName="employee" /> -->
                <select name="employee" id="employee" class="form-select" formControlName="employee">
                   <option value="" disabled hidden>Select an employee</option>
+                  @for (emp of employeeList ; track emp.id) {
+                  <option [value]="emp.id">{{emp.contact_info?.name}}</option>
+                  }
                </select>
             </div>
-
+            @if (newLogForm.get('employee')?.touched && newLogForm.get('employee')?.errors?.['required']) {
+            <p class="error-msg">
+               Employee is required.
+            </p>
+            }
          </div>
 
          <div class="input">
             <label for="date">Select a date<span>*</span></label>
             <div class="form-outline w-100 position-relative custom-date-wrapper">
                <input type="text" id="date" class="form-control custom-date-input" placeholder="Select a Day or More"
-                  formControlName="date" onfocus="this.showPicker()"
-                  onblur="this.value===''?this.type='text':this.type='date'" onfocusin="this.type='date'" />
+                  formControlName="date" appDateInput />
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <g fill="none" stroke-width="1.5">
                      <path stroke-linecap="round"
@@ -59,33 +63,37 @@
                   </g>
                </svg>
             </div>
-            <!-- @if (newLogForm.get('date')?.touched && newLogForm.get('date')?.errors?.['required']) {
+            @if (newLogForm.get('date')?.touched && newLogForm.get('date')?.errors?.['required']) {
             <p class="error-msg">
                Date is required.
             </p>
-            } -->
+            }
          </div>
 
-         <div class="gap-3">
+         <div class="input gap-3">
             <label for="start">Logged hours<span>*</span></label>
             <div class="d-flex gap-3">
                <div class="input w-50">
                   <div class="form-outline w-100 position-relative custom-date-wrapper">
                      <input type="text" id="start" class="form-control custom-date-input" placeholder="Start"
-                        formControlName="start" onfocus="this.showPicker()"
-                        onblur="this.value===''?this.type='text':this.type='time'" onfocusin="this.type='time'" />
-
+                        formControlName="start" appTimeInput />
                   </div>
-
+                  @if (newLogForm.get('start')?.touched && newLogForm.get('start')?.errors?.['required']) {
+                  <p class="error-msg">
+                     Start time is required.
+                  </p>
+                  }
                </div>
                <div class="input w-50">
                   <div class="form-outline w-100 position-relative custom-date-wrapper">
                      <input type="text" id="end" class="form-control custom-date-input" placeholder="End"
-                        formControlName="end" onfocus="this.showPicker()"
-                        onblur="this.value===''?this.type='text':this.type='time'" onfocusin="this.type='time'" />
-
+                        formControlName="end" appTimeInput />
                   </div>
-
+                  @if (newLogForm.get('end')?.touched && newLogForm.get('end')?.errors?.['required']) {
+                  <p class="error-msg">
+                     End time is required.
+                  </p>
+                  }
                </div>
             </div>
          </div>
