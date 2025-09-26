@@ -127,41 +127,67 @@ export class CompanyTestChartComponent implements AfterViewInit {
     const iframe = this.orgChartFrame.nativeElement;
 
     iframe.onload = () => {
-      console.log('Iframe loaded. Ready to receive messages via postMessage');
-      this.waitForOrgChartAPI(iframe);
+      console.log('✅ Iframe loaded. Ready to receive messages via postMessage');
+      // Optionally auto-send data after load
+      this.sendDataToIframe();
     };
-  }
-
-  private waitForOrgChartAPI(iframe: HTMLIFrameElement): void {
-    const checkInterval = setInterval(() => {
-      const chartApi = (iframe.contentWindow as any)?.OrgChartAPI;
-      if (chartApi && typeof chartApi.setData === 'function') {
-        clearInterval(checkInterval);
-        console.log('🚀 OrgChartAPI is ready!');
-        chartApi.setData(this.chartData);
-      }
-    }, 500);
   }
 
   sendDataToIframe(): void {
     const iframe = this.orgChartFrame.nativeElement;
 
     if (iframe && iframe.contentWindow) {
-      try {
-        // Access the exposed OrgChartAPI inside the iframe
-        const chartApi = (iframe.contentWindow as any).OrgChartAPI;
+      const message = {
+        action: 'setData',              // must match expected action
+        payload: this.chartData,        // use "payload" instead of "data"
+        chartType: 'orgChart'           // required by iframe app
+      };
 
-        if (chartApi && typeof chartApi.setData === 'function') {
-          console.log('📤 Sending data via OrgChartAPI.setData:', this.chartData);
-          chartApi.setData(this.chartData);
-        } else {
-          console.warn('⚠️ OrgChartAPI is not ready yet.');
-        }
-      } catch (err) {
-        console.error('❌ Error while sending data to iframe:', err);
-      }
+      console.log('📤 Sending data to iframe:', message);
+
+      iframe.contentWindow.postMessage(
+        message,
+        'https://orgchart.talentdot.org' // must match iframe origin
+      );
     }
   }
+
+  // sendDataToIframe(): void {
+  //   const iframe = this.orgChartFrame.nativeElement;
+
+  //   if (iframe && iframe.contentWindow) {
+  //     const message = {
+  //       action: 'SET_DATA',
+  //       data: this.chartData
+  //     };
+  //     console.log('📤 Sending data to iframe:', message);
+
+  //     iframe.contentWindow.postMessage(
+  //       message,
+  //       'https://orgchart.talentdot.org' // must match iframe origin
+  //     );
+  //   }
+  // }
+
+  // sendDataToIframe(): void {
+  //   const iframe = this.orgChartFrame.nativeElement;
+
+  //   if (iframe && iframe.contentWindow) {
+  //     try {
+  //       // Access the exposed OrgChartAPI inside the iframe
+  //       const chartApi = (iframe.contentWindow as any).OrgChartAPI;
+
+  //       if (chartApi && typeof chartApi.setData === 'function') {
+  //         console.log('📤 Sending data via OrgChartAPI.setData:', this.chartData);
+  //         chartApi.setData(this.chartData);
+  //       } else {
+  //         console.warn('⚠️ OrgChartAPI is not ready yet.');
+  //       }
+  //     } catch (err) {
+  //       console.error('❌ Error while sending data to iframe:', err);
+  //     }
+  //   }
+  // }
 
 
   // sendDataToIframe(): void {
