@@ -1,9 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { UserStatus } from '@app/enums';
-import { IPermission, IUser, IUserApi, IUserResponse } from 'app/core/models/users';
-import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
+import { ISearchParams, IUser } from 'app/core/models/users';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -36,23 +35,16 @@ export class AdminUsersService {
     );
   }
 
-  getAllUsers(
-    pageNumber: number,
-    perPage: number,
-    filters?: {
-      search?: string;
-      name?: string;
-    }
-  ): Observable<any> {
-    let params = new HttpParams()
-      .set('page', pageNumber)
-      .set('per_page', perPage);
-    if (filters) {
-      if (filters.search) params = params.set('search', filters.search);
-      if (filters.name) params = params.set('name', filters.name);
-    }
-    return this.http.get<any>(this.url, { params });
+  getAllUsers(params: ISearchParams = {}): Observable<any> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    return this.http.get<any>(this.url, { params: httpParams });
   }
+
 
 
   searchUser(email: string): Observable<any> {
@@ -64,4 +56,16 @@ export class AdminUsersService {
 
 
 
+  resendInvitation(email: string): Observable<any> {
+    const url = `${environment.apiBaseUrl}main/admin-settings/resend-invitation`;
+    const formData = new FormData();
+    formData.append('email', email || '');
+
+    return this.http.put<any>(url, formData);
+  }
 }
+
+
+
+
+

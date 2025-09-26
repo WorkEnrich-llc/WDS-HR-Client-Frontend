@@ -77,3 +77,17 @@ export interface IPermission {
    is_support: boolean;
    sub_list: ISubList[];
 }
+
+
+
+export interface ISearchParams {
+   pageNumber?: number;
+   page?: number;
+   per_page?: number;
+   search?: string;
+   name?: string;
+   role?: number | string;
+   status?: number | string;
+   created_from?: string;
+   created_to?: string;
+}

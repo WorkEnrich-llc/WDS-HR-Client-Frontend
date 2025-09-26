@@ -24,3 +24,12 @@ export enum UserStatus {
    Pending = 'Pending',
    Expired = 'Expired'
 }
+
+export enum Status {
+   All = 0,
+   Pending = 1,
+   Accepted = 2,
+   Rejected = 3,
+   Cancelled = 4,
+   Expired = 5
+}

@@ -23,7 +23,7 @@ export class EmployeeService {
     return this.http.post<CreateEmployeeResponse>(url, requestData);
   }
 
-  // Get all employees without pagination using it in manage-attendance for dropdown
+  // Get all employees without pagination using it in manage-attendance and users for dropdown 
   getAllEmployees(): Observable<EmployeesResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;
     return this.http.get<EmployeesResponse>(url);
@@ -119,6 +119,8 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/employees-contracts/${employeeId}/`;
     return this.http.get<ContractsResponse>(url);
   }
+
+
 
   // Create new employee contract
   createEmployeeContract(requestData: {

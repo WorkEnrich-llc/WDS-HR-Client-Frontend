@@ -52,7 +52,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="roles" [isLoading]="loadData" [columnsCount]="5" [totalItems]="roles.length"
+    <app-table [data]="roles" [isLoading]="loadData" [columnsCount]="5" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="rolesTableHeader"
       [rowTemplate]="rolesTableRow" [emptyTemplate]="noroles"></app-table>
