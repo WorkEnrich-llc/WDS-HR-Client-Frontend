@@ -134,17 +134,37 @@ export class CompanyTestChartComponent implements AfterViewInit {
 
 
 
+  // sendDataToIframe(): void {
+  //   const iframe = this.orgChartFrame.nativeElement;
+  //   if (iframe && iframe.contentWindow) {
+  //     iframe.contentWindow.postMessage(
+  //       {
+  //         action: 'SET_DATA',
+  //         data: this.chartData
+  //       },
+  //       'https://orgchart.talentdot.org'
+  //     );
+  //     console.log('📤 Data sent via postMessage');
+  //   }
+  // }
+
+
   sendDataToIframe(): void {
     const iframe = this.orgChartFrame.nativeElement;
 
     if (iframe && iframe.contentWindow) {
+      const message = {
+        action: 'SET_DATA',
+        data: this.chartData
+      };
+      console.log('📤 Sending data to iframe:', message);
       iframe.contentWindow.postMessage(
-        { type: 'SET_ORG_CHART_DATA', payload: this.chartData },
+        message,
         'https://orgchart.talentdot.org'
       );
-      console.log('📤 Data sent via postMessage');
     }
   }
+
 
 
 
