@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { UserStatus } from '@app/enums';
-import { IPermission, IUser, IUserApi, IUserResponse } from 'app/core/models/users';
+import { IPermission, ISearchParams, IUser, IUserApi, IUserResponse } from 'app/core/models/users';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
 
@@ -36,23 +36,40 @@ export class AdminUsersService {
     );
   }
 
-  getAllUsers(
-    pageNumber: number,
-    perPage: number,
-    filters?: {
-      search?: string;
-      name?: string;
-    }
-  ): Observable<any> {
-    let params = new HttpParams()
-      .set('page', pageNumber)
-      .set('per_page', perPage);
-    if (filters) {
-      if (filters.search) params = params.set('search', filters.search);
-      if (filters.name) params = params.set('name', filters.name);
-    }
-    return this.http.get<any>(this.url, { params });
+  getAllUser(): Observable<any> {
+    return this.http.get<any>(this.url);
   }
+
+
+
+
+  getAllUsers(params: ISearchParams = {}): Observable<any> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    return this.http.get<any>(this.url, { params: httpParams });
+  }
+
+  // getAllUserss(
+  //   pageNumber: number,
+  //   perPage: number,
+  //   filters?: {
+  //     search?: string;
+  //     name?: string;
+  //   }
+  // ): Observable<any> {
+  //   let params = new HttpParams()
+  //     .set('page', pageNumber)
+  //     .set('per_page', perPage);
+  //   if (filters) {
+  //     if (filters.search) params = params.set('search', filters.search);
+  //     if (filters.name) params = params.set('name', filters.name);
+  //   }
+  //   return this.http.get<any>(this.url, { params });
+  // }
 
 
   searchUser(email: string): Observable<any> {
@@ -61,6 +78,15 @@ export class AdminUsersService {
       params: { q: email }
     });
   }
+
+  // getUserByEmail(email: string): Observable<any | null> {
+  //   return this.getAllUsers(1, 1, { search: email }).pipe(
+  //     map((res) => {
+  //       const user = res?.data?.list_items?.[0] || null;
+  //       return user;
+  //     })
+  //   );
+  // }
 
 
 

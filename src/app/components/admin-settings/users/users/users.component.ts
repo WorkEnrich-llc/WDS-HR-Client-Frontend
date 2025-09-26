@@ -9,8 +9,10 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
-import { IUser, IUserApi } from 'app/core/models/users';
-import { UserStatus } from '@app/enums';
+import { ISearchParams, IUser, IUserApi } from 'app/core/models/users';
+import { Status, UserStatus } from '@app/enums';
+import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
+import { Roles } from 'app/core/models/roles';
 
 @Component({
   selector: 'app-users',
@@ -25,6 +27,7 @@ export class UsersComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   private toasterService = inject(ToasterMessageService);
+  private rolesService = inject(AdminRolesService);
   filterForm!: FormGroup;
   toasterSubscription: any;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
@@ -34,11 +37,14 @@ export class UsersComponent {
 
   private userService = inject(AdminUsersService);
   // allUsers!: Observable<IUser[]>;
-  totalPages: number = 0;
   allUsers: IUser[] = [];
   filteredList: IUser[] = [];
   userStatus = UserStatus
-
+  status = Status
+  roles: Roles[] = [];
+  statusOptions = Object.entries(Status)
+    .filter(([key, value]) => typeof value === 'number')
+    .map(([key, value]) => ({ label: key, value }));
 
   searchTerm: string = '';
   sortDirection: string = 'asc';
@@ -46,7 +52,9 @@ export class UsersComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  totalpages: number = 0;
+  totalPages: number = 0;
+
+  // totalpages: number = 0;
   loadData: boolean = false;
   private searchSubject = new Subject<string>();
 
@@ -59,6 +67,8 @@ export class UsersComponent {
     });
 
 
+
+
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -67,37 +77,49 @@ export class UsersComponent {
 
         this.toasterMessageService.clearMessage();
       });
+    this.getAllRoles();
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllUsers(this.currentPage, value);
+      this.getAllUsers(this.currentPage, this.searchTerm, this.filterForm.value);
     });
-
 
     this.filterForm = this.fb.group({
-      name: [''],
-      user_id: ['']
-      // email: [''],
+      created_from: [''],
+      created_to: [''],
+      status: [''],
+      role: ['']
     });
   }
+
 
 
   getAllUsers(
     pageNumber: number,
     searchTerm: string = '',
-    filters?: {
-      name?: string;
-    }
+    filters?: ISearchParams
+    // filters?: {
+    //   name?: string;
+    // }
   ) {
     this.loadData = true;
-    this.userService.getAllUsers(pageNumber, this.itemsPerPage, {
-      search: searchTerm || undefined,
-      ...filters
-    }).subscribe({
+    this.userService.getAllUsers(
+      {
+        page: pageNumber,
+        per_page: this.itemsPerPage,
+        search: searchTerm || undefined,
+        ...filters
+      }
+      //   pageNumber, this.itemsPerPage, {
+      //   search: searchTerm || undefined,
+      //   ...filters
+      // }
+    ).subscribe({
       next: (response) => {
         // console.log('API response:', response);
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
+        console.log('API response:', response.data.total_pages);
         this.allUsers = response.data.list_items.map((item: IUserApi) => ({
           id: item.id,
           name: item.user?.name ?? '',
@@ -147,21 +169,23 @@ export class UsersComponent {
   }
 
 
-  onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
-  }
 
 
-  resetFilterForm(): void {
-    this.filterForm.reset({
-      name: '',
-    });
-    this.filterBox.closeOverlay();
-    const filters = {
-      name: undefined,
-    };
-    this.getAllUsers(this.currentPage, '', filters);
+  resetFilterForm() {
+    this.filterForm.reset();
+    this.filter(); // reload with default params
   }
+
+  // resetFilterForm(): void {
+  //   this.filterForm.reset({
+  //     name: '',
+  //   });
+  //   this.filterBox.closeOverlay();
+  //   const filters = {
+  //     name: undefined,
+  //   };
+  //   this.getAllUsers(this.currentPage, '', filters);
+  // }
 
 
   // filters(): void {
@@ -177,28 +201,57 @@ export class UsersComponent {
   //   }
   // }
 
-
   filter(): void {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
       const filters = {
-        name: rawFilters.name || undefined,
-        // user_id: rawFilters.user_id ? Number(rawFilters.user_id) : undefined,
+        status: rawFilters.status || undefined,
+        created_from: rawFilters.created_from || undefined,
+        created_to: rawFilters.created_to || undefined,
+        role: rawFilters.role || undefined,
       };
-      this.currentPage = 1;
       this.filterBox.closeOverlay();
-      this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
-      console.log(filters);
+      this.getAllUsers(this.currentPage, this.searchTerm, filters);
     }
   }
 
+  // filter() {
+  //   const filters = this.filterForm.value;
 
-  applyFilters() {
-    this.filteredList = this.allUsers.filter(item =>
-      item.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
-    this.sortBy();
-  }
+  //   this.userService.getAllUsers({
+  //     page: 1,
+  //     per_page: this.itemsPerPage,
+  //     ...filters // sends {status, created_from, created_to, role}
+  //   }).subscribe((res) => {
+  //     this.allUsers = res.data.list_items;
+  //   });
+  // }
+
+
+  // filters(): void {
+  //   if (this.filterForm.valid) {
+  //     const rawFilters = this.filterForm.value;
+  //     const filters = {
+  //       name: rawFilters.name || undefined,
+  //       // user_id: rawFilters.user_id ? Number(rawFilters.user_id) : undefined,
+  //     };
+  //     this.currentPage = 1;
+  //     this.filterBox.closeOverlay();
+  //     this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
+  //     console.log(filters);
+  //   }
+  // }
+
+
+  // applyFilters() {
+  //   this.filteredList = this.allUsers.filter(item =>
+  //     // item.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  //     item.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+  //     item.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+  //     item.code?.toLowerCase().includes(this.searchTerm.toLowerCase())
+  //   );
+  //   this.sortBy();
+  // }
 
 
   resendInvitation(email: string) {
@@ -225,6 +278,12 @@ export class UsersComponent {
   }
 
 
+  onSearchChange() {
+    this.searchSubject.next(this.searchTerm);
+  }
+
+
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
@@ -233,5 +292,17 @@ export class UsersComponent {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.getAllUsers(this.currentPage);
+  }
+
+
+
+  private getAllRoles(): void {
+    this.rolesService.getAllRoles(1, 50).subscribe({
+      next: (data) => {
+        console.log('All roles data:', data);
+        this.roles = data.roles;
+      },
+      error: (err) => console.error('Failed to load all roles', err)
+    });
   }
 }

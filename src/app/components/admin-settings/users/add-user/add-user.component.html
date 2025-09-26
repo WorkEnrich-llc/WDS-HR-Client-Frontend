@@ -30,19 +30,59 @@
   </button>
 </app-page-header>
 
+
+
 <!-- start content -->
 <div class="content-hug">
   <div class="d-flex flex-column gap-4">
-
     <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
       <h2>User Information</h2>
       <form [formGroup]="usersForm" class="w-lg-50 d-flex flex-column gap-2">
-
         <div class="input">
           <label for="email">Email <span>*</span></label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="email" class="form-control custom-date-input" placeholder="Email"
-              formControlName="email" (blur)="checkEmailExists()" />
+            <input type="text" id="email" class="form-control" placeholder="Email" formControlName="email"
+              (input)="onEmailInput($event)" (blur)="checkEmailExists()" />
+            <!-- *ngIf="showSuggestions" -->
+            <!-- <ul *ngIf="showSuggestions && suggestedEmails.length" class="list-group position-absolute w-100"
+              style="z-index:1000; max-height:200px; overflow:auto;">
+              <li *ngFor="let item of suggestedEmails" class="list-group-item list-group-item-action"
+                (click)="selectEmail(item.email)">
+                {{ item.email }}
+              </li>
+            </ul> -->
+            <!-- <ul *ngIf="showSuggestions && suggestedEmails.length > 0" class="list-group position-absolute w-100"
+              style="z-index:1000; max-height:200px; overflow:auto;">
+              <li *ngFor="let item of suggestedEmails" class="list-group-item list-group-item-action"
+                (click)="selectEmail(item.email)">
+                {{ item.email }}
+              </li>
+            </ul> -->
+
+            <ul *ngIf="showSuggestions" class="list-group position-absolute w-100"
+              style="z-index:1000; max-height:200px; overflow:auto;">
+
+              <!-- Show emails if available -->
+              <li *ngFor="let item of suggestedEmails" class="list-group-item list-group-item-action"
+                (click)="selectEmail(item.email)">
+                {{ item.email }}
+              </li>
+            </ul>
+            <!-- <input type="text" id="email" class="form-control custom-date-input" placeholder="Email"
+              formControlName="email" list="emailSuggestions" (focus)="loadAllEmails()" (blur)="checkEmailExists()"
+              (focus)="loadAllEmails()" (input)="onEmailInput($event)" /> -->
+            <!-- <div class="input">
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <select name="type" id="type" class="form-select" formControlName="email">
+                    <option value="" disabled hidden>Select Type</option>
+                    @for (item of suggestedEmails ; track item.email) {
+                    <option [value]="item.email" (mousedown)="selectEmail(item.email)">{{ item.email }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div> -->
           </div>
           @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['required']
           ) {
@@ -53,6 +93,9 @@
           @if (usersForm.get('email')?.errors?.['email']) {
           <p class="error-msg">This email is invalid.</p>
           }
+          @if (isExistingUser) {
+          <p class="text-primary">This user is in your employee list.</p>
+          }
           @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['exists']) {
           <p class="error-msg">This user is in your employee list.</p>
           }
@@ -62,7 +105,7 @@
           <label for="userId">User ID (Optional)</label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="userId" class="form-control custom-date-input" placeholder="0050"
-              formControlName="code" />
+              formControlName="code" [disabled]="isExistingUser" />
           </div>
         </div>
 
@@ -70,31 +113,13 @@
           <label for="userName">User Name <span>*</span></label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="userName" class="form-control custom-date-input" placeholder="User Name"
-              formControlName="userName" />
+              formControlName="userName" [disabled]="isExistingUser" />
           </div>
           @if (usersForm.get('userName')?.touched && usersForm.get('userName')?.errors?.['required']) {
           <p class="error-msg">
             User Name is required.
           </p>
           }
-          <!-- @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['minLength']) {
-                <p class="error-msg"
-                  >
-                  User Name min length must be 3.
-                </p>
-              }
-              @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['maxLength']) {
-                <p class="error-msg"
-                  >
-                  User Name max length must be 100.
-                </p>
-              }
-              @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  User Name is required.
-                </p>
-              } -->
         </div>
 
 
@@ -106,7 +131,9 @@
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper" appCloseDropdown
               (appCloseDropdown)="isDropdownOpen = false">
-              <div class="form-select custom-select" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
+              <div class="form-select custom-select" [class.open]="isDropdownOpen"
+                (click)="!usersForm.get('permissions')?.disabled  && toggleDropdown()"
+                [class.disabled]="usersForm.get('permissions')?.disabled">
                 <div class="selected-tags ">
                   @for( role of selectedRoles; track role.id){
                   <span class="badge text-muted d-flex align-items-center gap-1">

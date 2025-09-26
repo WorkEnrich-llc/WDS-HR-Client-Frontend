@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -11,10 +11,11 @@ import { CloseDropdownDirective } from 'app/core/directives/close-dropdown.direc
 import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IPermission, IUser } from 'app/core/models/users';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 
 @Component({
   selector: 'app-add-user',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective, CommonModule],
   providers: [DatePipe],
   templateUrl: './add-user.component.html',
   styleUrl: './add-user.component.css'
@@ -26,6 +27,7 @@ export class AddUserComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private usersService = inject(AdminUsersService);
+  private employeeService = inject(EmployeeService);
   private rolesService = inject(AdminRolesService);
   private toasterService = inject(ToasterMessageService);
   todayFormatted: string = '';
@@ -38,6 +40,10 @@ export class AddUserComponent implements OnInit {
   selectedRoles: Roles[] = [];
   userId!: number;
   isDropdownOpen = false;
+  isExistingUser = false;
+  suggestedEmails: { email: string }[] = [];
+  showSuggestions = false;
+
 
 
   constructor(
@@ -64,9 +70,9 @@ export class AddUserComponent implements OnInit {
   private initFormModel(): void {
     this.usersForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      code: [''],
-      userName: ['', [Validators.required]],
-      permissions: [[], [Validators.required]],
+      code: [{ value: '', disabled: true }],
+      userName: [{ value: '', disabled: true }, [Validators.required]],
+      permissions: [{ value: [], disabled: true }, [Validators.required]],
     });
   }
 
@@ -183,36 +189,140 @@ export class AddUserComponent implements OnInit {
     }
   }
 
-
-  checkEmailExists() {
+  checkEmailExists(): void {
     const emailControl = this.usersForm.get('email');
     const email = emailControl?.value;
     if (!email || emailControl?.invalid) return;
 
     this.usersService.searchUser(email).subscribe({
       next: (res) => {
-        console.log('Search user response:', res);
-
+        const emailLower = email.toLowerCase();
         const user = res?.data?.list_items?.find(
-          (u: any) => u.email === email
+          (u: any) => u.email.toLowerCase() === emailLower
         );
-        const exists = !!user && user.available === false;
+
+        console.log('Email res in employee list:', res);
+        const exists = !!user;
         console.log('Email exists in employee list:', exists);
 
-        if (exists) {
-          emailControl?.setErrors({ ...(emailControl.errors || {}), exists: true });
+        if (user && user.available === false) {
+          console.log('User already exists:', user);
+          this.isExistingUser = true;
+          this.usersForm.get('code')?.disable();
+          this.usersForm.get('userName')?.disable();
+          this.usersForm.get('email')?.enable();
+          this.usersForm.get('permissions')?.enable();
+          this.usersForm.patchValue({
+            email: user?.email || '',
+            code: user?.code || '',
+            userName: user?.name || '',
+          });
         } else {
-          if (emailControl?.errors) {
-            const { exists, ...otherErrors } = emailControl.errors;
-            emailControl.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
-          }
+          this.isExistingUser = false;
+          this.usersForm.get('code')?.enable();
+          this.usersForm.get('userName')?.enable();
+          this.usersForm.get('permissions')?.enable();
+          this.usersForm.patchValue({
+            code: '',
+            userName: '',
+            permissions: []
+          });
         }
       },
-      error: (err) => {
-        console.error('Search user error:', err);
-      }
+      error: (err) => console.error('searchUser error:', err),
     });
   }
+
+
+  // loadAllEmails(): void {
+  //   this.employeeService.getAllEmployees().subscribe({
+  //     next: (res) => {
+  //       console.log('All employees for email suggestions:', res);
+
+  //       this.suggestedEmails =
+  //         res?.data?.list_items?.map((u: any) => ({
+  //           email: u.contact_info?.email || ''
+  //         })) || [];
+  //       this.showSuggestions = this.suggestedEmails.length > 0;
+  //       console.log('Extracted emails:', this.suggestedEmails);
+  //     },
+  //     error: (err) => console.error('GetAllUsers error:', err)
+  //   });
+  // }
+
+  loadAllEmails(searchValue: string): void {
+    this.employeeService.getAllEmployees().subscribe({
+      next: (res) => {
+        console.log('All employees for email suggestions:', res);
+
+        const allEmails =
+          res?.data?.list_items?.map((u: any) => ({
+            email: u.contact_info?.email || ''
+          })) || [];
+
+        // ✅ filter by the typed value
+        this.suggestedEmails = allEmails.filter((e: any) =>
+          e.email.toLowerCase().includes(searchValue.toLowerCase())
+        );
+
+        this.showSuggestions = this.suggestedEmails.length > 0;
+        console.log('Filtered suggestions:', this.suggestedEmails);
+      },
+      error: (err) => console.error('GetAllUsers error:', err)
+    });
+  }
+
+
+
+
+
+  onEmailInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value.trim();
+    if (value.length > 1) {
+      this.loadAllEmails(value);
+    } else {
+      this.suggestedEmails = [];
+      this.showSuggestions = false;
+    }
+  }
+
+  // email: u.user?.email || u.email
+
+
+
+  // onEmailInput(event: Event): void {
+  //   const value = (event.target as HTMLInputElement).value.trim();
+  //   if (value.length > 1) {
+  //     this.loadAllEmails();
+
+  //     // this.employeeService.getAllEmployees().subscribe({
+  //     //   next: (res) => {
+  //     //     this.suggestedEmails = res?.data?.list_items?.map((u: any) => ({
+  //     //       email: u.user?.email || u.email
+  //     //     })) || [];
+  //     //     this.showSuggestions = this.suggestedEmails.length > 0;
+  //     //   },
+  //     //   error: (err) => console.error('GetAllUsers error:', err)
+  //     // });
+  //   } else {
+  //     this.suggestedEmails = [];
+  //     this.showSuggestions = false;
+  //   }
+  // }
+
+  selectEmail(email: string): void {
+    this.usersForm.patchValue({ email });
+    console.log('selected Email', email);
+    this.showSuggestions = false;
+    this.checkEmailExists();
+    console.log('check Email', this.checkEmailExists());
+  }
+
+  hideSuggestions(): void {
+    this.showSuggestions = false
+  }
+
+
 
 
   // popups
@@ -231,4 +341,11 @@ export class AddUserComponent implements OnInit {
     this.isModalOpen = false;
     this.router.navigate(['/users']);
   }
+
+
+
+
+
+
+
 }

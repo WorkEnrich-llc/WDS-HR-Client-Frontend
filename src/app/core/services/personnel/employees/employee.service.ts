@@ -23,6 +23,12 @@ export class EmployeeService {
     return this.http.post<CreateEmployeeResponse>(url, requestData);
   }
 
+  // Get all employees without pagination using it in manage-attendance and users for dropdown 
+  getAllEmployees(): Observable<EmployeesResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees`;
+    return this.http.get<EmployeesResponse>(url);
+  }
+
   // Get employees with pagination and search
   getEmployees(page: number = 1, per_page: number = 10, search: string = ''): Observable<EmployeesResponse> {
     let url = `${this.apiBaseUrl}personnel/employees?page=${page}&per_page=${per_page}`;
@@ -45,7 +51,7 @@ export class EmployeeService {
     // Use PUT to update the employee's active status
     return this.http.patch<EmployeeDetailResponse>(url, payload);
   }
-  
+
   // Reschedule join date for an employee
   rescheduleJoinDate(id: number, start_contract: string): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees-reschedule-join-date`;
@@ -62,7 +68,7 @@ export class EmployeeService {
     formData.append('id', id.toString());
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
-  
+
   // Reset password for active employee
   resetPassword(id: number): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees-re-password`;
@@ -70,7 +76,7 @@ export class EmployeeService {
     formData.append('id', id.toString());
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
-  
+
   // Update an existing employee record
   updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;
@@ -86,7 +92,7 @@ export class EmployeeService {
     formData.append('file', file);
     return this.http.post<any>(url, formData, { reportProgress: true, observe: 'events' });
   }
-  
+
   // Get existing employee documents
   getEmployeeDocuments(employeeId: number): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/employees-documents/${employeeId}/`;
@@ -114,6 +120,8 @@ export class EmployeeService {
     return this.http.get<ContractsResponse>(url);
   }
 
+
+
   // Create new employee contract
   createEmployeeContract(requestData: {
     employee_id: number;
@@ -132,13 +140,13 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/employees-contracts/${contractId}/`;
     return this.http.patch<ContractsResponse>(url, {});
   }
-  
+
   // Adjust employee contract (appraisal, correction, raise)
   adjustEmployeeContractAdjustment(requestData: { contract_id: number; adjustment_type: number; new_salary: number; start_date: string; }): Observable<ContractAdjustmentsResponse> {
     const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments`;
     return this.http.post<ContractAdjustmentsResponse>(url, { request_data: requestData });
   }
-  
+
   // Get contract adjustments history for a specific contract
   getEmployeeContractAdjustments(contractId: number): Observable<ContractAdjustmentsResponse> {
     const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments/${contractId}/`;
