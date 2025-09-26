@@ -1,12 +1,11 @@
 <div class="chart-box" [ngClass]="{ 'fullscreen': isFullScreen }">
+   <button class="btn btn-secondary" type="button" (click)="sendDataToIframe()">Send Data </button>
 
    <div class="content-hug text-center" #chartBox [style.transform]="'scale(' + zoom + ')'">
 
       <iframe #orgChartFrame id="orgChartFrame" src="https://orgchart.talentdot.org/"></iframe>
       <div class="d-flex gap-2 justify-content-center my-3">
 
-         <button class="btn btn-primary" type="button" (click)="sendData()">Send Data</button>
-         <button class="btn btn-secondary" type="button" (click)="sendDataToIframe()">Send </button>
       </div>
 
 

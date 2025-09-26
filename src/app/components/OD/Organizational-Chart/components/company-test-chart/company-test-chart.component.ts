@@ -7,9 +7,9 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
   templateUrl: './company-test-chart.component.html',
   styleUrl: './company-test-chart.component.css'
 })
-export class CompanyTestChartComponent implements OnInit, AfterViewInit {
+export class CompanyTestChartComponent implements AfterViewInit {
+  // @ViewChild('iframeRef', { static: false }) iframeRef!: ElementRef;
   @ViewChild('chartBox') chartBox?: ElementRef;
-  @ViewChild('iframeRef', { static: false }) iframeRef!: ElementRef;
   @ViewChild('orgChartFrame', { static: false }) orgChartFrame!: ElementRef<HTMLIFrameElement>;
   private iframeReady = false;
 
@@ -122,128 +122,29 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   };
 
 
-  ngOnInit(): void {
-    window.addEventListener('message', (event) => {
-      if (event.origin !== 'https://orgchart.talentdot.org') return;
-
-      console.log('📩 Message from iframe:', event.data);
-
-      if (event.data.type === 'orgChartReady') {
-        console.log('✅ OrgChart API ready, sending data now...');
-        this.sendData();
-      }
-    });
-
-  }
-
-  // ngAfterViewInit(): void {
-  //   window.addEventListener("message", (event) => {
-  //     if (event.origin === "https://orgchart.talentdot.org") {
-  //       console.log("📩 Message from iframe:", event.data);
-
-  //       if (event.data?.type === "ready") {
-  //         console.log("✅ Iframe says it's ready, sending data now...");
-  //         this.sendDataToIframe();
-  //       }
-  //     }
-  //   });
-  // }
 
   ngAfterViewInit(): void {
     const iframe = this.orgChartFrame.nativeElement;
 
     iframe.onload = () => {
-      console.log('Iframe loaded. Checking OrgChartAPI...');
-
-      let attempts = 0;
-      const maxAttempts = 100;
-
-      const checkApiInterval = setInterval(() => {
-        attempts++;
-
-        if (iframe.contentWindow && (iframe.contentWindow as any).OrgChartAPI) {
-          console.log('✅ OrgChartAPI is ready!');
-          clearInterval(checkApiInterval);
-          this.iframeReady = true;
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkApiInterval);
-          console.error('Could not find OrgChartAPI after 10 seconds.');
-          console.error('فشل العثور على API الهيكل التنظيمي في الصفحة.');
-        }
-      }, 100);
+      console.log('Iframe loaded. Ready to receive messages via postMessage');
+      this.iframeReady = true;
     };
   }
 
 
-  // ngAfterViewInit() {
-  //   this.iframeRef.nativeElement.onload = () => {
-  //     console.log('Iframe loaded');
-  //   };
-  // }
-
-  // sendData() {
-  //   const payload = this.orgChartData;
-  //   console.log("Sending data to iframe:", payload);
-  //   console.log(this.iframeRef.nativeElement.src);
-  //   this.iframeRef.nativeElement.contentWindow.postMessage(
-  //     {
-  //       type: "setData",
-  //       data: this.orgChartData,
-  //       chartId: "orgChart"
-  //     },
-
-  //     "https://orgchart.talentdot.org/"
-  //   );
-  // }
-
-  sendData() {
-    const payload = {
-      type: "setData",
-      data: this.chartData,
-      chartId: "companyChart"
-    };
-
-    console.log("📤 Sending RAW data to iframe:", JSON.stringify(payload, null, 2));
-
-    this.iframeRef.nativeElement.contentWindow.postMessage(
-      payload,
-      "https://orgchart.talentdot.org/"
-    );
-  }
-
-  // sendDataToIframe() {
-  //   const iframe = this.iframeRef.nativeElement;
-  //   if (!iframe || !iframe.contentWindow) {
-  //     console.error("❌ Iframe not ready yet");
-  //     return;
-  //   }
-
-  //   const payload = {
-  //     type: "setData",
-  //     chartId: "companyChart",
-  //     data: this.chartData
-  //   };
-  //   console.log("📤 Sending RAW data to iframe:", payload);
-  //   iframe.contentWindow.postMessage(payload, "https://orgchart.talentdot.org");
-  // }
 
   sendDataToIframe(): void {
     const iframe = this.orgChartFrame.nativeElement;
 
-    if (this.iframeReady && iframe.contentWindow) {
-      try {
-        (iframe.contentWindow as any).OrgChartAPI.setData(this.chartData);
-        console.log('✅ Data sent successfully!');
-      } catch (error) {
-        console.error('❌ Error sending data:', error);
-      }
-    } else {
-      console.error('الـ iframe غير جاهز بعد!');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+        { type: 'SET_ORG_CHART_DATA', payload: this.chartData },
+        'https://orgchart.talentdot.org'
+      );
+      console.log('📤 Data sent via postMessage');
     }
   }
-
-
-
 
 
 
