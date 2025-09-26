@@ -102,7 +102,7 @@ export class CompanyTestChartComponent implements AfterViewInit {
   chartData = {
     name: 'Aya Emad',
     position: 'CEO',
-    job_title_code: 101,
+    jobTitleCode: 101,
     level: 'Executive',
     expanded: true,
     firstNode: true,
@@ -110,12 +110,12 @@ export class CompanyTestChartComponent implements AfterViewInit {
       {
         name: 'Laila Mohamed',
         position: 'CFO',
-        job_title_code: 102,
+        jobTitleCode: 102,
         level: 'Senior Management',
         expanded: true,
         children: [
-          { name: 'Mostafa Khaled', position: 'Accountant', job_title_code: 201, level: 'Staff', expanded: false, children: [] },
-          { name: 'Sara Nabil', position: 'Financial Analyst', job_title_code: 202, level: 'Staff', expanded: false, children: [] }
+          { name: 'Mostafa Khaled', position: 'Accountant', jobTitleCode: 201, level: 'Staff', expanded: false, children: [] },
+          { name: 'Sara Nabil', position: 'Financial Analyst', jobTitleCode: 202, level: 'Staff', expanded: false, children: [] }
         ]
       },
     ]
