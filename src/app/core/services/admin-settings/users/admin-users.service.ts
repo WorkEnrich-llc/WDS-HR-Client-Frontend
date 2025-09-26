@@ -1,9 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { UserStatus } from '@app/enums';
-import { IPermission, ISearchParams, IUser, IUserApi, IUserResponse } from 'app/core/models/users';
-import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
+import { ISearchParams, IUser } from 'app/core/models/users';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -36,13 +35,6 @@ export class AdminUsersService {
     );
   }
 
-  getAllUser(): Observable<any> {
-    return this.http.get<any>(this.url);
-  }
-
-
-
-
   getAllUsers(params: ISearchParams = {}): Observable<any> {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -53,23 +45,6 @@ export class AdminUsersService {
     return this.http.get<any>(this.url, { params: httpParams });
   }
 
-  // getAllUserss(
-  //   pageNumber: number,
-  //   perPage: number,
-  //   filters?: {
-  //     search?: string;
-  //     name?: string;
-  //   }
-  // ): Observable<any> {
-  //   let params = new HttpParams()
-  //     .set('page', pageNumber)
-  //     .set('per_page', perPage);
-  //   if (filters) {
-  //     if (filters.search) params = params.set('search', filters.search);
-  //     if (filters.name) params = params.set('name', filters.name);
-  //   }
-  //   return this.http.get<any>(this.url, { params });
-  // }
 
 
   searchUser(email: string): Observable<any> {
@@ -79,15 +54,18 @@ export class AdminUsersService {
     });
   }
 
-  // getUserByEmail(email: string): Observable<any | null> {
-  //   return this.getAllUsers(1, 1, { search: email }).pipe(
-  //     map((res) => {
-  //       const user = res?.data?.list_items?.[0] || null;
-  //       return user;
-  //     })
-  //   );
-  // }
 
 
+  resendInvitation(email: string): Observable<any> {
+    const url = `${environment.apiBaseUrl}main/admin-settings/resend-invitation`;
+    const formData = new FormData();
+    formData.append('email', email || '');
 
+    return this.http.put<any>(url, formData);
+  }
 }
+
+
+
+
+

@@ -41,6 +41,7 @@ export class AddUserComponent implements OnInit {
   userId!: number;
   isDropdownOpen = false;
   isExistingUser = false;
+  isAdmin = false;
   suggestedEmails: { email: string }[] = [];
   showSuggestions = false;
 
@@ -155,6 +156,10 @@ export class AddUserComponent implements OnInit {
   }
 
   async inviteUser(): Promise<void> {
+    if (this.isAdmin) {
+      this.openPopup();
+      return;
+    }
     if (this.usersForm.invalid) {
       this.usersForm.markAllAsTouched();
       return;
@@ -168,7 +173,6 @@ export class AddUserComponent implements OnInit {
       userName: formValues.userName,
       permissions: formValues.permissions,
     };
-    console.log('Form Submitted', formValues);
     if (this.isEditMode && this.userId) {
       formData.id = Number(this.userId);
     }
@@ -177,7 +181,6 @@ export class AddUserComponent implements OnInit {
         await firstValueFrom(this.usersService.updateUser(formData));
         this.toasterService.showSuccess('User updated successfully');
       } else {
-        console.log('formValues', formValues);
         await firstValueFrom(this.usersService.createUser(formValues));
         this.toasterService.showSuccess('User created successfully');
       }
@@ -190,6 +193,8 @@ export class AddUserComponent implements OnInit {
   }
 
   checkEmailExists(): void {
+    this.isExistingUser = false;
+    this.isAdmin = false;
     const emailControl = this.usersForm.get('email');
     const email = emailControl?.value;
     if (!email || emailControl?.invalid) return;
@@ -200,14 +205,22 @@ export class AddUserComponent implements OnInit {
         const user = res?.data?.list_items?.find(
           (u: any) => u.email.toLowerCase() === emailLower
         );
-
-        console.log('Email res in employee list:', res);
         const exists = !!user;
-        console.log('Email exists in employee list:', exists);
-
-        if (user && user.available === false) {
-          console.log('User already exists:', user);
+        if (user && user.employee === true && user.available === false) {
+          this.isAdmin = true;
+          this.usersForm.get('code')?.disable();
+          this.usersForm.get('userName')?.disable();
+          this.usersForm.get('email')?.enable();
+          this.usersForm.get('permissions')?.disable();
+          this.usersForm.patchValue({
+            email: user?.email || '',
+            code: user?.code || '',
+            userName: user?.name || '',
+          });
+        }
+        else if (user && user.employee === true && user.available === true) {
           this.isExistingUser = true;
+          this.isAdmin = false;
           this.usersForm.get('code')?.disable();
           this.usersForm.get('userName')?.disable();
           this.usersForm.get('email')?.enable();
@@ -217,8 +230,10 @@ export class AddUserComponent implements OnInit {
             code: user?.code || '',
             userName: user?.name || '',
           });
-        } else {
+        }
+        else {
           this.isExistingUser = false;
+          this.isAdmin = false;
           this.usersForm.get('code')?.enable();
           this.usersForm.get('userName')?.enable();
           this.usersForm.get('permissions')?.enable();
@@ -234,46 +249,25 @@ export class AddUserComponent implements OnInit {
   }
 
 
-  // loadAllEmails(): void {
-  //   this.employeeService.getAllEmployees().subscribe({
-  //     next: (res) => {
-  //       console.log('All employees for email suggestions:', res);
 
-  //       this.suggestedEmails =
-  //         res?.data?.list_items?.map((u: any) => ({
-  //           email: u.contact_info?.email || ''
-  //         })) || [];
-  //       this.showSuggestions = this.suggestedEmails.length > 0;
-  //       console.log('Extracted emails:', this.suggestedEmails);
-  //     },
-  //     error: (err) => console.error('GetAllUsers error:', err)
-  //   });
-  // }
 
   loadAllEmails(searchValue: string): void {
     this.employeeService.getAllEmployees().subscribe({
       next: (res) => {
-        console.log('All employees for email suggestions:', res);
-
         const allEmails =
           res?.data?.list_items?.map((u: any) => ({
             email: u.contact_info?.email || ''
           })) || [];
 
-        // ✅ filter by the typed value
+        // filter by the typed value
         this.suggestedEmails = allEmails.filter((e: any) =>
           e.email.toLowerCase().includes(searchValue.toLowerCase())
         );
-
         this.showSuggestions = this.suggestedEmails.length > 0;
-        console.log('Filtered suggestions:', this.suggestedEmails);
       },
       error: (err) => console.error('GetAllUsers error:', err)
     });
   }
-
-
-
 
 
   onEmailInput(event: Event): void {
@@ -286,36 +280,11 @@ export class AddUserComponent implements OnInit {
     }
   }
 
-  // email: u.user?.email || u.email
-
-
-
-  // onEmailInput(event: Event): void {
-  //   const value = (event.target as HTMLInputElement).value.trim();
-  //   if (value.length > 1) {
-  //     this.loadAllEmails();
-
-  //     // this.employeeService.getAllEmployees().subscribe({
-  //     //   next: (res) => {
-  //     //     this.suggestedEmails = res?.data?.list_items?.map((u: any) => ({
-  //     //       email: u.user?.email || u.email
-  //     //     })) || [];
-  //     //     this.showSuggestions = this.suggestedEmails.length > 0;
-  //     //   },
-  //     //   error: (err) => console.error('GetAllUsers error:', err)
-  //     // });
-  //   } else {
-  //     this.suggestedEmails = [];
-  //     this.showSuggestions = false;
-  //   }
-  // }
 
   selectEmail(email: string): void {
     this.usersForm.patchValue({ email });
-    console.log('selected Email', email);
     this.showSuggestions = false;
     this.checkEmailExists();
-    console.log('check Email', this.checkEmailExists());
   }
 
   hideSuggestions(): void {
@@ -327,6 +296,7 @@ export class AddUserComponent implements OnInit {
 
   // popups
   isModalOpen = false;
+  isPopupOpen = false;
   isSuccessModalOpen = false;
 
   openModal() {
@@ -335,6 +305,15 @@ export class AddUserComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  openPopup() {
+    this.isPopupOpen = true;
+  }
+
+  closePopup() {
+    this.usersForm.reset();
+    this.isPopupOpen = false;
   }
 
   confirmAction() {

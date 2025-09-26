@@ -36,12 +36,11 @@ export class UsersComponent {
 
 
   private userService = inject(AdminUsersService);
-  // allUsers!: Observable<IUser[]>;
   allUsers: IUser[] = [];
   filteredList: IUser[] = [];
   userStatus = UserStatus
   status = Status
-  roles: Roles[] = [];
+  roles: Partial<Roles>[] = [];
   statusOptions = Object.entries(Status)
     .filter(([key, value]) => typeof value === 'number')
     .map(([key, value]) => ({ label: key, value }));
@@ -54,7 +53,6 @@ export class UsersComponent {
   itemsPerPage: number = 10;
   totalPages: number = 0;
 
-  // totalpages: number = 0;
   loadData: boolean = false;
   private searchSubject = new Subject<string>();
 
@@ -66,9 +64,6 @@ export class UsersComponent {
       this.getAllUsers(this.currentPage);
     });
 
-
-
-
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -77,7 +72,7 @@ export class UsersComponent {
 
         this.toasterMessageService.clearMessage();
       });
-    this.getAllRoles();
+    this.getAllRoleNames();
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.getAllUsers(this.currentPage, this.searchTerm, this.filterForm.value);
@@ -97,9 +92,6 @@ export class UsersComponent {
     pageNumber: number,
     searchTerm: string = '',
     filters?: ISearchParams
-    // filters?: {
-    //   name?: string;
-    // }
   ) {
     this.loadData = true;
     this.userService.getAllUsers(
@@ -109,17 +101,11 @@ export class UsersComponent {
         search: searchTerm || undefined,
         ...filters
       }
-      //   pageNumber, this.itemsPerPage, {
-      //   search: searchTerm || undefined,
-      //   ...filters
-      // }
     ).subscribe({
       next: (response) => {
-        // console.log('API response:', response);
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
-        console.log('API response:', response.data.total_pages);
         this.allUsers = response.data.list_items.map((item: IUserApi) => ({
           id: item.id,
           name: item.user?.name ?? '',
@@ -138,8 +124,6 @@ export class UsersComponent {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
-        console.log('API error:', err.error?.details);
         this.loadData = false;
       }
     });
@@ -169,37 +153,12 @@ export class UsersComponent {
   }
 
 
-
-
   resetFilterForm() {
     this.filterForm.reset();
-    this.filter(); // reload with default params
+    this.filter();
   }
 
-  // resetFilterForm(): void {
-  //   this.filterForm.reset({
-  //     name: '',
-  //   });
-  //   this.filterBox.closeOverlay();
-  //   const filters = {
-  //     name: undefined,
-  //   };
-  //   this.getAllUsers(this.currentPage, '', filters);
-  // }
 
-
-  // filters(): void {
-  //   if (this.filterForm.valid) {
-  //     const rawFilters = this.filterForm.value;
-  //     const filters = {
-  //       name: rawFilters.name || undefined,
-  //     };
-  //     this.currentPage = 1;
-  //     this.filterBox.closeOverlay();
-  //     this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
-  //     console.log(filters);
-  //   }
-  // }
 
   filter(): void {
     if (this.filterForm.valid) {
@@ -215,53 +174,14 @@ export class UsersComponent {
     }
   }
 
-  // filter() {
-  //   const filters = this.filterForm.value;
 
-  //   this.userService.getAllUsers({
-  //     page: 1,
-  //     per_page: this.itemsPerPage,
-  //     ...filters // sends {status, created_from, created_to, role}
-  //   }).subscribe((res) => {
-  //     this.allUsers = res.data.list_items;
-  //   });
-  // }
-
-
-  // filters(): void {
-  //   if (this.filterForm.valid) {
-  //     const rawFilters = this.filterForm.value;
-  //     const filters = {
-  //       name: rawFilters.name || undefined,
-  //       // user_id: rawFilters.user_id ? Number(rawFilters.user_id) : undefined,
-  //     };
-  //     this.currentPage = 1;
-  //     this.filterBox.closeOverlay();
-  //     this.getAllUsers(this.currentPage, this.searchTerm || '', filters);
-  //     console.log(filters);
-  //   }
-  // }
-
-
-  // applyFilters() {
-  //   this.filteredList = this.allUsers.filter(item =>
-  //     // item.name?.toLowerCase().includes(this.searchTerm.toLowerCase())
-  //     item.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-  //     item.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-  //     item.code?.toLowerCase().includes(this.searchTerm.toLowerCase())
-  //   );
-  //   this.sortBy();
-  // }
-
-
-  resendInvitation(email: string) {
-    this.userService.searchUser(email).subscribe({
+  resendInvitation(email: string): void {
+    this.userService.resendInvitation(email).subscribe({
       next: () => {
         this.toasterService.showSuccess('Invitation resent successfully');
       },
-      error: (err) => {
-        console.error('Failed to resend invitation', err);
-        this.toasterService.showError('Failed to resend invitation');
+      error: () => {
+        this.toasterService.showError('Error resending invitation');
       }
     });
   }
@@ -296,11 +216,10 @@ export class UsersComponent {
 
 
 
-  private getAllRoles(): void {
-    this.rolesService.getAllRoles(1, 50).subscribe({
+  private getAllRoleNames(): void {
+    this.rolesService.getAllRoleNames().subscribe({
       next: (data) => {
-        console.log('All roles data:', data);
-        this.roles = data.roles;
+        this.roles = data;
       },
       error: (err) => console.error('Failed to load all roles', err)
     });

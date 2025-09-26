@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { mapRoleAllResponse, mapRoleResponse, mapRoleToRequest } from 'app/core/adapter/adapter';
-import { ActionType, Roles, UpdateRoleRequest } from 'app/core/models/roles';
-import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
+import { mapRoleResponse, mapRoleToRequest } from 'app/core/adapter/adapter';
+import { ActionType, Roles } from 'app/core/models/roles';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -89,8 +89,6 @@ export class AdminRolesService {
     );
   }
 
-
-
   //update role
 
   updateRole(role: Roles): Observable<Roles> {
@@ -124,7 +122,7 @@ export class AdminRolesService {
               code: sub.sub?.code,
               subName: sub.sub?.name ?? '',
               actions: (sub.allowed_actions || [])
-                .filter((a: any) => a.status) // active only
+                .filter((a: any) => a.status)
                 .map((a: any) => a.name as ActionType)
             }))
           }))
@@ -133,17 +131,18 @@ export class AdminRolesService {
     );
   }
 
-  // Get all Roles
-  // getAllRoles(): Observable<Roles[]> {
-  //   return this.http.get<any>(this.url).pipe(
-  //     map(response => {
-  //       const roles = response.data?.list_info || [];
-  //       return roles.map((role: any) => mapRoleResponse(role));
-  //     })
-  //   );
-  // }
+  // get all role names for dropdown
+  getAllRoleNames(): Observable<Partial<Roles>[]> {
+    return this.http.get<any>(this.url).pipe(
+      map((response) => {
+        const roles = response?.data?.list_items || [];
+        return roles.map((role: any) => ({
+          id: role.id,
+          name: role.name ?? ''
+        }));
+      })
+    );
+  }
 
-  // getAllRoles(): Observable<any> {
-  //   return this.http.get<any>(`${this.allRolesUrl}`);
-  // }
+
 }
