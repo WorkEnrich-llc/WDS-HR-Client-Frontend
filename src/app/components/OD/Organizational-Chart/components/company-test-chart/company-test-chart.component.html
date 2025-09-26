@@ -1,9 +1,8 @@
 <div class="chart-box" [ngClass]="{ 'fullscreen': isFullScreen }">
 
    <div class="content-hug text-center" #chartBox [style.transform]="'scale(' + zoom + ')'">
-      <iframe #iframeRef src="https://orgchart.talentdot.org" width="100%" height="600" style="border:none;">
-      </iframe>
 
+      <iframe #orgChartFrame id="orgChartFrame" src="https://orgchart.talentdot.org/"></iframe>
       <div class="d-flex gap-2 justify-content-center my-3">
 
          <button class="btn btn-primary" type="button" (click)="sendData()">Send Data</button>

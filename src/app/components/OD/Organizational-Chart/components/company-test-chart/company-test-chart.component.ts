@@ -10,7 +10,14 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chartBox') chartBox?: ElementRef;
   @ViewChild('iframeRef', { static: false }) iframeRef!: ElementRef;
+  @ViewChild('orgChartFrame', { static: false }) orgChartFrame!: ElementRef<HTMLIFrameElement>;
+  private iframeReady = false;
 
+
+  chart: any;
+  zoom = 1;
+  isFullScreen = false;
+  toggleState = true;
 
   // orgChartData = [
   //   {
@@ -63,35 +70,56 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   //   }
   // ];
 
-  companyChartData = [
-    {
-      id: 1,
-      name: "Talent",
-      number_employees: "1 - 50",
-      firstNode: true,
-      type: "company",
-      expanded: false,
-      children: [
-        {
-          id: 2,
-          name: "Department A",
-          type: "department",
-          code: "DEP-001",
-          expanded: false,
-          children: []
-        },
-        {
-          id: 3,
-          name: "Department B",
-          type: "department",
-          code: "DEP-002",
-          expanded: false,
-          children: []
-        }
-      ]
-    }
-  ];
+  // companyChartData = [
+  //   {
+  //     id: 1,
+  //     name: "Talent",
+  //     number_employees: "1 - 50",
+  //     firstNode: true,
+  //     type: "company",
+  //     expanded: false,
+  //     children: [
+  //       {
+  //         id: 2,
+  //         name: "Department A",
+  //         type: "department",
+  //         code: "DEP-001",
+  //         expanded: false,
+  //         children: []
+  //       },
+  //       {
+  //         id: 3,
+  //         name: "Department B",
+  //         type: "department",
+  //         code: "DEP-002",
+  //         expanded: false,
+  //         children: []
+  //       }
+  //     ]
+  //   }
+  // ];
 
+  chartData = {
+    name: 'Aya Emad',
+    position: 'CEO',
+    jobTitleCode: 101,
+    level: 'Executive',
+    expanded: true,
+    firstNode: true,
+    children: [
+      {
+        name: 'Laila Mohamed',
+        position: 'CFO',
+        jobTitleCode: 102,
+        level: 'Senior Management',
+        expanded: true,
+        children: [
+          { name: 'Mostafa Khaled', position: 'Accountant', jobTitleCode: 201, level: 'Staff', expanded: false, children: [] },
+          { name: 'Sara Nabil', position: 'Financial Analyst', jobTitleCode: 202, level: 'Staff', expanded: false, children: [] }
+        ]
+      },
+    ]
+  };
 
 
   ngOnInit(): void {
@@ -108,17 +136,42 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
 
   }
 
-  ngAfterViewInit(): void {
-    window.addEventListener("message", (event) => {
-      if (event.origin === "https://orgchart.talentdot.org") {
-        console.log("📩 Message from iframe:", event.data);
+  // ngAfterViewInit(): void {
+  //   window.addEventListener("message", (event) => {
+  //     if (event.origin === "https://orgchart.talentdot.org") {
+  //       console.log("📩 Message from iframe:", event.data);
 
-        if (event.data?.type === "ready") {
-          console.log("✅ Iframe says it's ready, sending data now...");
-          this.sendDataToIframe();
+  //       if (event.data?.type === "ready") {
+  //         console.log("✅ Iframe says it's ready, sending data now...");
+  //         this.sendDataToIframe();
+  //       }
+  //     }
+  //   });
+  // }
+
+  ngAfterViewInit(): void {
+    const iframe = this.orgChartFrame.nativeElement;
+
+    iframe.onload = () => {
+      console.log('Iframe loaded. Checking OrgChartAPI...');
+
+      let attempts = 0;
+      const maxAttempts = 100;
+
+      const checkApiInterval = setInterval(() => {
+        attempts++;
+
+        if (iframe.contentWindow && (iframe.contentWindow as any).OrgChartAPI) {
+          console.log('✅ OrgChartAPI is ready!');
+          clearInterval(checkApiInterval);
+          this.iframeReady = true;
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkApiInterval);
+          console.error('Could not find OrgChartAPI after 10 seconds.');
+          console.error('فشل العثور على API الهيكل التنظيمي في الصفحة.');
         }
-      }
-    });
+      }, 100);
+    };
   }
 
 
@@ -146,7 +199,7 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   sendData() {
     const payload = {
       type: "setData",
-      data: this.companyChartData,
+      data: this.chartData,
       chartId: "companyChart"
     };
 
@@ -158,37 +211,40 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
     );
   }
 
-  sendDataToIframe() {
-    const iframe = this.iframeRef.nativeElement;
-    if (!iframe || !iframe.contentWindow) {
-      console.error("❌ Iframe not ready yet");
-      return;
-    }
+  // sendDataToIframe() {
+  //   const iframe = this.iframeRef.nativeElement;
+  //   if (!iframe || !iframe.contentWindow) {
+  //     console.error("❌ Iframe not ready yet");
+  //     return;
+  //   }
 
-    const payload = {
-      type: "setData",
-      chartId: "companyChart",
-      data: this.companyChartData
-    };
-    console.log("📤 Sending RAW data to iframe:", payload);
-    iframe.contentWindow.postMessage(payload, "https://orgchart.talentdot.org");
+  //   const payload = {
+  //     type: "setData",
+  //     chartId: "companyChart",
+  //     data: this.chartData
+  //   };
+  //   console.log("📤 Sending RAW data to iframe:", payload);
+  //   iframe.contentWindow.postMessage(payload, "https://orgchart.talentdot.org");
+  // }
+
+  sendDataToIframe(): void {
+    const iframe = this.orgChartFrame.nativeElement;
+
+    if (this.iframeReady && iframe.contentWindow) {
+      try {
+        (iframe.contentWindow as any).OrgChartAPI.setData(this.chartData);
+        console.log('✅ Data sent successfully!');
+      } catch (error) {
+        console.error('❌ Error sending data:', error);
+      }
+    } else {
+      console.error('الـ iframe غير جاهز بعد!');
+    }
   }
 
 
 
-  chart: any;
-  zoom = 1;
-  isFullScreen = false;
 
-
-
-
-
-
-
-
-
-  toggleState = true;
 
 
   toggleFullScreen() {
