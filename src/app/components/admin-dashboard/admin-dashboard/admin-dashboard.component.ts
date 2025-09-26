@@ -25,7 +25,7 @@ export class AdminDashboardComponent {
     '3+ Years'
   ];
 
-  public activeEmployeeValues = [25, 40, 70, 50];
+  public activeEmployeeValues = [27, 12, 5, 17];
 
   public activeEmployeeColors = [
     '#DDE3EB', // On Probation
@@ -38,8 +38,12 @@ export class AdminDashboardComponent {
     labels: this.activeEmployeeLabels,
     datasets: [
       {
-        data: this.activeEmployeeValues,
-        backgroundColor: this.activeEmployeeColors
+        data: this.activeEmployeeValues.every(v => v === 0)
+          ? [1]
+          : this.activeEmployeeValues,
+        backgroundColor: this.activeEmployeeValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.activeEmployeeColors
       }
     ]
   };
@@ -83,8 +87,12 @@ export class AdminDashboardComponent {
     labels: this.leaveBalanceLabels,
     datasets: [
       {
-        data: this.leaveBalanceValues,
-        backgroundColor: this.leaveBalanceColors
+        data: this.leaveBalanceValues.every(v => v === 0)
+          ? [1]
+          : this.leaveBalanceValues,
+        backgroundColor: this.leaveBalanceValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.leaveBalanceColors
       }
     ]
   };
@@ -129,8 +137,12 @@ export class AdminDashboardComponent {
     labels: this.requestsLabels,
     datasets: [
       {
-        data: this.requestsValues,
-        backgroundColor: this.requestsColors
+        data: this.requestsValues.every(v => v === 0)
+          ? [1]
+          : this.requestsValues,
+        backgroundColor: this.requestsValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.requestsColors
       }
     ]
   };
@@ -171,8 +183,12 @@ export class AdminDashboardComponent {
     labels: this.goalsLabels,
     datasets: [
       {
-        data: this.goalsValues,
-        backgroundColor: this.goalsColors
+        data: this.goalsValues.every(v => v === 0)
+          ? [1]
+          : this.goalsValues,
+        backgroundColor: this.goalsValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.goalsColors
       }
     ]
   };
@@ -252,7 +268,7 @@ export class AdminDashboardComponent {
       legend: { display: false },
       tooltip: {
         mode: 'nearest',
-        intersect: true, 
+        intersect: true,
         callbacks: {
           label: function (context) {
             return context.dataset.label + ': ' + context.raw;
@@ -339,9 +355,9 @@ export class AdminDashboardComponent {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-    
+
     },
-    
+
     scales: {
       x: {
         grid: {
@@ -400,8 +416,12 @@ export class AdminDashboardComponent {
     labels: this.deptGuidelinesLabels,
     datasets: [
       {
-        data: this.deptGuidelinesValues,
-        backgroundColor: this.deptGuidelinesColors
+        data: this.deptGuidelinesValues.every(v => v === 0)
+          ? [1]
+          : this.deptGuidelinesValues,
+        backgroundColor: this.deptGuidelinesValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.deptGuidelinesColors
       }
     ]
   };
@@ -440,8 +460,12 @@ export class AdminDashboardComponent {
     labels: this.activeDepartmentsLabels,
     datasets: [
       {
-        data: this.activeDepartmentsValues,
-        backgroundColor: this.activeDepartmentsColors
+        data: this.activeDepartmentsValues.every(v => v === 0)
+          ? [1]
+          : this.activeDepartmentsValues,
+        backgroundColor: this.activeDepartmentsValues.every(v => v === 0)
+          ? ['#e5e7eb50']
+          : this.activeDepartmentsColors
       }
     ]
   };

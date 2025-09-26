@@ -109,7 +109,7 @@
             <h6>Assigned Department #{{ $index + 1 }}</h6>
             <span>{{ item?.name || 'N/A' }}</span>
           </div>
-          <button [routerLink]="['/departmet/view-department', item?.id]" class="view-btn">
+          <button [routerLink]="['/departments/view-department', item?.id]" class="view-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
                 <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />

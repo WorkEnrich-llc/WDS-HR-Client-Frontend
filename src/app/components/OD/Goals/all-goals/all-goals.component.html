@@ -103,8 +103,7 @@
         }
         @if (!goal.is_active) {
         <span class="badge-danger">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-            viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
               <circle cx="12" cy="12" r="10" />
@@ -114,7 +113,11 @@
         </span>
         }
       </td>
-      <td>{{goal.department}}</td>
+      <td>
+        {{ getAssignedDepartmentsText(goal, 40) }}
+
+      </td>
+
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
           <a [routerLink]="['/goals/view-goal', goal.id]"
@@ -164,20 +167,19 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-  <p>No Filter Available</p>
-  <!-- <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
+
+  <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
-      <label for="status">Status</label>
+      <label for="goal_type">Goal Type</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="status" formControlName="status" class="form-select">
+          <select name="" id="goal_type" formControlName="goal_type" class="form-select">
             <option value="" selected disabled hidden>Select</option>
-            <option value="all">Any</option>
-            <option value="true">Active</option>
-            <option value="false">Not Active</option>
+            <option value=1>Support</option>
+            <option value=2>Technical</option>
           </select>
         </div>
-        @if (!filterForm.get('status')?.value) {
+        @if (!filterForm.get('goal_type')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -186,7 +188,7 @@
             clip-rule="evenodd" />
         </svg>
         }
-        @if (filterForm.get('status')?.value) {
+        @if (filterForm.get('goal_type')?.value) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -214,7 +216,7 @@
         <span>Clear Filters</span>
       </a>
     </div>
-  </form> -->
+  </form>
 
 
 

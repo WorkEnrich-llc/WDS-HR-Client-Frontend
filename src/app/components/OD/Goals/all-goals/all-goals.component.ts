@@ -32,48 +32,53 @@ export class AllGoalsComponent {
   ) { }
 
   searchTerm: string = '';
- 
+
 
   // ✅ Component variables
-currentPage: number = 1;
-totalpages: number = 0;
-totalItems: number = 0;
-itemsPerPage: number = 10;
-loadData: boolean = false;
-sortDirection: string = 'asc';
-Goals: any[] = [];
+  currentPage: number = 1;
+  totalpages: number = 0;
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+  loadData: boolean = false;
+  sortDirection: string = 'asc';
+  Goals: any[] = [];
 
-private searchSubject = new Subject<string>();
-private toasterSubscription!: Subscription;
+  private searchSubject = new Subject<string>();
+  private toasterSubscription!: Subscription;
 
-ngOnInit(): void {
-  this.getAllGoals(this.currentPage);
+  ngOnInit(): void {
+    this.getAllGoals(this.currentPage);
 
-  this.toasterSubscription = this.toasterMessageService.currentMessage$
-    .pipe(filter(msg => !!msg && msg.trim() !== ''))
-    .subscribe(msg => {
-      this.toastr.clear();
-      this.toastr.success(msg, '', { timeOut: 3000 });
-      this.toasterMessageService.clearMessage();
+    this.toasterSubscription = this.toasterMessageService.currentMessage$
+      .pipe(filter(msg => !!msg && msg.trim() !== ''))
+      .subscribe(msg => {
+        this.toastr.clear();
+        this.toastr.success(msg, '', { timeOut: 3000 });
+        this.toasterMessageService.clearMessage();
+      });
+
+    this.searchSubject
+      .pipe(debounceTime(300))
+      .subscribe(value => {
+        this.currentPage = 1;
+        this.getAllGoals(this.currentPage, value);
+      });
+
+    this.filterForm = this.fb.group({
+      goal_type: [''],
     });
+  }
 
-  this.searchSubject
-    .pipe(debounceTime(300))
-    .subscribe(value => {
-      this.currentPage = 1; // ✅ reset للصفحة أول لما تعمل بحث جديد
-      this.getAllGoals(this.currentPage, value);
-    });
-
-  this.filterForm = this.fb.group({
-    status: [''],
-  });
-}
-
-getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
+getAllGoals(
+  pageNumber: number = 1,
+  searchTerm: string = '',
+  filters: { goal_type?: number } = {}
+): void {
   this.loadData = true;
 
   this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
     search: searchTerm || undefined,
+    goal_type: filters.goal_type || undefined   // 👈 هنا نبعت قيمة goal_type
   }).subscribe({
     next: (response) => {
       const data = response?.data;
@@ -82,8 +87,6 @@ getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
       this.totalItems = data?.total_items ?? 0;
       this.totalpages = data?.total_pages ?? 0;
       this.Goals = data?.list_items ?? [];
-
-      console.log("Goals:", this.Goals);
 
       this.sortDirection = 'desc';
       this.sortBy();
@@ -97,11 +100,23 @@ getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
   });
 }
 
-ngOnDestroy(): void {
-  if (this.toasterSubscription) {
-    this.toasterSubscription.unsubscribe();
+  getAssignedDepartmentsText(goal: any, maxLength: number = 40): string {
+    if (!goal.assigned_department || goal.assigned_department.length === 0) {
+      return '';
+    }
+
+    // حوّل الأسماء لنص موحّد
+    const text = goal.assigned_department.map((d: any) => d.name).join(', ');
+
+    // قص لو أكبر من maxLength
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
-}
+
+  ngOnDestroy(): void {
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+  }
 
 
 
@@ -127,28 +142,30 @@ ngOnDestroy(): void {
     this.searchSubject.next(this.searchTerm);
   }
 
+
   filter(): void {
-    if (this.filterForm.valid) {
-      const rawFilters = this.filterForm.value;
+  if (this.filterForm.valid) {
+    const rawFilters = this.filterForm.value;
 
-      // const filters = {
-      //   status: rawFilters.status || undefined,
-      // };
+    const filters = {
+      search: undefined,
+      goal_type: rawFilters.goal_type || undefined
+    };
 
-      // console.log('Filters submitted:', filters);
-
-      this.filterBox.closeOverlay();
-      this.getAllGoals(this.currentPage, '');
-    }
-  }
-
-  resetFilterForm(): void {
-    this.filterForm.reset({
-      status: '',
-    });
     this.filterBox.closeOverlay();
-    this.getAllGoals(this.currentPage);
+    this.getAllGoals(this.currentPage, '', filters);
   }
+}
+
+
+resetFilterForm(): void {
+  this.filterForm.reset({
+    goal_type: '',
+  });
+  this.filterBox.closeOverlay();
+  this.getAllGoals(this.currentPage); 
+}
+
 
 
 

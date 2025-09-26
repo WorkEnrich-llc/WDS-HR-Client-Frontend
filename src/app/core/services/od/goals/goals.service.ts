@@ -21,11 +21,13 @@ export class GoalsService {
   }
 
   // get all Goals with pagination and filters
+
   getAllGoals(
     pageNumber: number,
     perPage: number,
     filters?: {
       search?: string;
+      goal_type?: number;
     }
   ): Observable<any> {
     const url = `${this.apiBaseUrl}od/goals`;
@@ -36,6 +38,7 @@ export class GoalsService {
 
     if (filters) {
       if (filters.search) params = params.set('search', filters.search);
+      if (filters.goal_type) params = params.set('goal_type', filters.goal_type);
     }
 
     return this._HttpClient.get(url, { params });
