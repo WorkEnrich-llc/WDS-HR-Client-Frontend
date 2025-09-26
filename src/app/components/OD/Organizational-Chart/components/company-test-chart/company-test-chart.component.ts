@@ -19,58 +19,58 @@ export class CompanyTestChartComponent implements AfterViewInit {
   isFullScreen = false;
   toggleState = true;
 
-  // orgChartData = [
-  //   {
-  //     id: 1,
-  //     name: "Talent",
-  //     number_employees: "1 - 50",
-  //     firstNode: true,
-  //     type: "company",
-  //     expanded: false,
-  //     children: [
-  //       {
-  //         id: 2,
-  //         name: "Cairo",
-  //         code: "T-OD-B-@-1",
-  //         location: "Cairo",
-  //         max_employee: 12,
-  //         type: "branch",
-  //         expanded: false,
-  //         children: [
-  //           {
-  //             id: 3,
-  //             name: "IT",
-  //             code: "T-OD-D-@-2",
-  //             type: "department",
-  //             expanded: false,
-  //             children: [
-  //               {
-  //                 id: 4,
-  //                 name: "Mobile",
-  //                 code: "1",
-  //                 type: "section",
-  //                 expanded: false,
-  //                 children: [
-  //                   {
-  //                     id: 5,
-  //                     name: "Mobile Engineer",
-  //                     code: "T-OD-JT-@-1",
-  //                     type: "job_title",
-  //                     level: "Non-Managerial",
-  //                     expanded: false,
-  //                     children: []
-  //                   }
-  //                 ]
-  //               }
-  //             ]
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // ];
+  orgChartData = [
+    {
+      id: 1,
+      name: "Talent",
+      number_employees: "1 - 50",
+      firstNode: true,
+      type: "company",
+      expanded: false,
+      children: [
+        {
+          id: 2,
+          name: "Cairo",
+          code: "T-OD-B-@-1",
+          location: "Cairo",
+          max_employee: 12,
+          type: "branch",
+          expanded: false,
+          children: [
+            {
+              id: 3,
+              name: "IT",
+              code: "T-OD-D-@-2",
+              type: "department",
+              expanded: false,
+              children: [
+                {
+                  id: 4,
+                  name: "Mobile",
+                  code: "1",
+                  type: "section",
+                  expanded: false,
+                  children: [
+                    {
+                      id: 5,
+                      name: "Mobile Engineer",
+                      code: "T-OD-JT-@-1",
+                      type: "job_title",
+                      level: "Non-Managerial",
+                      expanded: false,
+                      children: []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ];
 
-  // companyChartData = [
+  // companyChart = [
   //   {
   //     id: 1,
   //     name: "Talent",
@@ -102,7 +102,7 @@ export class CompanyTestChartComponent implements AfterViewInit {
   chartData = {
     name: 'Aya Emad',
     position: 'CEO',
-    jobTitleCode: 101,
+    job_title_code: 101,
     level: 'Executive',
     expanded: true,
     firstNode: true,
@@ -110,12 +110,12 @@ export class CompanyTestChartComponent implements AfterViewInit {
       {
         name: 'Laila Mohamed',
         position: 'CFO',
-        jobTitleCode: 102,
+        job_title_code: 102,
         level: 'Senior Management',
         expanded: true,
         children: [
-          { name: 'Mostafa Khaled', position: 'Accountant', jobTitleCode: 201, level: 'Staff', expanded: false, children: [] },
-          { name: 'Sara Nabil', position: 'Financial Analyst', jobTitleCode: 202, level: 'Staff', expanded: false, children: [] }
+          { name: 'Mostafa Khaled', position: 'Accountant', job_title_code: 201, level: 'Staff', expanded: false, children: [] },
+          { name: 'Sara Nabil', position: 'Financial Analyst', job_title_code: 202, level: 'Staff', expanded: false, children: [] }
         ]
       },
     ]
@@ -125,106 +125,27 @@ export class CompanyTestChartComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const iframe = this.orgChartFrame.nativeElement;
-
     iframe.onload = () => {
-      console.log('✅ Iframe loaded. Ready to receive messages via postMessage');
-      // Optionally auto-send data after load
+      console.log('Iframe loaded. Ready to receive messages via postMessage');
       this.sendDataToIframe();
     };
   }
 
   sendDataToIframe(): void {
     const iframe = this.orgChartFrame.nativeElement;
-
     if (iframe && iframe.contentWindow) {
       const message = {
         action: 'setData',              // must match expected action
         payload: this.chartData,        // use "payload" instead of "data"
-        chartType: 'orgChart'           // required by iframe app
+        chartType: 'chartData'           // must send chartType as companyChart or orgChart based on the data in component
       };
-
-      console.log('📤 Sending data to iframe:', message);
-
+      console.log('Sending data to iframe:', message);
       iframe.contentWindow.postMessage(
         message,
-        'https://orgchart.talentdot.org' // must match iframe origin
+        'https://orgchart.talentdot.org'
       );
     }
   }
-
-  // sendDataToIframe(): void {
-  //   const iframe = this.orgChartFrame.nativeElement;
-
-  //   if (iframe && iframe.contentWindow) {
-  //     const message = {
-  //       action: 'SET_DATA',
-  //       data: this.chartData
-  //     };
-  //     console.log('📤 Sending data to iframe:', message);
-
-  //     iframe.contentWindow.postMessage(
-  //       message,
-  //       'https://orgchart.talentdot.org' // must match iframe origin
-  //     );
-  //   }
-  // }
-
-  // sendDataToIframe(): void {
-  //   const iframe = this.orgChartFrame.nativeElement;
-
-  //   if (iframe && iframe.contentWindow) {
-  //     try {
-  //       // Access the exposed OrgChartAPI inside the iframe
-  //       const chartApi = (iframe.contentWindow as any).OrgChartAPI;
-
-  //       if (chartApi && typeof chartApi.setData === 'function') {
-  //         console.log('📤 Sending data via OrgChartAPI.setData:', this.chartData);
-  //         chartApi.setData(this.chartData);
-  //       } else {
-  //         console.warn('⚠️ OrgChartAPI is not ready yet.');
-  //       }
-  //     } catch (err) {
-  //       console.error('❌ Error while sending data to iframe:', err);
-  //     }
-  //   }
-  // }
-
-
-  // sendDataToIframe(): void {
-  //   const iframe = this.orgChartFrame.nativeElement;
-  //   if (iframe && iframe.contentWindow) {
-  //     const message = {
-  //       action: 'SET_DATA',
-  //       data: this.chartData
-  //     };
-  //     console.log('📤 Sending data to iframe:', message);
-  //     iframe.contentWindow.postMessage(
-  //       message,
-  //       'https://orgchart.talentdot.org'
-  //     );
-  //   }
-  // }
-
-
-
-  // sendDataToIframe(): void {
-  //   const iframe = this.orgChartFrame.nativeElement;
-  //   if (iframe && iframe.contentWindow) {
-  //     iframe.contentWindow.postMessage(
-  //       {
-  //         action: 'SET_DATA',
-  //         data: this.chartData
-  //       },
-  //       'https://orgchart.talentdot.org'
-  //     );
-  //     console.log('📤 Data sent via postMessage');
-  //   }
-  // }
-
-
-
-
-
 
 
   toggleFullScreen() {
