@@ -42,7 +42,7 @@ export class SystemCloudService {
         const url = `${this.apiBaseUrl}cloud/files-duplicate/${id}/`;
         return this._HttpClient.post(url, {});
     }
-    
+
     // create upload file
     createUploadFile(fileData: FormData): Observable<HttpEvent<any>> {
         const url = `${this.apiBaseUrl}cloud/files/`;
@@ -62,7 +62,6 @@ export class SystemCloudService {
     // rename file
     renameFile(id: string, folderData: any): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/files/${id}/`;
-        //   console.log('🌐 PATCH request from service:', { url, folderData });
         return this._HttpClient.patch(url, folderData);
     }
 
@@ -78,6 +77,42 @@ export class SystemCloudService {
     updateSheet(id: string, fileData: any): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/system-file-data/${id}/`;
         return this._HttpClient.put(url, fileData);
+    }
+
+
+
+    // save to system
+    // add to system
+    addToSyatem(fileData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/upload-data/add-to-system`;
+        return this._HttpClient.put(url, fileData);
+    }
+
+
+    // cancel Upload
+    cancelUpload(fileData: FormData): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/upload-data/cancel-upload`;
+        return this._HttpClient.put(url, fileData);
+    }
+
+
+    // rerun Upload
+    reRunUpload(fileData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/upload-data/rerun-upload`;
+        return this._HttpClient.put(url, fileData);
+    }
+
+
+    // update missing Upload
+    updateMissing(fileData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/upload-data/update-missing`;
+        return this._HttpClient.put(url, fileData);
+    }
+
+    // upload status 
+    uploadStatus(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/upload-data/upload-status/${id}`;
+        return this._HttpClient.get(url);
     }
 
 }

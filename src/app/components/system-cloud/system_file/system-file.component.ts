@@ -7,6 +7,8 @@ import { SystemCloudService } from '../../../core/services/system-cloud/system-c
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 import { CommonModule } from '@angular/common';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { interval, Subscription, switchMap, takeWhile, timer } from 'rxjs';
 
 
 export interface HeaderItem {
@@ -21,7 +23,7 @@ export interface HeaderItem {
 
 @Component({
   selector: 'app-system-file',
-  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule],
+  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule, PopupComponent],
   templateUrl: './system-file.component.html',
   styleUrl: './system-file.component.css',
   encapsulation: ViewEncapsulation.None
@@ -34,6 +36,12 @@ export class SystemFileComponent implements OnInit {
     private router: Router
   ) { }
 
+  errMsg: string = '';
+  isLoading = false;
+  uploadSub!: Subscription;
+  percentage: number = 0;
+  uploadType: string = 'Pending';
+  isCompleted: boolean = false;
   breadcrumb: { id: string, name: string }[] = [];
   systemFileData: any = { sections: [] };
   SystemFileId: string | null = null;
@@ -41,6 +49,8 @@ export class SystemFileComponent implements OnInit {
   customColumns: TableColumn[] = [];
   rowsData: any[] = [];
   bodyRows: any[] = [];
+
+  isImported: boolean = false;
   private collectTimer: any = null;
   private lastCollectedData: any[] = [];
   isAllLoaded = false;
@@ -62,6 +72,7 @@ export class SystemFileComponent implements OnInit {
       this.collectFilledRows();
     }, 3000);
   }
+
   onCellInput() {
     this.triggerCollectFilledRows();
   }
@@ -152,7 +163,7 @@ export class SystemFileComponent implements OnInit {
     this._systemCloudService.getSystemFileData(fileId).subscribe({
       next: (response) => {
         this.systemFileData = response.data.object_info;
-        // console.log(this.systemFileData);
+        console.log(this.systemFileData);
         this.fileEditable = this.systemFileData.file.editable;
         // console.log('File editable:', this.fileEditable);
         if (this.systemFileData.header) {
@@ -251,6 +262,141 @@ export class SystemFileComponent implements OnInit {
       };
     });
   }
+
+
+
+  // add to system
+  activeTab: 'failed' | 'imported' = 'failed';
+
+  switchTab(tab: 'failed' | 'imported') {
+    this.activeTab = tab;
+  }
+  importedColumns: TableColumn[] = [];
+  importedRows: any[] = [];
+
+  failedColumns: TableColumn[] = [];
+  failedRows: any[] = [];
+
+  addTosystemPOP: boolean = false;
+  showUploadPopup: boolean = false;
+  addMissingPopup: boolean = false;
+  showMissingPopup: boolean = false;
+  openModalAddtosystem() {
+    this.addTosystemPOP = true;
+  }
+
+  closeModalAddtosystem() {
+    this.addTosystemPOP = false;
+  }
+  openModalMissing() {
+    this.addMissingPopup = true;
+  }
+
+  closeModalMissing() {
+    this.addMissingPopup = false;
+  }
+
+  addingTosystem(): void {
+    this.errMsg = '';
+
+    const formData = new FormData();
+    formData.append('id', this.SystemFileId ?? '');
+    formData.append('file_type', '1');
+
+    this._systemCloudService.addToSyatem(formData).subscribe({
+      next: (response) => {
+        // console.log('Added successfully:', response);
+        this.addTosystemPOP = false;
+        this.showUploadPopup = true;
+        if (this.SystemFileId) {
+          this.startUploadTracking(this.SystemFileId);
+        }
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+      }
+    });
+  }
+
+  startUploadTracking(id: string): void {
+    this.uploadSub = timer(0, 3000)
+      .pipe(
+        switchMap(() => this._systemCloudService.uploadStatus(id)),
+        takeWhile((res: any) => res?.data?.object_info?.upload_type !== 'Completed', true)
+      )
+      .subscribe({
+        next: (res: any) => {
+          console.log(res?.data?.object_info);
+          const percentage = res?.data?.object_info?.percentage ?? 0;
+          const uploadType = res?.data?.object_info?.upload_type ?? 'Pending';
+
+          // console.log('🔎 Extracted values ->', percentage, uploadType);
+
+          this.percentage = percentage;
+          this.uploadType = uploadType;
+
+
+          if (this.percentage >= 100 && this.uploadType === 'Completed') {
+            this.isCompleted = true;
+            this.isImported = true;
+            setTimeout(() => {
+              this.showUploadPopup = false;
+            }, 1500);
+
+            this.stopUploadTracking();
+            // if (this.systemFileData.Imported?.header) {
+            //   this.importedColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.Imported.header);
+            // }
+            // if (this.systemFileData.Imported?.body) {
+            //   this.importedRows = this.systemFileData.Imported.body;
+            // }
+
+            // if (this.systemFileData.Failed?.header) {
+            //   this.failedColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.Failed.header);
+            // }
+            // if (this.systemFileData.Failed?.body) {
+            //   this.failedRows = this.systemFileData.Failed.body;
+            // }
+          }
+        },
+        error: (err) => {
+          console.error('Error:', err.error?.details);
+          this.stopUploadTracking();
+        }
+      });
+  }
+
+  stopUploadTracking(): void {
+    if (this.uploadSub) {
+      this.uploadSub.unsubscribe();
+    }
+  }
+  updateMissing(): void {
+
+  }
+  cancelUpload(): void {
+    if (!this.SystemFileId) return;
+
+    const formData = new FormData();
+    formData.append('id', this.SystemFileId);
+
+    this._systemCloudService.cancelUpload(formData).subscribe({
+      next: (res) => {
+        console.log('Upload canceled:', res);
+        this.stopUploadTracking();
+        this.showUploadPopup = false;
+      },
+      error: (err) => {
+        console.error('Error canceling upload:', err);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopUploadTracking();
+  }
+
 
 
 }

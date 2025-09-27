@@ -24,6 +24,7 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
     this.chartsService.companyChart().subscribe({
       next: (res) => {
         // Correct path: res.data.list_items
+        console.log(res.data?.list_items);
         if (res.data?.list_items && res.data.list_items.length > 0) {
           this.chartData = this.transformToChartFormat(res.data.list_items[0]);
           console.log('Transformed chartData:', this.chartData);
@@ -76,11 +77,31 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
 
 
   private transformToChartFormat(item: any): any {
+
+    const paddedId = item.id.toString().padStart(4, '0');
+
+    const typeLabel = item.type
+      ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
+      : '';
+
+    const typeColors: Record<string, string> = {
+      company: '#2E86C1',
+      branch: '#28B463',
+      department: '#AF7AC5',
+      section: '#F39C12',
+      job_title: '#E74C3C'
+    };
+
+    const nodeColor = typeColors[item.type] || '#7F8C8D';
+
     return {
       name: item.name,
-      position: item.type,                // map type as "position"
-      jobTitleCode: item.code || item.id, // fallback if no code
-      level: item.level || '',            // only job_title has level
+      details: [
+        `ID: ${paddedId}`,
+        `Type: ${typeLabel}`
+      ],
+      color: nodeColor,
+
       expanded: item.expanded ?? false,
       firstNode: item.firstNode ?? false,
       children: item.children?.map((child: any) => this.transformToChartFormat(child)) || []
