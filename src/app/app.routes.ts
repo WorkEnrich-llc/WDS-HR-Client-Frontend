@@ -268,9 +268,14 @@ export const routes: Routes = [
                   },
                   {
                     path: 'organizational-chart',
-                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-test-chart/organization-test-chart.component').then(m => m.OrganizationTestChartComponent),
                     title: 'organizational Chart'
                   },
+                  // {
+                  //   path: 'organizational-chart',
+                  //   loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                  //   title: 'organizational Chart'
+                  // },
                 ]
               },
             ]
