@@ -3,15 +3,16 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { ChartsService } from 'app/core/services/od/charts/charts.service';
 
 @Component({
-  selector: 'app-company-chart',
+  selector: 'app-organization-chart',
   imports: [CommonModule],
-  templateUrl: './company-test-chart.component.html',
-  styleUrl: './company-test-chart.component.css'
+  templateUrl: './organization-test-chart.component.html',
+  styleUrl: './organization-test-chart.component.css'
 })
-export class CompanyTestChartComponent implements OnInit, AfterViewInit {
+export class OrganizationTestChartComponent implements OnInit, AfterViewInit {
 
   @ViewChild('chartBox') chartBox?: ElementRef;
-  @ViewChild('orgChartFrame', { static: false }) orgChartFrame!: ElementRef<HTMLIFrameElement>;
+  @ViewChild('orgChart', { static: false }) orgChart!: ElementRef<HTMLIFrameElement>;
+
 
   private chartsService = inject(ChartsService);
   chartData: any;
@@ -21,34 +22,29 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   toggleState = true;
 
   ngOnInit(): void {
-    this.chartsService.companyChart().subscribe({
+    this.chartsService.jobsChart().subscribe({
       next: (res) => {
-        // Correct path: res.data.list_items
         if (res.data?.list_items && res.data.list_items.length > 0) {
-          this.chartData = this.transformToChartFormat(res.data.list_items[0]);
-          console.log('Transformed chartData:', this.chartData);
+          this.chartData = this.transformJobsChartFormat(res.data.list_items[0]);
+          console.log('Transformed jobs chartData:', this.chartData);
         } else {
-          console.warn('No list_items found in response');
+          console.warn('No list_items found in jobsChart response');
         }
-        // If iframe already loaded, send immediately
-        if (this.orgChartFrame?.nativeElement?.contentWindow && this.chartData) {
+        if (this.orgChart?.nativeElement?.contentWindow && this.chartData) {
           this.sendDataToIframe();
         }
       },
-      error: (err) => console.error('Error loading chart data:', err)
+      error: (err) => console.error('Error loading jobs chart:', err)
     });
 
   }
-
   ngAfterViewInit(): void {
-    const iframe = this.orgChartFrame.nativeElement;
-    // If iframe is already loaded
+    const iframe = this.orgChart.nativeElement;
     if (iframe.contentWindow && iframe.contentDocument?.readyState === 'complete') {
       this.sendDataToIframe();
     } else {
-      // Otherwise wait for load
       iframe.onload = () => {
-        console.log('Iframe loaded. Ready to receive messages via postMessage');
+        console.log('Iframe loaded (jobs chart). Ready to send data.');
         this.sendDataToIframe();
       };
     }
@@ -56,34 +52,29 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
 
   sendDataToIframe(): void {
     if (!this.chartData) {
-      console.warn('Chart data not yet loaded from backend');
+      console.warn('Jobs chart data not yet loaded from backend');
       return;
     }
-    const iframe = this.orgChartFrame.nativeElement;
-    if (iframe && iframe.contentWindow) {
-      const message = {
-        action: 'setData',
-        payload: this.chartData,
-        chartType: 'chartData'
-      };
-      iframe.contentWindow.postMessage(message, 'https://orgchart.talentdot.org');
-      // optional retry
-      setTimeout(() => {
-        iframe.contentWindow?.postMessage(message, 'https://orgchart.talentdot.org');
-      }, 500);
-    }
+
+    const iframe = this.orgChart.nativeElement;
+    const message = {
+      action: 'setData',
+      payload: this.chartData,
+      chartType: 'jobsChart'
+    };
+    iframe.contentWindow?.postMessage(message, 'https://orgchart.talentdot.org');
   }
 
 
-  private transformToChartFormat(item: any): any {
+  private transformJobsChartFormat(item: any): any {
     return {
       name: item.name,
-      position: item.type,                // map type as "position"
-      jobTitleCode: item.code || item.id, // fallback if no code
-      level: item.level || '',            // only job_title has level
+      position: item.position,
+      jobTitleCode: item.job_title_code,
+      level: item.level,
       expanded: item.expanded ?? false,
       firstNode: item.firstNode ?? false,
-      children: item.children?.map((child: any) => this.transformToChartFormat(child)) || []
+      children: item.children?.map((child: any) => this.transformJobsChartFormat(child)) || []
     };
   }
 
@@ -116,4 +107,6 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
+
 }
