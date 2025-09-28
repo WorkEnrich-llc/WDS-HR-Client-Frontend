@@ -71,6 +71,7 @@ export class ActivateAccountComponent {
     const { password, re_password } = this.acceptInvitationForm.value;
     const data = this.activateRoute.snapshot.data['invitation'];
     const username = data?.data?.username;
+    console.log('Form Data:', { username, password, re_password, securityKey: this.securityKey });
 
     this.activateAccountService.resetPassword({
       username: username,
