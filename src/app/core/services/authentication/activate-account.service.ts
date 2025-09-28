@@ -35,7 +35,7 @@ export class ActivateAccountService {
     username: string;
     password: string;
     rePassword: string;
-    verificationCode: string;
+    security_key: string;
     // securityKey: string;
   }): Observable<any> {
     const url = `${this.baseUrl}main/authentication/forgot-password/new-password`;
@@ -44,7 +44,7 @@ export class ActivateAccountService {
       username: payload.username,
       password: payload.password,
       re_password: payload.rePassword,
-      verification_code: payload.verificationCode
+      security_key: payload.security_key
     };
 
     return this.http.post<any>(url, body);
