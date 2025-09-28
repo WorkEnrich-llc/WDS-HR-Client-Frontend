@@ -73,7 +73,7 @@ export class ActivateAccountComponent {
     this.activateAccountService.resetPassword({
       username: this.email,
       password: password,
-      rePassword: re_password,
+      re_password: re_password,
       security_key: this.securityKey
     }).subscribe({
       next: (res) => {
