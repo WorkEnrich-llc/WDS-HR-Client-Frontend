@@ -47,6 +47,6 @@ export class ActivateAccountService {
       verification_code: payload.verificationCode
     };
 
-    return this.http.put<any>(url, body);
+    return this.http.post<any>(url, body);
   }
 }
