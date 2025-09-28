@@ -34,19 +34,18 @@ export class ActivateAccountService {
   resetPassword(payload: {
     username: string;
     password: string;
-    rePassword: string;
+    re_password: string;
     security_key: string;
     // securityKey: string;
   }): Observable<any> {
     const url = `${this.baseUrl}main/authentication/forgot-password/new-password`;
 
-    const body = {
-      username: payload.username,
-      password: payload.password,
-      re_password: payload.rePassword,
-      security_key: payload.security_key
-    };
+    const formData = new FormData();
+    formData.append('username', payload.username);
+    formData.append('password', payload.password);
+    formData.append('re_password', payload.re_password);
+    formData.append('security_key', payload.security_key);
 
-    return this.http.post<any>(url, body);
+    return this.http.post<any>(url, formData);
   }
 }
