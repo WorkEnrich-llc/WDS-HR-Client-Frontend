@@ -77,7 +77,7 @@ export class ActivateAccountComponent {
       username: username,
       password: password,
       rePassword: re_password,
-      verificationCode: this.securityKey
+      security_key: this.securityKey
     }).subscribe({
       next: (res) => {
         this.isLoading = false;
