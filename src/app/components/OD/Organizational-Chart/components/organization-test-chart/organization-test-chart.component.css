@@ -1,5 +1,6 @@
+.org-chart-container,
 iframe {
-  width: 100%;
+   width: 100%;
   min-height: 86vh;
   border: none;
 }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChartsService } from 'app/core/services/od/charts/charts.service';
 
 @Component({
   selector: 'app-company-chart',
@@ -8,187 +9,104 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
   styleUrl: './company-test-chart.component.css'
 })
 export class CompanyTestChartComponent implements OnInit, AfterViewInit {
+
   @ViewChild('chartBox') chartBox?: ElementRef;
-  @ViewChild('iframeRef', { static: false }) iframeRef!: ElementRef;
+  @ViewChild('orgChartFrame', { static: false }) orgChartFrame!: ElementRef<HTMLIFrameElement>;
 
-
-  // orgChartData = [
-  //   {
-  //     id: 1,
-  //     name: "Talent",
-  //     number_employees: "1 - 50",
-  //     firstNode: true,
-  //     type: "company",
-  //     expanded: false,
-  //     children: [
-  //       {
-  //         id: 2,
-  //         name: "Cairo",
-  //         code: "T-OD-B-@-1",
-  //         location: "Cairo",
-  //         max_employee: 12,
-  //         type: "branch",
-  //         expanded: false,
-  //         children: [
-  //           {
-  //             id: 3,
-  //             name: "IT",
-  //             code: "T-OD-D-@-2",
-  //             type: "department",
-  //             expanded: false,
-  //             children: [
-  //               {
-  //                 id: 4,
-  //                 name: "Mobile",
-  //                 code: "1",
-  //                 type: "section",
-  //                 expanded: false,
-  //                 children: [
-  //                   {
-  //                     id: 5,
-  //                     name: "Mobile Engineer",
-  //                     code: "T-OD-JT-@-1",
-  //                     type: "job_title",
-  //                     level: "Non-Managerial",
-  //                     expanded: false,
-  //                     children: []
-  //                   }
-  //                 ]
-  //               }
-  //             ]
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // ];
-
-  companyChartData = [
-    {
-      id: 1,
-      name: "Talent",
-      number_employees: "1 - 50",
-      firstNode: true,
-      type: "company",
-      expanded: false,
-      children: [
-        {
-          id: 2,
-          name: "Department A",
-          type: "department",
-          code: "DEP-001",
-          expanded: false,
-          children: []
-        },
-        {
-          id: 3,
-          name: "Department B",
-          type: "department",
-          code: "DEP-002",
-          expanded: false,
-          children: []
-        }
-      ]
-    }
-  ];
-
-
+  private chartsService = inject(ChartsService);
+  chartData: any;
+  chart: any;
+  zoom = 1;
+  isFullScreen = false;
+  toggleState = true;
 
   ngOnInit(): void {
-    window.addEventListener('message', (event) => {
-      if (event.origin !== 'https://orgchart.talentdot.org') return;
-
-      console.log('📩 Message from iframe:', event.data);
-
-      if (event.data.type === 'orgChartReady') {
-        console.log('✅ OrgChart API ready, sending data now...');
-        this.sendData();
-      }
+    this.chartsService.companyChart().subscribe({
+      next: (res) => {
+        // Correct path: res.data.list_items
+        console.log(res.data?.list_items);
+        if (res.data?.list_items && res.data.list_items.length > 0) {
+          this.chartData = this.transformToChartFormat(res.data.list_items[0]);
+          console.log('Transformed chartData:', this.chartData);
+        } else {
+          console.warn('No list_items found in response');
+        }
+        // If iframe already loaded, send immediately
+        if (this.orgChartFrame?.nativeElement?.contentWindow && this.chartData) {
+          this.sendDataToIframe();
+        }
+      },
+      error: (err) => console.error('Error loading chart data:', err)
     });
 
   }
 
   ngAfterViewInit(): void {
-    window.addEventListener("message", (event) => {
-      if (event.origin === "https://orgchart.talentdot.org") {
-        console.log("📩 Message from iframe:", event.data);
-
-        if (event.data?.type === "ready") {
-          console.log("✅ Iframe says it's ready, sending data now...");
-          this.sendDataToIframe();
-        }
-      }
-    });
+    const iframe = this.orgChartFrame.nativeElement;
+    // If iframe is already loaded
+    if (iframe.contentWindow && iframe.contentDocument?.readyState === 'complete') {
+      this.sendDataToIframe();
+    } else {
+      // Otherwise wait for load
+      iframe.onload = () => {
+        console.log('Iframe loaded. Ready to receive messages via postMessage');
+        this.sendDataToIframe();
+      };
+    }
   }
 
-
-  // ngAfterViewInit() {
-  //   this.iframeRef.nativeElement.onload = () => {
-  //     console.log('Iframe loaded');
-  //   };
-  // }
-
-  // sendData() {
-  //   const payload = this.orgChartData;
-  //   console.log("Sending data to iframe:", payload);
-  //   console.log(this.iframeRef.nativeElement.src);
-  //   this.iframeRef.nativeElement.contentWindow.postMessage(
-  //     {
-  //       type: "setData",
-  //       data: this.orgChartData,
-  //       chartId: "orgChart"
-  //     },
-
-  //     "https://orgchart.talentdot.org/"
-  //   );
-  // }
-
-  sendData() {
-    const payload = {
-      type: "setData",
-      data: this.companyChartData,
-      chartId: "companyChart"
-    };
-
-    console.log("📤 Sending RAW data to iframe:", JSON.stringify(payload, null, 2));
-
-    this.iframeRef.nativeElement.contentWindow.postMessage(
-      payload,
-      "https://orgchart.talentdot.org/"
-    );
-  }
-
-  sendDataToIframe() {
-    const iframe = this.iframeRef.nativeElement;
-    if (!iframe || !iframe.contentWindow) {
-      console.error("❌ Iframe not ready yet");
+  sendDataToIframe(): void {
+    if (!this.chartData) {
+      console.warn('Chart data not yet loaded from backend');
       return;
     }
-
-    const payload = {
-      type: "setData",
-      chartId: "companyChart",
-      data: this.companyChartData
-    };
-    console.log("📤 Sending RAW data to iframe:", payload);
-    iframe.contentWindow.postMessage(payload, "https://orgchart.talentdot.org");
+    const iframe = this.orgChartFrame.nativeElement;
+    if (iframe && iframe.contentWindow) {
+      const message = {
+        action: 'setData',
+        payload: this.chartData,
+        chartType: 'chartData'
+      };
+      iframe.contentWindow.postMessage(message, 'https://orgchart.talentdot.org');
+      // optional retry
+      setTimeout(() => {
+        iframe.contentWindow?.postMessage(message, 'https://orgchart.talentdot.org');
+      }, 500);
+    }
   }
 
 
+  private transformToChartFormat(item: any): any {
 
-  chart: any;
-  zoom = 1;
-  isFullScreen = false;
+    const paddedId = item.id.toString().padStart(4, '0');
 
+    const typeLabel = item.type
+      ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
+      : '';
 
+    const typeColors: Record<string, string> = {
+      company: '#2E86C1',
+      branch: '#28B463',
+      department: '#AF7AC5',
+      section: '#F39C12',
+      job_title: '#E74C3C'
+    };
 
+    const nodeColor = typeColors[item.type] || '#7F8C8D';
 
+    return {
+      name: item.name,
+      details: [
+        `ID: ${paddedId}`,
+        `Type: ${typeLabel}`
+      ],
+      color: nodeColor,
 
-
-
-
-
-  toggleState = true;
+      expanded: item.expanded ?? false,
+      firstNode: item.firstNode ?? false,
+      children: item.children?.map((child: any) => this.transformToChartFormat(child)) || []
+    };
+  }
 
 
   toggleFullScreen() {
@@ -219,6 +137,4 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
       }
     }
   }
-
-
 }

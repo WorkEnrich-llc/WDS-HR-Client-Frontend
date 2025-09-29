@@ -1,7 +1,8 @@
 <div class="chart-box" [ngClass]="{ 'fullscreen': isFullScreen }">
    <div class="content-hug text-center" #chartBox [style.transform]="'scale(' + zoom + ')'">
-      <iframe #orgChartFrame id="orgChartFrame" src="https://orgchart.talentdot.org"></iframe>
+      <iframe #orgChart id="orgChart" src="https://orgchart.talentdot.org"></iframe>
    </div>
+
    <div class="btn-fixed">
       <!-- full screen toggle -->
       <button class="btn btn-lg btn-primary w-auto" (click)="toggleFullScreen()">

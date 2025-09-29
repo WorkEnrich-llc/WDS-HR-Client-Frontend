@@ -2,8 +2,8 @@
     <div class="row align-items-center g-3">
         <div class="col-8">
             <h2>Activate Your Account</h2>
-            <p><span class="text-primary me-2">Ahmed Wael</span>has invited you to</p>
-            <p><span class="text-primary me-2">companyname.workenrich.com</span></p>
+            <p><span class="text-primary me-2">{{sender}}</span> &nbsp; has invited you to</p>
+            <p><span class="text-primary me-2">{{company}}</span></p>
 
         </div>
         <div class="col-4">
@@ -13,7 +13,6 @@
 </div>
 
 <div class="card-bottom">
-    <!-- step1 -->
     <div class="login-info">
         <div class="row align-items-center g-4">
             <div class="col-6">
@@ -27,7 +26,7 @@
                                     d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
                             </g>
                         </svg>
-                        <p>assemosama&#64;yahoo.com</p>
+                        <p>{{email}}</p>
                     </div>
 
 
@@ -106,8 +105,6 @@
                         }
                     </div>
 
-
-
                     <!-- <div class="input">
                         <label for="password"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 viewBox="0 0 24 24">
@@ -136,7 +133,7 @@
                     }
 
 
-                    <button class="btn btn-lg btn-primary w-100">
+                    <button class="btn btn-lg btn-primary w-100" type="submit" (click)="onSubmit()">
                         @if (isLoading) {
                         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                         }

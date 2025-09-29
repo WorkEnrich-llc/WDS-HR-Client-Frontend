@@ -1,6 +1,9 @@
+import { ActivateAccountService } from './../../../core/services/authentication/activate-account.service';
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ValidationService } from 'app/core/services/settings/change-password/validation.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-activate-account',
@@ -9,14 +12,20 @@ import { ValidationService } from 'app/core/services/settings/change-password/va
   styleUrl: './activate-account.component.css'
 })
 export class ActivateAccountComponent {
-  isLoading = false;
-  errMsg = '';
-
 
   acceptInvitationForm!: FormGroup;
   private fb = inject(FormBuilder);
-  // private changePasswordService = inject(ChangePasswordService);
-  // private toasterService = inject(ToasterMessageService);
+  private activateRoute = inject(ActivatedRoute);
+  private router = inject(Router);
+  private activateAccountService = inject(ActivateAccountService);
+  private toasterService = inject(ToasterMessageService);
+
+  isLoading = false;
+  errMsg = '';
+  email!: string;
+  sender!: string;
+  company!: string;
+  securityKey!: string;
 
   isVisible: { [key: string]: boolean } = {
     old: false,
@@ -26,6 +35,12 @@ export class ActivateAccountComponent {
 
   ngOnInit(): void {
     this.initFormModels();
+    const routeParams = this.activateRoute.snapshot.queryParams;
+    this.email = routeParams['email'];
+    this.company = routeParams['company'];
+    this.sender = routeParams['sender'];
+    const data = this.activateRoute.snapshot.data['invitation'];
+    this.securityKey = data?.data?.security_key;
   }
 
   private initFormModels(): void {
@@ -39,6 +54,37 @@ export class ActivateAccountComponent {
       });
 
   }
+
+
+  onSubmit(): void {
+    if (this.acceptInvitationForm.invalid) {
+      this.acceptInvitationForm.markAllAsTouched();
+      return;
+    }
+    this.isLoading = true;
+    this.errMsg = '';
+    const { password, re_password } = this.acceptInvitationForm.value;
+
+    this.activateAccountService.resetPassword({
+      username: this.email,
+      password: password,
+      re_password: re_password,
+      security_key: this.securityKey
+    }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.toasterService.showSuccess('Password reset successfully. Please login with your new password.');
+        this.router.navigate(['/auth/login']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.toasterService.showError(err?.error?.details || 'Something went wrong, please try again.');
+        this.errMsg = err?.error?.details || 'Something went wrong, please try again.';
+      }
+    });
+  }
+
+
 
   toggleVisibility(field: string) {
     this.isVisible[field] = !this.isVisible[field];

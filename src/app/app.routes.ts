@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { GuestGuard } from './core/guards/guest.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { SubscriptionGuard } from './core/guards/subscription.guard';
+import { invitationResolver } from './core/resolver/invitation-resolver.resolver';
 
 export const routes: Routes = [
   {
@@ -45,6 +46,7 @@ export const routes: Routes = [
             path: 'invitation/set-password',
             loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
             title: 'Activate Your Account',
+            resolve: { invitation: invitationResolver }
           },
 
         ]
@@ -268,9 +270,14 @@ export const routes: Routes = [
                   },
                   {
                     path: 'organizational-chart',
-                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-test-chart/organization-test-chart.component').then(m => m.OrganizationTestChartComponent),
                     title: 'organizational Chart'
                   },
+                  // {
+                  //   path: 'organizational-chart',
+                  //   loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                  //   title: 'organizational Chart'
+                  // },
                 ]
               },
             ]
