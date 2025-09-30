@@ -1,10 +1,18 @@
+
+export interface IEmployee {
+   id: number;
+   name: string;
+}
+
+export interface ILeave {
+   id: number;
+   name: string;
+}
+
 export interface ILeaveBalance {
    id: number;
-   name?: string;
-   leave: {
-      id: number;
-      name: string;
-   };
+   employee: IEmployee;
+   leave: ILeave;
    total: number;
    used: number;
    available: number;
@@ -16,7 +24,7 @@ export interface ILeaveBalanceResponse {
    data: {
       list_items: ILeaveBalance[];
       total_items: number;
-      page: number;
+      page: number | string;
       total_pages: number;
    };
    details: string;
@@ -31,4 +39,8 @@ export interface ILeaveBalanceFilters {
    search?: string;
 }
 
-
+export interface IUpdateLeaveBalance {
+   employee_id: number;
+   leave_id: number;
+   total: number;
+}
