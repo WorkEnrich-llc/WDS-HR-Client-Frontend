@@ -266,12 +266,12 @@ export const routes: Routes = [
                   {
                     path: 'company-chart',
                     loadComponent: () => import('./components/OD/Organizational-Chart/components/company-test-chart/company-test-chart.component').then(m => m.CompanyTestChartComponent),
-                    title: 'Company Test Chart'
+                    title: 'Company Chart'
                   },
                   {
                     path: 'organizational-chart',
                     loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-test-chart/organization-test-chart.component').then(m => m.OrganizationTestChartComponent),
-                    title: 'organizational Chart'
+                    title: 'Organizational Chart'
                   },
                   // {
                   //   path: 'organizational-chart',

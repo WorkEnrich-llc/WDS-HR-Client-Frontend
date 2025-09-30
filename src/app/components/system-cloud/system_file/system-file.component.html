@@ -34,7 +34,7 @@
 
 
     <div class="d-flex align-items-end gap-3">
-      @if (syncStatus === 'synced' && !isImported) {
+      @if (syncStatus === 'synced' && !isImported && !loadData && !upLoading) {
       <span class="badge-success">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -45,7 +45,7 @@
         <span>Synced</span>
       </span>
       }
-      @if (syncStatus === 'syncing' && !isImported) {
+      @if (syncStatus === 'syncing' && !isImported && !loadData && !upLoading) {
       <span class="badge-newjoiner">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <path fill="currentColor"
@@ -56,10 +56,10 @@
       }
 
 
-      @if(isImported){
+      @if(isImported && !loadData && !upLoading){
       <div class="switchs d-flex">
         <a type="button" class="dispaly-switch text-danger" [class.active]="activeTab === 'failed'"
-     (click)="switchTab('failed')">
+          (click)="switchTab('failed')">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none">
               <path stroke="currentColor" stroke-width="1.5"
@@ -74,7 +74,7 @@
           </div>
         </a>
         <a type="button" class="dispaly-switch text-success active" [class.active]="activeTab === 'imported'"
-     (click)="switchTab('imported')">
+          (click)="switchTab('imported')">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentcolor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -89,8 +89,8 @@
       </div>
       }
 
-      @if (!isImported) {
-      <button class="btn btn-outline-primary w-auto" (click)="openModalAddtosystem()">
+      @if (!isImported && !loadData && !upLoading) {
+      <button class="btn btn-lg btn-outline-primary" (click)="openModalAddtosystem()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
             <path d="M4 12a8 8 0 1 0 16 0" />
@@ -102,8 +102,8 @@
 
       }
 
-      @if (isImported) {
-      <button class="btn btn-outline-primary w-auto" (click)="openModalMissing()">
+      @if (isImported && !loadData && !upLoading) {
+      <button class="btn btn-lg btn-outline-primary" (click)="openModalMissing()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
@@ -112,7 +112,51 @@
       </button>
       }
 
+      @if (upLoading) {
+      <div class="progress" style="height: 25px; width: 250px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+          [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+          {{ percentage }}%
+        </div>
+      </div>
 
+      <div class="d-flex align-items-center justify-content-center">
+        @if (uploadType === 'Completed') {
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Completed</span>
+        </span>
+        }
+
+        @if (uploadType === 'Pending') {
+        <span class="badge-newjoiner">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+              <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+            </g>
+          </svg>
+          <span>Pending</span>
+        </span>
+        }
+      </div>
+      <!-- <button class="btn btn-lg btn-outline-danger" (click)="cancelUpload()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+          viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
+        <span>Cancel Save</span>
+      </button> -->
+      }
 
 
 
@@ -138,13 +182,12 @@
 
 @if (isAllLoaded && isImported && activeTab === 'imported') {
 <app-smart-grid-sheet [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="importedRows" [fileEditable]="fileEditable" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+  [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
 </app-smart-grid-sheet>
 }
-
 @if (isAllLoaded && isImported && activeTab === 'failed') {
-<app-smart-grid-sheet [columns]="failedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="failedRows" [fileEditable]="fileEditable" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+<app-smart-grid-sheet [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows" [fileEditable]="true"
+  (inputChanged)="onCellInput()" (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
 </app-smart-grid-sheet>
 }
 

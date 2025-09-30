@@ -14,8 +14,8 @@ export interface TableColumn {
   errorMessage?: string;
   reliability?: string;
   rawData?: any[];
-  required?: boolean;  
-  editable?: boolean; 
+  required?: boolean;
+  editable?: boolean;
 }
 
 @Component({
@@ -64,47 +64,56 @@ export class SmartGridSheetComponent {
   }
 
   addRow(rowData: any = {}): void {
-  const formGroup = this.fb.group({});
-  const rowIndex = this.rows().length;
+    const formGroup = this.fb.group({});
+    const rowIndex = this.rows().length;
 
-  this.rowOptions[rowIndex] = {};
+    this.rowOptions[rowIndex] = {};
 
-  for (const col of this.columns) {
-    const isEditable = this.fileEditable && col.editable !== false;
+    for (const col of this.columns) {
+      const isEditable = this.fileEditable && col.editable !== false;
 
-    formGroup.addControl(
-      col.name,
-      new FormControl(
-        { value: rowData[col.name] || '', disabled: !isEditable },
-        col.validators || []
-      )
-    );
+      formGroup.addControl(
+        col.name,
+        new FormControl(
+          { value: rowData[col.name] || '', disabled: !isEditable },
+          col.validators || []
+        )
+      );
 
-    if (col.type === 'select') {
-      this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
-    }
-  }
-
-  for (const col of this.columns) {
-    if (col.reliability) {
-      const parentControl = formGroup.get(col.reliability);
-
-      if (rowData[col.reliability]) {
-        this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+      if (col.type === 'select') {
+        this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
-
-      parentControl?.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((parentValue) => {
-          this.updateChildOptions(rowIndex, col, parentValue);
-          formGroup.get(col.name)?.setValue('', { emitEvent: false });
-          this.cdr.detectChanges();
-        });
     }
+
+    const hasAnyValue = Object.values(rowData).some(v => v !== null && v !== '');
+    if (hasAnyValue || rowData.__forceTouched) {
+      Object.keys(formGroup.controls).forEach(key => {
+        formGroup.get(key)?.markAsTouched({ onlySelf: true });
+      });
+    }
+
+
+    for (const col of this.columns) {
+      if (col.reliability) {
+        const parentControl = formGroup.get(col.reliability);
+
+        if (rowData[col.reliability]) {
+          this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+        }
+
+        parentControl?.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((parentValue) => {
+            this.updateChildOptions(rowIndex, col, parentValue);
+            formGroup.get(col.name)?.setValue('', { emitEvent: false });
+            this.cdr.detectChanges();
+          });
+      }
+    }
+
+    this.rows.update(rows => [...rows, formGroup]);
   }
 
-  this.rows.update(rows => [...rows, formGroup]);
-}
 
 
   private updateChildOptions(rowIndex: number, childCol: TableColumn, parentValue: any) {
@@ -194,12 +203,9 @@ export class SmartGridSheetComponent {
       this.startRow = rowIndex;
       this.startCol = this.columns.findIndex(c => c.name === colName);
 
-      // قم بتركيز العنصر فقط عند single click (ليس double click)
       if (!this.isDoubleClick) {
-        // تأكد من أن العنصر موجود ونداء الـ focus عليه
         (target as HTMLInputElement | HTMLSelectElement).focus();
 
-        // إزالة التحديد السابق عند التركيز single click
         this.selectedCells = [];
       }
       return;
@@ -319,7 +325,7 @@ export class SmartGridSheetComponent {
       } else if (control.errors['email']) {
         this.errorPopupMessage = 'Please enter a valid email address';
       } else if (control.errors['pattern']) {
-        this.errorPopupMessage = 'Invalid format numbers only';
+  this.errorPopupMessage = col.errorMessage || 'Invalid format numbers only';
       } else {
         this.errorPopupMessage = 'Invalid input';
       }
