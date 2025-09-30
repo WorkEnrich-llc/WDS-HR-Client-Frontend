@@ -1,16 +1,15 @@
-import { ToastrService } from 'ngx-toastr';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { TimeInputDirective } from 'app/core/directives/app-time-input.directive';
-import { DateInputDirective } from 'app/core/directives/date.directive';
 import { AttendanceLogService } from 'app/core/services/attendance/attendance-log/attendance-log.service';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { AttendanceLog } from 'app/core/models/attendance-log';
+import { TimeInputDirective } from 'app/core/directives/app-time-input.directive';
+import { DateInputDirective } from 'app/core/directives/date.directive';
 
 @Component({
   selector: 'app-manage-attendance',
@@ -36,27 +35,16 @@ export class ManageAttendanceComponent {
   isSubmitting = false;
 
 
-
-  // constructor() { }
-
   ngOnInit(): void {
     this.initFormModel();
-    // this.patchFormValues();
-    this.id = Number(this.route.snapshot.paramMap.get('id'));
-    this.isEditMode = !!this.id;;
-
-    console.log('attendanceId', this.attendanceService.getAttendanceById(this.id));
 
     const today = new Date().toLocaleDateString('en-GB');
     this.createDate = today;
     this.employeesService.getAllEmployees().subscribe(res => {
       this.employeeList = res?.data?.list_items ?? [];
-      console.log('Employee List:', this.employeeList);
     });
+    this.patchFormValues();
 
-    if (this.isEditMode) {
-      this.patchFormValues();  // 👈 اعمل patch بعد ما ييجي الليست
-    }
 
   }
 
@@ -74,13 +62,12 @@ export class ManageAttendanceComponent {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/payroll-components/all-payroll-components']);
+    this.router.navigate(['/attendance/attendance-log']);
   }
-
 
   private initFormModel(): void {
     this.newLogForm = this.fb.group({
-      employee: ['', [Validators.required]],
+      employee_id: ['', [Validators.required]],
       date: ['', [Validators.required]],
       start: ['', [Validators.required]],
       end: ['', [Validators.required]],
@@ -88,151 +75,52 @@ export class ManageAttendanceComponent {
   }
 
 
-
-
-
-  // createNewLog(): void {
-  //   if (this.newLogForm.invalid) {
-  //     this.newLogForm.markAllAsTouched();
-  //     return;
-  //   }
-  //   const formValue = this.newLogForm.value;
-  //   this.attendanceService.createAttendance(formValue).subscribe({
-  //     next: (res) => {
-  //       this.toasterService.showSuccess('Attendance log created successfully!');
-  //       this.router.navigate(['/attendance/attendance-log']);
-  //     },
-  //     error: (err) => {
-  //       this.toasterService.showError('Failed to create attendance log.');
-  //     }
-  //   });
-  // }
-
-  // async saveAttendance(): Promise<void> {
-  //   if (this.newLogForm.invalid) {
-  //     this.newLogForm.markAllAsTouched();
-  //     return;
-  //   }
-
-  //   this.isSubmitting = true;
-  //   const formValue = this.newLogForm.value;
-
-  //   // Build the data object (adapt to your API model)
-  //   const attendanceData: AttendanceLog = {
-  //     employee_id: formValue.employee,
-  //     date: formValue.date,
-  //     start: formValue.start,
-  //     end: formValue.end,
-  //   };
-
-  //   if (this.isEditMode && this.id) {
-  //     attendanceData.id = this.id; // if backend expects an id in payload
-  //   }
-
-  //   try {
-  //     if (this.isEditMode && this.id) {
-  //       // ✅ Update existing log
-  //       await firstValueFrom(
-  //         this.attendanceService.updateAttendance(
-  //           this.id,
-  //           attendanceData.employee_id,
-  //           attendanceData.date,
-  //           attendanceData.start,
-  //           attendanceData.end
-  //         )
-  //       );
-  //       this.toasterService.showSuccess('Attendance log updated successfully!');
-  //     } else {
-  //       // ✅ Create new log
-  //       await firstValueFrom(
-  //         this.attendanceService.createAttendance(
-  //           attendanceData.employee_id,
-  //           attendanceData.date,
-  //           attendanceData.start,
-  //           attendanceData.end
-  //         )
-  //       );
-  //       this.toasterService.showSuccess('Attendance log created successfully!');
-  //     }
-
-  //     this.router.navigate(['/attendance/attendance-log']);
-  //   } catch (err) {
-  //     this.toasterService.showError(
-  //       this.isEditMode
-  //         ? 'Failed to update attendance log.'
-  //         : 'Failed to create attendance log.'
-  //     );
-  //     console.error('❌ Save attendance failed', err);
-  //   } finally {
-  //     this.isSubmitting = false;
-  //   }
-  // }
-
-
-
-
-
-
   private patchFormValues(): void {
-    // this.id = Number(this.route.snapshot.paramMap.get('id'));
-    // this.isEditMode = !!this.id;
-    if (this.isEditMode) {
-      console.log('Route ID:', this.id);
-      this.attendanceService.getAttendanceById(this.id).subscribe({
-        next: (attendance) => {
-          this.newLogForm.patchValue({
-            employee: attendance.employee_id,
-            date: attendance.date,
-            start: attendance.start,
-            end: attendance.end
-          });
-          console.log('Attendance fetched for editing:', attendance);
-        },
-        error: (err) => console.error('Error loading attendance:', err)
+    const navigationRoute = history.state;
+    if (navigationRoute && navigationRoute.attendance) {
+      this.isEditMode = true;
+      this.attendanceId = navigationRoute.attendance.working_details?.record_id;
+      this.newLogForm.patchValue({
+        employee_id: navigationRoute.attendance.emp_id,
+        date: navigationRoute.attendance.date,
+        start: navigationRoute.attendance.working_details?.actual_check_in,
+        end: navigationRoute.attendance.working_details?.actual_check_out,
       });
-    }
-    else {
       const today = new Date().toLocaleDateString('en-GB');
-      this.createDate = today;
+      this.updatedDate = today;
     }
   }
 
   save(): void {
     if (this.newLogForm.invalid) return;
+    const raw = this.newLogForm.value;
+    const attendance: AttendanceLog = {
+      id: this.attendanceId,
+      employee_id: raw.employee_id,
+      date: raw.date,
+      start: raw.start,
+      end: raw.end,
+    };
 
-    const formData = this.buildFormData(this.newLogForm.value);
-
-    let request$: Observable<AttendanceLog>;
+    let request: Observable<AttendanceLog>;
     if (this.isEditMode && this.attendanceId) {
-      request$ = this.attendanceService.updateAttendance(this.attendanceId, formData);
+      request = this.attendanceService.updateAttendance(attendance);
     } else {
-      request$ = this.attendanceService.createAttendance(formData);
+      request = this.attendanceService.createAttendance(attendance);
     }
 
-    request$.subscribe({
-      next: (res) => {
-        console.log(this.isEditMode ? 'Updated:' : 'Created:', res);
-        // optionally reset form or navigate
+    request.subscribe({
+      next: () => {
+        this.toasterService.showSuccess(
+          `Attendance log ${this.isEditMode ? 'updated' : 'created'} successfully!`
+        );
+        this.router.navigate(['/attendance/attendance-log']);
       },
       error: (err) => console.error('Error:', err)
     });
   }
 
 
-  private buildFormData(data: any): FormData {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, value.toString());
-      }
-    });
-    return formData;
-  }
 
-  // createNewLog() {
-  //   if (this.newLogForm.valid) {
-  //     console.log('Creating new attendance log:', this.newLogForm.value);
-  //   }
-  // }
 
 }

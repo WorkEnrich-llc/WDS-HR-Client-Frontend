@@ -30,8 +30,6 @@ export class AttendanceLogComponent {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
 
-
-
   attendanceLogs: any[] = [];
 
 
@@ -70,7 +68,7 @@ export class AttendanceLogComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  totalpages: number = 0;
+  totalPages: number = 0;
   loadData: boolean = false;
   today: Date = new Date();
   selectedDate!: Date;
@@ -78,6 +76,8 @@ export class AttendanceLogComponent {
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+
+
   ngOnInit(): void {
     this.filterForm = this.fb.group({
       date: [''],
@@ -87,7 +87,6 @@ export class AttendanceLogComponent {
     this.selectedDate = new Date(this.today);
     this.baseDate = this.getStartOfWeek(this.today);
     this.generateDays(this.baseDate);
-
     this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
 
     this.route.queryParams.subscribe(params => {
@@ -111,19 +110,15 @@ export class AttendanceLogComponent {
 
 
   getAllAttendanceLog(pageNumber: number, perPage: number, searchTerm: string = '', date?: string): void {
-
     this.loadData = true;
     const targetDate = date || this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-
     this._AttendanceLogService
       .getAttendanceLog(pageNumber, perPage, targetDate, { employee: searchTerm })
       .subscribe({
         next: (data) => {
-          // console.log('Attendance logs fetched successfully:', data);
           this.attendanceLogs = data.data.object_info.list_items;
           this.totalItems = data.data.total_items;
-          this.totalpages = data.data.total_pages;
-          // console.log(this.attendanceLogs);
+          this.totalPages = data.data.total_pages;
           this.loadData = false;
         },
         error: (error) => {
@@ -255,6 +250,10 @@ export class AttendanceLogComponent {
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
     this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
   }
+
+
+
+
 
 
   navigateToNewLog(): void {
