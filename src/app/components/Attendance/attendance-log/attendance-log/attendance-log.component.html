@@ -216,7 +216,8 @@
             </td>
 
             <td>
-                <div class="d-flex justify-content-start gap-4 align-items-center w-100">
+                <div *ngIf="!attendance.working_details?.canceled"
+                    class="d-flex justify-content-start gap-4 align-items-center w-100">
                     <a *ngIf="attendance?.emp_id" class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Edit" [routerLink]="['/attendance/manage-attendance']"
                         [state]="{ attendance: attendance }">
@@ -240,7 +241,8 @@
                     </a>
                 </div>
                 <!-- Case if log canceled waiting for complete api to  -->
-                <!-- <div class="d-flex justify-content-start gap-4 align-items-center w-100">
+                <div *ngIf="attendance.working_details?.canceled === true"
+                    class="d-flex justify-content-start gap-4 align-items-center w-100">
                     <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Canceled">
                         <svg width="110" height="34" viewBox="0 0 110 34" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -274,7 +276,7 @@
                         </svg>
 
                     </a>
-                </div> -->
+                </div>
             </td>
 
 
