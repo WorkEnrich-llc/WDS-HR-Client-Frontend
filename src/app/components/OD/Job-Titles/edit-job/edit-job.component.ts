@@ -152,16 +152,19 @@ export class EditJobComponent {
           fullTime_maximum: salary.full_time?.maximum || '',
           fullTime_currency: salary.full_time?.currency,
           fullTime_status: salary.full_time?.status,
+          fullTime_restrict: salary.full_time?.restrict || false,
 
           partTime_minimum: salary.part_time?.minimum || '',
           partTime_maximum: salary.part_time?.maximum || '',
           partTime_currency: salary.part_time?.currency,
           partTime_status: salary.part_time?.status,
+          partTime_restrict: salary.part_time?.restrict || false,
 
           hourly_minimum: salary.per_hour?.minimum || '',
           hourly_maximum: salary.per_hour?.maximum || '',
           hourly_currency: salary.per_hour?.currency,
-          hourly_status: salary.per_hour?.status
+          hourly_status: salary.per_hour?.status,
+          hourly_restrict: salary.per_hour?.restrict || false,
         });
         this.jobStep4.patchValue({
           jobDescription: this.jobTitleData.description || '',
@@ -588,18 +591,21 @@ export class EditJobComponent {
             maximum: this.jobStep2.get('fullTime_maximum')?.value,
             currency: this.jobStep2.get('fullTime_currency')?.value,
             status: this.jobStep2.get('fullTime_status')?.value ? true : false,
+            restrict: this.jobStep2.get('fullTime_restrict')?.value
           },
           part_time: {
             minimum: this.jobStep2.get('partTime_minimum')?.value,
             maximum: this.jobStep2.get('partTime_maximum')?.value,
             currency: this.jobStep2.get('partTime_currency')?.value,
             status: this.jobStep2.get('partTime_status')?.value ? true : false,
+            restrict: this.jobStep2.get('partTime_restrict')?.value
           },
           per_hour: {
             minimum: this.jobStep2.get('hourly_minimum')?.value,
             maximum: this.jobStep2.get('hourly_maximum')?.value,
             currency: this.jobStep2.get('hourly_currency')?.value,
             status: this.jobStep2.get('hourly_status')?.value ? true : false,
+            restrict: this.jobStep2.get('hourly_restrict')?.value
           }
         },
         description: this.jobStep4.get('jobDescription')?.value || '',
