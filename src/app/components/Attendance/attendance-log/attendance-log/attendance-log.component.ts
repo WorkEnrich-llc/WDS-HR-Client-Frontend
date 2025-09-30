@@ -109,16 +109,17 @@ export class AttendanceLogComponent {
   }
 
 
-  getAllAttendanceLog(pageNumber: number, perPage: number, searchTerm: string = '', date?: string): void {
+  getAllAttendanceLog(page: number, perPage: number, searchTerm: string = '', date?: string): void {
     this.loadData = true;
     const targetDate = date || this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
     this._AttendanceLogService
-      .getAttendanceLog(pageNumber, perPage, targetDate, { employee: searchTerm })
+      .getAttendanceLog(page, perPage, targetDate, { employee: searchTerm })
       .subscribe({
         next: (data) => {
-          this.attendanceLogs = data.data.object_info.list_items;
-          this.totalItems = data.data.total_items;
-          this.totalPages = data.data.total_pages;
+          const info = data.data.object_info;
+          this.attendanceLogs = info.list_items;
+          this.totalItems = info.total_items;
+          this.totalPages = info.total_pages;
           this.loadData = false;
         },
         error: (error) => {
