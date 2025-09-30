@@ -2,8 +2,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personal', link: '/attendance-log' },
     { label: 'Attendance Log',link:'/attendance/attendance-log' },
-    { label: isEditMode ? 'Edit Attendance Log ' + id : 'Create New Attendance Log'},
-  ]" [title]="isEditMode ? 'Edit Attendance Log ' + id : 'Create New Attendance Log'" [create]="createDate">
+    { label: isEditMode ? 'Edit Attendance Log ' : 'Create New Attendance Log'},
+  ]" [title]="isEditMode ? 'Edit Attendance Log ' : 'Create New Attendance Log'" [create]="createDate"
+   [update]="updatedDate">
 
    <button class="btn btn-lg btn-success w-auto" (click)="save()">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -35,10 +36,10 @@
          <div class="input">
             <label for="compCode">Employee<span>*</span></label>
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-               <select name="employee" id="employee" class="form-select" formControlName="employee">
+               <select name="employee" id="employee" class="form-select" formControlName="employee_id">
                   <option value="" disabled hidden>Select an employee</option>
                   @for (emp of employeeList ; track emp.id) {
-                  <option [value]="emp.id">{{emp.contact_info?.name}}</option>
+                  <option [value]="emp.id">{{emp.contact_info?.name}} (ID: {{emp.id}})</option>
                   }
                </select>
             </div>

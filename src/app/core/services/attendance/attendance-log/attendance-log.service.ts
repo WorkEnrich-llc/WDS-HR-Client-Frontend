@@ -11,63 +11,36 @@ export class AttendanceLogService {
 
   http = inject(HttpClient);
   private readonly url = `${environment.apiBaseUrl}personnel/attendance`;
-  // /personnel/attendance - create
 
   private apiBaseUrl: string;
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
-  createAttendance(formData: FormData): Observable<AttendanceLog> {
+  createAttendance(data: AttendanceLog): Observable<AttendanceLog> {
     const url = `${this.apiBaseUrl}personnel/attendance-create`;
+    const formData = new FormData();
+    formData.append('employee_id', data.employee_id?.toString() || '');
+    formData.append('date', data.date);
+    formData.append('start', data.start);
+    formData.append('end', data.end);
+
     return this.http.post<AttendanceLog>(url, formData);
   }
 
 
-  // createAttendance(data: AttendanceLog): Observable<AttendanceLog> {
-  //   const url = `${this.apiBaseUrl}personnel/attendance-create`;
-  //   const formData = new FormData();
-  //   formData.append('employee_id', data.employee_id?.toString() || '');
-  //   formData.append('date', data.date);
-  //   formData.append('start', data.start);
-  //   formData.append('end', data.end);
+  updateAttendance(data: AttendanceLog): Observable<AttendanceLog> {
+    const url = `${this.apiBaseUrl}personnel/attendance-update`;
+    const formData = new FormData();
+    formData.append('record_id', data.id?.toString() || '');
+    formData.append('employee_id', data.employee_id?.toString() || '');
+    formData.append('date', data.date);
+    formData.append('start', data.start);
+    formData.append('end', data.end);
 
-  //   return this.http.post<AttendanceLog>(url, formData);
-  // }
-
-  updateAttendance(id: number, formData: FormData): Observable<AttendanceLog> {
-    const url = `${this.apiBaseUrl}personnel/attendance/${id}`;
     return this.http.put<AttendanceLog>(url, formData);
   }
 
-  // updateAttendance(id: number, data: AttendanceLog): Observable<AttendanceLog> {
-  //   const url = `${this.apiBaseUrl}personnel/attendance/${id}`;
-  //   const formData = {
-  //     employee_id: data.employee_id,
-  //     date: data.date,
-  //     start: data.start,
-  //     end: data.end
-  //   };
-  //   return this.http.put<AttendanceLog>(url, formData);
-  // }
-
-  getAttendanceById(id: number): Observable<AttendanceLog> {
-    return this.http.get<any>(`${this.url}/${id}`).pipe(
-      map(res => {
-        return {
-          employee_id: res.emp_id,
-          date: res.date,
-          start: res.working_details?.actual_check_in,
-          end: res.working_details?.actual_check_out,
-          id: res.working_details?.record_id
-        } as AttendanceLog;
-      })
-    );
-  }
-
-  // getAttendanceById(id: number): Observable<AttendanceLog> {
-  //   return this.http.get<AttendanceLog>(`${this.url}/${id}`);
-  // }
 
   // get Attendance Log
   getAttendanceLog(
@@ -92,6 +65,18 @@ export class AttendanceLogService {
     return this._HttpClient.get(url, { params });
   }
 
-
+  // getAttendanceById(id: number): Observable<AttendanceLog> {
+  //   return this.http.get<any>(`${this.url}/${id}`).pipe(
+  //     map(res => {
+  //       return {
+  //         employee_id: res.emp_id,
+  //         date: res.date,
+  //         start: res.working_details?.actual_check_in,
+  //         end: res.working_details?.actual_check_out,
+  //         id: res.working_details?.record_id
+  //       } as AttendanceLog;
+  //     })
+  //   );
+  // }
 
 }
