@@ -188,8 +188,6 @@ export class UsersComponent {
 
 
 
-
-
   copyEmail(email: string, user: any) {
     navigator.clipboard.writeText(email).then(() => {
       user.copied = true;
@@ -202,13 +200,13 @@ export class UsersComponent {
     this.searchSubject.next(this.searchTerm);
   }
 
-
-
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.getAllUsers(this.currentPage);
   }
+
+
   onPageChange(page: number): void {
     this.currentPage = page;
     this.getAllUsers(this.currentPage);

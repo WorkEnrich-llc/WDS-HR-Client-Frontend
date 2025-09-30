@@ -182,11 +182,11 @@ export class AddUserComponent implements OnInit {
         this.toasterService.showSuccess('User updated successfully');
       } else {
         await firstValueFrom(this.usersService.createUser(formValues));
-        this.toasterService.showSuccess('User created successfully');
+        this.toasterService.showSuccess('Invitation sent successfully');
       }
       this.router.navigate(['/users/all-users']);
     } catch (err) {
-      console.error('Create component failed', err);
+      console.error('Invitation sent failed', err);
     } finally {
       this.isEditMode = false;
     }
