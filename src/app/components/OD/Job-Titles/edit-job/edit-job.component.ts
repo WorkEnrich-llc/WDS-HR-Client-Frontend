@@ -417,16 +417,19 @@ export class EditJobComponent {
     fullTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
     fullTime_currency: new FormControl('EGP', [Validators.required]),
     fullTime_status: new FormControl(true, [Validators.required]),
+    fullTime_restrict: new FormControl(false),
 
     partTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
     partTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
+    partTime_restrict: new FormControl(false),
 
     hourly_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
     hourly_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
+    hourly_restrict: new FormControl(false),
   }, { validators: multipleMinMaxValidator });
 
 
