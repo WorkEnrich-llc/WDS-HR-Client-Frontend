@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
@@ -33,7 +33,8 @@ export class SystemFileComponent implements OnInit {
     private _systemCloudService: SystemCloudService,
     private route: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   errMsg: string = '';
@@ -164,7 +165,7 @@ export class SystemFileComponent implements OnInit {
       next: (response) => {
         this.systemFileData = response.data.object_info;
         this.fileEditable = this.systemFileData.file.editable;
-        console.log(this.systemFileData)
+        // console.log(this.systemFileData)
         if (!this.fileEditable) {
           this.isImported = true;
           this.startUploadTracking(this.systemFileData.file.id);
@@ -326,8 +327,19 @@ export class SystemFileComponent implements OnInit {
       }
     });
   }
+
+
+
   startUploadTracking(id: string, isUpdateMissing: boolean = false): void {
-    this.uploadSub = timer(0, 3000).pipe(
+    if (isUpdateMissing) {
+      this.percentage = 0;
+      this.uploadType = 'Pending';
+      this.upLoading = true;
+    }
+
+    let firstValidResponseSeen = false;
+
+    this.uploadSub = timer(0, 2000).pipe(
       switchMap(() => this._systemCloudService.uploadStatus(id)),
       takeWhile((res: any) => {
         const type = res?.data?.object_info?.upload_type;
@@ -337,25 +349,33 @@ export class SystemFileComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           const objectInfo = res?.data?.object_info;
-          console.log('object_info:', objectInfo);
+          // console.log('object_info:', objectInfo);
+
+          if (isUpdateMissing && !firstValidResponseSeen) {
+            if (objectInfo?.upload_type === 'Completed' && objectInfo?.percentage === 100) {
+              console.log('Ignored old completed response');
+              return;
+            }
+            firstValidResponseSeen = true;
+          }
 
           this.percentage = objectInfo?.percentage ?? 0;
           this.uploadType = objectInfo?.upload_type ?? 'Pending';
 
-          if (isUpdateMissing && this.uploadType === 'Completed' && this.percentage === 100) {
-            this.percentage = 0;
-            this.uploadType = 'Pending';
-            return;
-          }
+          this.cdr.detectChanges();
 
           if (this.percentage >= 100 && this.uploadType === 'Completed') {
+            this.loadData = false;
             this.isCompleted = true;
             this.isImported = true;
-            this.upLoading = false;
 
             setTimeout(() => {
-              this.showUploadPopup = false;
-            }, 1500);
+              this.upLoading = false;
+              this.uploadType = 'Pending';
+              this.percentage = 0;
+
+              this.cdr.detectChanges();
+            }, 4000);
 
             this.stopUploadTracking();
 
@@ -367,8 +387,8 @@ export class SystemFileComponent implements OnInit {
             this.importedRows = objectInfo?.finished?.body ?? [];
             this.failedRows = this.markFailedRowsAsTouched(objectInfo?.missing?.body ?? []);
             this.missingRowsData = [...this.failedRows];
-            this.loadData = false;
             this.isAllLoaded = true;
+            this.cdr.detectChanges();
           }
 
           if (this.uploadType === 'Cancelled') {
@@ -397,6 +417,7 @@ export class SystemFileComponent implements OnInit {
         }
       });
   }
+
 
 
 
@@ -469,14 +490,16 @@ export class SystemFileComponent implements OnInit {
       }
     };
 
-    console.log('Missing Updated Data:', finalData);
+    // console.log('Missing Updated Data:', finalData);
 
     this._systemCloudService.updateMissing(finalData).subscribe({
       next: (response) => {
-        // console.log('Added successfully:', response);
         this.addTosystemPOP = false;
-        // this.showUploadPopup = true;
+        this.percentage = 0;
+        this.uploadType = 'Pending';
+        this.upLoading = true;
         if (this.SystemFileId) {
+
           this.startUploadTracking(this.SystemFileId, true);
 
         }
@@ -486,6 +509,28 @@ export class SystemFileComponent implements OnInit {
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
       }
     });
+  }
+
+  getUploadBadge(uploadType: string): { class: string, label: string } {
+    switch (uploadType) {
+      case 'Checking':
+        return { class: 'badge-warning', label: 'Checking' };
+      case 'Creating':
+        return { class: 'badge-gray', label: 'Creating' };
+      case 'Sending emails':
+        return { class: 'badge-warning', label: 'Sending emails' };
+      case 'Completed':
+        return { class: 'badge-success', label: 'Completed' };
+      case 'Stopped':
+        return { class: 'badge-gray', label: 'Stopped' };
+      case 'Cancelled':
+        return { class: 'badge-danger', label: 'Cancelled' };
+      case 'Failure':
+        return { class: 'badge-danger', label: 'Failure' };
+      case 'Pending':
+      default:
+        return { class: 'badge-newjoiner', label: 'Pending' };
+    }
   }
 
   cancelUpload(): void {
