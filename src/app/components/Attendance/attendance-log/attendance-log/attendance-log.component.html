@@ -306,11 +306,6 @@
             <label for="department">Departments</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <!-- <select name="department" id="department" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option>1</option>
-                        <option>2</option>
-                    </select> -->
                     <select formControlName="department_id" name="department" id="department" class="form-select">
                         <option value="" selected disabled hidden>All</option>
                         @for (dept of (departmentList$ | async); track dept.id) {
@@ -318,19 +313,21 @@
                         }
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
@@ -345,19 +342,21 @@
                         <option value="no_show">No Show</option>
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
@@ -377,39 +376,23 @@
                         </g>
                     </svg>
                 </div>
-            </div>
-        </div>
-
-        <!-- <div class="input">
-            <label for="day-type">Specific date range</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="from_date" type="text" id="date" class="form-control custom-date-input"
-                        placeholder="Date Range" appDateInput />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <path stroke-linecap="round"
-                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                            <circle cx="18" cy="18" r="3" />
-                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                        </g>
-                    </svg>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('from_date')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('from_date')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
                 </svg>
             </div>
-        </div> -->
+        </div>
 
         <div class="input">
             <label for="day-type">Day type</label>
@@ -422,19 +405,21 @@
                         <option value="holiday">Holiday</option>
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 

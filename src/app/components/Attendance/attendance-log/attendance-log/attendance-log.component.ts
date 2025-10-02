@@ -11,14 +11,13 @@ import { debounceTime, filter, map, Observable, Subject, Subscription } from 'rx
 import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
-import { DateInputDirective } from 'app/core/directives/date.directive';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 @Component({
   selector: 'app-attendance-log',
   imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent,
-    CommonModule, ReactiveFormsModule, FormsModule, DateInputDirective, RouterLink, NgxDaterangepickerMd],
+    CommonModule, ReactiveFormsModule, FormsModule, RouterLink, NgxDaterangepickerMd],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
   styleUrl: './attendance-log.component.css'
@@ -33,9 +32,9 @@ export class AttendanceLogComponent {
 
   private departmentService = inject(DepartmentsService);
   private toasterService = inject(ToasterMessageService);
+  selectedRange: { startDate: string; endDate: string } | null = null;
 
   attendanceLogs: any[] = [];
-  // departmentList: any[] = [];
   departmentList$!: Observable<any[]>;
 
 
@@ -91,9 +90,23 @@ export class AttendanceLogComponent {
       from_date: [''],
       offenses: [''],
       day_type: [''],
-      // to_date: [''],
-      // search: ['']
     });
+
+    this.filterForm.get('from_date')?.valueChanges.subscribe(val => {
+      if (val && val.startDate && val.endDate) {
+        this.selectedRange = {
+          startDate: val.startDate.format('YYYY-MM-DD'),
+          endDate: val.endDate.format('YYYY-MM-DD')
+        };
+        this.filterForm.patchValue({
+          to_date: this.selectedRange.endDate
+        }, { emitEvent: false });
+      } else {
+        this.selectedRange = null;
+        this.filterForm.patchValue({ to_date: '' }, { emitEvent: false });
+      }
+    });
+
     this.today.setHours(0, 0, 0, 0);
     this.selectedDate = new Date(this.today);
     this.baseDate = this.getStartOfWeek(this.today);
@@ -124,8 +137,6 @@ export class AttendanceLogComponent {
       this.getAllAttendanceLog({
         page: this.currentPage,
         per_page: this.itemsPerPage,
-        from_date: formattedDate,
-        to_date: '',
         search: value
       });
     });
@@ -248,6 +259,21 @@ export class AttendanceLogComponent {
     return nextStart <= this.getStartOfWeek(this.today);
   }
 
+
+
+  isSelected(date: Date): boolean {
+    //  highlighted selected range dates
+    if (this.selectedRange) {
+      const dayStr = this.datePipe.transform(date, 'yyyy-MM-dd')!;
+      const fromStr = this.selectedRange.startDate;
+      const toStr = this.selectedRange.endDate;
+
+      return dayStr >= fromStr && dayStr <= toStr;
+    }
+    // highlighted single selected date
+    return this.selectedDate && this.selectedDate.toDateString() === date.toDateString();
+  }
+
   selectDate(date: Date): void {
     if (date > this.today) return;
 
@@ -264,9 +290,12 @@ export class AttendanceLogComponent {
     });
   }
 
-  isSelected(date: Date): boolean {
-    return this.selectedDate.toDateString() === date.toDateString();
-  }
+  // isSelected(date: Date): boolean {
+  //   return this.selectedDate.toDateString() === date.toDateString();
+  // }
+
+
+
   trackByDate(index: number, day: { date: Date }): number {
     return new Date(day.date).getTime();
   }
@@ -323,15 +352,12 @@ export class AttendanceLogComponent {
   applyFilters(): void {
     if (this.filterForm.valid) {
       const raw = this.filterForm.value;
-
       let from_date = '';
       let to_date = '';
-
       if (raw.from_date) {
         from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
         to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
       }
-
       const filters: IAttendanceFilters = {
         department_id: raw.department_id,
         offenses: raw.offenses,
@@ -339,7 +365,7 @@ export class AttendanceLogComponent {
         from_date,
         to_date
       };
-
+      this.filterBox.closeOverlay();
       this.getAllAttendanceLog(filters);
     }
 
@@ -387,5 +413,6 @@ export class AttendanceLogComponent {
     this.filterBox.closeOverlay();
     this.getAllAttendanceLog(filters);
   }
+
 
 }
