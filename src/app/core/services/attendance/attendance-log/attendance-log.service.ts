@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
 import { map, Observable } from 'rxjs';
-import { AttendanceLog } from 'app/core/models/attendance-log';
+import { AttendanceLog, IAttendanceFilters } from 'app/core/models/attendance-log';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,6 @@ import { AttendanceLog } from 'app/core/models/attendance-log';
 export class AttendanceLogService {
 
   http = inject(HttpClient);
-  private readonly url = `${environment.apiBaseUrl}personnel/attendance`;
 
   private apiBaseUrl: string;
   constructor(private _HttpClient: HttpClient) {
@@ -42,41 +41,27 @@ export class AttendanceLogService {
   }
 
 
-  // get Attendance Log
-  getAttendanceLog(
-    pageNumber: number,
-    perPage: number,
-    date: string,
-    filters?: {
-      employee?: string;
-    }
-  ): Observable<any> {
+  getAttendanceLog(params: IAttendanceFilters = {}): Observable<any> {
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set('page', String(params.page ?? 1));
+    httpParams = httpParams.set('per_page', String(params.per_page ?? 10));
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
     const url = `${this.apiBaseUrl}personnel/attendance-log`;
-
-    let params = new HttpParams()
-      .set('page', pageNumber.toString())
-      .set('per_page', perPage.toString())
-      .set('date', date);
-
-    if (filters?.employee) {
-      params = params.set('employee', filters.employee);
-    }
-
-    return this._HttpClient.get(url, { params });
+    return this.http.get<any>(url, { params: httpParams });
   }
 
-  // getAttendanceById(id: number): Observable<AttendanceLog> {
-  //   return this.http.get<any>(`${this.url}/${id}`).pipe(
-  //     map(res => {
-  //       return {
-  //         employee_id: res.emp_id,
-  //         date: res.date,
-  //         start: res.working_details?.actual_check_in,
-  //         end: res.working_details?.actual_check_out,
-  //         id: res.working_details?.record_id
-  //       } as AttendanceLog;
-  //     })
-  //   );
-  // }
+  cancelAttendanceLog(data: { record_id: number; employee_id: number; date: string }) {
+    const formData = new FormData();
+    formData.append('record_id', String(data.record_id));
+    formData.append('employee_id', String(data.employee_id));
+    formData.append('date', data.date);
+
+    return this.http.put(`${this.apiBaseUrl}personnel/attendance-inactive`, formData);
+  }
+
 
 }

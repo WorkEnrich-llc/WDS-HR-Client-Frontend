@@ -39,7 +39,7 @@
                <select name="employee" id="employee" class="form-select" formControlName="employee_id">
                   <option value="" disabled hidden>Select an employee</option>
                   @for (emp of employeeList ; track emp.id) {
-                  <option [value]="emp.id">{{emp.contact_info?.name}} (ID: {{emp.id}})</option>
+                  <option [value]="emp.id">{{emp.contact_info?.name}}</option>
                   }
                </select>
             </div>
@@ -106,8 +106,8 @@
 
 
 <!-- Discard popup  -->
-<app-popup [title]="'Discard Payroll Component'"
-   [paragraph1]="'Are you sure you want to discard creating the new Payroll Component?'"
+<app-popup [title]="'Discard Changes'"
+   [paragraph1]="'Are you sure you want to discard creating the new attendance log?'"
    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
       Discard Changes
