@@ -39,7 +39,7 @@
                <select name="employee" id="employee" class="form-select" formControlName="employee_id">
                   <option value="" disabled hidden>Select an employee</option>
                   @for (emp of employeeList ; track emp.id) {
-                  <option [value]="emp.id">{{emp.contact_info?.name}} (ID: {{emp.id}})</option>
+                  <option [value]="emp.id">{{emp.contact_info?.name}}</option>
                   }
                </select>
             </div>
