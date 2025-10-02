@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-dashboard.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
+import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -18,9 +19,10 @@ export class AdminDashboardComponent {
   constructor(
     private adminDashboardService: AdminDashboardService,
     private _DepartmentsService: DepartmentsService,
-    protected _BranchesService: BranchesService,
+    private _BranchesService: BranchesService,
+    private leaveBalanceService: LeaveBalanceService
   ) { }
-
+  getDataLoad:boolean=true;
 
   months: { value: number, label: string }[] = [];
 
@@ -62,9 +64,10 @@ export class AdminDashboardComponent {
     this.params.turnover_year = currentYear.toString();
     this.params.employees_year = currentYear.toString();
 
-    // get departments and branchs
+    // get departments and branchs and leave balance
     this.getAllDepartment(this.currentPage);
     this.getAllBranchs(this.currentPage);
+    this.getAllLeaveBalance();
 
     // get dashboard data
     this.getDashboardData();
@@ -74,9 +77,11 @@ export class AdminDashboardComponent {
 
 
   params: any = {
+    department: '',
     request_month: '',
     turnover_year: '',
     employees_year: '',
+    leave_balance_leave_id: '',
     active_departments_branch_id: ''
   };
 
@@ -92,7 +97,7 @@ export class AdminDashboardComponent {
     this.adminDashboardService.viewDashboard(this.params).subscribe({
       next: (response) => {
         const dashboardData = response.data.object_info;
-
+        // console.log(dashboardData);
         dashboardData.forEach((item: any) => {
           const valuesArray = Array.isArray(item.value) ? item.value : [];
 
@@ -104,7 +109,8 @@ export class AdminDashboardComponent {
             colors: valuesArray.map((v: any) => v?.color_code ?? '#e5e7eb50')
           };
         });
-        console.log("Charts Data:", this.chartsData);
+        this.getDataLoad=false;
+        // console.log("Charts Data:", this.chartsData);
 
         // -----------------------------
         // Active Employees
@@ -119,17 +125,75 @@ export class AdminDashboardComponent {
             labels: this.activeEmployeeLabels,
             datasets: [
               {
-                data: this.activeEmployeeValues.every(v => v === 0) ? [1] : this.activeEmployeeValues,
+                data: this.activeEmployeeValues.every(v => v === 0)
+                  ? [1]
+                  : this.activeEmployeeValues,
                 backgroundColor: this.activeEmployeeValues.every(v => v === 0)
                   ? ['#e5e7eb50']
                   : this.activeEmployeeColors
               }
             ]
           };
+
           if (this.activeEmployeeValues.every(v => v === 0)) {
             this.activeEmployeeOptions = this.getEmptyChartOptions();
+          } else {
+            this.activeEmployeeOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
           }
         }
+
+        // -----------------------------
+        // Leave Balance
+        // -----------------------------
+        const leaveBalance = this.chartsData['Leave Balance'];
+        if (leaveBalance) {
+          this.leaveBalanceLabels = leaveBalance.labels;
+          this.leaveBalanceValues = leaveBalance.values;
+          this.leaveBalanceColors = leaveBalance.colors;
+
+          this.leaveBalanceData = {
+            labels: this.leaveBalanceLabels,
+            datasets: [
+              {
+                data: this.leaveBalanceValues.every(v => v === 0)
+                  ? [1]
+                  : this.leaveBalanceValues,
+                backgroundColor: this.leaveBalanceValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.leaveBalanceColors
+              }
+            ]
+          };
+
+          if (this.leaveBalanceValues.every(v => v === 0)) {
+            this.leaveBalanceOptions = this.getEmptyChartOptions();
+          } else {
+            this.leaveBalanceOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
+          }
+        }
+
 
         // -----------------------------
         // Requests
@@ -144,17 +208,36 @@ export class AdminDashboardComponent {
             labels: this.requestsLabels,
             datasets: [
               {
-                data: this.requestsValues.every(v => v === 0) ? [1] : this.requestsValues,
+                data: this.requestsValues.every(v => v === 0)
+                  ? [1]
+                  : this.requestsValues,
                 backgroundColor: this.requestsValues.every(v => v === 0)
                   ? ['#e5e7eb50']
                   : this.requestsColors
               }
             ]
           };
+
           if (this.requestsValues.every(v => v === 0)) {
+            // no data
             this.requestsOptions = this.getEmptyChartOptions();
+          } else {
+            // has data
+            this.requestsOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
           }
         }
+
 
         // -----------------------------
         // Goals
@@ -169,17 +252,98 @@ export class AdminDashboardComponent {
             labels: this.goalsLabels,
             datasets: [
               {
-                data: this.goalsValues.every(v => v === 0) ? [1] : this.goalsValues,
+                data: this.goalsValues.every(v => v === 0)
+                  ? [1]
+                  : this.goalsValues,
                 backgroundColor: this.goalsValues.every(v => v === 0)
                   ? ['#e5e7eb50']
                   : this.goalsColors
               }
             ]
           };
+
           if (this.goalsValues.every(v => v === 0)) {
             this.goalsOptions = this.getEmptyChartOptions();
+          } else {
+            this.goalsOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
           }
         }
+
+
+        // -----------------------------
+        // Turnover
+        // -----------------------------
+        const turnover = this.chartsData['Turnover'];
+        if (turnover) {
+          this.turnoverValues = turnover.values;
+          this.turnoverColors = turnover.colors;
+
+          this.turnoverData = {
+            labels: this.turnoverLabels,
+            datasets: [
+              {
+                label: 'Turnover',
+                data: this.turnoverValues,
+                backgroundColor: this.turnoverColors,
+                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: false,
+                barPercentage: 1.1,
+                categoryPercentage: 0.6
+              }
+            ]
+          };
+        }
+
+        // -----------------------------
+        // Employees chart
+        // -----------------------------
+        const employeesItem = dashboardData.find((x: any) => x.title === 'Employees');
+        if (employeesItem && Array.isArray(employeesItem.value)) {
+          const valuesArray = employeesItem.value;
+
+          this.hiredValues = valuesArray.map((v: any) => v.active?.value ?? 0);
+          this.terminatedValues = valuesArray.map((v: any) => v.terminate?.value ?? 0);
+          this.resignedValues = valuesArray.map((v: any) => v.resign?.value ?? 0);
+
+          this.employeeData = {
+            labels: this.employeeLabels,
+            datasets: [
+              {
+                label: 'Hired',
+                data: this.hiredValues,
+                backgroundColor: '#98DFC0',
+                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: false
+              },
+              {
+                label: 'Terminated',
+                data: this.terminatedValues,
+                backgroundColor: '#B83D4A',
+                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: false
+              },
+              {
+                label: 'Resigned',
+                data: this.resignedValues,
+                backgroundColor: '#FF8F8F',
+                borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: false
+              }
+            ]
+          };
+        }
+
         // -----------------------------
         // Department Guidelines
         // -----------------------------
@@ -188,23 +352,39 @@ export class AdminDashboardComponent {
           this.deptGuidelinesLabels = deptGuidelines.labels;
           this.deptGuidelinesValues = deptGuidelines.values;
           this.deptGuidelinesColors = deptGuidelines.colors;
+
           this.deptGuidelinesData = {
             labels: this.deptGuidelinesLabels,
             datasets: [
               {
-                data: this.deptGuidelinesValues.every((v) => v === 0)
+                data: this.deptGuidelinesValues.every(v => v === 0)
                   ? [1]
                   : this.deptGuidelinesValues,
-                backgroundColor: this.deptGuidelinesValues.every((v) => v === 0)
+                backgroundColor: this.deptGuidelinesValues.every(v => v === 0)
                   ? ['#e5e7eb50']
-                  : this.deptGuidelinesColors,
-              },
-            ],
+                  : this.deptGuidelinesColors
+              }
+            ]
           };
+
           if (this.deptGuidelinesValues.every(v => v === 0)) {
             this.deptGuidelinesOptions = this.getEmptyChartOptions();
+          } else {
+            this.deptGuidelinesOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
           }
         }
+
         // ------------------
         // Active Departments
         // -------------------
@@ -229,15 +409,32 @@ export class AdminDashboardComponent {
           };
 
           if (this.activeDepartmentsValues.every(v => v === 0)) {
+
             this.activeDepartmentsOptions = this.getEmptyChartOptions();
+          } else {
+            this.activeDepartmentsOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
           }
         }
+
 
 
 
       },
       error: (error) => {
         console.error('Error fetching dashboard data:', error);
+        this.getDataLoad=false;
+
       }
     });
   }
@@ -267,11 +464,14 @@ export class AdminDashboardComponent {
 
   departments: any[] = [];
   branches: any[] = [];
+  leaveBalance: any[] = [];
   selectAll: boolean = false;
   currentPage: number = 1;
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
+
+  // get departemnt
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
     this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
@@ -284,6 +484,8 @@ export class AdminDashboardComponent {
       }
     });
   }
+
+  // get branches
   getAllBranchs(pageNumber: number, searchTerm: string = '') {
     this._BranchesService.getAllBranches(pageNumber, 10000, {
       search: searchTerm || undefined,
@@ -297,6 +499,24 @@ export class AdminDashboardComponent {
       }
     });
   }
+
+
+  // get leave balance
+  getAllLeaveBalance(): void {
+    this.leaveBalanceService.getAllLeaveBalance({
+      page: 1,
+      per_page: 10000
+    }).subscribe({
+      next: (response) => {
+        this.leaveBalance = response.data.list_items;
+        // console.log(this.leaveBalance);
+      },
+      error: (err) => {
+        console.error(err.error?.details);
+      }
+    });
+  }
+
   // -----------------------------
   // Active Employees Chart
   // -----------------------------
@@ -328,34 +548,11 @@ export class AdminDashboardComponent {
   // -----------------------------
   public leaveBalanceType: 'doughnut' = 'doughnut';
 
-  public leaveBalanceLabels = [
-    'Available',
-    'Used',
-    'Carryover'
-  ];
+  public leaveBalanceLabels: string[] = [];
+  public leaveBalanceValues: number[] = [];
+  public leaveBalanceColors: string[] = [];
 
-  public leaveBalanceValues = [15, 8, 5];
-
-  public leaveBalanceColors = [
-    '#98DFC0', // Available
-    '#FF8F8F', // Used
-    '#F9B47D' // Carryover
-  ];
-
-  public leaveBalanceData = {
-    labels: this.leaveBalanceLabels,
-    datasets: [
-      {
-        data: this.leaveBalanceValues.every(v => v === 0)
-          ? [1]
-          : this.leaveBalanceValues,
-        backgroundColor: this.leaveBalanceValues.every(v => v === 0)
-          ? ['#e5e7eb50']
-          : this.leaveBalanceColors
-      }
-    ]
-  };
-
+  public leaveBalanceData: any;
   public leaveBalanceOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '50%',
@@ -455,29 +652,20 @@ export class AdminDashboardComponent {
       content: 'The probation period for David Lee will end on 2025-10-01. Please review.'
     }
   ];
-
   // -----------------------------
   // Turnover Bar Chart
   // -----------------------------
-  public turnoverLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  public turnoverType: 'bar' = 'bar';
 
-  public turnoverValues = [120, 150, 100, 170, 190, 140, 130, 180, 200, 210, 160, 220];
+  public turnoverLabels: string[] = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
 
-  public turnoverData = {
-    labels: this.turnoverLabels,
-    datasets: [
-      {
-        label: 'Turnover',
-        data: this.turnoverValues,
-        backgroundColor: '#FF8F8F',
-        borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: false,
-        barPercentage: 1.1,
-        categoryPercentage: 0.6
-      }
-    ]
-  };
+  public turnoverValues: number[] = [];
+  public turnoverColors: string[] = [];
 
+  public turnoverData: any;
   public turnoverOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -517,47 +705,16 @@ export class AdminDashboardComponent {
     }
   };
 
-
-
-  public turnoverType: 'bar' = 'bar';
-
   // -----------------------------
   // Employees Chart
   // ----------------------------- 
   public employeeLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  public hiredValues = [20, 15, 25, 30, 22, 18, 24, 28, 30, 26, 23, 27];
-  public terminatedValues = [15, 12, 10, 18, 14, 12, 16, 15, 14, 18, 15, 17];
-  public resignedValues = [10, 8, 9, 12, 11, 9, 10, 12, 11, 10, 9, 13];
+  public hiredValues: number[] = [];
+  public terminatedValues: number[] = [];
+  public resignedValues: number[] = [];
 
-
-  public employeeData = {
-    labels: this.employeeLabels,
-    datasets: [
-      {
-        label: 'Hired',
-        data: this.hiredValues,
-        backgroundColor: '#98DFC0',
-        borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: false
-      },
-      {
-        label: 'Terminated',
-        data: this.terminatedValues,
-        backgroundColor: '#B83D4A',
-        borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: false
-      },
-      {
-        label: 'Resigned',
-        data: this.resignedValues,
-        backgroundColor: '#FF8F8F',
-        borderRadius: { topLeft: 10, topRight: 10, bottomLeft: 0, bottomRight: 0 },
-        borderSkipped: false
-      }
-    ]
-  };
-
+  public employeeData: any;
   public employeeOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -565,7 +722,6 @@ export class AdminDashboardComponent {
       legend: { display: false },
       tooltip: { enabled: false }
     },
-
     scales: {
       x: {
         grid: {
@@ -593,7 +749,6 @@ export class AdminDashboardComponent {
       }
     }
   };
-
 
   public employeeType: 'bar' = 'bar';
 

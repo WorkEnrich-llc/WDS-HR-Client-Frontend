@@ -266,12 +266,12 @@ export const routes: Routes = [
                   {
                     path: 'company-chart',
                     loadComponent: () => import('./components/OD/Organizational-Chart/components/company-test-chart/company-test-chart.component').then(m => m.CompanyTestChartComponent),
-                    title: 'Company Test Chart'
+                    title: 'Company Chart'
                   },
                   {
                     path: 'organizational-chart',
                     loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-test-chart/organization-test-chart.component').then(m => m.OrganizationTestChartComponent),
-                    title: 'organizational Chart'
+                    title: 'Organizational Chart'
                   },
                   // {
                   //   path: 'organizational-chart',
@@ -286,8 +286,8 @@ export const routes: Routes = [
           // Goals routes
           {
             path: 'goals',
-            // canActivate: [SubscriptionGuard],
-            // data: { feature: 'Goals' },
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Goals' },
             children: [
               {
                 path: '',
@@ -324,8 +324,8 @@ export const routes: Routes = [
           // department checklists routes
           {
             path: 'dept-check',
-            // canActivate: [SubscriptionGuard],
-            // data: { feature: 'Department_Checklists' },
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Departments_Checklist' },
             children: [
               {
                 path: '',
@@ -509,6 +509,8 @@ export const routes: Routes = [
           // delegation routes
           {
             path: 'delegation',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Delegation' },
             children: [
               {
                 path: '',

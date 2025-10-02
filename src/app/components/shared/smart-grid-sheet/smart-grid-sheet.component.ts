@@ -14,8 +14,8 @@ export interface TableColumn {
   errorMessage?: string;
   reliability?: string;
   rawData?: any[];
-  required?: boolean;  
-  editable?: boolean; 
+  required?: boolean;
+  editable?: boolean;
 }
 
 @Component({
@@ -64,47 +64,56 @@ export class SmartGridSheetComponent {
   }
 
   addRow(rowData: any = {}): void {
-  const formGroup = this.fb.group({});
-  const rowIndex = this.rows().length;
+    const formGroup = this.fb.group({});
+    const rowIndex = this.rows().length;
 
-  this.rowOptions[rowIndex] = {};
+    this.rowOptions[rowIndex] = {};
 
-  for (const col of this.columns) {
-    const isEditable = this.fileEditable && col.editable !== false;
+    for (const col of this.columns) {
+      const isEditable = this.fileEditable && col.editable !== false;
 
-    formGroup.addControl(
-      col.name,
-      new FormControl(
-        { value: rowData[col.name] || '', disabled: !isEditable },
-        col.validators || []
-      )
-    );
+      formGroup.addControl(
+        col.name,
+        new FormControl(
+          { value: rowData[col.name] || '', disabled: !isEditable },
+          col.validators || []
+        )
+      );
 
-    if (col.type === 'select') {
-      this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
-    }
-  }
-
-  for (const col of this.columns) {
-    if (col.reliability) {
-      const parentControl = formGroup.get(col.reliability);
-
-      if (rowData[col.reliability]) {
-        this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+      if (col.type === 'select') {
+        this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
-
-      parentControl?.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((parentValue) => {
-          this.updateChildOptions(rowIndex, col, parentValue);
-          formGroup.get(col.name)?.setValue('', { emitEvent: false });
-          this.cdr.detectChanges();
-        });
     }
+
+    const hasAnyValue = Object.values(rowData).some(v => v !== null && v !== '');
+    if (hasAnyValue || rowData.__forceTouched) {
+      Object.keys(formGroup.controls).forEach(key => {
+        formGroup.get(key)?.markAsTouched({ onlySelf: true });
+      });
+    }
+
+
+    for (const col of this.columns) {
+      if (col.reliability) {
+        const parentControl = formGroup.get(col.reliability);
+
+        if (rowData[col.reliability]) {
+          this.updateChildOptions(rowIndex, col, rowData[col.reliability]);
+        }
+
+        parentControl?.valueChanges
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((parentValue) => {
+            this.updateChildOptions(rowIndex, col, parentValue);
+            formGroup.get(col.name)?.setValue('', { emitEvent: false });
+            this.cdr.detectChanges();
+          });
+      }
+    }
+
+    this.rows.update(rows => [...rows, formGroup]);
   }
 
-  this.rows.update(rows => [...rows, formGroup]);
-}
 
 
   private updateChildOptions(rowIndex: number, childCol: TableColumn, parentValue: any) {
@@ -119,6 +128,7 @@ export class SmartGridSheetComponent {
       value: opt.id,
       label: opt.name
     }));
+
   }
 
 
@@ -128,6 +138,7 @@ export class SmartGridSheetComponent {
       rowForm.get(columnKey)?.setValue(value);
       this.rowsChange.emit(this.rows().map(form => form.getRawValue()));
     }
+
   }
 
   emitUpdatedRows() {
@@ -148,34 +159,98 @@ export class SmartGridSheetComponent {
   getFormControl(form: FormGroup, col: TableColumn): FormControl {
     return form.get(col.name) as FormControl;
   }
+  @HostListener('document:keydown', ['$event'])
+  handleKeyDownGlobal(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key.toLowerCase() === 'c') {
+      this.onCopy(event);
+    }
+
+    if (event.ctrlKey && event.key.toLowerCase() === 'v') {
+      this.onPaste(event as unknown as ClipboardEvent);
+    }
+  }
 
 
+  onCopy(event: KeyboardEvent) {
+    if (this.selectedCells.length === 0) return;
+
+    event.preventDefault();
+
+    const rowsMap: { [row: number]: { [col: string]: string } } = {};
+    this.selectedCells.forEach(cell => {
+      if (!rowsMap[cell.row]) rowsMap[cell.row] = {};
+      const value = this.rows()[cell.row].get(cell.col)?.value ?? '';
+      rowsMap[cell.row][cell.col] = value;
+    });
+
+    const rowIndices = [...new Set(this.selectedCells.map(c => c.row))].sort((a, b) => a - b);
+    const colIndices = [...new Set(this.selectedCells.map(c => this.columns.findIndex(cc => cc.name === c.col)!))].sort((a, b) => a - b);
+
+    const copiedText = rowIndices
+      .map(r =>
+        colIndices.map(cIndex => {
+          const colName = this.columns[cIndex].name;
+          return rowsMap[r][colName] ?? '';
+        }).join('\t')
+      )
+      .join('\n');
+
+    navigator.clipboard.writeText(copiedText);
+  }
+
+  onPaste(event: ClipboardEvent) {
+    if (this.selectedCells.length === 0) return;
+
+    const startCell = this.selectedCells[0];
+    this.paste(event, startCell.row, startCell.col);
+  }
   paste(event: ClipboardEvent, startRow: number, startColName: string) {
     event.preventDefault();
-    const startColIndex = this.columns.findIndex(c => c.name === startColName);
     const clipboardData = event.clipboardData?.getData('text/plain');
     if (!clipboardData) return;
 
-    const parsedRows = clipboardData.trim().split(/\r?\n/).map(row => row.split('\t'));
+    const parsedRows = clipboardData.trim().split(/\r?\n/);
 
-    parsedRows.forEach((cells, rIndex) => {
+    const selectedCols = [...new Set(this.selectedCells.map(c => c.col))];
+    if (selectedCols.length === 1) {
+      const colName = selectedCols[0];
+      const startIndex = Math.min(...this.selectedCells.map(c => c.row));
+
+      parsedRows.forEach((value, i) => {
+        const targetRowIndex = startIndex + i;
+        while (targetRowIndex >= this.rows().length) {
+          this.addRow();
+        }
+        this.rows()[targetRowIndex].get(colName)?.setValue(value.trim());
+      });
+
+      this.emitUpdatedRows();
+      return;
+    }
+
+    const parsedCells = parsedRows.map(row => row.split('\t'));
+    const startColIndex = this.columns.findIndex(c => c.name === startColName);
+
+    parsedCells.forEach((cells, rIndex) => {
       const targetRowIndex = startRow + rIndex;
       while (targetRowIndex >= this.rows().length) {
         this.addRow();
       }
 
       const targetRow = this.rows()[targetRowIndex];
-
       cells.forEach((cellValue, cIndex) => {
         const targetColIndex = startColIndex + cIndex;
         const targetCol = this.columns[targetColIndex];
-
         if (targetCol) {
           targetRow.get(targetCol.name)?.setValue(cellValue.trim());
         }
       });
     });
+
+    this.emitUpdatedRows();
   }
+
+
 
   // =============== select and delete ctrl + z and select one cell with double click ===============
 
@@ -194,12 +269,9 @@ export class SmartGridSheetComponent {
       this.startRow = rowIndex;
       this.startCol = this.columns.findIndex(c => c.name === colName);
 
-      // قم بتركيز العنصر فقط عند single click (ليس double click)
       if (!this.isDoubleClick) {
-        // تأكد من أن العنصر موجود ونداء الـ focus عليه
         (target as HTMLInputElement | HTMLSelectElement).focus();
 
-        // إزالة التحديد السابق عند التركيز single click
         this.selectedCells = [];
       }
       return;
@@ -281,19 +353,56 @@ export class SmartGridSheetComponent {
   }
 
   @HostListener('document:keydown.delete', ['$event'])
+  @HostListener('document:keydown.backspace', ['$event'])
   clearSelectedCells(event: KeyboardEvent) {
     event.preventDefault();
+
     this.selectedCells.forEach(cell => {
       const control = this.rows()[cell.row].get(cell.col);
       if (control) {
         control.setValue('');
+        control.markAsUntouched();
+        control.markAsPristine();
       }
     });
+
     this.selectedCells = [];
+    this.emitUpdatedRows();
   }
-  // =================== move with attows ===================
+
+  // =================== move with arrows ===================
   handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+    switch (event.key) {
+      case 'ArrowUp':
+        if (rowIndex > 0) {
+          this.focusCell(rowIndex - 1, colIndex);
+          event.preventDefault();
+        }
+        break;
+
+      case 'ArrowDown':
+        if (rowIndex < this.rows().length - 1) {
+          this.focusCell(rowIndex + 1, colIndex);
+          event.preventDefault();
+        }
+        break;
+
+      case 'ArrowLeft':
+        if (colIndex > 0) {
+          this.focusCell(rowIndex, colIndex - 1);
+          event.preventDefault();
+        }
+        break;
+
+      case 'ArrowRight':
+        if (colIndex < this.columns.length - 1) {
+          this.focusCell(rowIndex, colIndex + 1);
+          event.preventDefault();
+        }
+        break;
+    }
   }
+
 
   focusCell(row: number, col: number) {
     const selector = `td[data-row="${row}"][data-col="${col}"]`;
@@ -319,7 +428,7 @@ export class SmartGridSheetComponent {
       } else if (control.errors['email']) {
         this.errorPopupMessage = 'Please enter a valid email address';
       } else if (control.errors['pattern']) {
-        this.errorPopupMessage = 'Invalid format numbers only';
+        this.errorPopupMessage = col.errorMessage || 'Invalid format numbers only';
       } else {
         this.errorPopupMessage = 'Invalid input';
       }

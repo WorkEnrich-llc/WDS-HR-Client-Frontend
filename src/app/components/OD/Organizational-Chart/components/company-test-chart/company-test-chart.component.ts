@@ -76,37 +76,50 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   }
 
 
-  private transformToChartFormat(item: any): any {
+private transformToChartFormat(item: any): any {
+  const paddedId = item.id.toString().padStart(4, '0');
+  const typeLabel = item.type
+    ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
+    : '';
 
-    const paddedId = item.id.toString().padStart(4, '0');
+  const typeColors: Record<string, string> = {
+    company: '#377afd',
+    branch: '#4ca883',
+    department: '#f28c38',
+    section: '#b83d4a',
+    job_title: '#4a4a4a'
+  };
+  const nodeColor = typeColors[item.type] || '#3b587a';
 
-    const typeLabel = item.type
-      ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
-      : '';
-
-    const typeColors: Record<string, string> = {
-      company: '#2E86C1',
-      branch: '#28B463',
-      department: '#AF7AC5',
-      section: '#F39C12',
-      job_title: '#E74C3C'
-    };
-
-    const nodeColor = typeColors[item.type] || '#7F8C8D';
-
+  if (item.type === 'company') {
     return {
       name: item.name,
-      details: [
-        `ID: ${paddedId}`,
-        `Type: ${typeLabel}`
-      ],
       color: nodeColor,
-
+      backgroundColor: nodeColor,
       expanded: item.expanded ?? false,
       firstNode: item.firstNode ?? false,
-      children: item.children?.map((child: any) => this.transformToChartFormat(child)) || []
+      children: item.children?.map((child: any) =>
+        this.transformToChartFormat(child)
+      ) || []
     };
   }
+
+  return {
+    name: item.name,
+
+    code: `${paddedId}`,
+    position: typeLabel,
+
+    color: nodeColor,
+    backgroundColor: nodeColor,
+
+    expanded: item.expanded ?? false,
+    firstNode: item.firstNode ?? false,
+    children: item.children?.map((child: any) =>
+      this.transformToChartFormat(child)
+    ) || []
+  };
+}
 
 
   toggleFullScreen() {

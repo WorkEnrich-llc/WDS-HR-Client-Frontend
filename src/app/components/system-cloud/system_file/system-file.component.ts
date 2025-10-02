@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
@@ -33,7 +33,8 @@ export class SystemFileComponent implements OnInit {
     private _systemCloudService: SystemCloudService,
     private route: ActivatedRoute,
     private breadcrumbService: BreadcrumbService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   errMsg: string = '';
@@ -49,6 +50,7 @@ export class SystemFileComponent implements OnInit {
   customColumns: TableColumn[] = [];
   rowsData: any[] = [];
   bodyRows: any[] = [];
+  upLoading: boolean = false;
 
   isImported: boolean = false;
   private collectTimer: any = null;
@@ -156,18 +158,22 @@ export class SystemFileComponent implements OnInit {
 
 
   fileEditable: boolean = false;
-
   getSystemFileData(fileId: string) {
     this.loadData = true;
 
     this._systemCloudService.getSystemFileData(fileId).subscribe({
       next: (response) => {
         this.systemFileData = response.data.object_info;
-        console.log(this.systemFileData);
         this.fileEditable = this.systemFileData.file.editable;
-        // console.log('File editable:', this.fileEditable);
+        // console.log(this.systemFileData)
+        if (!this.fileEditable) {
+          this.isImported = true;
+          this.startUploadTracking(this.systemFileData.file.id);
+          return;
+        }
+
         if (this.systemFileData.header) {
-          this.customColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.header);
+          this.customColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.header, false);
         }
 
         this.bodyRows = this.systemFileData.body;
@@ -184,7 +190,8 @@ export class SystemFileComponent implements OnInit {
   }
 
 
-  generateCustomColumnsFromHeaders(headers: HeaderItem[]): TableColumn[] {
+
+  generateCustomColumnsFromHeaders(headers: HeaderItem[], isFailedTable: boolean = false): TableColumn[] {
     return headers.map(header => {
       let type: 'input' | 'select' | 'date' | 'time' = 'input';
 
@@ -230,7 +237,7 @@ export class SystemFileComponent implements OnInit {
 
         case 'double':
           validators.push(Validators.pattern(/^(0|[1-9][0-9]*)\.[0-9]+$/));
-          errorMessage = 'Please enter a valid decimal number (e.g. 12.34, not starting with zero)';
+          errorMessage = 'Please enter a valid decimal number (e.g. 100.00, not starting with zero)';
           break;
 
         case 'BigInt':
@@ -255,10 +262,11 @@ export class SystemFileComponent implements OnInit {
         type,
         validators,
         errorMessage,
-        editable: this.fileEditable ? header.editable : false,
+        editable: isFailedTable ? true : (this.fileEditable ? header.editable : false),
         ...(options ? { options } : {}),
         reliability: header.reliability ?? undefined,
-        rawData: header.data
+        rawData: header.data,
+        // forceTouched: isFailedTable
       };
     });
   }
@@ -298,7 +306,7 @@ export class SystemFileComponent implements OnInit {
 
   addingTosystem(): void {
     this.errMsg = '';
-
+    this.upLoading = true;
     const formData = new FormData();
     formData.append('id', this.SystemFileId ?? '');
     formData.append('file_type', '1');
@@ -307,9 +315,10 @@ export class SystemFileComponent implements OnInit {
       next: (response) => {
         // console.log('Added successfully:', response);
         this.addTosystemPOP = false;
-        this.showUploadPopup = true;
+        // this.showUploadPopup = true;
         if (this.SystemFileId) {
           this.startUploadTracking(this.SystemFileId);
+
         }
       },
       error: (err) => {
@@ -319,63 +328,213 @@ export class SystemFileComponent implements OnInit {
     });
   }
 
-  startUploadTracking(id: string): void {
-    this.uploadSub = timer(0, 3000)
-      .pipe(
-        switchMap(() => this._systemCloudService.uploadStatus(id)),
-        takeWhile((res: any) => res?.data?.object_info?.upload_type !== 'Completed', true)
-      )
+
+
+  startUploadTracking(id: string, isUpdateMissing: boolean = false): void {
+    if (isUpdateMissing) {
+      this.percentage = 0;
+      this.uploadType = 'Pending';
+      this.upLoading = true;
+    }
+
+    let firstValidResponseSeen = false;
+
+    this.uploadSub = timer(0, 2000).pipe(
+      switchMap(() => this._systemCloudService.uploadStatus(id)),
+      takeWhile((res: any) => {
+        const type = res?.data?.object_info?.upload_type;
+        return type !== 'Completed' && type !== 'Cancelled';
+      }, true)
+    )
       .subscribe({
         next: (res: any) => {
-          console.log(res?.data?.object_info);
-          const percentage = res?.data?.object_info?.percentage ?? 0;
-          const uploadType = res?.data?.object_info?.upload_type ?? 'Pending';
+          const objectInfo = res?.data?.object_info;
+          // console.log('object_info:', objectInfo);
 
-          // console.log('🔎 Extracted values ->', percentage, uploadType);
+          if (isUpdateMissing && !firstValidResponseSeen) {
+            if (objectInfo?.upload_type === 'Completed' && objectInfo?.percentage === 100) {
+              console.log('Ignored old completed response');
+              return;
+            }
+            firstValidResponseSeen = true;
+          }
 
-          this.percentage = percentage;
-          this.uploadType = uploadType;
+          this.percentage = objectInfo?.percentage ?? 0;
+          this.uploadType = objectInfo?.upload_type ?? 'Pending';
 
+          this.cdr.detectChanges();
 
           if (this.percentage >= 100 && this.uploadType === 'Completed') {
+            this.loadData = false;
             this.isCompleted = true;
             this.isImported = true;
+
             setTimeout(() => {
-              this.showUploadPopup = false;
-            }, 1500);
+              this.upLoading = false;
+              this.uploadType = 'Pending';
+              this.percentage = 0;
+
+              this.cdr.detectChanges();
+            }, 4000);
 
             this.stopUploadTracking();
-            // if (this.systemFileData.Imported?.header) {
-            //   this.importedColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.Imported.header);
-            // }
-            // if (this.systemFileData.Imported?.body) {
-            //   this.importedRows = this.systemFileData.Imported.body;
-            // }
 
-            // if (this.systemFileData.Failed?.header) {
-            //   this.failedColumns = this.generateCustomColumnsFromHeaders(this.systemFileData.Failed.header);
-            // }
-            // if (this.systemFileData.Failed?.body) {
-            //   this.failedRows = this.systemFileData.Failed.body;
-            // }
+            if (objectInfo?.main_data?.header) {
+              this.importedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, false);
+              this.failedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, true);
+            }
+
+            this.importedRows = objectInfo?.finished?.body ?? [];
+            this.failedRows = this.markFailedRowsAsTouched(objectInfo?.missing?.body ?? []);
+            this.missingRowsData = [...this.failedRows];
+            this.isAllLoaded = true;
+            this.cdr.detectChanges();
+          }
+
+          if (this.uploadType === 'Cancelled') {
+            this.upLoading = false;
+            this.stopUploadTracking();
+
+            if (objectInfo?.main_data?.header) {
+              this.importedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, false);
+              this.failedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, true);
+            }
+
+            this.importedRows = objectInfo?.finished?.body ?? [];
+            this.failedRows = this.markFailedRowsAsTouched(objectInfo?.missing?.body ?? []);
+            this.missingRowsData = [...this.failedRows];
+
+            this.loadData = false;
+            this.isAllLoaded = true;
           }
         },
         error: (err) => {
           console.error('Error:', err.error?.details);
+          this.upLoading = false;
           this.stopUploadTracking();
+          this.loadData = false;
+          this.isAllLoaded = true;
         }
       });
   }
+
+
+
+
+  private markFailedRowsAsTouched(rows: any[]): any[] {
+    return rows.map(row => {
+      const entries = Object.entries(row).filter(([key]) => key !== 'errors');
+
+      const hasAnyValue = entries.some(([_, v]) => {
+        if (v === null || v === undefined) return false;
+        if (typeof v === 'string' && v.trim() === '') return false;
+        return true;
+      });
+
+      if (!hasAnyValue) {
+        const { errors, ...cleanRow } = row;
+        return cleanRow;
+      }
+
+      return { ...row, __forceTouched: true };
+    });
+  }
+
+
+
+
 
   stopUploadTracking(): void {
     if (this.uploadSub) {
       this.uploadSub.unsubscribe();
     }
   }
-  updateMissing(): void {
 
+  missingRowsData: any[] = [];
+  updateMissing(): void {
+    this.upLoading = true;
+    this.addMissingPopup = false;
+
+    if (!this.missingRowsData || this.missingRowsData.length === 0) return;
+
+    let firstIndex = -1;
+    let lastIndex = -1;
+
+    this.missingRowsData.forEach((row, index) => {
+      const hasValue = Object.values(row).some(value => value !== null && value !== '');
+      if (hasValue) {
+        if (firstIndex === -1) firstIndex = index;
+        lastIndex = index;
+      }
+    });
+
+    if (firstIndex === -1 || lastIndex === -1) return;
+
+    const body = this.missingRowsData
+      .slice(firstIndex, lastIndex + 1)
+      .filter(row => Object.values(row).some(value => value !== null && value !== ''))
+      .map(row => {
+        const normalizedRow: any = {};
+        this.failedColumns.forEach(col => {
+          normalizedRow[col.key] = row[col.key] ?? null;
+        });
+        return normalizedRow;
+      });
+
+    if (body.length === 0) return;
+
+    const finalData = {
+      request_data: {
+        id: this.SystemFileId,
+        body
+      }
+    };
+
+    // console.log('Missing Updated Data:', finalData);
+
+    this._systemCloudService.updateMissing(finalData).subscribe({
+      next: (response) => {
+        this.addTosystemPOP = false;
+        this.percentage = 0;
+        this.uploadType = 'Pending';
+        this.upLoading = true;
+        if (this.SystemFileId) {
+
+          this.startUploadTracking(this.SystemFileId, true);
+
+        }
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+      }
+    });
   }
+
+  getUploadBadge(uploadType: string): { class: string, label: string } {
+    switch (uploadType) {
+      case 'Checking':
+        return { class: 'badge-warning', label: 'Checking' };
+      case 'Creating':
+        return { class: 'badge-gray', label: 'Creating' };
+      case 'Sending emails':
+        return { class: 'badge-warning', label: 'Sending emails' };
+      case 'Completed':
+        return { class: 'badge-success', label: 'Completed' };
+      case 'Stopped':
+        return { class: 'badge-gray', label: 'Stopped' };
+      case 'Cancelled':
+        return { class: 'badge-danger', label: 'Cancelled' };
+      case 'Failure':
+        return { class: 'badge-danger', label: 'Failure' };
+      case 'Pending':
+      default:
+        return { class: 'badge-newjoiner', label: 'Pending' };
+    }
+  }
+
   cancelUpload(): void {
+    this.upLoading = false;
     if (!this.SystemFileId) return;
 
     const formData = new FormData();
