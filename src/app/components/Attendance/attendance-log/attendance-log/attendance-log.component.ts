@@ -13,11 +13,12 @@ import { WorkSchaualeService } from '../../../../core/services/attendance/work-s
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-attendance-log',
   imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent,
-    CommonModule, ReactiveFormsModule, FormsModule, RouterLink, NgxDaterangepickerMd],
+    CommonModule, ReactiveFormsModule, FormsModule, RouterLink, NgxDaterangepickerMd, PopupComponent],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
   styleUrl: './attendance-log.component.css'
@@ -414,5 +415,26 @@ export class AttendanceLogComponent {
     this.getAllAttendanceLog(filters);
   }
 
+
+  isModalOpen = false;
+  attendanceToCancel: any = null;
+
+  openModal(attendance: any) {
+    this.attendanceToCancel = attendance;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
+  }
+
+  confirmAction() {
+    if (this.attendanceToCancel) {
+      this.cancelLog(this.attendanceToCancel);
+    }
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
+  }
 
 }
