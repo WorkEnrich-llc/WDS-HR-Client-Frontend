@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -14,7 +14,7 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
   templateUrl: './update-leave-types.component.html',
   styleUrl: './update-leave-types.component.css'
 })
-export class UpdateLeaveTypesComponent {
+export class UpdateLeaveTypesComponent implements OnInit {
   private fb = inject(FormBuilder);
   isFormChanged = false;
   carryoverAllowed: boolean = false;
@@ -37,8 +37,24 @@ export class UpdateLeaveTypesComponent {
     if (this.leaveId) {
       this.getLeaveJob(Number(this.leaveId));
     }
-  }
 
+    this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
+    this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
+    this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+
+  }
+  private setupCheckboxControl(checkbox: string, dependentControls: string[]) {
+    this.leaveType3.get(checkbox)?.valueChanges.subscribe(checked => {
+      dependentControls.forEach(ctrl => {
+        if (checked) {
+          this.leaveType3.get(ctrl)?.enable();
+        } else {
+          this.leaveType3.get(ctrl)?.disable();
+          this.leaveType3.get(ctrl)?.reset();
+        }
+      });
+    });
+  }
 
   getLeaveJob(leaveId: number) {
 

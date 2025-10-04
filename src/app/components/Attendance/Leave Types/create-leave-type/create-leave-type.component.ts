@@ -34,16 +34,6 @@ export class CreateLeaveTypeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
-    //   if (checked) {
-    //     this.leaveType3.get('age')?.enable();
-    //     this.leaveType3.get('extraDays')?.enable();
-    //   } else {
-    //     this.leaveType3.get('age')?.disable();
-    //     this.leaveType3.get('extraDays')?.disable();
-    //   }
-    // });
-
     this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
     this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
