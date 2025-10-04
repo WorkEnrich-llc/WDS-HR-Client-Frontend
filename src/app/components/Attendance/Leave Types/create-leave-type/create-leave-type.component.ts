@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
@@ -14,7 +14,10 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
   templateUrl: './create-leave-type.component.html',
   styleUrl: './create-leave-type.component.css'
 })
-export class CreateLeaveTypeComponent {
+export class CreateLeaveTypeComponent implements OnInit {
+
+  private fb = inject(FormBuilder);
+
   carryoverAllowed: boolean = false;
   todayFormatted: string = '';
   errMsg: string = '';
@@ -30,9 +33,28 @@ export class CreateLeaveTypeComponent {
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
   }
 
+  ngOnInit(): void {
+    this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
+    this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
+    this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+  }
+
+  private setupCheckboxControl(checkbox: string, dependentControls: string[]) {
+    this.leaveType3.get(checkbox)?.valueChanges.subscribe(checked => {
+      dependentControls.forEach(ctrl => {
+        if (checked) {
+          this.leaveType3.get(ctrl)?.enable();
+        } else {
+          this.leaveType3.get(ctrl)?.disable();
+          this.leaveType3.get(ctrl)?.reset();
+        }
+      });
+    });
+  }
+
   leaveType1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required,Validators.minLength(3),Validators.maxLength(100)]),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     description: new FormControl(''),
     employmentType: new FormControl('', [Validators.required]),
   });
@@ -40,16 +62,39 @@ export class CreateLeaveTypeComponent {
 
 
   leaveType2: FormGroup = new FormGroup({
-    accrual_rate: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    leave_limits: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    max_review_days: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    maximum_carryover_days: new FormControl({ value: '', disabled: true }, [ Validators.pattern('^\\d+(\\.\\d+)?$')])
+    accrual_rate: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    leave_limits: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    maximum_carryover_days: new FormControl({ value: '', disabled: true }, [Validators.pattern('^\\d+(\\.\\d+)?$')])
   });
+
+
+  leaveType3 = this.fb.group({
+    // checkboxes
+    extra_with_age: [false],
+    extra_with_service: [false],
+    extra_with_experience: [false],
+
+    // inputs 
+    age: [{ value: '', disabled: true }],
+    extraDays: [{ value: '', disabled: true }],
+
+    yearsOfService: [{ value: '', disabled: true }],
+    extraDaysService: [{ value: '', disabled: true }],
+
+    yearsOfExperience: [{ value: '', disabled: true }],
+    extraDaysExperience: [{ value: '', disabled: true }],
+  });
+
+
+
+
+
   toggleCarryoverValidators() {
     const control = this.leaveType2.get('maximum_carryover_days');
     if (this.carryoverAllowed) {
       control?.enable();
-      control?.setValidators([Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]);
+      control?.setValidators([Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]);
     } else {
       control?.disable();
       control?.clearValidators();
@@ -58,7 +103,7 @@ export class CreateLeaveTypeComponent {
     control?.updateValueAndValidity();
   }
 
- createleaveType() {
+  createleaveType() {
     this.isLoading = true;
     const request_data = {
       code: this.leaveType1.get('code')?.value,
@@ -72,7 +117,27 @@ export class CreateLeaveTypeComponent {
         allow_carryover: this.carryoverAllowed,
         maximum_carryover_days: this.carryoverAllowed
           ? Number(this.leaveType2.get('maximum_carryover_days')?.value)
-          : 0
+          : 0,
+
+        extra_conditions: {
+          age: {
+            status: this.leaveType3.get('extra_with_age')?.value || false,
+            from: Number(this.leaveType3.get('age')?.value) || 0,
+            to: Number(this.leaveType3.get('extraDays')?.value) || 0
+          },
+          service: {
+            status: this.leaveType3.get('extra_with_service')?.value || false,
+            from: Number(this.leaveType3.get('yearsOfService')?.value) || 0,
+            to: Number(this.leaveType3.get('extraDaysService')?.value) || 0
+          },
+          experience: {
+            status: this.leaveType3.get('extra_with_experience')?.value || false,
+            from: Number(this.leaveType3.get('yearsOfExperience')?.value) || 0,
+            to: Number(this.leaveType3.get('extraDaysExperience')?.value) || 0
+          }
+
+
+        }
       }
     };
     const finalData = { request_data };
@@ -81,10 +146,10 @@ export class CreateLeaveTypeComponent {
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
-        
+
         // Show success toast
         this.toasterMessageService.showSuccess("Leave Type created successfully", "Success");
-        
+
         // Navigate to list page
         this.router.navigate(['/leave-types/all-leave-types']);
       },
@@ -92,7 +157,7 @@ export class CreateLeaveTypeComponent {
         this.isLoading = false;
         const statusCode = err?.status;
         const errorHandling = err?.error?.data?.error_handling;
-        
+
         if (statusCode === 400) {
           if (Array.isArray(errorHandling) && errorHandling.length > 0) {
             this.currentStep = errorHandling[0].tap;
