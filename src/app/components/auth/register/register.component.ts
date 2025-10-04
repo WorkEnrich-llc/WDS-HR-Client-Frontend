@@ -342,51 +342,51 @@ export class RegisterComponent implements OnDestroy, OnInit {
     // for (let pair of formData.entries()) {
     //   console.log(`${pair[0]}:`, pair[1]);
     // }
-    this._AuthenticationService.createAcount(formData).subscribe({
-      next: (response) => {
-        this.isLoading = false;
+      this._AuthenticationService.createAcount(formData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
 
-        const authToken = response.data?.session?.auth_token;
-        const session_token = response.data?.session?.session_token;
-        localStorage.setItem('session_token', JSON.stringify(session_token));
-        if (authToken) {
-          this.cookieService.set('token', authToken);
+          const authToken = response.data?.session?.auth_token;
+          const session_token = response.data?.session?.session_token;
+          localStorage.setItem('session_token', JSON.stringify(session_token));
+          if (authToken) {
+            this.cookieService.set('token', authToken);
+          }
+
+          const userInfo = response.data?.user_info;
+          const companyInfo = response.data?.company_info;
+          const subscription = response.data?.subscription;
+
+          if (userInfo) {
+            localStorage.setItem('user_info', JSON.stringify(userInfo));
+            // console.log('user_info:', userInfo);
+          }
+
+          if (companyInfo) {
+            localStorage.setItem('company_info', JSON.stringify(companyInfo));
+            // console.log('company_info:', companyInfo);
+          }
+
+          // if (subscription) {
+          //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
+          //   // console.log('subscription_info:', subscription);
+          // }
+          const domain = response.data?.company_info?.domain;
+          if (domain) {
+            // window.location.href = `https://${domain}/departments`;
+            this._Router.navigate(['/admin-dash']);
+          } else {
+            this.errMsg = 'Invalid company domain';
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isLoading = false;
+          console.error("Account creation error:", err);
+          this.errMsg = err.error?.details || 'An error occurred';
         }
+      });
 
-        const userInfo = response.data?.user_info;
-        const companyInfo = response.data?.company_info;
-        const subscription = response.data?.subscription;
-
-        if (userInfo) {
-          localStorage.setItem('user_info', JSON.stringify(userInfo));
-          // console.log('user_info:', userInfo);
-        }
-
-        if (companyInfo) {
-          localStorage.setItem('company_info', JSON.stringify(companyInfo));
-          // console.log('company_info:', companyInfo);
-        }
-
-        // if (subscription) {
-        //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
-        //   // console.log('subscription_info:', subscription);
-        // }
-        const domain = response.data?.company_info?.domain;
-        if (domain) {
-          // window.location.href = `https://${domain}/departments`;
-          this._Router.navigate(['/admin-dash']);
-        } else {
-          this.errMsg = 'Invalid company domain';
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isLoading = false;
-        console.error("Account creation error:", err);
-        this.errMsg = err.error?.details || 'An error occurred';
-      }
-    });
-
-  }
+    }
 
 
   otpCode: string = '';

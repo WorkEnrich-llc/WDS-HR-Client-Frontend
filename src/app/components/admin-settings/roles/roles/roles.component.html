@@ -97,7 +97,7 @@
           <span>{{ getPermissionsCount(role) }}</span> Permissions
         </span>
       </td>
-      <td class="cursor-pointer"><span>15</span> Users</td>
+      <td class="cursor-pointer"><span>{{ role.total_users }}</span> Users</td>
 
       <td class="cursor-pointer">
         @if(role.status){

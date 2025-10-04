@@ -2,8 +2,8 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Admin Settings', link: '/cloud' },
     { label: 'Roles', link: '/roles' },
-     { label: isEditMode ? 'Edit Role ' + id : 'Create New Role' }
-  ]" [title]="isEditMode ? 'Edit Role ' + id : 'Create New Role'" [create]="createDate" [update]="updatedDate">
+     { label: isEditMode ? 'Edit Role ' + roleName  : 'Create New Role' }
+  ]" [title]="isEditMode ? 'Edit Role ' + roleName  : 'Create New Role'" [create]="createDate" [update]="updatedDate">
 
     <button class="btn btn-lg btn-success" (click)="createRole()"
         [disabled]="createRoleForm.invalid || !hasAnySelectedPermission()">
@@ -151,9 +151,9 @@
               }
               } -->
             </div>
-            <div class="input">
+            <div class="input w-lg-50 d-flex flex-column gap-2">
                 <label for="roleName">Role Name<span>*</span></label>
-                <div class="form-outline w-50 position-relative custom-date-wrapper">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="name" type="text" id="roleName" class="form-control custom-date-input"
                         placeholder="Enter Role Name" />
                 </div>
@@ -553,8 +553,7 @@
 
                                     <!-- Documents -->
                                     @case (1105) {
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                         <path fill="currentColor" fill-rule="evenodd"
                                             d="M10.944 1.25h2.112c1.838 0 3.294 0 4.433.153c1.172.158 2.121.49 2.87 1.238c.748.749 1.08 1.698 1.238 2.87c.153 1.14.153 2.595.153 4.433v4.112c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153h-2.112c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433V9.944c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238c1.14-.153 2.595-.153 4.433-.153M6.71 2.89c-1.006.135-1.586.389-2.01.812c-.422.423-.676 1.003-.811 2.009c-.138 1.028-.14 2.382-.14 4.289v4c0 1.907.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h2c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-4c0-1.907-.002-3.261-.14-4.29c-.135-1.005-.389-1.585-.812-2.008s-1.003-.677-2.009-.812c-1.027-.138-2.382-.14-4.289-.14h-2c-1.907 0-3.261.002-4.29.14M7.25 8A.75.75 0 0 1 8 7.25h8a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 8m0 4a.75.75 0 0 1 .75-.75h8a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
                                             clip-rule="evenodd" />
@@ -802,7 +801,70 @@
         <div class="content-box d-flex flex-column gap-3">
             <h2>Users</h2>
             <!-- <form> -->
+            <!-- start table -->
+            <div>
+                <app-table [data]="addedUsers" [currentPage]="1" [itemsPerPage]="10000" [disablePagination]="true"
+                    (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+                    [headerTemplate]="addedUsersTableHeader" [rowTemplate]="addedUserTableRow"
+                    [emptyTemplate]="addeduserTableEmptyRow">
+                </app-table>
 
+
+                <ng-template #addedUsersTableHeader>
+                    <th (click)="sortBy()" style="cursor: pointer;" class="w-70">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span>Users</span>
+                            <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" width="24"
+                                height="24" viewBox="0 0 24 24">
+                                <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                                    <path d="M4 8h9m-7 5h7m-5 5h5" />
+                                    <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                                </g>
+                            </svg>
+                            <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" width="24"
+                                height="24" viewBox="0 0 24 24">
+                                <path fill="#DDE3EB" fill-rule="evenodd"
+                                    d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </th>
+                    <th>Action</th>
+                </ng-template>
+
+                <ng-template #addedUserTableRow let-user let-i="index">
+                    <td class="width-fix">
+                        <span class="d-block text-gray-sm">{{ user.id.toString().padStart(4, '0') }}</span>
+                        <span class="d-block text-truncate" style="max-width: 300px;">
+                            {{ user.name }}
+                        </span>
+                    </td>
+                    <td class="flex-grow-1 ps-3" style="white-space: nowrap;">
+                        <div class="d-flex align-items-center justify-content-start w-100 gap-3">
+                            <a type="button" class="remove-btn d-flex align-items-center gap-1"
+                                (click)="removeUser(user)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                                    <path fill="currentColor" fill-rule="evenodd"
+                                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Remove user</span>
+                            </a>
+                        </div>
+
+                    </td>
+                </ng-template>
+
+                <ng-template #addeduserTableEmptyRow>
+                    <tr>
+                        <td colspan="3" class="no-data py-4">
+                            No Users Added Yet.
+                        </td>
+                    </tr>
+                </ng-template>
+            </div>
             @if (errMsg) {
             <div class="alert alert-danger mb-0 mt-3" role="alert">
                 {{errMsg}}
@@ -812,7 +874,7 @@
 
             <!-- Add User Button -->
             <div class="mt-3">
-                <a type="button" class="view-btn add-sec d-flex align-items-center gap-1">
+                <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="openUsersOverlay()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -863,3 +925,78 @@
         Cancel
     </button>
 </app-popup>
+
+
+
+<!-- add users slider -->
+<app-overlay-filter-box #usersOverlay [title]="'Select Users'">
+    <!-- Search input -->
+    <div data-mdb-input-init class="form-outline w-75 w-md-100 mb-3">
+        <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+            placeholder="Search" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+        </svg>
+    </div>
+    <!-- start table -->
+    <div class="slide-table">
+        <app-table [data]="allUsers" [itemsPerPage]="10000" [disablePagination]="true" [currentPage]="1"
+            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+            [headerTemplate]="AllUsersTableHeader" [rowTemplate]="AllUsersTableRow" [emptyTemplate]="noUsers">
+        </app-table>
+
+        <ng-template #AllUsersTableHeader>
+            <th class="width-handle">
+                <input type="checkbox" class="checkbox" [(ngModel)]="selectAllUsers" (change)="toggleSelectAll()">
+            </th>
+            <th>User</th>
+        </ng-template>
+
+        <ng-template #AllUsersTableRow let-user let-i="index">
+            <td>
+                <input type="checkbox" class="checkbox checkbox-light" [(ngModel)]="user.isSelected"
+                    (change)="toggleUsers(user)" id="checkbox-{{ user.id }}">
+            </td>
+            <td>
+                <label for="checkbox-{{ user.id }}" class="d-block text-gray-sm" style="cursor: pointer;">
+                    <span class="d-block text-gray-sm">{{ user.id.toString().padStart(4, '0') }}</span>
+                    <span class="depart-name d-block text-truncate w-100">
+                        {{ user.name }}
+                    </span>
+                </label>
+            </td>
+        </ng-template>
+       <ng-template #noUsers>
+  <tr>
+    <td colspan="3" class="no-data py-4">
+      <ng-container *ngIf="searchTerm?.trim(); else noData">
+        No Users match your search.
+      </ng-container>
+      <ng-template #noData>
+        No Users Added Yet.
+      </ng-template>
+    </td>
+  </tr>
+</ng-template>
+
+    </div>
+
+    <div class="d-flex align-items-center pt-4 gap-3">
+        <button class="btn btn-lg btn-primary w-100" (click)="addSelectedUsers()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <g fill="none" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+            </svg>
+            <span>Add Users</span>
+        </button>
+        <a (click)="discardUsers()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
+            <span>Discard</span>
+        </a>
+    </div>
+
+</app-overlay-filter-box>

@@ -1,3 +1,7 @@
+
+export interface RoleUser {
+  id: number;
+}
 export interface Roles {
    id?: number;
    code: string;
@@ -5,6 +9,8 @@ export interface Roles {
    createdAt?: string;
    updatedAt?: string;
    permissions: ModulePermission[];
+   users?: number[];
+   total_users?: number;
 }
 
 

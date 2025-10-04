@@ -8,167 +8,196 @@
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round"
           d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-          <path
-            d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-          </g>
-        </svg>
-        <span>Edit</span>
-      </button>
+        <path
+          d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+      </g>
+    </svg>
+    <span>Edit</span>
+  </button>
 
-      @if (!branchData.is_active) {
-        <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-              d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-            </svg>
-            <span>Activate</span>
-          </button>
+  @if (!branchData.is_active) {
+  <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Activate</span>
+  </button>
+  }
+
+  @if (branchData.is_active) {
+  <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Deactivate</span>
+  </button>
+  }
+</app-page-header>
+
+
+<div class="content-hug d-flex flex-column gap-4">
+  <div class="row align-items-stretch g-4">
+    <div class="col-lg-8">
+      <div class="content-box d-flex flex-column gap-3 h-100">
+        <h2>Main Information</h2>
+        @if (branchData.code) {
+        <div class="info">
+          <h6>Branch Code</h6>
+          <span class="fs-6 lh-base">{{branchData.code}}</span>
+        </div>
         }
+        @if (branchData.name) {
+        <div class="info">
+          <h6>Branch Name</h6>
+          <p class="fs-6 lh-base">{{branchData.name}}</p>
+        </div>
+        }
+        @if (branchData.location) {
+        <div class="info">
+          <h6>Branch Location</h6>
+          <p class="fs-6 lh-base">{{branchData.location}}</p>
+        </div>
+        }
+        <div class="info">
+          <h6>Max No. Employees</h6>
+          <p class="fs-6 lh-base">{{branchData.max_employee}}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="content-box d-flex flex-column gap-3 h-100">
+        <h2>Branch Location</h2>
+        <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 250px; width: 100%;">
 
-        @if (branchData.is_active) {
-          <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-              </svg>
-              <span>Deactivate</span>
-            </button>
+          <!-- Transparent overlay div -->
+          <div (click)="openInGoogleMaps()"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
+          </div>
+
+          <!-- Google Map -->
+          <google-map height="100%" width="100%" [center]="{ lat: latitude, lng: longitude }" [zoom]="15"
+            [options]="{ disableDefaultUI: true, draggable: false, scrollwheel: false, zoomControl: false }">
+
+            @if (latitude && longitude) {
+            <map-marker [position]="{ lat: latitude, lng: longitude }"></map-marker>
+            }
+          </google-map>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="content-box h-100">
+    <h2 class="mb-3">Departments</h2>
+
+
+    <app-table [data]="branchData.departments" [itemsPerPage]="10" [totalItems]="branchData?.departments?.length"
+      [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"></app-table>
+
+    <ng-template #departmentTableHeader>
+      <th (click)="sortBy('id')" style="cursor: pointer;">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Department</span>
+          @if (sortDirection === 'desc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
           }
-        </app-page-header>
+          @if (sortDirection === 'asc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+          }
+        </div>
+      </th>
+
+      <th>Created at</th>
+      <th>Updated at</th>
+      <th>Sections</th>
+      <th>Status</th>
+
+    </ng-template>
+
+    <ng-template #departmentTableRow let-department let-i="index">
+      <td class="width-fix">
+        <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 200px;">
+          {{ department.name }}
+        </span>
+      </td>
+      <td>{{ department.created_at | date:'dd/MM/yyyy'}}</td>
+      <td>{{ department.updated_at | date:'dd/MM/yyyy'}}</td>
+      <td>{{ department.sections?.length || 0 }}</td>
+      <td>
+        @if (department.is_active) {
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Active</span>
+        </span>
+        }
+        @if (!department.is_active) {
+        <span class="badge-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+          <span>Not Active</span>
+        </span>
+        }
+      </td>
+    </ng-template>
+  </div>
 
 
-        <div class="content-hug d-flex flex-column gap-4">
-          <div class="content-box d-flex flex-column gap-3">
-            <h2>Main Information</h2>
-            @if (branchData.code) {
-              <div class="info">
-                <h6>Branch Code</h6>
-                <span class="fs-6 lh-base">{{branchData.code}}</span>
-              </div>
-            }
-            @if (branchData.name) {
-              <div class="info">
-                <h6>Branch Name</h6>
-                <p class="fs-6 lh-base">{{branchData.name}}</p>
-              </div>
-            }
-            @if (branchData.location) {
-              <div class="info">
-                <h6>Branch Location</h6>
-                <p class="fs-6 lh-base">{{branchData.location}}</p>
-              </div>
-            }
-            <div class="info">
-              <h6>Max No. Employees</h6>
-              <p class="fs-6 lh-base">{{branchData.max_employee}}</p>
-            </div>
-          </div>
-          <div class="content-box">
-            <h2 class="mb-3">Departments</h2>
+</div>
 
-
-            <app-table [data]="branchData.departments" [itemsPerPage]="10" [totalItems]="branchData?.departments?.length"
-            [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"></app-table>
-
-            <ng-template #departmentTableHeader>
-              <th (click)="sortBy('id')" style="cursor: pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span>Department</span>
-                  @if (sortDirection === 'desc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                      viewBox="0 0 24 24">
-                      <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
-                        <path d="M4 8h9m-7 5h7m-5 5h5" />
-                        <path stroke-linejoin="round" d="M17 20V4l3 4" />
-                      </g>
-                    </svg>
-                  }
-                  @if (sortDirection === 'asc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                      viewBox="0 0 24 24">
-                      <path fill="#DDE3EB" fill-rule="evenodd"
-                        d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-                        clip-rule="evenodd" />
-                      </svg>
-                    }
-                  </div>
-                </th>
-
-                <th>Created at</th>
-                <th>Updated at</th>
-                <th>Sections</th>
-                <th>Status</th>
-
-              </ng-template>
-
-              <ng-template #departmentTableRow let-department let-i="index">
-                <td class="width-fix">
-                  <span class="d-block text-gray-sm">{{ department.id.toString().padStart(4, '0') }}</span>
-                  <span class="d-block text-truncate" style="max-width: 200px;">
-                    {{ department.name }}
-                  </span>
-                </td>
-                <td>{{ department.created_at | date:'dd/MM/yyyy'}}</td>
-                <td>{{ department.updated_at | date:'dd/MM/yyyy'}}</td>
-                <td>{{ department.sections?.length || 0 }}</td>
-                <td>
-                  @if (department.is_active) {
-                    <span class="badge-success">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                          <circle cx="12" cy="12" r="10" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                        </g>
-                      </svg>
-                      <span>Active</span>
-                    </span>
-                  }
-                  @if (!department.is_active) {
-                    <span class="badge-danger">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                          <circle cx="12" cy="12" r="10" />
-                          <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                        </g>
-                      </svg>
-                      <span>Not Active</span>
-                    </span>
-                  }
-                </td>
-              </ng-template>
-            </div>
-
-
-          </div>
-
-          <!-- deactivate popup  -->
-          <app-popup [title]="'Deactivate Branch'"
-            [paragraph1]="'Are you sure you want to Deactivate the Branch “' + branchData?.name + '”?'"
-            [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
-            [isOpen]="deactivateOpen" (close)="closeDeactivate()">
-            <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                  d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-                </svg>
-                <span>Deactivate</span>
-              </button>
-              <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
-                Cancel
-              </button>
-            </app-popup>
-            <!-- Activate popup  -->
-            <app-popup [title]="'Activate Branch'"
-              [paragraph1]="'Are you sure you want to Activate the Branch “' + branchData?.name + '”?'"
-              [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
-              <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                    d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-                  </svg>
-                  <span>Deactivate</span>
-                </button>
-                <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
-                  Cancel
-                </button>
-              </app-popup>
+<!-- deactivate popup  -->
+<app-popup [title]="'Deactivate Branch'"
+  [paragraph1]="'Are you sure you want to Deactivate the Branch “' + branchData?.name + '”?'"
+  [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
+  [isOpen]="deactivateOpen" (close)="closeDeactivate()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Deactivate</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
+    Cancel
+  </button>
+</app-popup>
+<!-- Activate popup  -->
+<app-popup [title]="'Activate Branch'"
+  [paragraph1]="'Are you sure you want to Activate the Branch “' + branchData?.name + '”?'"
+  [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
+  <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    <span>Deactivate</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+    Cancel
+  </button>
+</app-popup>

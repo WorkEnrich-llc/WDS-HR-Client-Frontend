@@ -5,6 +5,8 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
+import { GoogleMapsLocationComponent, LocationData } from 'app/components/shared/google-maps-location/google-maps-location.component';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 interface Department {
   id: number;
@@ -17,7 +19,7 @@ interface Department {
 
 @Component({
   selector: 'app-view-branches',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink,GoogleMapsModule],
   providers: [DatePipe],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
@@ -31,6 +33,9 @@ export class ViewBranchesComponent {
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   branchId: string | null = null;
+  latitude:number = 0;
+longitude:number = 0;
+
   ngOnInit(): void {
     this.branchId = this.route.snapshot.paramMap.get('id');
     // this.showBranch(Number(this.branchId));
@@ -38,13 +43,16 @@ export class ViewBranchesComponent {
       this.showBranch(Number(this.branchId));
     }
   }
-
+ 
   showBranch(branchId: number) {
 
     this._BranchesService.showBranch(branchId).subscribe({
       next: (response) => {
         // console.log(response);
         this.branchData = response.data.object_info;
+        // console.log(this.branchData);
+        this.latitude=this.branchData?.latitude;
+        this.longitude=this.branchData?.longitude;
         const created = this.branchData?.created_at;
         const updated = this.branchData?.updated_at;
         if (created) {
@@ -59,6 +67,16 @@ export class ViewBranchesComponent {
       }
     });
   }
+
+
+  openInGoogleMaps() {
+  if (this.latitude && this.longitude) {
+    const url = `https://www.google.com/maps?q=${this.latitude},${this.longitude}`;
+    window.open(url, '_blank');
+  }
+}
+
+
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
 

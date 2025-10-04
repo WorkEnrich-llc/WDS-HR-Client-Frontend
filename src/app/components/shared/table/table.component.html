@@ -43,7 +43,9 @@
 
 </ng-template>
 <!-- Pagination Section -->
-@if (!disablePagination && data.length > 0) {
+@if (!disablePagination && (data?.length ?? 0) > 0) {
+
+
   <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center"
     >
     <div class="d-flex align-items-center gap-2">
