@@ -76,7 +76,9 @@ export class AdminRolesService {
                 typeof a === 'string' ? a : a?.name ?? ''
               )
             }))
-          }))
+          })),
+          users: (item.users || []).map((u: any) => u.id),
+          total_users: item.total_users ?? (item.users ? item.users.length : 0)
         }));
 
         return {
