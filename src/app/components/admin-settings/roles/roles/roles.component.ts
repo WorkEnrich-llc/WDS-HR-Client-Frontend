@@ -101,61 +101,108 @@ export class RolesComponent {
     });
   }
 
-  
-getAllRoles(
-  pageNumber: number,
-  searchTerm: string = '',
-  filters?: { status?: string; created_from?: string }
-) {
-  this.loadData = true;
+  getAllRoles(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      status?: string;
+      created_from?: string;
+    }
+  ) {
+    this.loadData = true;
 
-  this.adminRolesService.getAllRoles(pageNumber, this.itemsPerPage, {
-    search: searchTerm || undefined,
-    ...filters
-  }).subscribe({
-    next: (res) => {
-      this.currentPage = res.page;
-      this.totalItems = res.total_items;
-      this.totalPages = res.total_pages;
+    this.adminRolesService.getAllRoles(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalItems = res.total_items;
+        this.totalPages = res.total_pages;
+        this.roles = res.roles;
+        this.copyRoles = [...res.roles];
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
 
-      this.roles = res.roles.map(role => ({
-        ...role,
-        total_users: role.total_users ?? 0
-      }));
-
-      this.copyRoles = [...this.roles];
-
-      this.sortDirection = 'desc';
-      this.currentSortColumn = 'id';
-      this.sortBy();
-
-      const modules = this.copyRoles.flatMap(role =>
-        role.permissions.map(p => p.moduleName).filter((name): name is string => !!name)
-      );
-      this.moduleNames = [...new Set(modules)];
-
-      const selectedModule = this.filterForm.value.activeModules;
-      const services = this.roles
-        .flatMap(role => role.permissions || [])
-        .filter(p => p.moduleName === selectedModule)
-        .flatMap(p =>
-          (p.subModules || [])
+        const modules = this.copyRoles.flatMap((role: any) =>
+          role.permissions.map((p: any) => p.moduleName).filter((name: any) => !!name)
+        );
+        this.moduleNames = [...new Set(modules)];
+        const selectedModule = this.filterForm.value.activeModules
+        const services = this.roles
+          .flatMap(role => role.permissions || [])
+          .filter(p => p.moduleName === selectedModule)
+          .flatMap(p => (p.subModules || [])
             .filter(sub => (sub.actions || []).length > 0)
             .map(sub => sub.subName?.trim())
             .filter((name): name is string => !!name)
-        );
-      this.serviceNames = Array.from(new Set(services));
+          );
+        this.serviceNames = Array.from(new Set(services));
+        this.loadData = false;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
 
-      this.loadData = false;
 
-      console.log('Roles with total_users:', this.roles);
-    },
-    error: (err) => {
-      console.error('Error fetching roles:', err.error?.details);
-      this.loadData = false;
-    }
-  });
-}
+  // getAllRoles(
+  //   pageNumber: number,
+  //   searchTerm: string = '',
+  //   filters?: { status?: string; created_from?: string }
+  // ) {
+  //   this.loadData = true;
+
+  //   this.adminRolesService.getAllRoles(pageNumber, this.itemsPerPage, {
+  //     search: searchTerm || undefined,
+  //     ...filters
+  //   }).subscribe({
+  //     next: (res) => {
+  //       this.currentPage = res.page;
+  //       this.totalItems = res.total_items;
+  //       this.totalPages = res.total_pages;
+
+  //       this.roles = res.roles.map(role => ({
+  //         ...role,
+  //         total_users: role.total_users ?? 0
+  //       }));
+
+  //       this.copyRoles = [...this.roles];
+
+  //       this.sortDirection = 'desc';
+  //       this.currentSortColumn = 'id';
+  //       this.sortBy();
+
+  //       const modules = this.copyRoles.flatMap(role =>
+  //         role.permissions.map(p => p.moduleName).filter((name): name is string => !!name)
+  //       );
+  //       this.moduleNames = [...new Set(modules)];
+
+  //       const selectedModule = this.filterForm.value.activeModules;
+  //       const services = this.roles
+  //         .flatMap(role => role.permissions || [])
+  //         .filter(p => p.moduleName === selectedModule)
+  //         .flatMap(p =>
+  //           (p.subModules || [])
+  //             .filter(sub => (sub.actions || []).length > 0)
+  //             .map(sub => sub.subName?.trim())
+  //             .filter((name): name is string => !!name)
+  //         );
+  //       this.serviceNames = Array.from(new Set(services));
+
+  //       this.loadData = false;
+
+  //       console.log('Roles with total_users:', this.roles);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching roles:', err.error?.details);
+  //       this.loadData = false;
+  //     }
+  //   });
+  // }
 
 
   getPermissionsCounts(role: Roles): number {
@@ -276,8 +323,10 @@ getAllRoles(
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
+    this.getAllRoles(this.currentPage);
   }
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.getAllRoles(this.currentPage);
   }
 }
