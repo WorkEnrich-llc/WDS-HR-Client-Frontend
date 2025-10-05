@@ -6,10 +6,12 @@ import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
+import { Employee, EmployeesResponse } from 'app/core/interfaces/employee';
 import { ActionType, ModulePermission, Roles, RoleUser, SubModulePermission } from 'app/core/models/roles';
 import { ISearchParams, IUserApi, IUser } from 'app/core/models/users';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { Subject } from 'rxjs';
@@ -44,6 +46,7 @@ export class AddRoleComponent implements OnInit {
   private fb = inject(FormBuilder);
   private adminRolesService = inject(AdminRolesService);
   private toasterService = inject(ToasterMessageService);
+  private employeesService = inject(EmployeeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -97,12 +100,14 @@ export class AddRoleComponent implements OnInit {
         this.loadRoleForEdit(this.roleId);
       }
     });
+
   }
 
   private initFormModels(): void {
     this.createRoleForm = this.fb.group({
       code: [''],
       name: ['', Validators.required],
+      users: [[]],
       permissions: this.fb.array([])
     })
   }
@@ -128,24 +133,59 @@ export class AddRoleComponent implements OnInit {
     this.usersOverlay.openOverlay();
   }
 
+
+
+  // getAllUsers(filters?: ISearchParams) {
+  //   this.userService.getAllUsers({
+  //     page: 1,
+  //     per_page: 10000,
+  //     ...filters
+  //   }).subscribe({
+  //     next: (response) => {
+  //       const users = response.data.list_items.map((u: IUserApi) => {
+  //         const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === u.id);
+  //         return {
+  //           id: u.id,
+  //           name: u.user?.name ?? '',
+  //           email: u.user?.email ?? '',
+  //           code: u.user?.code ?? '',
+  //           created_at: u.created_at,
+  //           updated_at: u.updated_at,
+  //           status: u.status,
+  //           permissions: u.permissions,
+  //           isSelected: alreadyAdded
+  //         } as unknown as IUser;
+  //       });
+
+  //       this.originalUsers = users;
+  //       this.allUsers = [...this.originalUsers];
+
+  //       this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
+
+  //       // console.log('All Users:', this.allUsers);
+  //     },
+  //     error: (err: any) => {
+  //       // console.log(err.error?.details);
+  //       this.errMsg = err.error?.details;
+  //     }
+  //   });
+  // }
+
+
   getAllUsers(filters?: ISearchParams) {
-    this.userService.getAllUsers({
-      page: 1,
-      per_page: 10000,
-      ...filters
-    }).subscribe({
-      next: (response) => {
-        const users = response.data.list_items.map((u: IUserApi) => {
-          const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === u.id);
+    this.employeesService.getEmployees(1, 10000, filters?.search || '').subscribe({
+      next: (response: EmployeesResponse) => {
+        const users = response.data.list_items.map((e: Employee) => {
+          const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === e.id);
           return {
-            id: u.id,
-            name: u.user?.name ?? '',
-            email: u.user?.email ?? '',
-            code: u.user?.code ?? '',
-            created_at: u.created_at,
-            updated_at: u.updated_at,
-            status: u.status,
-            permissions: u.permissions,
+            id: e.id,
+            name: e.contact_info?.name ?? '',
+            email: e.contact_info?.email ?? '',
+            code: e.contact_info?.mobile?.number?.toString() ?? '',
+            created_at: e.created_at,
+            updated_at: e.updated_at,
+            status: e.employee_active,
+            permissions: [],
             isSelected: alreadyAdded
           } as unknown as IUser;
         });
@@ -154,15 +194,14 @@ export class AddRoleComponent implements OnInit {
         this.allUsers = [...this.originalUsers];
 
         this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
-
-        // console.log('All Users:', this.allUsers);
       },
       error: (err: any) => {
-        // console.log(err.error?.details);
-        this.errMsg = err.error?.details;
+        this.errMsg = err.error?.details ?? 'Failed to load employees';
       }
     });
   }
+
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.getAllUsers();
   }
@@ -202,7 +241,7 @@ export class AddRoleComponent implements OnInit {
     }
   }
 
-  addSelectedUsers(): void {
+  addSelectedUserss(): void {
     const selected = this.allUsers.filter((user: IUser) => user.isSelected);
 
     selected.forEach((user: IUser) => {
@@ -221,6 +260,25 @@ export class AddRoleComponent implements OnInit {
     // console.log(this.addedUsers)
     this.usersOverlay.closeOverlay();
   }
+
+  addSelectedUsers(): void {
+    const selected = this.allUsers.filter((user: IUser) => user.isSelected);
+
+    selected.forEach((user: IUser) => {
+      const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
+      if (!alreadyAdded) {
+        this.addedUsers.push({ ...user, isSelected: true });
+      }
+    });
+
+    // Always keep form in sync with IDs only
+    this.createRoleForm.patchValue({
+      users: this.addedUsers.map((u: IUser) => u.id)
+    });
+
+    this.usersOverlay.closeOverlay();
+  }
+
 
   discardUsers(): void {
     this.usersOverlay.closeOverlay();
@@ -414,41 +472,50 @@ export class AddRoleComponent implements OnInit {
         if (!role) return;
         this.createDate = new Date(role.createdAt ?? '').toLocaleDateString('en-GB');
         this.updatedDate = new Date(role.updatedAt ?? '').toLocaleDateString('en-GB');
-
+        this.addedUsers = role.users || [];
         this.createRoleForm.patchValue({
           code: role.code,
-          name: role.name
+          name: role.name,
+          users: this.addedUsers.map((u: IUser) => u.id)
         });
-
         this.selectedActionsMap.clear();
-        if (role.permissions) {
+
+        if (role.permissions && Array.isArray(role.permissions)) {
           role.permissions.forEach((modulePerm: ModulePermission) => {
-            modulePerm.subModules?.forEach((sub: SubModulePermission) => {
-              if (sub.actions?.length) {
-                const key = this.getSubKey(sub);
-                this.selectedActionsMap.set(key, new Set(sub.actions));
+            if (modulePerm.subModules && Array.isArray(modulePerm.subModules)) {
+              modulePerm.subModules.forEach((sub: SubModulePermission) => {
+                if (sub.actions && sub.actions.length > 0) {
+                  const key = this.getSubKey(sub);
+                  this.selectedActionsMap.set(key, new Set(sub.actions));
+                }
+              });
+            }
+          });
+
+          const firstModuleWithPerms = role.permissions.find(
+            (m) => m.subModules && m.subModules.length > 0
+          );
+
+          if (firstModuleWithPerms) {
+            const feature = Object.values(this.mappedData).find(
+              (f) => f.code === firstModuleWithPerms.moduleCode
+            );
+            if (feature) {
+              this.selectMain(feature);
+              if (feature.sub_list && feature.sub_list.length > 0) {
+                const firstSub = feature.sub_list.find((s) => {
+                  const key = this.getSubKey(s.sub);
+                  return this.selectedActionsMap.has(key);
+                });
+
+                if (firstSub) {
+                  this.selectSub(firstSub);
+                }
               }
-            });
-          });
+            }
+          }
         }
 
-        // build addedUsers from role
-        if (role.users && Array.isArray(role.users)) {
-          this.addedUsers = role.users.map((userId: number) => {
-            const fullUser = this.allUsers.find(u => u.id === userId);
-            return fullUser
-              ? { ...fullUser, isSelected: true }
-              : { id: userId, name: '', email: '', code: '', permissions: [], isSelected: true } as IUser;
-          });
-        }
-
-
-        // mark selected users inside allUsers so overlay reflects correctly
-        this.allUsers.forEach(u => {
-          u.isSelected = this.addedUsers.some(added => added.id === u.id);
-        });
-
-        this.roleName = role.name;
       },
       error: (err) => {
         console.error("Error loading role", err);
@@ -456,11 +523,9 @@ export class AddRoleComponent implements OnInit {
     });
   }
 
-
-  // Build request body 
+  // Build request body
   private buildRoleModel(): Roles {
     const { code, name } = this.createRoleForm.value;
-
     const permissions: ModulePermission[] = Object.values(this.mappedData)
       .map(feature => {
         const subModules: SubModulePermission[] = feature.sub_list
@@ -485,13 +550,11 @@ export class AddRoleComponent implements OnInit {
         return null;
       })
       .filter((p): p is ModulePermission => p !== null);
-
     return {
       code,
       name,
       permissions,
-      users: this.addedUsers.map(u => u.id)
-
+      users: this.createRoleForm.value.users || []
     };
   }
 
@@ -502,8 +565,9 @@ export class AddRoleComponent implements OnInit {
       return;
     }
 
+
     const roleModel = this.buildRoleModel();
-    // console.log(roleModel);
+    console.log('Role model:', roleModel);
     this.isLoading = true;
     if (this.isEditMode) {
       roleModel.id = this.roleId;
@@ -534,6 +598,133 @@ export class AddRoleComponent implements OnInit {
       });
     }
   }
+
+  // loadRoleForEdit(id: number) {
+  //   this.adminRolesService.getRoleById(id).subscribe({
+  //     next: (role) => {
+  //       if (!role) return;
+  //       this.createDate = new Date(role.createdAt ?? '').toLocaleDateString('en-GB');
+  //       this.updatedDate = new Date(role.updatedAt ?? '').toLocaleDateString('en-GB');
+
+  //       this.createRoleForm.patchValue({
+  //         code: role.code,
+  //         name: role.name,
+  //         users: role.users || []
+  //       });
+
+  //       this.selectedActionsMap.clear();
+  //       if (role.permissions) {
+  //         role.permissions.forEach((modulePerm: ModulePermission) => {
+  //           modulePerm.subModules?.forEach((sub: SubModulePermission) => {
+  //             if (sub.actions?.length) {
+  //               const key = this.getSubKey(sub);
+  //               this.selectedActionsMap.set(key, new Set(sub.actions));
+  //             }
+  //           });
+  //         });
+  //       }
+
+  //       // build addedUsers from role
+  //       if (role.users && Array.isArray(role.users)) {
+  //         this.addedUsers = role.users.map((userId: number) => {
+  //           const fullUser = this.allUsers.find(u => u.id === userId);
+  //           return fullUser
+  //             ? { ...fullUser, isSelected: true }
+  //             : { id: userId, name: '', email: '', code: '', permissions: [], isSelected: true } as IUser;
+  //         });
+  //       }
+
+
+  //       // mark selected users inside allUsers so overlay reflects correctly
+  //       this.allUsers.forEach(u => {
+  //         u.isSelected = this.addedUsers.some(added => added.id === u.id);
+  //       });
+
+  //       this.roleName = role.name;
+  //     },
+  //     error: (err) => {
+  //       console.error("Error loading role", err);
+  //     }
+  //   });
+  // }
+
+
+  // Build request body 
+  // private buildRoleModel(): Roles {
+  //   const { code, name } = this.createRoleForm.value;
+
+  //   const permissions: ModulePermission[] = Object.values(this.mappedData)
+  //     .map(feature => {
+  //       const subModules: SubModulePermission[] = feature.sub_list
+  //         .map(sub => {
+  //           const key = this.getSubKey(sub.sub);
+  //           const actions = Array.from(this.selectedActionsMap.get(key) || []);
+  //           if (actions.length > 0) {
+  //             return {
+  //               code: sub.sub.code,
+  //               actions: actions as ActionType[]
+  //             };
+  //           }
+  //           return null;
+  //         })
+  //         .filter((s): s is SubModulePermission => s !== null);
+  //       if (subModules.length > 0) {
+  //         return {
+  //           moduleCode: feature.code,
+  //           subModules
+  //         };
+  //       }
+  //       return null;
+  //     })
+  //     .filter((p): p is ModulePermission => p !== null);
+
+  //   return {
+  //     code,
+  //     name,
+  //     permissions,
+  //     users: this.createRoleForm.value.users || []
+  //   };
+  // }
+
+  // create Role
+  // createRole(): void {
+  //   if (this.createRoleForm.invalid) {
+  //     this.errMsg = "Please fill required fields";
+  //     return;
+  //   }
+
+  //   const roleModel = this.buildRoleModel();
+  //   // console.log(roleModel);
+  //   this.isLoading = true;
+  //   if (this.isEditMode) {
+  //     roleModel.id = this.roleId;
+  //     this.adminRolesService.updateRole(roleModel).subscribe({
+  //       next: (res) => {
+  //         this.isLoading = false;
+  //         this.toasterService.showSuccess('Role updated successfully');
+  //         this.router.navigate(['/roles']);
+  //       },
+  //       error: (err) => {
+  //         this.isLoading = false;
+  //         console.error("Error updating role", err);
+  //         this.errMsg = err.error?.message || "Error updating role";
+  //       }
+  //     });
+  //   } else {
+  //     this.adminRolesService.createRole(roleModel).subscribe({
+  //       next: (res) => {
+  //         this.isLoading = false;
+  //         this.toasterService.showSuccess('Role created successfully');
+  //         this.router.navigate(['/roles']);
+  //       },
+  //       error: (err) => {
+  //         this.isLoading = false;
+  //         console.error("Error creating role", err);
+  //         this.errMsg = err.error?.message || "Error creating role";
+  //       }
+  //     });
+  //   }
+  // }
 
   // next and prev
   currentStep: number = 1;
