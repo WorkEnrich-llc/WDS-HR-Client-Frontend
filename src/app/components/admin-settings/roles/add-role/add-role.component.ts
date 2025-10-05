@@ -162,7 +162,7 @@ export class AddRoleComponent implements OnInit {
             updated_at: e.updated_at,
             status: e.employee_active,
             permissions: [],
-            isSelected: alreadyAdded   // ✅ mark if already added
+            isSelected: alreadyAdded
           } as IUser;
         });
 
@@ -177,14 +177,6 @@ export class AddRoleComponent implements OnInit {
     });
   }
 
-  loadRole(id: number) {
-    this.adminRolesService.getRoleById(id).subscribe(role => {
-      if (role) {
-        this.addedUsers = role.users || [];
-        this.addedTotalUsers = role.total_users ?? this.addedUsers.length;
-      }
-    });
-  }
 
   onAddedPageChange(page: number) {
     this.addedPage = page;
@@ -237,25 +229,25 @@ export class AddRoleComponent implements OnInit {
     }
   }
 
-  addSelectedUserss(): void {
-    const selected = this.allUsers.filter((user: IUser) => user.isSelected);
+  // addSelectedUserss(): void {
+  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
 
-    selected.forEach((user: IUser) => {
-      const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
-      if (!alreadyAdded) {
-        this.addedUsers.push({
-          ...user,
-          isSelected: true
-        });
-      }
-    });
+  //   selected.forEach((user: IUser) => {
+  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
+  //     if (!alreadyAdded) {
+  //       this.addedUsers.push({
+  //         ...user,
+  //         isSelected: true
+  //       });
+  //     }
+  //   });
 
-    this.addedUsers = this.addedUsers.filter((added: IUser) =>
-      selected.some((u: IUser) => u.id === added.id)
-    );
-    // console.log(this.addedUsers)
-    this.usersOverlay.closeOverlay();
-  }
+  //   this.addedUsers = this.addedUsers.filter((added: IUser) =>
+  //     selected.some((u: IUser) => u.id === added.id)
+  //   );
+  //   // console.log(this.addedUsers)
+  //   this.usersOverlay.closeOverlay();
+  // }
 
   // addSelectedUsers(): void {
   //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
@@ -300,7 +292,6 @@ export class AddRoleComponent implements OnInit {
     }
 
     this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
-    // update form control
     this.createRoleForm.patchValue({
       users: this.addedUsers.map(u => u.id)
     });
