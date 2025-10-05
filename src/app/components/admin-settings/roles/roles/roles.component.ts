@@ -323,8 +323,10 @@ export class RolesComponent {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
+    this.getAllRoles(this.currentPage);
   }
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.getAllRoles(this.currentPage);
   }
 }

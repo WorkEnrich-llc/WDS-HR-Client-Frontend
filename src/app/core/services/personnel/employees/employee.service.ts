@@ -38,6 +38,15 @@ export class EmployeeService {
     return this.http.get<EmployeesResponse>(url);
   }
 
+  // Get employees in add roles 
+  getEmployeesForAddRoles(page: number = 1, per_page: number = 10, search: string = '',): Observable<EmployeesResponse> {
+    let url = `${this.apiBaseUrl}personnel/employees?page=${page}&per_page=${per_page}&in_user_roles=true`;
+    if (search) {
+      url += `&search=${search}`;
+    }
+    return this.http.get<EmployeesResponse>(url);
+  }
+
   // Get a single employee by ID
   getEmployeeById(id: number): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees/${id}/`;
