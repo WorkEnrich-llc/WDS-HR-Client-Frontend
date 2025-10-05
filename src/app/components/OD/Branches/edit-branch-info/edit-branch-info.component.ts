@@ -56,6 +56,7 @@ export class EditBranchInfoComponent implements OnInit {
   branchId: string | null = null;
   errMsg: string = '';
   isLoading: boolean = false;
+  isLocationReady: boolean = false;
 
   // Location data for step 3
   locationData: LocationData = {
@@ -63,8 +64,13 @@ export class EditBranchInfoComponent implements OnInit {
     longitude: 0,
     radiusRange: 120,
     displayLatitude: '',
-    displayLongitude: ''
+    displayLongitude: '',
+    map_country: '',
+    map_city: '',
+    map_region: '',
+    map_address: ''
   };
+
   // Flag to track if map location has been confirmed before saving
   locationConfirmed: boolean = true;
 
@@ -244,7 +250,7 @@ export class EditBranchInfoComponent implements OnInit {
           location: this.branchData.location || '',
           maxEmployee: this.branchData.max_employee || '',
         });
-        
+
         // Set map coordinates if available
         if (this.branchData.latitude && this.branchData.longitude) {
           this.locationData = {
@@ -255,7 +261,7 @@ export class EditBranchInfoComponent implements OnInit {
             displayLongitude: this.branchData.longitude
           };
         }
-        
+
         // console.log(this.addeddepartments);
         this.originalFormData = { ...this.branchStep1.value };
         this.originalDepartmentsSnapshot = JSON.parse(JSON.stringify(this.addeddepartments));
@@ -303,9 +309,9 @@ export class EditBranchInfoComponent implements OnInit {
     const originalLongitude = this.branchData?.longitude ? parseFloat(this.branchData.longitude) : 0;
     const originalRadiusRange = this.branchData?.radius_range || 120;
 
-    const isLocationChanged = this.locationData.latitude !== originalLatitude || 
-                              this.locationData.longitude !== originalLongitude ||
-                              this.locationData.radiusRange !== originalRadiusRange;
+    const isLocationChanged = this.locationData.latitude !== originalLatitude ||
+      this.locationData.longitude !== originalLongitude ||
+      this.locationData.radiusRange !== originalRadiusRange;
 
     return isFormDifferent || isDepartmentsDifferent || isSectionChanged || isLocationChanged;
   }
@@ -503,6 +509,10 @@ export class EditBranchInfoComponent implements OnInit {
         latitude: this.locationData.latitude,
         longitude: this.locationData.longitude,
         radius_range: this.locationData.radiusRange,
+        map_country: this.locationData.map_country,
+        map_city: this.locationData.map_city,
+        map_region: this.locationData.map_region,
+        map_address: this.locationData.map_address,
         departments: departments
       }
     };
@@ -576,20 +586,28 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   // Handle location changes from Google Maps component
-  onLocationChanged(locationData: LocationData): void {
-    this.locationData = { ...locationData };
-    // Mark location as unconfirmed until user confirms
-    this.locationConfirmed = false;
-    // Clear any existing error message
-    this.errMsg = '';
-  }
+  // Handle location changes (marker moved, search, etc.)
+onLocationChanged(locationData: LocationData): void {
+  this.locationData = { ...locationData };
+  // Reset confirmation flag until user confirms the location
+  this.isLocationReady = false;
+  // Clear any previous errors
+  this.errMsg = '';
+}
 
-  // Handle location confirmation from Google Maps component
-  onLocationConfirmed(locationData: LocationData): void {
-    this.locationData = { ...locationData };
-    // Mark location as confirmed
-    this.locationConfirmed = true;
-    // Clear any existing error message
-    this.errMsg = '';
-  }
+// Handle location confirmation (user pressed "Confirm")
+onLocationConfirmed(event: LocationData): void {
+  this.locationData = { ...event };
+
+  // Use setTimeout to ensure change detection updates the button state
+  setTimeout(() => {
+    this.isLocationReady = !!(
+      this.locationData.map_country &&
+      this.locationData.map_city &&
+      this.locationData.map_region &&
+      this.locationData.map_address
+    );
+  });
+}
+
 }

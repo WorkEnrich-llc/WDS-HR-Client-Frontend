@@ -45,6 +45,9 @@ export class AllBranchesComponent implements OnInit {
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  currentFilters: any = {};
+  currentSearchTerm: string = '';
+
 
 
   ngOnInit(): void {
@@ -92,7 +95,7 @@ export class AllBranchesComponent implements OnInit {
       branch: ''
     });
     this.filterBox.closeOverlay();
-    this.getAllBranches(this.currentPage);
+    this.getAllBranches(1);
   }
 
   ngOnDestroy(): void {
@@ -117,30 +120,33 @@ export class AllBranchesComponent implements OnInit {
 
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    this.currentPage = 1;
+    this.currentSearchTerm = this.searchTerm;
+    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
+filter(): void {
+  if (this.filterForm.valid) {
+    const rawFilters = this.filterForm.value;
 
-  filter(): void {
-    if (this.filterForm.valid) {
-      const rawFilters = this.filterForm.value;
+    const filters = {
+      status: rawFilters.status || undefined,
+      updated_from: rawFilters.updatedFrom || undefined,
+      updated_to: rawFilters.updatedTo || undefined,
+      created_from: rawFilters.createdFrom || undefined,
+      created_to: rawFilters.createdTo || undefined,
+      min_employees: rawFilters.min_employees ? Number(rawFilters.min_employees) : undefined,
+      max_employees: rawFilters.max_employees ? Number(rawFilters.max_employees) : undefined,
+      branch: rawFilters.branch || undefined,
+    };
 
-      const filters = {
-        status: rawFilters.status || undefined,
-        updated_from: rawFilters.updatedFrom || undefined,
-        updated_to: rawFilters.updatedTo || undefined,
-        created_from: rawFilters.createdFrom || undefined,
-        created_to: rawFilters.createdTo || undefined,
-        min_employees: rawFilters.min_employees || undefined,
-        max_employees: rawFilters.max_employees || undefined,
-        branch: rawFilters.branch || undefined,
-      };
+    this.currentFilters = filters;
 
-      // console.log('Filters submitted:', filters);
-      this.filterBox.closeOverlay();
-      this.getAllBranches(this.currentPage, '', filters);
-    }
+    this.currentPage = 1;
+    this.filterBox.closeOverlay();
+    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+}
 
 
 
@@ -148,7 +154,7 @@ export class AllBranchesComponent implements OnInit {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData:boolean =true;
+  loadData: boolean = true;
   getAllBranches(
     pageNumber: number,
     searchTerm: string = '',
@@ -158,8 +164,8 @@ export class AllBranchesComponent implements OnInit {
       updated_to?: string;
       created_from?: string;
       created_to?: string;
-      min_employees?: string;
-      max_employees?: string;
+      min_employees?: number;
+      max_employees?: number;
     }
   ) {
     this._BranchesService.getAllBranches(pageNumber, this.itemsPerPage, {
@@ -180,15 +186,16 @@ export class AllBranchesComponent implements OnInit {
           updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
           status: item.is_active ? 'Active' : 'Inactive',
         }));
+        // console.log(this.branches)
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
 
         this.sortBy();
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
 
       }
     });
@@ -196,13 +203,15 @@ export class AllBranchesComponent implements OnInit {
 
 
 
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  }
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.getAllBranches(this.currentPage);
+    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.getAllBranches(this.currentPage);
-  }
+
 }
