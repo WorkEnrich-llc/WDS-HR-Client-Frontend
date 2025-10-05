@@ -34,7 +34,6 @@ export class AllGoalsComponent {
   searchTerm: string = '';
 
 
-  // ✅ Component variables
   currentPage: number = 1;
   totalpages: number = 0;
   totalItems: number = 0;
@@ -42,7 +41,8 @@ export class AllGoalsComponent {
   loadData: boolean = false;
   sortDirection: string = 'asc';
   Goals: any[] = [];
-
+currentFilters: { goal_type?: number } = {};
+currentSearchTerm: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
@@ -78,7 +78,7 @@ getAllGoals(
 
   this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
     search: searchTerm || undefined,
-    goal_type: filters.goal_type || undefined   // 👈 هنا نبعت قيمة goal_type
+    goal_type: filters.goal_type || undefined   
   }).subscribe({
     next: (response) => {
       const data = response?.data;
@@ -105,10 +105,8 @@ getAllGoals(
       return '';
     }
 
-    // حوّل الأسماء لنص موحّد
     const text = goal.assigned_department.map((d: any) => d.name).join(', ');
 
-    // قص لو أكبر من maxLength
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
 
@@ -138,24 +136,27 @@ getAllGoals(
 
 
   // search and filter
-  onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
-  }
+ onSearchChange() {
+  this.currentPage = 1;
+  this.currentSearchTerm = this.searchTerm;
+  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+}
 
 
-  filter(): void {
+ filter(): void {
   if (this.filterForm.valid) {
     const rawFilters = this.filterForm.value;
 
-    const filters = {
-      search: undefined,
+    this.currentFilters = {
       goal_type: rawFilters.goal_type || undefined
     };
 
+    this.currentPage = 1;
     this.filterBox.closeOverlay();
-    this.getAllGoals(this.currentPage, '', filters);
+    this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 }
+
 
 
 resetFilterForm(): void {
@@ -163,19 +164,20 @@ resetFilterForm(): void {
     goal_type: '',
   });
   this.filterBox.closeOverlay();
-  this.getAllGoals(this.currentPage); 
+  this.getAllGoals(1); 
 }
 
 
 
+onItemsPerPageChange(newItemsPerPage: number) {
+  this.itemsPerPage = newItemsPerPage;
+  this.currentPage = 1;
+  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+}
 
-  onItemsPerPageChange(newItemsPerPage: number) {
-    this.itemsPerPage = newItemsPerPage;
-    this.currentPage = 1;
-    this.getAllGoals(this.currentPage);
-  }
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.getAllGoals(this.currentPage);
-  }
+onPageChange(page: number): void {
+  this.currentPage = page;
+  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+}
+
 }

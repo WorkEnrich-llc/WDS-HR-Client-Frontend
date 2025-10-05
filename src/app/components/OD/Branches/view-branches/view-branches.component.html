@@ -60,16 +60,25 @@
           <p class="fs-6 lh-base">{{branchData.location}}</p>
         </div>
         }
-        <div class="info">
+        @if (branchData.max_employee){
+          <div class="info">
           <h6>Max No. Employees</h6>
           <p class="fs-6 lh-base">{{branchData.max_employee}}</p>
         </div>
+        }
+        @if (branchData.map_address){
+          <div class="info">
+          <h6>Address</h6>
+          <p class="fs-6 lh-base">{{branchData.map_address}}</p>
+        </div>
+        }
+        
       </div>
     </div>
     <div class="col-lg-4">
       <div class="content-box d-flex flex-column gap-3 h-100">
         <h2>Branch Location</h2>
-        <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 250px; width: 100%;">
+        <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 140px; width: 100%;">
 
           <!-- Transparent overlay div -->
           <div (click)="openInGoogleMaps()"
@@ -85,6 +94,34 @@
             }
           </google-map>
 
+        </div>
+        <div class="d-flex align-items-center mt-3">
+          <div class="w-100">
+            <div class="info">
+              <h6>Longitude</h6>
+              <p class="fs-6 lh-base">{{branchData.longitude}}</p>
+            </div>
+          </div>
+          <div class="w-100">
+            <div class="info">
+              <h6>Latitude</h6>
+              <p class="fs-6 lh-base">{{branchData.latitude}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center mt-3">
+          <div class="w-100"  *ngIf="branchData.map_country">
+            <div class="info">
+              <h6>Country</h6>
+              <p class="fs-6 lh-base">{{branchData.map_country}}</p>
+            </div>
+          </div>
+          <div class="w-100" *ngIf="branchData.map_city">
+            <div class="info">
+              <h6>City</h6>
+              <p class="fs-6 lh-base">{{branchData.map_city}}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -139,7 +176,7 @@
       </td>
       <td>{{ department.created_at | date:'dd/MM/yyyy'}}</td>
       <td>{{ department.updated_at | date:'dd/MM/yyyy'}}</td>
-      <td>{{ department.sections?.length || 0 }}</td>
+      <td>{{ department?.sections?.selected_list?.length || 0 }}</td>
       <td>
         @if (department.is_active) {
         <span class="badge-success">

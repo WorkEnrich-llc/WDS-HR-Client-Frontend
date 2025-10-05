@@ -324,6 +324,11 @@
                 </a>
               </div>
             </div>
+            @if (registerForm1.get('rePassword')?.touched && registerForm1.get('rePassword')?.errors?.['required']) {
+  <p class="error-msg">
+    Confirm Password is required.
+  </p>
+}
             @if (registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched) {
             <p class="error-msg">
               Passwords do not match.

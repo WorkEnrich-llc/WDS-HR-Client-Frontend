@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-goal',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent,ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './edit-goal.component.html',
   styleUrl: './edit-goal.component.css'
@@ -63,18 +63,18 @@ export class EditGoalComponent {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
 
-      this.goalForm.patchValue({
-        code: this.goalData?.code ?? '',
-        name: this.goalData?.name ?? '',
-        department_type: this.goalData?.goal_type?.id ?? '',
-        Priority: this.goalData?.priority ?? ''
-      });
+        this.goalForm.patchValue({
+          code: this.goalData?.code ?? '',
+          name: this.goalData?.name ?? '',
+          department_type: this.goalData?.goal_type?.id ?? '',
+          Priority: this.goalData?.priority ?? ''
+        });
 
-      this.goalForm.markAsPristine();
+        this.goalForm.markAsPristine();
 
-      // console.log("Goal Data:", this.goalData);
+        // console.log("Goal Data:", this.goalData);
 
-      this.loadData = false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -92,8 +92,52 @@ export class EditGoalComponent {
 
 
   updateGoal() {
+    if (this.goalForm.invalid) {
+      this.goalForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+
+    const formValue = this.goalForm.value;
+
+    const requestData = {
+      request_data: {
+        id: Number(this.goalId),
+        code: formValue.code || "",
+        name: formValue.name,
+        goal_type: Number(formValue.department_type),
+        priority: Number(formValue.Priority)
+      }
+    };
 
 
+    this.goalsService.updateGoal(requestData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        this.toasterMessageService.sendMessage("Goal updated successfully");
+        this.goalForm.markAsPristine();
+        this.router.navigate(['/goals']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const statusCode = err?.status;
+        const errorHandling = err?.error?.data?.error_handling;
+
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
+        }
+      }
+    });
   }
 
 

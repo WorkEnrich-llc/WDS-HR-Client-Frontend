@@ -89,7 +89,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
     email: new FormControl('', [Validators.required, Validators.email]),
     jobTitle: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required, this.passwordComplexityValidator]),
-    rePassword: new FormControl(''),
+    rePassword: new FormControl('',[Validators.required]),
   }, { validators: [this.confirmPassword] } as FormControlOptions);
 
 

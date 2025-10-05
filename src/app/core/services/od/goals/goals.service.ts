@@ -52,7 +52,7 @@ export class GoalsService {
 
   // update Goal
   updateGoal(goalData: any): Observable<any> {
-    const url = `${this.apiBaseUrl}od/Goals`;
+    const url = `${this.apiBaseUrl}od/goals`;
     return this._HttpClient.put(url, goalData);
   }
 
