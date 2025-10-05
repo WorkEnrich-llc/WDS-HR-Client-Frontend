@@ -7,8 +7,7 @@
       <div class="d-flex align-itmes-center logo-inner">
         <button class="logo btn view-btn m-auto" (click)="toggleCollapse()">
           <!-- <img src="assets/images/Logo.png" alt=""> -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-            viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
             <path fill="currentColor"
               d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22"
               opacity=".5" />
@@ -43,9 +42,9 @@
 
     <!-- admin dashboard -->
     <ul class="admin mb-0">
-      <li class="sidenav-nav-item" routerLink="/admin-dash" routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
-        [attr.title]="!collapsed ? 'Admin Dashboard' : null">
+      <li class="sidenav-nav-item" routerLink="/dashboard" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }" (click)="closeAllAccordions()" data-bs-toggle="tooltip"
+        data-bs-placement="right" [attr.title]="!collapsed ? 'Admin Dashboard' : null">
         <a class="sidenav-nav-link d-flex align-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path
@@ -62,6 +61,8 @@
     <!-- accordion links -->
     <div class="accordion" id="accordionExample" #accordionWrapper>
       <!-- OD dropdown -->
+      @if(features.Departments || features.Branches || features.Job_Titles || features.Company_Chart || features.Goals
+      || features.Departments_Checklist){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingOne">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -163,6 +164,7 @@
               }
 
               <!-- ORGANIZATIONAL chart link -->
+              @if(features.Company_Chart){
               <li class="sidenav-nav-item" routerLink="/organizational-Chart" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Org Structure' : null">
@@ -183,8 +185,11 @@
                   }
                 </a>
               </li>
+              }
+
 
               <!-- Goals link -->
+              @if(features.Goals){
               <li class="sidenav-nav-item" routerLink="/goals" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Goals' : null">
@@ -201,8 +206,11 @@
                   }
                 </a>
               </li>
+              }
+
 
               <!-- Department checklist link -->
+              @if(features.Departments_Checklist){
               <li class="sidenav-nav-item" routerLink="/dept-check" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Department Checklist' : null">
@@ -217,18 +225,23 @@
                   }
                 </a>
               </li>
+              }
 
             </ul>
           </div>
         </div>
       </div>
 
+      }
+
       <!-- Personnel dropdown -->
+      @if(features.Calendar || features.Employees || features.Workflow || features.Requests || features.Delegation ||
+      features.Onboarding){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTwo">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-            @if (currentRoute.includes('dashboard') || currentRoute.includes('employees') ||
+            @if (currentRoute.includes('personnel-calender') || currentRoute.includes('employees') ||
             currentRoute.includes('workflow') || currentRoute.includes('requests')||
             currentRoute.includes('onboarding')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -262,7 +275,7 @@
             <ul class="sidenav-nav">
               <!-- Dashboard persoal calender link -->
               @if(features.Calendar){
-              <li class="sidenav-nav-item" routerLink="/dashboard" routerLinkActive="active"
+              <li class="sidenav-nav-item" routerLink="/personnel-calender" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Calender' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
@@ -389,8 +402,12 @@
           </div>
         </div>
       </div>
+      }
+
 
       <!-- Attendance dropdown -->
+      @if(features.Attendance_Log || features.Attendance_Rules || features.Restricted || features.Work_Schedule ||
+      features.Leave_Types || features.Leave_Balance || features.Permissions_Control){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingThree">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -517,7 +534,7 @@
               </li>
               }
               <!-- Leave Balance link -->
-              @if(features.Leave_Balance || true){
+              @if(features.Leave_Balance){
               <li class="sidenav-nav-item" routerLink="/leave-balance" routerLinkActive="active"
                 data-bs-toggle="tooltip" data-bs-placement="right" [attr.title]="!collapsed ? 'Leave Balance' : null"
                 [routerLinkActiveOptions]="{ exact: false }">
@@ -561,8 +578,11 @@
           </div>
         </div>
       </div>
+      }
+
 
       <!-- Recruitment system -->
+      @if (features.Calendar || features.Job_Openings || features.Archived_Openings){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingFour">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -607,13 +627,11 @@
                 [attr.title]="!collapsed ? 'Calendar' : null">
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path
+                      d="M17 14a1 1 0 1 0 0-2a1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2a1 1 0 0 0 0 2m-4-5a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-6-3a1 1 0 1 0 0-2a1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2a1 1 0 0 0 0 2" />
                     <path fill-rule="evenodd"
-                      d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972s1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724" />
-                    <path fill-rule="evenodd"
-                      d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828S6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172S22 17.772 22 14"
-                      opacity=".5" />
-                    <path fill-rule="evenodd"
-                      d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0" />
+                      d="M7 1.75a.75.75 0 0 1 .75.75v.763c.662-.013 1.391-.013 2.193-.013h4.113c.803 0 1.532 0 2.194.013V2.5a.75.75 0 0 1 1.5 0v.827q.39.03.739.076c1.172.158 2.121.49 2.87 1.238c.748.749 1.08 1.698 1.238 2.87c.153 1.14.153 2.595.153 4.433v2.112c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.945c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433v-2.112c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238q.35-.046.739-.076V2.5A.75.75 0 0 1 7 1.75M5.71 4.89c-1.005.135-1.585.389-2.008.812S3.025 6.705 2.89 7.71q-.034.255-.058.539h18.336q-.024-.284-.058-.54c-.135-1.005-.389-1.585-.812-2.008s-1.003-.677-2.009-.812c-1.027-.138-2.382-.14-4.289-.14h-4c-1.907 0-3.261.002-4.29.14M2.75 12c0-.854 0-1.597.013-2.25h18.474c.013.653.013 1.396.013 2.25v2c0 1.907-.002 3.262-.14 4.29c-.135 1.005-.389 1.585-.812 2.008s-1.003.677-2.009.812c-1.027.138-2.382.14-4.289.14h-4c-1.907 0-3.261-.002-4.29-.14c-1.005-.135-1.585-.389-2.008-.812s-.677-1.003-.812-2.009c-.138-1.027-.14-2.382-.14-4.289z"
+                      clip-rule="evenodd" />
                   </svg>
                   @if (collapsed) {
                   <span>Calendar</span>
@@ -630,14 +648,8 @@
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
-                      d="M10.561 2.25c-.113 0-.201 0-.285.005a2.75 2.75 0 0 0-2.385 1.72c-.032.079-.06.164-.099.278c-.083.224-.274.479-.542.683q-.045.034-.09.064h1.942q.044-.09.08-.182l.001-.003l.004-.01l.005-.012l.005-.012l.004-.01l.001-.005l.005-.012l.003-.012l.003-.006l.002-.008l.002-.007l.002-.006c.04-.116.052-.153.063-.181a1.25 1.25 0 0 1 1.085-.782c.032-.002.071-.002.215-.002h2.837c.144 0 .183 0 .216.002c.482.03.904.334 1.084.782c.011.028.023.063.063.181l.002.006l.002.007l.003.008l.002.006l.003.012l.005.012l.001.005l.004.01l.005.012l.004.012l.005.01l.001.003q.036.093.08.182h1.942q-.045-.03-.09-.064c-.268-.204-.459-.46-.542-.683l-.003-.01c-.036-.107-.064-.191-.095-.269a2.75 2.75 0 0 0-2.386-1.719a5 5 0 0 0-.285-.005z"
-                      opacity=".5" />
-                    <path fill-rule="evenodd" fill-rule="evenodd"
-                      d="M17.192 5H6.808c-1.688 0-2.531 0-3.175.33A3 3 0 0 0 2.33 6.633C2 7.277 2 8.12 2 9.808c0 .429 0 .643.073.824a1 1 0 0 0 .3.404c.153.122.358.183.77.307L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607c.41-.124.616-.185.768-.307a1 1 0 0 0 .3-.404c.074-.18.074-.395.074-.824c0-1.688 0-2.531-.33-3.175a3 3 0 0 0-1.303-1.303C19.723 5 18.88 5 17.192 5M13.6 12h-3.2c-.22 0-.4.182-.4.406v1.757c0 .166.1.315.251.377l.56.228c.764.31 1.614.31 2.377 0l.56-.228a.41.41 0 0 0 .252-.377v-1.757a.403.403 0 0 0-.4-.406"
+                      d="M10.581 1.25h-.02c-.114 0-.202 0-.286.005a2.75 2.75 0 0 0-2.385 1.72c-.031.077-.059.16-.095.269l-.006.019l-.026.077l-.029.085c-.16.442-.691.811-1.253.825l-1.82.09c-.786.092-1.459.288-2.028.751a4 4 0 0 0-.542.542c-.463.57-.66 1.242-.752 2.029c-.089.76-.089 1.715-.089 2.9v.078c0 .284 0 .55.023.774c.025.248.083.512.24.766q.078.124.175.234c.169.191.365.315.562.406c.003 1.616.024 3.248.169 4.646c.085.82.215 1.589.422 2.245c.203.645.503 1.256.979 1.678c.823.732 1.86 1.055 3.153 1.21c1.27.151 2.898.151 4.976.151h.102c2.078 0 3.706 0 4.976-.152c1.293-.154 2.33-.477 3.153-1.209c.476-.422.776-1.033.98-1.678c.206-.656.336-1.425.421-2.245c.145-1.398.166-3.03.169-4.646a1.66 1.66 0 0 0 .736-.64c.158-.254.216-.518.241-.766c.023-.224.023-.49.023-.774v-.078c0-1.185 0-2.14-.09-2.9c-.092-.787-.288-1.46-.751-2.029a4 4 0 0 0-.542-.542c-.57-.463-1.242-.66-2.029-.752L17.52 4.25c-.562-.014-1.093-.383-1.253-.825l-.029-.085l-.032-.097c-.036-.107-.063-.191-.095-.269a2.75 2.75 0 0 0-2.385-1.719a5 5 0 0 0-.285-.005zm-3.01 4.5h8.859c1.222 0 2.078.002 2.733.079c.646.076.999.216 1.257.426q.18.146.325.325c.21.258.35.611.426 1.257c.078.662.079 1.529.079 2.772c0 .326 0 .515-.015.654a.5.5 0 0 1-.023.125l-.024.033a.5.5 0 0 1-.114.058c-.129.054-.31.109-.622.202l-5.202 1.561V13c0-.69-.56-1.25-1.25-1.25h-4c-.69 0-1.25.56-1.25 1.25v.242l-5.202-1.56a7 7 0 0 1-.622-.203a.5.5 0 0 1-.114-.058l5.938 1.821l-5.962-1.854a.5.5 0 0 1-.023-.125a7 7 0 0 1-.015-.654c0-1.243.001-2.11.079-2.772c.076-.646.216-.999.426-1.257a2.3 2.3 0 0 1 .325-.325c.258-.21.611-.35 1.257-.426c.655-.077 1.51-.079 2.733-.079m3.01-3c-.143 0-.183 0-.215.002a1.25 1.25 0 0 0-1.084.782a4 4 0 0 0-.07.203l-.029.085l-.038.113q-.06.164-.14.315h5.99a2.5 2.5 0 0 1-.178-.428l-.028-.085a4 4 0 0 0-.07-.203a1.25 1.25 0 0 0-1.085-.782a4 4 0 0 0-.215-.002zM3.752 13.309c.007 1.437.036 2.817.159 4.003c.08.77.196 1.427.36 1.948c.168.53.362.845.545 1.008c.495.44 1.178.703 2.335.84c1.17.14 2.709.142 4.849.142s3.678-.001 4.849-.141c1.157-.138 1.84-.402 2.335-.841c.183-.163.377-.478.545-1.008c.164-.52.28-1.178.36-1.948c.123-1.186.152-2.567.159-4.003l-4.998 1.499v.354c0 .51-.311.97-.786 1.16l-.7.28a4.75 4.75 0 0 1-3.528 0l-.7-.28a1.25 1.25 0 0 1-.786-1.16v-.354zm6.498-.059v1.742l.543.217c.775.31 1.64.31 2.414 0l.543-.217V13.25z"
                       clip-rule="evenodd" />
-                    <path fill-rule="evenodd"
-                      d="m3 11.3l.142.043L8.5 12.95v1.213c0 .765.46 1.471 1.187 1.767l.56.227a4.65 4.65 0 0 0 3.506 0l.56-.227a1.91 1.91 0 0 0 1.187-1.767V12.95l5.358-1.607L21 11.3v1c0 3.675-.035 7.388-1.318 8.528C18.364 22 16.242 22 12 22s-6.364 0-7.682-1.172C3.035 19.688 3.001 15.975 3 12.3z"
-                      opacity=".5" />
                   </svg>
                   @if (collapsed) {
                   <span>Job Openings</span>
@@ -654,11 +666,8 @@
                 <a class="sidenav-nav-link d-flex align-items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
-                      d="M2.545 8.73C2 9.8 2 11.2 2 14s0 4.2.545 5.27a5 5 0 0 0 2.185 2.185C5.8 22 7.2 22 10 22h4c2.8 0 4.2 0 5.27-.545a5 5 0 0 0 2.185-2.185C22 18.2 22 16.8 22 14s0-4.2-.545-5.27a5 5 0 0 0-2.185-2.185C18.2 6 16.8 6 14 6h-4c-2.8 0-4.2 0-5.27.545A5 5 0 0 0 2.545 8.73M15.06 12.5a.75.75 0 0 0-1.12-1l-3.011 3.374l-.87-.974a.75.75 0 0 0-1.118 1l1.428 1.6a.75.75 0 0 0 1.119 0z"
+                      d="M11.943 1.25h.114c2.309 0 4.118 0 5.53.19c1.444.194 2.584.6 3.479 1.494c.895.895 1.3 2.035 1.494 3.48c.19 1.411.19 3.22.19 5.529V12h-.01c.01.579.01 1.23.01 1.966v.068c0 1.371 0 2.447-.07 3.311c-.072.88-.221 1.607-.557 2.265a5.75 5.75 0 0 1-2.513 2.513c-.658.336-1.385.485-2.265.556c-.864.071-1.94.071-3.311.071H9.966c-1.371 0-2.447 0-3.311-.07c-.88-.072-1.607-.221-2.265-.557a5.75 5.75 0 0 1-2.513-2.513c-.336-.658-.484-1.385-.556-2.265c-.071-.864-.071-1.94-.071-3.311v-.068c0-.736 0-1.387.01-1.966h-.01v-.057c0-2.309 0-4.118.19-5.53c.194-1.444.6-2.584 1.494-3.479c.895-.895 2.035-1.3 3.48-1.494c1.411-.19 3.22-.19 5.529-.19M2.882 6.987a5.8 5.8 0 0 1 1.508-1.11c.658-.336 1.385-.484 2.265-.556c.864-.071 1.94-.071 3.311-.071h4.068c1.371 0 2.447 0 3.311.07c.88.073 1.607.221 2.265.557a5.8 5.8 0 0 1 1.508 1.11a13 13 0 0 0-.044-.373c-.172-1.279-.5-2.05-1.069-2.62c-.57-.569-1.34-.896-2.619-1.068c-1.3-.174-3.008-.176-5.386-.176s-4.086.002-5.386.176c-1.279.172-2.05.5-2.62 1.069c-.569.57-.896 1.34-1.068 2.619q-.024.18-.044.373m3.895-.171c-.787.064-1.295.188-1.706.397a4.25 4.25 0 0 0-1.858 1.858c-.21.411-.333.919-.397 1.706c-.065.796-.066 1.81-.066 3.223s0 2.427.066 3.223c.064.787.188 1.295.397 1.707a4.25 4.25 0 0 0 1.858 1.857c.411.21.919.333 1.706.397c.796.065 1.81.066 3.223.066h4c1.412 0 2.427 0 3.223-.066c.787-.064 1.295-.188 1.707-.397a4.25 4.25 0 0 0 1.857-1.857c.21-.412.333-.92.397-1.707c.065-.796.066-1.81.066-3.223s0-2.427-.066-3.223c-.064-.787-.188-1.295-.397-1.706a4.25 4.25 0 0 0-1.857-1.858c-.412-.21-.92-.333-1.707-.397c-.796-.065-1.81-.066-3.223-.066h-4c-1.413 0-2.427 0-3.223.066M15 11.44a.75.75 0 0 1 .06 1.058l-3.572 4a.75.75 0 0 1-1.119 0l-1.428-1.6a.75.75 0 1 1 1.118-.998l.87.973L13.94 11.5a.75.75 0 0 1 1.058-.06"
                       clip-rule="evenodd" />
-                    <path
-                      d="M12 2c4.713 0 7.07 0 8.535 1.464c.757.758 1.123 1.754 1.3 3.192V10H2.164V6.656c.176-1.438.541-2.434 1.299-3.192C4.928 2 7.285 2 11.999 2"
-                      opacity=".5" />
                   </svg>
                   @if (collapsed) {
                   <span>Archived Openings</span>
@@ -671,8 +680,11 @@
           </div>
         </div>
       </div>
+      }
+
 
       <!-- payroll system -->
+      @if(features.Payroll_Components || features.Payroll_Runs || features.Salary_Portions){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingFive">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -729,7 +741,7 @@
               }
 
               <!-- payroll runs link -->
-
+              @if(features.Payroll_Runs){
               <li class="sidenav-nav-item" routerLink="/payroll-runs" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Payroll Runs' : null">
@@ -744,8 +756,10 @@
                   }
                 </a>
               </li>
-              <!-- Salary Portions link -->
+              }
 
+              <!-- Salary Portions link -->
+              @if(features.Salary_Portions){
               <li class="sidenav-nav-item" routerLink="/salary-portions" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Salary Portions' : null">
@@ -762,13 +776,18 @@
                   }
                 </a>
               </li>
+              }
+
             </ul>
           </div>
         </div>
       </div>
+      }
+
 
 
       <!-- Admin Settings -->
+      @if(features.Files || features.Roles || features.Users){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSix">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -802,6 +821,7 @@
           <div class="accordion-body">
             <ul class="sidenav-nav">
               <!-- System Cloud link -->
+              @if (features.Files) {
               <li class="sidenav-nav-item" routerLink="/cloud" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'System Cloud' : null">
@@ -818,7 +838,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Roles link -->
+              @if(features.Roles){
               <li class="sidenav-nav-item" routerLink="/roles" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Roles' : null">
@@ -835,7 +858,10 @@
                   }
                 </a>
               </li>
+              }
+
               <!-- Users link -->
+              @if(features.Users){
               <li class="sidenav-nav-item" routerLink="/users" routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Users' : null">
@@ -858,43 +884,41 @@
                 </a>
               </li>
 
+              }
+
             </ul>
           </div>
         </div>
       </div>
+
+      }
 
 
     </div>
 
   </div>
 
-  <!-- notification and settings buttons -->
+  <!-- notification and Profile buttons -->
   <ul class="bottom-nav mb-0 mt-auto">
-    <!-- setting button -->
+    <!-- Profile button -->
     <li class="sidenav-nav-item" routerLink="/settings" routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: false }" (click)="closeAllAccordions()" data-bs-toggle="tooltip"
       data-bs-placement="right" [attr.title]="!collapsed ? 'Profile' : null">
       <a class="sidenav-nav-link d-flex align-items-center">
-        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M14.279 2.152C13.909 2 13.439 2 12.5 2s-1.408 0-1.779.152a2 2 0 0 0-1.09 1.083c-.094.223-.13.484-.145.863a1.62 1.62 0 0 1-.796 1.353a1.64 1.64 0 0 1-1.579.008c-.338-.178-.583-.276-.825-.308a2.03 2.03 0 0 0-1.49.396c-.318.242-.553.646-1.022 1.453c-.47.807-.704 1.21-.757 1.605c-.07.526.074 1.058.4 1.479c.148.192.357.353.68.555c.477.297.783.803.783 1.361s-.306 1.064-.782 1.36c-.324.203-.533.364-.682.556a2 2 0 0 0-.399 1.479c.053.394.287.798.757 1.605s.704 1.21 1.022 1.453c.424.323.96.465 1.49.396c.242-.032.487-.13.825-.308a1.64 1.64 0 0 1 1.58.008c.486.28.774.795.795 1.353c.015.38.051.64.145.863c.204.49.596.88 1.09 1.083c.37.152.84.152 1.779.152s1.409 0 1.779-.152a2 2 0 0 0 1.09-1.083c.094-.223.13-.483.145-.863c.02-.558.309-1.074.796-1.353a1.64 1.64 0 0 1 1.579-.008c.338.178.583.276.825.308c.53.07 1.066-.073 1.49-.396c.318-.242.553-.646 1.022-1.453c.47-.807.704-1.21.757-1.605a2 2 0 0 0-.4-1.479c-.148-.192-.357-.353-.68-.555c-.477-.297-.783-.803-.783-1.361s.306-1.064.782-1.36c.324-.203.533-.364.682-.556a2 2 0 0 0 .399-1.479c-.053-.394-.287-.798-.757-1.605s-.704-1.21-1.022-1.453a2.03 2.03 0 0 0-1.49-.396c-.242.032-.487.13-.825.308a1.64 1.64 0 0 1-1.58-.008a1.62 1.62 0 0 1-.795-1.353c-.015-.38-.051-.64-.145-.863a2 2 0 0 0-1.09-1.083"
-            clip-rule="evenodd" opacity=".5" />
-          <path d="M15.523 12c0 1.657-1.354 3-3.023 3s-3.023-1.343-3.023-3S10.83 9 12.5 9s3.023 1.343 3.023 3" />
-        </svg> -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
           <path
             d="M16.807 19.011A8.46 8.46 0 0 1 12 20.5a8.46 8.46 0 0 1-4.807-1.489c-.604-.415-.862-1.205-.51-1.848C7.41 15.83 8.91 15 12 15s4.59.83 5.318 2.163c.35.643.093 1.433-.511 1.848M12 12a3 3 0 1 0 0-6a3 3 0 0 0 0 6" />
         </svg>
         @if (collapsed) {
-        <!-- <span>Settings</span> -->
         <span>Profile</span>
         }
       </a>
     </li>
+
     <!-- notifications button -->
-    <li class="sidenav-nav-item" [class.active]="isNotificationOpen" (click)="handleNotificationClick()"
+     @if (features.Notifications) {
+       <li class="sidenav-nav-item" [class.active]="isNotificationOpen" (click)="handleNotificationClick()"
       data-bs-toggle="tooltip" data-bs-placement="right" [attr.title]="!collapsed ? 'Notifications' : null">
       <a class="sidenav-nav-link d-flex align-items-center position-relative">
         <div class="position-relative">
@@ -915,6 +939,8 @@
 
       </a>
     </li>
+     }
+   
 
 
   </ul>
@@ -972,56 +998,4 @@
       </p>
     </div>
   </div>
-
-  <!-- <div class="notification success">
-    <div class="icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-        <path fill="currentColor"
-          d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12"
-          opacity=".5" />
-        <path fill="currentColor"
-          d="M7 16.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zm0-3.5a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5zM22 5a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
-      </svg>
-    </div>
-    <div class="noti-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
-      </div>
-      <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed morbi
-      </p>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-success">Decline</button>
-        <button class="btn btn-success">Accept</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="notification danger">
-    <div class="icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-        <path fill="currentColor"
-          d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12"
-          opacity=".5" />
-        <path fill="currentColor"
-          d="M7 16.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zm0-3.5a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5zM22 5a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
-      </svg>
-    </div>
-    <div class="noti-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
-      </div>
-      <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed morbi
-      </p>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-danger">Decline</button>
-        <button class="btn btn-danger">Accept</button>
-      </div>
-    </div>
-  </div> -->
-
-
 </app-overlay-filter-box>

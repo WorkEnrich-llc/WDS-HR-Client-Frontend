@@ -7,6 +7,6 @@ export class GuestGuard implements CanActivate {
 
   canActivate(): boolean | UrlTree {
     const isLoggedIn = !!localStorage.getItem('user_info');
-    return isLoggedIn ? this.router.createUrlTree(['/admin-dash']) : true;
+    return isLoggedIn ? this.router.createUrlTree(['/dashboard']) : true;
   }
 }
