@@ -76,7 +76,9 @@ export class AdminRolesService {
                 typeof a === 'string' ? a : a?.name ?? ''
               )
             }))
-          }))
+          })),
+          users: (item.users || []).map((u: any) => u.id),
+          total_users: item.total_users ?? (item.users ? item.users.length : 0)
         }));
 
         return {
@@ -116,6 +118,16 @@ export class AdminRolesService {
           name: item.name ?? '',
           createdAt: item.created_at,
           updatedAt: item.updated_at,
+          total_users: item.total_users ?? 0,
+          users: (item.users || []).map((u: any) => ({
+            id: u.id,
+            code: u.code ?? '',
+            email: u.email ?? '',
+            name: u.name ?? '',
+            added_date: u.added_date,
+            status: u.status,
+            is_active: u.is_active
+          })),
           permissions: (item.permissions || []).map((p: any) => ({
             moduleCode: p.main?.code,
             subModules: (p.sub_list || []).map((sub: any) => ({

@@ -1,6 +1,7 @@
+import { IUser } from "./users";
 
 export interface RoleUser {
-  id: number;
+   id: number;
 }
 export interface Roles {
    id?: number;
@@ -9,7 +10,7 @@ export interface Roles {
    createdAt?: string;
    updatedAt?: string;
    permissions: ModulePermission[];
-   users?: number[];
+   users?: IUser[];
    total_users?: number;
 }
 
@@ -37,6 +38,7 @@ export interface UpdateRoleRequest {
          name?: string;
       };
       permissions?: ModulePermission[];
+      users?: number[];
    };
 }
 
@@ -54,6 +56,17 @@ export interface Action {
       inactive: number;
    };
    infinity?: boolean;
+}
+
+export interface IUserRole {
+   id: number;
+   code?: string;
+   email?: string;
+   name: string;
+   added_date?: string;
+   status?: string;
+   is_active?: boolean;
+   isSelected?: boolean;
 }
 
 export type ActionType = 'create' | 'update' | 'delete';
