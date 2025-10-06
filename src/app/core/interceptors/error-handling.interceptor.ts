@@ -19,7 +19,7 @@ export const errorHandlingInterceptor: HttpInterceptorFn = (
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       // Log the error for debugging
-      console.error('HTTP Error:', error);
+      // console.error('HTTP Error:', error);
 
       // Don't show global error handling for certain endpoints that handle their own errors
       const skipGlobalHandling = req.url.includes('/check-email') || 

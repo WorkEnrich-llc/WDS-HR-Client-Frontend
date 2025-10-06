@@ -32,32 +32,29 @@ export class SettingsComponent {
   }
 
 
-  logout(): void {
-    this.isLoading = true;
+logout(): void {
+  this.isLoading = true;
 
-    const deviceToken = localStorage.getItem('device_token');
-    localStorage.clear();
-    if (deviceToken) {
-      localStorage.setItem('device_token', deviceToken);
-    }
-
-    this.cookieService.deleteAll('/', window.location.hostname);
-
-    this._Router.navigate(['/auth/login']);
-
-    this._AuthenticationService.logout().subscribe({
-      next: () => {
-        // console.log('Logout request completed successfully');
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Logout request failed:', err);
-        this.isLoading = false;
+  this._AuthenticationService.logout().subscribe({
+    next: () => {
+      const deviceToken = localStorage.getItem('device_token');
+      localStorage.clear();
+      if (deviceToken) {
+        localStorage.setItem('device_token', deviceToken);
       }
-    });
+
+      this.cookieService.deleteAll('/', window.location.hostname);
+      this._Router.navigate(['/auth/login']);
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Logout request failed:', err);
+      this.isLoading = false;
+    }
+  });
+}
 
 
-  }
 
 
 
