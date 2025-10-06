@@ -36,6 +36,7 @@ export class EditEmployeeSharedService {
     { id: 4, name: 'Widowed' }
   ]);
   readonly countries = signal<Country[]>(COUNTRIES);
+  readonly workSchedules = signal<any[]>([]);
 
   constructor(createService: CreateEmployeeSharedService) {
     this.createService = createService;
@@ -167,7 +168,7 @@ export class EditEmployeeSharedService {
   }
   // Work schedules
   getActiveWorkSchedules() {
-    return this.createService.getActiveWorkSchedules();
+    return this.workSchedules().filter((w) => w.is_active);
   }
 
   // Load employee data and populate form
@@ -327,7 +328,7 @@ export class EditEmployeeSharedService {
           department_id: originalData.job_info.department?.id,
           section_id: originalData.job_info.section?.id,
           job_title_id: originalData.job_info.job_title?.id,
-          work_schedule_id: originalData.job_info.work_schedule?.id
+          work_schedule_id: formData.attendance_details.work_schedule_id || originalData.job_info.work_schedule?.id
         },
         contract_details: {
           start_contract: this.formatDateForAPI(originalData.job_info.start_contract),

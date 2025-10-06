@@ -97,7 +97,7 @@ export class CreateEmployeeSharedService {
         employment_type: [null, Validators.required],
         work_mode: [null, Validators.required],
         days_on_site: [''],
-        work_schedule_id: [null],
+        work_schedule_id: [null, Validators.required],
         activate_attendance_rules: [false]
       }),
       insurance_details: this.fb.group({
