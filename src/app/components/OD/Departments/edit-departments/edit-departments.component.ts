@@ -256,11 +256,11 @@ export class EditDepartmentsComponent implements OnInit {
   getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
     this.loadData = true;
 
-    const goalType = this.deptStep1.get('department_type')?.value; 
+    const goalType = this.deptStep1.get('department_type')?.value;
 
     this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
-      goal_type: goalType || undefined,  
+      goal_type: goalType || undefined,
     }).subscribe({
       next: (response) => {
         const data = response?.data;
@@ -314,6 +314,11 @@ export class EditDepartmentsComponent implements OnInit {
     this.getAllGoals(this.currentPage);
   }
   discardGoals(): void {
+    this.Goals.forEach(goal => {
+      goal.selected = false;
+    });
+    this.selectAllOverlay = false;
+    this.addedGoal = [];
     this.goalsOverlay.closeOverlay();
     this.searchTerm = '';
   }

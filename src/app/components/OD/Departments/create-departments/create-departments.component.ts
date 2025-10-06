@@ -51,9 +51,9 @@ export class CreateDepartmentsComponent {
     // console.log(this.todayFormatted); 
   }
   ngOnInit(): void {
-    
-    
-     this.searchSubject.pipe(
+
+
+    this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(search => {
@@ -180,14 +180,14 @@ export class CreateDepartmentsComponent {
   }
 
 
-   getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
+  getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
     this.loadData = true;
 
-    const goalType = this.deptStep1.get('department_type')?.value; 
+    const goalType = this.deptStep1.get('department_type')?.value;
 
     this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
-      goal_type: goalType || undefined,  
+      goal_type: goalType || undefined,
     }).subscribe({
       next: (response) => {
         const data = response?.data;
@@ -241,7 +241,13 @@ export class CreateDepartmentsComponent {
     this.currentPage = page;
     this.getAllGoals(this.currentPage);
   }
+
   discardGoals(): void {
+    this.Goals.forEach(goal => {
+      goal.selected = false;
+    });
+    this.selectAllOverlay = false;
+    this.addedGoal = [];
     this.goalsOverlay.closeOverlay();
     this.searchTerm = '';
   }
@@ -300,46 +306,46 @@ export class CreateDepartmentsComponent {
   // create Department
   createDept() {
     if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
-    this.errMsg = 'Please complete both steps with valid data and at least one section.';
-    return;
-  }
-
-  const form1Data = this.deptStep1.value;
-
-  const sections = this.sectionsFormArray.controls.map((group, index) => {
-    const subSections = this.getSubSections(group).controls.map((subGroup, subIndex) => ({
-      id: 0,
-      index: subIndex + 1,
-      record_type: 'create',
-      code: subGroup.get('secCode')?.value,
-      name: subGroup.get('secName')?.value,
-      status: subGroup.get('status')?.value.toString()
-    }));
-
-    return {
-      id: 0,
-      index: index + 1,
-      record_type: 'create',
-      code: group.get('secCode')?.value,
-      name: group.get('secName')?.value,
-      status: group.get('status')?.value.toString(),
-      sub_sections: subSections
-    };
-  });
-
-  const finalData = {
-    request_data: {
-      code: form1Data.code,
-      name: form1Data.name,
-      department_type: Number(form1Data.department_type),
-      objectives: form1Data.objectives,
-      goals: this.addedGoal.map(goal => goal.id), 
-      sections: sections,
-      checklist: []  
+      this.errMsg = 'Please complete both steps with valid data and at least one section.';
+      return;
     }
-  };
 
-  // console.log(finalData);
+    const form1Data = this.deptStep1.value;
+
+    const sections = this.sectionsFormArray.controls.map((group, index) => {
+      const subSections = this.getSubSections(group).controls.map((subGroup, subIndex) => ({
+        id: 0,
+        index: subIndex + 1,
+        record_type: 'create',
+        code: subGroup.get('secCode')?.value,
+        name: subGroup.get('secName')?.value,
+        status: subGroup.get('status')?.value.toString()
+      }));
+
+      return {
+        id: 0,
+        index: index + 1,
+        record_type: 'create',
+        code: group.get('secCode')?.value,
+        name: group.get('secName')?.value,
+        status: group.get('status')?.value.toString(),
+        sub_sections: subSections
+      };
+    });
+
+    const finalData = {
+      request_data: {
+        code: form1Data.code,
+        name: form1Data.name,
+        department_type: Number(form1Data.department_type),
+        objectives: form1Data.objectives,
+        goals: this.addedGoal.map(goal => goal.id),
+        sections: sections,
+        checklist: []
+      }
+    };
+
+    // console.log(finalData);
     this.isLoading = true;
     this._DepartmentsService.createDepartment(finalData).subscribe({
 
