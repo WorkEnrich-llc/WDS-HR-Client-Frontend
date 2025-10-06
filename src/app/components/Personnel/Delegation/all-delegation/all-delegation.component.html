@@ -79,23 +79,20 @@
         </ng-template>
 
         <ng-template #delegationTableRow let-delegation let-i="index">
-            <td class="width-fix">
-                <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ delegation.delegatorName }}
-                </span>
+            <td>
+                {{ delegation.delegatorName }}
+              
             </td>
             <td>
-                <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ delegation.delegateName }}
-                </span>
+                {{ delegation.delegateName }}
             </td>
             <td>{{ delegation.startDate }}</td>
             <td>{{ delegation.endDate }}</td>
 
             <td>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-3">
                     <!-- Edit icon-only button -->
-                    <a class="btn btn-icon" [routerLink]="['/delegation/edit', delegation.id]" title="Edit">
+                    <a class="edit-btn" [routerLink]="['/delegation/edit', delegation.id]" title="Edit">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_2505_23400)">
                                 <g clip-path="url(#clip1_2505_23400)">
@@ -117,8 +114,7 @@
                     </a>
 
                     <!-- Delete icon-only button -->
-                    <button type="button" class="btn btn-icon"
-                        (click)="confirmAndDelete(delegation.id)" title="Delete">
+                    <button type="button" class="remove-btn" (click)="confirmAndDelete(delegation.id)" title="Delete">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
                                 d="M7.7319 1.68751H10.268C10.4303 1.68741 10.5717 1.68732 10.7052 1.70864C11.2327 1.79287 11.6891 2.12186 11.9358 2.59563C11.9983 2.71555 12.0429 2.84971 12.0941 3.00371L12.1778 3.25488C12.192 3.2974 12.196 3.30943 12.1995 3.31891C12.3308 3.682 12.6713 3.92745 13.0573 3.93723C13.0675 3.93748 13.0799 3.93753 13.1249 3.93753H15.3749C15.6856 3.93753 15.9374 4.18937 15.9374 4.50003C15.9374 4.81069 15.6856 5.06253 15.3749 5.06253H2.62488C2.31422 5.06253 2.06238 4.81069 2.06238 4.50003C2.06238 4.18937 2.31422 3.93753 2.62488 3.93753H4.87494C4.91997 3.93753 4.9324 3.93749 4.94255 3.93723C5.32854 3.92745 5.66906 3.68202 5.8004 3.31893C5.80385 3.30938 5.80782 3.29761 5.82206 3.25488L5.90577 3.00372C5.95699 2.84973 6.00162 2.71555 6.06407 2.59563C6.31078 2.12186 6.76723 1.79287 7.2947 1.70864C7.42821 1.68732 7.5696 1.68741 7.7319 1.68751ZM6.75599 3.93753C6.79462 3.86176 6.82886 3.78303 6.85831 3.70161C6.86725 3.67689 6.87602 3.65057 6.88729 3.61675L6.96215 3.39219C7.03052 3.18706 7.04627 3.14522 7.06189 3.11523C7.14412 2.95731 7.29627 2.84764 7.4721 2.81957C7.50549 2.81423 7.55015 2.81253 7.76639 2.81253H10.2335C10.4497 2.81253 10.4944 2.81423 10.5278 2.81957C10.7036 2.84764 10.8558 2.95731 10.938 3.11523C10.9536 3.14522 10.9694 3.18705 11.0377 3.39219L11.1125 3.61662L11.1416 3.70163C11.171 3.78304 11.2053 3.86177 11.2439 3.93753H6.75599Z"
@@ -142,12 +138,11 @@
         <ng-template #noDelegations>
             <tr>
                 <td colspan="6" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim()|| filterForm?.dirty; else noDelegationsTemplate">
-                        No delegations match your search.
-                    </ng-container>
-                    <ng-template #noDelegationsTemplate>
-                        No delegations added yet.
-                    </ng-template>
+                    @if (searchTerm.trim() || filterForm.dirty) {
+                    No delegations match your search.
+                    } @else {
+                    No delegations added yet.
+                    }
                 </td>
             </tr>
         </ng-template>
@@ -233,7 +228,8 @@
 </app-overlay-filter-box>
 
 <!-- delete confirmation popup -->
-<app-popup [title]="'Delete Delegation'" [paragraph1]="'Are you sure you want to delete this delegation?'" [isOpen]="deleteOpen" (close)="closeDeleteConfirm()">
+<app-popup [title]="'Delete Delegation'" [paragraph1]="'Are you sure you want to delete this delegation?'"
+    [isOpen]="deleteOpen" (close)="closeDeleteConfirm()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()" [disabled]="loading">
         Delete
     </button>

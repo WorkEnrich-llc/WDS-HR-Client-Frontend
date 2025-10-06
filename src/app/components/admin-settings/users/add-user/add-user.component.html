@@ -1,9 +1,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Admin settings', link: '/cloud' },
     { label: 'Users', link: '/users' },
-    {  label: 'Add User'}
-  ]" title="Users - User information" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success">
+     { label: isEditMode ? 'Edit User ' + userId : 'Create New User' }
+  ]" [title]="isEditMode ? 'Edit User ' + userId : 'Create New User'" [create]="createDate" [update]="updatedDate">
+  <button class="btn btn-lg btn-success" (click)="inviteUser()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
@@ -29,33 +29,51 @@
   </button>
 </app-page-header>
 
+
+
 <!-- start content -->
 <div class="content-hug">
   <div class="d-flex flex-column gap-4">
-
     <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
       <h2>User Information</h2>
       <form [formGroup]="usersForm" class="w-lg-50 d-flex flex-column gap-2">
-
         <div class="input">
           <label for="email">Email <span>*</span></label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="email" class="form-control custom-date-input" placeholder="Email"
-              formControlName="email" />
-          </div>
-          @if (usersForm.get('email')?.touched && usersForm.get('email')?.errors?.['required']) {
-          <p class="error-msg">
-            Email is required.
-          </p>
-          }
+            <input type="text" id="email" class="form-control" placeholder="Email" formControlName="email"
+              (input)="onEmailInput($event)" (blur)="checkEmailExists()" autocomplete="off" />
+            @if(showSuggestions){
+            <ul class="list-group position-absolute w-100" style="z-index:1000; max-height:200px; overflow:auto;">
+              @for(item of suggestedEmails; track item.email){
+              <li class="list-group-item list-group-item-action" (click)="selectEmail(item.email)">
+                {{ item.email }}
+              </li>
+              }
+            </ul>
+            }
 
+          </div>
+          @if (usersForm.get('email')?.hasError('required') && (usersForm.get('email')?.touched ||
+          usersForm.get('email')?.dirty)){
+          <p class="error-msg"> Email is required.</p>
+          }
+          @if (usersForm.get('email')?.hasError('email') && (usersForm.get('email')?.touched ||
+          usersForm.get('email')?.dirty)){
+          <p class="error-msg">This email is invalid.</p>
+          }
+          @if (isExistingUser && (usersForm.get('email')?.touched || usersForm.get('email')?.dirty)) {
+          <p class="text-primary">This user is in your employee list.</p>
+          }
+          @if (isAdmin && (usersForm.get('email')?.touched || usersForm.get('email')?.dirty)) {
+          <p class="error-msg">This user is an admin.</p>
+          }
         </div>
 
         <div class="input">
           <label for="userId">User ID (Optional)</label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="userId" class="form-control custom-date-input" placeholder="0050"
-              formControlName="userId" />
+              formControlName="code" [disabled]="isExistingUser" />
           </div>
         </div>
 
@@ -63,67 +81,59 @@
           <label for="userName">User Name <span>*</span></label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <input type="text" id="userName" class="form-control custom-date-input" placeholder="User Name"
-              formControlName="userName" />
+              formControlName="userName" [disabled]="isExistingUser" />
           </div>
           @if (usersForm.get('userName')?.touched && usersForm.get('userName')?.errors?.['required']) {
           <p class="error-msg">
             User Name is required.
           </p>
           }
-          <!-- @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['minLength']) {
-                <p class="error-msg"
-                  >
-                  User Name min length must be 3.
-                </p>
-              }
-              @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['maxLength']) {
-                <p class="error-msg"
-                  >
-                  User Name max length must be 100.
-                </p>
-              }
-              @if (usersForm.get('name')?.touched && usersForm.get('name')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  User Name is required.
-                </p>
-              } -->
         </div>
-
-
-
-
 
         <div class="input">
-          <label for="userRole">User Role</label>
+          <label for="userRole">User Role(s)<span>*</span></label>
           <div class="d-flex align-items-center gap-4">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <select name="userRole" id="userRole" class="form-select" formControlName="userRole">
-                <option value="" disabled selected hidden>Select one User Role</option>
-                <!-- @for (role of userRoles; track role) {
-                      <option [value]="role.id">{{role.name}}</option>
-                    } -->
-              </select>
+            <div class="form-outline w-100 position-relative custom-date-wrapper" appCloseDropdown
+              (appCloseDropdown)="isDropdownOpen = false">
+              <div class="form-select custom-select" [class.open]="isDropdownOpen"
+                (click)="!usersForm.get('permissions')?.disabled  && toggleDropdown()"
+                [class.disabled]="usersForm.get('permissions')?.disabled">
+                <div class="selected-tags ">
+                  @for( role of selectedRoles; track role.id){
+                  <span class="badge text-muted d-flex align-items-center gap-1">
+                    {{ role.name }}
+                    <button type="button" class="small btn-close btn-close-grey"
+                      (click)="removeRole(role.id!); $event.stopPropagation();"></button>
+                  </span>
+                  }
+                  @if(!selectedRoles.length) {
+                  <span>
+                    Select one User Roles
+                  </span>
+                  }
+                </div>
+              </div>
+              @if(isDropdownOpen){
+              <ul class="dropdown-list">
+                @for (role of userRoles; track role.id) {
+                <li (click)="selectRole(role)" [class.selected]="isRoleSelected(role.id!)">
+                  {{ role.name }}
+                </li>
+                }
+              </ul>
+              }
             </div>
           </div>
-          <!-- @if (usersForm.get('userRole')?.touched && usersForm.get('userRole')?.errors?.['required']) {
-                <p class="error-msg"
-                  >
-                  User Role is required.
-                </p>
-              } -->
+          @if (usersForm.get('permissions')?.touched && usersForm.get('permissions')?.errors?.['required']) {
+          <p class="error-msg">
+            User Role is required.
+          </p>
+          }
         </div>
-        <!-- @if (errMsg) {
-              <div class="alert alert-danger mb-0 mt-3" role="alert">
-                {{errMsg}}
-              </div>
-            } -->
       </form>
     </div>
   </div>
 </div>
-
-
 
 <!-- discard -->
 <app-popup [title]="'Discard New User'" [paragraph1]="'Are you sure you want to discard creating the new User?'"
@@ -133,5 +143,14 @@
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
     Cancel
+  </button>
+</app-popup>
+
+
+<!-- popup cancel invitation for admin -->
+<app-popup [title]="'Cancel Invitation'" [paragraph1]="'You Can not send invitation to Admin'" [isOpen]="isPopupOpen"
+  (close)="closePopup()">
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closePopup()">
+    Ok
   </button>
 </app-popup>

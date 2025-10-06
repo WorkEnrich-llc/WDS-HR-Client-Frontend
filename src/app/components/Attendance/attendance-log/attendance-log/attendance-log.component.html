@@ -37,24 +37,8 @@
             </div>
 
             <div class="d-flex align-items-center justify-content-end gap-2 w-100 w-lg-50">
-                <!-- Import Button -->
-
-                <button class="btn-outline-primary import-btn" (click)="overlay.openOverlay()">
-                    <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M8.85225 5.85225C9.07192 5.63258 9.42808 5.63258 9.64775 5.85225C9.86742 6.07192 9.86742 6.42808 9.64775 6.64775L7.39775 8.89775C7.17808 9.11742 6.82192 9.11742 6.60225 8.89775L4.35225 6.64775C4.13258 6.42808 4.13258 6.07192 4.35225 5.85225C4.57192 5.63258 4.92808 5.63258 5.14775 5.85225L6.4375 7.142V1C6.4375 0.68934 6.68934 0.4375 7 0.4375C7.31066 0.4375 7.5625 0.68934 7.5625 1V7.142L8.85225 5.85225Z"
-                            fill="#377AFD" />
-                        <path
-                            d="M13.5625 7C13.5625 6.68934 13.3107 6.4375 13 6.4375C12.6893 6.4375 12.4375 6.68934 12.4375 7C12.4375 10.003 10.003 12.4375 7 12.4375C3.99695 12.4375 1.5625 10.003 1.5625 7C1.5625 6.68934 1.31066 6.4375 1 6.4375C0.68934 6.4375 0.4375 6.68934 0.4375 7C0.4375 10.6244 3.37563 13.5625 7 13.5625C10.6244 13.5625 13.5625 10.6244 13.5625 7Z"
-                            fill="#377AFD" />
-                    </svg>
-                    <span>Import</span>
-                </button>
-
-
-                <!-- New Log Button -->
                 <!-- routerLink="/attendance/attendance-log/manage-attendance" -->
-                <button class="btn btn-lg btn-primary w-50" (click)="navigateToNewLog()">
+                <button class="btn btn-lg btn-primary" (click)="navigateToNewLog()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -136,11 +120,10 @@
 
         <!-- start Table -->
 
-        <app-table [data]="attendanceLogs" [isLoading]="loadData" [columnsCount]="8"
-            [totalItems]="attendanceLogs.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
-            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
-            [headerTemplate]="attedanceTableHeader" [rowTemplate]="attendanceTableRow"
-            [emptyTemplate]="noAttendance"></app-table>
+        <app-table [data]="attendanceLogs" [isLoading]="loadData" [columnsCount]="8" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="attedanceTableHeader"
+            [rowTemplate]="attendanceTableRow" [emptyTemplate]="noAttendance"></app-table>
 
         <ng-template #attedanceTableHeader>
             <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
@@ -167,9 +150,10 @@
             <th>Out</th>
             <th>Date</th>
             <th>Day Type</th>
-            <th>Working Hrs</th>
-            <th>Missing Hrs</th>
+            <th>Working </th>
+            <th>Missing </th>
             <th>Deduction</th>
+            <th>Actions</th>
         </ng-template>
 
         <ng-template #attendanceTableRow let-attendance let-i="index">
@@ -214,6 +198,71 @@
             <td [ngClass]="{'text-danger': attendance.working_details?.deduction}">
                 {{ attendance.working_details?.deduction || '-' }}
             </td>
+
+            <td>
+                <div *ngIf="!attendance.working_details?.canceled"
+                    class="d-flex justify-content-start gap-4 align-items-center w-100">
+                    <a *ngIf="attendance?.emp_id" class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Edit" [routerLink]="['/attendance/manage-attendance']"
+                        [state]="{ attendance: attendance }">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M8.95697 0.9375L10.125 0.9375C10.4357 0.9375 10.6875 1.18934 10.6875 1.5C10.6875 1.81066 10.4357 2.0625 10.125 2.0625H9C7.21633 2.0625 5.93517 2.06369 4.96018 2.19478C4.00138 2.32369 3.42334 2.56886 2.9961 2.9961C2.56886 3.42334 2.32369 4.00138 2.19478 4.96018C2.06369 5.93517 2.0625 7.21633 2.0625 9C2.0625 10.7837 2.06369 12.0648 2.19478 13.0398C2.32369 13.9986 2.56886 14.5767 2.9961 15.0039C3.42334 15.4311 4.00138 15.6763 4.96018 15.8052C5.93517 15.9363 7.21633 15.9375 9 15.9375C10.7837 15.9375 12.0648 15.9363 13.0398 15.8052C13.9986 15.6763 14.5767 15.4311 15.0039 15.0039C15.4311 14.5767 15.6763 13.9986 15.8052 13.0398C15.9363 12.0648 15.9375 10.7837 15.9375 9V7.875C15.9375 7.56434 16.1893 7.3125 16.5 7.3125C16.8107 7.3125 17.0625 7.56434 17.0625 7.875V9.04303C17.0625 10.7743 17.0625 12.1311 16.9202 13.1897C16.7745 14.2733 16.4705 15.1283 15.7994 15.7994C15.1283 16.4705 14.2733 16.7745 13.1897 16.9202C12.1311 17.0625 10.7743 17.0625 9.04303 17.0625H8.95697C7.22567 17.0625 5.8689 17.0625 4.81028 16.9202C3.72673 16.7745 2.87171 16.4705 2.2006 15.7994C1.5295 15.1283 1.22549 14.2733 1.07981 13.1897C0.937483 12.1311 0.937491 10.7743 0.9375 9.04303V8.95697C0.937491 7.22567 0.937483 5.86889 1.07981 4.81028C1.22549 3.72673 1.5295 2.87171 2.2006 2.2006C2.87171 1.5295 3.72673 1.22549 4.81028 1.07981C5.86889 0.937483 7.22567 0.937491 8.95697 0.9375ZM12.5779 1.70694C13.6038 0.681022 15.2671 0.681022 16.2931 1.70694C17.319 2.73285 17.319 4.39619 16.2931 5.4221L11.307 10.4082C11.0285 10.6867 10.8541 10.8611 10.6594 11.013C10.4302 11.1918 10.1821 11.3451 9.91961 11.4702C9.69676 11.5764 9.46271 11.6544 9.08909 11.7789L6.9107 12.505C6.50851 12.6391 6.0651 12.5344 5.76533 12.2347C5.46556 11.9349 5.36089 11.4915 5.49495 11.0893L6.22108 8.91092C6.34559 8.53729 6.42359 8.30324 6.5298 8.08039C6.65489 7.81791 6.80821 7.56984 6.98703 7.34056C7.13887 7.1459 7.31333 6.97147 7.59183 6.693L12.5779 1.70694ZM15.4976 2.50243C14.911 1.91586 13.96 1.91586 13.3734 2.50243L13.0909 2.7849C13.108 2.85679 13.1318 2.94245 13.1649 3.038C13.2724 3.34779 13.4758 3.75579 13.86 4.14C14.2442 4.5242 14.6522 4.7276 14.962 4.83508C15.0575 4.86823 15.1432 4.89205 15.2151 4.90907L15.4976 4.62661C16.0841 4.04003 16.0841 3.08901 15.4976 2.50243ZM14.3289 5.79532C13.9419 5.6289 13.4911 5.36209 13.0645 4.93549C12.6379 4.50889 12.3711 4.05812 12.2047 3.67114L8.41313 7.46269C8.10075 7.77508 7.97823 7.89897 7.87411 8.03246C7.74553 8.19731 7.6353 8.37567 7.54536 8.56439C7.47252 8.71722 7.41651 8.8822 7.2768 9.30131L6.95288 10.2731L7.72693 11.0471L8.69869 10.7232C9.1178 10.5835 9.28278 10.5275 9.43561 10.4546C9.62433 10.3647 9.80269 10.2545 9.96754 10.1259C10.101 10.0218 10.2249 9.89926 10.5373 9.58687L14.3289 5.79532Z"
+                                fill="#377AFD" />
+                        </svg>
+                    </a>
+                    <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel"
+                        (click)="openModal(attendance)">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M7.52272 6.72724C7.30305 6.50757 6.9469 6.50757 6.72723 6.72724C6.50756 6.94691 6.50756 7.30307 6.72723 7.52274L8.20449 9L6.72725 10.4772C6.50758 10.6969 6.50758 11.0531 6.72725 11.2727C6.94692 11.4924 7.30307 11.4924 7.52274 11.2727L8.99998 9.79549L10.4772 11.2727C10.6969 11.4924 11.053 11.4924 11.2727 11.2727C11.4924 11.0531 11.4924 10.6969 11.2727 10.4772L9.79548 9L11.2727 7.52275C11.4924 7.30308 11.4924 6.94693 11.2727 6.72726C11.0531 6.50759 10.6969 6.50759 10.4772 6.72726L8.99998 8.2045L7.52272 6.72724Z"
+                                fill="#E04F5F" />
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M9 0.9375C4.5472 0.9375 0.9375 4.5472 0.9375 9C0.9375 13.4528 4.5472 17.0625 9 17.0625C13.4528 17.0625 17.0625 13.4528 17.0625 9C17.0625 4.5472 13.4528 0.9375 9 0.9375ZM2.0625 9C2.0625 5.16852 5.16852 2.0625 9 2.0625C12.8315 2.0625 15.9375 5.16852 15.9375 9C15.9375 12.8315 12.8315 15.9375 9 15.9375C5.16852 15.9375 2.0625 12.8315 2.0625 9Z"
+                                fill="#E04F5F" />
+                        </svg>
+                    </a>
+                </div>
+
+                <div *ngIf="attendance.working_details?.canceled === true"
+                    class="d-flex justify-content-start gap-4 align-items-center w-100">
+                    <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Canceled">
+                        <svg width="110" height="34" viewBox="0 0 110 34" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M17 0.5H93C93.9345 0.5 94.3838 0.500036 94.7607 0.518555C102.723 0.909812 109.09 7.277 109.481 15.2393C109.5 15.6162 109.5 16.0655 109.5 17C109.5 17.9345 109.5 18.3838 109.481 18.7607C109.09 26.723 102.723 33.0902 94.7607 33.4814C94.3838 33.5 93.9345 33.5 93 33.5H17C16.0655 33.5 15.6162 33.5 15.2393 33.4814C7.277 33.0902 0.909811 26.723 0.518555 18.7607C0.500036 18.3838 0.5 17.9345 0.5 17C0.5 16.0655 0.500036 15.6162 0.518555 15.2393C0.90981 7.277 7.277 0.90981 15.2393 0.518555C15.6162 0.500036 16.0655 0.5 17 0.5Z"
+                                fill="#FEEAEA" />
+                            <path
+                                d="M17 0.5H93C93.9345 0.5 94.3838 0.500036 94.7607 0.518555C102.723 0.909812 109.09 7.277 109.481 15.2393C109.5 15.6162 109.5 16.0655 109.5 17C109.5 17.9345 109.5 18.3838 109.481 18.7607C109.09 26.723 102.723 33.0902 94.7607 33.4814C94.3838 33.5 93.9345 33.5 93 33.5H17C16.0655 33.5 15.6162 33.5 15.2393 33.4814C7.277 33.0902 0.909811 26.723 0.518555 18.7607C0.500036 18.3838 0.5 17.9345 0.5 17C0.5 16.0655 0.500036 15.6162 0.518555 15.2393C0.90981 7.277 7.277 0.90981 15.2393 0.518555C15.6162 0.500036 16.0655 0.5 17 0.5Z"
+                                stroke="#FFBFBF" />
+                            <g clip-path="url(#clip0_3620_30396)">
+                                <g clip-path="url(#clip1_3620_30396)">
+                                    <path
+                                        d="M15.5227 14.7272C15.3031 14.5076 14.9469 14.5076 14.7272 14.7272C14.5076 14.9469 14.5076 15.3031 14.7272 15.5227L16.2045 17L14.7272 18.4772C14.5076 18.6969 14.5076 19.0531 14.7272 19.2727C14.9469 19.4924 15.3031 19.4924 15.5227 19.2727L17 17.7955L18.4772 19.2727C18.6969 19.4924 19.053 19.4924 19.2727 19.2727C19.4924 19.0531 19.4924 18.6969 19.2727 18.4772L17.7955 17L19.2727 15.5228C19.4924 15.3031 19.4924 14.9469 19.2727 14.7273C19.0531 14.5076 18.6969 14.5076 18.4772 14.7273L17 16.2045L15.5227 14.7272Z"
+                                        fill="#E04F5F" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M17 8.9375C12.5472 8.9375 8.9375 12.5472 8.9375 17C8.9375 21.4528 12.5472 25.0625 17 25.0625C21.4528 25.0625 25.0625 21.4528 25.0625 17C25.0625 12.5472 21.4528 8.9375 17 8.9375ZM10.0625 17C10.0625 13.1685 13.1685 10.0625 17 10.0625C20.8315 10.0625 23.9375 13.1685 23.9375 17C23.9375 20.8315 20.8315 23.9375 17 23.9375C13.1685 23.9375 10.0625 20.8315 10.0625 17Z"
+                                        fill="#E04F5F" />
+                                </g>
+                            </g>
+                            <path
+                                d="M30.602 17.114C30.602 16.162 30.8167 15.308 31.246 14.552C31.6753 13.7867 32.2587 13.1893 32.996 12.76C33.7427 12.3307 34.5687 12.116 35.474 12.116C36.538 12.116 37.4667 12.3727 38.26 12.886C39.0533 13.3993 39.632 14.1273 39.996 15.07H38.47C38.1993 14.482 37.8073 14.0293 37.294 13.712C36.79 13.3947 36.1833 13.236 35.474 13.236C34.7927 13.236 34.1813 13.3947 33.64 13.712C33.0987 14.0293 32.674 14.482 32.366 15.07C32.058 15.6487 31.904 16.33 31.904 17.114C31.904 17.8887 32.058 18.57 32.366 19.158C32.674 19.7367 33.0987 20.1847 33.64 20.502C34.1813 20.8193 34.7927 20.978 35.474 20.978C36.1833 20.978 36.79 20.824 37.294 20.516C37.8073 20.1987 38.1993 19.746 38.47 19.158H39.996C39.632 20.0913 39.0533 20.8147 38.26 21.328C37.4667 21.832 36.538 22.084 35.474 22.084C34.5687 22.084 33.7427 21.874 32.996 21.454C32.2587 21.0247 31.6753 20.432 31.246 19.676C30.8167 18.92 30.602 18.066 30.602 17.114ZM41.4165 18.136C41.4165 17.352 41.5751 16.666 41.8925 16.078C42.2098 15.4807 42.6438 15.0187 43.1945 14.692C43.7545 14.3653 44.3751 14.202 45.0565 14.202C45.7285 14.202 46.3118 14.3467 46.8065 14.636C47.3011 14.9253 47.6698 15.2893 47.9125 15.728V14.328H49.2005V22H47.9125V20.572C47.6605 21.02 47.2825 21.3933 46.7785 21.692C46.2838 21.9813 45.7051 22.126 45.0425 22.126C44.3611 22.126 43.7451 21.958 43.1945 21.622C42.6438 21.286 42.2098 20.8147 41.8925 20.208C41.5751 19.6013 41.4165 18.9107 41.4165 18.136ZM47.9125 18.15C47.9125 17.5713 47.7958 17.0673 47.5625 16.638C47.3291 16.2087 47.0118 15.882 46.6105 15.658C46.2185 15.4247 45.7845 15.308 45.3085 15.308C44.8325 15.308 44.3985 15.42 44.0065 15.644C43.6145 15.868 43.3018 16.1947 43.0685 16.624C42.8351 17.0533 42.7185 17.5573 42.7185 18.136C42.7185 18.724 42.8351 19.2373 43.0685 19.676C43.3018 20.1053 43.6145 20.4367 44.0065 20.67C44.3985 20.894 44.8325 21.006 45.3085 21.006C45.7845 21.006 46.2185 20.894 46.6105 20.67C47.0118 20.4367 47.3291 20.1053 47.5625 19.676C47.7958 19.2373 47.9125 18.7287 47.9125 18.15ZM55.0914 14.188C56.0247 14.188 56.7807 14.4727 57.3594 15.042C57.9381 15.602 58.2274 16.414 58.2274 17.478V22H56.9674V17.66C56.9674 16.8947 56.7761 16.3113 56.3934 15.91C56.0107 15.4993 55.4881 15.294 54.8254 15.294C54.1534 15.294 53.6167 15.504 53.2154 15.924C52.8234 16.344 52.6274 16.9553 52.6274 17.758V22H51.3534V14.328H52.6274V15.42C52.8794 15.028 53.2201 14.7247 53.6494 14.51C54.0881 14.2953 54.5687 14.188 55.0914 14.188ZM59.8325 18.15C59.8325 17.3567 59.9911 16.666 60.3085 16.078C60.6258 15.4807 61.0645 15.0187 61.6245 14.692C62.1938 14.3653 62.8425 14.202 63.5705 14.202C64.5131 14.202 65.2878 14.4307 65.8945 14.888C66.5105 15.3453 66.9165 15.98 67.1125 16.792H65.7405C65.6098 16.3253 65.3531 15.9567 64.9705 15.686C64.5971 15.4153 64.1305 15.28 63.5705 15.28C62.8425 15.28 62.2545 15.532 61.8065 16.036C61.3585 16.5307 61.1345 17.2353 61.1345 18.15C61.1345 19.074 61.3585 19.788 61.8065 20.292C62.2545 20.796 62.8425 21.048 63.5705 21.048C64.1305 21.048 64.5971 20.9173 64.9705 20.656C65.3438 20.3947 65.6005 20.0213 65.7405 19.536H67.1125C66.9071 20.32 66.4965 20.95 65.8805 21.426C65.2645 21.8927 64.4945 22.126 63.5705 22.126C62.8425 22.126 62.1938 21.9627 61.6245 21.636C61.0645 21.3093 60.6258 20.8473 60.3085 20.25C59.9911 19.6527 59.8325 18.9527 59.8325 18.15ZM75.8124 17.87C75.8124 18.1127 75.7984 18.3693 75.7704 18.64H69.6384C69.685 19.396 69.9417 19.9887 70.4084 20.418C70.8844 20.838 71.4584 21.048 72.1304 21.048C72.681 21.048 73.1384 20.922 73.5024 20.67C73.8757 20.4087 74.137 20.0633 74.2864 19.634H75.6584C75.453 20.3713 75.0424 20.9733 74.4264 21.44C73.8104 21.8973 73.045 22.126 72.1304 22.126C71.4024 22.126 70.749 21.9627 70.1704 21.636C69.601 21.3093 69.153 20.8473 68.8264 20.25C68.4997 19.6433 68.3364 18.9433 68.3364 18.15C68.3364 17.3567 68.495 16.6613 68.8124 16.064C69.1297 15.4667 69.573 15.0093 70.1424 14.692C70.721 14.3653 71.3837 14.202 72.1304 14.202C72.8584 14.202 73.5024 14.3607 74.0624 14.678C74.6224 14.9953 75.0517 15.434 75.3504 15.994C75.6584 16.5447 75.8124 17.17 75.8124 17.87ZM74.4964 17.604C74.4964 17.1187 74.389 16.7033 74.1744 16.358C73.9597 16.0033 73.6657 15.7373 73.2924 15.56C72.9284 15.3733 72.5224 15.28 72.0744 15.28C71.4304 15.28 70.8797 15.4853 70.4224 15.896C69.9744 16.3067 69.7177 16.876 69.6524 17.604H74.4964ZM78.768 11.64V22H77.494V11.64H78.768ZM82.2133 11.64V22H80.9393V11.64H82.2133ZM91.3846 17.87C91.3846 18.1127 91.3706 18.3693 91.3426 18.64H85.2106C85.2573 19.396 85.514 19.9887 85.9806 20.418C86.4566 20.838 87.0306 21.048 87.7026 21.048C88.2533 21.048 88.7106 20.922 89.0746 20.67C89.448 20.4087 89.7093 20.0633 89.8586 19.634H91.2306C91.0253 20.3713 90.6146 20.9733 89.9986 21.44C89.3826 21.8973 88.6173 22.126 87.7026 22.126C86.9746 22.126 86.3213 21.9627 85.7426 21.636C85.1733 21.3093 84.7253 20.8473 84.3986 20.25C84.072 19.6433 83.9086 18.9433 83.9086 18.15C83.9086 17.3567 84.0673 16.6613 84.3846 16.064C84.702 15.4667 85.1453 15.0093 85.7146 14.692C86.2933 14.3653 86.956 14.202 87.7026 14.202C88.4306 14.202 89.0746 14.3607 89.6346 14.678C90.1946 14.9953 90.624 15.434 90.9226 15.994C91.2306 16.5447 91.3846 17.17 91.3846 17.87ZM90.0686 17.604C90.0686 17.1187 89.9613 16.7033 89.7466 16.358C89.532 16.0033 89.238 15.7373 88.8646 15.56C88.5006 15.3733 88.0946 15.28 87.6466 15.28C87.0026 15.28 86.452 15.4853 85.9946 15.896C85.5466 16.3067 85.29 16.876 85.2246 17.604H90.0686ZM92.5903 18.136C92.5903 17.352 92.7489 16.666 93.0663 16.078C93.3836 15.4807 93.8176 15.0187 94.3683 14.692C94.9283 14.3653 95.5536 14.202 96.2443 14.202C96.8416 14.202 97.3969 14.342 97.9103 14.622C98.4236 14.8927 98.8156 15.252 99.0863 15.7V11.64H100.374V22H99.0863V20.558C98.8343 21.0153 98.4609 21.3933 97.9663 21.692C97.4716 21.9813 96.8929 22.126 96.2303 22.126C95.5489 22.126 94.9283 21.958 94.3683 21.622C93.8176 21.286 93.3836 20.8147 93.0663 20.208C92.7489 19.6013 92.5903 18.9107 92.5903 18.136ZM99.0863 18.15C99.0863 17.5713 98.9696 17.0673 98.7363 16.638C98.5029 16.2087 98.1856 15.882 97.7843 15.658C97.3923 15.4247 96.9583 15.308 96.4823 15.308C96.0063 15.308 95.5723 15.42 95.1803 15.644C94.7883 15.868 94.4756 16.1947 94.2423 16.624C94.0089 17.0533 93.8923 17.5573 93.8923 18.136C93.8923 18.724 94.0089 19.2373 94.2423 19.676C94.4756 20.1053 94.7883 20.4367 95.1803 20.67C95.5723 20.894 96.0063 21.006 96.4823 21.006C96.9583 21.006 97.3923 20.894 97.7843 20.67C98.1856 20.4367 98.5029 20.1053 98.7363 19.676C98.9696 19.2373 99.0863 18.7287 99.0863 18.15Z"
+                                fill="#85252D" />
+                            <defs>
+                                <clipPath id="clip0_3620_30396">
+                                    <rect width="18" height="18" fill="white" transform="translate(8 8)" />
+                                </clipPath>
+                                <clipPath id="clip1_3620_30396">
+                                    <rect width="18" height="18" fill="white" transform="translate(8 8)" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+
+                    </a>
+                </div>
+            </td>
+
+
         </ng-template>
         <ng-template #noAttendance>
             <tr>
@@ -234,30 +283,33 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form class="w-100 d-flex flex-column gap-3">
+    <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3" (ngSubmit)="applyFilters()">
         <div class="input">
-            <label for="department">Department</label>
+            <label for="department">Departments</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="department" id="department" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option>1</option>
-                        <option>2</option>
+                    <select formControlName="department_id" name="department" id="department" class="form-select">
+                        <option value="" selected disabled hidden>All</option>
+                        @for (dept of (departmentList$ | async); track dept.id) {
+                        <option [value]="dept.id">{{dept.name}}</option>
+                        }
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
@@ -265,35 +317,38 @@
             <label for="Offenses">Offenses</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="Offenses" id="Offenses" class="form-select">
+                    <select formControlName="offenses" name="Offenses" id="Offenses" class="form-select">
                         <option value="" selected disabled hidden>Select</option>
-                        <option value=1>1</option>
-                        <option value=1>2</option>
+                        <option value="late_arrive">Late Arrive</option>
+                        <option value="early_leave">Early Leave</option>
+                        <option value="no_show">No Show</option>
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
         <div class="input">
-            <label for="day-type">Specific date range</label>
+            <label for="dateRange">Specific date range</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="date" class="form-control custom-date-input" placeholder="Date Range"
-                        formControlName="date" onfocus="this.showPicker()"
-                        onblur="this.value===''?this.type='text':this.type='date'" onfocusin="this.type='date'" />
+                    <input ngxDaterangepickerMd formControlName="from_date" class="form-control"
+                        placeholder="Select date or range" [showDropdowns]="true" [autoApply]="true"
+                        [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <path stroke-linecap="round"
@@ -303,19 +358,21 @@
                         </g>
                     </svg>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('from_date')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('from_date')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
@@ -323,24 +380,28 @@
             <label for="day-type">Day type</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="day-type" id="day-type" class="form-select">
+                    <select formControlName="day_type" name="day-type" id="day-type" class="form-select">
                         <option value="" selected disabled hidden>Any</option>
-                        <option value="1">1</option>
+                        <option value="workday">Workday</option>
+                        <option value="weekend">Weekend</option>
+                        <option value="holiday">Holiday</option>
                     </select>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <svg *ngIf="filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                     </g>
-                </svg> -->
+                </svg>
             </div>
         </div>
 
@@ -358,7 +419,7 @@
                 </svg>
                 <span>Apply Filter</span>
             </button>
-            <a type="button" class="text-danger-dark fw-bold w-100 text-center">
+            <a type="button" class="text-danger-dark fw-bold w-100 text-center" (click)="resetFilterForm()">
                 <span>Clear Filters</span>
             </a>
         </div>
@@ -367,3 +428,18 @@
 
 
 </app-overlay-filter-box>
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Cancel Attendance Log'" [paragraph1]="attendanceToCancel 
+    ? 'Are you sure you want to cancel the attendance log for ' 
+      + attendanceToCancel.name + ' on ' 
+      + (attendanceToCancel.date | date:'dd/MM/yyyy') + '?' 
+    : ''" [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+        Cancel
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

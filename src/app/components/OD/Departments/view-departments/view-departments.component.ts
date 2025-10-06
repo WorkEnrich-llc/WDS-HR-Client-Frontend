@@ -21,10 +21,15 @@ export class ViewDepartmentsComponent implements OnInit {
 formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   deptId: string | null = null;
-  
+  activeTab: 'sections' | 'goals' = 'sections';
+
+setActiveTab(tab: 'sections' | 'goals') {
+  this.activeTab = tab;
+}
   // Table pagination properties
   loadData: boolean = false;
   totalItems: number = 0;
+  totalItemsGoals: number = 0;
   itemsPerPage: number = 10;
   currentPage: number = 1;
   ngOnInit(): void {
@@ -44,6 +49,7 @@ formattedCreatedAt: string = '';
       next: (response) => {
         this.departmentData = response.data.object_info;
         this.totalItems = this.departmentData.sections?.length || 0;
+        this.totalItemsGoals = this.departmentData.assigned_goals?.length || 0;
          const created = this.departmentData?.created_at;
         const updated = this.departmentData?.updated_at;
         if (created) {

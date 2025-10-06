@@ -1,4 +1,5 @@
-import { ActionType, ApiSubModule, ModulePermission, Roles, SubModulePermission } from "../models/roles";
+import { ActionType, ApiSubModule, IUserRole, ModulePermission, Roles, SubModulePermission } from "../models/roles";
+import { IUser } from "../models/users";
 
 
 // transform the response from the server to the Roles interface
@@ -8,12 +9,17 @@ export function mapRoleResponse(response: any): Roles {
    const main = response?.request_data?.main;
    const createdAt = response?.request_data?.created_at;
    const updatedAt = response?.request_data?.updated_at;
+   const users = response?.request_data?.users || [];
+
    const permissions = response?.request_data?.permissions || [];
 
    return {
       id: response?.request_data?.id,
       code: main?.code ?? '',
       name: main?.name ?? '',
+      // users: (response?.request_data?.users || []).map((u: any) => u.id),
+      total_users: response?.request_data?.total_users
+         ?? (response?.request_data?.users?.length || 0),
       permissions: permissions.map((p: any) => ({
          moduleCode: p.main.code,
          subModules: p.sub_list.map((sub: any) => ({
@@ -21,6 +27,15 @@ export function mapRoleResponse(response: any): Roles {
             subName: sub.sub?.name || '',
             actions: sub.allowed_actions as ActionType[]
          }))
+      })),
+      users: users.map((u: any) => ({
+         id: u.id,
+         code: u.code ?? '',
+         email: u.email ?? '',
+         name: u.name ?? '',
+         added_date: u.added_date ?? '',
+         status: u.status ?? '',
+         is_active: u.is_active ?? false
       })),
       createdAt: createdAt,
       updatedAt: updatedAt
@@ -42,7 +57,10 @@ export function mapRoleToRequest(role: Roles): any {
                sub: { code: sub.code },
                allowed_actions: sub.actions
             }))
-         }))
+         })),
+         users: (role.users || []).map((u: IUser | number) =>
+            typeof u === "number" ? u : u.id
+         )
       }
    };
 }
@@ -68,6 +86,8 @@ export function mapRoleAllResponse(item: any): Roles {
       name: item.name ?? '',
       createdAt: item.created_at,
       updatedAt: item.updated_at,
+      users: (item.users || []).map((u: any) => u.id),
+      total_users: item.total_users ?? (item.users ? item.users.length : 0),
       permissions,
    };
 }

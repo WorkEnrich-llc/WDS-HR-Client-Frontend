@@ -1,25 +1,22 @@
 <!-- start page header -->
-<app-page-header 
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Delegation', link: '/delegation' },
      { label: 'Edit Delegation' }
-  ]" 
-  [title]="isEditMode ? 'Edit Delegation' : 'Create New Delegation'">
-  
-  <button class="btn btn-lg btn-success w-auto" 
-    (click)="onSubmit()" 
+  ]" [title]="isEditMode ? 'Edit Delegation' : 'Create New Delegation'">
+
+  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()"
     [disabled]="delegationForm.invalid || isSubmitting">
     @if (isSubmitting) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
     @if (!isSubmitting) {
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
     }
     <span>{{ isEditMode ? 'Save Changes' : 'Create Delegation' }}</span>
   </button>
@@ -54,12 +51,7 @@
       <div class="input">
         <label for="startDate">Start Date <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input 
-            type="date" 
-            id="startDate" 
-            class="form-control custom-date-input"
-            formControlName="from_date"
-            [class.is-invalid]="isFieldInvalid('from_date')"
+          <input type="date" id="startDate" class="form-control custom-date-input" formControlName="from_date"
             [min]="currentDate" />
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
@@ -71,9 +63,9 @@
           </svg>
         </div>
         @if (isFieldInvalid('from_date')) {
-          <p class="error-msg">
-            {{ getFieldError('from_date') }}
-          </p>
+        <p class="error-msg">
+          {{ getFieldError('from_date') }}
+        </p>
         }
       </div>
 
@@ -81,12 +73,7 @@
       <div class="input">
         <label for="endDate">End Date <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input 
-            type="date" 
-            id="endDate" 
-            class="form-control custom-date-input"
-            formControlName="to_date"
-            [class.is-invalid]="isFieldInvalid('to_date') || delegationForm.errors?.['dateRange']"
+          <input type="date" id="endDate" class="form-control custom-date-input" formControlName="to_date"
             [min]="currentDate" />
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
@@ -98,9 +85,9 @@
           </svg>
         </div>
         @if (isFieldInvalid('to_date') || delegationForm.errors?.['dateRange']) {
-          <p class="error-msg">
-            {{ getFieldError('to_date') }}
-          </p>
+        <p class="error-msg">
+          {{ getFieldError('to_date') }}
+        </p>
         }
       </div>
 
@@ -108,11 +95,7 @@
       <div class="input">
         <label for="delegator">Delegator <span>*</span></label>
         <div class="form-outline w-100 position-relative">
-          <select 
-            id="delegator" 
-            class="form-select"
-            formControlName="delegator_id"
-            [class.is-invalid]="isFieldInvalid('delegator_id')">
+          <select id="delegator" class="form-select" formControlName="delegator_id">
             <option value="" disabled selected hidden>Select Delegator</option>
             <option *ngFor="let employee of employees" [value]="employee.id">
               {{ employee.name }}
@@ -120,9 +103,9 @@
           </select>
         </div>
         @if (isFieldInvalid('delegator_id')) {
-          <p class="error-msg">
-            {{ getFieldError('delegator_id') }}
-          </p>
+        <p class="error-msg">
+          {{ getFieldError('delegator_id') }}
+        </p>
         }
       </div>
 
@@ -130,11 +113,7 @@
       <div class="input">
         <label for="delegate">Delegate <span>*</span></label>
         <div class="form-outline w-100 position-relative">
-          <select 
-            id="delegate" 
-            class="form-select"
-            formControlName="delegate_id"
-            [class.is-invalid]="isFieldInvalid('delegate_id')">
+          <select id="delegate" class="form-select" formControlName="delegate_id">
             <option value="" disabled selected hidden>Select Delegate</option>
             <option *ngFor="let employee of employees" [value]="employee.id">
               {{ employee.name }}
@@ -142,9 +121,9 @@
           </select>
         </div>
         @if (isFieldInvalid('delegate_id')) {
-          <p class="error-msg">
-            {{ getFieldError('delegate_id') }}
-          </p>
+        <p class="error-msg">
+          {{ getFieldError('delegate_id') }}
+        </p>
         }
       </div>
     </div>
@@ -153,34 +132,29 @@
 
 <!-- Discard Changes Modal -->
 @if (isModalOpen) {
-  <app-popup
-    [title]="'Discard Changes'"
-    [paragraph1]="'Are you sure you want to discard changes?'"
-    [paragraph2]="'This action cannot be undone!'"
-    [isOpen]="isModalOpen"
-    (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-      Discard Changes
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-      Cancel
-    </button>
-  </app-popup>
+<app-popup [title]="'Discard Changes'" [paragraph1]="'Are you sure you want to discard changes?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+    Discard Changes
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Cancel
+  </button>
+</app-popup>
 }
 
 <!-- Success Modal -->
 @if (isSuccessModalOpen) {
-  <app-popup 
-    [title]="isEditMode ? 'Delegation Updated' : 'Delegation Created'"
-    [paragraph1]="isEditMode ? 'The delegation has been updated successfully.' : 'The new delegation has been created successfully.'"
-    [isOpen]="isSuccessModalOpen"
-    (close)="closeSuccessModal()">
-    
-    <button modal-btn-left class="btn btn-lg btn-outline-primary w-100" (click)="viewDelegations()">
-      View Delegations
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-primary w-100" (click)="isEditMode ? viewDelegations() : createAnother()">
-      {{ isEditMode ? 'Done' : 'Create Another' }}
-    </button>
-  </app-popup>
+<app-popup [title]="isEditMode ? 'Delegation Updated' : 'Delegation Created'"
+  [paragraph1]="isEditMode ? 'The delegation has been updated successfully.' : 'The new delegation has been created successfully.'"
+  [isOpen]="isSuccessModalOpen" (close)="closeSuccessModal()">
+
+  <button modal-btn-left class="btn btn-lg btn-outline-primary w-100" (click)="viewDelegations()">
+    View Delegations
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-primary w-100"
+    (click)="isEditMode ? viewDelegations() : createAnother()">
+    {{ isEditMode ? 'Done' : 'Create Another' }}
+  </button>
+</app-popup>
 }

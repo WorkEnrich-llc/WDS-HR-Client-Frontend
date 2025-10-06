@@ -1,74 +1,67 @@
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, Subject } from 'rxjs';
+import { debounceTime, filter, Observable, Subject } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
+import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
+import { ISearchParams, IUser, IUserApi } from 'app/core/models/users';
+import { Status, UserStatus } from '@app/enums';
+import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
+import { Roles } from 'app/core/models/roles';
 
 @Component({
   selector: 'app-users',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent,FormsModule, ReactiveFormsModule,RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink],
   providers: [DatePipe],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class UsersComponent {
 
-
+  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private toasterService = inject(ToasterMessageService);
+  private rolesService = inject(AdminRolesService);
   filterForm!: FormGroup;
   toasterSubscription: any;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
-  @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
-  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
-  users = [
-    {
-      id: 1,
-      name: "Ahmed Ali",
-      email: "ahmed.ali@example.com",
-      role: "Admin",
-      added_date: "2025-08-01",
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Sara Mohamed",
-      email: "sara.mohamed@example.com",
-      role: "Editor",
-      added_date: "2025-08-05",
-      status: "inactive"
-    },
-    {
-      id: 3,
-      name: "Omar Khaled",
-      email: "omar.khaled@example.com",
-      role: "Viewer",
-      added_date: "2025-08-10",
-      status: "pending"
-    }
-  ];
+
+  private userService = inject(AdminUsersService);
+  allUsers: IUser[] = [];
+  filteredList: IUser[] = [];
+  userStatus = UserStatus
+  status = Status
+  roles: Partial<Roles>[] = [];
+  statusOptions = Object.entries(Status)
+    .filter(([key, value]) => typeof value === 'number')
+    .map(([key, value]) => ({ label: key, value }));
+
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  totalpages: number = 0;
+  totalPages: number = 0;
+
   loadData: boolean = false;
   private searchSubject = new Subject<string>();
+
 
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
-      // this.getAllWorkSchedule(this.currentPage);
+      this.getAllUsers(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -79,81 +72,154 @@ export class UsersComponent {
 
         this.toasterMessageService.clearMessage();
       });
+    this.getAllRoleNames();
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllWorkSchedule(this.currentPage, value);
+      this.getAllUsers(this.currentPage, this.searchTerm, this.filterForm.value);
     });
-    // this.getAllDepartment(1);
+
     this.filterForm = this.fb.group({
-      department: '',
-      schedules_type: '',
-      work_schedule_type: ''
+      created_from: [''],
+      created_to: [''],
+      status: [''],
+      role: ['']
     });
   }
 
-sortBy() {
-  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-  this.users = this.users.sort((a, b) => {
-    if (this.sortDirection === 'asc') {
-      return a.id - b.id; 
-    } else {
-      return b.id - a.id; 
+
+
+  getAllUsers(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: ISearchParams
+  ) {
+    this.loadData = true;
+    this.userService.getAllUsers(
+      {
+        page: pageNumber,
+        per_page: this.itemsPerPage,
+        search: searchTerm || undefined,
+        ...filters
+      }
+    ).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalPages = response.data.total_pages;
+        this.allUsers = response.data.list_items.map((item: IUserApi) => ({
+          id: item.id,
+          name: item.user?.name ?? '',
+          email: item.user?.email ?? '',
+          code: item.user?.code ?? '',
+          status: this.mapToStatus(item),
+          created_at: item?.created_at ?? '',
+          permissions: (item.permissions ?? []).map((p: any) => ({
+            id: p.role?.id,
+            name: p.role?.name
+          }))
+        })) as IUser[];
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'name';
+        this.sortBy();
+        this.loadData = false;
+      },
+      error: (err) => {
+        this.loadData = false;
+      }
+    });
+  }
+
+  getRoleNames(user: IUser): string {
+    return user.permissions.map(p => p.name).join(', ');
+  }
+
+  private mapToStatus(item: any): UserStatus {
+    if (item.status === 'Pending') return UserStatus.Pending;
+    if (item.status === 'Expired') return UserStatus.Expired;
+    return item.is_active ? UserStatus.Active : UserStatus.Inactive;
+  }
+
+  sortBy() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.allUsers.sort((a, b) => {
+      const nameA = a.name?.toLowerCase() || '';
+      const nameB = b.name?.toLowerCase() || '';
+      if (this.sortDirection === 'asc') {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    });
+  }
+
+
+  resetFilterForm() {
+    this.filterForm.reset();
+    this.filter();
+  }
+
+
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+      const filters = {
+        status: rawFilters.status || undefined,
+        created_from: rawFilters.created_from || undefined,
+        created_to: rawFilters.created_to || undefined,
+        role: rawFilters.role || undefined,
+      };
+      this.filterBox.closeOverlay();
+      this.getAllUsers(this.currentPage, this.searchTerm, filters);
     }
-  });
-}
+  }
+
+
+  resendInvitation(email: string): void {
+    this.userService.resendInvitation(email).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('Invitation resent successfully');
+      },
+      error: () => {
+        this.toasterService.showError('Error resending invitation');
+      }
+    });
+  }
+
+
+
+  copyEmail(email: string, user: any) {
+    navigator.clipboard.writeText(email).then(() => {
+      user.copied = true;
+      setTimeout(() => user.copied = false, 2000);
+    });
+  }
 
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
-  resetFilterForm(): void {
-    this.filterForm.reset({
-      department: '',
-      schedules_type: '',
-      work_schedule_type: ''
-    });
 
-    this.filterBox.closeOverlay();
-
-    const filters = {
-      department: undefined,
-      schedules_type: undefined,
-      work_schedule_type: undefined
-    };
-
-    // this.getAllWorkSchedule(this.currentPage, '', filters);
-  }
-  filter(): void {
-    if (this.filterForm.valid) {
-      const rawFilters = this.filterForm.value;
-
-      const filters = {
-        department: rawFilters.department || undefined,
-        schedules_type: rawFilters.schedules_type || undefined,
-        work_schedule_type: rawFilters.work_schedule_type || undefined
-      };
-
-
-      console.log('Filters submitted:', filters);
-      this.filterBox.closeOverlay();
-      // this.getAllWorkSchedule(this.currentPage, '', filters);
-    }
-  }
-
-
-copyEmail(email: string, user: any) {
-  navigator.clipboard.writeText(email).then(() => {
-    user.copied = true;
-    setTimeout(() => user.copied = false, 2000); 
-  });
-}
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllWorkSchedule(this.currentPage);
+    this.getAllUsers(this.currentPage);
   }
+
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllWorkSchedule(this.currentPage);
+    this.getAllUsers(this.currentPage);
+  }
+
+
+
+  private getAllRoleNames(): void {
+    this.rolesService.getAllRoleNames().subscribe({
+      next: (data) => {
+        this.roles = data;
+      },
+      error: (err) => console.error('Failed to load all roles', err)
+    });
   }
 }

@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { GuestGuard } from './core/guards/guest.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { SubscriptionGuard } from './core/guards/subscription.guard';
+import { invitationResolver } from './core/resolver/invitation-resolver.resolver';
 
 export const routes: Routes = [
   {
@@ -41,7 +42,38 @@ export const routes: Routes = [
             loadComponent: () => import('./components/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
             title: 'Reset Password',
           },
+          {
+            path: 'invitation/set-password',
+            loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
+            title: 'Activate Your Account',
+            resolve: { invitation: invitationResolver }
+          },
 
+        ]
+      },
+
+
+    ]
+  },
+
+  // Activate Acount layout
+  {
+    path: '',
+    loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [
+      {
+        path: 'activate',
+        children: [
+          {
+            path: '',
+            redirectTo: 'activate-account',
+            pathMatch: 'full'
+          },
+          {
+            path: 'activate-account',
+            loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
+            title: 'Activate Your Account',
+          },
         ]
       },
 
@@ -51,6 +83,9 @@ export const routes: Routes = [
 
 
 
+
+
+  // system layout
   {
     path: '',
     loadComponent: () => import('./layouts/system-layout/system-layout.component').then(m => m.SystemLayoutComponent),
@@ -66,15 +101,17 @@ export const routes: Routes = [
         children: [
           // admin dashboard routes
           {
-            path: 'admin-dash',
+            path: '',
             children: [
               {
                 path: '',
-                redirectTo: 'admin-dash',
+                redirectTo: 'dashboard',
                 pathMatch: 'full'
               },
               {
-                path: 'admin-dash',
+                path: 'dashboard',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Dashboard' },
                 loadComponent: () => import('./components/admin-dashboard/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
                 title: 'Dashboard',
               },
@@ -207,6 +244,8 @@ export const routes: Routes = [
           // Organizational Chart
           {
             path: 'organizational-Chart',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Chart' },
             children: [
               {
                 path: '',
@@ -223,17 +262,91 @@ export const routes: Routes = [
                     redirectTo: 'company-chart',
                     pathMatch: 'full'
                   },
+                  // {
+                  //   path: 'company-chart',
+                  //   loadComponent: () => import('./components/OD/Organizational-Chart/components/company-chart/company-chart.component').then(m => m.CompanyChartComponent),
+                  //   title: 'Company Chart'
+                  // },
                   {
                     path: 'company-chart',
-                    loadComponent: () => import('./components/OD/Organizational-Chart/components/company-chart/company-chart.component').then(m => m.CompanyChartComponent),
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/company-test-chart/company-test-chart.component').then(m => m.CompanyTestChartComponent),
                     title: 'Company Chart'
                   },
                   {
                     path: 'organizational-chart',
-                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
-                    title: 'organizational Chart'
+                    loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-test-chart/organization-test-chart.component').then(m => m.OrganizationTestChartComponent),
+                    title: 'Organizational Chart'
                   },
+                  // {
+                  //   path: 'organizational-chart',
+                  //   loadComponent: () => import('./components/OD/Organizational-Chart/components/organization-chart/organization-chart.component').then(m => m.OrganizationChartComponent),
+                  //   title: 'organizational Chart'
+                  // },
                 ]
+              },
+            ]
+          },
+
+          // Goals routes
+          {
+            path: 'goals',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Goals' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-goals',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-goals',
+                loadComponent: () => import('./components/OD/Goals/all-goals/all-goals.component').then(m => m.AllGoalsComponent),
+                title: 'Goals',
+              },
+              {
+                path: 'view-goal/:id',
+                loadComponent: () => import('./components/OD/Goals/view-goal/view-goal.component').then(m => m.ViewGoalComponent),
+                title: 'View Goal'
+              },
+              {
+                path: 'create',
+                loadComponent: () => import('./components/OD/Goals/new-goal/new-goal.component').then(m => m.NewGoalComponent),
+                title: 'Create Goal',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Goals', action: 'create' }
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () => import('./components/OD/Goals/edit-goal/edit-goal.component').then(m => m.EditGoalComponent),
+                title: 'Edit Goal',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Goals', action: 'update' }
+              },
+            ]
+          },
+
+          // department checklists routes
+          {
+            path: 'dept-check',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Departments_Checklist' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'view-checklist',
+                pathMatch: 'full'
+              },
+              {
+                path: 'view-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/department-checklist/department-checklist.component').then(m => m.DepartmentChecklistComponent),
+                title: 'Department Checklists',
+              },
+              {
+                path: 'edit-checklist',
+                loadComponent: () => import('./components/OD/department-checklist/edit-department-checklists/edit-department-checklists.component').then(m => m.EditDepartmentChecklistsComponent),
+                title: 'Edit Department Checklists',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Departments_Checklist', action: 'update' }
               },
             ]
           }
@@ -248,15 +361,15 @@ export const routes: Routes = [
         children: [
           // Dashboard routes
           {
-            path: 'dashboard',
+            path: 'personnel-calender',
             children: [
               {
                 path: '',
-                redirectTo: 'personal-dashboard',
+                redirectTo: 'calender',
                 pathMatch: 'full'
               },
               {
-                path: 'personal-dashboard',
+                path: 'calender',
                 loadComponent: () => import('./components/Personnel/Dashboard/dashboard/dashboard.component').then(m => m.DashboardComponent),
                 title: 'Personnel Dashboard',
               },
@@ -364,6 +477,8 @@ export const routes: Routes = [
                 path: 'create-request',
                 loadComponent: () => import('./components/Personnel/Approval-Requests/create-request/create-request.component').then(m => m.CreateRequestComponent),
                 title: 'Create New Request',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Requests', action: 'create' }
               },
               {
                 path: 'view-requests/:id',
@@ -402,6 +517,8 @@ export const routes: Routes = [
           // delegation routes
           {
             path: 'delegation',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Delegation' },
             children: [
               {
                 path: '',
@@ -417,11 +534,15 @@ export const routes: Routes = [
                 path: 'create',
                 loadComponent: () => import('./components/Personnel/Delegation/manage-delegation/manage-delegation.component').then(m => m.ManageDelegationComponent),
                 title: 'Create Delegation',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Delegation', action: 'create' }
               },
               {
                 path: 'edit/:id',
                 loadComponent: () => import('./components/Personnel/Delegation/manage-delegation/manage-delegation.component').then(m => m.ManageDelegationComponent),
                 title: 'Edit Delegation',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Delegation', action: 'update' }
               },
             ]
           },
@@ -460,6 +581,8 @@ export const routes: Routes = [
                 path: 'manage-attendance/:id',
                 loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
                 title: 'Edit Attendance Log',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Attendance_Log', action: 'update' }
               }
             ]
           },
@@ -576,6 +699,8 @@ export const routes: Routes = [
           // Leave Types routes
           {
             path: 'leave-types',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Leave_Types' },
             children: [
               {
                 path: '',
@@ -591,6 +716,8 @@ export const routes: Routes = [
                 path: 'create-leave-types',
                 loadComponent: () => import('./components/Attendance/Leave Types/create-leave-type/create-leave-type.component').then(m => m.CreateLeaveTypeComponent),
                 title: 'Create Leave Type',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Leave_Types', action: 'create' }
               },
               {
                 path: 'view-leave-types/:id',
@@ -601,6 +728,8 @@ export const routes: Routes = [
                 path: 'update-leave-types/:id',
                 loadComponent: () => import('./components/Attendance/Leave Types/update-leave-types/update-leave-types.component').then(m => m.UpdateLeaveTypesComponent),
                 title: 'Update Leave Type',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Leave_Types', action: 'update' }
               },
             ]
           },
@@ -608,6 +737,8 @@ export const routes: Routes = [
           // Leave balance routes
           {
             path: 'leave-balance',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Leave_Balance' },
             children: [
               {
                 path: '',
@@ -814,6 +945,8 @@ export const routes: Routes = [
           // payroll runs routes
           {
             path: 'payroll-runs',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Payroll_Runs' },
             children: [
               {
                 path: '',
@@ -834,6 +967,8 @@ export const routes: Routes = [
                 path: 'edit-payroll-run/:id',
                 loadComponent: () => import('./components/Payroll/Payroll-runs/edit-employee-payroll/edit-employee-payroll.component').then(m => m.EditEmployeePayrollComponent),
                 title: 'Edit Employee Payroll',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Payroll_Runs', action: 'update' }
               },
               {
                 path: 'view-employee-payroll/:id',
@@ -847,6 +982,8 @@ export const routes: Routes = [
           // Salary Portions routes
           {
             path: 'salary-portions',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Salary_Portions' },
             children: [
               {
                 path: '',
@@ -862,6 +999,8 @@ export const routes: Routes = [
                 path: 'edit-salary-portions',
                 loadComponent: () => import('./components/Payroll/salary-portions/edit-salary-portions/edit-salary-portions.component').then(m => m.EditSalaryPortionsComponent),
                 title: 'Edit Salary Portions',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Salary_Portions', action: 'update' }
               },
 
             ]
@@ -872,6 +1011,7 @@ export const routes: Routes = [
 
 
       // start Admin settings
+
       // system cloud layout
       {
         path: '',
@@ -880,6 +1020,8 @@ export const routes: Routes = [
         children: [
           {
             path: 'cloud',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Files' },
             children: [
               {
                 path: '',
@@ -910,6 +1052,8 @@ export const routes: Routes = [
         children: [
           {
             path: 'roles',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Roles' },
             children: [
               {
                 path: '',
@@ -930,7 +1074,9 @@ export const routes: Routes = [
                   import(
                     './components/admin-settings/roles/add-role/add-role.component'
                   ).then(m => m.AddRoleComponent),
-                title: 'Add Role'
+                title: 'Add Role',
+                  canActivate: [SubscriptionGuard],
+                data: { feature: 'Roles', action: 'create' }
               },
               {
                 path: 'edit-role/:id',
@@ -938,7 +1084,9 @@ export const routes: Routes = [
                   import(
                     './components/admin-settings/roles/add-role/add-role.component'
                   ).then(m => m.AddRoleComponent),
-                title: 'Edit Role'
+                title: 'Edit Role',
+                  canActivate: [SubscriptionGuard],
+                data: { feature: 'Roles', action: 'update' }
               },
             ]
           }
@@ -955,6 +1103,8 @@ export const routes: Routes = [
         children: [
           {
             path: 'users',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Users' },
             children: [
               {
                 path: '',
@@ -975,15 +1125,19 @@ export const routes: Routes = [
                   import(
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
-                title: 'Add User'
+                title: 'Add User',
+                 canActivate: [SubscriptionGuard],
+                data: { feature: 'Users', action: 'create' }
               },
               {
-                path: 'add-user/:id',
+                path: 'edit-user/:id',
                 loadComponent: () =>
                   import(
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
-                title: 'Add User'
+                title: 'Edit User',
+                 canActivate: [SubscriptionGuard],
+                data: { feature: 'Users', action: 'update' }
               },
               {
                 path: 'view-user/:id',
@@ -1036,11 +1190,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/settings/password-settings/password-settings.component').then(m => m.PasswordSettingsComponent),
                 title: 'Password Settings'
               },
-              {
-                path: 'google-maps-demo',
-                loadComponent: () => import('./components/shared/google-maps-demo/google-maps-demo.component').then(m => m.GoogleMapsDemoComponent),
-                title: 'Google Maps Demo'
-              },
+              // {
+              //   path: 'google-maps-demo',
+              //   loadComponent: () => import('./components/shared/google-maps-demo/google-maps-demo.component').then(m => m.GoogleMapsDemoComponent),
+              //   title: 'Google Maps Demo'
+              // },
 
             ]
           },

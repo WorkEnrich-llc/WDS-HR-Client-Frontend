@@ -1,6 +1,6 @@
 <!-- start page header -->
 <app-page-header [breadcrumbs]="[
-    { label: 'Operations Development', link: '/' },
+    { label: 'Operations Development', link: '/departments' },
     { label: 'Branches' }
   ]" title="All Branches">
 
@@ -56,7 +56,9 @@
 
     <!-- start Table -->
 
-    <app-table [data]="branches" [isLoading]="loadData" [columnsCount]="7" [totalItems]="branches.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" [totalItems]="totalItems" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+    <app-table [data]="branches" [isLoading]="loadData" [columnsCount]="7" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" [totalItems]="totalItems"
+      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
       [headerTemplate]="branchTableHeader" [rowTemplate]="branchTableRow" [emptyTemplate]="noBranch"></app-table>
 
     <ng-template #branchTableHeader>

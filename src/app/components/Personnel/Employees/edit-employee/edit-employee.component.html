@@ -42,7 +42,7 @@
   <app-edit-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-edit-main-information-step>
   <app-edit-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-edit-job-details-step>
   <app-edit-attendance-details-step [hidden]="sharedService.currentStep() !== 3"></app-edit-attendance-details-step>
-  <app-edit-contract-details-step [hidden]="sharedService.currentStep() !== 4" (submitForm)="onSubmit()"></app-edit-contract-details-step>
+  <app-edit-insurance-details-step [hidden]="sharedService.currentStep() !== 4" (submitForm)="onSubmit()"></app-edit-insurance-details-step>
 </form>
 
 @if (sharedService.isModalOpen()) {
