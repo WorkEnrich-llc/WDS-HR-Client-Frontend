@@ -50,7 +50,7 @@ export class ProfileSettingsComponent implements OnInit {
   private getProfileInformation(): void {
     this.profileService.getProfile().subscribe({
       next: (data) => {
-        console.log('Profile data:', data);
+        // console.log('Profile data:', data);
         this.profile = data;
         this.currentProfileData = { ...data };
         this.patchValue();
