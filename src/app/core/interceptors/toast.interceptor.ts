@@ -102,21 +102,31 @@ export const toastInterceptor: HttpInterceptorFn = (
 
   const performLogout = () => {
     const deviceToken = localStorage.getItem('device_token');
-    localStorage.clear();
-    if (deviceToken) {
-      localStorage.setItem('device_token', deviceToken);
-    }
-    cookieService.deleteAll('/', window.location.hostname);
+
     authService.logout().subscribe({
       next: () => {
+        localStorage.clear();
+        if (deviceToken) {
+          localStorage.setItem('device_token', deviceToken);
+        }
+
+        cookieService.deleteAll('/', window.location.hostname);
         router.navigate(['/auth/login']);
       },
       error: (err) => {
         console.error('Logout error:', err);
+
+        localStorage.clear();
+        if (deviceToken) {
+          localStorage.setItem('device_token', deviceToken);
+        }
+
+        cookieService.deleteAll('/', window.location.hostname);
         router.navigate(['/auth/login']);
       }
     });
   };
+
 
   return next(req).pipe(
     tap({
