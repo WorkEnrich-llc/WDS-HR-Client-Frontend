@@ -9,6 +9,7 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DelegationService, CreateDelegationRequest, UpdateDelegationRequest } from '../../../../core/services/personnel/delegation/delegation.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { CustomValidators } from 'app/core/validators/custom-validators';
 
 @Component({
   selector: 'app-manage-delegation',
@@ -33,7 +34,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
   employees: any[] = [];
   currentDate = new Date().toISOString().split('T')[0];
   todayFormatted = '';
-  
+
   private delegationService = inject(DelegationService);
   private employeeService = inject(EmployeeService);
   private toasterMessageService = inject(ToasterMessageService);
@@ -53,7 +54,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize today's date
     this.todayFormatted = this.datePipe.transform(new Date(), 'dd/MM/yyyy') || '';
-    
+
     // Check if we're in edit mode
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -70,11 +71,11 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
     this.delegationForm = this.fb.group({
       delegator_id: ['', [Validators.required]],
       delegate_id: ['', [Validators.required]],
-      from_date: ['', [Validators.required]],
+      from_date: ['', [Validators.required, CustomValidators.futureDate(this.currentDate)]],
       to_date: ['', [Validators.required]]
     });
 
-    // Add custom validator to ensure end date is after start date
+    // Add custom validator to ensure end date is after start date`
     this.delegationForm.setValidators(this.dateRangeValidator.bind(this));
   }
 
@@ -82,7 +83,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
     const form = control as FormGroup;
     const fromDate = form.get('from_date')?.value;
     const toDate = form.get('to_date')?.value;
-    
+
     if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
       return { dateRange: true };
     }
@@ -155,7 +156,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
           this.toasterMessageService.showSuccess(message);
           this.openSuccessModal();
         },
-        error: (error) => {}
+        error: (error) => { }
       });
     } else {
       this.markFormGroupTouched();
@@ -191,12 +192,12 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
         return `${this.getFieldLabel(fieldName)} is required`;
       }
     }
-    
+
     // Check for date range error
     if (fieldName === 'to_date' && this.delegationForm.errors?.['dateRange']) {
       return 'End date must be after start date';
     }
-    
+
     return '';
   }
 

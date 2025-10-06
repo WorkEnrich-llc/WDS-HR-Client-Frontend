@@ -67,6 +67,12 @@
           {{ getFieldError('from_date') }}
         </p>
         }
+        @if (delegationForm.get('from_date')?.hasError('pastDate')) {
+        <p class="error-msg">
+          Date cannot be in the past
+        </p>
+        }
+
       </div>
 
       <!-- End Date -->
