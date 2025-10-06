@@ -52,7 +52,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="roles" [isLoading]="loadData" [columnsCount]="4" [totalItems]="roles.length"
+    <app-table [data]="roles" [isLoading]="loadData" [columnsCount]="5" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="rolesTableHeader"
       [rowTemplate]="rolesTableRow" [emptyTemplate]="noroles"></app-table>
@@ -97,7 +97,7 @@
           <span>{{ getPermissionsCount(role) }}</span> Permissions
         </span>
       </td>
-      <td class="cursor-pointer"><span>15</span> Users</td>
+      <td class="cursor-pointer"><span>{{ role.total_users }}</span> Users</td>
 
       <td class="cursor-pointer">
         @if(role.status){
@@ -143,14 +143,14 @@
 
     <ng-template #noroles>
       <tr>
-        <!-- <td colspan="6" class="no-data py-4">
+        <td colspan="6" class="no-data py-4">
           <ng-container *ngIf="searchTerm?.trim() || filterForm.dirty; else noroles">
             No Work Schedule match your search and filter.
           </ng-container>
           <ng-template #noroles>
             No Work Schedule Added Yet.
           </ng-template>
-        </td> -->
+        </td>
       </tr>
     </ng-template>
   </div>

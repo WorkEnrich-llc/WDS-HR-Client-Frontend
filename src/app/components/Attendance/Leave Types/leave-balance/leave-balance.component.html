@@ -78,9 +78,9 @@
         </span>
       </td>
       <td>
-        <span class="d-block text-gray-sm">{{ balance.leaveType.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-gray-sm">{{ balance.leave.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ balance.leaveType.name }}
+          {{ balance.leave.name }}
         </span>
       </td>
       <td class="text-end">
@@ -137,13 +137,16 @@
 
 
     <div class="input">
-      <label for="employeeId">Employee ID</label>
+      <label for="employeeId">Employee(s)</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100">
-          <input type="text" formControlName="employeeId" id="employeeId" class="form-control custom-date-input"
-            placeholder="Enter employee ID" />
+          <select name="" id="leaveType" formControlName="employee_id" class="form-select">
+            <option value="" selected disabled hidden>Select employee</option>
+            <option *ngFor="let balance of leaveBalances" [value]="balance.employee.id">{{ balance.employee.name }}
+            </option>
+          </select>
         </div>
-        <svg *ngIf="!filterForm.get('employeeId')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="!filterForm.get('employee_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -163,18 +166,17 @@
 
 
     <div class="input">
-      <label for="leaveType">Leave Type</label>
+      <label for="leaveType">Leave Type(s)</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="leaveType" formControlName="leaveType" class="form-select">
-            <option value="" selected disabled hidden>Select</option>
-            <option value="annual">Annual Leave</option>
-            <option value="sick">Sick Leave</option>
-            <option value="maternity">Maternity Leave</option>
-            <option value="paternity">Paternity Leave</option>
+          <select name="" id="leaveType" formControlName="leave_id" class="form-select">
+            <option value="" selected disabled hidden>Select leave type</option>
+            <option [value]="1">Sick Leave</option>
+            <option [value]="2">Emergency Leave</option>
+            <option [value]="3">Religious Leave</option>
           </select>
         </div>
-        <svg *ngIf="!filterForm.get('leaveType')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="!filterForm.get('leave_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -182,7 +184,7 @@
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
-        <svg *ngIf="filterForm.get('leaveType')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        <svg *ngIf="filterForm.get('leave_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -192,7 +194,7 @@
       </div>
     </div>
 
-    <div class="input">
+    <!-- <div class="input">
       <label for="status">Leave Type</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -219,7 +221,7 @@
           </g>
         </svg>
       </div>
-    </div>
+    </div> -->
 
 
 
@@ -250,7 +252,7 @@
       </div>
       <div class="mb-2">
         <small class="form-label text-muted m-0">Leave Type</small>
-        <p class="form-control-plaintext m-0">{{ selectedBalance.leaveType.name }}</p>
+        <p class="form-control-plaintext m-0">{{ selectedBalance.leave.name }}</p>
       </div>
 
       <div class="input mb-2">
@@ -275,8 +277,7 @@
       </div>
       <div class="d-flex align-items-center mt-3 gap-3">
         <button type="submit" class="btn btn-lg btn-success w-100">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-            viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />

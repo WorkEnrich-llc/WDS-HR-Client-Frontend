@@ -1,13 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { ActionType, ModulePermission, Roles, SubModulePermission } from 'app/core/models/roles';
+import { TableComponent } from 'app/components/shared/table/table.component';
+import { Employee, EmployeesResponse } from 'app/core/interfaces/employee';
+import { ActionType, ModulePermission, Roles, RoleUser, SubModulePermission } from 'app/core/models/roles';
+import { ISearchParams, IUserApi, IUser } from 'app/core/models/users';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
+import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { Subject } from 'rxjs';
+
 interface AllowedAction {
   name: string;
   status: boolean;
@@ -28,15 +36,17 @@ interface FeatureData {
 
 @Component({
   selector: 'app-add-role',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule],
   templateUrl: './add-role.component.html',
   styleUrl: './add-role.component.css'
 })
 export class AddRoleComponent implements OnInit {
+  @ViewChild('usersOverlay') usersOverlay!: OverlayFilterBoxComponent;
   createRoleForm!: FormGroup;
   private fb = inject(FormBuilder);
   private adminRolesService = inject(AdminRolesService);
   private toasterService = inject(ToasterMessageService);
+  private employeesService = inject(EmployeeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -46,13 +56,27 @@ export class AddRoleComponent implements OnInit {
   createDate: string = '';
   updatedDate: string = '';
 
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
 
+  addedTotalUsers = 0;
+  addedPage = 1;
+  addedItemsPerPage = 10;
+
+  allUsers: IUser[] = [];
+  originalUsers: IUser[] = [];
+  addedUsers: IUser[] = [];
+  currentPage: number = 1;
+  selectAllUsers: boolean = false;
+  searchTerm: string = '';
+  private searchSubject = new Subject<string>();
 
   constructor(
     // private router: Router,
-    private rolesService: RolesService
+    private rolesService: RolesService,
   ) { }
-
+  private userService = inject(AdminUsersService);
   errMsg = '';
   isLoading: boolean = false;
 
@@ -71,6 +95,8 @@ export class AddRoleComponent implements OnInit {
   selectedActionsMap = new Map<string, Set<string>>();
 
   ngOnInit() {
+
+    this.getAllUsers();
     this.getAllRoles();
     this.initFormModels();
     this.id = Number(this.route.snapshot.paramMap.get('id'));
@@ -82,12 +108,14 @@ export class AddRoleComponent implements OnInit {
         this.loadRoleForEdit(this.roleId);
       }
     });
+
   }
 
   private initFormModels(): void {
     this.createRoleForm = this.fb.group({
       code: [''],
       name: ['', Validators.required],
+      users: [[]],
       permissions: this.fb.array([])
     })
   }
@@ -107,7 +135,189 @@ export class AddRoleComponent implements OnInit {
     this.permissions.updateValueAndValidity();
   }
 
+  // users
+  openUsersOverlay() {
+    this.searchTerm = '';
+    this.usersOverlay.openOverlay();
+  }
 
+
+
+
+  getAllUsers(filters?: ISearchParams) {
+    this.employeesService.getEmployeesForAddRoles(this.currentPage, this.itemsPerPage, filters?.search || '').subscribe({
+      next: (response: EmployeesResponse) => {
+        this.totalItems = response.data.total_items;
+        this.totalPages = response.data.total_pages;
+        this.currentPage = response.data.page ? Number(response.data.page) : this.currentPage;
+
+        const users: IUser[] = response.data.list_items.map((e: Employee) => {
+          const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === e.id);
+          return {
+            id: e.id,
+            name: e.contact_info?.name ?? '',
+            email: e.contact_info?.email ?? '',
+            code: e.contact_info?.mobile?.number?.toString() ?? '',
+            created_at: e.created_at,
+            updated_at: e.updated_at,
+            status: e.employee_active,
+            permissions: [],
+            isSelected: alreadyAdded
+          } as IUser;
+        });
+
+        this.originalUsers = users;
+        this.allUsers = [...users];
+
+        this.selectAllUsers = users.length > 0 && users.every(u => u.isSelected);
+      },
+      error: (err: any) => {
+        this.errMsg = err.error?.details ?? 'Failed to load employees';
+      }
+    });
+  }
+
+
+  onAddedPageChange(page: number) {
+    this.addedPage = page;
+  }
+
+  onAddedItemsPerPageChange(perPage: number) {
+    this.addedItemsPerPage = perPage;
+    this.addedPage = 1;
+  }
+
+  onItemsPerPageChange(newItemsPerPage: number) {
+    this.itemsPerPage = newItemsPerPage;
+    this.currentPage = 1;
+    this.getAllUsers();
+  }
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.getAllUsers();
+  }
+
+
+  onSearchChange() {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    if (term) {
+      this.allUsers = this.originalUsers.filter(user =>
+        user.name.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term) ||
+        user.code.toLowerCase().includes(term)
+      );
+    } else {
+      this.allUsers = [...this.originalUsers];
+    }
+
+    this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
+  }
+
+
+  toggleSelectAll() {
+    this.allUsers.forEach((user: IUser) => {
+      user.isSelected = this.selectAllUsers;
+    });
+  }
+
+  toggleUsers(user: IUser) {
+    if (!user.isSelected) {
+      this.selectAllUsers = false;
+    } else if (this.allUsers.length && this.allUsers.every((u: IUser) => u.isSelected)) {
+      this.selectAllUsers = true;
+    }
+  }
+
+  // addSelectedUserss(): void {
+  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
+
+  //   selected.forEach((user: IUser) => {
+  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
+  //     if (!alreadyAdded) {
+  //       this.addedUsers.push({
+  //         ...user,
+  //         isSelected: true
+  //       });
+  //     }
+  //   });
+
+  //   this.addedUsers = this.addedUsers.filter((added: IUser) =>
+  //     selected.some((u: IUser) => u.id === added.id)
+  //   );
+  //   // console.log(this.addedUsers)
+  //   this.usersOverlay.closeOverlay();
+  // }
+
+  // addSelectedUsers(): void {
+  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
+
+  //   selected.forEach((user: IUser) => {
+  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
+  //     if (!alreadyAdded) {
+  //       this.addedUsers.push({ ...user, isSelected: true });
+  //     }
+  //   });
+
+  //   // Always keep form in sync with IDs only
+  //   this.createRoleForm.patchValue({
+  //     users: this.addedUsers.map((u: IUser) => u.id)
+  //   });
+
+  //   this.usersOverlay.closeOverlay();
+  // }
+
+  addSelectedUsers() {
+    const selected = this.allUsers.filter(u => u.isSelected);
+
+    selected.forEach(u => {
+      if (!this.addedUsers.some(au => au.id === u.id)) {
+        this.addedUsers.push(u);
+      }
+    });
+
+    this.createRoleForm.patchValue({
+      users: this.addedUsers.map(u => u.id)
+    });
+
+    this.usersOverlay.closeOverlay();
+  }
+
+  removeUser(user: IUser): void {
+    this.addedUsers = this.addedUsers.filter(u => u.id !== user.id);
+
+    const match = this.allUsers.find(u => u.id === user.id);
+    if (match) {
+      match.isSelected = false;
+    }
+
+    this.selectAllUsers = this.allUsers.length > 0 && this.allUsers.every(u => u.isSelected);
+    this.createRoleForm.patchValue({
+      users: this.addedUsers.map(u => u.id)
+    });
+  }
+
+  discardUsers(): void {
+    this.usersOverlay.closeOverlay();
+    this.searchTerm = '';
+  }
+
+
+  sortDirection: string = 'asc';
+  currentSortColumn: string = '';
+  sortBy() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.addedUsers = this.addedUsers.sort((a, b) => {
+      if (this.sortDirection === 'asc') {
+        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
+      } else {
+        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+      }
+    });
+  }
+
+
+  // ------------
   getAllRoles() {
     this.rolesService.getroles().subscribe({
       next: (response) => {
@@ -116,6 +326,8 @@ export class AddRoleComponent implements OnInit {
           "Operational Development",
           "Personnel",
           "Attendance",
+
+
           "Recruitment System",
           "Payroll",
           "Admin Settings"
@@ -137,10 +349,11 @@ export class AddRoleComponent implements OnInit {
             };
           }
         });
-        console.log(this.mappedData);
+        // console.log(this.mappedData);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        // console.log(err.error?.details);
+        this.errMsg = err.error?.details;
       }
     });
   }
@@ -250,16 +463,26 @@ export class AddRoleComponent implements OnInit {
     return (this.selectedActionsMap.get(key)?.size || 0) > 0;
   }
 
+
+  roleName: string = '';
+
+
+  // load role for edit
   loadRoleForEdit(id: number) {
     this.adminRolesService.getRoleById(id).subscribe({
       next: (role) => {
         if (!role) return;
         this.createDate = new Date(role.createdAt ?? '').toLocaleDateString('en-GB');
         this.updatedDate = new Date(role.updatedAt ?? '').toLocaleDateString('en-GB');
+        this.addedUsers = role.users || [];
+        this.addedTotalUsers = role.total_users ?? this.addedUsers.length;
+
         this.createRoleForm.patchValue({
           code: role.code,
-          name: role.name
+          name: role.name,
+          users: this.addedUsers.map((u: IUser) => u.id)
         });
+        this.getAllUsers();
         this.selectedActionsMap.clear();
 
         if (role.permissions && Array.isArray(role.permissions)) {
@@ -305,7 +528,7 @@ export class AddRoleComponent implements OnInit {
     });
   }
 
-  // Build request body 
+  // Build request body
   private buildRoleModel(): Roles {
     const { code, name } = this.createRoleForm.value;
     const permissions: ModulePermission[] = Object.values(this.mappedData)
@@ -336,6 +559,7 @@ export class AddRoleComponent implements OnInit {
       code,
       name,
       permissions,
+      users: this.createRoleForm.value.users || []
     };
   }
 
@@ -346,7 +570,9 @@ export class AddRoleComponent implements OnInit {
       return;
     }
 
+
     const roleModel = this.buildRoleModel();
+    console.log('Role model:', roleModel);
     this.isLoading = true;
     if (this.isEditMode) {
       roleModel.id = this.roleId;
@@ -377,6 +603,7 @@ export class AddRoleComponent implements OnInit {
       });
     }
   }
+
 
   // next and prev
   currentStep: number = 1;

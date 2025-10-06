@@ -12,7 +12,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
   encapsulation: ViewEncapsulation.None,
 })
 export class TableComponent {
-  @Input() data: any[] = [];
+  @Input() data?: any[] | null= [];
   @Input() totalItems!: number;
   @Input() itemsPerPage = 10;
   @Input() currentPage = 1;

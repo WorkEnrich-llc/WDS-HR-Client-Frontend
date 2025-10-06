@@ -1,20 +1,24 @@
 import { Component, ViewChild, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, map, Observable, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
+import { IAttendanceFilters } from 'app/core/models/attendance-log';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-attendance-log',
-  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent,
+    CommonModule, ReactiveFormsModule, FormsModule, RouterLink, NgxDaterangepickerMd, PopupComponent],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
   styleUrl: './attendance-log.component.css'
@@ -27,12 +31,13 @@ export class AttendanceLogComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
 
-
-
-
-
+  private departmentService = inject(DepartmentsService);
+  private toasterService = inject(ToasterMessageService);
+  selectedRange: { startDate: string; endDate: string } | null = null;
 
   attendanceLogs: any[] = [];
+  departmentList$!: Observable<any[]>;
+
 
 
   // error text 
@@ -70,7 +75,7 @@ export class AttendanceLogComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  totalpages: number = 0;
+  totalPages: number = 0;
   loadData: boolean = false;
   today: Date = new Date();
   selectedDate!: Date;
@@ -78,16 +83,43 @@ export class AttendanceLogComponent {
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+
+
   ngOnInit(): void {
     this.filterForm = this.fb.group({
-      search: ['']
+      department_id: [''],
+      from_date: [''],
+      offenses: [''],
+      day_type: [''],
     });
+
+    this.filterForm.get('from_date')?.valueChanges.subscribe(val => {
+      if (val && val.startDate && val.endDate) {
+        this.selectedRange = {
+          startDate: val.startDate.format('YYYY-MM-DD'),
+          endDate: val.endDate.format('YYYY-MM-DD')
+        };
+        this.filterForm.patchValue({
+          to_date: this.selectedRange.endDate
+        }, { emitEvent: false });
+      } else {
+        this.selectedRange = null;
+        this.filterForm.patchValue({ to_date: '' }, { emitEvent: false });
+      }
+    });
+
     this.today.setHours(0, 0, 0, 0);
     this.selectedDate = new Date(this.today);
     this.baseDate = this.getStartOfWeek(this.today);
     this.generateDays(this.baseDate);
+    // this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
 
-    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!);
+    this.getAllAttendanceLog({
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+      to_date: ''
+    });
 
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
@@ -103,33 +135,39 @@ export class AttendanceLogComponent {
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-      this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, value, formattedDate);
+      this.getAllAttendanceLog({
+        page: this.currentPage,
+        per_page: this.itemsPerPage,
+        search: value
+      });
     });
 
+
+    this.departmentList$ = this.departmentService.getAllDepartments().pipe(
+      map((res: any) => res?.data?.list_items ?? [])
+    );
+
   }
 
 
-  getAllAttendanceLog(pageNumber: number, perPage: number, searchTerm: string = '', date?: string): void {
 
+  getAllAttendanceLog(filters: IAttendanceFilters): void {
     this.loadData = true;
-    const targetDate = date || this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-
-    this._AttendanceLogService
-      .getAttendanceLog(pageNumber, perPage, targetDate, { employee: searchTerm })
-      .subscribe({
-        next: (data) => {
-          console.log('Attendance logs fetched successfully:', data);
-          this.attendanceLogs = data.data.object_info.list_items;
-          this.totalItems = data.data.total_items;
-          this.totalpages = data.data.total_pages;
-          console.log(this.attendanceLogs);
-          this.loadData = false;
-        },
-        error: (error) => {
-          console.error('Error fetching attendance logs:', error);
-        }
-      });
+    this._AttendanceLogService.getAttendanceLog(filters).subscribe({
+      next: (data) => {
+        const info = data.data.object_info;
+        this.attendanceLogs = info.list_items;
+        this.totalItems = info.total_items;
+        this.totalPages = info.total_pages;
+        this.loadData = false;
+      },
+      error: (error) => {
+        console.error('Error fetching attendance logs:', error);
+        this.loadData = false;
+      }
+    });
   }
+
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -192,6 +230,8 @@ export class AttendanceLogComponent {
     this.baseDate.setDate(this.baseDate.getDate() - 7);
     this.generateDays(this.baseDate);
   }
+
+
   nextWeek(): void {
     const tempDate = new Date(this.baseDate);
     tempDate.setDate(tempDate.getDate() + 7);
@@ -204,7 +244,6 @@ export class AttendanceLogComponent {
     this.generateDays(this.baseDate);
   }
 
-
   getStartOfWeek(date: Date): Date {
     const dayOfWeek = date.getDay();
     const diff = date.getDate() - dayOfWeek;
@@ -215,11 +254,25 @@ export class AttendanceLogComponent {
   }
 
 
-
   canGoNext(): boolean {
     const nextStart = new Date(this.baseDate);
     nextStart.setDate(this.baseDate.getDate() + 7);
     return nextStart <= this.getStartOfWeek(this.today);
+  }
+
+
+
+  isSelected(date: Date): boolean {
+    //  highlighted selected range dates
+    if (this.selectedRange) {
+      const dayStr = this.datePipe.transform(date, 'yyyy-MM-dd')!;
+      const fromStr = this.selectedRange.startDate;
+      const toStr = this.selectedRange.endDate;
+
+      return dayStr >= fromStr && dayStr <= toStr;
+    }
+    // highlighted single selected date
+    return this.selectedDate && this.selectedDate.toDateString() === date.toDateString();
   }
 
   selectDate(date: Date): void {
@@ -230,13 +283,20 @@ export class AttendanceLogComponent {
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
     console.log('Selected date:', formattedDate);
 
-    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
-
+    this.getAllAttendanceLog({
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      from_date: formattedDate,
+      to_date: ''
+    });
   }
 
-  isSelected(date: Date): boolean {
-    return this.selectedDate.toDateString() === date.toDateString();
-  }
+  // isSelected(date: Date): boolean {
+  //   return this.selectedDate.toDateString() === date.toDateString();
+  // }
+
+
+
   trackByDate(index: number, day: { date: Date }): number {
     return new Date(day.date).getTime();
   }
@@ -246,19 +306,135 @@ export class AttendanceLogComponent {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
+    this.getAllAttendanceLog({
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      from_date: formattedDate,
+      to_date: ''
+    });
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    this.getAllAttendanceLog(this.currentPage, this.itemsPerPage, '', formattedDate);
+    this.getAllAttendanceLog({
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      from_date: formattedDate,
+      to_date: ''
+    });
   }
 
 
+
   navigateToNewLog(): void {
-    console.log("Navigate to new log");
     this.router.navigate(['/attendance/manage-attendance']);
+  }
+
+  cancelLog(attendance: any): void {
+    const payload = {
+      record_id: attendance.working_details.record_id,
+      employee_id: attendance.emp_id,
+      date: attendance.date
+    };
+    this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
+      next: () => {
+        attendance.working_details.canceled = true;
+        this.toasterService.showSuccess('Attendance log canceled successfully.');
+      },
+      error: (err) => {
+        this.toasterService.showError('Failed to cancel attendance log.');
+        console.error(err);
+      }
+    });
+  }
+
+
+  applyFilters(): void {
+    if (this.filterForm.valid) {
+      const raw = this.filterForm.value;
+      let from_date = '';
+      let to_date = '';
+      if (raw.from_date) {
+        from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
+        to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+      }
+      const filters: IAttendanceFilters = {
+        department_id: raw.department_id,
+        offenses: raw.offenses,
+        day_type: raw.day_type,
+        from_date,
+        to_date
+      };
+      this.filterBox.closeOverlay();
+      this.getAllAttendanceLog(filters);
+    }
+
+
+  }
+
+
+  applyFilter(): void {
+    console.log('filterForm', this.filterForm.value);
+    if (this.filterForm.valid) {
+      console.log('filterForm', this.filterForm.value);
+      const rawFilters = this.filterForm.value;
+      const filters: IAttendanceFilters = {
+        page: this.currentPage,
+        department_id: rawFilters.department_id || undefined,
+        from_date: rawFilters.from_date || undefined,
+        to_date: rawFilters.to_date || undefined,
+        offenses: rawFilters.offenses || undefined,
+        day_type: rawFilters.day_type || undefined,
+      };
+
+      this.filterBox.closeOverlay();
+      this.getAllAttendanceLog(filters);
+    }
+  }
+
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      department_id: '',
+      from_date: '',
+      to_date: '',
+      offenses: '',
+      day_type: ''
+    });
+    const filters: IAttendanceFilters = {
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      department_id: undefined,
+      from_date: '',
+      to_date: '',
+      offenses: '',
+      day_type: '',
+      search: ''
+    };
+    this.filterBox.closeOverlay();
+    this.getAllAttendanceLog(filters);
+  }
+
+
+  isModalOpen = false;
+  attendanceToCancel: any = null;
+
+  openModal(attendance: any) {
+    this.attendanceToCancel = attendance;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
+  }
+
+  confirmAction() {
+    if (this.attendanceToCancel) {
+      this.cancelLog(this.attendanceToCancel);
+    }
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
   }
 
 }

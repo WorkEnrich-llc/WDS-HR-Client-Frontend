@@ -37,6 +37,7 @@ export class CreateNewBranchComponent implements OnInit {
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
+  isLocationReady: boolean = false;
 
   constructor(
     private router: Router,
@@ -70,7 +71,7 @@ export class CreateNewBranchComponent implements OnInit {
   // form step 1
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
-  name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
+    name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
@@ -81,7 +82,11 @@ export class CreateNewBranchComponent implements OnInit {
     longitude: 0,
     radiusRange: 120,
     displayLatitude: '',
-    displayLongitude: ''
+    displayLongitude: '',
+    map_country: '',
+    map_city: '',
+    map_region: '',
+    map_address: ''
   };
 
 
@@ -327,11 +332,16 @@ export class CreateNewBranchComponent implements OnInit {
         latitude: this.locationData.latitude,
         longitude: this.locationData.longitude,
         radius_range: this.locationData.radiusRange,
+        map_country: this.locationData.map_country,
+        map_city: this.locationData.map_city,
+        map_region: this.locationData.map_region,
+        map_address: this.locationData.map_address,
         departments: departments
       }
     };
 
-    console.log(requestPayload);
+
+    // console.log(requestPayload);
     this._BranchesService.createBranch(requestPayload).subscribe({
 
       next: (response) => {
@@ -403,7 +413,18 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
   // Handle location confirmation from Google Maps component
-  onLocationConfirmed(locationData: LocationData): void {
-    this.locationData = { ...locationData };
+  onLocationConfirmed(event: LocationData): void {
+    this.locationData = { ...event };
+
+    setTimeout(() => {
+      this.isLocationReady = !!(
+        this.locationData.map_country &&
+        this.locationData.map_city &&
+        this.locationData.map_region &&
+        this.locationData.map_address
+      );
+    });
   }
+
+
 }

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
@@ -14,7 +14,8 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
   templateUrl: './update-leave-types.component.html',
   styleUrl: './update-leave-types.component.css'
 })
-export class UpdateLeaveTypesComponent {
+export class UpdateLeaveTypesComponent implements OnInit {
+  private fb = inject(FormBuilder);
   isFormChanged = false;
   carryoverAllowed: boolean = false;
   errMsg: string = '';
@@ -36,41 +37,71 @@ export class UpdateLeaveTypesComponent {
     if (this.leaveId) {
       this.getLeaveJob(Number(this.leaveId));
     }
-  }
 
+    this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
+    this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
+    this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+
+  }
+  private setupCheckboxControl(checkbox: string, dependentControls: string[]) {
+    this.leaveType3.get(checkbox)?.valueChanges.subscribe(checked => {
+      dependentControls.forEach(ctrl => {
+        if (checked) {
+          this.leaveType3.get(ctrl)?.enable();
+        } else {
+          this.leaveType3.get(ctrl)?.disable();
+          this.leaveType3.get(ctrl)?.reset();
+        }
+      });
+    });
+  }
 
   getLeaveJob(leaveId: number) {
 
     this._LeaveTypeService.showLeaveType(leaveId).subscribe({
       next: (response) => {
-      this.leaveTypeData = response.data.object_info;
+        this.leaveTypeData = response.data.object_info;
 
-      const settings = this.leaveTypeData.settings;
-      this.carryoverAllowed = settings.allow_carryover;
+        const settings = this.leaveTypeData.settings;
+        this.carryoverAllowed = settings.allow_carryover;
 
-      this.leaveType1.patchValue({
-        code: this.leaveTypeData.code,
-        name: this.leaveTypeData.name,
-        description: this.leaveTypeData.description,
-        employmentType: this.leaveTypeData.employment_type?.id || ''
-      });
+        this.leaveType1.patchValue({
+          code: this.leaveTypeData.code,
+          name: this.leaveTypeData.name,
+          description: this.leaveTypeData.description,
+          employmentType: this.leaveTypeData.employment_type?.id || ''
+        });
 
-      this.leaveType2.patchValue({
-        accrual_rate: settings.accrual_rate,
-        leave_limits: settings.leave_limits,
-        max_review_days: settings.max_review_days,
-        maximum_carryover_days: settings.maximum_carryover_days
-      });
+        this.leaveType2.patchValue({
+          accrual_rate: settings.accrual_rate,
+          leave_limits: settings.leave_limits,
+          max_review_days: settings.max_review_days,
+          maximum_carryover_days: settings.maximum_carryover_days
+        });
 
-      this.toggleCarryoverValidators();
+        this.leaveType3.patchValue({
+          extra_with_age: settings.extra_conditions?.age?.status || false,
+          age: settings.extra_conditions?.age?.from || null,
+          extraDays: settings.extra_conditions?.age?.to || null,
 
-      this.monitorFormChanges();
+          extra_with_service: settings.extra_conditions?.service?.status || false,
+          yearsOfService: settings.extra_conditions?.service?.from || null,
+          extraDaysService: settings.extra_conditions?.service?.to || null,
 
-      const created = this.leaveTypeData?.created_at;
-      const updated = this.leaveTypeData?.updated_at;
-      if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
-      if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
-    },
+          extra_with_experience: settings.extra_conditions?.experience?.status || false,
+          yearsOfExperience: settings.extra_conditions?.experience?.from || null,
+          extraDaysExperience: settings.extra_conditions?.experience?.to || null
+        });
+
+        this.toggleCarryoverValidators();
+
+        this.monitorFormChanges();
+
+        const created = this.leaveTypeData?.created_at;
+        const updated = this.leaveTypeData?.updated_at;
+        if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+      },
       error: (err) => {
         console.log(err.error?.details);
       }
@@ -78,42 +109,61 @@ export class UpdateLeaveTypesComponent {
   }
 
 
-monitorFormChanges() {
-  const initialLeaveType1 = this.leaveType1.getRawValue();
-  const initialLeaveType2 = this.leaveType2.getRawValue();
+  monitorFormChanges() {
+    const initialLeaveType1 = this.leaveType1.getRawValue();
+    const initialLeaveType2 = this.leaveType2.getRawValue();
 
-  this.leaveType1.valueChanges.subscribe(() => {
-    const current1 = this.leaveType1.getRawValue();
-    this.isFormChanged = JSON.stringify(current1) !== JSON.stringify(initialLeaveType1) ||
-                         JSON.stringify(this.leaveType2.getRawValue()) !== JSON.stringify(initialLeaveType2);
-  });
+    this.leaveType1.valueChanges.subscribe(() => {
+      const current1 = this.leaveType1.getRawValue();
+      this.isFormChanged = JSON.stringify(current1) !== JSON.stringify(initialLeaveType1) ||
+        JSON.stringify(this.leaveType2.getRawValue()) !== JSON.stringify(initialLeaveType2);
+    });
 
-  this.leaveType2.valueChanges.subscribe(() => {
-    const current2 = this.leaveType2.getRawValue();
-    this.isFormChanged = JSON.stringify(this.leaveType1.getRawValue()) !== JSON.stringify(initialLeaveType1) ||
-                         JSON.stringify(current2) !== JSON.stringify(initialLeaveType2);
-  });
-}
+    this.leaveType2.valueChanges.subscribe(() => {
+      const current2 = this.leaveType2.getRawValue();
+      this.isFormChanged = JSON.stringify(this.leaveType1.getRawValue()) !== JSON.stringify(initialLeaveType1) ||
+        JSON.stringify(current2) !== JSON.stringify(initialLeaveType2);
+    });
+  }
 
 
   leaveType1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required,Validators.minLength(3),Validators.maxLength(100)]),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     description: new FormControl(''),
     employmentType: new FormControl('', [Validators.required]),
   });
 
   leaveType2: FormGroup = new FormGroup({
-    accrual_rate: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    leave_limits: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    max_review_days: new FormControl('', [Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    maximum_carryover_days: new FormControl({ value: '', disabled: true }, [ Validators.pattern('^\\d+(\\.\\d+)?$')])
+    accrual_rate: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    leave_limits: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    maximum_carryover_days: new FormControl({ value: '', disabled: true }, [Validators.pattern('^\\d+(\\.\\d+)?$')])
   });
+
+  leaveType3 = this.fb.group({
+    // checkboxes
+    extra_with_age: [false],
+    extra_with_service: [false],
+    extra_with_experience: [false],
+
+    // inputs 
+    age: [{ value: '', disabled: true }],
+    extraDays: [{ value: '', disabled: true }],
+
+    yearsOfService: [{ value: '', disabled: true }],
+    extraDaysService: [{ value: '', disabled: true }],
+
+    yearsOfExperience: [{ value: '', disabled: true }],
+    extraDaysExperience: [{ value: '', disabled: true }],
+  });
+
+
   toggleCarryoverValidators() {
     const control = this.leaveType2.get('maximum_carryover_days');
     if (this.carryoverAllowed) {
       control?.enable();
-      control?.setValidators([Validators.required,  Validators.pattern('^\\d+(\\.\\d+)?$')]);
+      control?.setValidators([Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]);
     } else {
       control?.disable();
       control?.clearValidators();
@@ -125,7 +175,7 @@ monitorFormChanges() {
   updateleaveType() {
     this.isLoading = true;
     const request_data = {
-      id:Number(this.leaveTypeData.id),
+      id: Number(this.leaveTypeData.id),
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
       description: this.leaveType1.get('description')?.value,

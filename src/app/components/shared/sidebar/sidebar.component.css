@@ -88,13 +88,13 @@
 }
 
 .logo-inner {
-    padding: var(--spacing-8) 0 var(--spacing-20);
+    /* padding: var(--spacing-8) 0 var(--spacing-20); */
     justify-content: center;
 }
 
-.sidenav-collapsed .logo-inner {
+/* .sidenav-collapsed .logo-inner {
     padding: var(--spacing-8) var(--spacing-8) var(--spacing-8) 0;
-}
+} */
 
 .logo {
     width: var(--spacing-36);
@@ -382,4 +382,24 @@ fill: var(--color-danger-500);
     -moz-border-radius: 25px !important;
     -ms-border-radius: 25px !important;
     -o-border-radius: 25px !important;
+}
+.sidenav-nav-item{
+    cursor: pointer;
+}
+.sidenav-collapsed .logo-container .sidebar-text{
+    width: 9.5rem;
+}
+.sidebar-text{
+    max-height: 30px;
+}
+.logo-container .sidebar-text{
+    height: 70px;
+    max-height: 70px;
+}
+.view-btn:hover{
+    transform: unset;
+    -webkit-transform: unset;
+    -moz-transform: unset;
+    -ms-transform: unset;
+    -o-transform: unset;
 }

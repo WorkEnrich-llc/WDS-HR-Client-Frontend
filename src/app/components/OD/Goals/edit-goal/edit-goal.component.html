@@ -1,0 +1,116 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/departments' },
+    { label: 'Goals', link: '/goals' },
+    { label: 'Edit Goal' + goalData.name  }
+  ]" [title]="'Edit Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+    <button class="btn btn-lg btn-success" (click)="updateGoal()" [disabled]="goalForm.pristine || goalForm.invalid || isLoading">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isLoading) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Goal</span>
+    </button>
+</app-page-header>
+
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Main Information</h2>
+        <form [formGroup]="goalForm" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="code">Goal Code (Optional)</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="code" formControlName="code" class="form-control custom-date-input"
+                        placeholder="0050" />
+                </div>
+
+            </div>
+
+            <div class="input">
+                <label for="name">Goal Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="text" id="name" formControlName="name" class="form-control custom-date-input"
+                        placeholder="Enter Goal Name" />
+                </div>
+                @if (goalForm.get('name')?.touched && goalForm.get('name')?.errors?.['required']) {
+                <p class="error-msg">
+                    Goal Name is required.
+                </p>
+                }
+            </div>
+
+            <div class="input">
+                <label for="department_type">Goal Department Type <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select id="department_type" formControlName="department_type" class="form-select">
+                        <option value="" selected disabled hidden>Select Goal Department Type</option>
+                        <option value=1>Support</option>
+                        <option value=2>Technical</option>
+                    </select>
+                </div>
+                @if (goalForm.get('department_type')?.touched && goalForm.get('department_type')?.errors?.['required'])
+                {
+                <p class="error-msg">
+                    Department Type is required.
+                </p>
+                }
+            </div>
+
+
+
+            <div class="input">
+                <label for="Priority">Priority <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select id="Priority" formControlName="Priority" class="form-select">
+                        <option value="" selected disabled hidden>Select Priority</option>
+                        <option value=1>1</option>
+                        <option value=2>2</option>
+                        <option value=3>3</option>
+                        <option value=4>4</option>
+                        <option value=5>5</option>
+                    </select>
+                </div>
+                @if (goalForm.get('Priority')?.touched && goalForm.get('Priority')?.errors?.['required']) {
+                <p class="error-msg">
+                    Priority is required.
+                </p>
+                }
+            </div>
+
+            @if (errMsg) {
+            <div class="alert alert-danger mb-0 mt-2" role="alert">
+                {{errMsg}}
+            </div>
+            }
+        </form>
+    </div>
+</div>
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Edit Goal'" [paragraph1]="'Are you sure you want to discard Edit Goal?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
+</app-popup>

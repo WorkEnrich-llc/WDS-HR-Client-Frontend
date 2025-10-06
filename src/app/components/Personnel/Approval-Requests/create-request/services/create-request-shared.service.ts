@@ -6,7 +6,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class CreateRequestSharedService {
   private fb = new FormBuilder();
-
   // Reactive Forms
   requestForm!: FormGroup;
 
@@ -47,13 +46,13 @@ export class CreateRequestSharedService {
     // This keeps each type's logic isolated and makes it easy to add fields later.
     this.requestForm = this.fb.group({
       main_information: this.fb.group({
-        employee_id: [null, Validators.required],
-        request_type: [null, Validators.required]
+        employee_id: ['', Validators.required],
+        request_type: ['', Validators.required]
       }),
       request_details: this.fb.group({
         // Leave-specific fields
         leave: this.fb.group({
-          leave_type: [null, Validators.required],
+          leave_type: ['', Validators.required],
           from_date: ['',Validators.required],
           to_date: [''],
           reason: ['']

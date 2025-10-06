@@ -50,8 +50,8 @@
 
 .chart-box {
     width: 100%;
-    min-height: calc(100vh - 10px) !important;
-    overflow: auto !important;
+    /* min-height: calc(100vh - 10px) !important; */
+    /* overflow: auto !important; */
 }
 
 .content-hug {

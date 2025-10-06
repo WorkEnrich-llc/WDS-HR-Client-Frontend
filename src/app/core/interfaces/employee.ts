@@ -14,11 +14,13 @@ export interface CreateEmployeeRequest {
       address: string;
     };
     job_details: {
+      years_of_experience?: number;
       branch_id: number;
       department_id: number;
       section_id?: number;
       job_title_id: number;
       work_schedule_id: number;
+      activate_attendance_rules?: boolean;
     };
     contract_details: {
       start_contract: string;
@@ -28,6 +30,10 @@ export interface CreateEmployeeRequest {
       work_mode: number; // 1 On Site, 2 Remote, 3 Hybrid
       days_on_site?: number;
       salary: number;
+      insurance_salary?: number;
+      gross_insurance_salary?: number;
+      gross_insurance?: number;
+      notice_period?: number;
     };
   };
 }

@@ -64,22 +64,13 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
-    // get supsciption
-     this.subService.getSubscription().subscribe({
-    next: (sub) => {
-      if (sub) {
-        this.subService.setSubscription(sub); 
-      }
-    }
-  });
 
     const existingToken = localStorage.getItem('device_token');
     if (existingToken && existingToken.trim() !== '') {
-      // console.log('Device already registered, skipping registration.');
       this.checkTokenChangesPeriodically();
-      this.checkAndUpdateFcmStatus();
       return;
     }
+
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);
@@ -135,12 +126,8 @@ export class AppComponent {
       });
 
     this.checkTokenChangesPeriodically();
-    // this.checkAndUpdateFcmStatus();
   }
 
-
-
-  // update fcm token 
   private checkTokenChangesPeriodically(): void {
     const app = initializeApp(environment.firebaseConfig);
     const messaging = getMessaging(app);
@@ -173,46 +160,6 @@ export class AppComponent {
       } catch (err) {
         console.error('Error while checking FCM token:', err);
       }
-    }, 1 * 1000);
+    }, 1000);
   }
-
-
-
-  // update fcm status
-  checkAndUpdateFcmStatus(): void {
-    const sessionToken = localStorage.getItem('session_token') || '';
-    const cleanedSessionToken = sessionToken.replace(/^"|"$/g, '');
-    const fcmToken = localStorage.getItem('fcm_token') || '';
-
-    const permission = Notification.permission;
-    let enabled = false;
-    if (permission === 'granted') {
-      enabled = true;
-    } else if (permission === 'default') {
-      enabled = true;
-    } else if (permission === 'denied') {
-      enabled = false;
-    }
-
-    const formData = new FormData();
-    formData.append('session_token', cleanedSessionToken);
-    formData.append('fcm_status', enabled ? 'true' : 'false');
-    formData.append('fcm_token', fcmToken);
-
-    // for (const [key, value] of formData.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
-
-    this.fcmService.fcmChangeStatus(formData).subscribe({
-      next: () => {
-        // console.log('FCM status updated successfully');
-        localStorage.setItem('is_fcm', String(enabled));
-      },
-      error: (err) => {
-        console.error('FCM stutus update error: ', err);
-      }
-    });
-  }
-
-
 }

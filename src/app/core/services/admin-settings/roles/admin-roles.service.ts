@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { mapRoleAllResponse, mapRoleResponse, mapRoleToRequest } from 'app/core/adapter/adapter';
-import { ActionType, Roles, UpdateRoleRequest } from 'app/core/models/roles';
-import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
+import { mapRoleResponse, mapRoleToRequest } from 'app/core/adapter/adapter';
+import { ActionType, Roles } from 'app/core/models/roles';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -76,7 +76,9 @@ export class AdminRolesService {
                 typeof a === 'string' ? a : a?.name ?? ''
               )
             }))
-          }))
+          })),
+          users: (item.users || []).map((u: any) => u.id),
+          total_users: item.total_users ?? (item.users ? item.users.length : 0)
         }));
 
         return {
@@ -88,8 +90,6 @@ export class AdminRolesService {
       })
     );
   }
-
-
 
   //update role
 
@@ -118,13 +118,23 @@ export class AdminRolesService {
           name: item.name ?? '',
           createdAt: item.created_at,
           updatedAt: item.updated_at,
+          total_users: item.total_users ?? 0,
+          users: (item.users || []).map((u: any) => ({
+            id: u.id,
+            code: u.code ?? '',
+            email: u.email ?? '',
+            name: u.name ?? '',
+            added_date: u.added_date,
+            status: u.status,
+            is_active: u.is_active
+          })),
           permissions: (item.permissions || []).map((p: any) => ({
             moduleCode: p.main?.code,
             subModules: (p.sub_list || []).map((sub: any) => ({
               code: sub.sub?.code,
               subName: sub.sub?.name ?? '',
               actions: (sub.allowed_actions || [])
-                .filter((a: any) => a.status) // active only
+                .filter((a: any) => a.status)
                 .map((a: any) => a.name as ActionType)
             }))
           }))
@@ -133,17 +143,18 @@ export class AdminRolesService {
     );
   }
 
-  // Get all Roles
-  // getAllRoles(): Observable<Roles[]> {
-  //   return this.http.get<any>(this.url).pipe(
-  //     map(response => {
-  //       const roles = response.data?.list_info || [];
-  //       return roles.map((role: any) => mapRoleResponse(role));
-  //     })
-  //   );
-  // }
+  // get all role names for dropdown
+  getAllRoleNames(): Observable<Partial<Roles>[]> {
+    return this.http.get<any>(this.url).pipe(
+      map((response) => {
+        const roles = response?.data?.list_items || [];
+        return roles.map((role: any) => ({
+          id: role.id,
+          name: role.name ?? ''
+        }));
+      })
+    );
+  }
 
-  // getAllRoles(): Observable<any> {
-  //   return this.http.get<any>(`${this.allRolesUrl}`);
-  // }
+
 }

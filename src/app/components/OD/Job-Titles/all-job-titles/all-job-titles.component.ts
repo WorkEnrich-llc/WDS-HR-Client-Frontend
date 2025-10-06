@@ -24,7 +24,7 @@ export class AllJobTitlesComponent {
 
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute,private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder) { }
   departments: any[] = [];
   jobTitles: any[] = [];
@@ -33,7 +33,8 @@ export class AllJobTitlesComponent {
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
-
+  currentFilters: any = {};
+  currentSearchTerm: string = '';
 
 
   ngOnInit(): void {
@@ -92,23 +93,26 @@ export class AllJobTitlesComponent {
     }
   }
 
-   sortBy() {
-  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-  this.jobTitles = this.jobTitles.sort((a, b) => {
-    const nameA = a.name.toLowerCase();
-    const nameB = b.name.toLowerCase();
+  sortBy() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.jobTitles = this.jobTitles.sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
 
-    if (this.sortDirection === 'asc') {
-      return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
-    } else {
-      return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
-    }
-  });
-}
+      if (this.sortDirection === 'asc') {
+        return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
+      } else {
+        return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
+      }
+    });
+  }
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    this.currentPage = 1;
+    this.currentSearchTerm = this.searchTerm;
+    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
 
   filter(): void {
     if (this.filterForm.valid) {
@@ -126,8 +130,9 @@ export class AllJobTitlesComponent {
       };
 
       // console.log('Filters submitted:', filters);
+      this.currentPage = 1;
       this.filterBox.closeOverlay();
-      this.getAllJobTitles(this.currentPage, '', filters);
+      this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
     }
   }
 
@@ -135,7 +140,7 @@ export class AllJobTitlesComponent {
   totalPages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData:boolean =true;
+  loadData: boolean = true;
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
@@ -165,11 +170,11 @@ export class AllJobTitlesComponent {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
 
       }
     });
@@ -212,10 +217,12 @@ export class AllJobTitlesComponent {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.getAllJobTitles(this.currentPage);
+    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllJobTitles(this.currentPage);
+    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
 }
