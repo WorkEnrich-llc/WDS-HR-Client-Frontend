@@ -48,6 +48,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: var(--color-secondary-400);
   cursor: pointer !important;
 }
+/* password hide eye defult*/
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-clear-button,
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+input[type="password"]::-webkit-password-toggle {
+  display: none !important;
+}
 
 .form-outline {
   position: relative;

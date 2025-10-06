@@ -7,6 +7,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -35,9 +37,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService, private toasterMessageService: ToasterMessageService,
-    private toastr: ToastrService
+    private toastr: ToastrService, private subService: SubscriptionService
   ) { }
-
 
 
   login(): void {
@@ -48,22 +49,22 @@ export class LoginComponent implements OnInit {
     formData.append('username', this.loginForm.get('email')?.value);
     formData.append('password', this.loginForm.get('password')?.value);
     formData.append('device_token', device_token!);
+
     this._AuthenticationService.login(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        // console.log('Login response:', response);
         const authToken = response.data?.session?.auth_token;
         const session_token = response.data?.session?.session_token;
         const domain = response.data?.company_info?.domain;
 
         if (authToken && domain) {
           this.cookieService.set('token', authToken);
+          localStorage.setItem('token', JSON.stringify(authToken));
+          localStorage.setItem('session_token', JSON.stringify(session_token));
 
           const userInfo = response.data?.user_info;
           const companyInfo = response.data?.company_info;
-          const subscription = response.data?.subscription;
-          localStorage.setItem('token', JSON.stringify(authToken));
-          localStorage.setItem('session_token', JSON.stringify(session_token));
+
           if (userInfo) {
             localStorage.setItem('user_info', JSON.stringify(userInfo));
           }
@@ -72,11 +73,18 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
-          // if (subscription) {
-          //   localStorage.setItem('subscription_info', JSON.stringify(subscription));
-          // }
 
-          // window.location.href = `https://${domain}/departments`;
+          this.subService.getSubscription().subscribe({
+            next: (sub) => {
+              if (sub) {
+                this.subService.setSubscription(sub);
+              }
+            },
+            error: (err) => {
+              console.error('Subscription load error:', err);
+            }
+          });
+
           this._Router.navigate(['/dashboard']);
         } else {
           this.errMsg = 'Invalid response from server.';
@@ -84,11 +92,11 @@ export class LoginComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
-        // console.error("Login error:", err);
         this.errMsg = err.error?.details;
       }
     });
   }
+
 
 
   togglePassword(): void {

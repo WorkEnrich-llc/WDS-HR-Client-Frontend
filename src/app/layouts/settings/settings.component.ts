@@ -36,7 +36,6 @@ export class SettingsComponent {
     this.isLoading = true;
 
     const deviceToken = localStorage.getItem('device_token');
-
     localStorage.clear();
     if (deviceToken) {
       localStorage.setItem('device_token', deviceToken);
@@ -44,18 +43,20 @@ export class SettingsComponent {
 
     this.cookieService.deleteAll('/', window.location.hostname);
 
-
+    this._Router.navigate(['/auth/login']);
 
     this._AuthenticationService.logout().subscribe({
       next: () => {
+        // console.log('Logout request completed successfully');
         this.isLoading = false;
-        this._Router.navigate(['/auth/login']);
       },
       error: (err) => {
-        console.error('Logout error:', err);
+        console.error('Logout request failed:', err);
         this.isLoading = false;
       }
     });
+
+
   }
 
 

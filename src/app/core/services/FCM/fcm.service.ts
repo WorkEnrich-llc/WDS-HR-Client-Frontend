@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Messaging } from '@angular/fire/messaging';
 import { getToken } from 'firebase/messaging';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { environment } from './../../../../environments/environment';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -64,5 +65,37 @@ export class FcmService {
   fcmChangeStatus(formData: FormData): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/fcm-change-status`;
     return this._HttpClient.put(url, formData);
+  }
+
+  checkAndUpdateFcmStatus(): void {
+    this.getToken().then(token => {
+      if (!token) {
+        console.warn('FCM token not available.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('fcm_token', token);
+
+      this.fcmUpdate(formData).subscribe({
+        next: (res) => {
+          console.log('FCM token updated successfully:', res);
+
+          const changeStatusData = new FormData();
+          changeStatusData.append('status', '1'); 
+          this.fcmChangeStatus(changeStatusData).subscribe({
+            next: (statusRes) => {
+              console.log('FCM status updated successfully:', statusRes);
+            },
+            error: (statusErr) => {
+              console.error('Error updating FCM status:', statusErr);
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Error updating FCM token:', err);
+        }
+      });
+    });
   }
 }

@@ -33,27 +33,27 @@ export class ResetPasswordComponent {
   errMsg: string = '';
   isLoading: boolean = false;
 
-  checkEmail(): void {
-  const emailControl = this.emailForm.get('email');
-  if (!emailControl || emailControl.invalid) return;
+//   checkEmail(): void {
+//   const emailControl = this.emailForm.get('email');
+//   if (!emailControl || emailControl.invalid) return;
 
-  this.isLoading = true;
+//   this.isLoading = true;
 
-  this._AuthenticationService.checkEmail(emailControl.value).subscribe({
-    next: () => {
-      this.emailMsg = 'Email is not registered';
-      this.isLoading = false;
-      emailControl.setErrors({ emailNotRegistered: true });
-      emailControl.updateValueAndValidity(); 
-    },
-    error: () => {
-      this.emailMsg = '';
-      this.isLoading = false;
-      emailControl.setErrors(null);
-      emailControl.updateValueAndValidity(); 
-    }
-  });
-}
+//   this._AuthenticationService.checkEmail(emailControl.value).subscribe({
+//     next: () => {
+//       this.emailMsg = 'Email is not registered';
+//       this.isLoading = false;
+//       emailControl.setErrors({ emailNotRegistered: true });
+//       emailControl.updateValueAndValidity(); 
+//     },
+//     error: () => {
+//       this.emailMsg = '';
+//       this.isLoading = false;
+//       emailControl.setErrors(null);
+//       emailControl.updateValueAndValidity(); 
+//     }
+//   });
+// }
 
 
 
