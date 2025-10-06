@@ -302,6 +302,10 @@ export class CreateDepartmentsComponent {
     this.selectAllAdded = this.addedGoal.length > 0 && this.addedGoal.every(goal => goal.selected);
   }
 
+  get hasSelectedGoals(): boolean {
+    return this.addedGoal?.some(goal => goal.selected);
+  }
+
 
   // create Department
   createDept() {
