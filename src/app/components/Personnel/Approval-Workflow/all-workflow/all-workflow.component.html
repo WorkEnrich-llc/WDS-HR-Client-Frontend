@@ -53,7 +53,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="workflows" [isLoading]="loadData" [columnsCount]="7" [totalItems]="workflows.length"
+    <app-table [data]="workflows" [isLoading]="loadData" [columnsCount]="7" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="workflowTableHeader"
       [rowTemplate]="workflowTableRow" [emptyTemplate]="noWorkflow"></app-table>
