@@ -1,0 +1,8 @@
+.text-primary {
+  color: var(--color-primary-500) !important;
+}
+
+.toggle-password {
+  width: 24px;
+  height: 24px;
+}

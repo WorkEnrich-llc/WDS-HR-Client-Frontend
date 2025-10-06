@@ -29,8 +29,8 @@ export class BranchesService {
       updated_to?: string;
       created_from?: string;
       created_to?: string;
-      min_employees?: string;
-      max_employees?: string;
+      min_employees?: number;
+      max_employees?: number;
       branch?: string;
       status?: string;
     }
@@ -47,8 +47,10 @@ export class BranchesService {
       if (filters.updated_to) params = params.set('updated_to', filters.updated_to);
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
-      if (filters.min_employees) params = params.set('min_employees', filters.min_employees);
-      if (filters.max_employees) params = params.set('max_employees', filters.max_employees);
+       if (filters.min_employees !== undefined && filters.min_employees !== null)
+      params = params.set('min_employees', filters.min_employees.toString());
+    if (filters.max_employees !== undefined && filters.max_employees !== null)
+      params = params.set('max_employees', filters.max_employees.toString());
       if (filters.branch) params = params.set('branch', filters.branch);
       if (filters.status) params = params.set('status', filters.status);
     }

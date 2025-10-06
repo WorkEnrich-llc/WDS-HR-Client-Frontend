@@ -10,6 +10,10 @@ export interface LocationData {
   radiusRange: number;
   displayLatitude: string;
   displayLongitude: string;
+  map_country?: string;
+  map_city?: string;
+  map_region?: string;
+  map_address?: string;
 }
 
 @Component({
@@ -72,6 +76,18 @@ export class GoogleMapsLocationComponent implements OnInit {
     editable: true,
     radius: 120,
   };
+  locationData: LocationData = {
+    latitude: 0,
+    longitude: 0,
+    radiusRange: 120,
+    displayLatitude: '',
+    displayLongitude: '',
+    map_country: '',
+    map_city: '',
+    map_region: '',
+    map_address: ''
+  };
+
 
   // Form controls for location data
   latitude: number = 0;
@@ -80,6 +96,10 @@ export class GoogleMapsLocationComponent implements OnInit {
   displayLongitude: string = '';
   radiusRange: number = 120;
   locationSearchTerm: string = '';
+  map_country: string = '';
+  map_city: string = '';
+  map_region: string = '';
+  map_address: string = '';
 
   // Info window content
   infoWindowContent = 'Location';
@@ -123,7 +143,7 @@ export class GoogleMapsLocationComponent implements OnInit {
       this.center = clickedLocation;
       this.zoom = 15;
       this.updateCircleOptions();
-      this.emitLocationChange();
+      this.updateAddressFromCoordinates(this.latitude, this.longitude);
     }
   }
 
@@ -134,7 +154,7 @@ export class GoogleMapsLocationComponent implements OnInit {
       this.latitude = newPosition.lat;
       this.longitude = newPosition.lng;
       this.updateCircleOptions();
-      this.emitLocationChange();
+      this.updateAddressFromCoordinates(this.latitude, this.longitude);
     }
   }
 
@@ -246,24 +266,36 @@ export class GoogleMapsLocationComponent implements OnInit {
     this.emitLocationChange();
   }
 
-  confirmLocation() {
-    if (this.branchMarker) {
-      // Update display values when confirmed
-      this.displayLatitude = this.latitude.toFixed(6);
-      this.displayLongitude = this.longitude.toFixed(6);
+ async confirmLocation() {
+  if (this.branchMarker) {
+    this.displayLatitude = this.latitude.toFixed(6);
+    this.displayLongitude = this.longitude.toFixed(6);
 
-      const locationData: LocationData = {
-        latitude: this.latitude,
-        longitude: this.longitude,
-        radiusRange: this.radiusRange,
-        displayLatitude: this.displayLatitude,
-        displayLongitude: this.displayLongitude
-      };
+    const addressData = await this.reverseGeocode(this.latitude, this.longitude);
 
-      this.locationConfirmed.emit(locationData);
-      this.toasterMessageService.showSuccess(`Location confirmed: ${this.latitude.toFixed(6)}, ${this.longitude.toFixed(6)} with ${this.radiusRange}m radius`);
-    }
+    this.map_country = addressData.country;
+    this.map_city = addressData.city;
+    this.map_region = addressData.region;
+    this.map_address = addressData.fullAddress;
+
+    const locationData: LocationData = {
+      latitude: this.latitude,
+      longitude: this.longitude,
+      radiusRange: this.radiusRange,
+      displayLatitude: this.displayLatitude,
+      displayLongitude: this.displayLongitude,
+      map_country: this.map_country,
+      map_city: this.map_city,
+      map_region: this.map_region,
+      map_address: this.map_address
+    };
+
+    this.locationConfirmed.emit(locationData);
+    this.toasterMessageService.showSuccess(`Location confirmed ${this.map_address}`);
   }
+}
+
+
 
   private emitLocationChange() {
     const locationData: LocationData = {
@@ -271,9 +303,37 @@ export class GoogleMapsLocationComponent implements OnInit {
       longitude: this.longitude,
       radiusRange: this.radiusRange,
       displayLatitude: this.displayLatitude,
-      displayLongitude: this.displayLongitude
+      displayLongitude: this.displayLongitude,
+      map_country: this.map_country,
+      map_city: this.map_city,
+      map_region: this.map_region,
+      map_address: this.map_address
     };
     this.locationChanged.emit(locationData);
+  }
+  private updateAddressFromCoordinates(lat: number, lng: number) {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        const components = results[0].address_components;
+
+        this.map_address = results[0].formatted_address;
+        this.map_country = this.getComponent(components, 'country');
+        this.map_city = this.getComponent(components, 'locality') || this.getComponent(components, 'administrative_area_level_2');
+        this.map_region = this.getComponent(components, 'sublocality') 
+                || this.getComponent(components, 'neighborhood')
+                || this.getComponent(components, 'locality') 
+                || this.getComponent(components, 'administrative_area_level_2');
+
+        this.emitLocationChange();
+      }
+    });
+  }
+
+
+  private getComponent(components: google.maps.GeocoderAddressComponent[], type: string): string {
+    const comp = components.find(c => c.types.includes(type));
+    return comp ? comp.long_name : '';
   }
 
   // Public method to set location programmatically (useful for edit mode)
@@ -292,6 +352,49 @@ export class GoogleMapsLocationComponent implements OnInit {
       this.updateCircleOptions();
     }
   }
+  onLocationChanged(event: LocationData) {
+    this.locationData.latitude = event.latitude;
+    this.locationData.longitude = event.longitude;
+    this.locationData.radiusRange = event.radiusRange;
+    this.locationData.displayLatitude = event.displayLatitude;
+    this.locationData.displayLongitude = event.displayLongitude;
+  }
+
+  onLocationConfirmed(event: LocationData) {
+    this.locationData = { ...event };
+
+    this.reverseGeocode(this.locationData.latitude, this.locationData.longitude)
+      .then(addressData => {
+        this.locationData.map_country = addressData.country;
+        this.locationData.map_city = addressData.city;
+        this.locationData.map_region = addressData.region;
+        this.locationData.map_address = addressData.fullAddress;
+      });
+  }
+
+  async reverseGeocode(lat: number, lng: number): Promise<any> {
+    return new Promise((resolve) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          const result = results[0];
+          const addressComponents = result.address_components;
+
+          const country = addressComponents.find(c => c.types.includes('country'))?.long_name || '';
+          const city = addressComponents.find(c => c.types.includes('locality'))?.long_name
+            || addressComponents.find(c => c.types.includes('administrative_area_level_2'))?.long_name || '';
+          const region = addressComponents.find(c => c.types.includes('sublocality'))?.long_name
+            || addressComponents.find(c => c.types.includes('neighborhood'))?.long_name || '';
+          const fullAddress = result.formatted_address;
+
+          resolve({ country, city, region, fullAddress });
+        } else {
+          resolve({ country: '', city: '', region: '', fullAddress: '' });
+        }
+      });
+    });
+  }
+
 
   // Get current location data
   getLocationData(): LocationData {

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -8,6 +8,8 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
+import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
+import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/core/models/leave-balance';
 
 @Component({
     selector: 'app-leave-balance',
@@ -27,26 +29,31 @@ export class LeaveBalanceComponent {
     // Overlay references
     @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
     @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
-
+    private leaveBalanceService = inject(LeaveBalanceService);
+    private toasterService = inject(ToasterMessageService);
     filterForm!: FormGroup;
-    leaveBalances: any[] = [];
     searchTerm: string = '';
     sortDirection: string = 'asc';
     currentSortColumn: string = '';
     private searchSubject = new Subject<string>();
     private toasterSubscription!: Subscription;
 
-    // Pagination properties
-    currentPage: number = 1;
-    itemsPerPage: number = 10;
-    totalItems: number = 0;
     loadData: boolean = false;
+
+    leaveBalances: ILeaveBalance[] = [];
+
+    totalItems = 0;
+    totalPages = 0;
+    currentPage = 1;
+    itemsPerPage = 10;
 
     ngOnInit(): void {
         this.route.queryParams.subscribe(params => {
             this.currentPage = +params['page'] || 1;
-            this.getLeaveBalances(this.currentPage);
+            this.getAllLLeaveBalances(this.currentPage);
         });
+
+        this.getAllLLeaveBalances(this.currentPage);
 
         this.toasterSubscription = this.toasterMessageService.currentMessage$
             .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -56,12 +63,9 @@ export class LeaveBalanceComponent {
                 this.toasterMessageService.clearMessage();
             });
 
-        this.searchSubject
-            .pipe(debounceTime(300))
-            .subscribe(() => {
-                this.currentPage = 1;
-                this.getLeaveBalances(this.currentPage);
-            });
+        this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+            this.getAllLLeaveBalances(this.currentPage, value);
+        });
 
         this.initializeFilterForm();
     }
@@ -75,50 +79,33 @@ export class LeaveBalanceComponent {
 
     initializeFilterForm(): void {
         this.filterForm = this.fb.group({
-            employeeId: [''],
-            leaveType: [''],
-            status: ['']
+            employee_id: [''],
+            leave_id: [''],
+            // status: ['']
         });
     }
 
-    getLeaveBalances(page: number): void {
+
+
+    getAllLLeaveBalances(pageNumber: number, searchTerm: string = '', filters?: ILeaveBalanceFilters): void {
         this.loadData = true;
-
-        // Mock data for demonstration - replace with actual service call
-        setTimeout(() => {
-            this.leaveBalances = [
-                {
-                    id: 1,
-                    employee: { id: 1, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 2,
-                    employee: { id: 2, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                },
-                {
-                    id: 3,
-                    employee: { id: 3, name: 'Employee Name' },
-                    leaveType: { id: 1, name: 'Leave Name' },
-                    total: 21,
-                    used: 8,
-                    available: 14,
-                    updated_at: new Date()
-                }
-            ];
-
-            this.totalItems = this.leaveBalances.length;
-            this.loadData = false;
-        }, 1000);
+        this.leaveBalanceService.getAllLeaveBalance({
+            page: pageNumber,
+            per_page: this.itemsPerPage,
+            search: searchTerm || undefined,
+            ...filters
+        }).subscribe({
+            next: (res: ILeaveBalanceResponse) => {
+                this.leaveBalances = res.data.list_items;
+                this.totalItems = res.data.total_items;
+                this.totalPages = res.data.total_pages;
+                this.loadData = false;
+            },
+            error: (err) => {
+                console.error('Error fetching leave balances:', err);
+                this.loadData = false;
+            }
+        });
     }
 
     onSearchChange(): void {
@@ -127,44 +114,56 @@ export class LeaveBalanceComponent {
 
     onPageChange(page: number): void {
         this.currentPage = page;
-        this.getLeaveBalances(page);
+        this.getAllLLeaveBalances(page);
     }
 
     onItemsPerPageChange(itemsPerPage: number): void {
         this.itemsPerPage = itemsPerPage;
         this.currentPage = 1;
-        this.getLeaveBalances(this.currentPage);
+        this.getAllLLeaveBalances(this.currentPage);
     }
 
-    sortBy(): void {
+
+
+
+
+    sortBy() {
         this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-
         this.leaveBalances.sort((a, b) => {
-            const nameA = a.employee.name.toLowerCase();
-            const nameB = b.employee.name.toLowerCase();
-
-            if (nameA < nameB) return this.sortDirection === 'asc' ? -1 : 1;
-            if (nameA > nameB) return this.sortDirection === 'asc' ? 1 : -1;
-            return 0;
+            const nameA = a.employee?.name?.toLowerCase() || '';
+            const nameB = b.employee?.name?.toLowerCase() || '';
+            if (this.sortDirection === 'asc') {
+                return nameA.localeCompare(nameB);
+            } else {
+                return nameB.localeCompare(nameA);
+            }
         });
     }
 
+
+
     applyFilters(): void {
-        this.currentPage = 1;
-        this.getLeaveBalances(this.currentPage);
-        this.filterBox.closeOverlay();
+        if (this.filterForm.valid) {
+            const rawFilters = this.filterForm.value;
+            const filters = {
+                leave_id: rawFilters.leave_id || undefined,
+                employee_id: rawFilters.employee_id || undefined,
+            };
+            this.filterBox.closeOverlay();
+            this.getAllLLeaveBalances(this.currentPage, this.searchTerm, filters);
+        }
     }
 
 
 
     resetFilterForm(): void {
         this.filterForm.reset({
-            employeeId: '',
-            leaveType: '',
-            status: ''
+            employee_id: '',
+            leave_id: '',
+            // status: ''
         });
         this.filterBox.closeOverlay();
-        this.getLeaveBalances(this.currentPage);
+        this.getAllLLeaveBalances(this.currentPage);
     }
 
     // Edit modal support
@@ -178,17 +177,24 @@ export class LeaveBalanceComponent {
     }
 
     saveChanges(): void {
-        if (this.selectedBalance) {
-            // Update the total and recalculate available
-            this.selectedBalance.total = this.editTotal;
-            this.selectedBalance.available = this.editTotal - this.selectedBalance.used;
-            // Replace the item in the array
-            const idx = this.leaveBalances.findIndex(b => b.id === this.selectedBalance.id);
-            if (idx !== -1) {
-                this.leaveBalances[idx] = this.selectedBalance;
+        if (!this.selectedBalance) return;
+        const data = {
+            employee_id: this.selectedBalance.employee.id,
+            leave_id: this.selectedBalance.leave.id,
+            total: this.editTotal ?? this.selectedBalance.total
+        };
+        this.leaveBalanceService.updateLeaveBalance(data).subscribe({
+            next: () => {
+                this.selectedBalance.total = this.editTotal;
+                this.toasterService.showSuccess('Leave balance updated successfully');
+                this.editBox.closeOverlay();
+                this.getAllLLeaveBalances(this.currentPage);
+            },
+            error: (err) => {
+                this.toasterService.showError('Error updating leave balance');
+                console.error('Error updating leave balance:', err);
             }
-        }
-        this.editBox.closeOverlay();
+        });
     }
 
     discardChanges(): void {

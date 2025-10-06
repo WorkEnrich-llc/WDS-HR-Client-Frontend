@@ -1,16 +1,12 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class GuestGuard implements CanActivate {
   constructor(private router: Router) {}
 
-  canActivate(): boolean {
+  canActivate(): boolean | UrlTree {
     const isLoggedIn = !!localStorage.getItem('user_info');
-    if (isLoggedIn) {
-      this.router.navigate(['/admin-dash']);
-      return false;
-    }
-    return true;
+    return isLoggedIn ? this.router.createUrlTree(['/dashboard']) : true;
   }
 }

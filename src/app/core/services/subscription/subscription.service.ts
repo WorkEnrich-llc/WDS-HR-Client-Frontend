@@ -1,15 +1,16 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "environments/environment";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { BehaviorSubject, map, Observable, of } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
-   private apiBaseUrl: string;
+  private apiBaseUrl: string;
 
-    constructor(private _HttpClient: HttpClient) {
-        this.apiBaseUrl = environment.apiBaseUrl;
-    }
+  constructor(private _HttpClient: HttpClient) {
+    this.apiBaseUrl = environment.apiBaseUrl;
+  }
+
   private _sub$ = new BehaviorSubject<any>(null);
   subscription$ = this._sub$.asObservable();
 
@@ -65,17 +66,19 @@ export class SubscriptionService {
     })
   );
 
+  getSubscription(): Observable<any> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('User not logged in — skipping getSubscription request.');
+      return of(null); 
+    }
 
-
-getSubscription(): Observable<any> {
-  const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
-  return this._HttpClient.get<any>(url).pipe(
-    map(res => {
-      const features = res?.data?.features ?? null;
-      return features ? { features } : null;
-    })
-  );
-}
-
-
+    const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
+    return this._HttpClient.get<any>(url).pipe(
+      map(res => {
+        const features = res?.data?.features ?? null;
+        return features ? { features } : null;
+      })
+    );
+  }
 }

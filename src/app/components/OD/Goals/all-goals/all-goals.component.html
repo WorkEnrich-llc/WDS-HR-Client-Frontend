@@ -1,0 +1,223 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Operations Development', link: '/departments' },
+    { label: 'Goals' }
+  ]" title="Goals">
+</app-page-header>
+<!-- end page header -->
+
+<!-- start page content -->
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <!-- start search and filter -->
+    <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+        <!-- Search input -->
+        <div data-mdb-input-init class="form-outline w-75">
+          <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+            placeholder="Search" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <circle cx="11.5" cy="11.5" r="9.5" />
+              <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Filter button -->
+        <button class="btn btn-lg btn-outline-primary" (click)="overlay.openOverlay()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke-width="1.5"
+              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+          </svg>
+          <span>Filter</span>
+        </button>
+
+      </div>
+      <!-- <span>{{subscription?.plan}}</span> -->
+      <!-- New Branch button -->
+      <button class="btn btn-lg btn-primary" routerLink="/goals/create">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <g fill="none" stroke="#ffffff" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>New Goal</span>
+      </button>
+    </div>
+
+    <!-- start Table -->
+
+    <app-table [isLoading]="loadData" [columnsCount]="4" [data]="Goals" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="goalsTableHeader"
+      [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
+
+    <ng-template #goalsTableHeader>
+      <th (click)="sortBy()" style="cursor: pointer;" class="w-50">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Goal</span>
+          @if (sortDirection === 'desc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
+          }
+          @if (sortDirection === 'asc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
+          }
+        </div>
+      </th>
+
+
+      <th>Status</th>
+      <th>Assigned Department</th>
+      <th>Actions</th>
+    </ng-template>
+
+    <ng-template #goalsTableRow let-goal let-i="index">
+      <td class="width-fix">
+        <span class="d-block text-gray-sm">{{ goal.id.toString().padStart(4, '0') }}</span>
+        <span class="d-block text-truncate" style="max-width: 300px;">
+          {{ goal.name }}
+        </span>
+      </td>
+      <td>
+        @if (goal.is_active) {
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Assigned</span>
+        </span>
+        }
+        @if (!goal.is_active) {
+        <span class="badge-danger">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
+              <circle cx="12" cy="12" r="10" />
+            </g>
+          </svg>
+          <span>Unassigned</span>
+        </span>
+        }
+      </td>
+      <td>
+        {{ getAssignedDepartmentsText(goal, 40) }}
+
+      </td>
+
+      <td>
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <a [routerLink]="['/goals/view-goal', goal.id]"
+            class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+              </g>
+            </svg>
+          </a>
+          <a [routerLink]="['/goals/edit', goal.id]" [queryParams]="{ page: currentPage }"
+            class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round"
+                  d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                <path
+                  d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+              </g>
+            </svg>
+          </a>
+        </div>
+
+      </td>
+
+    </ng-template>
+
+    <ng-template #noGoals>
+      <tr>
+        <td colspan="4" class="no-data py-4">
+          @if (searchTerm.trim() || filterForm.dirty) {
+          No Goals match your search and filter.
+          } @else {
+          No Goals Added Yet. You must add at least one Goals to the branch.
+          }
+        </td>
+      </tr>
+    </ng-template>
+
+  </div>
+</div>
+
+
+
+
+<!-- filter popup -->
+<app-overlay-filter-box #filterBox [title]="'Filters'">
+
+  <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
+    <div class="input">
+      <label for="goal_type">Goal Type</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="goal_type" formControlName="goal_type" class="form-select">
+            <option value="" selected disabled hidden>Select</option>
+            <option value=1>Support</option>
+            <option value=2>Technical</option>
+          </select>
+        </div>
+        @if (!filterForm.get('goal_type')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        }
+        @if (filterForm.get('goal_type')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Apply Filter</span>
+      </button>
+      <a (click)="resetFilterForm()" class="text-danger-dark fw-bold w-100 text-center">
+        <span>Clear Filters</span>
+      </a>
+    </div>
+  </form>
+
+
+
+</app-overlay-filter-box>

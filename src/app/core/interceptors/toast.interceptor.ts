@@ -10,14 +10,17 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ToasterMessageService } from '../services/tostermessage/tostermessage.service';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { AuthenticationService } from '../services/authentication/authentication.service';
 
 // Helper function to extract error messages from the complex API error structure
 function extractErrorMessages(error: HttpErrorResponse): string[] {
   const messages: string[] = [];
-  
+
   try {
     const errorBody = error.error;
-    
+
     // Check for error_handling array in data
     if (errorBody?.data?.error_handling && Array.isArray(errorBody.data.error_handling)) {
       errorBody.data.error_handling.forEach((errorItem: any) => {
@@ -26,7 +29,7 @@ function extractErrorMessages(error: HttpErrorResponse): string[] {
         }
       });
     }
-    
+
     // Check for direct error messages
     if (errorBody?.message && messages.length === 0) {
       messages.push(errorBody.message);
@@ -35,7 +38,7 @@ function extractErrorMessages(error: HttpErrorResponse): string[] {
     } else if (errorBody?.error && typeof errorBody.error === 'string' && messages.length === 0) {
       messages.push(errorBody.error);
     }
-    
+
     // Check for validation errors if it's an object
     if (errorBody?.error && typeof errorBody.error === 'object' && messages.length === 0) {
       Object.keys(errorBody.error).forEach(key => {
@@ -49,11 +52,11 @@ function extractErrorMessages(error: HttpErrorResponse): string[] {
         }
       });
     }
-    
+
   } catch (parseError) {
     console.error('Error parsing API error response:', parseError);
   }
-  
+
   return messages;
 }
 
@@ -62,7 +65,7 @@ function getDefaultErrorMessage(error: HttpErrorResponse): string {
   if (error.message && !error.message.includes('Http failure response')) {
     return error.message;
   }
-  
+
   switch (error.status) {
     case 400:
       return 'Bad request. Please check your input.';
@@ -90,61 +93,77 @@ export const toastInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const toasterService = inject(ToasterMessageService);
+  const router = inject(Router);
+  const cookieService = inject(CookieService);
+  const authService = inject(AuthenticationService);
 
-  // Skip toast for GET requests (to avoid too many success messages)
   const skipToastMethods = ['GET'];
   const shouldShowToast = !skipToastMethods.includes(req.method);
+
+  const performLogout = () => {
+    const deviceToken = localStorage.getItem('device_token');
+    localStorage.clear();
+    if (deviceToken) {
+      localStorage.setItem('device_token', deviceToken);
+    }
+    cookieService.deleteAll('/', window.location.hostname);
+    authService.logout().subscribe({
+      next: () => {
+        router.navigate(['/auth/login']);
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+        router.navigate(['/auth/login']);
+      }
+    });
+  };
 
   return next(req).pipe(
     tap({
       next: (event) => {
         if (event instanceof HttpResponse && shouldShowToast) {
-          // Only show success toast for 2xx status codes
           if (event.status >= 200 && event.status < 300) {
-            // Check if response has a success message
             const responseBody = event.body;
-            let message = 'Operation completed successfully';
-            
-            if (responseBody?.message) {
-              message = responseBody.message;
-            } else if (responseBody?.data?.message) {
-              message = responseBody.data.message;
-            } else {
-              return
-              // Customize message based on HTTP method
-              switch (req.method) {
-                case 'POST':
-                  message = 'Created successfully';
-                  break;
-                case 'PUT':
-                  message = 'Updated successfully';
-                  break;
-                case 'PATCH':
-                  message = 'Updated successfully';
-                  break;
-                case 'DELETE':
-                  message = 'Deleted successfully';
-                  break;
-                default:
-                  message = 'Operation completed successfully';
-              }
+            let message = '';
+
+            if (responseBody?.data?.details) {
+              message = responseBody.data.details;
             }
-            
+            else if (responseBody?.data?.message) {
+              message = responseBody.data.message;
+            }
+            else if (responseBody?.message) {
+              message = responseBody.message;
+            }
+            else if (responseBody?.details) {
+              message = responseBody.details;
+            }
+            else if (typeof responseBody?.data === 'string') {
+              message = responseBody.data;
+            }
+
+            if (!message || message.trim() === '') {
+              return;
+            }
+
             toasterService.showSuccess(message);
           }
         }
       },
+
       error: (error) => {
         if (error instanceof HttpErrorResponse && shouldShowToast) {
+          if (error.status === 401) {
+            performLogout();
+            return;
+          }
+
           const errorMessages = extractErrorMessages(error);
-          
-          // Show all error messages
           if (errorMessages.length > 0) {
             errorMessages.forEach((message: string) => {
               toasterService.showError(message);
             });
           } else {
-            // Fallback to default error message
             const defaultMessage = getDefaultErrorMessage(error);
             toasterService.showError(defaultMessage);
           }

@@ -1,6 +1,6 @@
 <!-- page header -->
 <app-page-header [breadcrumbs]="[
-    { label: 'Operations Development', link: '/' },
+    { label: 'Operations Development', link: '/departments' },
     { label: 'Job Titles', link: '/jobs' },
     { label: 'Create New Job Title' }
   ]" title="Create New Job Title" [create]="todayFormatted">
@@ -309,14 +309,20 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Salary Ranges</h2>
+    <p>
+      If you don’t restrict a salary range in an employment type, recruiters and personnel users will be able to add
+      an
+      employee with a salary outside of this range. They’ll be warned if they do so
+    </p>
     <form [formGroup]="jobStep2">
       <div class="table-responsive">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
               <th class="w-15">Employment Type</th>
-              <th class="w-30">Salary Minimum</th>
-              <th class="w-30">Salary Maximum</th>
+              <th class="w-10">Restrict</th>
+              <th class="w-25">Salary Minimum</th>
+              <th class="w-25">Salary Maximum</th>
               <th class="w-10">Currency</th>
               <th class="w-15">Actions</th>
             </tr>
@@ -325,6 +331,9 @@
             <!-- Full-time -->
             <tr>
               <td>Full-time</td>
+              <td>
+                <input formControlName="fullTime_restrict" class="form-check-input m-0" type="checkbox" id="restrict">
+              </td>
               <td>
                 <input type="text" formControlName="fullTime_minimum" class="form-control table-input"
                   placeholder="Per Month">
@@ -347,7 +356,7 @@
                 @if (jobStep2.get('fullTime_maximum')?.touched &&
                 jobStep2.get('fullTime_maximum')?.errors?.['required']) {
                 <p class="error-msg">
-                  Maximun salary is required.
+                  Maximum salary is required.
                 </p>
                 }
                 @if (jobStep2.get('fullTime_maximum')?.touched && jobStep2.get('fullTime_maximum')?.errors?.['pattern'])
@@ -389,6 +398,9 @@
             <tr>
               <td>Part-time</td>
               <td>
+                <input formControlName="partTime_restrict" class="form-check-input m-0" type="checkbox" id="restrict">
+              </td>
+              <td>
                 <input type="text" formControlName="partTime_minimum" class="form-control table-input"
                   placeholder="Per Month">
                 @if (jobStep2.get('partTime_minimum')?.touched &&
@@ -410,7 +422,7 @@
                 @if (jobStep2.get('partTime_maximum')?.touched &&
                 jobStep2.get('partTime_maximum')?.errors?.['required']) {
                 <p class="error-msg">
-                  Maximun salary is required.
+                  Maximum salary is required.
                 </p>
                 }
                 @if (jobStep2.get('partTime_maximum')?.touched && jobStep2.get('partTime_maximum')?.errors?.['pattern'])
@@ -451,6 +463,9 @@
             <!-- Per Hour -->
             <tr>
               <td>Per Hour</td>
+              <td>
+                <input formControlName="hourly_restrict" class="form-check-input m-0" type="checkbox" id="restrict">
+              </td>
               <td>
                 <input type="text" formControlName="hourly_minimum" class="form-control table-input"
                   placeholder="Per Hour">

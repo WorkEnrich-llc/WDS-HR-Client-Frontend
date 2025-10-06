@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 interface FileItem {
   id: string;
   name: string;
@@ -28,7 +29,12 @@ interface storageInfo {
   encapsulation: ViewEncapsulation.None
 })
 export class SystemCloudComponent implements OnInit {
-  constructor(private _systemCloudService: SystemCloudService, private http: HttpClient, private toasterService: ToastrService, private router: Router
+  constructor(
+    private _systemCloudService: SystemCloudService,
+    private http: HttpClient,
+    private toasterService: ToastrService,
+    private router: Router,
+    private breadcrumbService: BreadcrumbService
   ) { }
   // load data and spinner show
   dataLoaded: boolean = false;
@@ -57,10 +63,37 @@ export class SystemCloudComponent implements OnInit {
   searchText: string = '';
   filteredTemplates: any[] = [];
 
+
   ngOnInit(): void {
+    const tempFolderId = this.breadcrumbService.getReturnFolderId();
+    // check from route or systemfile id
+    if (tempFolderId) {
+      this.getAllFoldersFiles(tempFolderId);
+      this.breadcrumb = this.breadcrumbService.getBreadcrumb();
+      this.openedFolderId = tempFolderId;
+
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 300);
+
+      this.breadcrumbService.clearReturnFolderId();
+    } else {
+      this.breadcrumbService.clear();
+      this.getAllFoldersFiles(null);
+      this.breadcrumb = [{ id: null, name: 'My Drive' }];
+      this.openedFolderId = null;
+    }
+
     this.getAllSystemTemplates();
-    this.getAllFoldersFiles();
   }
+
+
+
+
+
   // check all loaded
   get isAllLoaded(): boolean {
     return !this.loadData && !this.loadFiles;
@@ -140,9 +173,14 @@ export class SystemCloudComponent implements OnInit {
       return a.name.localeCompare(b.name);
     });
 
-    if (parentId === null) {
+    // if (parentId === null) {
+    //   this.breadcrumb = [{ id: null, name: 'My Drive' }];
+    // }
+    // if return from systemfile breadcrumb
+    if (parentId === null && this.breadcrumb.length === 0) {
       this.breadcrumb = [{ id: null, name: 'My Drive' }];
     }
+
   }
 
 
@@ -194,11 +232,18 @@ export class SystemCloudComponent implements OnInit {
       this.breadcrumb.push({ id: folder.id, name: folder.name });
     }
 
+    this.breadcrumbService.setBreadcrumb(this.breadcrumb);
+    this.breadcrumbService.setCurrentFolder(folder);
+
     this.getAllFoldersFiles(folder.id);
   }
 
   // open system file
   openSystemFile(folder: any) {
+    // send breadcramb
+    const newBreadcrumb = [...this.breadcrumb, { id: folder.id, name: folder.name }];
+    this.breadcrumbService.setBreadcrumb(newBreadcrumb);
+
     this.router.navigate(['/cloud/system-file', folder.id]);
   }
 
@@ -221,6 +266,15 @@ export class SystemCloudComponent implements OnInit {
 
     const index = this.breadcrumb.findIndex(b => b.id === folderId);
     this.breadcrumb = this.breadcrumb.slice(0, index + 1);
+
+
+    // update service
+    this.breadcrumbService.setBreadcrumb(this.breadcrumb);
+
+    const current = this.breadcrumb.find(b => b.id === folderId);
+    if (current) {
+      this.breadcrumbService.setCurrentFolder(current);
+    }
   }
 
   // create new folder
@@ -560,6 +614,8 @@ export class SystemCloudComponent implements OnInit {
     this.newName = folderName;
   }
 
+
+  // rename folder
   renameFolder() {
     this.isLoading = true;
     this.errMsg = '';
@@ -668,12 +724,72 @@ export class SystemCloudComponent implements OnInit {
   }
 
 
+  // duplicate file
+  dublicatePOP = false;
+  folderIdToDublicate: string = '';
+  folderNameToDublicate: string = '';
+  openModalDublicate(folderId: string, folderName: string) {
+    this.folderIdToDublicate = folderId;
+    this.folderNameToDublicate = folderName;
+    this.dublicatePOP = true;
+  }
+
+  closeModalDublicate() {
+    this.dublicatePOP = false;
+  }
+
+  duplicateFile(id: string, name: string): void {
+    this.errMsg = '';
+
+    this._systemCloudService.duplicateFile(id).subscribe({
+      next: (response) => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        const timestamp = `${year}-${month}-${day}-${hours}:${minutes}:${seconds}`;
+        const duplicatedName = `${name}-${timestamp}-copy`;
+
+        const duplicatedFile = {
+          ...response?.data?.object_info,
+          name: duplicatedName,
+          parent: this.openedFolderId ?? null
+        };
+
+        this.allFiles = [...this.allFiles, duplicatedFile];
+
+        if (this.openedFolderId === duplicatedFile.parent || (!this.openedFolderId && !duplicatedFile.parent)) {
+          this.files = [...this.files, duplicatedFile];
+        }
+
+        // this.filteredFiles = [...this.files].sort((a, b) => {
+        //   if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+        //   if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+        //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        // });
+
+        this.closeModalDublicate();
+      },
+      error: () => {
+        this.errMsg = 'Could not duplicate file.';
+      }
+    });
+  }
+
+
+
 
 
 
 
   // ================= drag and drop moving files in folder 
   draggedFileIdForMove: string | null = null;
+  dragOverCrumbId: string = '';
+
 
   onFileDragStart(event: DragEvent, file: any) {
     this.draggedFileIdForMove = file.id;
@@ -703,24 +819,20 @@ export class SystemCloudComponent implements OnInit {
 
         movedFile.parent = targetFolder.id;
 
+        this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
+
         this.files = this.files.filter(f => f.id !== fileId);
-        this.filteredFiles = this.filteredFiles.filter(f => f.id !== fileId);
 
         if (this.openedFolderId === targetFolder.id) {
-          this.files.push(movedFile);
-          this.filteredFiles.push(movedFile);
+          this.files = [...this.files, movedFile];
         }
 
-        const index = this.allFiles.findIndex(f => f.id === fileId);
-        if (index > -1) this.allFiles[index] = movedFile;
-
-        this.filteredFiles.sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
-        });
-      }
-      ,
+        // this.filteredFiles = [...this.files].sort((a, b) => {
+        //   if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+        //   if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+        //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        // });
+      },
       error: (err) => {
         console.error(err);
       }
@@ -734,7 +846,61 @@ export class SystemCloudComponent implements OnInit {
     (event.currentTarget as HTMLElement).classList.remove('folder-hover');
   }
 
+  onCrumbDragOver(event: DragEvent, crumb: any) {
+    event.preventDefault();
+    this.dragOverCrumbId = crumb.id;
+  }
 
+  onCrumbDragLeave(event: DragEvent, crumb: any) {
+    if (this.dragOverCrumbId === crumb.id) {
+      this.dragOverCrumbId = '';
+    }
+  }
+
+
+  onCrumbDrop(event: DragEvent, crumb: any) {
+    event.preventDefault();
+    this.dragOverCrumbId = '';
+
+    const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
+    if (!fileId) return;
+
+    const parentId = crumb.id ?? null;
+
+    const formData = new FormData();
+    formData.append('parent', parentId ?? '');
+
+    this._systemCloudService.renameFile(fileId, formData).subscribe({
+      next: () => {
+        const movedFile = this.allFiles.find(f => f.id === fileId);
+        if (!movedFile) return;
+
+        movedFile.parent = parentId;
+
+        this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
+
+        this.files = this.files.filter(f => f.id !== fileId);
+
+        if (this.openedFolderId === parentId) {
+          this.files = [...this.files, movedFile];
+        }
+
+        this.filteredFiles = [...this.files].sort((a, b) => {
+          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+          return a.name.localeCompare(b.name, undefined, {
+            numeric: true,
+            sensitivity: 'base'
+          });
+        });
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+
+    this.draggedFileIdForMove = null;
+  }
 
 
 }

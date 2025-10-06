@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to VPS 
 
 on:
   push:
@@ -76,6 +76,7 @@ jobs:
           ssh-keyscan -H 185.245.183.177 >> ~/.ssh/known_hosts
           
       - name: Set up SSH for Dev&Test&Staging Environments
+        if: github.ref != 'refs/heads/main'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa

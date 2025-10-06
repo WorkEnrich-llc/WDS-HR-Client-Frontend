@@ -16,7 +16,7 @@ export class SettingsComponent {
 
   constructor(private cookieService: CookieService, private _AuthenticationService: AuthenticationService, private _Router: Router) { }
 
-
+  isLoading: boolean = false;
   isModalOpen = false;
 
   openModal() {
@@ -28,32 +28,37 @@ export class SettingsComponent {
   }
 
   confirmAction() {
-    this.isModalOpen = false;
     this.logout();
   }
 
 
- logout(): void {
-  this._AuthenticationService.logout().subscribe({
-    next: (response) => {
-      const deviceToken = localStorage.getItem('device_token');
+  logout(): void {
+    this.isLoading = true;
 
-      localStorage.clear();
-
-      if (deviceToken) {
-        localStorage.setItem('device_token', deviceToken);
-      }
-
-      this.cookieService.deleteAll('/', window.location.hostname);
-
-      // window.location.href = 'https://client.workenrich.com/auth/login';
-      this._Router.navigate(['/auth/login']);
-    },
-    error: (err) => {
-      console.error("Error:", err);
+    const deviceToken = localStorage.getItem('device_token');
+    localStorage.clear();
+    if (deviceToken) {
+      localStorage.setItem('device_token', deviceToken);
     }
-  });
-}
+
+    this.cookieService.deleteAll('/', window.location.hostname);
+
+    this._Router.navigate(['/auth/login']);
+
+    this._AuthenticationService.logout().subscribe({
+      next: () => {
+        // console.log('Logout request completed successfully');
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Logout request failed:', err);
+        this.isLoading = false;
+      }
+    });
+
+
+  }
+
 
 
 }

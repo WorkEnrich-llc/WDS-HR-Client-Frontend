@@ -18,6 +18,7 @@ import { MainInformationStepComponent } from './main-information-step/main-infor
 import { JobDetailsStepComponent } from './job-details-step/job-details-step.component';
 import { ContractDetailsStepComponent } from './contract-details-step/contract-details-step.component';
 import { AttendanceDetailsStepComponent } from './attendance-details-step/attendance-details-step.component';
+import { InsuranceDetailsStepComponent } from './insurance-details/insurance-details-step.component';
 
 @Component({
   standalone: true,
@@ -30,7 +31,8 @@ import { AttendanceDetailsStepComponent } from './attendance-details-step/attend
     MainInformationStepComponent,
     JobDetailsStepComponent,
     ContractDetailsStepComponent,
-    AttendanceDetailsStepComponent
+    AttendanceDetailsStepComponent,
+    InsuranceDetailsStepComponent
 ],
   providers: [DatePipe],
   templateUrl: './create-employee.component.html',
@@ -115,12 +117,14 @@ export class CreateEmployeeComponent implements OnInit {
             address: formData.main_information.address
           },
           job_details: {
+            years_of_experience: formData.job_details.years_of_experience ? parseFloat(formData.job_details.years_of_experience) : undefined,
             branch_id: parseInt(formData.job_details.branch_id, 10),
             department_id: parseInt(formData.job_details.department_id, 10),
             section_id: formData.job_details.section_id ? parseInt(formData.job_details.section_id, 10) : undefined,
             job_title_id: parseInt(formData.job_details.job_title_id, 10),
             // work_schedule_id now lives under attendance_details
-            work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10)
+            work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+            activate_attendance_rules: !!formData.job_details.activate_attendance_rules
           },
           contract_details: {
             start_contract: formData.contract_details.start_contract,
@@ -129,7 +133,10 @@ export class CreateEmployeeComponent implements OnInit {
             employment_type: parseInt(formData.attendance_details.employment_type, 10),
             work_mode: parseInt(formData.attendance_details.work_mode, 10),
             days_on_site: formData.attendance_details.days_on_site ? parseInt(formData.attendance_details.days_on_site, 10) : undefined,
-            salary: parseFloat(formData.contract_details.salary)
+            salary: parseFloat(formData.contract_details.salary),
+            insurance_salary: formData.insurance_details.include_insurance_salary ? parseFloat(formData.insurance_details.insurance_salary) : undefined,
+            gross_insurance: formData.insurance_details.include_gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : undefined,
+            notice_period: formData.contract_details.notice_period ? parseInt(formData.contract_details.notice_period, 10) : 0
           }
         }
       };

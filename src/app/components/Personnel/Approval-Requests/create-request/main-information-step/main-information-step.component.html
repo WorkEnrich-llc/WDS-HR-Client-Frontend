@@ -1,52 +1,58 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Main Information</h2>
-    <div [formGroup]="sharedService.mainInformation" class="w-lg-50 d-flex flex-column gap-2">
-      <div class="input mb-3">
-        <label for="employee_id">Employee <span class="text-danger">*</span></label>
-        <select
-          id="employee_id"
-          class="form-select"
-          formControlName="employee_id"
-          [class.is-invalid]="sharedService.mainInformation.get('employee_id')?.invalid && sharedService.mainInformation.get('employee_id')?.touched">
-          <option value="">Select Employee</option>
-          <option *ngFor="let employee of sharedService.employees()" [ngValue]="employee.id">{{ employee.name }}</option>
-        </select>
-        <div *ngIf="sharedService.mainInformation.get('employee_id')?.invalid && sharedService.mainInformation.get('employee_id')?.touched" class="invalid-feedback">
-          Please select an employee
+    <form [formGroup]="sharedService.mainInformation" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input">
+        <label for="employee_id">Employee <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select id="employee_id" class="form-select" formControlName="employee_id" class="form-select">
+            <option value="" selected disabled hidden>Select Employee</option>
+            @for (employee of sharedService.employees(); track $index) {
+            <option [ngValue]="employee.id">{{ employee.name }}</option>
+            }
+          </select>
         </div>
+        @if (sharedService.mainInformation.get('employee_id')?.errors?.['required'] &&
+        sharedService.mainInformation.get('employee_id')?.touched) {
+        <p class="error-msg">
+          Please select an employee.
+        </p>
+        }
       </div>
+      <div class="input">
+        <label for="request_type">Request Type <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select id="request_type" class="form-select" formControlName="request_type" class="form-select">
+            <option value="" selected disabled hidden>Select Request Type</option>
+            @for (type of sharedService.requestTypes(); track $index) {
+            <option [ngValue]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+        @if (sharedService.mainInformation.get('request_type')?.errors?.['required'] &&
+        sharedService.mainInformation.get('request_type')?.touched) {
+        <p class="error-msg">
+          Please select a request type.
+        </p>
+        }
+      </div>
+       <!-- @if (errMsg) {
+      <div class="alert alert-danger mb-0 mt-2" role="alert">
+        {{errMsg}}
+      </div>
+      } -->
+    </form>
 
-      <div class="input mb-3">
-        <label for="request_type">Request Type <span class="text-danger">*</span></label>
-        <select
-          id="request_type"
-          class="form-select"
-          formControlName="request_type"
-          [class.is-invalid]="sharedService.mainInformation.get('request_type')?.invalid && sharedService.mainInformation.get('request_type')?.touched">
-          <option value="">Select Request Type</option>
-          <option *ngFor="let type of sharedService.requestTypes()" [ngValue]="type.id">{{ type.name }}</option>
-        </select>
-        <div *ngIf="sharedService.mainInformation.get('request_type')?.invalid && sharedService.mainInformation.get('request_type')?.touched" class="invalid-feedback">
-          Please select a request type
-        </div>
-      </div>
+    <!-- next button -->
+    <div class="btn-fixed">
+      <button class="btn btn-lg btn-primary" (click)="onNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+        <span>Next (1/2)</span>
+      </button>
     </div>
-
-    <div class="row mt-4">
-      <div class="col-12">
-        <div class="d-flex justify-content-end gap-3">
-          <button
-            type="button"
-            class="btn btn-lg btn-primary"
-            (click)="onNext()">
-            <span>Next</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M12.6 12L8.7 8.1c-.4-.4-.4-1 0-1.4s1-.4 1.4 0l4.6 4.6c.4.4.4 1 0 1.4l-4.6 4.6c-.4.4-1 .4-1.4 0s-.4-1 0-1.4l3.9-3.9z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
+    
   </div>
 </div>

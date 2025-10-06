@@ -31,3 +31,52 @@
     border: none;
     border-bottom: 1px solid var(--color-secondary-300);
 }
+
+.switchs {
+    display: flex;
+    min-width: 270px;
+    min-height: 36px;
+    border-radius: 0.8rem;
+    border: 1px solid var(--color-secondary-200);
+    overflow: hidden;
+    -webkit-border-radius: 0.8rem;
+    -moz-border-radius: 0.8rem;
+    -ms-border-radius: 0.8rem;
+    -o-border-radius: 0.8rem;
+    overflow: hidden;
+}
+
+.switchs .dispaly-switch {
+    padding: 4px;
+    width: 50%;
+    height: 100%;
+    line-height: 18px;
+    border: none;
+    color: var(--color-secondary-700);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: var(--font-size-b2);
+}
+
+.switchs .dispaly-switch.active {
+    border-radius: 0.5rem;
+    -webkit-border-radius: 0.5rem;
+    -moz-border-radius: 0.5rem;
+    -ms-border-radius: 0.5rem;
+    -o-border-radius: 0.5rem;
+}
+
+.switchs .dispaly-switch.active svg {
+    fill: var(--color-white) !important;
+}
+.switchs .dispaly-switch.text-danger.active{
+    background-color: var(--color-danger-500);
+    color:var(--color-white) !important;
+}
+.switchs .dispaly-switch.text-success.active{
+    background-color: var(--color-success-500);
+    color:var(--color-white) !important;
+}

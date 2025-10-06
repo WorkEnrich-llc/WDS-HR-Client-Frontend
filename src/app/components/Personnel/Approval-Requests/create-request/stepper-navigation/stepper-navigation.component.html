@@ -38,23 +38,24 @@
         'text-success': sharedService.currentStep() > 2, 
         'bg-light-success': sharedService.currentStep() > 2  
     }">
-    @if (sharedService.currentStep() <= 2) { 
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path [style.fill]="sharedService.currentStep() === 2 ? '#007bff' : '#4A6D97'" 
-          d="M13 2h-2C9.343 2 8.172 2 7.172 2.879C6.343 3.593 6.086 4.74 6 6.358V19c0 .359 0 .538.076.74c.076.203.231.383.54.744l.077.09c.324.38.486.57.69.704c.203.134.451.134.946.134H16c.359 0 .538 0 .74-.076c.203-.076.383-.231.744-.54l.09-.077c.38-.324.57-.486.704-.69c.134-.203.134-.451.134-.946V6.358c-.086-1.617-.343-2.765-1.172-3.48C16.172 2 15.001 2 13 2"/>
-        <path [style.fill]="sharedService.currentStep() === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
-          d="M14.5 7.25a.75.75 0 0 1 .75.75v1.25H16a.75.75 0 0 1 0 1.5h-.75V12a.75.75 0 0 1-1.5 0v-1.25H12a.75.75 0 0 1 0-1.5h1.75V8a.75.75 0 0 1 .75-.75" 
-          clip-rule="evenodd"/>
-      </svg>
-    }
-    @if (sharedService.currentStep() > 2) {
+    @if (sharedService.currentStep() <= 2) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+      viewBox="0 0 24 24">
+      <path [style.fill]="sharedService.currentStep() === 2 ? '#007bff' : '#4A6D97'"
+        d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z"
+        opacity=".5" />
+      <path [style.fill]="sharedService.currentStep() === 2 ? '#007bff' : '#4A6D97'" fill-rule="evenodd"
+        d="M7.25 10A.75.75 0 0 1 8 9.25h8a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
+        clip-rule="evenodd" /></svg>
+
+      }
+      @if (sharedService.currentStep() > 2) {
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
         [style.fill]="sharedService.currentStep() > 2 ? 'currentColor' : 'black'">
         <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
         <path
           d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
       </svg>
-    }
-    <span class="nav-link">Request Details</span>
+      }
+      <span class="nav-link">Request Details</span>
   </li>
 </ul>

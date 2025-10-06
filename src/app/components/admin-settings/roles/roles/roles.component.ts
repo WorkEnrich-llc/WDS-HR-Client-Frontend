@@ -78,12 +78,6 @@ export class RolesComponent {
       this.getAllRoles(this.currentPage);
     });
 
-
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllRoles(this.currentPage);
-    });
-
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -155,7 +149,60 @@ export class RolesComponent {
   }
 
 
+  // getAllRoles(
+  //   pageNumber: number,
+  //   searchTerm: string = '',
+  //   filters?: { status?: string; created_from?: string }
+  // ) {
+  //   this.loadData = true;
 
+  //   this.adminRolesService.getAllRoles(pageNumber, this.itemsPerPage, {
+  //     search: searchTerm || undefined,
+  //     ...filters
+  //   }).subscribe({
+  //     next: (res) => {
+  //       this.currentPage = res.page;
+  //       this.totalItems = res.total_items;
+  //       this.totalPages = res.total_pages;
+
+  //       this.roles = res.roles.map(role => ({
+  //         ...role,
+  //         total_users: role.total_users ?? 0
+  //       }));
+
+  //       this.copyRoles = [...this.roles];
+
+  //       this.sortDirection = 'desc';
+  //       this.currentSortColumn = 'id';
+  //       this.sortBy();
+
+  //       const modules = this.copyRoles.flatMap(role =>
+  //         role.permissions.map(p => p.moduleName).filter((name): name is string => !!name)
+  //       );
+  //       this.moduleNames = [...new Set(modules)];
+
+  //       const selectedModule = this.filterForm.value.activeModules;
+  //       const services = this.roles
+  //         .flatMap(role => role.permissions || [])
+  //         .filter(p => p.moduleName === selectedModule)
+  //         .flatMap(p =>
+  //           (p.subModules || [])
+  //             .filter(sub => (sub.actions || []).length > 0)
+  //             .map(sub => sub.subName?.trim())
+  //             .filter((name): name is string => !!name)
+  //         );
+  //       this.serviceNames = Array.from(new Set(services));
+
+  //       this.loadData = false;
+
+  //       console.log('Roles with total_users:', this.roles);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching roles:', err.error?.details);
+  //       this.loadData = false;
+  //     }
+  //   });
+  // }
 
 
   getPermissionsCounts(role: Roles): number {
@@ -177,7 +224,6 @@ export class RolesComponent {
   }
 
 
-
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.roles.sort((a, b) => {
@@ -196,11 +242,11 @@ export class RolesComponent {
     this.searchSubject.next(this.searchTerm);
   }
 
-  resetFilterForsm(): void {
-    this.filterBox.closeOverlay();
-    this.searchTerm = '';
-    this.filteredList = [...this.roles];
-  }
+  // resetFilterForsm(): void {
+  //   this.filterBox.closeOverlay();
+  //   this.searchTerm = '';
+  //   this.filteredList = [...this.roles];
+  // }
 
   resetFilterForm() {
     this.filterForm.reset();
@@ -277,8 +323,10 @@ export class RolesComponent {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
+    this.getAllRoles(this.currentPage);
   }
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.getAllRoles(this.currentPage);
   }
 }
