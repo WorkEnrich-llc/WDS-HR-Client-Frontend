@@ -1,4 +1,4 @@
-name: Deploy to VPS 
+name: Deploy to VPS
 
 on:
   push:
@@ -20,8 +20,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.19.0'
-          cache: 'npm'
+          node-version: "20.19.0"
+          cache: "npm"
 
       - name: Cache node modules
         uses: actions/cache@v3
@@ -74,7 +74,7 @@ jobs:
           echo "${{ secrets.PROD_VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 185.245.183.177 >> ~/.ssh/known_hosts
-          
+
       - name: Set up SSH for Dev&Test&Staging Environments
         if: github.ref != 'refs/heads/main'
         run: |
@@ -82,7 +82,7 @@ jobs:
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 144.91.79.174 >> ~/.ssh/known_hosts
-          
+
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/develop'
         run: |
@@ -104,8 +104,8 @@ jobs:
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
         run: |
-          ssh root@185.245.183.177 "mkdir -p /var/www/WDS-Client-Production"
-          scp -r dist/* root@185.245.183.177:/var/www/WDS-Client-Production/
+          ssh root@185.245.183.177 "mkdir -p /root/nginx/html/WDS-Client-Production"
+          scp -r dist/* root@185.245.183.177:/root/nginx/html/WDS-Client-Production/
 
       - name: Cleanup on Failure
         if: failure()
