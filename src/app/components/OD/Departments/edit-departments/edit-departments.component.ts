@@ -269,7 +269,7 @@ export class EditDepartmentsComponent implements OnInit {
         this.totalItems = data?.total_items ?? 0;
         this.totalpages = data?.total_pages ?? 0;
 
-        this.Goals = (data?.list_items ?? []).map((goal: any) => ({
+        this.Goals = (data?.list_items ?? []).filter((goal: any) => goal.is_active).map((goal: any) => ({
           ...goal,
           selected: this.addedGoal.some(a => a.id === goal.id)
         }));
