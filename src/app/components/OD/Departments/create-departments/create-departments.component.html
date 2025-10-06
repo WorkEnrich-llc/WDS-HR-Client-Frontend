@@ -494,7 +494,7 @@
       <ng-template #goalsTableEmptyRow>
         <tr>
           <td colspan="3" class="no-data py-4">
-            No Goasl Added Yet. You must add at least one Goal.
+            No Goals Added Yet. You must add at least one Goal.
           </td>
         </tr>
       </ng-template>
@@ -510,7 +510,7 @@
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
           </g>
         </svg>
-        <span>Add Goal(s)</span>
+        <span>Assign Goal(s)</span>
       </a>
     </div>
     <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
@@ -616,7 +616,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
         </g>
       </svg>
-      <span>Add Goals</span>
+      <span>Assign Goals</span>
     </button>
     <a (click)="discardGoals()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
       <span>Discard</span>
