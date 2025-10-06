@@ -5,7 +5,7 @@ import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import {  ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 
 
@@ -19,7 +19,7 @@ export class ResetPasswordComponent {
 
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router,private toasterMessageService: ToasterMessageService
+    private _AuthenticationService: AuthenticationService, private _Router: Router, private toasterMessageService: ToasterMessageService
   ) { }
 
   emailForm: FormGroup = new FormGroup({
@@ -28,32 +28,20 @@ export class ResetPasswordComponent {
   });
 
 
+
   emailAvailable: boolean = false;
   emailMsg: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
 
-//   checkEmail(): void {
-//   const emailControl = this.emailForm.get('email');
-//   if (!emailControl || emailControl.invalid) return;
-
-//   this.isLoading = true;
-
-//   this._AuthenticationService.checkEmail(emailControl.value).subscribe({
-//     next: () => {
-//       this.emailMsg = 'Email is not registered';
-//       this.isLoading = false;
-//       emailControl.setErrors({ emailNotRegistered: true });
-//       emailControl.updateValueAndValidity(); 
-//     },
-//     error: () => {
-//       this.emailMsg = '';
-//       this.isLoading = false;
-//       emailControl.setErrors(null);
-//       emailControl.updateValueAndValidity(); 
-//     }
-//   });
-// }
+  isPasswordVisible = false
+  isrePasswordVisible = false
+  togglePassword(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
+  togglerePassword(): void {
+    this.isrePasswordVisible = !this.isrePasswordVisible;
+  }
 
 
 
@@ -216,35 +204,35 @@ export class ResetPasswordComponent {
 
 
 
-newPassword(): void {
-  this.isLoading = true;
-  this.errMsg = '';
+  newPassword(): void {
+    this.isLoading = true;
+    this.errMsg = '';
 
-  const formData = new FormData();
-  formData.append('username', this.emailForm.get('email')?.value);
-  formData.append('verification_code', this.otpForm.get('otp')?.value);
-  formData.append('password', this.passwordForm.get('password')?.value);
-  formData.append('re_password', this.passwordForm.get('rePassword')?.value);
+    const formData = new FormData();
+    formData.append('username', this.emailForm.get('email')?.value);
+    formData.append('verification_code', this.otpForm.get('otp')?.value);
+    formData.append('password', this.passwordForm.get('password')?.value);
+    formData.append('re_password', this.passwordForm.get('rePassword')?.value);
 
-  this._AuthenticationService.newPassword(formData).subscribe({
-    next: (response) => {
-      this.isLoading = false;
+    this._AuthenticationService.newPassword(formData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
 
-      this.emailForm.reset();
-      this.otpForm.reset();
-      this.passwordForm.reset();
-// edit
-    this.toasterMessageService.sendMessage(response.details);
+        this.emailForm.reset();
+        this.otpForm.reset();
+        this.passwordForm.reset();
+        // edit
+        this.toasterMessageService.sendMessage(response.details);
 
-    this._Router.navigate(['/auth/login']);
-    },
-    error: (err: HttpErrorResponse) => {
-      this.isLoading = false;
-      // console.error("Account creation error:", err);
-      this.errMsg = err.error?.details || 'An error occurred';
-    }
-  });
-}
+        this._Router.navigate(['/auth/login']);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading = false;
+        // console.error("Account creation error:", err);
+        this.errMsg = err.error?.details || 'An error occurred';
+      }
+    });
+  }
 
 
 }

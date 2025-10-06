@@ -247,9 +247,9 @@
               <div class="form-outline w-100 position-relative custom-date-wrapper">
                 <input formControlName="password" [type]="isPasswordVisible ? 'text' : 'password'" id="password"
                   class="form-control" placeholder="Enter a strong Password" [ngClass]="{
-         'error-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.invalid,
-         'success-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.valid
-       }">
+                  'error-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.invalid,
+                  'success-input': registerForm1.get('password')?.touched && registerForm1.get('password')?.valid
+                }">
                 <a type="button"
                   class="btn p-0 border-0 shadow-none position-absolute end-0 top-50 translate-middle-y toggle-password"
                   (click)="togglePassword()">
@@ -282,6 +282,7 @@
             </div>
             }
           </div>
+
           <div class="input">
             <label for="repassword"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none">
@@ -296,9 +297,9 @@
               <div class="form-outline w-100 position-relative custom-date-wrapper">
                 <input formControlName="rePassword" [type]="isrePasswordVisible ? 'text' : 'password'" id="repassword"
                   class="form-control" placeholder="Confirm your Password" [ngClass]="{
-         'error-input': registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched,
-         'success-input': !registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched && registerForm1.get('rePassword')?.valid
-       }">
+                'error-input': registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched,
+                'success-input': !registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched && registerForm1.get('rePassword')?.valid
+              }">
 
                 <a type="button"
                   class="btn p-0 border-0 shadow-none position-absolute end-0 top-50 translate-middle-y toggle-password"
@@ -325,10 +326,10 @@
               </div>
             </div>
             @if (registerForm1.get('rePassword')?.touched && registerForm1.get('rePassword')?.errors?.['required']) {
-  <p class="error-msg">
-    Confirm Password is required.
-  </p>
-}
+            <p class="error-msg">
+              Confirm Password is required.
+            </p>
+            }
             @if (registerForm1.hasError('passwordMismatch') && registerForm1.get('rePassword')?.touched) {
             <p class="error-msg">
               Passwords do not match.
