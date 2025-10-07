@@ -11,7 +11,7 @@ import { WorkSchaualeService } from '../../../../../core/services/attendance/wor
   styleUrls: ['./attendance-details-step.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]
 })
-export class AttendanceDetailsStepComponent {
+export class AttendanceDetailsStepComponent implements OnInit {
   @Output() submitForm = new EventEmitter<void>();
   
   sharedService = inject(CreateEmployeeSharedService);

@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
+import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
   standalone: true,
@@ -10,8 +11,35 @@ import { EditEmployeeSharedService } from '../services/edit-employee-shared.serv
   templateUrl: './edit-attendance-details-step.component.html',
   styleUrls: ['./edit-attendance-details-step.component.css']
 })
-export class EditAttendanceDetailsStepComponent {
+export class EditAttendanceDetailsStepComponent implements OnInit {
   public sharedService = inject(EditEmployeeSharedService);
+  private workScheduleService = inject(WorkSchaualeService);
+
+  ngOnInit(): void {
+    // Load work schedules initially
+    this.loadWorkSchedules();
+
+    // React to department selection changes
+    this.sharedService.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
+      if (departmentId) {
+        this.loadWorkSchedules(departmentId);
+      }
+    });
+  }
+
+  private loadWorkSchedules(departmentId?: number): void {
+    const filters = departmentId ? { department: departmentId.toString() } : {};
+    
+    this.workScheduleService.getAllWorkSchadule(1, 100, filters).subscribe({
+      next: (res) => {
+        this.sharedService.workSchedules.set(res.data?.list_items || []);
+      },
+      error: (err) => {
+        console.error('Error loading work schedules', err);
+        this.sharedService.workSchedules.set([]);
+      }
+    });
+  }
 
   goNext() {
     this.sharedService.goNext();
