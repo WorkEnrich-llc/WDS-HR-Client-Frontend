@@ -2,45 +2,53 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Insurance Details</h2>
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <label class="form-label">Current Salary</label>
-        <div class="form-control bg-light" readonly>
-          {{ getCurrentSalary() }} EGP
+    <div formGroupName="insurance_details" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input">
+        <label for="current_salary">Current Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="text" id="current_salary" class="form-control" [value]="getCurrentSalary() + ' EGP'" readonly />
         </div>
       </div>
-    </div>
-    <div formGroupName="insurance_details" class="w-lg-50 d-flex flex-column gap-2">
-      <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="includeInsuranceSalary" formControlName="include_insurance_salary">
-        <label class="form-check-label" for="includeInsuranceSalary">
+
+      <div class="d-flex align-items-center gap-2">
+        <input class="form-check-input m-0" type="checkbox" id="includeInsuranceSalary" formControlName="include_insurance_salary">
+        <label class="form-check-label m-0" for="includeInsuranceSalary">
           Include Insurance Salary
         </label>
       </div>
-      <div class="input mb-3" *ngIf="sharedService.insuranceDetails.get('include_insurance_salary')?.value">
-        <label class="form-label" for="insurance_salary">Insurance Salary</label>
-        <input type="number" id="insurance_salary" formControlName="insurance_salary" class="form-control"
-               placeholder="Enter the Insurance Salary"
-               [class.is-invalid]="sharedService.isFieldInvalid('insurance_salary', sharedService.insuranceDetails)">
-        <div class="invalid-feedback" *ngIf="sharedService.isFieldInvalid('insurance_salary', sharedService.insuranceDetails)">
-          {{ sharedService.getFieldError('insurance_salary', sharedService.insuranceDetails) }}
+
+      <div class="input" *ngIf="sharedService.insuranceDetails.get('include_insurance_salary')?.value">
+        <label for="insurance_salary">Insurance Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="insurance_salary" formControlName="insurance_salary" class="form-control"
+                 placeholder="Enter the Insurance Salary" />
         </div>
+        @if (sharedService.isFieldInvalid('insurance_salary', sharedService.insuranceDetails)) {
+        <p class="error-msg">
+          {{ sharedService.getFieldError('insurance_salary', sharedService.insuranceDetails) }}
+        </p>
+        }
         <small class="form-text text-muted">Insurance will be deducted based on this salary</small>
       </div>
-      <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="includeGrossInsuranceSalary" formControlName="include_gross_insurance_salary">
-        <label class="form-check-label" for="includeGrossInsuranceSalary">
+
+      <div class="d-flex align-items-center gap-2">
+        <input class="form-check-input m-0" type="checkbox" id="includeGrossInsuranceSalary" formControlName="include_gross_insurance_salary">
+        <label class="form-check-label m-0" for="includeGrossInsuranceSalary">
           Include Gross Insurance Salary
         </label>
       </div>
-      <div class="input mb-3" *ngIf="sharedService.insuranceDetails.get('include_gross_insurance_salary')?.value">
-        <label class="form-label" for="gross_insurance_salary">Gross Insurance Salary</label>
-        <input type="number" id="gross_insurance_salary" formControlName="gross_insurance_salary" class="form-control"
-               placeholder="Enter the Gross Insurance Salary"
-               [class.is-invalid]="sharedService.isFieldInvalid('gross_insurance_salary', sharedService.insuranceDetails)">
-        <div class="invalid-feedback" *ngIf="sharedService.isFieldInvalid('gross_insurance_salary', sharedService.insuranceDetails)">
-          {{ sharedService.getFieldError('gross_insurance_salary', sharedService.insuranceDetails) }}
+
+      <div class="input" *ngIf="sharedService.insuranceDetails.get('include_gross_insurance_salary')?.value">
+        <label for="gross_insurance_salary">Gross Insurance Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="gross_insurance_salary" formControlName="gross_insurance_salary" class="form-control"
+                 placeholder="Enter the Gross Insurance Salary" />
         </div>
+        @if (sharedService.isFieldInvalid('gross_insurance_salary', sharedService.insuranceDetails)) {
+        <p class="error-msg">
+          {{ sharedService.getFieldError('gross_insurance_salary', sharedService.insuranceDetails) }}
+        </p>
+        }
         <small class="form-text text-muted">Taxes will be deducted based on this salary</small>
       </div>
     </div>
