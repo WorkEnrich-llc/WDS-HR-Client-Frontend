@@ -64,12 +64,13 @@ export class AddRoleComponent implements OnInit {
   addedTotalUsers = 0;
   addedPage = 1;
   addedItemsPerPage = 10;
+  currentPage: number = 1;
 
   allUsers: IUser[] = [];
   originalUsers: IUser[] = [];
-  addedUsers: IUser[] = [];
-  currentPage: number = 1;
+  addedUsers: (IUser & { isNew?: boolean })[] = [];
   selectAllUsers: boolean = false;
+  selectAllOverlay: boolean = false;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
 
@@ -90,6 +91,10 @@ export class AddRoleComponent implements OnInit {
 
   private getSubKey(sub: { code?: number; id?: number }): string {
     return String(sub.code ?? sub.id);
+  }
+
+  get hasSelectedUsers(): boolean {
+    return this.addedUsers?.some(user => user.isSelected);
   }
 
 
@@ -216,27 +221,42 @@ export class AddRoleComponent implements OnInit {
   }
 
 
-  toggleSelectAll() {
-    this.allUsers.forEach((user: IUser) => {
-      user.isSelected = this.selectAllUsers;
-    });
+  toggleSelectAllSelected(): void {
+    this.addedUsers.forEach(user => (user.isSelected = this.selectAllUsers));
   }
 
   toggleUsers(user: IUser) {
     if (!user.isSelected) {
       this.selectAllUsers = false;
-    } else if (this.allUsers.length && this.allUsers.every((u: IUser) => u.isSelected)) {
+    } else if (this.addedUsers.length && this.addedUsers.every((u: IUser) => u.isSelected)) {
       this.selectAllUsers = true;
     }
+  }
+
+
+
+  toggleUsersOverlay(user: IUser): void {
+    if (!user.isSelected) {
+      this.selectAllOverlay = false;
+    } else if (this.allUsers.length && this.allUsers.every(u => u.isSelected)) {
+      this.selectAllOverlay = true;
+    }
+  }
+
+  toggleSelectAll() {
+    this.allUsers.forEach((user: IUser) => {
+      user.isSelected = this.selectAllOverlay;
+    });
   }
 
 
   addSelectedUsers() {
     const selected = this.allUsers.filter(u => u.isSelected);
 
-    selected.forEach(u => {
-      if (!this.addedUsers.some(au => au.id === u.id)) {
-        this.addedUsers.push(u);
+    selected.forEach(user => {
+      if (!this.addedUsers.some(au => au.id === user.id)) {
+        // this.addedUsers.push(user);
+        this.addedUsers.push({ ...(user as IUser), isNew: true } as IUser & { isNew: boolean });
       }
     });
 
@@ -265,12 +285,28 @@ export class AddRoleComponent implements OnInit {
     }
   }
 
+
+  removeSelectedUsers(): void {
+    this.addedUsers = this.addedUsers.filter(user => !user.isSelected);
+
+    this.allUsers.forEach(user => {
+      if (this.addedUsers.every(a => a.id !== user.id)) {
+        user.isSelected = false;
+      }
+    });
+
+    this.selectAllUsers = this.addedUsers.length > 0 && this.addedUsers.every(user => user.isSelected);
+  }
+
   discardUsers(): void {
     this.allUsers.forEach(user => {
       user.isSelected = false;
     });
-    this.selectAllUsers = false;
-    this.addedUsers = [];
+    this.addedUsers = this.addedUsers.filter(u => !u.isNew);
+    this.selectAllOverlay = false;
+    if (!this.isEditMode) {
+      this.addedUsers = [];
+    }
     this.usersOverlay.closeOverlay();
     this.searchTerm = '';
   }
