@@ -49,6 +49,7 @@ export class AddRoleComponent implements OnInit {
   private employeesService = inject(EmployeeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  removedUsers: number[] = [];
 
   isEditMode = false;
   id?: number;
@@ -144,7 +145,7 @@ export class AddRoleComponent implements OnInit {
 
 
 
-  getAllUsers(filters?: ISearchParams) {
+  private getAllUsers(filters?: ISearchParams): void {
     this.employeesService.getEmployeesForAddRoles(this.currentPage, this.itemsPerPage, filters?.search || '').subscribe({
       next: (response: EmployeesResponse) => {
         this.totalItems = response.data.total_items;
@@ -229,43 +230,6 @@ export class AddRoleComponent implements OnInit {
     }
   }
 
-  // addSelectedUserss(): void {
-  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
-
-  //   selected.forEach((user: IUser) => {
-  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
-  //     if (!alreadyAdded) {
-  //       this.addedUsers.push({
-  //         ...user,
-  //         isSelected: true
-  //       });
-  //     }
-  //   });
-
-  //   this.addedUsers = this.addedUsers.filter((added: IUser) =>
-  //     selected.some((u: IUser) => u.id === added.id)
-  //   );
-  //   // console.log(this.addedUsers)
-  //   this.usersOverlay.closeOverlay();
-  // }
-
-  // addSelectedUsers(): void {
-  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
-
-  //   selected.forEach((user: IUser) => {
-  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
-  //     if (!alreadyAdded) {
-  //       this.addedUsers.push({ ...user, isSelected: true });
-  //     }
-  //   });
-
-  //   // Always keep form in sync with IDs only
-  //   this.createRoleForm.patchValue({
-  //     users: this.addedUsers.map((u: IUser) => u.id)
-  //   });
-
-  //   this.usersOverlay.closeOverlay();
-  // }
 
   addSelectedUsers() {
     const selected = this.allUsers.filter(u => u.isSelected);
@@ -295,9 +259,18 @@ export class AddRoleComponent implements OnInit {
     this.createRoleForm.patchValue({
       users: this.addedUsers.map(u => u.id)
     });
+
+    if (this.isEditMode && user.id && !this.removedUsers.includes(user.id)) {
+      this.removedUsers.push(user.id);
+    }
   }
 
   discardUsers(): void {
+    this.allUsers.forEach(user => {
+      user.isSelected = false;
+    });
+    this.selectAllUsers = false;
+    this.addedUsers = [];
     this.usersOverlay.closeOverlay();
     this.searchTerm = '';
   }
@@ -559,7 +532,8 @@ export class AddRoleComponent implements OnInit {
       code,
       name,
       permissions,
-      users: this.createRoleForm.value.users || []
+      users: this.createRoleForm.value.users || [],
+      remove_users: this.removedUsers || []
     };
   }
 
@@ -569,15 +543,14 @@ export class AddRoleComponent implements OnInit {
       this.errMsg = "Please fill required fields";
       return;
     }
-
-
     const roleModel = this.buildRoleModel();
     console.log('Role model:', roleModel);
     this.isLoading = true;
     if (this.isEditMode) {
       roleModel.id = this.roleId;
       this.adminRolesService.updateRole(roleModel).subscribe({
-        next: (res) => {
+        next: () => {
+          this.removedUsers = [];
           this.isLoading = false;
           this.toasterService.showSuccess('Role updated successfully');
           this.router.navigate(['/roles']);
@@ -590,7 +563,7 @@ export class AddRoleComponent implements OnInit {
       });
     } else {
       this.adminRolesService.createRole(roleModel).subscribe({
-        next: (res) => {
+        next: () => {
           this.isLoading = false;
           this.toasterService.showSuccess('Role created successfully');
           this.router.navigate(['/roles']);
@@ -603,7 +576,6 @@ export class AddRoleComponent implements OnInit {
       });
     }
   }
-
 
   // next and prev
   currentStep: number = 1;
