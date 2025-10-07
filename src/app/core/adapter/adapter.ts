@@ -17,7 +17,6 @@ export function mapRoleResponse(response: any): Roles {
       id: response?.request_data?.id,
       code: main?.code ?? '',
       name: main?.name ?? '',
-      // users: (response?.request_data?.users || []).map((u: any) => u.id),
       total_users: response?.request_data?.total_users
          ?? (response?.request_data?.users?.length || 0),
       permissions: permissions.map((p: any) => ({
@@ -60,7 +59,8 @@ export function mapRoleToRequest(role: Roles): any {
          })),
          users: (role.users || []).map((u: IUser | number) =>
             typeof u === "number" ? u : u.id
-         )
+         ),
+         remove_users: role.remove_users || []
       }
    };
 }
@@ -73,11 +73,7 @@ export function mapRoleAllResponse(item: any): Roles {
          .map((sub: any) => ({
             code: sub.sub?.code,
             subName: sub.sub?.name,
-            // actions: (sub.allowed_actions || [])
-            //    .filter((a: any) => a.status === true) 
-            //    .map((a: any) => a.name),
          }))
-      // .filter((sub: any) => sub.actions.length > 0),
    })) || [];
 
    return {

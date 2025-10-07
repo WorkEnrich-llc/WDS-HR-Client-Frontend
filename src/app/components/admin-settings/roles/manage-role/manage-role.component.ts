@@ -35,12 +35,12 @@ interface FeatureData {
 
 
 @Component({
-  selector: 'app-add-role',
+  selector: 'app-manage-role',
   imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule],
-  templateUrl: './add-role.component.html',
-  styleUrl: './add-role.component.css'
+  templateUrl: './manage-role.component.html',
+  styleUrl: './manage-role.component.css'
 })
-export class AddRoleComponent implements OnInit {
+export class ManageRoleComponent implements OnInit {
   @ViewChild('usersOverlay') usersOverlay!: OverlayFilterBoxComponent;
   createRoleForm!: FormGroup;
   private fb = inject(FormBuilder);
@@ -49,6 +49,7 @@ export class AddRoleComponent implements OnInit {
   private employeesService = inject(EmployeeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  removedUsers: number[] = [];
 
   isEditMode = false;
   id?: number;
@@ -63,12 +64,13 @@ export class AddRoleComponent implements OnInit {
   addedTotalUsers = 0;
   addedPage = 1;
   addedItemsPerPage = 10;
+  currentPage: number = 1;
 
   allUsers: IUser[] = [];
   originalUsers: IUser[] = [];
-  addedUsers: IUser[] = [];
-  currentPage: number = 1;
+  addedUsers: (IUser & { isNew?: boolean })[] = [];
   selectAllUsers: boolean = false;
+  selectAllOverlay: boolean = false;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
 
@@ -89,6 +91,10 @@ export class AddRoleComponent implements OnInit {
 
   private getSubKey(sub: { code?: number; id?: number }): string {
     return String(sub.code ?? sub.id);
+  }
+
+  get hasSelectedUsers(): boolean {
+    return this.addedUsers?.some(user => user.isSelected);
   }
 
 
@@ -144,7 +150,7 @@ export class AddRoleComponent implements OnInit {
 
 
 
-  getAllUsers(filters?: ISearchParams) {
+  private getAllUsers(filters?: ISearchParams): void {
     this.employeesService.getEmployeesForAddRoles(this.currentPage, this.itemsPerPage, filters?.search || '').subscribe({
       next: (response: EmployeesResponse) => {
         this.totalItems = response.data.total_items;
@@ -215,64 +221,42 @@ export class AddRoleComponent implements OnInit {
   }
 
 
-  toggleSelectAll() {
-    this.allUsers.forEach((user: IUser) => {
-      user.isSelected = this.selectAllUsers;
-    });
+  toggleSelectAllSelected(): void {
+    this.addedUsers.forEach(user => (user.isSelected = this.selectAllUsers));
   }
 
   toggleUsers(user: IUser) {
     if (!user.isSelected) {
       this.selectAllUsers = false;
-    } else if (this.allUsers.length && this.allUsers.every((u: IUser) => u.isSelected)) {
+    } else if (this.addedUsers.length && this.addedUsers.every((u: IUser) => u.isSelected)) {
       this.selectAllUsers = true;
     }
   }
 
-  // addSelectedUserss(): void {
-  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
 
-  //   selected.forEach((user: IUser) => {
-  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
-  //     if (!alreadyAdded) {
-  //       this.addedUsers.push({
-  //         ...user,
-  //         isSelected: true
-  //       });
-  //     }
-  //   });
 
-  //   this.addedUsers = this.addedUsers.filter((added: IUser) =>
-  //     selected.some((u: IUser) => u.id === added.id)
-  //   );
-  //   // console.log(this.addedUsers)
-  //   this.usersOverlay.closeOverlay();
-  // }
+  toggleUsersOverlay(user: IUser): void {
+    if (!user.isSelected) {
+      this.selectAllOverlay = false;
+    } else if (this.allUsers.length && this.allUsers.every(u => u.isSelected)) {
+      this.selectAllOverlay = true;
+    }
+  }
 
-  // addSelectedUsers(): void {
-  //   const selected = this.allUsers.filter((user: IUser) => user.isSelected);
+  toggleSelectAll() {
+    this.allUsers.forEach((user: IUser) => {
+      user.isSelected = this.selectAllOverlay;
+    });
+  }
 
-  //   selected.forEach((user: IUser) => {
-  //     const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === user.id);
-  //     if (!alreadyAdded) {
-  //       this.addedUsers.push({ ...user, isSelected: true });
-  //     }
-  //   });
-
-  //   // Always keep form in sync with IDs only
-  //   this.createRoleForm.patchValue({
-  //     users: this.addedUsers.map((u: IUser) => u.id)
-  //   });
-
-  //   this.usersOverlay.closeOverlay();
-  // }
 
   addSelectedUsers() {
     const selected = this.allUsers.filter(u => u.isSelected);
 
-    selected.forEach(u => {
-      if (!this.addedUsers.some(au => au.id === u.id)) {
-        this.addedUsers.push(u);
+    selected.forEach(user => {
+      if (!this.addedUsers.some(au => au.id === user.id)) {
+        // this.addedUsers.push(user);
+        this.addedUsers.push({ ...(user as IUser), isNew: true } as IUser & { isNew: boolean });
       }
     });
 
@@ -295,9 +279,34 @@ export class AddRoleComponent implements OnInit {
     this.createRoleForm.patchValue({
       users: this.addedUsers.map(u => u.id)
     });
+
+    if (this.isEditMode && user.id && !this.removedUsers.includes(user.id)) {
+      this.removedUsers.push(user.id);
+    }
+  }
+
+
+  removeSelectedUsers(): void {
+    this.addedUsers = this.addedUsers.filter(user => !user.isSelected);
+
+    this.allUsers.forEach(user => {
+      if (this.addedUsers.every(a => a.id !== user.id)) {
+        user.isSelected = false;
+      }
+    });
+
+    this.selectAllUsers = this.addedUsers.length > 0 && this.addedUsers.every(user => user.isSelected);
   }
 
   discardUsers(): void {
+    this.allUsers.forEach(user => {
+      user.isSelected = false;
+    });
+    this.addedUsers = this.addedUsers.filter(u => !u.isNew);
+    this.selectAllOverlay = false;
+    if (!this.isEditMode) {
+      this.addedUsers = [];
+    }
     this.usersOverlay.closeOverlay();
     this.searchTerm = '';
   }
@@ -559,7 +568,8 @@ export class AddRoleComponent implements OnInit {
       code,
       name,
       permissions,
-      users: this.createRoleForm.value.users || []
+      users: this.createRoleForm.value.users || [],
+      remove_users: this.removedUsers || []
     };
   }
 
@@ -569,15 +579,14 @@ export class AddRoleComponent implements OnInit {
       this.errMsg = "Please fill required fields";
       return;
     }
-
-
     const roleModel = this.buildRoleModel();
     console.log('Role model:', roleModel);
     this.isLoading = true;
     if (this.isEditMode) {
       roleModel.id = this.roleId;
       this.adminRolesService.updateRole(roleModel).subscribe({
-        next: (res) => {
+        next: () => {
+          this.removedUsers = [];
           this.isLoading = false;
           this.toasterService.showSuccess('Role updated successfully');
           this.router.navigate(['/roles']);
@@ -590,7 +599,7 @@ export class AddRoleComponent implements OnInit {
       });
     } else {
       this.adminRolesService.createRole(roleModel).subscribe({
-        next: (res) => {
+        next: () => {
           this.isLoading = false;
           this.toasterService.showSuccess('Role created successfully');
           this.router.navigate(['/roles']);
@@ -603,7 +612,6 @@ export class AddRoleComponent implements OnInit {
       });
     }
   }
-
 
   // next and prev
   currentStep: number = 1;

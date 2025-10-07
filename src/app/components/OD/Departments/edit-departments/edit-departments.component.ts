@@ -73,7 +73,9 @@ export class EditDepartmentsComponent implements OnInit {
       }
     });
   }
-
+  get hasSelectedGoals(): boolean {
+    return this.addedGoal?.some(goal => goal.selected);
+  }
 
   initialData: any = null;
   getDepartment(deptId: number) {
@@ -295,6 +297,7 @@ export class EditDepartmentsComponent implements OnInit {
       addedGoal.selected = this.selectAllAdded;
     });
   }
+
   toggleGoal(goal: any) {
     // goal.selected = !goal.selected;
     if (!goal.selected) {
@@ -318,7 +321,6 @@ export class EditDepartmentsComponent implements OnInit {
       goal.selected = false;
     });
     this.selectAllOverlay = false;
-    this.addedGoal = [];
     this.goalsOverlay.closeOverlay();
     this.searchTerm = '';
   }
