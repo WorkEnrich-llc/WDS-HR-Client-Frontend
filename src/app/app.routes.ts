@@ -1072,20 +1072,20 @@ export const routes: Routes = [
                 path: 'add-role',
                 loadComponent: () =>
                   import(
-                    './components/admin-settings/roles/add-role/add-role.component'
-                  ).then(m => m.AddRoleComponent),
+                    './components/admin-settings/roles/manage-role/manage-role.component'
+                  ).then(m => m.ManageRoleComponent),
                 title: 'Add Role',
-                  canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Roles', action: 'create' }
               },
               {
                 path: 'edit-role/:id',
                 loadComponent: () =>
                   import(
-                    './components/admin-settings/roles/add-role/add-role.component'
-                  ).then(m => m.AddRoleComponent),
+                    './components/admin-settings/roles/manage-role/manage-role.component'
+                  ).then(m => m.ManageRoleComponent),
                 title: 'Edit Role',
-                  canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Roles', action: 'update' }
               },
             ]
@@ -1126,7 +1126,7 @@ export const routes: Routes = [
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
                 title: 'Add User',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Users', action: 'create' }
               },
               {
@@ -1136,7 +1136,7 @@ export const routes: Routes = [
                     './components/admin-settings/users/add-user/add-user.component'
                   ).then(m => m.AddUserComponent),
                 title: 'Edit User',
-                 canActivate: [SubscriptionGuard],
+                canActivate: [SubscriptionGuard],
                 data: { feature: 'Users', action: 'update' }
               },
               {

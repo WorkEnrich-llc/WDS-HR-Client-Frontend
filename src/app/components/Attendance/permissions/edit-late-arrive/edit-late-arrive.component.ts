@@ -1,10 +1,11 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PermissionsService } from '../../../../core/services/attendance/permissions/permissions.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-late-arrive',
@@ -14,6 +15,7 @@ import { PermissionsService } from '../../../../core/services/attendance/permiss
   encapsulation: ViewEncapsulation.None
 })
 export class EditLateArriveComponent {
+  private toasterService = inject(ToasterMessageService);
   constructor(
     private router: Router,
     private _PermissionsService: PermissionsService
@@ -113,6 +115,7 @@ export class EditLateArriveComponent {
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
+        this.toasterService.showSuccess('Permissions updated successfully');
         this.router.navigate(['/permissions']);
       },
       error: (err) => {
@@ -126,11 +129,13 @@ export class EditLateArriveComponent {
           } else if (err?.error?.details) {
             this.errMsg = err.error.details;
           } else {
+
             this.errMsg = "An unexpected error occurred. Please try again later.";
           }
         } else {
           this.errMsg = "An unexpected error occurred. Please try again later.";
         }
+        this.toasterService.showError(this.errMsg);
       }
     });
   }

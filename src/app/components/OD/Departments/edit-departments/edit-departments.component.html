@@ -4,7 +4,7 @@
     { label: 'Departments', link: '/departments' },
     { label: 'Edit Department '+ departmentData?.name }
   ]" [title]="'Edit Department - '+ departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success"  [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges()"
+  <button class="btn btn-lg btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges()"
     (click)="updateDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -313,7 +313,7 @@
                 @if(!section.get('collapsed')?.value){
                 <div formArrayName="sub_sections">
                   @for (sub of getSubSections(section).controls; track sub; let j = $index) {
-                  <div [formGroupName]="j"  class="sub-row">
+                  <div [formGroupName]="j" class="sub-row">
                     <div class="ms-3" style="position: relative; width: 70px; height: 48px;">
 
                       @if(j === getSubSections(section).length - 1){
@@ -436,7 +436,7 @@
   <div class="content-box d-flex flex-column gap-3">
     <div class="d-flex align-items-center justify-content-between">
       <h2>Assigned Goals</h2>
-      <button class="btn btn-lg btn-outline-danger" (click)="removeSelectedGoals()">
+      <button class="btn btn-lg btn-outline-danger" (click)="removeSelectedGoals()" [disabled]="!hasSelectedGoals">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
           <path fill="currentColor"
             d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
@@ -496,7 +496,7 @@
       <ng-template #goalsTableEmptyRow>
         <tr>
           <td colspan="3" class="no-data py-4">
-            No Goasl Added Yet. You must add at least one Goal.
+            No Goals Added Yet. You must add at least one Goal.
           </td>
         </tr>
       </ng-template>
@@ -512,7 +512,7 @@
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
           </g>
         </svg>
-        <span>Add Goal(s)</span>
+        <span>Assign Goal(s)</span>
       </a>
     </div>
     <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
@@ -527,8 +527,7 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success"
-        [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
+      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
         (click)="updateDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -619,7 +618,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
         </g>
       </svg>
-      <span>Add Goals</span>
+      <span>Assign Goals</span>
     </button>
     <a (click)="discardGoals()" class="btn btn-lg btn-outline-dark border-0 fw-bold w-100 text-center">
       <span>Discard</span>
