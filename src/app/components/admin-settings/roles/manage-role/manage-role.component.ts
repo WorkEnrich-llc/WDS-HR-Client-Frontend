@@ -35,12 +35,12 @@ interface FeatureData {
 
 
 @Component({
-  selector: 'app-add-role',
+  selector: 'app-manage-role',
   imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule],
-  templateUrl: './add-role.component.html',
-  styleUrl: './add-role.component.css'
+  templateUrl: './manage-role.component.html',
+  styleUrl: './manage-role.component.css'
 })
-export class AddRoleComponent implements OnInit {
+export class ManageRoleComponent implements OnInit {
   @ViewChild('usersOverlay') usersOverlay!: OverlayFilterBoxComponent;
   createRoleForm!: FormGroup;
   private fb = inject(FormBuilder);
