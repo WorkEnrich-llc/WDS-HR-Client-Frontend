@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, filter, Subject } from 'rxjs';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,7 @@ import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ModulePermission, Roles } from 'app/core/models/roles';
 import { mapRoleAllResponse } from 'app/core/adapter/adapter';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-roles',
@@ -22,6 +23,8 @@ import { mapRoleAllResponse } from 'app/core/adapter/adapter';
 })
 export class RolesComponent {
 
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
   private adminRolesService = inject(AdminRolesService);
   private roleService = inject(RolesService);
   roles: Roles[] = [];
@@ -74,8 +77,11 @@ export class RolesComponent {
   ngOnInit(): void {
 
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllRoles(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllRoles(pageFromUrl);
+      // this.currentPage = +params['page'] || 1;
+      // this.getAllRoles(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -327,6 +333,18 @@ export class RolesComponent {
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllRoles(this.currentPage);
+    this.paginationState.setPage('roles/all-roles', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+    // this.currentPage = page;
+    // this.getAllRoles(this.currentPage);
+  }
+
+  navigateToEdit(roleId: number): void {
+    this.paginationState.setPage('roles/all-role', this.currentPage);
+    this.router.navigate(['/roles/edit-role', roleId]);
   }
 }
