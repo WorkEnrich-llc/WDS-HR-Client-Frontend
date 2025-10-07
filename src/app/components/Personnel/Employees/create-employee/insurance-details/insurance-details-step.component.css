@@ -1,68 +1,15 @@
 /* Insurance Details Step Styles */
 
-.card {
-  border: 1px solid #e1e5e9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-check {
-  margin-bottom: 1rem;
-}
-
-.form-check-input:checked {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.form-check-label {
-  font-weight: 500;
-  color: #495057;
+/* Read-only field styles */
+input[readonly] {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
 .form-text.text-muted {
   font-size: 0.875rem;
   color: #6c757d !important;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #545b62;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-
-.alert-danger {
-  border-radius: 6px;
-}
-
-.is-invalid {
-  border-color: #dc3545;
-}
-
-.invalid-feedback {
-  display: block;
-  width: 100%;
   margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #dc3545;
-}
-
-.bg-light {
-  background-color: #f8f9fa !important;
-  color: #495057;
-  font-weight: 500;
+  display: block;
 }
