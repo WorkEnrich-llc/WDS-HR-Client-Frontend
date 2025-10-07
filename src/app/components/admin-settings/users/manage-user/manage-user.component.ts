@@ -18,10 +18,10 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
   selector: 'app-add-user',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective, CommonModule],
   providers: [DatePipe],
-  templateUrl: './add-user.component.html',
-  styleUrl: './add-user.component.css'
+  templateUrl: './manage-user.component.html',
+  styleUrl: './manage-user.component.css'
 })
-export class AddUserComponent implements OnInit {
+export class ManageUserComponent implements OnInit {
 
   public usersForm!: FormGroup;
   private fb = inject(FormBuilder);
@@ -324,11 +324,6 @@ export class AddUserComponent implements OnInit {
     this.router.navigate(['/users'], { queryParams: { page: currentPage } });
     // this.router.navigate(['/users']);
   }
-
-
-
-
-
 
 
 }
