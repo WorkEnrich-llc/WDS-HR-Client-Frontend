@@ -58,6 +58,8 @@ jobs:
               echo "Unknown branch: $BRANCH_NAME"
               exit 1
             fi
+      - name: EnvData
+        run: echo "EnvData'${{ secrets.CLIENT_ENV_PROD }}'"
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
