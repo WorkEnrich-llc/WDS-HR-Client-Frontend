@@ -688,3 +688,57 @@ textarea {
 .text-danger {
   color: var(--color-danger-700) !important;
 }
+
+/* Tooltip container */
+.tooltip-popup-danger {
+  position: absolute;
+  bottom: 96%;
+  right: 5px;
+  background-color: var(--color-danger-600);
+  color: var(--color-white);
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 200px;
+  text-wrap: auto !important;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.2s ease-in-out;
+  z-index: 99999999 !important;
+  
+}
+.tooltip-popup-danger {
+  /* pointer-events: none !important; */
+  user-select: none !important;
+}
+
+.tooltip-popup-danger::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 7px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--color-danger-600) transparent transparent transparent;
+}
+
+.tooltip-popup-danger.tooltip-select {
+   bottom: 75%;
+  transform: translateY(-8px);
+}
+
+.tooltip-popup-danger.tooltip-select::after {
+  right: 30px;
+  transform: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(0, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(5px, -50%);
+  }
+}
