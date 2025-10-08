@@ -104,8 +104,8 @@ jobs:
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
         run: |
-          ssh root@185.245.183.177 "mkdir -p /root/nginx/html/WDS-Client-Production"
-          scp -r dist/* root@185.245.183.177:/root/nginx/html/WDS-Client-Production/
+          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Production"
+          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Production/
 
       - name: Cleanup on Failure
         if: failure()
