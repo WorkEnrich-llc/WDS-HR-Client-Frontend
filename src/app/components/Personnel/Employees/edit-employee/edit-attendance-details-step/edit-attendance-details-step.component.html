@@ -40,15 +40,17 @@
         <label for="work_schedule_id">Work Schedule <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select">
-            <option value="" disabled hidden>Select Schedule</option>
-            <option *ngFor="let ws of sharedService.getActiveWorkSchedules()" [value]="ws.id">
-              {{ ws.name }}
-            </option>
+            <option [value]="null" disabled hidden>Select Work Schedule</option>
+            @for (schedule of sharedService.workSchedules(); track schedule.id) {
+              <option [value]="schedule.id">{{ schedule.name }}</option>
+            }
           </select>
         </div>
-        <p *ngIf="sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)" class="error-msg">
-          {{ sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails) }}
-        </p>
+        @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {
+          <p class="error-msg">
+            {{sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails)}}
+          </p>
+        }
       </div>
 
       <div class="input">

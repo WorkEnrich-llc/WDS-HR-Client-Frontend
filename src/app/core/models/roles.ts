@@ -12,6 +12,7 @@ export interface Roles {
    permissions: ModulePermission[];
    users?: IUser[];
    total_users?: number;
+   remove_users?: number[];
 }
 
 
