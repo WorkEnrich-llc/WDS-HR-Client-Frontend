@@ -36,6 +36,7 @@ export class EditEmployeeSharedService {
     { id: 4, name: 'Widowed' }
   ]);
   readonly countries = signal<Country[]>(COUNTRIES);
+  readonly workSchedules = signal<any[]>([]);
 
   constructor(createService: CreateEmployeeSharedService) {
     this.createService = createService;
@@ -167,7 +168,7 @@ export class EditEmployeeSharedService {
   }
   // Work schedules
   getActiveWorkSchedules() {
-    return this.createService.getActiveWorkSchedules();
+    return this.workSchedules().filter((w) => w.is_active);
   }
 
   // Load employee data and populate form
@@ -214,6 +215,17 @@ export class EditEmployeeSharedService {
       work_mode: data.job_info.work_mode?.id,
       days_on_site: data.job_info.days_on_site,
       work_schedule_id: data.job_info.work_schedule?.id
+    });
+
+    // Populate insurance details (editable)
+    const hasInsuranceSalary = data.job_info.insurance_salary != null && data.job_info.insurance_salary !== 0;
+    const hasGrossInsurance = data.job_info.gross_insurance != null && data.job_info.gross_insurance !== 0;
+
+    this.insuranceDetails.patchValue({
+      include_insurance_salary: hasInsuranceSalary,
+      insurance_salary: hasInsuranceSalary ? data.job_info.insurance_salary : '',
+      include_gross_insurance_salary: hasGrossInsurance,
+      gross_insurance_salary: hasGrossInsurance ? data.job_info.gross_insurance : ''
     });
   }
 
@@ -274,7 +286,8 @@ export class EditEmployeeSharedService {
       'marital_status': 'Marital Status',
       'date_of_birth': 'Date of Birth',
       'address': 'Address',
-      'insurance_salary': 'Insurance Salary'
+      'insurance_salary': 'Insurance Salary',
+      'gross_insurance_salary': 'Gross Insurance Salary'
     };
     return displayNames[fieldName] || fieldName;
   }
@@ -327,7 +340,7 @@ export class EditEmployeeSharedService {
           department_id: originalData.job_info.department?.id,
           section_id: originalData.job_info.section?.id,
           job_title_id: originalData.job_info.job_title?.id,
-          work_schedule_id: originalData.job_info.work_schedule?.id
+          work_schedule_id: formData.attendance_details.work_schedule_id || originalData.job_info.work_schedule?.id
         },
         contract_details: {
           start_contract: this.formatDateForAPI(originalData.job_info.start_contract),
@@ -335,10 +348,14 @@ export class EditEmployeeSharedService {
           contract_end_date: originalData.job_info.end_contract ? this.formatDateForAPI(originalData.job_info.end_contract) : '',
           employment_type: originalData.job_info.employment_type?.id || 1, // 1 Full Time, 2 Part Time, 3 Per Hour
           work_mode: originalData.job_info.work_mode?.id || 1, // 1 On Site, 2 Remote, 3 Hybrid
-          days_on_site: originalData.job_info.days_on_site || 0,
+          days_on_site: formData.attendance_details.days_on_site || 0,
           salary: originalData.job_info.salary ? parseFloat(originalData.job_info.salary.toString()) : 0,
-          insurance_salary: formData.contract_details.insurance_salary ? parseFloat(formData.contract_details.insurance_salary) : 0,
-          gross_insurance: formData.insurance_details?.gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : 0,
+          insurance_salary: formData.insurance_details?.include_insurance_salary && formData.insurance_details?.insurance_salary 
+            ? parseFloat(formData.insurance_details.insurance_salary) 
+            : (originalData.job_info.insurance_salary || 0),
+          gross_insurance: formData.insurance_details?.include_gross_insurance_salary && formData.insurance_details?.gross_insurance_salary 
+            ? parseFloat(formData.insurance_details.gross_insurance_salary) 
+            : (originalData.job_info.gross_insurance || 0),
           notice_period: formData.contract_details.notice_period || 0
         }
       }

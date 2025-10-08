@@ -73,7 +73,9 @@ export class EditDepartmentsComponent implements OnInit {
       }
     });
   }
-
+  get hasSelectedGoals(): boolean {
+    return this.addedGoal?.some(goal => goal.selected);
+  }
 
   initialData: any = null;
   getDepartment(deptId: number) {
@@ -256,11 +258,11 @@ export class EditDepartmentsComponent implements OnInit {
   getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
     this.loadData = true;
 
-    const goalType = this.deptStep1.get('department_type')?.value; 
+    const goalType = this.deptStep1.get('department_type')?.value;
 
     this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
-      goal_type: goalType || undefined,  
+      goal_type: goalType || undefined,
     }).subscribe({
       next: (response) => {
         const data = response?.data;
@@ -269,7 +271,7 @@ export class EditDepartmentsComponent implements OnInit {
         this.totalItems = data?.total_items ?? 0;
         this.totalpages = data?.total_pages ?? 0;
 
-        this.Goals = (data?.list_items ?? []).map((goal: any) => ({
+        this.Goals = (data?.list_items ?? []).filter((goal: any) => goal.is_active).map((goal: any) => ({
           ...goal,
           selected: this.addedGoal.some(a => a.id === goal.id)
         }));
@@ -295,6 +297,7 @@ export class EditDepartmentsComponent implements OnInit {
       addedGoal.selected = this.selectAllAdded;
     });
   }
+
   toggleGoal(goal: any) {
     // goal.selected = !goal.selected;
     if (!goal.selected) {
@@ -314,6 +317,10 @@ export class EditDepartmentsComponent implements OnInit {
     this.getAllGoals(this.currentPage);
   }
   discardGoals(): void {
+    this.Goals.forEach(goal => {
+      goal.selected = false;
+    });
+    this.selectAllOverlay = false;
     this.goalsOverlay.closeOverlay();
     this.searchTerm = '';
   }
