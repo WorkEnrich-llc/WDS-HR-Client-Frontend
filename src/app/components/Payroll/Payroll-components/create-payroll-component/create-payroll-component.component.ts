@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 import { KeyValue } from '@angular/common';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-create-payroll-component',
@@ -27,6 +28,7 @@ export class CreatePayrollComponentComponent implements OnInit {
   private toasterService = inject(ToasterMessageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private paginationState = inject(PaginationStateService);
 
   classifications = CLASSIFICATIONS;
   componentTypes = COMPONENT_TYPES
@@ -75,7 +77,8 @@ export class CreatePayrollComponentComponent implements OnInit {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/payroll-components/all-payroll-components']);
+    const currentPage = this.paginationState.getPage('payroll-components/all-payroll-components');
+    this.router.navigate(['/payroll-components/all-payroll-components'], { queryParams: { page: currentPage } });
   }
 
 

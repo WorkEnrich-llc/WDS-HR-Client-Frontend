@@ -10,6 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule, DatePipe } from '@angular/common';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { PayrollComponent } from 'app/core/models/payroll';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 
 @Component({
@@ -22,6 +23,8 @@ import { PayrollComponent } from 'app/core/models/payroll';
 export class AllPayrollComponentsComponent implements OnInit {
   private payrollService = inject(PayrollComponentsService);
   private fb = inject(FormBuilder);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
   payrollComponentsList: PayrollComponent[] = [];
   payrollComponents: PayrollComponent[] = [];
   filteredList: PayrollComponent[] = [];
@@ -72,8 +75,11 @@ export class AllPayrollComponentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllComponents(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-components/all-payroll-components') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllComponents(pageFromUrl);
+      // this.currentPage = +params['page'] || 1;
+      // this.getAllComponents(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -188,6 +194,27 @@ export class AllPayrollComponentsComponent implements OnInit {
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllComponents(this.currentPage);
+    this.paginationState.setPage('payroll-components/all-payroll-components', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+    // this.currentPage = page;
+    // this.getAllComponents(this.currentPage);
   }
+
+
+
+  navigateToEdit(componentId: number): void {
+    this.paginationState.setPage('payroll-components/all-payroll-components', this.currentPage);
+    this.router.navigate(['/payroll-components/edit', componentId]);
+  }
+
+
+  navigateToView(componentId: number): void {
+    this.paginationState.setPage('payroll-components/all-payroll-components', this.currentPage);
+    this.router.navigate(['/payroll-components/view-payroll-components', componentId]);
+  }
+
 }
