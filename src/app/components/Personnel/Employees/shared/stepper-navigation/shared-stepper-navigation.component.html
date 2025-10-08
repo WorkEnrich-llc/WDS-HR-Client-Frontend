@@ -130,6 +130,42 @@
           d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
       </svg>
     }
+    <span class="nav-link">Contract Details</span>
+  </li>
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+        stepperConfig.currentStep() === 4 ? '#DDE3EB' :
+        stepperConfig.currentStep() === 5 ? '#377AFD' :
+        stepperConfig.currentStep() > 5 ? '#4CA883' :
+        '#DDE3EB'
+    ">
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
+
+  <li class="nav-item" [ngClass]="{
+        'active': stepperConfig.currentStep() === 5,
+        'text-success': stepperConfig.currentStep() > 5, 
+        'bg-light-success': stepperConfig.currentStep() > 5  
+    }" (click)="goToStep(5)">
+    @if (stepperConfig.currentStep() <= 5) { 
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke-width="1.5">
+          <path [style.stroke]="stepperConfig.currentStep() === 5 ? '#007bff' : '#4A6D97'" stroke-linecap="round" stroke-linejoin="round"
+            d="M9 10h6m-6 4h6m4 8H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h9.172a3 3 0 0 1 2.12.879l4.83 4.828A3 3 0 0 1 22 9.828V19a3 3 0 0 1-3 3" />
+          <path [style.stroke]="stepperConfig.currentStep() === 5 ? '#007bff' : '#4A6D97'" stroke-linecap="round" stroke-linejoin="round"
+            d="M14 2v3a3 3 0 0 0 3 3h3" opacity=".5" />
+        </g>
+      </svg>
+    }
+    @if (stepperConfig.currentStep() > 5) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+        [style.fill]="stepperConfig.currentStep() > 5 ? 'currentColor' : 'black'">
+        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+        <path
+          d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+      </svg>
+    }
     <span class="nav-link">Insurance Details</span>
   </li>
 </ul>
