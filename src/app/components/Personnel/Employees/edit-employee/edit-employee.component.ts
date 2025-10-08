@@ -17,8 +17,8 @@ import { EditInsuranceDetailsStepComponent } from './edit-insurance-details-step
   standalone: true,
   selector: 'app-edit-employee',
   imports: [
-    PageHeaderComponent, 
-    PopupComponent, 
+    PageHeaderComponent,
+    PopupComponent,
     ReactiveFormsModule,
     EditStepperNavigationComponent,
     EditMainInformationStepComponent,
@@ -42,6 +42,7 @@ export class EditEmployeeComponent implements OnInit {
   employeeId!: number;
 
   ngOnInit(): void {
+    this.sharedService.currentStep.set(1);
     this.route.params.subscribe(params => {
       this.employeeId = +params['id'];
       if (this.employeeId) {
@@ -51,6 +52,8 @@ export class EditEmployeeComponent implements OnInit {
   }
 
   private loadEmployee(): void {
+    this.sharedService.resetEmployeeData();
+    this.sharedService.currentStep.set(1);
     this.sharedService.isLoading.set(true);
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: res => {
@@ -83,12 +86,12 @@ export class EditEmployeeComponent implements OnInit {
       this.sharedService.errMsg.set('Please correct errors in the form.');
       return;
     }
-    
+
     this.sharedService.errMsg.set('');
     this.sharedService.isLoading.set(true);
 
     const payload = this.sharedService.getFormData();
-    
+
     if (!payload) {
       this.sharedService.errMsg.set('Employee data not loaded.');
       this.sharedService.isLoading.set(false);
@@ -102,7 +105,7 @@ export class EditEmployeeComponent implements OnInit {
       },
       error: (err: any) => {
         this.sharedService.isLoading.set(false);
-        
+
         // Handle API error response with error_handling array
         if (err?.error?.data?.error_handling && Array.isArray(err.error.data.error_handling)) {
           this.sharedService.errMsg.set('Please check the form for errors.');
