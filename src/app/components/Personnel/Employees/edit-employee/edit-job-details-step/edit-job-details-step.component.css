@@ -5,19 +5,19 @@ input[readonly] {
   cursor: not-allowed;
 }
 
-.btn-fixed {
+/* .btn-fixed {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-}
+} */
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .btn-fixed {
     flex-direction: column;
     left: 20px;
     right: 20px;
     transform: none;
   }
-}
+} */

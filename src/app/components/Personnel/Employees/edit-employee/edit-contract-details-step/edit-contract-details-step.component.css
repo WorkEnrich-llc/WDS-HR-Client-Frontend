@@ -16,26 +16,26 @@ input[readonly] {
   padding-right: 2.5rem;
 }
 
-.btn-fixed {
+/* .btn-fixed {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-}
+} */
 
 @media (max-width: 768px) {
-  .btn-fixed {
+  /* .btn-fixed {
     flex-direction: column;
     left: 20px;
     right: 20px;
     transform: none;
-  }
-  
+  } */
+
   .row {
     margin: 0;
   }
-  
+
   .row > [class*="col-"] {
     padding-left: 0;
     padding-right: 0;

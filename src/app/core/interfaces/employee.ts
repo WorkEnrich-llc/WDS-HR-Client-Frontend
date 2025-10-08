@@ -64,6 +64,10 @@ export interface Employee {
       id: number;
       name: string;
     };
+    gender: {
+      id: number;
+      name: string;
+    };
   };
   job_info: {
     branch: {
