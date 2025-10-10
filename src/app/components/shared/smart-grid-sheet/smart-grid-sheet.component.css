@@ -51,6 +51,7 @@ input:focus {
 }
 input,select{
     min-width:200px !important;
+    width: auto !important;
 }
 .form-control.is-invalid,
 .form-select.is-invalid {
@@ -76,3 +77,6 @@ select:focus{
   outline: 2px solid var(--color-primary-500) !important;
   background-color: var(--color-primary-100) !important;
 }
+
+
+

@@ -12,15 +12,16 @@ import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IPermission, IUser } from 'app/core/models/users';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-add-user',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective, CommonModule],
   providers: [DatePipe],
-  templateUrl: './add-user.component.html',
-  styleUrl: './add-user.component.css'
+  templateUrl: './manage-user.component.html',
+  styleUrl: './manage-user.component.css'
 })
-export class AddUserComponent implements OnInit {
+export class ManageUserComponent implements OnInit {
 
   public usersForm!: FormGroup;
   private fb = inject(FormBuilder);
@@ -30,6 +31,7 @@ export class AddUserComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private rolesService = inject(AdminRolesService);
   private toasterService = inject(ToasterMessageService);
+  private paginationState = inject(PaginationStateService);
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
@@ -318,13 +320,10 @@ export class AddUserComponent implements OnInit {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/users']);
+    const currentPage = this.paginationState.getPage('users/all-users');
+    this.router.navigate(['/users'], { queryParams: { page: currentPage } });
+    // this.router.navigate(['/users']);
   }
-
-
-
-
-
 
 
 }

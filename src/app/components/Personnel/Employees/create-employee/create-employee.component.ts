@@ -33,7 +33,7 @@ import { InsuranceDetailsStepComponent } from './insurance-details/insurance-det
     ContractDetailsStepComponent,
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent
-],
+  ],
   providers: [DatePipe],
   templateUrl: './create-employee.component.html',
   styleUrls: ['./create-employee.component.css'],
@@ -126,18 +126,41 @@ export class CreateEmployeeComponent implements OnInit {
             work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
             activate_attendance_rules: !!formData.attendance_details.activate_attendance_rules
           },
+          // contract_details: {
+          //   start_contract: formData.contract_details.start_contract,
+          //   contract_type: formData.contract_details.contract_type,
+          //   contract_end_date: formData.contract_details.contract_type === 1 ? formData.contract_details.contract_end_date : "",
+          //   employment_type: parseInt(formData.attendance_details.employment_type, 10),
+          //   work_mode: parseInt(formData.attendance_details.work_mode, 10),
+          //   days_on_site: formData.attendance_details.days_on_site ? parseInt(formData.attendance_details.days_on_site, 10) : undefined,
+          //   salary: parseFloat(formData.contract_details.salary),
+          //   insurance_salary: formData.insurance_details.include_insurance_salary ? parseFloat(formData.insurance_details.insurance_salary) : undefined,
+          //   gross_insurance: formData.insurance_details.include_gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : undefined,
+          //   notice_period: formData.contract_details.notice_period ? parseInt(formData.contract_details.notice_period, 10) : 0
+          // }
           contract_details: {
-            start_contract: formData.contract_details.start_contract,
+            start_contract: this.datePipe.transform(formData.contract_details.start_contract, 'yyyy-M-d')!, // بدون أصفار
             contract_type: formData.contract_details.contract_type,
-            contract_end_date: formData.contract_details.contract_type === 1 ? formData.contract_details.contract_end_date : "",
+            contract_end_date: formData.contract_details.contract_type === 1
+              ? formData.contract_details.contract_end_date
+              : null,
             employment_type: parseInt(formData.attendance_details.employment_type, 10),
             work_mode: parseInt(formData.attendance_details.work_mode, 10),
-            days_on_site: formData.attendance_details.days_on_site ? parseInt(formData.attendance_details.days_on_site, 10) : undefined,
+            days_on_site: formData.attendance_details.days_on_site
+              ? parseInt(formData.attendance_details.days_on_site, 10)
+              : 0,
             salary: parseFloat(formData.contract_details.salary),
-            insurance_salary: formData.insurance_details.include_insurance_salary ? parseFloat(formData.insurance_details.insurance_salary) : undefined,
-            gross_insurance: formData.insurance_details.include_gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : undefined,
-            notice_period: formData.contract_details.notice_period ? parseInt(formData.contract_details.notice_period, 10) : 0
+            insurance_salary: formData.insurance_details.include_insurance_salary
+              ? parseFloat(formData.insurance_details.insurance_salary)
+              : null,
+            gross_insurance: formData.insurance_details.include_gross_insurance_salary
+              ? parseFloat(formData.insurance_details.gross_insurance_salary)
+              : null,
+            notice_period: formData.contract_details.notice_period
+              ? parseInt(formData.contract_details.notice_period, 10)
+              : 0
           }
+
         }
       };
 
@@ -146,13 +169,13 @@ export class CreateEmployeeComponent implements OnInit {
         next: (response: CreateEmployeeResponse) => {
           this.sharedService.isLoading.set(false);
           this.sharedService.errMsg.set('');
-          this.toasterMessageService.sendMessage('Employee created successfully!');
+          this.toasterMessageService.showSuccess('Employee created successfully!');
           this.router.navigate(['/employees/all-employees']);
         },
         error: (error: any) => {
           this.sharedService.isLoading.set(false);
           this.sharedService.errMsg.set(error.message || 'An error occurred while creating the employee');
-          this.toasterMessageService.sendMessage('Failed to create employee');
+          this.toasterMessageService.showError('Failed to create employee');
         }
       });
     } else {

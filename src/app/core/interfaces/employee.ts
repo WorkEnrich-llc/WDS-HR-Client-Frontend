@@ -28,12 +28,12 @@ export interface CreateEmployeeRequest {
       contract_end_date?: string;
       employment_type: number; // 1 Full Time, 2 Part Time, 3 Per Hour
       work_mode: number; // 1 On Site, 2 Remote, 3 Hybrid
-      days_on_site?: number;
+      days_on_site?: number | null;
       salary: number;
-      insurance_salary?: number;
-      gross_insurance_salary?: number;
-      gross_insurance?: number;
-      notice_period?: number;
+      insurance_salary?: number | null;
+      gross_insurance_salary?: number | null;
+      gross_insurance?: number | null;
+      notice_period?: number | null;
     };
   };
 }
@@ -61,6 +61,10 @@ export interface Employee {
     date_of_birth: string;
     address: string;
     marital_status: {
+      id: number;
+      name: string;
+    };
+    gender: {
       id: number;
       name: string;
     };
