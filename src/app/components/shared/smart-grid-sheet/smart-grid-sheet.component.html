@@ -6,7 +6,7 @@
       <tr>
         <th></th>
         @for (col of columns; track col) {
-        <th>{{ col.label }}</th>
+        <th>{{ col.label }} @if(col.required){<span class="text-danger"> *</span>}</th>
         }
       </tr>
       }
@@ -17,11 +17,12 @@
       <tr class="table-row">
         <td class="text-end">{{ rowIndex + 1 }}</td>
         @for (col of columns; track col; let colIndex = $index) {
-        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
+        <td class="border p-0"  [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
           [class.selected-cell]="isSelected(rowIndex, col.name)"
           (mousedown)="startSelection(rowIndex, col.name, $event)"
           (mousemove)="continueSelection(rowIndex, col.name, $event)"
-          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
+          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)"
+          >
           <div class="position-relative w-100 p-0">
             @if (col.type === 'select') {
             <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"
@@ -56,19 +57,31 @@
               (keydown)="handleKeyDown($event, rowIndex, colIndex)" />
             }
             @if (isCellInvalid(form, col)) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="position-absolute" [ngStyle]="{'inset-inline-end': col.type === 'select' ? '30px' : '8px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    cursor: 'pointer',
-    'z-index': 0
-  }" (click)="showErrorPopup(form, col)" viewBox="0 0 24 24">
-              <g fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#e04f5f" stroke-width="1.5" />
-                <path stroke="#e04f5f" stroke-linecap="round" stroke-width="1.5" d="M12 17v-6" />
-                <circle cx="1" cy="1" r="1" fill="#e04f5f" transform="matrix(1 0 0 -1 11 9)" />
-              </g>
-            </svg>
+            <div class="relative inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="position-absolute" [ngStyle]="{
+        'inset-inline-end': col.type === 'select' ? '30px' : '8px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        cursor: 'pointer',
+        'z-index': 2
+      }" (click)="toggleTooltip($event, rowIndex, col.key)" viewBox="0 0 24 24">
+                <g fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="#e04f5f" stroke-width="1.5" />
+                  <path stroke="#e04f5f" stroke-linecap="round" stroke-width="1.5" d="M12 17v-6" />
+                  <circle cx="1" cy="1" r="1" fill="#e04f5f" transform="matrix(1 0 0 -1 11 9)" />
+                </g>
+              </svg>
+
+              @if (activeTooltip?.rowIndex === rowIndex && activeTooltip?.colKey === col.key) {
+              <div class="tooltip-popup-danger" [ngClass]="{ 'tooltip-select': col.type === 'select' }">
+                {{ getErrorMessage(form, col) }}
+              </div>
+              }
+            </div>
             }
+
+
+
           </div>
         </td>
         }

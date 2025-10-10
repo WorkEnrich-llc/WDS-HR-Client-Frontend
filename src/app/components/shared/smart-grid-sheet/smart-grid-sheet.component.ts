@@ -26,6 +26,9 @@ export interface TableColumn {
   styleUrl: './smart-grid-sheet.component.css'
 })
 export class SmartGridSheetComponent {
+
+  isCopyPasteActive = false;
+
   @Input() columns: TableColumn[] = [];
   @Input() initialRows: any[] = [];
   @Input() rowsInput: any[] = [];
@@ -39,6 +42,16 @@ export class SmartGridSheetComponent {
 
   private destroy$ = new Subject<void>();
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) { }
+  @HostListener('document:keydown', ['$event'])
+  handleKeyDownGlobal(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key.toLowerCase() === 'c') {
+      this.onCopy(event);
+    }
+
+    if (event.ctrlKey && event.key.toLowerCase() === 'v') {
+      this.onPaste(event as unknown as ClipboardEvent);
+    }
+  }
 
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -64,10 +77,12 @@ export class SmartGridSheetComponent {
   }
 
   addRow(rowData: any = {}): void {
+    // console.log('addRow rowData:', JSON.stringify(rowData, null, 2));
     const formGroup = this.fb.group({});
     const rowIndex = this.rows().length;
-
     this.rowOptions[rowIndex] = {};
+
+    const hasAnyValue = Object.values(rowData).some(v => v !== null && v !== '');
 
     for (const col of this.columns) {
       const isEditable = this.fileEditable && col.editable !== false;
@@ -83,15 +98,22 @@ export class SmartGridSheetComponent {
       if (col.type === 'select') {
         this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
+
+      if (hasAnyValue) {
+        formGroup.get(col.name)?.markAsTouched({ onlySelf: true });
+      }
     }
 
-    const hasAnyValue = Object.values(rowData).some(v => v !== null && v !== '');
-    if (hasAnyValue || rowData.__forceTouched) {
-      Object.keys(formGroup.controls).forEach(key => {
-        formGroup.get(key)?.markAsTouched({ onlySelf: true });
+    if (rowData.__errors) {
+      // console.log(`Backend errors for row ${rowIndex}:`, rowData.__errors);
+
+      setTimeout(() => {
+        Promise.resolve().then(() => {
+          this.applyBackendErrors(rowIndex, rowData.__errors);
+        });
       });
-    }
 
+    }
 
     for (const col of this.columns) {
       if (col.reliability) {
@@ -103,7 +125,7 @@ export class SmartGridSheetComponent {
 
         parentControl?.valueChanges
           .pipe(takeUntil(this.destroy$))
-          .subscribe((parentValue) => {
+          .subscribe(parentValue => {
             this.updateChildOptions(rowIndex, col, parentValue);
             formGroup.get(col.name)?.setValue('', { emitEvent: false });
             this.cdr.detectChanges();
@@ -151,35 +173,34 @@ export class SmartGridSheetComponent {
     }
   }
 
+
   isCellInvalid(form: FormGroup, col: TableColumn): boolean {
     const ctrl = form.get(col.name);
-    return ctrl instanceof FormControl && ctrl.invalid && (!!ctrl.value || ctrl.touched || ctrl.dirty);
+    return (
+      ctrl instanceof FormControl &&
+      ctrl.invalid &&
+      (!!ctrl.value || ctrl.dirty)
+    );
   }
+
 
   getFormControl(form: FormGroup, col: TableColumn): FormControl {
     return form.get(col.name) as FormControl;
   }
-  @HostListener('document:keydown', ['$event'])
-  handleKeyDownGlobal(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key.toLowerCase() === 'c') {
-      this.onCopy(event);
-    }
-
-    if (event.ctrlKey && event.key.toLowerCase() === 'v') {
-      this.onPaste(event as unknown as ClipboardEvent);
-    }
-  }
 
 
-  onCopy(event: KeyboardEvent) {
-    if (this.selectedCells.length === 0) return;
+  private copyArea: HTMLTextAreaElement | null = null;
 
+  async onCopy(event: KeyboardEvent) {
     event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.selectedCells || this.selectedCells.length === 0) return;
 
     const rowsMap: { [row: number]: { [col: string]: string } } = {};
     this.selectedCells.forEach(cell => {
       if (!rowsMap[cell.row]) rowsMap[cell.row] = {};
-      const value = this.rows()[cell.row].get(cell.col)?.value ?? '';
+      const value = this.rows()[cell.row]?.get(cell.col)?.value ?? '';
       rowsMap[cell.row][cell.col] = value;
     });
 
@@ -195,15 +216,78 @@ export class SmartGridSheetComponent {
       )
       .join('\n');
 
-    navigator.clipboard.writeText(copiedText);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(copiedText);
+        this.showCopyToast('✅ Copied');
+      } else {
+        if (!this.copyArea) {
+          this.copyArea = document.createElement('textarea');
+          this.copyArea.style.position = 'fixed';
+          this.copyArea.style.left = '-9999px';
+          this.copyArea.style.opacity = '0';
+          document.body.appendChild(this.copyArea);
+        }
+
+        this.copyArea.value = copiedText;
+        document.body.appendChild(this.copyArea);
+        this.copyArea.focus();
+        this.copyArea.select();
+
+        const success = document.execCommand('copy');
+        if (success) {
+          this.showCopyToast('✅ Copied');
+        } else {
+          throw new Error('Copy failed');
+        }
+
+        this.copyArea.blur();
+        window.getSelection()?.removeAllRanges();
+      }
+    } catch (err) {
+      console.error('Copy error:', err);
+      this.showCopyToast('⚠️ Copy failed');
+    }
+
+    this.selectedCells = [];
+    this.cdr.detectChanges();
+  }
+
+
+  private showCopyToast(message: string) {
+    const toast = document.createElement('div');
+    toast.innerText = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.background = '#3f9870';
+    toast.style.color = 'white';
+    toast.style.padding = '10px 16px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+    toast.style.zIndex = '9999';
+    toast.style.fontSize = '16px';
+    toast.style.fontWeight = '600';
+    toast.style.transition = 'opacity 0.3s ease';
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 1000);
   }
 
   onPaste(event: ClipboardEvent) {
     if (this.selectedCells.length === 0) return;
 
+    this.isCopyPasteActive = true;
+    setTimeout(() => this.isCopyPasteActive = false, 100);
+
     const startCell = this.selectedCells[0];
     this.paste(event, startCell.row, startCell.col);
   }
+
+
   paste(event: ClipboardEvent, startRow: number, startColName: string) {
     event.preventDefault();
     const clipboardData = event.clipboardData?.getData('text/plain');
@@ -264,16 +348,16 @@ export class SmartGridSheetComponent {
   startSelection(rowIndex: number, colName: string, event: MouseEvent) {
     const target = event.target as HTMLElement;
 
-    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.isContentEditable) {
+    if (target.closest('option')) {
+      return;
+    }
+
+    if (target.closest('svg') || target.closest('.tooltip-popup-danger')) {
+      return;
+    }
+
+    if (target.tagName === 'SELECT') {
       this.isSelecting = false;
-      this.startRow = rowIndex;
-      this.startCol = this.columns.findIndex(c => c.name === colName);
-
-      if (!this.isDoubleClick) {
-        (target as HTMLInputElement | HTMLSelectElement).focus();
-
-        this.selectedCells = [];
-      }
       return;
     }
 
@@ -282,6 +366,11 @@ export class SmartGridSheetComponent {
       this.hasMoved = false;
       this.startRow = rowIndex;
       this.startCol = this.columns.findIndex(c => c.name === colName);
+    }
+
+    if (target.tagName === 'INPUT' || target.isContentEditable) {
+      this.isSelecting = false;
+      return;
     }
   }
 
@@ -341,7 +430,14 @@ export class SmartGridSheetComponent {
         this.selectedCells.push({ row: r, col: this.columns[c].name });
       }
     }
+
+    // 🧩 أضف هذا الجزء هنا
+    const active = document.activeElement as HTMLElement | null;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.isContentEditable)) {
+      active.blur(); // إزالة الفوكس من أي حقل
+    }
   }
+
 
   isSelected(rowIndex: number, colName: string) {
     return this.selectedCells.some(c => c.row === rowIndex && c.col === colName);
@@ -355,53 +451,104 @@ export class SmartGridSheetComponent {
   @HostListener('document:keydown.delete', ['$event'])
   @HostListener('document:keydown.backspace', ['$event'])
   clearSelectedCells(event: KeyboardEvent) {
-    event.preventDefault();
+    const active = document.activeElement as HTMLElement | null;
 
+    const focusedIsInput =
+      !!active &&
+      (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'SELECT' ||
+        active.tagName === 'TEXTAREA' ||
+        (active as HTMLElement).isContentEditable
+      );
+
+    let focusedCellRow: number | null = null;
+    let focusedCellCol: string | null = null;
+
+    if (active && (active as any).closest) {
+      const td = (active as HTMLElement).closest('td[data-row][data-col]') as HTMLElement | null;
+      if (td) {
+        const dr = td.getAttribute('data-row');
+        const dc = td.getAttribute('data-col');
+        focusedCellRow = dr !== null ? Number(dr) : null;
+        focusedCellCol = dc;
+      }
+    }
+
+    if (this.selectedCells.length === 0) return;
+
+    if (
+      this.selectedCells.length === 1 &&
+      focusedIsInput &&
+      focusedCellRow === this.selectedCells[0].row &&
+      focusedCellCol === this.selectedCells[0].col
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
     this.selectedCells.forEach(cell => {
       const control = this.rows()[cell.row].get(cell.col);
       if (control) {
         control.setValue('');
-        control.markAsUntouched();
         control.markAsPristine();
+        control.markAsUntouched();
+        control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
       }
     });
 
-    this.selectedCells = [];
+
     this.emitUpdatedRows();
-  }
+    this.selectedCells = [];
+    this.ErrorPopup = false;
+    this.errorPopupMessage = '';
 
-  // =================== move with arrows ===================
-  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
-    switch (event.key) {
-      case 'ArrowUp':
-        if (rowIndex > 0) {
-          this.focusCell(rowIndex - 1, colIndex);
-          event.preventDefault();
-        }
-        break;
+    try {
+      (active as HTMLElement | null)?.blur();
+    } catch {
 
-      case 'ArrowDown':
-        if (rowIndex < this.rows().length - 1) {
-          this.focusCell(rowIndex + 1, colIndex);
-          event.preventDefault();
-        }
-        break;
-
-      case 'ArrowLeft':
-        if (colIndex > 0) {
-          this.focusCell(rowIndex, colIndex - 1);
-          event.preventDefault();
-        }
-        break;
-
-      case 'ArrowRight':
-        if (colIndex < this.columns.length - 1) {
-          this.focusCell(rowIndex, colIndex + 1);
-          event.preventDefault();
-        }
-        break;
     }
   }
+
+
+  // =================== move with arrows ===================
+  
+ handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+  const target = event.target as HTMLElement;
+
+  const isEditable = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
+
+  switch (event.key) {
+    case 'ArrowUp':
+      if (!isEditable && rowIndex > 0) {
+        this.focusCell(rowIndex - 1, colIndex);
+        event.preventDefault();
+      }
+      break;
+
+    case 'ArrowDown':
+      if (!isEditable && rowIndex < this.rows().length - 1) {
+        this.focusCell(rowIndex + 1, colIndex);
+        event.preventDefault();
+      }
+      break;
+
+    case 'ArrowLeft':
+      if (!isEditable && colIndex > 0) {
+        this.focusCell(rowIndex, colIndex - 1);
+        event.preventDefault();
+      }
+      break;
+
+    case 'ArrowRight':
+      if (!isEditable && colIndex < this.columns.length - 1) {
+        this.focusCell(rowIndex, colIndex + 1);
+        event.preventDefault();
+      }
+      break;
+  }
+}
 
 
   focusCell(row: number, col: number) {
@@ -419,26 +566,125 @@ export class SmartGridSheetComponent {
   // =================== Error Popup ===================
   ErrorPopup: boolean = false;
   errorPopupMessage: string = '';
+  applyBackendErrors(rowIndex: number, errors: { [key: string]: string }): void {
+    // console.log(`applyBackendErrors called for row ${rowIndex} with errors:`, JSON.stringify(errors, null, 2));
+    const formGroup = this.rows()[rowIndex];
+    if (!formGroup) {
+      // console.warn(`No formGroup found for row ${rowIndex}`);
+      return;
+    }
+
+    const keyMap: { [key: string]: string } = {
+      'validate_contract_dates': 'start_contract',
+    };
+
+    Object.entries(errors).forEach(([originalColName, errMsg]) => {
+      const colName = keyMap[originalColName] || originalColName;
+      const control = formGroup.get(colName);
+      if (!control) {
+        // console.warn(`No control found for column ${colName} in row ${rowIndex}`);
+        return;
+      }
+
+      const existingErrors = control.errors || {};
+      control.setErrors({ ...existingErrors, backend: errMsg }, { emitEvent: false });
+
+
+      control.markAsTouched({ onlySelf: true });
+      // control.updateValueAndValidity({ emitEvent: false });
+    });
+
+    this.cdr.detectChanges();
+  }
+
 
   showErrorPopup(form: FormGroup, col: TableColumn) {
     const control = form.get(col.name);
-    if (control?.errors) {
-      if (control.errors['required']) {
-        this.errorPopupMessage = col.errorMessage || 'This field is required';
-      } else if (control.errors['email']) {
-        this.errorPopupMessage = 'Please enter a valid email address';
-      } else if (control.errors['pattern']) {
-        this.errorPopupMessage = col.errorMessage || 'Invalid format numbers only';
-      } else {
-        this.errorPopupMessage = 'Invalid input';
-      }
+    if (!control?.errors) return;
 
-      this.ErrorPopup = true;
+    const errors = control.errors;
+    if (errors['backend']) {
+      this.errorPopupMessage = errors['backend'];
+    } else if (errors['required']) {
+      this.errorPopupMessage = col.errorMessage || 'This field is required';
+    } else if (errors['email']) {
+      this.errorPopupMessage = 'Please enter a valid email address';
+    } else if (errors['pattern']) {
+      this.errorPopupMessage = col.errorMessage || 'Invalid format numbers only';
+    } else {
+      this.errorPopupMessage = 'Invalid input';
+    }
+
+    this.ErrorPopup = true;
+  }
+
+  onFieldChange(form: FormGroup, colName: string): void {
+    const control = form.get(colName);
+    if (!control) return;
+
+    if (control.errors?.['backend']) {
+      const { backend, ...rest } = control.errors;
+      control.setErrors(Object.keys(rest).length ? rest : null);
     }
   }
+
 
   closeErrorPOP() {
     this.ErrorPopup = false;
     this.errorPopupMessage = '';
   }
+
+
+  // tooltip error
+  activeTooltip: { rowIndex: number; colKey: string } | null = null;
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+
+    if (this.isSelecting || this.selectedCells.length > 1) return;
+
+    if (!target.closest('.tooltip-popup-danger') && !target.closest('svg')) {
+      this.activeTooltip = null;
+    }
+  }
+
+  toggleTooltip(event: MouseEvent, rowIndex: number, colKey: string) {
+    // event.preventDefault();
+
+    const form = this.rows()[rowIndex];
+    const col = this.columns.find(c => c.name === colKey);
+    if (!form || !col) return;
+
+    const errorMessage = this.getErrorMessage(form, col);
+    if (!errorMessage) {
+      this.activeTooltip = null;
+      return;
+    }
+
+    if (this.activeTooltip && this.activeTooltip.rowIndex === rowIndex && this.activeTooltip.colKey === colKey) {
+      this.activeTooltip = null;
+    } else {
+      this.activeTooltip = { rowIndex, colKey };
+    }
+  }
+
+  getErrorMessage(form: FormGroup, col: TableColumn): string {
+    const ctrl = form.get(col.name);
+    if (!ctrl) return '';
+
+    // backend error
+    const backendError = ctrl.errors?.['backend'];
+    if (backendError && typeof backendError === 'string') return backendError;
+
+    // validator error
+    if (ctrl.invalid && (!!ctrl.value || ctrl.touched || ctrl.dirty)) {
+      return col.errorMessage || '';
+    }
+
+    return '';
+  }
+
+
+
 }

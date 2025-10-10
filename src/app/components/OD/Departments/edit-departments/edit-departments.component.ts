@@ -147,7 +147,7 @@ export class EditDepartmentsComponent implements OnInit {
   createSectionGroup(section?: any): FormGroup {
     return this.fb.group({
       id: [section?.id || null],
-      secCode: [section?.code || '', Validators.required],
+      secCode: [section?.code || ''],
       secName: [section?.name || '', Validators.required],
       status: [section?.is_active ?? true],
       collapsed: [true],
@@ -197,7 +197,7 @@ export class EditDepartmentsComponent implements OnInit {
     const subSections = this.getSubSections(parent);
     subSections.push(
       this.fb.group({
-        secCode: ['', Validators.required],
+        secCode: [''],
         secName: ['', Validators.required],
         status: [true],
         record_type: ['create']

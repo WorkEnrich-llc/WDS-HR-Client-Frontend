@@ -89,7 +89,7 @@ export class CreateDepartmentsComponent {
   }
   createSectionGroup(): FormGroup {
     return this.fb.group({
-      secCode: ['', Validators.required],
+      secCode: [''],
       secName: ['', Validators.required],
       status: [true],
       collapsed: [true],
@@ -126,7 +126,7 @@ export class CreateDepartmentsComponent {
     const subSections = this.getSubSections(parent);
     subSections.push(
       this.fb.group({
-        secCode: ['', Validators.required],
+        secCode: [''],
         secName: ['', Validators.required],
         status: [true]
       })

@@ -1,14 +1,6 @@
-name: Deploy to VPS
-
+name: Deploy to Producion Server
 on:
-  push:
-    branches:
-    #  - main
-      - develop
-      - testing
-      - staging
   workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -70,52 +62,17 @@ jobs:
         run: npm run build
 
       - name: Set up SSH for Production Environment
-        if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.PROD_VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 185.245.183.177 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 185.245.183.177 >> ~/.ssh/known_hosts    
 
-      - name: Set up SSH for Dev&Test&Staging Environments
-        if: github.ref != 'refs/heads/main'
-        run: | 
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 144.91.79.174 >> ~/.ssh/known_hosts
-
-      - name: Deploy to Dev
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Develop"
-          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Develop/
-
-      - name: Deploy to Testing
-        if: github.ref == 'refs/heads/testing'
-        run: |
-          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Testing"
-          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Testing/
-
-      - name: Deploy to Staging
-        if: github.ref == 'refs/heads/staging'
-        run: |
-          ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Staging"
-          scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Staging/
-
-      #- name: Deploy to Production
-       # if: github.ref == 'refs/heads/main'
-        #run: |
-         # ssh root@144.91.79.174 "mkdir -p /var/www/WDS-Client-Production"
-          #scp -r dist/* root@144.91.79.174:/var/www/WDS-Client-Production/
-
-      - name: Deploy to Production(177)
-        if: github.ref == 'refs/heads/main'
+      - name: Deploy to Production
         run: |
           ssh root@185.245.183.177 "mkdir -p /root/devops/nginx/html/WDS-Client-Production"
           scp -r dist/* root@185.245.183.177:/root/devops/nginx/html/WDS-Client-Production/
           
-
       - name: Cleanup on Failure
         if: failure()
         run: echo "Deployment failed. Please check logs."
