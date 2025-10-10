@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
 import { CreateEmployeeSharedService } from '../../create-employee/services/create-employee-shared.service';
+import { BranchesService } from 'app/core/services/od/branches/branches.service';
 
 @Component({
   standalone: true,
@@ -11,9 +12,26 @@ import { CreateEmployeeSharedService } from '../../create-employee/services/crea
   templateUrl: './edit-job-details-step.component.html',
   styleUrls: ['./edit-job-details-step.component.css']
 })
-export class EditJobDetailsStepComponent {
+export class EditJobDetailsStepComponent implements OnInit {
   public sharedService = inject(EditEmployeeSharedService);
   public createService = inject(CreateEmployeeSharedService);
+  private branchesService = inject(BranchesService);
+
+  ngOnInit(): void {
+    this.loadBranches();
+  }
+
+  private loadBranches(): void {
+    this.branchesService.getAllBranches(1, 100).subscribe({
+      next: (res) => {
+        this.createService.branches.set(res.data?.list_items || []);
+      },
+      error: (err) => {
+        console.error('Error loading branches', err);
+        this.createService.branches.set([]);
+      }
+    });
+  }
 
   goNext() {
     this.sharedService.goNext();

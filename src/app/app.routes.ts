@@ -1123,8 +1123,8 @@ export const routes: Routes = [
                 path: 'add-user',
                 loadComponent: () =>
                   import(
-                    './components/admin-settings/users/add-user/add-user.component'
-                  ).then(m => m.AddUserComponent),
+                    './components/admin-settings/users/manage-user/manage-user.component'
+                  ).then(m => m.ManageUserComponent),
                 title: 'Add User',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Users', action: 'create' }
@@ -1133,8 +1133,8 @@ export const routes: Routes = [
                 path: 'edit-user/:id',
                 loadComponent: () =>
                   import(
-                    './components/admin-settings/users/add-user/add-user.component'
-                  ).then(m => m.AddUserComponent),
+                    './components/admin-settings/users/manage-user/manage-user.component'
+                  ).then(m => m.ManageUserComponent),
                 title: 'Edit User',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Users', action: 'update' }

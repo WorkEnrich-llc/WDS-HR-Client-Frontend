@@ -37,6 +37,8 @@ export class EditEmployeeSharedService {
   ]);
   readonly countries = signal<Country[]>(COUNTRIES);
   readonly workSchedules = signal<any[]>([]);
+  readonly branches = signal<any[]>([]);
+
 
   constructor(createService: CreateEmployeeSharedService) {
     this.createService = createService;
@@ -95,7 +97,7 @@ export class EditEmployeeSharedService {
     this.mobileGroup.get('number')?.valueChanges.subscribe(value => {
       if (value && typeof value === 'string') {
         let cleanValue = value.replace(/^0+/, '');
-        
+
         if (cleanValue && !cleanValue.match(/^(10|11|12|15)/)) {
           if (cleanValue.length > 0 && !['1', '2', '5'].includes(cleanValue[0])) {
             cleanValue = '';
@@ -107,7 +109,7 @@ export class EditEmployeeSharedService {
             }
           }
         }
-        
+
         if (cleanValue !== value) {
           this.mobileGroup.get('number')?.setValue(cleanValue, { emitEvent: false });
         }
@@ -161,12 +163,13 @@ export class EditEmployeeSharedService {
     // Use index-based lookup (countryId - 1)
     return this.countries()[countryId - 1] || this.countries()[0];
   }
-  
+
   // Branches
   getActiveBranches() {
     return this.createService.getActiveBranches();
   }
-  // Work schedules
+
+  // Work schedules`
   getActiveWorkSchedules() {
     return this.workSchedules().filter((w) => w.is_active);
   }
@@ -174,12 +177,12 @@ export class EditEmployeeSharedService {
   // Load employee data and populate form
   loadEmployeeData(data: Employee): void {
     this.employeeData.set(data);
-    
+
     // Populate main information (editable)
     this.mainInformation.patchValue({
       code: data.id.toString(),
       name: data.contact_info.name,
-      gender: null, // Gender is not in the Employee interface, will need to handle separately
+      gender: data.contact_info.gender?.id || null,  // Gender is not in the Employee interface, will need to handle separately
       mobile: {
         country_id: data.contact_info.mobile?.country?.id || 1,
         number: data.contact_info.mobile?.number?.toString()
@@ -251,7 +254,7 @@ export class EditEmployeeSharedService {
   getFieldError(fieldName: string, formGroup?: FormGroup): string {
     const group = formGroup || this.employeeForm;
     const field = group.get(fieldName);
-    
+
     if (field && field.errors) {
       if (field.errors['required']) {
         return `${this.getFieldDisplayName(fieldName)} is required.`;
@@ -315,7 +318,7 @@ export class EditEmployeeSharedService {
   getFormData() {
     const formData = this.employeeForm.value;
     const originalData = this.employeeData();
-    
+
     if (!originalData) return null;
 
     return {
@@ -350,15 +353,30 @@ export class EditEmployeeSharedService {
           work_mode: originalData.job_info.work_mode?.id || 1, // 1 On Site, 2 Remote, 3 Hybrid
           days_on_site: formData.attendance_details.days_on_site || 0,
           salary: originalData.job_info.salary ? parseFloat(originalData.job_info.salary.toString()) : 0,
-          insurance_salary: formData.insurance_details?.include_insurance_salary && formData.insurance_details?.insurance_salary 
-            ? parseFloat(formData.insurance_details.insurance_salary) 
+          insurance_salary: formData.insurance_details?.include_insurance_salary && formData.insurance_details?.insurance_salary
+            ? parseFloat(formData.insurance_details.insurance_salary)
             : (originalData.job_info.insurance_salary || 0),
-          gross_insurance: formData.insurance_details?.include_gross_insurance_salary && formData.insurance_details?.gross_insurance_salary 
-            ? parseFloat(formData.insurance_details.gross_insurance_salary) 
+          gross_insurance: formData.insurance_details?.include_gross_insurance_salary && formData.insurance_details?.gross_insurance_salary
+            ? parseFloat(formData.insurance_details.gross_insurance_salary)
             : (originalData.job_info.gross_insurance || 0),
           notice_period: formData.contract_details.notice_period || 0
         }
       }
     };
+  }
+
+  resetEmployeeData(): void {
+    // clear form and all related signals
+    this.mainInformation.reset();
+    this.jobDetails.reset();
+    this.contractDetails.reset();
+    this.attendanceDetails.reset();
+    this.insuranceDetails.reset();
+
+    // reset signals
+    this.currentStep.set(1);
+    this.isModalOpen.set(false);
+    this.isLoading.set(false);
+    this.errMsg.set('');
   }
 }

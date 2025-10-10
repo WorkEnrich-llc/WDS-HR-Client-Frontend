@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, signal, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
-import { FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sheet/smart-grid-sheet.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
@@ -36,7 +36,7 @@ export class SystemFileComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
-
+  @ViewChild(SmartGridSheetComponent) smartGrid!: SmartGridSheetComponent;
   errMsg: string = '';
   isLoading = false;
   uploadSub!: Subscription;
@@ -192,57 +192,57 @@ export class SystemFileComponent implements OnInit {
 
 
   generateCustomColumnsFromHeaders(headers: HeaderItem[], isFailedTable: boolean = false): TableColumn[] {
+    const skipIfBackendError = (validator: ValidatorFn): ValidatorFn => {
+      return (control: AbstractControl) => {
+        if (control.errors && control.errors['backend']) return null;
+        return validator(control);
+      };
+    };
+
     return headers.map(header => {
       let type: 'input' | 'select' | 'date' | 'time' = 'input';
-
       const validators: ValidatorFn[] = [];
       let options: { value: any, label: string }[] | undefined;
       let errorMessage = '';
 
       if (header.required) {
-        validators.push(Validators.required);
+        validators.push(skipIfBackendError(Validators.required));
         errorMessage = 'This field is required';
       }
 
       switch (header.type) {
         case 'dropdown':
           type = 'select';
-
           options = header.reliability ? [] : header.data.map(opt => ({
             value: opt.id,
             label: opt.name
           }));
-
-          validators.push((control: { value: number }) => {
-            return control.value === 0 ? { required: true } : null;
-          });
-
+          validators.push(skipIfBackendError((control: AbstractControl) =>
+            control.value === 0 ? { required: true } : null
+          ));
           errorMessage = 'Please select a valid option';
           break;
 
         case 'email':
-          validators.push(Validators.email);
+          validators.push(skipIfBackendError(Validators.email));
           errorMessage = 'Please enter a valid email address';
           break;
 
         case 'phone':
-          validators.push(Validators.pattern(/^\d+$/));
+          validators.push(skipIfBackendError(Validators.pattern(/^\d+$/)));
           errorMessage = 'Please enter a valid phone number (digits only)';
           break;
 
         case 'int':
-          validators.push(Validators.pattern(/^(0|[1-9][0-9]*)$/));
+        case 'BigInt':
+          validators.push(skipIfBackendError(Validators.pattern(/^(0|[1-9][0-9]*)$/)));
           errorMessage = 'Please enter a valid integer (no leading zeros)';
           break;
 
         case 'double':
-          validators.push(Validators.pattern(/^(0|[1-9][0-9]*)\.[0-9]+$/));
-          errorMessage = 'Please enter a valid decimal number (e.g. 100.00, not starting with zero)';
-          break;
-
-        case 'BigInt':
+        case 'float':
         case 'number':
-          validators.push(Validators.pattern(/^\d+(\.\d+)?$/));
+          validators.push(skipIfBackendError(Validators.pattern(/^\d+(\.\d+)?$/)));
           errorMessage = 'Please enter a valid number';
           break;
 
@@ -266,11 +266,9 @@ export class SystemFileComponent implements OnInit {
         ...(options ? { options } : {}),
         reliability: header.reliability ?? undefined,
         rawData: header.data,
-        // forceTouched: isFailedTable
       };
     });
   }
-
 
 
   // add to system
@@ -352,10 +350,6 @@ export class SystemFileComponent implements OnInit {
           // console.log('object_info:', objectInfo);
 
           if (isUpdateMissing && !firstValidResponseSeen) {
-            if (objectInfo?.upload_type === 'Completed' && objectInfo?.percentage === 100) {
-              console.log('Ignored old completed response');
-              return;
-            }
             firstValidResponseSeen = true;
           }
 
@@ -403,6 +397,12 @@ export class SystemFileComponent implements OnInit {
             this.importedRows = objectInfo?.finished?.body ?? [];
             this.failedRows = this.markFailedRowsAsTouched(objectInfo?.missing?.body ?? []);
             this.missingRowsData = [...this.failedRows];
+            this.failedRows.forEach((row, rowIndex) => {
+              if (row.__errors) {
+                this.smartGrid.applyBackendErrors(rowIndex, row.__errors);
+              }
+            });
+
 
             this.loadData = false;
             this.isAllLoaded = true;
@@ -420,25 +420,36 @@ export class SystemFileComponent implements OnInit {
 
 
 
-
   private markFailedRowsAsTouched(rows: any[]): any[] {
-    return rows.map(row => {
-      const entries = Object.entries(row).filter(([key]) => key !== 'errors');
+  return rows.map(row => {
+    const newRow: any = { ...row };
 
-      const hasAnyValue = entries.some(([_, v]) => {
-        if (v === null || v === undefined) return false;
-        if (typeof v === 'string' && v.trim() === '') return false;
-        return true;
+    if (Array.isArray(row.errors)) {
+      newRow.__errors = {};
+      row.errors.forEach((err: any) => {
+        if (err.key && err.error) {
+          newRow.__errors[err.key] = err.error;
+          // console.log(`Mark failed row: ${err.key} -> ${err.error}`);
+        }
       });
+    }
 
-      if (!hasAnyValue) {
-        const { errors, ...cleanRow } = row;
-        return cleanRow;
-      }
-
-      return { ...row, __forceTouched: true };
+    const entries = Object.entries(row).filter(([key]) => key !== 'errors');
+    const hasAnyValue = entries.some(([_, v]) => {
+      if (v === null || v === undefined) return false;
+      if (typeof v === 'string' && v.trim() === '') return false;
+      return true;
     });
-  }
+
+    if (hasAnyValue) {
+      newRow.__forceTouched = true;
+    }
+
+    return newRow;
+  });
+}
+
+
 
 
 
@@ -451,6 +462,7 @@ export class SystemFileComponent implements OnInit {
   }
 
   missingRowsData: any[] = [];
+
   updateMissing(): void {
     this.upLoading = true;
     this.addMissingPopup = false;

@@ -5,7 +5,7 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, filter, Observable, Subject } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
@@ -13,6 +13,7 @@ import { ISearchParams, IUser, IUserApi } from 'app/core/models/users';
 import { Status, UserStatus } from '@app/enums';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { Roles } from 'app/core/models/roles';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-users',
@@ -28,6 +29,8 @@ export class UsersComponent {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   private toasterService = inject(ToasterMessageService);
   private rolesService = inject(AdminRolesService);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
   filterForm!: FormGroup;
   toasterSubscription: any;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
@@ -60,8 +63,11 @@ export class UsersComponent {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllUsers(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllUsers(pageFromUrl);
+      // this.currentPage = +params['page'] || 1;
+      // this.getAllUsers(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -206,11 +212,20 @@ export class UsersComponent {
     this.getAllUsers(this.currentPage);
   }
 
-
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllUsers(this.currentPage);
+    this.paginationState.setPage('users/all-users', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
+
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllUsers(this.currentPage);
+  // }
 
 
 
@@ -221,5 +236,16 @@ export class UsersComponent {
       },
       error: (err) => console.error('Failed to load all roles', err)
     });
+  }
+
+  navigateToEdit(userId: number): void {
+    this.paginationState.setPage('users/all-users', this.currentPage);
+    this.router.navigate(['/users/edit-user', userId]);
+  }
+
+
+  navigateToView(userId: number): void {
+    this.paginationState.setPage('users/all-users', this.currentPage);
+    this.router.navigate(['/users/view-user', userId]);
   }
 }
