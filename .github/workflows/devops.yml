@@ -1,0 +1,78 @@
+name: Deploy to Producion Server
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.19.0"
+          cache: "npm"
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache build output
+        uses: actions/cache@v3
+        with:
+          path: |
+            dist
+            .angular/cache
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.html', '**/*.scss', '**/*.css') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-build-
+
+      - name: Generate environment.ts
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          mkdir -p src/environments
+          if [[ "$BRANCH_NAME" == "develop" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_DEV }}' | jq -c .)" > src/environments/environment.ts
+          elif [[ "$BRANCH_NAME" == "testing" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_TEST }}' | jq -c .)" > src/environments/environment.ts
+          elif [[ "$BRANCH_NAME" == "staging" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_STAGING }}' | jq -c .)" > src/environments/environment.ts
+            elif [[ "$BRANCH_NAME" == "main" ]]; then
+              echo "export const environment = $(echo '${{ secrets.CLIENT_ENV_PROD }}' | jq -c .)" > src/environments/environment.ts
+            else
+              echo "Unknown branch: $BRANCH_NAME"
+              exit 1
+            fi
+      - name: EnvData
+        run: echo "EnvData'${{ secrets.CLIENT_ENV_PROD }}'"
+
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Project
+        env:
+          CI: true
+        run: npm run build
+
+      - name: Set up SSH for Production Environment
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PROD_VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 185.245.183.177 >> ~/.ssh/known_hosts    
+
+      - name: Deploy to Production
+        run: |
+          ssh root@185.245.183.177 "mkdir -p /root/devops/nginx/html/WDS-Client-Production"
+          scp -r dist/* root@185.245.183.177:/root/devops/nginx/html/WDS-Client-Production/
+          
+      - name: Cleanup on Failure
+        if: failure()
+        run: echo "Deployment failed. Please check logs."
