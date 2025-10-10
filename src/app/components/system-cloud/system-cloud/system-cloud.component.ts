@@ -694,14 +694,13 @@ export class SystemCloudComponent implements OnInit {
   deleteFile(id: string): void {
     this.errMsg = '';
     this.uploadProgress = 0;
-
+    this.closeModalDelete();
     this._systemCloudService.deleteFile(id).subscribe({
       next: () => {
         this.files = this.files.filter(file => file.id !== id);
         this.filteredFiles = this.filteredFiles.filter(file => file.id !== id);
         this.allFiles = this.allFiles.filter(file => file.id !== id);
-
-        this.closeModalDelete();
+        
       },
       error: (err: any) => {
         let errorMessage = 'An error occurred';
@@ -740,7 +739,7 @@ export class SystemCloudComponent implements OnInit {
 
   duplicateFile(id: string, name: string): void {
     this.errMsg = '';
-
+    this.closeModalDublicate();
     this._systemCloudService.duplicateFile(id).subscribe({
       next: (response) => {
         const now = new Date();
@@ -772,7 +771,7 @@ export class SystemCloudComponent implements OnInit {
         //   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
         // });
 
-        this.closeModalDublicate();
+        
       },
       error: () => {
         this.errMsg = 'Could not duplicate file.';

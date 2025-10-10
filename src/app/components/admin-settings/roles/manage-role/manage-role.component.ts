@@ -11,6 +11,7 @@ import { ActionType, ModulePermission, Roles, RoleUser, SubModulePermission } fr
 import { ISearchParams, IUserApi, IUser } from 'app/core/models/users';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -44,11 +45,12 @@ export class ManageRoleComponent implements OnInit {
   @ViewChild('usersOverlay') usersOverlay!: OverlayFilterBoxComponent;
   createRoleForm!: FormGroup;
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private adminRolesService = inject(AdminRolesService);
   private toasterService = inject(ToasterMessageService);
   private employeesService = inject(EmployeeService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private paginationState = inject(PaginationStateService);
   removedUsers: number[] = [];
 
   isEditMode = false;
@@ -101,7 +103,6 @@ export class ManageRoleComponent implements OnInit {
   selectedActionsMap = new Map<string, Set<string>>();
 
   ngOnInit() {
-
     this.getAllUsers();
     this.getAllRoles();
     this.initFormModels();
@@ -304,9 +305,6 @@ export class ManageRoleComponent implements OnInit {
     });
     this.addedUsers = this.addedUsers.filter(u => !u.isNew);
     this.selectAllOverlay = false;
-    if (!this.isEditMode) {
-      this.addedUsers = [];
-    }
     this.usersOverlay.closeOverlay();
     this.searchTerm = '';
   }
@@ -656,7 +654,8 @@ export class ManageRoleComponent implements OnInit {
 
   confirmAction() {
     this.isModalOpen = false;
-    this.router.navigate(['/roles']);
+    const currentPage = this.paginationState.getPage('roles/all-role');
+    this.router.navigate(['/roles'], { queryParams: { page: currentPage } });
   }
 }
 

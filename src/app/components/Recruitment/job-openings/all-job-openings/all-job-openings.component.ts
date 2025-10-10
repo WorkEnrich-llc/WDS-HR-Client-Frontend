@@ -1,13 +1,14 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-job-openings',
@@ -16,6 +17,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './all-job-openings.component.css'
 })
 export class AllJobOpeningsComponent {
+
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private fb: FormBuilder) { }
 
@@ -51,6 +55,9 @@ export class AllJobOpeningsComponent {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      // const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
+      // this.currentPage = pageFromUrl;
+      // this.getAllApplicants(pageFromUrl);
       // this.currentPage = +params['page'] || 1;
       // this.getAllDepartment(this.currentPage);
     });
@@ -86,7 +93,20 @@ export class AllJobOpeningsComponent {
     // this.getAllDepartment(this.currentPage);
   }
   onPageChange(page: number): void {
+
     this.currentPage = page;
+    this.paginationState.setPage('job-openings/all-job-openings', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
     // this.getAllDepartment(this.currentPage);
   }
+
+  navigateToView(jobId: number): void {
+    this.paginationState.setPage('job-openings/all-job-openings', this.currentPage);
+    this.router.navigate(['/job-openings/view-job-openings', jobId]);
+  }
+
 }
