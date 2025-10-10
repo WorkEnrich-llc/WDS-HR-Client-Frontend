@@ -6,7 +6,7 @@
       <tr>
         <th></th>
         @for (col of columns; track col) {
-        <th>{{ col.label }}</th>
+        <th>{{ col.label }} @if(col.required){<span class="text-danger"> *</span>}</th>
         }
       </tr>
       }
@@ -17,11 +17,12 @@
       <tr class="table-row">
         <td class="text-end">{{ rowIndex + 1 }}</td>
         @for (col of columns; track col; let colIndex = $index) {
-        <td class="border p-0" [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
+        <td class="border p-0"  [attr.data-row]="rowIndex" [attr.data-col]="colIndex"
           [class.selected-cell]="isSelected(rowIndex, col.name)"
           (mousedown)="startSelection(rowIndex, col.name, $event)"
           (mousemove)="continueSelection(rowIndex, col.name, $event)"
-          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)">
+          (dblclick)="onCellDoubleClick(rowIndex, col.name, $event)"
+          >
           <div class="position-relative w-100 p-0">
             @if (col.type === 'select') {
             <select [formControl]="getFormControl(form, col)" (input)="inputChanged.emit()"

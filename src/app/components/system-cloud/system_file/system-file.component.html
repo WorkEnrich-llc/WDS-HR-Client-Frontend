@@ -112,10 +112,19 @@
       </button>
       }
 
-      @if (upLoading  && uploadType !== 'Stopped' && uploadType !== 'Failure') {
-      <div class="progress" style="height: 25px; width: 250px;">
-        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
-          [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+      @if (upLoading && uploadType !== 'Stopped' && uploadType !== 'Failure') {
+      <div class="progress relative overflow-hidden"
+        style="height: 25px; width: 250px; border-radius: 8px; background-color: #e0e0e0;">
+
+        <!-- Skeleton effect while empty -->
+        <div *ngIf="percentage === 0" class="skeleton-loading rounded-md w-full h-full absolute top-0 left-0">
+        </div>
+
+        <!-- Actual progress bar -->
+        <div *ngIf="percentage > 0"
+          class="progress-bar progress-bar-striped progress-bar-animated bg-primary transition-all duration-300 text-center text-white"
+          role="progressbar" [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0"
+          aria-valuemax="100">
           {{ percentage }}%
         </div>
       </div>

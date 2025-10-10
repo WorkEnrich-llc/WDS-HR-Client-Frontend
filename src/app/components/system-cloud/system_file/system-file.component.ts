@@ -262,6 +262,7 @@ export class SystemFileComponent implements OnInit {
         type,
         validators,
         errorMessage,
+         required: !!header.required,
         editable: isFailedTable ? true : (this.fileEditable ? header.editable : false),
         ...(options ? { options } : {}),
         reliability: header.reliability ?? undefined,
@@ -269,6 +270,8 @@ export class SystemFileComponent implements OnInit {
       };
     });
   }
+
+
 
 
   // add to system
@@ -287,6 +290,7 @@ export class SystemFileComponent implements OnInit {
   showUploadPopup: boolean = false;
   addMissingPopup: boolean = false;
   showMissingPopup: boolean = false;
+  
   openModalAddtosystem() {
     this.addTosystemPOP = true;
   }
@@ -421,33 +425,33 @@ export class SystemFileComponent implements OnInit {
 
 
   private markFailedRowsAsTouched(rows: any[]): any[] {
-  return rows.map(row => {
-    const newRow: any = { ...row };
+    return rows.map(row => {
+      const newRow: any = { ...row };
 
-    if (Array.isArray(row.errors)) {
-      newRow.__errors = {};
-      row.errors.forEach((err: any) => {
-        if (err.key && err.error) {
-          newRow.__errors[err.key] = err.error;
-          // console.log(`Mark failed row: ${err.key} -> ${err.error}`);
-        }
+      if (Array.isArray(row.errors)) {
+        newRow.__errors = {};
+        row.errors.forEach((err: any) => {
+          if (err.key && err.error) {
+            newRow.__errors[err.key] = err.error;
+            // console.log(`Mark failed row: ${err.key} -> ${err.error}`);
+          }
+        });
+      }
+
+      const entries = Object.entries(row).filter(([key]) => key !== 'errors');
+      const hasAnyValue = entries.some(([_, v]) => {
+        if (v === null || v === undefined) return false;
+        if (typeof v === 'string' && v.trim() === '') return false;
+        return true;
       });
-    }
 
-    const entries = Object.entries(row).filter(([key]) => key !== 'errors');
-    const hasAnyValue = entries.some(([_, v]) => {
-      if (v === null || v === undefined) return false;
-      if (typeof v === 'string' && v.trim() === '') return false;
-      return true;
+      if (hasAnyValue) {
+        newRow.__forceTouched = true;
+      }
+
+      return newRow;
     });
-
-    if (hasAnyValue) {
-      newRow.__forceTouched = true;
-    }
-
-    return newRow;
-  });
-}
+  }
 
 
 

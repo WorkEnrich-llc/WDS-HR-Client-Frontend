@@ -179,7 +179,7 @@ export class SmartGridSheetComponent {
     return (
       ctrl instanceof FormControl &&
       ctrl.invalid &&
-      (!!ctrl.value || ctrl.touched || ctrl.dirty)
+      (!!ctrl.value || ctrl.dirty)
     );
   }
 
@@ -252,9 +252,6 @@ export class SmartGridSheetComponent {
     this.selectedCells = [];
     this.cdr.detectChanges();
   }
-
-
-
 
 
   private showCopyToast(message: string) {
@@ -516,37 +513,42 @@ export class SmartGridSheetComponent {
 
 
   // =================== move with arrows ===================
-  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
-    switch (event.key) {
-      case 'ArrowUp':
-        if (rowIndex > 0) {
-          this.focusCell(rowIndex - 1, colIndex);
-          event.preventDefault();
-        }
-        break;
+  
+ handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+  const target = event.target as HTMLElement;
 
-      case 'ArrowDown':
-        if (rowIndex < this.rows().length - 1) {
-          this.focusCell(rowIndex + 1, colIndex);
-          event.preventDefault();
-        }
-        break;
+  const isEditable = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
 
-      case 'ArrowLeft':
-        if (colIndex > 0) {
-          this.focusCell(rowIndex, colIndex - 1);
-          event.preventDefault();
-        }
-        break;
+  switch (event.key) {
+    case 'ArrowUp':
+      if (!isEditable && rowIndex > 0) {
+        this.focusCell(rowIndex - 1, colIndex);
+        event.preventDefault();
+      }
+      break;
 
-      case 'ArrowRight':
-        if (colIndex < this.columns.length - 1) {
-          this.focusCell(rowIndex, colIndex + 1);
-          event.preventDefault();
-        }
-        break;
-    }
+    case 'ArrowDown':
+      if (!isEditable && rowIndex < this.rows().length - 1) {
+        this.focusCell(rowIndex + 1, colIndex);
+        event.preventDefault();
+      }
+      break;
+
+    case 'ArrowLeft':
+      if (!isEditable && colIndex > 0) {
+        this.focusCell(rowIndex, colIndex - 1);
+        event.preventDefault();
+      }
+      break;
+
+    case 'ArrowRight':
+      if (!isEditable && colIndex < this.columns.length - 1) {
+        this.focusCell(rowIndex, colIndex + 1);
+        event.preventDefault();
+      }
+      break;
   }
+}
 
 
   focusCell(row: number, col: number) {
@@ -594,8 +596,6 @@ export class SmartGridSheetComponent {
 
     this.cdr.detectChanges();
   }
-
-
 
 
   showErrorPopup(form: FormGroup, col: TableColumn) {

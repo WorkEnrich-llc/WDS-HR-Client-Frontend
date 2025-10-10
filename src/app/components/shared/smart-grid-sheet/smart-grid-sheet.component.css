@@ -1,7 +1,12 @@
-
 table {
     border-collapse: collapse !important;
     padding: 0 !important;
+
+}
+
+thead tr th .text-danger {
+    color: var(--color-danger-500) !important;
+    font-size: 20px !important;
 }
 
 table thead tr th {
@@ -43,40 +48,45 @@ input:focus {
     background-color: var(--color-primary-50) !important;
 }
 
-.is-invalid,.invalid {
+.is-invalid,
+.invalid {
     border: none !important;
     box-shadow: inset 0 -2px 0 var(--color-danger-700) !important;
     color: var(--color-danger-500) !important;
     background-color: var(--color-danger-100) !important;
 }
-input,select{
-    min-width:200px !important;
-    width: auto !important;
+
+input,
+select {
+    min-width: 200px !important;
+    width: max-content !important;
 }
+
 .form-control.is-invalid,
 .form-select.is-invalid {
-  background-image: none !important;
+    background-image: none !important;
 }
-select:focus{
+
+select:focus {
     box-shadow: none !important;
     box-shadow: inset 0 -2px 0 var(--color-primary-700) !important;
     color: var(--color-primary-500) !important;
     background-color: var(--color-primary-50) !important;
 }
+
 .placeholder-selected {
-  color: var(--color-secondary-300);
+    color: var(--color-secondary-300);
 }
 
 
-.selected input,.selected select {
-  background-color: var(--color-primary-100) !important;
-  outline: 1px solid var(--color-primary-500)  !important ;
+.selected input,
+.selected select {
+    background-color: var(--color-primary-100) !important;
+    outline: 1px solid var(--color-primary-500) !important;
 }
 
-.selected-cell input,.selected-cell select {
-  outline: 2px solid var(--color-primary-500) !important;
-  background-color: var(--color-primary-100) !important;
+.selected-cell input,
+.selected-cell select {
+    outline: 2px solid var(--color-primary-500) !important;
+    background-color: var(--color-primary-100) !important;
 }
-
-
-
