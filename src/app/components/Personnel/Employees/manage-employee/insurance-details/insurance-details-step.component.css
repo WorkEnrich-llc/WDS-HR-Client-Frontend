@@ -1,0 +1,15 @@
+/* Insurance Details Step Styles */
+
+/* Read-only field styles */
+input[readonly] {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.form-text.text-muted {
+  font-size: 0.875rem;
+  color: #6c757d !important;
+  margin-top: 0.25rem;
+  display: block;
+}

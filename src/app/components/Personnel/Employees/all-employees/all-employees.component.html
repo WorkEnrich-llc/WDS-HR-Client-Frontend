@@ -176,9 +176,8 @@
             <td>{{employee.joinDate | date:'dd/MM/yyyy'}}</td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
-                    <a [routerLink]="employee.employeeStatus === 'New Joiner' 
-    ? ['/employees/view-newjoiner', employee.id] 
-    : ['/employees/view-employee', employee.id]" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+                    <a (click)="navigateToView(employee)"
+                        class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path
@@ -188,8 +187,8 @@
                         </svg>
                         <span>View</span>
                     </a>
-                    <a [routerLink]="['/employees/edit-employee', employee.id]"
-                        class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
+                    <!-- <a [routerLink]="['/employees/edit-employee', employee.id]" -->
+                    <a (click)="navigateToEdit(employee.id)" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round"

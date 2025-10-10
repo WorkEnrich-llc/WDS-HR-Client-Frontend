@@ -3,13 +3,14 @@ import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-employees',
@@ -21,6 +22,8 @@ import { Employee } from '../../../../core/interfaces/employee';
 export class AllEmployeesComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
@@ -30,7 +33,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   employees: Employee[] = [];
   filteredEmployees: any[] = []; // For display purposes with transformed data
-    loadData:boolean =true;
+  loadData: boolean = true;
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -43,9 +46,14 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.loadEmployees();
+    // });
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.loadEmployees();
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
+      this.currentPage = pageFromUrl;
+      this.loadEmployees(pageFromUrl);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -58,13 +66,13 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.currentPage = 1;
-      this.loadEmployees();
+      this.loadEmployees(this.currentPage);
     });
   }
 
-  loadEmployees(): void {
+  loadEmployees(currentPage: number): void {
     this.loading = true;
-    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm)
+    this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
       .subscribe({
         next: (response) => {
           this.employees = response.data.list_items;
@@ -146,7 +154,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   resetFilterForm(): void {
     this.filterBox.closeOverlay();
-    this.loadEmployees();
+    this.loadEmployees(this.currentPage);
   }
 
   onSearchChange() {
@@ -156,12 +164,22 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadEmployees();
+    this.loadEmployees(this.currentPage);
   }
+
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.loadEmployees(this.currentPage);
+  // }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadEmployees();
+    this.paginationState.setPage('employees/all-employees', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
 
   ngOnDestroy(): void {
@@ -169,4 +187,22 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       this.toasterSubscription.unsubscribe();
     }
   }
+
+  navigateToEdit(employeeId: number): void {
+    this.paginationState.setPage('employees/all-employees', this.currentPage);
+    this.router.navigate(['/employees/edit-employee', employeeId]);
+  }
+
+
+
+  navigateToView(employee: any): void {
+    if (employee.employeeStatus === 'New Joiner') {
+      this.router.navigate(['/employees/view-newjoiner', employee.id]);
+    } else {
+      this.router.navigate(['/employees/view-employee', employee.id]);
+    }
+  }
+
+
+
 }

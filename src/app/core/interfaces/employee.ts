@@ -1,5 +1,6 @@
 export interface CreateEmployeeRequest {
   request_data: {
+    id?: number;
     main_information: {
       code?: string;
       name: string;
@@ -14,7 +15,7 @@ export interface CreateEmployeeRequest {
       address: string;
     };
     job_details: {
-      years_of_experience?: number;
+      years_of_experience?: number | null;
       branch_id: number;
       department_id: number;
       section_id?: number;
@@ -70,6 +71,7 @@ export interface Employee {
     };
   };
   job_info: {
+    years_of_experience: number;
     branch: {
       id: number;
       name: string;
