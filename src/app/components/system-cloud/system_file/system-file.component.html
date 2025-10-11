@@ -252,7 +252,7 @@
 </app-smart-grid-sheet>
 }
 @if (isAllLoaded && isImported && activeTab === 'failed') {
-<app-smart-grid-sheet [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows" [fileEditable]="true"
+<app-smart-grid-sheet [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows" [fileEditable]="faildEditable"
   (inputChanged)="onCellInput()" (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
 </app-smart-grid-sheet>
 }

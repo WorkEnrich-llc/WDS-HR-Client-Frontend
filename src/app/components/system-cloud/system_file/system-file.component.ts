@@ -410,6 +410,7 @@ export class SystemFileComponent implements OnInit {
 
             this.loadData = false;
             this.isAllLoaded = true;
+            this.faildEditable=true;
           }
         },
         error: (err) => {
@@ -466,8 +467,9 @@ export class SystemFileComponent implements OnInit {
   }
 
   missingRowsData: any[] = [];
-
+  faildEditable:boolean=true;
   updateMissing(): void {
+    this.faildEditable=false;
     this.upLoading = true;
     this.addMissingPopup = false;
 
