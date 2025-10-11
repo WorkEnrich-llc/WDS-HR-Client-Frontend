@@ -286,6 +286,9 @@ export class EditDepartmentsComponent implements OnInit {
       }
     });
   }
+onDepartmentTypeChange(): void {
+  this.addedGoal = [];
+}
 
   //checkboxes 
   toggleSelectAll() {
@@ -301,13 +304,13 @@ export class EditDepartmentsComponent implements OnInit {
   }
 
   toggleGoal(goal: any) {
-    // goal.selected = !goal.selected;
-    if (!goal.selected) {
-      this.selectAllOverlay = false;
-    } else if (this.Goals.length && this.Goals.every(goal => goal.selected)) {
-      this.selectAllOverlay = true;
-    }
+  if (!goal.selected) {
+    this.selectAllAdded = false;
+  } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
+    this.selectAllAdded = true;
   }
+}
+
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;

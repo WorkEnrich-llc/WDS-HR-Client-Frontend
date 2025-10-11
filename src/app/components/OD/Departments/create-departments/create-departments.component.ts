@@ -223,14 +223,15 @@ export class CreateDepartmentsComponent {
       addedGoal.selected = this.selectAllAdded;
     });
   }
-  toggleGoal(goal: any) {
-    // goal.selected = !goal.selected;
-    if (!goal.selected) {
-      this.selectAllOverlay = false;
-    } else if (this.Goals.length && this.Goals.every(goal => goal.selected)) {
-      this.selectAllOverlay = true;
-    }
+  
+    toggleGoal(goal: any) {
+  if (!goal.selected) {
+    this.selectAllAdded = false;
+  } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
+    this.selectAllAdded = true;
   }
+}
+
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
