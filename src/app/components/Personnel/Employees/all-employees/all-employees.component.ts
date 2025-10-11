@@ -4,7 +4,7 @@ import { PageHeaderComponent } from './../../../shared/page-header/page-header.c
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
@@ -40,20 +40,17 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  private activeFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
   loading: boolean = true;
 
 
   ngOnInit(): void {
-    // this.route.queryParams.subscribe(params => {
-    //   this.currentPage = +params['page'] || 1;
-    //   this.loadEmployees();
-    // });
     this.route.queryParams.subscribe(params => {
-      const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
       this.currentPage = pageFromUrl;
-      this.loadEmployees(pageFromUrl);
+      this.loadEmployees();
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -66,13 +63,42 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.currentPage = 1;
-      this.loadEmployees(this.currentPage);
+      this.loadEmployees();
+    });
+
+    this.filterForm = this.fb.group({
+      created_at: [''],
+      status: [''],
     });
   }
 
-  loadEmployees(currentPage: number): void {
+  // loadEmployees(currentPage: number): void {
+  //   this.loading = true;
+  //   this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
+  //     .subscribe({
+  //       next: (response) => {
+  //         this.employees = response.data.list_items;
+  //         this.totalItems = response.data.total_items;
+  //         this.transformEmployeesForDisplay();
+  //         this.loading = false;
+  //         this.loadData = false;
+  //         // console.log('Employees loaded:', response);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error loading employees:', error);
+  //         this.loading = false;
+  //         this.loadData = false;
+  //         this.toastr.error('Failed to load employees', 'Error');
+  //       }
+  //     });
+  // }
+
+  loadEmployees(): void {
     this.loading = true;
-    this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
+    this.loadData = true;
+
+    // Pass all state properties to the service method
+    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters)
       .subscribe({
         next: (response) => {
           this.employees = response.data.list_items;
@@ -80,7 +106,6 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.transformEmployeesForDisplay();
           this.loading = false;
           this.loadData = false;
-          // console.log('Employees loaded:', response);
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -90,6 +115,22 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      this.activeFilters = {
+        status: rawFilters.status === 'all' ? null : rawFilters.status,
+        created_at: rawFilters.created_from || null
+      };
+
+      this.currentPage = 1;
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    }
+  }
+
 
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
@@ -152,10 +193,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     });
   }
 
-  resetFilterForm(): void {
-    this.filterBox.closeOverlay();
-    this.loadEmployees(this.currentPage);
-  }
+  // resetFilterForm(): void {
+  //   this.filterBox.closeOverlay();
+  //   this.loadEmployees(this.currentPage);
+  // }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -164,7 +205,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadEmployees(this.currentPage);
+    this.loadEmployees();
   }
 
   // onPageChange(page: number): void {
@@ -203,6 +244,12 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  resetFilterForm(): void {
+    this.filterForm.reset();
+    this.activeFilters = {};
+    this.currentPage = 1;
+    this.loadEmployees();
+    this.filterBox.closeOverlay();
+  }
 
 }

@@ -14,7 +14,7 @@
         <label for="name">Full Name <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" id="name" formControlName="name" class="form-control custom-date-input"
-            placeholder="Example: John Michael Smith Doe (Full name must contain at least four parts)" />
+            placeholder="Full name must contain at least four parts" />
         </div>
         @if (sharedService.isFieldInvalid('name', sharedService.mainInformation)) {
         <p class="error-msg">
@@ -156,11 +156,11 @@
         }
       </div>
 
-      @if (sharedService.errMsg()) {
+      <!-- @if (sharedService.errMsg()) {
       <div class="alert alert-danger mb-0 mt-3" role="alert">
         {{sharedService.errMsg()}}
       </div>
-      }
+      } -->
     </div>
 
     <!-- next button -->

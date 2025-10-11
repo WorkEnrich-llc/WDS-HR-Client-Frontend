@@ -10,8 +10,9 @@
         <label for="start_contract">Contract Start Date <span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
+
             <input type="date" id="start_contract" formControlName="start_contract"
-              class="form-control custom-date-input" />
+              class="form-control custom-date-input" [min]="currentDate" />
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <g fill="none" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -55,6 +56,13 @@
           </div>
         </div>
         @if (sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
+        </p>
+        }
+        @if (sharedService.contractDetails.errors?.['dateRange'] &&
+        (sharedService.contractDetails.get('contract_end_date')?.dirty ||
+        sharedService.contractDetails.get('contract_end_date')?.touched)) {
         <p class="error-msg">
           {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
         </p>
@@ -122,11 +130,11 @@
       </div>
       }
 
-      @if (sharedService.errMsg()) {
+      <!-- @if (sharedService.errMsg()) {
       <div class="alert alert-danger mb-0 mt-3" role="alert">
         {{sharedService.errMsg()}}
       </div>
-      }
+      } -->
     </div>
 
     <!-- prev and next buttons -->

@@ -20,7 +20,7 @@ export function fourPartsValidator(): ValidatorFn {
       if (!control.value) return null;
 
       const parts = control.value.trim().split(/\s+/);
-      if (parts.length !== 4) {
+      if (parts.length < 4) {
          return { fourParts: true };
       }
       if (parts.some((w: string) => w.length < 3)) {

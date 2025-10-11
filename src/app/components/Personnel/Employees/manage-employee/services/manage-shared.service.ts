@@ -12,6 +12,7 @@ import { BranchesService } from 'app/core/services/od/branches/branches.service'
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
 import { fourPartsValidator } from 'app/components/settings/profile-settings/profile.validators';
+import { CustomValidators } from 'app/core/validators/custom-validators';
 
 // Error message mapping
 const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
@@ -99,6 +100,7 @@ export class ManageEmployeeSharedService {
   readonly createdAt = signal<string>('');
   readonly updatedAt = signal<string>('');
   isLoadingData = signal(false);
+  currentDate = new Date().toISOString().split('T')[0];
 
 
   constructor() {
@@ -130,14 +132,14 @@ export class ManageEmployeeSharedService {
         years_of_experience: [null]
       }),
       contract_details: this.fb.group({
-        start_contract: ['', Validators.required],
+        start_contract: ['', [Validators.required, CustomValidators.futureDate(this.currentDate)]],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
         include_probation: [false],
         notice_period: [null],
         salary: ['', [Validators.required, Validators.min(0)]],
         insurance_salary: ['']
-      }),
+      }, { validators: this.dateRangeValidator.bind(this) }),
       attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
         work_mode: [null, Validators.required],
@@ -539,8 +541,26 @@ export class ManageEmployeeSharedService {
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
       if (field.errors['invalidCharacters']) return `${displayName} cannot contain special characters`;
+      if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
+    }
+
+    if (fieldName === 'contract_end_date' && group.errors && group.errors['dateRange']) {
+      return `${displayName} date must be after start date`;
     }
     return '';
+  }
+
+  // date range validation
+
+  dateRangeValidator(control: any) {
+    const form = control as FormGroup;
+    const fromDate = form.get('start_contract')?.value;
+    const toDate = form.get('contract_end_date')?.value;
+
+    if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
+      return { dateRange: true };
+    }
+    return null;
   }
 
   // Method to clear field errors and reset touched state

@@ -1,4 +1,4 @@
-import { HttpClient, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './../../../../../environments/environment';
@@ -30,12 +30,28 @@ export class EmployeeService {
   }
 
   // Get employees with pagination and search
-  getEmployees(page: number = 1, per_page: number = 10, search: string = ''): Observable<EmployeesResponse> {
-    let url = `${this.apiBaseUrl}personnel/employees?page=${page}&per_page=${per_page}`;
+  // getEmployees(page: number = 1, per_page: number = 10, search: string = ''): Observable<EmployeesResponse> {
+  //   let url = `${this.apiBaseUrl}personnel/employees?page=${page}&per_page=${per_page}`;
+  //   if (search) {
+  //     url += `&search=${search}`;
+  //   }
+  //   return this.http.get<EmployeesResponse>(url);
+  // }
+  getEmployees(page: number = 1, per_page: number = 10, search: string = '', filters: any = {}): Observable<EmployeesResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', per_page.toString());
     if (search) {
-      url += `&search=${search}`;
+      params = params.append('search', search);
     }
-    return this.http.get<EmployeesResponse>(url);
+    for (const key in filters) {
+      const value = filters[key];
+      if (value) {
+        params = params.append(key, value);
+      }
+    }
+    const url = `${this.apiBaseUrl}personnel/employees`;
+    return this.http.get<EmployeesResponse>(url, { params });
   }
 
   // Get employees in add roles 
