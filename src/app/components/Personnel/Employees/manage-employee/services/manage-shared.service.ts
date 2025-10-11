@@ -111,7 +111,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
-        code: [''],
+        code: ['', Validators.required],
         name: ['', [Validators.required, fourPartsValidator()]],
         // name: ['', [Validators.required, Validators.minLength(2)]],
         gender: [null, Validators.required],

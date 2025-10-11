@@ -85,11 +85,12 @@
             <th>Join Date</th>
             <th>Actions</th>
         </ng-template>
-
         <ng-template #employeesTableRow let-employee let-i="index">
             <td class="width-fix">
-                <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-gray-sm">{{ employee?.code}}</span>
+                <!-- <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span> -->
                 <span class="d-block text-truncate" style="max-width: 300px;">
+
                     {{ employee.name }}
                 </span>
             </td>

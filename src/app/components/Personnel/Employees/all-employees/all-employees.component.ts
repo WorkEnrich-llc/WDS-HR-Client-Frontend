@@ -135,6 +135,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
     this.filteredEmployees = this.employees.map(employee => ({
+      code: employee.code,
       id: employee.id,
       name: employee.contact_info.name,
       employeeStatus: employee.employee_status,
