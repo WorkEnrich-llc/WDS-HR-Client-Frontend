@@ -118,7 +118,7 @@ export class ManageEmployeeSharedService {
         gender: [null, Validators.required],
         mobile: this.fb.group({
           country_id: [1, Validators.required],
-          number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)\d{8}$/)]]
+          number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)\d{8}$/), Validators.minLength(10), Validators.maxLength(10)]]
         }),
         personal_email: ['', [Validators.required, Validators.email]],
         marital_status: [null, Validators.required],
@@ -535,8 +535,9 @@ export class ManageEmployeeSharedService {
     if (field && field.errors && (field.dirty || field.touched)) {
       if (field.errors['required']) return `${displayName} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
-      if (field.errors['pattern']) return 'Please enter a valid format';
       if (field.errors['minlength']) return `Minimum length is ${field.errors['minlength'].requiredLength}`;
+      if (field.errors['maxlength']) return `Maximum length is ${field.errors['maxlength'].requiredLength}`;
+      if (field.errors['pattern']) return 'Number must start with 10, 11, 12, or 15';
       if (field.errors['min']) return `Minimum value is ${field.errors['min'].min}`;
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
