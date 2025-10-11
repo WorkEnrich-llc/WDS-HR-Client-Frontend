@@ -48,7 +48,6 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
-  code?: string;
   contact_info: {
     name: string;
     mobile: {

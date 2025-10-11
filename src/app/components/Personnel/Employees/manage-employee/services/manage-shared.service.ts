@@ -52,6 +52,7 @@ export class ManageEmployeeSharedService {
   private branchesService = inject(BranchesService);
   private departmentsService = inject(DepartmentsService);
   private jobsService = inject(JobsService);
+
   // Reactive Forms
   employeeForm!: FormGroup;
 
@@ -111,7 +112,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
-        code: ['', Validators.required],
+        code: [''],
         name: ['', [Validators.required, fourPartsValidator()]],
         // name: ['', [Validators.required, Validators.minLength(2)]],
         gender: [null, Validators.required],
@@ -678,12 +679,11 @@ export class ManageEmployeeSharedService {
   // }
 
 
-  getFormData() {
+
+  getFormData(isEditMode: boolean) {
     const formData = this.employeeForm.value;
     const originalData = this.employeeData();
-
     if (!originalData) return null;
-
     return {
       request_data: {
         id: originalData.id,
