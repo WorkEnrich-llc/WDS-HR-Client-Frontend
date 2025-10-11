@@ -303,7 +303,7 @@ export class SystemFileComponent implements OnInit {
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(-20px)';
       setTimeout(() => toast.remove(), 300);
-    }, 1000);
+    }, 4000);
   }
 
   private validateBeforeAction(rowsArray: any[]): boolean {
@@ -332,24 +332,6 @@ export class SystemFileComponent implements OnInit {
 
     return true;
   }
-
-
-
-
-
-
-  // openModalAddtosystem() {
-  //   const isGridValid = (this.smartGrid as any)?.validateFilledRows?.() ?? true;
-  //   const isBodyRowsValid = this.validateBeforeAction(this.bodyRows);
-  //   const isFailedValid = this.validateBeforeAction(this.failedRows);
-  //   const isMissingValid = this.validateBeforeAction(this.missingRowsData);
-
-  //   if (isGridValid && isBodyRowsValid && isFailedValid && isMissingValid) {
-  //     this.addTosystemPOP = true;
-  //   } else {
-  //     this.showErrorToast('Please fix highlighted errors before continuing.');
-  //   }
-  // }
 
   openModalAddtosystem() {
     const isGridValid = this.mainGrid?.validateFilledRows?.() ?? true;
