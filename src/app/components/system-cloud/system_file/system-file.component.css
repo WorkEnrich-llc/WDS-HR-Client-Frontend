@@ -1,7 +1,13 @@
 .page-header h2 {
     margin-bottom: var(--spacing-12) !important;
 }
-
+.page-header .parag{
+    width: 100% !important;
+}
+.page-header .parag p{
+    margin: 0 !important;
+    color: var(--color-secondary-600);
+}
 .body {
     padding: 0 !important;
 }
@@ -96,4 +102,9 @@
   100% {
     background-position: -200% 0;
   }
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  color: var(--color-secondary-400) !important;
+  cursor: pointer !important;
 }

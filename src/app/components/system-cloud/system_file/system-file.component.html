@@ -1,5 +1,6 @@
 <!-- pageheader and progress -->
 <app-page-header title="System Cloud">
+  <p>Using Alt + Arrows to move between cells</p>
 </app-page-header>
 
 
@@ -25,12 +26,18 @@
 
   <div class="d-flex align-items-center justify-content-between mt-3">
 
-    <div class="form-outline w-25 position-relative custom-date-wrapper">
-      <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control" placeholder="File Name"
-        readonly />
+    <div class="d-flex flex-column w-25">
+      <div class="form-outline  position-relative custom-date-wrapper">
+        <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control"
+          placeholder="File Name" readonly />
+      </div>
+
+      @if(errMsg){
+      <p class="m-0 mt-2 error-msg">{{errMsg}}</p>
+      }
+
+
     </div>
-
-
 
 
     <div class="d-flex align-items-end gap-3">
@@ -228,6 +235,7 @@
 
 
     </div>
+
   </div>
 
 </div>
@@ -240,22 +248,23 @@
   <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
 </div>
 }
-@if (isAllLoaded && !isImported) {
-<app-smart-grid-sheet [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="bodyRows" [fileEditable]="fileEditable" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
+  @if (isAllLoaded && !isImported) {
+  <app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
+    [rowsInput]="bodyRows" [fileEditable]="gridsEditable" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+  </app-smart-grid-sheet>
+  }
 
-@if (isAllLoaded && isImported && activeTab === 'imported') {
-<app-smart-grid-sheet [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
-@if (isAllLoaded && isImported && activeTab === 'failed') {
-<app-smart-grid-sheet [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows" [fileEditable]="faildEditable"
-  (inputChanged)="onCellInput()" (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
+  @if (isAllLoaded && isImported && activeTab === 'imported') {
+  <app-smart-grid-sheet #smartGrid [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
+    [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+  </app-smart-grid-sheet>
+  }
+  @if (isAllLoaded && isImported && activeTab === 'failed') {
+  <app-smart-grid-sheet #failedGrid [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows"
+    [fileEditable]="gridsEditable" (inputChanged)="onCellInput()"
+    (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
+  </app-smart-grid-sheet>
+  }
 
 
 

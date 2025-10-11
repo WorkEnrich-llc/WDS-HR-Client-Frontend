@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, Output, signal, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, Output, signal, SimpleChanges, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn } from '@angular/forms';
 import { PopupComponent } from '../popup/popup.component';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
@@ -42,6 +42,11 @@ export class SmartGridSheetComponent {
 
   private destroy$ = new Subject<void>();
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) { }
+
+
+
+
+  // listen to ctrl + c and ctrl + v
   @HostListener('document:keydown', ['$event'])
   handleKeyDownGlobal(event: KeyboardEvent) {
     if (event.ctrlKey && event.key.toLowerCase() === 'c') {
@@ -99,9 +104,9 @@ export class SmartGridSheetComponent {
         this.rowOptions[rowIndex][col.name] = col.options ? [...col.options] : [];
       }
 
-      if (hasAnyValue) {
-        formGroup.get(col.name)?.markAsTouched({ onlySelf: true });
-      }
+      // if (hasAnyValue) {
+      //   formGroup.get(col.name)?.markAsTouched({ onlySelf: true });
+      // }
     }
 
     if (rowData.__errors) {
@@ -174,13 +179,42 @@ export class SmartGridSheetComponent {
   }
 
 
-  isCellInvalid(form: FormGroup, col: TableColumn): boolean {
+  // isCellInvalid(form: FormGroup, col: TableColumn): boolean {
+  //   const ctrl = form.get(col.name);
+  //   return (
+  //     ctrl instanceof FormControl &&
+  //     ctrl.invalid &&
+  //     (!!ctrl.value || ctrl.dirty)
+  //   );
+  // }
+  showValidationErrors = false;
+
+  // isCellInvalid(form: FormGroup, col: TableColumn): boolean {
+  //   if (!this.showValidationErrors) return false;
+
+  //   const ctrl = form.get(col.name);
+  //   return (
+  //     ctrl instanceof FormControl &&
+  //     ctrl.invalid
+  //   );
+  // }
+  // isCellInvalid(form: FormGroup, col: TableColumn, rowIndex: number): boolean {
+  //   if (!this.showValidationErrors) return false;
+  //   if (!this.rowsWithData.has(rowIndex)) return false;
+
+  //   const ctrl = form.get(col.name);
+  //   return !!(ctrl && ctrl.invalid);
+  // }
+  isCellInvalid(form: FormGroup, col: TableColumn, rowIndex: number): boolean {
     const ctrl = form.get(col.name);
-    return (
-      ctrl instanceof FormControl &&
-      ctrl.invalid &&
-      (!!ctrl.value || ctrl.dirty)
-    );
+    if (!ctrl) return false;
+
+    if (ctrl.errors?.['backend']) return true;
+
+    if (!this.showValidationErrors) return false;
+    if (!this.rowsWithData.has(rowIndex)) return false;
+
+    return ctrl.invalid;
   }
 
 
@@ -431,10 +465,9 @@ export class SmartGridSheetComponent {
       }
     }
 
-    // 🧩 أضف هذا الجزء هنا
     const active = document.activeElement as HTMLElement | null;
     if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.isContentEditable)) {
-      active.blur(); // إزالة الفوكس من أي حقل
+      active.blur();
     }
   }
 
@@ -492,9 +525,9 @@ export class SmartGridSheetComponent {
       const control = this.rows()[cell.row].get(cell.col);
       if (control) {
         control.setValue('');
+        control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
         control.markAsPristine();
         control.markAsUntouched();
-        control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
       }
     });
 
@@ -513,42 +546,55 @@ export class SmartGridSheetComponent {
 
 
   // =================== move with arrows ===================
-  
- handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
-  const target = event.target as HTMLElement;
 
-  const isEditable = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
+  handleKeyDown(event: KeyboardEvent, rowIndex: number, colIndex: number) {
+    const target = event.target as HTMLElement;
 
-  switch (event.key) {
-    case 'ArrowUp':
-      if (!isEditable && rowIndex > 0) {
-        this.focusCell(rowIndex - 1, colIndex);
-        event.preventDefault();
-      }
-      break;
+    const isEditable =
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'SELECT';
 
-    case 'ArrowDown':
-      if (!isEditable && rowIndex < this.rows().length - 1) {
-        this.focusCell(rowIndex + 1, colIndex);
-        event.preventDefault();
-      }
-      break;
+    const moveBetweenCells = event.altKey || !isEditable;
 
-    case 'ArrowLeft':
-      if (!isEditable && colIndex > 0) {
-        this.focusCell(rowIndex, colIndex - 1);
-        event.preventDefault();
-      }
-      break;
+    switch (event.key) {
+      case 'ArrowUp':
+        if (moveBetweenCells && rowIndex > 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.focusCell(rowIndex - 1, colIndex);
+        }
+        break;
 
-    case 'ArrowRight':
-      if (!isEditable && colIndex < this.columns.length - 1) {
-        this.focusCell(rowIndex, colIndex + 1);
-        event.preventDefault();
-      }
-      break;
+      case 'ArrowDown':
+        if (moveBetweenCells && rowIndex < this.rows().length - 1) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.focusCell(rowIndex + 1, colIndex);
+        }
+        break;
+
+      case 'ArrowLeft':
+        if (moveBetweenCells && colIndex > 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.focusCell(rowIndex, colIndex - 1);
+        } else if (moveBetweenCells && colIndex === 0) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        break;
+
+      case 'ArrowRight':
+        if (moveBetweenCells && colIndex < this.columns.length - 1) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.focusCell(rowIndex, colIndex + 1);
+        }
+        break;
+    }
   }
-}
+
 
 
   focusCell(row: number, col: number) {
@@ -618,6 +664,18 @@ export class SmartGridSheetComponent {
     this.ErrorPopup = true;
   }
 
+  // onFieldChange(form: FormGroup, colName: string): void {
+  //   const control = form.get(colName);
+  //   if (!control) return;
+
+  //   if (control.errors?.['backend']) {
+  //     const { backend, ...rest } = control.errors;
+  //     control.setErrors(Object.keys(rest).length ? rest : null);
+  //   }
+  // }
+
+
+
   onFieldChange(form: FormGroup, colName: string): void {
     const control = form.get(colName);
     if (!control) return;
@@ -627,6 +685,7 @@ export class SmartGridSheetComponent {
       control.setErrors(Object.keys(rest).length ? rest : null);
     }
   }
+
 
 
   closeErrorPOP() {
@@ -684,6 +743,30 @@ export class SmartGridSheetComponent {
 
     return '';
   }
+
+
+  rowsWithData: Set<number> = new Set();
+  validateFilledRows(): boolean {
+    this.rowsWithData.clear();
+    let allValid = true;
+
+    this.rows().forEach((form: FormGroup, rowIndex: number) => {
+      const hasAnyValue = Object.values(form.getRawValue()).some(v => v !== null && v !== '');
+      if (hasAnyValue) {
+        this.rowsWithData.add(rowIndex);
+        Object.values(form.controls).forEach((control: AbstractControl) => {
+          control.markAsTouched({ onlySelf: true });
+          control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+          if (control.invalid) allValid = false;
+        });
+      }
+    });
+
+    this.showValidationErrors = true;
+    this.cdr.detectChanges();
+    return allValid;
+  }
+
 
 
 
