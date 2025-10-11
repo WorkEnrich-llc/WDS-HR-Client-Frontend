@@ -85,11 +85,12 @@
             <th>Join Date</th>
             <th>Actions</th>
         </ng-template>
-
         <ng-template #employeesTableRow let-employee let-i="index">
             <td class="width-fix">
-                <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-gray-sm">{{ employee?.code}}</span>
+                <!-- <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span> -->
                 <span class="d-block text-truncate" style="max-width: 300px;">
+
                     {{ employee.name }}
                 </span>
             </td>
@@ -176,9 +177,8 @@
             <td>{{employee.joinDate | date:'dd/MM/yyyy'}}</td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
-                    <a [routerLink]="employee.employeeStatus === 'New Joiner' 
-    ? ['/employees/view-newjoiner', employee.id] 
-    : ['/employees/view-employee', employee.id]" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+                    <a (click)="navigateToView(employee)"
+                        class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path
@@ -188,8 +188,8 @@
                         </svg>
                         <span>View</span>
                     </a>
-                    <a [routerLink]="['/employees/edit-employee', employee.id]"
-                        class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
+                    <!-- <a [routerLink]="['/employees/edit-employee', employee.id]" -->
+                    <a (click)="navigateToEdit(employee.id)" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round"
@@ -225,12 +225,12 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form class="w-100 d-flex flex-column gap-3">
+    <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
         <div class="input">
             <label for="status">Status</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="" id="status" class="form-select">
+                    <select formControlName="status" name="status" id="status" class="form-select">
                         <option value="" selected disabled hidden>Select</option>
                         <option value="all">Any</option>
                         <option value="active">Active</option>
@@ -259,7 +259,8 @@
             <label for="createdFrom">Created From</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="date" id="createdFrom" class="form-control custom-date-input" placeholder="Min-Max" />
+                    <input formControlName="created_at" type="date" id="createdFrom"
+                        class="form-control custom-date-input" placeholder="Min-Max" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <path stroke-linecap="round"
