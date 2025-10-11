@@ -8,11 +8,6 @@
           <input type="text" id="code" formControlName="code" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
-        @if (sharedService.isFieldInvalid('code', sharedService.mainInformation)) {
-        <p class="error-msg">
-          {{sharedService.getFieldError('code', sharedService.mainInformation)}}
-        </p>
-        }
       </div>
 
       <div class="input">

@@ -111,7 +111,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
-        code: ['', Validators.required],
+        code: [''],
         name: ['', [Validators.required, fourPartsValidator()]],
         // name: ['', [Validators.required, Validators.minLength(2)]],
         gender: [null, Validators.required],
@@ -678,11 +678,52 @@ export class ManageEmployeeSharedService {
   // }
 
 
-  getFormData() {
+  getFormData(isEditMode: boolean) {
     const formData = this.employeeForm.value;
-    const originalData = this.employeeData();
 
+    if (!isEditMode) {
+      return {
+        request_data: {
+          main_information: {
+            code: formData.main_information.code,
+            name: formData.main_information.name,
+            gender: formData.main_information.gender,
+            mobile: {
+              country_id: formData.main_information.mobile.country_id,
+              number: parseInt(formData.main_information.mobile.number)
+            },
+            personal_email: formData.main_information.personal_email,
+            marital_status: formData.main_information.marital_status,
+            date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
+            address: formData.main_information.address
+          },
+          job_details: {
+            years_of_experience: formData.job_details.years_of_experience,
+            branch_id: formData.job_details.branch_id,
+            department_id: formData.job_details.department_id,
+            section_id: formData.job_details.section_id,
+            job_title_id: formData.job_details.job_title_id,
+            work_schedule_id: formData.attendance_details.work_schedule_id
+          },
+          contract_details: {
+            start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
+            contract_type: formData.contract_details.contract_type,
+            contract_end_date: formData.contract_details.contract_end_date ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
+            employment_type: formData.attendance_details.employment_type,
+            work_mode: formData.attendance_details.work_mode,
+            days_on_site: formData.attendance_details.days_on_site || 0,
+            salary: parseFloat(formData.contract_details.salary.toString()) || 0,
+            insurance_salary: formData.insurance_details?.include_insurance_salary ? parseFloat(formData.insurance_details.insurance_salary) : 0,
+            gross_insurance: formData.insurance_details?.include_gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : 0,
+            notice_period: formData.contract_details.notice_period || 0
+          }
+        }
+      };
+    }
+
+    const originalData = this.employeeData();
     if (!originalData) return null;
+
 
     return {
       request_data: {
