@@ -701,74 +701,40 @@ export class ManageEmployeeSharedService {
           },
           job_details: {
             years_of_experience: formData.job_details.years_of_experience || 0,
-            branch_id: formData.job_info.branch?.id,
-            department_id: formData.job_info.department?.id,
-            section_id: formData.job_info.section?.id,
-            job_title_id: formData.job_info.job_title?.id,
-            work_schedule_id: formData.attendance_details.work_schedule_id,
+            branch_id: parseInt(formData.job_details.branch_id, 10),
+            department_id: parseInt(formData.job_details.department_id, 10),
+            section_id: parseInt(formData.job_details.section_id, 10),
+            job_title_id: parseInt(formData.job_details.job_title_id, 10),
+            work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
             activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
           },
           contract_details: {
             start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
             contract_type: formData.contract_details.contract_type,
-            contract_end_date: formData.contract_details.contract_end_date ? this.formatDateForAPI(formData.contract_details.contract_end_date) : null,
+            contract_end_date: formData.contract_details.contract_type === 1
+              ? formData.contract_details.contract_end_date
+              : null,
             employment_type: formData.attendance_details.employment_type,
             work_mode: formData.attendance_details.work_mode,
-            days_on_site: formData.attendance_details.days_on_site || 0,
-            salary: parseFloat(formData.contract_details.salary.toString()) || 0,
-            insurance_salary: formData.insurance_details?.include_insurance_salary ? parseFloat(formData.insurance_details.insurance_salary) : 0,
-            gross_insurance: formData.insurance_details?.include_gross_insurance_salary ? parseFloat(formData.insurance_details.gross_insurance_salary) : 0,
-            notice_period: formData.contract_details.notice_period || 0
+            days_on_site: formData.attendance_details.days_on_site
+              ? parseInt(formData.attendance_details.days_on_site, 10)
+              : 0,
+            salary: parseFloat(formData.contract_details.salary),
+            insurance_salary: formData.insurance_details.include_insurance_salary
+              ? parseFloat(formData.insurance_details.insurance_salary)
+              : null,
+            gross_insurance: formData.insurance_details.include_gross_insurance_salary
+              ? parseFloat(formData.insurance_details.gross_insurance_salary)
+              : null,
+            notice_period: formData.contract_details.notice_period
+              ? parseInt(formData.contract_details.notice_period, 10)
+              : 0
           }
         }
       };
     }
     const originalData = this.employeeData();
     if (!originalData) return null;
-    // return {
-    //   request_data: {
-    //     id: originalData.id,
-    //     main_information: {
-    //       code: originalData.code || '',
-    //       name_english: originalData.name_english,
-    //       name_arabic: originalData.name_arabic,
-    //       gender: formData.main_information.gender || 1, // Default to 1 (Male) if not provided
-    //       mobile: {
-    //         country_id: formData.main_information.mobile.country_id,
-    //         number: parseInt(formData.main_information.mobile.number)
-    //       },
-    //       personal_email: formData.main_information.personal_email,
-    //       marital_status: formData.main_information.marital_status,
-    //       date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
-    //       address: formData.main_information.address
-    //     },
-    //     job_details: {
-    //       years_of_experience: formData.job_details.years_of_experience,
-    //       branch_id: formData.job_info.branch?.id,
-    //       department_id: formData.job_info.department?.id,
-    //       section_id: formData.job_info.section?.id,
-    //       job_title_id: formData.job_info.job_title?.id,
-    //       work_schedule_id: formData.attendance_details.work_schedule_id || formData.job_info.work_schedule?.id
-    //     },
-    //     contract_details: {
-    //       start_contract: this.formatDateForAPI(formData.job_info.start_contract),
-    //       contract_type: formData.job_info.contract_type?.id || 1, // 1 With End Date, 2 Without End Date
-    //       contract_end_date: formData.job_info.end_contract ? this.formatDateForAPI(formData.job_info.end_contract) : '',
-    //       employment_type: formData.job_info.employment_type?.id || 1, // 1 Full Time, 2 Part Time, 3 Per Hour
-    //       work_mode: formData.job_info.work_mode?.id || 1, // 1 On Site, 2 Remote, 3 Hybrid
-    //       days_on_site: formData.attendance_details.days_on_site || 0,
-    //       salary: formData.job_info.salary ? parseFloat(formData.job_info.salary.toString()) : 0,
-    //       insurance_salary: formData.insurance_details?.include_insurance_salary && formData.insurance_details?.insurance_salary
-    //         ? parseFloat(formData.insurance_details.insurance_salary)
-    //         : (formData.job_info.insurance_salary || 0),
-    //       gross_insurance: formData.insurance_details?.include_gross_insurance_salary && formData.insurance_details?.gross_insurance_salary
-    //         ? parseFloat(formData.insurance_details.gross_insurance_salary)
-    //         : (formData.job_info.gross_insurance || 0),
-    //       notice_period: formData.contract_details.notice_period || 0
-    //     }
-    //   }
-    // };
-
     return {
       request_data: {
         id: originalData.id,
