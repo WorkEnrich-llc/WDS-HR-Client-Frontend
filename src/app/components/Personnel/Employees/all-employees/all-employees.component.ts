@@ -136,7 +136,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   transformEmployeesForDisplay(): void {
     this.filteredEmployees = this.employees.map(employee => ({
       id: employee.id,
+      code: employee.code,
       name: employee.contact_info.name,
+      name_arabic: employee.contact_info.name_arabic,
       employeeStatus: employee.employee_status,
       accountStatus: this.getAccountStatus(employee.employee_active),
       jobTitle: employee.job_info.job_title.name,

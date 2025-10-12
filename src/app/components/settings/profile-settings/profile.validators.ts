@@ -34,3 +34,29 @@ export function fourPartsValidator(): ValidatorFn {
       return null;
    };
 }
+
+export function arabicNameValidator(): ValidatorFn {
+   return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+         return null;
+      }
+
+      const value = control.value.trim();
+
+      const arabicPattern = /^[\u0621-\u064A\s]+$/;
+      if (!arabicPattern.test(value)) {
+         return { invalidCharacters: true };
+      }
+
+      const parts = value.split(/\s+/).filter((part: string | any[]) => part.length > 0);
+      if (parts.length < 4) {
+         return { fourParts: true };
+      }
+
+      if (parts.some((part: string) => part.length < 3)) {
+         return { wordTooShort: true };
+      }
+
+      return null;
+   };
+}

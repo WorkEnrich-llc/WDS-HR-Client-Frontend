@@ -19,12 +19,19 @@ export class MainInformationStepComponent {
 
   constructor() {
     // Add pattern validator for full name: at least four parts (words)
-    const nameControl = this.sharedService.mainInformation.get('name');
-    if (nameControl) {
-      nameControl.addValidators([
+    const nameEnglish = this.sharedService.mainInformation.get('name_english');
+    if (nameEnglish) {
+      nameEnglish.addValidators([
         Validators.pattern(/^(\S+\s+){3,}\S+$/)
       ]);
-      nameControl.updateValueAndValidity();
+      nameEnglish.updateValueAndValidity();
+    }
+    const nameArabic = this.sharedService.mainInformation.get('name_arabic');
+    if (nameArabic) {
+      nameArabic.addValidators([
+        Validators.pattern(/^(\S+\s+){3,}\S+$/)
+      ]);
+      nameArabic.updateValueAndValidity();
     }
   }
 

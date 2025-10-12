@@ -1,9 +1,11 @@
 export interface CreateEmployeeRequest {
   request_data: {
     id?: number;
+
     main_information: {
       code?: string;
-      name: string;
+      name_english?: string;
+      name_arabic?: string;
       gender: number; // 1 - Male, 2 - Female
       mobile: {
         country_id: number;
@@ -48,8 +50,10 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
+  code?: string;
   contact_info: {
     name: string;
+    name_arabic: string;
     mobile: {
       country: {
         id: number;
