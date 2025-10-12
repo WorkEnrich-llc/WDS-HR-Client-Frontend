@@ -5,15 +5,15 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { DelegationService, DelegationItem } from '../../../../core/services/personnel/delegation/delegation.service';
+import { DelegationService, DelegationItem, DelegationFilters } from '../../../../core/services/personnel/delegation/delegation.service';
 
 @Component({
   selector: 'app-all-delegation',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-delegation.component.html',
   styleUrl: './all-delegation.component.css'
@@ -30,8 +30,10 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private fb = inject(FormBuilder);
 
   delegations: DelegationItem[] = [];
+  filters: DelegationFilters = {};
   filteredDelegations: any[] = []; // For display purposes with transformed data
   loadData: boolean = true;
   searchTerm: string = '';
@@ -65,7 +67,17 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
       this.currentPage = 1;
       this.loadDelegations();
     });
+    this.initializeFilterForm();
   }
+
+  initializeFilterForm(): void {
+    this.filterForm = this.fb.group({
+      status: [''],
+      created_from: [''],
+    });
+  }
+
+
 
   loadDelegations(): void {
     this.loading = true;
@@ -126,10 +138,6 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
     });
   }
 
-  resetFilterForm(): void {
-    this.filterBox.closeOverlay();
-    this.loadDelegations();
-  }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -171,6 +179,8 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
     this.deleteDelegation(id);
   }
 
+
+
   // Call service to delete and refresh list
   deleteDelegation(id: number): void {
     this.loading = true;
@@ -180,7 +190,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
         // reload list - ensure we stay on the current page if possible
         this.loadDelegations();
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -188,5 +198,27 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+  }
+
+  applyFilters(): void {
+    this.filters = { ...this.filterForm.value };
+    Object.keys(this.filters).forEach(key => {
+      if (!this.filters[key as keyof DelegationFilters]) {
+        delete this.filters[key as keyof DelegationFilters];
+      }
+    });
+
+    this.currentPage = 1;
+    this.loadDelegations();
+    this.filterBox.closeOverlay();
+  }
+
+
+  resetFilterForm(): void {
+    this.filterForm.reset();
+    this.filters = {};
+    this.currentPage = 1;
+    this.loadDelegations();
+    this.filterBox.closeOverlay();
   }
 }

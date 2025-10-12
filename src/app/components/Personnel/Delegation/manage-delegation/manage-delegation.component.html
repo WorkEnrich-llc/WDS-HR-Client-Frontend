@@ -103,7 +103,7 @@
         <div class="form-outline w-100 position-relative">
           <select id="delegator" class="form-select" formControlName="delegator_id">
             <option value="" disabled selected hidden>Select Delegator</option>
-            <option *ngFor="let employee of employees" [value]="employee.id">
+            <option *ngFor="let employee of delegatorList" [value]="employee.id">
               {{ employee.name }}
             </option>
           </select>
@@ -121,7 +121,7 @@
         <div class="form-outline w-100 position-relative">
           <select id="delegate" class="form-select" formControlName="delegate_id">
             <option value="" disabled selected hidden>Select Delegate</option>
-            <option *ngFor="let employee of employees" [value]="employee.id">
+            <option *ngFor="let employee of delegateList" [value]="employee.id">
               {{ employee.name }}
             </option>
           </select>
@@ -150,7 +150,7 @@
 }
 
 <!-- Success Modal -->
-@if (isSuccessModalOpen) {
+<!-- @if (isSuccessModalOpen) {
 <app-popup [title]="isEditMode ? 'Delegation Updated' : 'Delegation Created'"
   [paragraph1]="isEditMode ? 'The delegation has been updated successfully.' : 'The new delegation has been created successfully.'"
   [isOpen]="isSuccessModalOpen" (close)="closeSuccessModal()">
@@ -163,4 +163,4 @@
     {{ isEditMode ? 'Done' : 'Create Another' }}
   </button>
 </app-popup>
-}
+} -->

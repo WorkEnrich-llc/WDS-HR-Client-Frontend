@@ -34,6 +34,8 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
   employees: any[] = [];
   currentDate = new Date().toISOString().split('T')[0];
   todayFormatted = '';
+  delegatorList: any[] = [];
+  delegateList: any[] = [];
 
   private delegationService = inject(DelegationService);
   private employeeService = inject(EmployeeService);
@@ -97,10 +99,34 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
           id: employee.id,
           name: employee.contact_info.name
         }));
+        this.delegatorList = [...this.employees];
+        this.delegateList = [...this.employees];
+        this.setupDelegationFilters();
       },
+
       error: (error) => {
         console.error('Error loading employees:', error);
         this.toastr.error('Failed to load employees', 'Error');
+      }
+    });
+  }
+
+  setupDelegationFilters(): void {
+    this.delegationForm.get('delegator_id')?.valueChanges.subscribe(selectedId => {
+      this.delegateList = this.employees.filter(emp => emp.id !== +selectedId);
+
+      const delegateId = this.delegationForm.get('delegate_id')?.value;
+      if (delegateId === +selectedId) {
+        this.delegationForm.patchValue({ delegate_id: '' });
+      }
+    });
+
+    this.delegationForm.get('delegate_id')?.valueChanges.subscribe(selectedId => {
+      this.delegatorList = this.employees.filter(emp => emp.id !== +selectedId);
+
+      const delegatorId = this.delegationForm.get('delegator_id')?.value;
+      if (delegatorId === +selectedId) {
+        this.delegationForm.patchValue({ delegator_id: '' });
       }
     });
   }
@@ -154,7 +180,8 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           const message = this.isEditMode ? 'Delegation updated successfully' : 'Delegation created successfully';
           this.toasterMessageService.showSuccess(message);
-          this.openSuccessModal();
+          this.router.navigate(['/delegation']);
+          // this.openSuccessModal();
         },
         error: (error) => { }
       });
