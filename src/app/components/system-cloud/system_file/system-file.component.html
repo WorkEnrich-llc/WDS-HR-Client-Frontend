@@ -250,7 +250,7 @@
 }
   @if (isAllLoaded && !isImported) {
   <app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-    [rowsInput]="bodyRows" [fileEditable]="gridsEditable" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+    [rowsInput]="bodyRows" [fileEditable]="true" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
   </app-smart-grid-sheet>
   }
 
@@ -261,7 +261,7 @@
   }
   @if (isAllLoaded && isImported && activeTab === 'failed') {
   <app-smart-grid-sheet #failedGrid [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows"
-    [fileEditable]="gridsEditable" (inputChanged)="onCellInput()"
+    [fileEditable]="true" (inputChanged)="onCellInput()"
     (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
   </app-smart-grid-sheet>
   }

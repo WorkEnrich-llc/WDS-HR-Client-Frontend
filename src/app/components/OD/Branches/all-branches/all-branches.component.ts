@@ -55,13 +55,13 @@ export class AllBranchesComponent implements OnInit {
   ngOnInit(): void {
     // subscription data
     this.subService.subscription$.subscribe(sub => {
-      this.branchSub = sub?.Job_Titles;
-      // if (this.branchSub) {
-      //   console.log("info:", this.branchSub.info);
-      //   console.log("create:", this.branchSub.create);
-      //   console.log("update:", this.branchSub.update);
-      //   console.log("delete:", this.branchSub.delete);
-      // }
+      this.branchSub = sub?.Branches;
+      if (this.branchSub) {
+        console.log("info:", this.branchSub.info);
+        console.log("create:", this.branchSub.create);
+        console.log("update:", this.branchSub.update);
+        console.log("delete:", this.branchSub.delete);
+      }
     });
 
     this.route.queryParams.subscribe(params => {
