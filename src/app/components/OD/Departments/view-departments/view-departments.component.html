@@ -2,7 +2,10 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Departments', link: '/departments' },
     {  label: 'View Department ' + departmentData?.name }
-  ]" [title]="'View Department - ' + departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+  ]" [title]="'View Department - ' + departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
+
+  @if (!loadData) {
   <button class="btn btn-lg btn-primary" [routerLink]="['/departments/edit', departmentData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -34,12 +37,19 @@
     <span>Deactivate</span>
   </button>
   }
+  }
+
 </app-page-header>
 
 
 <div class="content-hug d-flex flex-column gap-4">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Main Information</h2>
+    @if(loadData) {
+    <app-skelaton-loading class="w-50" [rows]="3" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+    </app-skelaton-loading>
+
+    }@else {
     <div class="info">
       <h6>Department Code</h6>
       <span>{{ departmentData?.id?.toString()?.padStart(4, '0') || 'N/A' }}</span>
@@ -52,13 +62,16 @@
       <h6>Department Objectives</h6>
       @if (departmentData?.objectives) {
       <ul>
-      @for (item of departmentData.objectives.split('\n'); track $index) {
-  <li class="fs-6 lh-base">{{ item }}</li>
-}
+        @for (item of departmentData.objectives.split('\n'); track $index) {
+        <li class="fs-6 lh-base">{{ item }}</li>
+        }
 
       </ul>
       }
     </div>
+    }
+
+
   </div>
 
   <div class="content-box pt-0">
@@ -171,17 +184,17 @@
     </ng-template>
 
 
-    
+
     }
 
 
     @if (activeTab === 'goals') {
-      <h2 class="mb-3">Assigned Goals</h2>
+    <h2 class="mb-3">Assigned Goals</h2>
 
-    <app-table [isLoading]="loadData" [columnsCount]="1" [data]="departmentData.assigned_goals" [totalItems]="totalItemsGoals"
-      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="goalsTableHeader"
-      [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
+    <app-table [isLoading]="loadData" [columnsCount]="1" [data]="departmentData.assigned_goals"
+      [totalItems]="totalItemsGoals" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
+      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+      [headerTemplate]="goalsTableHeader" [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
 
     <ng-template #goalsTableHeader>
       <th style="cursor: pointer;">

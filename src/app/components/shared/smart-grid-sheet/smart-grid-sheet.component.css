@@ -58,7 +58,7 @@ input:focus {
 
 input,
 select {
-    min-width: 300px !important;
+    min-width: 250px !important;
     width: max-content !important;
 }
 

@@ -1,0 +1,12 @@
+<div class="skeleton-container">
+  @for (i of [].constructor(rows); track $index) {
+    <ng-container>
+      <div class="skeleton-row">
+        @if (hasLabel) {
+          <div class="skeleton-loading label" [style.height.px]="labelHeight"></div>
+        }
+        <div class="skeleton-loading value" [style.height.px]="valueHeight"></div>
+      </div>
+    </ng-container>
+  }
+</div>
