@@ -387,7 +387,7 @@ export class SystemFileComponent implements OnInit {
 
   addingTosystem(): void {
     this.errMsg = '';
-     this.gridsEditable = false;
+    this.gridsEditable = false;
     this.addTosystemPOP = false;
     this.upLoading = true;
     const formData = new FormData();
@@ -406,6 +406,9 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.gridsEditable = true;
+        this.upLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -417,6 +420,7 @@ export class SystemFileComponent implements OnInit {
       this.percentage = 0;
       this.uploadType = 'Pending';
       this.upLoading = true;
+      this.gridsEditable = false;
     }
 
     let firstValidResponseSeen = false;
@@ -490,6 +494,8 @@ export class SystemFileComponent implements OnInit {
 
             this.loadData = false;
             this.isAllLoaded = true;
+            this.gridsEditable = true;
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {
@@ -497,7 +503,9 @@ export class SystemFileComponent implements OnInit {
           this.upLoading = false;
           this.stopUploadTracking();
           this.loadData = false;
+          this.gridsEditable = true;
           this.isAllLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -546,10 +554,10 @@ export class SystemFileComponent implements OnInit {
   }
 
   missingRowsData: any[] = [];
-  
+
   updateMissing(): void {
     this.addTosystemPOP = false;
-     this.gridsEditable = false;
+    this.gridsEditable = false;
     this.upLoading = true;
     this.addMissingPopup = false;
     this.cdr.detectChanges();
@@ -619,6 +627,8 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.gridsEditable = true;
+        this.cdr.detectChanges();
       }
     });
   }

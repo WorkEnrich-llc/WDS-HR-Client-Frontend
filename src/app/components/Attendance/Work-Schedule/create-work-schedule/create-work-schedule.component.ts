@@ -82,38 +82,44 @@ export class CreateWorkScheduleComponent {
   }
 
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        this.totalpages = response.data.total_pages;
-        // console.log(response.data.list_items)
-        this.departments = response.data.list_items.map((item: any) => {
-          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+    search: searchTerm || undefined,
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+      this.totalpages = response.data.total_pages;
 
-          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
-            ...section,
-            selected: false
-          }));
+      const activeDepartments = response.data.list_items.filter(
+        (item: any) => item.is_active === true
+      );
 
-          return {
-            id: item.id,
-            name: item.name,
-            create: item.created_at,
-            sectionsCount: sectionsWithSelection.length,
-            sections: sectionsWithSelection,
-            selected: isSelected
-          };
-        });
-        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+      this.departments = activeDepartments.map((item: any) => {
+        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+
+        const sectionsWithSelection = (item.sections || []).map((section: any) => ({
+          ...section,
+          selected: false
+        }));
+
+        return {
+          id: item.id,
+          name: item.name,
+          create: item.created_at, 
+          sectionsCount: sectionsWithSelection.length,
+          sections: sectionsWithSelection,
+          selected: isSelected
+        };
+      });
+
+      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
+
 
   //checkboxes 
   toggleSelectAll() {

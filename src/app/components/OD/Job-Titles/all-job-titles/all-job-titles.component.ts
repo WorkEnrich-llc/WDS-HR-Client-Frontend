@@ -10,6 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-all-job-titles',
@@ -25,7 +26,7 @@ export class AllJobTitlesComponent {
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder) { }
+    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder,private subService: SubscriptionService) { }
   departments: any[] = [];
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
@@ -36,8 +37,21 @@ export class AllJobTitlesComponent {
   currentFilters: any = {};
   currentSearchTerm: string = '';
 
-
+    jobTitleSub: any;
   ngOnInit(): void {
+
+      // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
+
     this.getAllDepartment(1);
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;

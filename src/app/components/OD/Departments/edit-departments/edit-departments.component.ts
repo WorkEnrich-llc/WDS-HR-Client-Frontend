@@ -15,7 +15,7 @@ import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading
 
 @Component({
   selector: 'app-edit-departments',
-  imports: [PageHeaderComponent, CommonModule,SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
   providers: [DatePipe],
   templateUrl: './edit-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-departments.component.css'],
@@ -48,8 +48,21 @@ export class EditDepartmentsComponent implements OnInit {
   isLoading: boolean = false;
   deptStep2: FormGroup;
   loadData: boolean = false;
+
+
+  departmentsSub: any;
   ngOnInit(): void {
 
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.departmentsSub = sub?.Departments;
+      // if (this.departmentsSub) {
+      //   console.log("info:", this.departmentsSub.info);
+      //   console.log("create:", this.departmentsSub.create);
+      //   console.log("update:", this.departmentsSub.update);
+      //   console.log("delete:", this.departmentsSub.delete);
+      // }
+    });
     this.deptId = this.route.snapshot.paramMap.get('id');
     if (this.deptId) {
       this.getDepartment(Number(this.deptId));
@@ -252,7 +265,7 @@ export class EditDepartmentsComponent implements OnInit {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  
+
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -260,7 +273,7 @@ export class EditDepartmentsComponent implements OnInit {
 
 
   getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
-  
+
     const goalType = this.deptStep1.get('department_type')?.value;
 
     this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
@@ -286,9 +299,9 @@ export class EditDepartmentsComponent implements OnInit {
       }
     });
   }
-onDepartmentTypeChange(): void {
-  this.addedGoal = [];
-}
+  onDepartmentTypeChange(): void {
+    this.addedGoal = [];
+  }
 
   //checkboxes 
   toggleSelectAll() {
@@ -304,12 +317,12 @@ onDepartmentTypeChange(): void {
   }
 
   toggleGoal(goal: any) {
-  if (!goal.selected) {
-    this.selectAllAdded = false;
-  } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
-    this.selectAllAdded = true;
+    if (!goal.selected) {
+      this.selectAllAdded = false;
+    } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
+      this.selectAllAdded = true;
+    }
   }
-}
 
 
   onItemsPerPageChange(newItemsPerPage: number) {

@@ -42,6 +42,7 @@
       </div>
 
       <!-- New Branch button -->
+      @if(branchSub?.create){ 
       <button class="btn btn-lg btn-primary" routerLink="/branches/create">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="#ffffff" stroke-width="1.5">
@@ -51,6 +52,8 @@
         </svg>
         <span>New Branch</span>
       </button>
+
+      }
 
     </div>
 
@@ -133,6 +136,7 @@
             </svg>
             <span>View</span>
           </a>
+          @if(branchSub?.update){
           <a [routerLink]="['/branches/edit', branch.id]" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -144,6 +148,8 @@
             </svg>
             <span>Edit</span>
           </a>
+          }
+
         </div>
 
       </td>

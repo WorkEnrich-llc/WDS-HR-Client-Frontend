@@ -3,9 +3,9 @@
     { label: 'Operational Development', link: '/departments' },
     { label: 'Department Checklist' }
   ]" title="Department Checklist">
+    @if (!loadData) {
     <button class="btn btn-lg btn-primary" routerLink="/dept-check/edit-checklist">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-            viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
                     d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
@@ -15,25 +15,29 @@
         </svg>
         <span>Edit checklist</span>
     </button>
- 
+
+    }
+
 </app-page-header>
 
 <!-- page content -->
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Checklist</h2>
-        
-
+        @if(loadData) {
+              <app-skelaton-loading [rows]="2" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
+    </app-skelaton-loading>
+        }@else {
         @if (checks.length > 0) {
         <div class="checks">
-            
+
 
             @for (check of checks; track $index; let i = $index) {
-            <label class="onecheck d-flex align-items-center justify-content-between" >
+            <label class="onecheck d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
                     <span class="number">{{$index + 1 }}</span>
                     <p class="m-0">{{ check.name }}</p>
-                    
+
 
                 </div>
             </label>
@@ -44,6 +48,9 @@
         }@else{
         <p class="text-secondary m-0">No checks available.</p>
         }
+        }
+
+
 
     </div>
 </div>
@@ -51,7 +58,8 @@
 
 
 <!-- deactivate popup  -->
-<app-popup [title]="'Deactivate Department Checklist'" [paragraph1]="'Are you sure you want to Deactivate the Department Checklist ?'"
+<app-popup [title]="'Deactivate Department Checklist'"
+    [paragraph1]="'Are you sure you want to Deactivate the Department Checklist ?'"
     [paragraph2]="'This will only hold any access this title has to the system. You can activate it at any time later.'"
     [isOpen]="deactivateOpen" (close)="closeDeactivate()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()">
@@ -67,7 +75,8 @@
 </app-popup>
 
 <!-- activate popup  -->
-<app-popup [title]="'Activate Department Checklist'" [paragraph1]="'Are you sure you want to Activate the Department Checklist ?'"
+<app-popup [title]="'Activate Department Checklist'"
+    [paragraph1]="'Are you sure you want to Activate the Department Checklist ?'"
     [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
     <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

@@ -10,6 +10,7 @@ import { BranchesService } from '../../../../core/services/od/branches/branches.
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 interface Branch {
   id: number;
@@ -37,7 +38,7 @@ export class AllBranchesComponent implements OnInit {
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private _BranchesService: BranchesService, private datePipe: DatePipe, private fb: FormBuilder) { }
+    private _BranchesService: BranchesService, private datePipe: DatePipe, private fb: FormBuilder, private subService: SubscriptionService) { }
 
   branches: any[] = [];
   sortDirection: string = 'asc';
@@ -49,8 +50,20 @@ export class AllBranchesComponent implements OnInit {
   currentSearchTerm: string = '';
 
 
+  branchSub: any;
 
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Job_Titles;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
       this.getAllBranches(this.currentPage);
@@ -125,28 +138,28 @@ export class AllBranchesComponent implements OnInit {
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
-filter(): void {
-  if (this.filterForm.valid) {
-    const rawFilters = this.filterForm.value;
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
 
-    const filters = {
-      status: rawFilters.status || undefined,
-      updated_from: rawFilters.updatedFrom || undefined,
-      updated_to: rawFilters.updatedTo || undefined,
-      created_from: rawFilters.createdFrom || undefined,
-      created_to: rawFilters.createdTo || undefined,
-      min_employees: rawFilters.min_employees ? Number(rawFilters.min_employees) : undefined,
-      max_employees: rawFilters.max_employees ? Number(rawFilters.max_employees) : undefined,
-      branch: rawFilters.branch || undefined,
-    };
+      const filters = {
+        status: rawFilters.status || undefined,
+        updated_from: rawFilters.updatedFrom || undefined,
+        updated_to: rawFilters.updatedTo || undefined,
+        created_from: rawFilters.createdFrom || undefined,
+        created_to: rawFilters.createdTo || undefined,
+        min_employees: rawFilters.min_employees ? Number(rawFilters.min_employees) : undefined,
+        max_employees: rawFilters.max_employees ? Number(rawFilters.max_employees) : undefined,
+        branch: rawFilters.branch || undefined,
+      };
 
-    this.currentFilters = filters;
+      this.currentFilters = filters;
 
-    this.currentPage = 1;
-    this.filterBox.closeOverlay();
-    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+      this.currentPage = 1;
+      this.filterBox.closeOverlay();
+      this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    }
   }
-}
 
 
 

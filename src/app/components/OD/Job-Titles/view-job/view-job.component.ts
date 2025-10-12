@@ -4,10 +4,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { DatePipe } from '@angular/common';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 
 @Component({
   selector: 'app-view-job',
-  imports: [PageHeaderComponent, RouterLink, PopupComponent],
+  imports: [PageHeaderComponent, RouterLink,SkelatonLoadingComponent, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-job.component.html',
   styleUrl: './view-job.component.css'
@@ -27,8 +28,9 @@ export class ViewJobComponent {
     }
   }
 
+  loadData:boolean=false;
   getJobTitle(jobId: number) {
-
+    this.loadData=true;
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
@@ -45,9 +47,11 @@ export class ViewJobComponent {
 
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.loadData=false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData=false;
       }
     });
   }
