@@ -11,13 +11,14 @@ import { catchError, forkJoin, map, of } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
-import { fourPartsValidator } from 'app/components/settings/profile-settings/profile.validators';
+import { arabicNameValidator, fourPartsValidator } from 'app/components/settings/profile-settings/profile.validators';
 import { CustomValidators } from 'app/core/validators/custom-validators';
 
 // Error message mapping
 const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
-  'name': 'Name',
-  'email': 'Gender',
+  'name_english': 'Name',
+  'name_arabic': 'Name',
+  'email': 'Email',
   'mobile': 'Mobile',
   'personal_email': 'Personal Email',
   'marital_status': 'Marital Status',
@@ -113,7 +114,8 @@ export class ManageEmployeeSharedService {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
         code: [''],
-        name: ['', [Validators.required, fourPartsValidator()]],
+        name_english: ['', [Validators.required, fourPartsValidator()]],
+        name_arabic: ['', [Validators.required, arabicNameValidator()]],
         // name: ['', [Validators.required, Validators.minLength(2)]],
         gender: [null, Validators.required],
         mobile: this.fb.group({
@@ -224,8 +226,10 @@ export class ManageEmployeeSharedService {
     const options = { emitEvent: false };
 
     this.mainInformation.patchValue({
-      code: data.id.toString(),
-      name: data.contact_info.name,
+      code: data.code,
+      // code: data.id.toString(),
+      name_english: data.contact_info.name,
+      name_arabic: data.contact_info.name_arabic,
       gender: data.contact_info.gender?.id || null,
       mobile: {
         country_id: data.contact_info.mobile?.country?.id || 1,
@@ -298,26 +302,6 @@ export class ManageEmployeeSharedService {
       }
       endDateControl?.updateValueAndValidity();
     });
-
-    // Watch for work mode changes to handle days on site requirement
-    // this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workMode: any) => {
-    //   const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
-    //   if (workMode === 3) { // Hybrid
-    //     daysOnSiteControl?.enable({ emitEvent: false });
-    //     daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
-    //   } else if (workMode === 1) { // On site
-    //     daysOnSiteControl?.enable({ emitEvent: false });
-    //     daysOnSiteControl?.setValue(7);
-    //     daysOnSiteControl?.clearValidators();
-    //   } else { // Remote
-    //     daysOnSiteControl?.enable({ emitEvent: false });
-    //     daysOnSiteControl?.setValue(0);
-    //     daysOnSiteControl?.clearValidators();
-    //   }
-    //   // daysOnSiteControl?.updateValueAndValidity();
-    //   daysOnSiteControl?.updateValueAndValidity({ emitEvent: false });
-    // });
-
 
     // Watch for work mode changes to handle days on site requirement
     this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workModeId: any) => {
@@ -533,17 +517,31 @@ export class ManageEmployeeSharedService {
     const displayName = this.getDisplayName(fieldName)
 
     if (field && field.errors && (field.dirty || field.touched)) {
+
       if (field.errors['required']) return `${displayName} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
+      // if (field.errors['pattern']) return 'Please enter a valid format';
       if (field.errors['minlength']) return `Minimum length is ${field.errors['minlength'].requiredLength}`;
       if (field.errors['maxlength']) return `Maximum length is ${field.errors['maxlength'].requiredLength}`;
-      if (field.errors['pattern']) return 'Number must start with 10, 11, 12, or 15';
       if (field.errors['min']) return `Minimum value is ${field.errors['min'].min}`;
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
       if (field.errors['invalidCharacters']) return `${displayName} cannot contain special characters`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
+      if (field.errors['pattern']) {
+        if (fieldName === 'name_english' || fieldName === 'name_arabic') {
+          return 'Please enter a valid format';
+        }
+        return `${displayName} format is incorrect`;
+      }
+
+      if (field.errors['pattern']) {
+        if (fieldName === 'number' || fieldName.endsWith('.number')) {
+          return 'Number must start with 10, 11, 12, or 15';
+        }
+        return `${displayName} format is incorrect`;
+      }
     }
 
     if (fieldName === 'contract_end_date' && group.errors && group.errors['dateRange']) {
@@ -683,14 +681,67 @@ export class ManageEmployeeSharedService {
 
   getFormData(isEditMode: boolean) {
     const formData = this.employeeForm.value;
+
+    if (!isEditMode) {
+      return {
+        request_data: {
+          main_information: {
+            code: formData.main_information.code,
+            name_english: formData.main_information.name_english,
+            name_arabic: formData.main_information.name_arabic,
+            gender: formData.main_information.gender,
+            mobile: {
+              country_id: formData.main_information.mobile.country_id,
+              number: parseInt(formData.main_information.mobile.number)
+            },
+            personal_email: formData.main_information.personal_email,
+            marital_status: formData.main_information.marital_status,
+            date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
+            address: formData.main_information.address
+          },
+          job_details: {
+            years_of_experience: formData.job_details.years_of_experience || 0,
+            branch_id: parseInt(formData.job_details.branch_id, 10),
+            department_id: parseInt(formData.job_details.department_id, 10),
+            section_id: parseInt(formData.job_details.section_id, 10),
+            job_title_id: parseInt(formData.job_details.job_title_id, 10),
+            work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+            activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
+          },
+          contract_details: {
+            start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
+            contract_type: formData.contract_details.contract_type,
+            contract_end_date: formData.contract_details.contract_type === 1
+              ? formData.contract_details.contract_end_date
+              : null,
+            employment_type: formData.attendance_details.employment_type,
+            work_mode: formData.attendance_details.work_mode,
+            days_on_site: formData.attendance_details.days_on_site
+              ? parseInt(formData.attendance_details.days_on_site, 10)
+              : 0,
+            salary: parseFloat(formData.contract_details.salary),
+            insurance_salary: formData.insurance_details.include_insurance_salary
+              ? parseFloat(formData.insurance_details.insurance_salary)
+              : null,
+            gross_insurance: formData.insurance_details.include_gross_insurance_salary
+              ? parseFloat(formData.insurance_details.gross_insurance_salary)
+              : null,
+            notice_period: formData.contract_details.notice_period
+              ? parseInt(formData.contract_details.notice_period, 10)
+              : 0
+          }
+        }
+      };
+    }
     const originalData = this.employeeData();
     if (!originalData) return null;
     return {
       request_data: {
         id: originalData.id,
         main_information: {
-          code: formData.main_information.code || originalData.id.toString(),
-          name: formData.main_information.name,
+          code: formData.main_information.code || '',
+          name_english: formData.main_information.name_english,
+          name_arabic: formData.main_information.name_arabic,
           gender: formData.main_information.gender || 1, // Default to 1 (Male) if not provided
           mobile: {
             country_id: formData.main_information.mobile.country_id,
@@ -702,12 +753,13 @@ export class ManageEmployeeSharedService {
           address: formData.main_information.address
         },
         job_details: {
-          years_of_experience: formData.job_details.years_of_experience,
+          years_of_experience: formData.job_details.years_of_experience || 0,
           branch_id: originalData.job_info.branch?.id,
           department_id: originalData.job_info.department?.id,
           section_id: originalData.job_info.section?.id,
           job_title_id: originalData.job_info.job_title?.id,
-          work_schedule_id: formData.attendance_details.work_schedule_id || originalData.job_info.work_schedule?.id
+          work_schedule_id: formData.attendance_details.work_schedule_id || originalData.job_info.work_schedule?.id,
+          activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
         },
         contract_details: {
           start_contract: this.formatDateForAPI(originalData.job_info.start_contract),
@@ -727,6 +779,7 @@ export class ManageEmployeeSharedService {
         }
       }
     };
+
   }
 
 

@@ -11,14 +11,27 @@
       </div>
 
       <div class="input">
-        <label for="name">Full Name <span>*</span></label>
+        <label for="name_english">Full Name(English) <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="text" id="name" formControlName="name" class="form-control custom-date-input"
+          <input type="text" id="name_english" formControlName="name_english" class="form-control custom-date-input"
             placeholder="Full name must contain at least four parts" />
         </div>
-        @if (sharedService.isFieldInvalid('name', sharedService.mainInformation)) {
+        @if (sharedService.isFieldInvalid('name_english', sharedService.mainInformation)) {
         <p class="error-msg">
-          {{sharedService.getFieldError('name', sharedService.mainInformation)}}
+          {{sharedService.getFieldError('name_english', sharedService.mainInformation)}}
+        </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="name_arabic">Full Name(Arabic) <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="text" id="name_arabic" formControlName="name_arabic" class="form-control custom-date-input"
+            placeholder="الاسم يتكون من أربعة أجزاء باللغة العربية " dir="rtl" />
+        </div>
+        @if (sharedService.isFieldInvalid('name_arabic', sharedService.mainInformation)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('name_arabic', sharedService.mainInformation)}}
         </p>
         }
       </div>
