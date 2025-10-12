@@ -3,6 +3,28 @@ export interface ApprovalRequestStatus {
   name: string;
 }
 
+export interface ContactInformation {
+  id: number;
+  name: string;
+  phone: number;
+  email: string;
+}
+
+export interface LeaveInfo {
+  id: number | string;
+  code: string;
+  name: string;
+}
+
+export interface PermissionInfo {
+  late_arrive: boolean;
+  early_leave: boolean;
+}
+
+
+
+
+
 export interface EmployeeInfo {
   id: number;
   name: string;
@@ -30,6 +52,10 @@ export interface ApprovalRequestItem {
   id: number;
   code: string;
   name: string;
+  work_type: string;
+  permission: PermissionInfo;
+  leave: LeaveInfo;
+  contact_information: ContactInformation;
   employee_info: EmployeeInfo;
   reason: ReasonInfo;
   dates: DateRange;

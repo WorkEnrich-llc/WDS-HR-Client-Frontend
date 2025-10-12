@@ -21,8 +21,8 @@ import { ApprovalRequestItem, ApprovalRequestFilters } from '../../../../core/in
 export class AllRequestsComponent {
   filterForm!: FormGroup;
   constructor(
-    private route: ActivatedRoute, 
-    private toasterMessageService: ToasterMessageService, 
+    private route: ActivatedRoute,
+    private toasterMessageService: ToasterMessageService,
     private toastr: ToastrService,
     private fb: FormBuilder,
     private approvalRequestsService: ApprovalRequestsService
@@ -41,7 +41,7 @@ export class AllRequestsComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
-  
+
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
@@ -89,7 +89,7 @@ export class AllRequestsComponent {
 
   loadApprovalRequests(): void {
     this.loading = true;
-    
+
     this.approvalRequestsService.getAllApprovalRequests(
       this.currentPage,
       this.itemsPerPage,
@@ -116,7 +116,7 @@ export class AllRequestsComponent {
         delete this.filters[key as keyof ApprovalRequestFilters];
       }
     });
-    
+
     this.currentPage = 1;
     this.loadApprovalRequests();
     this.filterBox.closeOverlay();
@@ -160,7 +160,7 @@ export class AllRequestsComponent {
 
   // Helper methods to access nested properties for template
   getEmployeeName(request: ApprovalRequestItem): string {
-    return request.employee_info?.name || 'N/A';
+    return request.contact_information?.name || 'N/A';
   }
 
   getEmployeeJobTitle(request: ApprovalRequestItem): string {
@@ -184,5 +184,28 @@ export class AllRequestsComponent {
 
   getFormattedDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
+  }
+
+
+  getWorkTypeDisplay(request: ApprovalRequestItem): string {
+    switch (request.work_type) {
+
+      case 'overtime':
+        return 'Overtime';
+
+      case 'leave':
+        return request.leave?.name || 'Leave';
+      case 'permission':
+        if (request.permission?.late_arrive) {
+          return 'Late Arrive';
+        }
+        if (request.permission?.early_leave) {
+          return 'Early Leave';
+        }
+        return 'Permission';
+
+      default:
+        return request.work_type || 'N/A';
+    }
   }
 }
