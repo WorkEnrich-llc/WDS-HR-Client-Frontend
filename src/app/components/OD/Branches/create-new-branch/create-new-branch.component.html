@@ -4,6 +4,7 @@
     { label: 'Branches', link: '/branches' },
     { label: 'Create New Branch' }
   ]" title="Create New Branch" [create]="todayFormatted">
+    @if(branchSub?.create){
     <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
         (click)="createBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -15,6 +16,8 @@
         </svg>
         <span>Create Branch</span>
     </button>
+
+    }
 
     <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -134,10 +137,12 @@
                     <input type="text" formControlName="code" id="branchCode" class="form-control custom-date-input"
                         placeholder="Enter Code" maxlength="26" pattern="[A-Za-z0-9]*" />
                 </div>
-                <p class="error-msg" *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['maxlength']">
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['maxlength']">
                     Branch Code cannot exceed 26 characters.
                 </p>
-                <p class="error-msg" *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['pattern']">
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('code')?.touched && branchStep1.get('code')?.errors?.['pattern']">
                     Branch Code must contain letters and numbers only.
                 </p>
             </div>
@@ -154,7 +159,7 @@
                 </p>
                 <p class="error-msg"
                     *ngIf="branchStep1.get('name')?.touched && branchStep1.get('name')?.errors?.['maxlength']">
-                    Branch Name cannot exceed 81 characters.
+                    Branch Name cannot exceed 80 characters.
                 </p>
             </div>
 
@@ -536,6 +541,7 @@
                     stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
             </svg>
         </button>
+        @if(branchSub?.create){
         <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
             (click)="createBranch()">
             <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -547,6 +553,8 @@
             </svg>
             <span>Create Branch</span>
         </button>
+        }
+
     </div>
 </div>
 

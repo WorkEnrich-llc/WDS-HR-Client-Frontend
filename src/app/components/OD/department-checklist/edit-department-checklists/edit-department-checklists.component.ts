@@ -3,6 +3,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
 
 interface CheckItem {
@@ -17,7 +18,7 @@ interface CheckItem {
 
 @Component({
   selector: 'app-edit-department-checklists',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule],
+  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule,SkelatonLoadingComponent],
   templateUrl: './edit-department-checklists.component.html',
   styleUrl: './edit-department-checklists.component.css',
   encapsulation: ViewEncapsulation.None
@@ -47,7 +48,10 @@ export class EditDepartmentChecklistsComponent {
     this.getDepartmetCheck();
   }
 
+  loadData:boolean=false;
+
   getDepartmetCheck() {
+    this.loadData=true;
     this.departmentChecklistService.getDepartmetChecks().subscribe({
       next: (response) => {
         const list = response.data.list_items || [];
@@ -63,9 +67,11 @@ export class EditDepartmentChecklistsComponent {
           completed: false,
           editing: false
         }));
+        this.loadData=false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData=false;
       }
     });
   }

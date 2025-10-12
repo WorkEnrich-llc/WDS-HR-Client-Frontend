@@ -10,6 +10,8 @@ import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, Subject } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -35,7 +37,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-edit-job',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent],
   providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
@@ -64,14 +66,29 @@ export class EditJobComponent {
     private _JobsService: JobsService,
     private datePipe: DatePipe,
     private router: Router,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private subService: SubscriptionService
+  ) {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
 
   }
 
+
+  jobTitleSub: any;
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
     this.jobId = this.route.snapshot.paramMap.get('id');
     if (this.jobId) {
       this.getJobTitle(Number(this.jobId));
@@ -95,8 +112,8 @@ export class EditJobComponent {
   }
 
   jobStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    jobName: new FormControl('', [Validators.required]),
+    code: new FormControl('',Validators.maxLength(26)),
+    jobName: new FormControl('', [Validators.required,Validators.maxLength(80)]),
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
@@ -110,7 +127,9 @@ export class EditJobComponent {
     enable ? control?.enable() : control?.disable();
   }
 
+  loadData: boolean = false;
   getJobTitle(jobId: number) {
+    this.loadData = true;
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
@@ -181,9 +200,11 @@ export class EditJobComponent {
         };
         this.sortDirection = 'desc';
         this.sortBy();
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
@@ -255,37 +276,38 @@ export class EditJobComponent {
   isSectionSelected: boolean = false;
   showJobLevel: boolean = true;
 
-  onLevelChange() {
+onLevelChange() {
     const level = this.jobStep1.get('managementLevel')?.value;
 
     const jobLevelControl = this.jobStep1.get('jobLevel');
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
-    // Reset validation and disable jobLevel, department, section
+    departmentControl?.reset('');
+    sectionControl?.reset('');
+
+    this.sections = [];
+
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
 
-    // Disable department and section by default
     departmentControl?.disable();
     sectionControl?.disable();
 
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    // Always show Job Level field
     this.showJobLevel = true;
     jobLevelControl?.enable();
     jobLevelControl?.setValidators([Validators.required]);
 
     if (level === '3') {
-      // Enable department only
       departmentControl?.enable();
       departmentControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
     } else if (level === '4' || level === '5') {
-      // Enable both
+
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
@@ -294,11 +316,11 @@ export class EditJobComponent {
       this.isSectionSelected = true;
     }
 
-    // Update validity for all affected controls
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
   }
+
 
 
 

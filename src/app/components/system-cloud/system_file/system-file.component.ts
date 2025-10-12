@@ -36,7 +36,10 @@ export class SystemFileComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
-  @ViewChild(SmartGridSheetComponent) smartGrid!: SmartGridSheetComponent;
+  @ViewChild('smartGrid') smartGrid!: SmartGridSheetComponent;
+  @ViewChild('mainGrid') mainGrid!: SmartGridSheetComponent;
+  @ViewChild('failedGrid') failedGrid!: SmartGridSheetComponent;
+
   errMsg: string = '';
   isLoading = false;
   uploadSub!: Subscription;
@@ -262,12 +265,103 @@ export class SystemFileComponent implements OnInit {
         type,
         validators,
         errorMessage,
+        required: !!header.required,
         editable: isFailedTable ? true : (this.fileEditable ? header.editable : false),
         ...(options ? { options } : {}),
         reliability: header.reliability ?? undefined,
         rawData: header.data,
       };
     });
+  }
+
+
+  private showErrorToast(message: string) {
+    const toast = document.createElement('div');
+    toast.innerText = message;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.background = '#b83d4a';
+    toast.style.color = 'white';
+    toast.style.padding = '10px 16px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+    toast.style.zIndex = '9999';
+    toast.style.fontSize = '16px';
+    toast.style.fontWeight = '600';
+    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    toast.style.transform = 'translateY(-20px)';
+    toast.style.opacity = '0';
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+    }, 10);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  private validateBeforeAction(rowsArray: any[]): boolean {
+    if (!rowsArray || rowsArray.length === 0) return true;
+
+    const gridIsValid = (this.smartGrid as any)?.validateFilledRows?.() ?? true;
+    if (!gridIsValid) {
+      this.showErrorToast('Please correct the errors first');
+      return false;
+    }
+
+    let hasBackendErrors = false;
+    rowsArray.forEach((row: any, rowIndex: number) => {
+      if (row.__errors && Object.keys(row.__errors).length > 0) {
+        hasBackendErrors = true;
+        if (this.smartGrid && typeof (this.smartGrid as any).applyBackendErrors === 'function') {
+          (this.smartGrid as any).applyBackendErrors(rowIndex, row.__errors);
+        }
+      }
+    });
+
+    if (hasBackendErrors) {
+      this.showErrorToast('Please correct the errors first');
+      return false;
+    }
+
+    return true;
+  }
+
+  openModalAddtosystem() {
+    const isGridValid = this.mainGrid?.validateFilledRows?.() ?? true;
+    const isBodyRowsValid = this.validateBeforeAction(this.bodyRows);
+
+    if (isGridValid && isBodyRowsValid) {
+      this.addTosystemPOP = true;
+    } else {
+      this.showErrorToast('Please fix highlighted errors before continuing.');
+    }
+  }
+
+  closeModalAddtosystem() {
+    this.addTosystemPOP = false;
+  }
+
+  openModalMissing() {
+    // const isGridValid = this.failedGrid?.validateFilledRows?.() ?? true;
+    const isFailedValid = this.validateBeforeAction(this.failedRows);
+
+    if (isFailedValid) {
+      this.addMissingPopup = true;
+    } else {
+      this.showErrorToast('Please fix highlighted errors before continuing.');
+    }
+  }
+
+
+  closeModalMissing() {
+    this.addMissingPopup = false;
   }
 
 
@@ -287,32 +381,22 @@ export class SystemFileComponent implements OnInit {
   showUploadPopup: boolean = false;
   addMissingPopup: boolean = false;
   showMissingPopup: boolean = false;
-  openModalAddtosystem() {
-    this.addTosystemPOP = true;
-  }
 
-  closeModalAddtosystem() {
-    this.addTosystemPOP = false;
-  }
-  openModalMissing() {
-    this.addMissingPopup = true;
-  }
 
-  closeModalMissing() {
-    this.addMissingPopup = false;
-  }
+  gridsEditable: boolean = true;
 
   addingTosystem(): void {
     this.errMsg = '';
+    this.gridsEditable = false;
+    this.addTosystemPOP = false;
     this.upLoading = true;
     const formData = new FormData();
     formData.append('id', this.SystemFileId ?? '');
     formData.append('file_type', '1');
-
+    this.cdr.detectChanges();
     this._systemCloudService.addToSyatem(formData).subscribe({
       next: (response) => {
         // console.log('Added successfully:', response);
-        this.addTosystemPOP = false;
         // this.showUploadPopup = true;
         if (this.SystemFileId) {
           this.startUploadTracking(this.SystemFileId);
@@ -322,6 +406,9 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.gridsEditable = true;
+        this.upLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -333,6 +420,7 @@ export class SystemFileComponent implements OnInit {
       this.percentage = 0;
       this.uploadType = 'Pending';
       this.upLoading = true;
+      this.gridsEditable = false;
     }
 
     let firstValidResponseSeen = false;
@@ -367,7 +455,7 @@ export class SystemFileComponent implements OnInit {
               this.upLoading = false;
               this.uploadType = 'Pending';
               this.percentage = 0;
-
+              this.gridsEditable = true;
               this.cdr.detectChanges();
             }, 4000);
 
@@ -406,6 +494,8 @@ export class SystemFileComponent implements OnInit {
 
             this.loadData = false;
             this.isAllLoaded = true;
+            this.gridsEditable = true;
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {
@@ -413,7 +503,9 @@ export class SystemFileComponent implements OnInit {
           this.upLoading = false;
           this.stopUploadTracking();
           this.loadData = false;
+          this.gridsEditable = true;
           this.isAllLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -421,33 +513,33 @@ export class SystemFileComponent implements OnInit {
 
 
   private markFailedRowsAsTouched(rows: any[]): any[] {
-  return rows.map(row => {
-    const newRow: any = { ...row };
+    return rows.map(row => {
+      const newRow: any = { ...row };
 
-    if (Array.isArray(row.errors)) {
-      newRow.__errors = {};
-      row.errors.forEach((err: any) => {
-        if (err.key && err.error) {
-          newRow.__errors[err.key] = err.error;
-          // console.log(`Mark failed row: ${err.key} -> ${err.error}`);
-        }
+      if (Array.isArray(row.errors)) {
+        newRow.__errors = {};
+        row.errors.forEach((err: any) => {
+          if (err.key && err.error) {
+            newRow.__errors[err.key] = err.error;
+            // console.log(`Mark failed row: ${err.key} -> ${err.error}`);
+          }
+        });
+      }
+
+      const entries = Object.entries(row).filter(([key]) => key !== 'errors');
+      const hasAnyValue = entries.some(([_, v]) => {
+        if (v === null || v === undefined) return false;
+        if (typeof v === 'string' && v.trim() === '') return false;
+        return true;
       });
-    }
 
-    const entries = Object.entries(row).filter(([key]) => key !== 'errors');
-    const hasAnyValue = entries.some(([_, v]) => {
-      if (v === null || v === undefined) return false;
-      if (typeof v === 'string' && v.trim() === '') return false;
-      return true;
+      if (hasAnyValue) {
+        newRow.__forceTouched = true;
+      }
+
+      return newRow;
     });
-
-    if (hasAnyValue) {
-      newRow.__forceTouched = true;
-    }
-
-    return newRow;
-  });
-}
+  }
 
 
 
@@ -464,9 +556,11 @@ export class SystemFileComponent implements OnInit {
   missingRowsData: any[] = [];
 
   updateMissing(): void {
+    this.addTosystemPOP = false;
+    this.gridsEditable = false;
     this.upLoading = true;
     this.addMissingPopup = false;
-
+    this.cdr.detectChanges();
     if (!this.missingRowsData || this.missingRowsData.length === 0) return;
 
     let firstIndex = -1;
@@ -487,11 +581,26 @@ export class SystemFileComponent implements OnInit {
       .filter(row => Object.values(row).some(value => value !== null && value !== ''))
       .map(row => {
         const normalizedRow: any = {};
+
         this.failedColumns.forEach(col => {
-          normalizedRow[col.key] = row[col.key] ?? null;
+          let value = row[col.key] ?? null;
+
+          if (value) {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+              const day = String(date.getDate()).padStart(2, '0');
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const year = date.getFullYear();
+              value = `${day}-${month}-${year}`;
+            }
+          }
+
+          normalizedRow[col.key] = value;
         });
+
         return normalizedRow;
       });
+
 
     if (body.length === 0) return;
 
@@ -506,7 +615,6 @@ export class SystemFileComponent implements OnInit {
 
     this._systemCloudService.updateMissing(finalData).subscribe({
       next: (response) => {
-        this.addTosystemPOP = false;
         this.percentage = 0;
         this.uploadType = 'Pending';
         this.upLoading = true;
@@ -519,6 +627,8 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
+        this.gridsEditable = true;
+        this.cdr.detectChanges();
       }
     });
   }

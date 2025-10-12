@@ -208,7 +208,11 @@ export class EditWorkScheduleComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
 
-        this.departments = response.data.list_items.map((item: any) => {
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        this.departments = activeDepartments.map((item: any) => {
           const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
           const sectionsWithSelection = (item.sections || []).map((section: any) => ({
@@ -243,6 +247,7 @@ export class EditWorkScheduleComponent {
       }
     });
   }
+
 
   //checkboxes 
   toggleSelectAll() {

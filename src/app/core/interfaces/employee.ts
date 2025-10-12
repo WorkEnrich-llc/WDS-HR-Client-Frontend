@@ -1,8 +1,11 @@
 export interface CreateEmployeeRequest {
   request_data: {
+    id?: number;
+
     main_information: {
       code?: string;
-      name: string;
+      name_english?: string;
+      name_arabic?: string;
       gender: number; // 1 - Male, 2 - Female
       mobile: {
         country_id: number;
@@ -14,7 +17,7 @@ export interface CreateEmployeeRequest {
       address: string;
     };
     job_details: {
-      years_of_experience?: number;
+      years_of_experience?: number | null;
       branch_id: number;
       department_id: number;
       section_id?: number;
@@ -25,7 +28,7 @@ export interface CreateEmployeeRequest {
     contract_details: {
       start_contract: string;
       contract_type: number; // 1 With End Date, 2 Without End Date
-      contract_end_date?: string;
+      contract_end_date?: string | null;
       employment_type: number; // 1 Full Time, 2 Part Time, 3 Per Hour
       work_mode: number; // 1 On Site, 2 Remote, 3 Hybrid
       days_on_site?: number | null;
@@ -47,8 +50,10 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
+  code?: string;
   contact_info: {
     name: string;
+    name_arabic: string;
     mobile: {
       country: {
         id: number;
@@ -70,6 +75,7 @@ export interface Employee {
     };
   };
   job_info: {
+    years_of_experience: number;
     branch: {
       id: number;
       name: string;
