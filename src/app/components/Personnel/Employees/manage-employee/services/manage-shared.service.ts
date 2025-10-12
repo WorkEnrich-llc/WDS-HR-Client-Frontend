@@ -135,7 +135,7 @@ export class ManageEmployeeSharedService {
         years_of_experience: [null]
       }),
       contract_details: this.fb.group({
-        start_contract: ['', [Validators.required, CustomValidators.futureDate(this.currentDate)]],
+        start_contract: ['', [Validators.required]],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
         include_probation: [false],
@@ -525,9 +525,12 @@ export class ManageEmployeeSharedService {
       if (field.errors['maxlength']) return `Maximum length is ${field.errors['maxlength'].requiredLength}`;
       if (field.errors['min']) return `Minimum value is ${field.errors['min'].min}`;
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
+      if (field.errors['containsSpecialChars']) return `${displayName} cannot contain special characters`;
+      if (field.errors['containsArabic']) return `${displayName} cannot contain Arabic characters`;
+      if (field.errors['containsEnglish']) return `${displayName} cannot contain English characters`;
+      if (field.errors['numbersPattern']) return `${displayName} cannot contain numbers`;
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
-      if (field.errors['invalidCharacters']) return `${displayName} cannot contain special characters`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
       if (field.errors['pattern']) {
         if (fieldName === 'name_english' || fieldName === 'name_arabic') {
