@@ -47,7 +47,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   // delete confirmation popup state
   deleteOpen: boolean = false;
-  selectedDeleteId: number | null = null;
+  selectedCancelId: number | null = null;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -155,38 +155,38 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   }
 
   // Confirm and delete a delegation by id
-  confirmAndDelete(id: number): void {
+  confirmAndCancel(id: number): void {
     // Open project-styled confirmation popup instead of native confirm()
-    this.selectedDeleteId = id;
+    this.selectedCancelId = id;
     this.deleteOpen = true;
   }
 
   // Popup handlers
   openDeleteConfirm(id: number): void {
-    this.selectedDeleteId = id;
+    this.selectedCancelId = id;
     this.deleteOpen = true;
   }
 
   closeDeleteConfirm(): void {
-    this.selectedDeleteId = null;
+    this.selectedCancelId = null;
     this.deleteOpen = false;
   }
 
-  confirmDelete(): void {
-    if (this.selectedDeleteId == null) return;
-    const id = this.selectedDeleteId;
+  confirmCancel(): void {
+    if (this.selectedCancelId == null) return;
+    const id = this.selectedCancelId;
     this.closeDeleteConfirm();
-    this.deleteDelegation(id);
+    this.cancelDelegation(id);
   }
 
 
 
   // Call service to delete and refresh list
-  deleteDelegation(id: number): void {
+  cancelDelegation(id: number): void {
     this.loading = true;
-    this.delegationService.deleteDelegation(id).subscribe({
+    this.delegationService.updateDelegationStatus(id, false).subscribe({
       next: () => {
-        this.toasterMessageService.showSuccess('Delegation deleted successfully');
+        this.toasterMessageService.showSuccess('Delegation cancelled successfully');
         // reload list - ensure we stay on the current page if possible
         this.loadDelegations();
       },
