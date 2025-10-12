@@ -1,0 +1,19 @@
+.salary-info span{
+    color: var(--color-secondary-700);
+    font-size: var(--font-size-b3);
+    line-height: var(--line-height-xxs);
+}
+.salary-info h6{
+    color: var(--color-secondary-800);
+    font-size: var(--font-size-b2);
+    line-height: var(--line-height-md);
+    font-weight: 400;
+}
+.dropdown-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  display: none;
+}

@@ -27,8 +27,8 @@ import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance
     AttendanceTabComponent,
     RequestsTabComponent,
     DocumentsTabComponent,
-  ContractsTabComponent,
-  LeaveBalanceTabComponent
+    ContractsTabComponent,
+    LeaveBalanceTabComponent
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'

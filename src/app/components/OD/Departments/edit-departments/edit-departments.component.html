@@ -3,8 +3,11 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Departments', link: '/departments' },
     { label: 'Edit Department '+ departmentData?.name }
-  ]" [title]="'Edit Department - '+ departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges()"
+  ]" [title]="'Edit Department - '+ departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
+
+  @if(!loadData){
+  <button class="btn btn-lg btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
     (click)="updateDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -29,6 +32,8 @@
     </svg>
     <span>Discard Department</span>
   </button>
+  }
+
 </app-page-header>
 
 
@@ -138,6 +143,11 @@
   <div class="content-box d-flex flex-column gap-3">
     <h2>Main Information</h2>
     <form [formGroup]="deptStep1" class="w-lg-50 d-flex flex-column gap-2">
+      @if(loadData) {
+      <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="20" [valueHeight]="40">
+      </app-skelaton-loading>
+
+      }@else {
       <div class="input">
         <label for="deptCode">Department Code (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -163,9 +173,9 @@
         }
       </div>
       <div class="input">
-        <label for="deptType">Department Type <span>*</span></label>
+        <label for="deptType">Department Type <span>*</span> <small class="ms-2">If You Change Department Type You Should Choose New goals</small></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select id="deptType" formControlName="department_type" class="form-select">
+          <select id="deptType" formControlName="department_type" class="form-select" (change)="onDepartmentTypeChange()">
             <option value="" selected disabled hidden>Select Department Type</option>
             <option [ngValue]="1">Support</option>
             <option [ngValue]="2">Technical</option>
@@ -195,6 +205,8 @@
         {{errMsg}}
       </div>
       }
+      }
+
     </form>
 
     <!-- next button -->
@@ -527,8 +539,8 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
-        (click)="updateDept()">
+      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
+    (click)="updateDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -540,7 +552,7 @@
           </g>
         </svg>
         }
-        <span>Create Department</span>
+        <span>Save Changes</span>
       </button>
     </div>
   </div>

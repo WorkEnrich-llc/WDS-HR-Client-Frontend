@@ -392,9 +392,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Personnel/Employees/all-employees/all-employees.component').then(m => m.AllEmployeesComponent),
                 title: 'All Employees',
               },
+              // {
+              //   path: 'create-employee',
+              //   loadComponent: () => import('./components/Personnel/Employees/create-employee/create-employee.component').then(m => m.CreateEmployeeComponent),
+              //   title: 'Create Employees',
+              //   canActivate: [SubscriptionGuard],
+              //   data: { feature: 'Employees', action: 'create' }
+              // },
               {
                 path: 'create-employee',
-                loadComponent: () => import('./components/Personnel/Employees/create-employee/create-employee.component').then(m => m.CreateEmployeeComponent),
+                loadComponent: () => import('./components/Personnel/Employees/manage-employee/manage-employee.component').then(m => m.ManageEmployeeComponent),
                 title: 'Create Employees',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Employees', action: 'create' }
@@ -409,9 +416,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Personnel/Employees/view-new-joiner/view-new-joiner.component').then(m => m.ViewNewJoinerComponent),
                 title: 'View New Joiner',
               },
+              // {
+              //   path: 'edit-employee/:id',
+              //   loadComponent: () => import('./components/Personnel/Employees/edit-employee/edit-employee.component').then(m => m.EditEmployeeComponent),
+              //   title: 'Edit Employee',
+              //   canActivate: [SubscriptionGuard],
+              //   data: { feature: 'Employees', action: 'update' }
+              // },
               {
                 path: 'edit-employee/:id',
-                loadComponent: () => import('./components/Personnel/Employees/edit-employee/edit-employee.component').then(m => m.EditEmployeeComponent),
+                loadComponent: () => import('./components/Personnel/Employees/manage-employee/manage-employee.component').then(m => m.ManageEmployeeComponent),
                 title: 'Edit Employee',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Employees', action: 'update' }

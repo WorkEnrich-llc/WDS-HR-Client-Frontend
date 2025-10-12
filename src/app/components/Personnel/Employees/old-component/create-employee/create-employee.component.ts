@@ -139,7 +139,7 @@ export class CreateEmployeeComponent implements OnInit {
           //   notice_period: formData.contract_details.notice_period ? parseInt(formData.contract_details.notice_period, 10) : 0
           // }
           contract_details: {
-            start_contract: this.datePipe.transform(formData.contract_details.start_contract, 'yyyy-M-d')!, // بدون أصفار
+            start_contract: this.datePipe.transform(formData.contract_details.start_contract, 'yyyy-M-d')!,
             contract_type: formData.contract_details.contract_type,
             contract_end_date: formData.contract_details.contract_type === 1
               ? formData.contract_details.contract_end_date

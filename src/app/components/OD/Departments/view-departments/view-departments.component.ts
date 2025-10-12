@@ -6,11 +6,12 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 
 @Component({
   selector: 'app-view-departments',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent],
+  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent,SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-departments.component.html',
   styleUrls: ['./view-departments.component.css']
