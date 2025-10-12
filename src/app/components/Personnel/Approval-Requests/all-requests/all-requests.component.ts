@@ -171,6 +171,10 @@ export class AllRequestsComponent {
     return request.status?.name || 'N/A';
   }
 
+  getCurrentStep(request: ApprovalRequestItem): string {
+    return request.current_step || 'N/A';
+  }
+
   getReasonStatusName(request: ApprovalRequestItem): string {
     return request.reason?.status?.name || 'N/A';
   }
