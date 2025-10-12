@@ -53,6 +53,7 @@ export interface ApprovalRequestItem {
   code: string;
   name: string;
   work_type: string;
+  current_step: string;
   permission: PermissionInfo;
   leave: LeaveInfo;
   contact_information: ContactInformation;
