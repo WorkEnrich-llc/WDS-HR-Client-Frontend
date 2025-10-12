@@ -28,7 +28,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder, public subService: SubscriptionService) { }
+    private _DepartmentsService: DepartmentsService, private datePipe: DatePipe, private fb: FormBuilder, private subService: SubscriptionService) { }
 
   subscription: any;
 
@@ -42,18 +42,18 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
   currentSearchTerm: string = '';
 
 
-
+  departmentsSub: any;
   ngOnInit(): void {
 
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
-      const departmentsSub = sub?.Departments;
-
-      if (departmentsSub) {
-        console.log("info:", departmentsSub.info);
-        console.log("create:", departmentsSub.create);
-        console.log("update:", departmentsSub.update);
-        console.log("delete:", departmentsSub.delete);
-      }
+      this.departmentsSub = sub?.Departments;
+      // if (this.departmentsSub) {
+      //   console.log("info:", this.departmentsSub.info);
+      //   console.log("create:", this.departmentsSub.create);
+      //   console.log("update:", this.departmentsSub.update);
+      //   console.log("delete:", this.departmentsSub.delete);
+      // }
     });
 
 
@@ -143,7 +143,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
       this.currentPage = 1;
       this.filterBox.closeOverlay();
-     this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
+      this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
     }
   }
 
@@ -194,7 +194,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
 
 
-    onPageChange(page: number): void {
+  onPageChange(page: number): void {
     this.currentPage = page;
     this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }

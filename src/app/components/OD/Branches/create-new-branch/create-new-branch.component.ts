@@ -11,6 +11,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-create-new-branch',
@@ -44,7 +45,8 @@ export class CreateNewBranchComponent implements OnInit {
     private datePipe: DatePipe,
     private _BranchesService: BranchesService,
     private toasterMessageService: ToasterMessageService,
-    private _DepartmentsService: DepartmentsService
+    private _DepartmentsService: DepartmentsService,
+    private subService: SubscriptionService
   ) {
 
 
@@ -54,8 +56,20 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
 
-
+  branchSub: any;
   ngOnInit(): void {
+
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
     // department added and search
     this.searchSubject.pipe(
       debounceTime(300),
@@ -70,8 +84,8 @@ export class CreateNewBranchComponent implements OnInit {
 
   // form step 1
   branchStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
+    code: new FormControl('',Validators.maxLength(26)),
+    name: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
@@ -105,38 +119,47 @@ export class CreateNewBranchComponent implements OnInit {
     this.searchSubject.next(this.searchTerm);
   }
 
-  getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        this.totalpages = response.data.total_pages;
+ getAllDepartment(pageNumber: number, searchTerm: string = '') {
+  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+    search: searchTerm || undefined,
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+      this.totalpages = response.data.total_pages;
 
-        this.departments = response.data.list_items.map((item: any) => {
-          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+      // console.log('Departments List (before filter):', response.data.list_items);
 
-          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
-            ...section,
-            selected: false
-          }));
+      const activeDepartments = response.data.list_items.filter(
+        (item: any) => item.is_active === true
+      );
 
-          return {
-            id: item.id,
-            name: item.name,
-            sectionsCount: sectionsWithSelection.length,
-            sections: sectionsWithSelection,
-            selected: isSelected
-          };
-        });
-        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+      // console.log('Active Departments Only:', activeDepartments);
+
+      this.departments = activeDepartments.map((item: any) => {
+        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+
+        const sectionsWithSelection = (item.sections || []).map((section: any) => ({
+          ...section,
+          selected: false
+        }));
+
+        return {
+          id: item.id,
+          name: item.name,
+          sectionsCount: sectionsWithSelection.length,
+          sections: sectionsWithSelection,
+          selected: isSelected
+        };
+      });
+
+      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
 
   //checkboxes 
   toggleSelectAll() {

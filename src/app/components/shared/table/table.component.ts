@@ -12,21 +12,23 @@ import { NgxPaginationModule } from 'ngx-pagination';
   encapsulation: ViewEncapsulation.None,
 })
 export class TableComponent {
-  @Input() data?: any[] | null= [];
+  @Input() data?: any[] | null = [];
   @Input() totalItems!: number;
   @Input() itemsPerPage = 10;
   @Input() currentPage = 1;
- @Input() columnsCount = 0; 
+  @Input() columnsCount = 0;
   @Input() headerTemplate!: TemplateRef<any>;
   @Input() rowTemplate!: TemplateRef<any>;
   @Input() emptyTemplate!: TemplateRef<any>;
   @Input() disablePagination: boolean = false;
-  @Input() isLoading: boolean = false; 
-@Output() itemsPerPageChange = new EventEmitter<number>();
+  @Input() isLoading: boolean = false;
+  @Output() itemsPerPageChange = new EventEmitter<number>();
 
   @Output() pageChange = new EventEmitter<number>();
 
-  skeletonRows = Array(2).fill({ isSkeleton: true });
+  skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i, isSkeleton: true }));
+
+
   onPageChanged(newPage: number) {
     this.currentPage = newPage;
     this.pageChange.emit(newPage);
@@ -34,20 +36,20 @@ export class TableComponent {
 
   onItemsPerPageChange() {
     this.currentPage = 1;
-  this.itemsPerPageChange.emit(this.itemsPerPage);
-  this.pageChange.emit(this.currentPage);
+    this.itemsPerPageChange.emit(this.itemsPerPage);
+    this.pageChange.emit(this.currentPage);
 
   }
   get totalPages(): number {
-  return Math.ceil(this.totalItems / this.itemsPerPage);
-}
-getColumnsArray(count: number): number[] {
-  return Array(count).fill(0);
-}
-indexFn(index: number, item: any) {
-  return index; // أو أي مفتاح فريد بناءً على الـ item
-}
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+  getColumnsArray(count: number): number[] {
+    return Array(count).fill(0);
+  }
+  indexFn(index: number, item: any) {
+    return index; 
+  }
 
 
-  
+
 }

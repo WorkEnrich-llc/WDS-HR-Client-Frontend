@@ -10,6 +10,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -51,7 +52,7 @@ export class CreateNewJobTitleComponent {
   private searchSubject = new Subject<string>();
 
   constructor(private toasterMessageService: ToasterMessageService, private fb: FormBuilder, private toastr: ToastrService,
-    private _DepartmentsService: DepartmentsService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router) {
+    private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router) {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
@@ -60,7 +61,19 @@ export class CreateNewJobTitleComponent {
 
   }
 
+  jobTitleSub: any;
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
     this.getAllDepartment(this.currentPage);
     this.jobStep4 = new FormGroup({
       jobDescription: new FormControl('', [Validators.required, Validators.minLength(10)]),
@@ -72,14 +85,16 @@ export class CreateNewJobTitleComponent {
       this.getAllJobTitles(1, value);
     });
   }
+
   jobStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    jobName: new FormControl('', [Validators.required]),
+    code: new FormControl('', Validators.maxLength(26)),
+    jobName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
     section: new FormControl({ value: '', disabled: true }),
   });
+
   toggleDepartment(enable: boolean) {
     this.isDepartmentSelected = enable;
     const control = this.jobStep1.get('department');
@@ -98,30 +113,31 @@ export class CreateNewJobTitleComponent {
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
-    // Reset validation and disable jobLevel, department, section
+    departmentControl?.reset('');
+    sectionControl?.reset('');
+
+    this.sections = [];
+
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
 
-    // Disable department and section by default
     departmentControl?.disable();
     sectionControl?.disable();
 
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    // Always show Job Level field
     this.showJobLevel = true;
     jobLevelControl?.enable();
     jobLevelControl?.setValidators([Validators.required]);
 
     if (level === '3') {
-      // Enable department only
       departmentControl?.enable();
       departmentControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
     } else if (level === '4' || level === '5') {
-      // Enable both
+
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
@@ -130,7 +146,6 @@ export class CreateNewJobTitleComponent {
       this.isSectionSelected = true;
     }
 
-    // Update validity for all affected controls
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
@@ -235,7 +250,7 @@ export class CreateNewJobTitleComponent {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
   }
-  
+
   onPageChange(page: number) {
     this.ManageCurrentPage = page;
     this.getAllJobTitles(page, this.searchTerm);
@@ -262,14 +277,14 @@ export class CreateNewJobTitleComponent {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
     hourly_restrict: new FormControl(false),

@@ -11,6 +11,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 interface Department {
   id: number;
   name: string;
@@ -21,7 +23,7 @@ interface Department {
 }
 @Component({
   selector: 'app-edit-branch-info',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
+  imports: [PageHeaderComponent, CommonModule,SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './edit-branch-info.component.html',
   styleUrl: './edit-branch-info.component.css',
@@ -47,7 +49,8 @@ export class EditBranchInfoComponent implements OnInit {
     private toasterMessageService: ToasterMessageService,
     private _DepartmentsService: DepartmentsService,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private subService: SubscriptionService
   ) { }
 
   branchData: any = { sections: [] };
@@ -74,8 +77,20 @@ export class EditBranchInfoComponent implements OnInit {
   // Flag to track if map location has been confirmed before saving
   locationConfirmed: boolean = true;
 
-
+  branchSub: any;
   ngOnInit(): void {
+    
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
     // get branch data
     this.branchId = this.route.snapshot.paramMap.get('id');
     if (this.branchId) {
@@ -120,58 +135,72 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   // get all departments
-  getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        this.totalpages = response.data.total_pages;
+ getAllDepartment(pageNumber: number, searchTerm: string = '') {
+  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+    search: searchTerm || undefined,
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+      this.totalpages = response.data.total_pages;
 
-        this.departments = response.data.list_items.map((item: any) => {
-          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+      // console.log('Departments (before filter):', response.data.list_items);
 
-          let rawSections: any[] = [];
+      const activeDepartments = response.data.list_items.filter(
+        (item: any) => item.is_active === true
+      );
 
-          if (item.sections) {
-            if (Array.isArray(item.sections)) {
-              rawSections = item.sections;
-            } else if (item.sections.options_list) {
-              rawSections = item.sections.options_list;
-            }
+      this.departments = activeDepartments.map((item: any) => {
+        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+
+        let rawSections: any[] = [];
+
+        if (item.sections) {
+          if (Array.isArray(item.sections)) {
+            rawSections = item.sections;
+          } else if (item.sections.options_list) {
+            rawSections = item.sections.options_list;
           }
+        }
 
-          const optionsList = rawSections.map((section: any) => ({
-            ...section,
-            selected: false
-          }));
+        const activeSections = rawSections.filter(
+          (section: any) => section.is_active === true
+        );
 
-          const selectedList = optionsList.filter(s => s.selected);
+        const optionsList = activeSections.map((section: any) => ({
+          ...section,
+          selected: false
+        }));
 
-          return {
-            id: item.id,
-            name: item.name,
-            code: item.code || '',
-            objectives: item.objectives || '',
-            is_active: item.is_active ?? true,
-            created_at: item.created_at,
-            updated_at: item.updated_at,
-            selected: isSelected,
-            relationship_id: item.relationship_id || null,
-            sections: {
-              selected_list: selectedList,
-              options_list: optionsList
-            }
-          };
-        });
-        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+        const selectedList = optionsList.filter(s => s.selected);
+
+        return {
+          id: item.id,
+          name: item.name,
+          code: item.code || '',
+          objectives: item.objectives || '',
+          is_active: item.is_active ?? true,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          selected: isSelected,
+          relationship_id: item.relationship_id || null,
+          sections: {
+            selected_list: selectedList,
+            options_list: optionsList
+          }
+        };
+      });
+
+      // console.log('Filtered Active Departments:', this.departments);
+
+      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
+
 
   //checkboxes 
   toggleSelectAll() {
@@ -237,8 +266,9 @@ export class EditBranchInfoComponent implements OnInit {
   originalFormData: any;
   originalDepartments: any[] = [];
   originalDepartmentsSnapshot: any[] = [];
+  loadData: boolean = false;
   showBranch(branchId: number) {
-
+    this.loadData = true;
     this._BranchesService.showBranch(branchId).subscribe({
       next: (response) => {
         // console.log(response.data.object_info);
@@ -274,9 +304,11 @@ export class EditBranchInfoComponent implements OnInit {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
