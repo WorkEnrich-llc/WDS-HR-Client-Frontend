@@ -201,13 +201,11 @@ export class JobDetailsStepComponent implements OnInit {
   // }
 
   private setupJobDetailsWatchers(): void {
-    // 1. مراقب الفرع (Branch watcher)
     this.sharedService.jobDetails.get('branch_id')?.valueChanges.pipe(
       startWith(this.sharedService.jobDetails.get('branch_id')?.value),
       pairwise()
     ).subscribe(([prevBranchId, currentBranchId]) => {
       if (currentBranchId) {
-        // إعادة تعيين الحقول التابعة فقط عند التغيير الفعلي
         if (prevBranchId !== null && prevBranchId !== currentBranchId) {
           this.sharedService.jobDetails.get('department_id')?.setValue(null);
           this.sharedService.jobDetails.get('section_id')?.setValue(null);
@@ -219,7 +217,6 @@ export class JobDetailsStepComponent implements OnInit {
         this.sharedService.jobDetails.get('job_title_id')?.disable();
         this.loadDepartmentsByBranch(currentBranchId);
       } else {
-        // منطق التصفير في حالة عدم اختيار فرع
         this.sharedService.departments.set([]);
         this.sharedService.sections.set([]);
         this.sharedService.jobTitles.set([]);
@@ -229,12 +226,10 @@ export class JobDetailsStepComponent implements OnInit {
       }
     });
 
-    // 2. مراقب القسم (Department watcher)
     this.sharedService.jobDetails.get('department_id')?.valueChanges.pipe(
       startWith(this.sharedService.jobDetails.get('department_id')?.value),
       pairwise()
     ).subscribe(([prevDeptId, currentDeptId]) => {
-      // إعادة تعيين الحقول التابعة فقط عند التغيير الفعلي
       if (prevDeptId !== null && prevDeptId !== currentDeptId) {
         this.sharedService.jobDetails.get('section_id')?.setValue(null);
         this.sharedService.jobDetails.get('job_title_id')?.setValue(null);
@@ -255,7 +250,6 @@ export class JobDetailsStepComponent implements OnInit {
       }
     });
 
-    // 3. مراقب القطاع (Section watcher)
     this.sharedService.jobDetails.get('section_id')?.valueChanges.pipe(
       startWith(this.sharedService.jobDetails.get('section_id')?.value),
       pairwise()
@@ -266,7 +260,6 @@ export class JobDetailsStepComponent implements OnInit {
 
       if (currentSectionId) {
         this.sharedService.jobDetails.get('job_title_id')?.enable();
-        // استخدم الدالة المساعدة هنا
         this.loadJobTitlesBySection(currentSectionId);
       } else {
         this.sharedService.jobTitles.set([]);
@@ -308,17 +301,10 @@ export class JobDetailsStepComponent implements OnInit {
       next: (res) => {
         const depts = res.data?.list_items || [];
         this.sharedService.departments.set(depts);
-
-        // --- START: NEW LOGIC FOR UPDATE MODE ---
-        // 1. تحقق من وجود قيمة مُسبقة للقسم في الفورم
         const currentDeptId = this.sharedService.jobDetails.get('department_id')?.value;
         if (currentDeptId) {
-
-          // 2. ابحث عن القسم المحدد من ضمن قائمة الأقسام التي تم تحميلها للتو
           const selectedDept = depts.find((d: any) => d.id == currentDeptId);
           if (selectedDept) {
-
-            // 3. إذا وجدته، قم بملء قائمة القطاعات التابعة له
             const deptSections = Array.isArray(selectedDept.sections) ? selectedDept.sections : [];
             this.sharedService.sections.set(deptSections);
 

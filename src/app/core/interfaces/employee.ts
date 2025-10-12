@@ -28,7 +28,7 @@ export interface CreateEmployeeRequest {
     contract_details: {
       start_contract: string;
       contract_type: number; // 1 With End Date, 2 Without End Date
-      contract_end_date?: string;
+      contract_end_date?: string | null;
       employment_type: number; // 1 Full Time, 2 Part Time, 3 Per Hour
       work_mode: number; // 1 On Site, 2 Remote, 3 Hybrid
       days_on_site?: number | null;
