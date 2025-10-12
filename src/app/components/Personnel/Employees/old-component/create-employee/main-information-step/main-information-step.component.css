@@ -1,0 +1,8 @@
+.dropdown-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  display: none;
+}

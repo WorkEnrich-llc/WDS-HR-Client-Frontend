@@ -274,6 +274,7 @@
             </div>
           </div>
           }
+
           <!-- file -->
           @if (folder.type==='File') {
           <div tabindex="0" class="file" draggable="true" (dragstart)="onFileDragStart($event, folder)">
@@ -745,11 +746,11 @@
     }
   </div>
 
-  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="renameFolder()">
-    @if (!isLoading) {
+  <button modal-btn-left class="btn btn-lg btn-primary w-100" [disabled]="renameAction" (click)="renameFolder()">
+    @if (!renameAction) {
     <span>Save Change</span>
     }
-    @if (isLoading) {
+    @if (renameAction) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
   </button>

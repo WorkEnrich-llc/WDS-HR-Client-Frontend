@@ -4,7 +4,7 @@
     { label: 'Departments', link: '/departments' },
     { label: 'Create New Department' }
   ]" title="Create New Department" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success w-auto" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
+  <button class="btn btn-lg btn-success w-auto" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || addedGoal.length === 0"
     (click)="createDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -525,7 +525,7 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
+      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || addedGoal.length === 0"
         (click)="createDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>

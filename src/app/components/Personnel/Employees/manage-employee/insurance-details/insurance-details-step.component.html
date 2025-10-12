@@ -1,0 +1,87 @@
+<!-- Insurance Details Step -->
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Insurance Details</h2>
+    <div formGroupName="insurance_details" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input">
+        <label for="current_salary">Current Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="text" id="current_salary" class="form-control" [value]="getCurrentSalary() + ' EGP'" readonly />
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <input class="form-check-input m-0" type="checkbox" id="includeInsuranceSalary"
+          formControlName="include_insurance_salary">
+        <label class="form-check-label m-0" for="includeInsuranceSalary">
+          Include Insurance Salary
+        </label>
+      </div>
+
+      <div class="input" *ngIf="sharedService.insuranceDetails.get('include_insurance_salary')?.value">
+        <label for="insurance_salary">Insurance Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="insurance_salary" formControlName="insurance_salary" class="form-control"
+            placeholder="Enter the Insurance Salary" />
+        </div>
+        @if (sharedService.isFieldInvalid('insurance_salary', sharedService.insuranceDetails)) {
+        <p class="error-msg">
+          {{ sharedService.getFieldError('insurance_salary', sharedService.insuranceDetails) }}
+        </p>
+        }
+        <small class="form-text text-muted">Insurance will be deducted based on this salary</small>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <input class="form-check-input m-0" type="checkbox" id="includeGrossInsuranceSalary"
+          formControlName="include_gross_insurance_salary">
+        <label class="form-check-label m-0" for="includeGrossInsuranceSalary">
+          Include Gross Insurance Salary
+        </label>
+      </div>
+
+      <div class="input" *ngIf="sharedService.insuranceDetails.get('include_gross_insurance_salary')?.value">
+        <label for="gross_insurance_salary">Gross Insurance Salary</label>
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="gross_insurance_salary" formControlName="gross_insurance_salary" class="form-control"
+            placeholder="Enter the Gross Insurance Salary" />
+        </div>
+        @if (sharedService.isFieldInvalid('gross_insurance_salary', sharedService.insuranceDetails)) {
+        <p class="error-msg">
+          {{ sharedService.getFieldError('gross_insurance_salary', sharedService.insuranceDetails) }}
+        </p>
+        }
+        <small class="form-text text-muted">Taxes will be deducted based on this salary</small>
+      </div>
+    </div>
+    <!-- <ng-container *ngIf="sharedService.errMsg()">
+      <div class="alert alert-danger mb-0 mt-3" role="alert">
+        {{ sharedService.errMsg() }}
+      </div>
+    </ng-container> -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+      <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="sharedService.goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
+        </svg>
+      </button>
+      <button type="button" class="btn btn-lg btn-success"
+        (click)="onSubmit()" [disabled]="sharedService.isLoading()">
+        @if (sharedService.isLoading()) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!sharedService.isLoading()) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+        <span>Create Employee</span>
+      </button>
+    </div>
+  </div>
+</div>
