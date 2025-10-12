@@ -573,7 +573,9 @@
     <!-- start table -->
     <div>
       <app-table [data]="jobTitles" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
-        [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="5">
+        [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="manageItemsPerPage"
+        [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+        [isLoading]="loadData" [columnsCount]="3">
       </app-table>
       <ng-template #jobsTableHeader>
         <th (click)="sortBy()" style="cursor: pointer;">
