@@ -1,15 +1,15 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
-import { TableComponent } from '../../../shared/table/table.component';
-import { PopupComponent } from '../../../shared/popup/popup.component';
-import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { Component } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime, Subject } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { debounceTime, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
+import { TableComponent } from '../../../shared/table/table.component';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -44,6 +44,7 @@ export class CreateNewJobTitleComponent {
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
+  loadData: boolean = false; // used for table skeleton/loading state
   departments: any[] = [];
   sections: any[] = [];
   filterForm!: FormGroup;
@@ -67,7 +68,8 @@ export class CreateNewJobTitleComponent {
 
     });
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
+      this.ManageCurrentPage = 1; // Reset to page 1 when searching
+      this.getAllJobTitles(1, value);
     });
   }
   jobStep1: FormGroup = new FormGroup({
@@ -200,14 +202,15 @@ export class CreateNewJobTitleComponent {
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
-
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
+    this.loadData = true;
     this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
       management_level: managementLevel,
       search: this.searchTerm,
       request_in: 'create'
     }).subscribe({
       next: (response) => {
+        this.loadData = false;
         this.ManageCurrentPage = Number(response.data.page);
         this.ManageTotalItems = response.data.total_items;
         this.ManagetotalPages = response.data.total_pages;
@@ -223,6 +226,7 @@ export class CreateNewJobTitleComponent {
         this.sortBy();
       },
       error: (err) => {
+        this.loadData = false;
         console.error(err.error?.details);
       }
     });
@@ -231,9 +235,24 @@ export class CreateNewJobTitleComponent {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
   }
+  
+  onPageChange(page: number) {
+    this.ManageCurrentPage = page;
+    this.getAllJobTitles(page, this.searchTerm);
+  }
+
+  onItemsPerPageChange(itemsPerPage: number) {
+    this.manageItemsPerPage = itemsPerPage;
+    this.ManageCurrentPage = 1;
+    // Don't call API here - the table component also emits pageChange event
+    // which will trigger onPageChange() and make the API call
+  }
+
   nextGetJobs(): void {
     this.goNext();
-    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+    this.ManageCurrentPage = 1; // Reset to page 1 when entering step 3
+    this.searchTerm = ''; // Clear search term
+    this.getAllJobTitles(1, '');
   }
   // step 2 salary ranges
   jobStep2: FormGroup = new FormGroup({
