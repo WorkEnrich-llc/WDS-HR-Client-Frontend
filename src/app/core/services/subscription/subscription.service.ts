@@ -70,29 +70,15 @@ export class SubscriptionService {
     })
   );
 
-  getSubscription(): Observable<any> {
-    const token = this._AuthHelper.getToken();
-    const version = '1.0.1';
-    const platform = 'DASHBOARD';
+ getSubscription(): Observable<any> {
+  const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
 
-    if (!token) {
-      console.warn('User not logged in — skipping getSubscription request.');
-      return of(null);
-    }
+  return this._HttpClient.get<any>(url).pipe(
+    map(res => {
+      const features = res?.data?.features ?? null;
+      return features ? { features } : null;
+    })
+  );
+}
 
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      version,
-      platform
-    });
-
-    const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
-
-    return this._HttpClient.get<any>(url, { headers }).pipe(
-      map(res => {
-        const features = res?.data?.features ?? null;
-        return features ? { features } : null;
-      })
-    );
-  }
 }

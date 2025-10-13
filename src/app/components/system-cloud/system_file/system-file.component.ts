@@ -111,68 +111,52 @@ export class SystemFileComponent implements OnInit {
 
 
   collectFilledRows() {
-  if (!this.rowsData || this.rowsData.length === 0) return;
+    if (!this.rowsData || this.rowsData.length === 0) return;
 
-  let firstIndex = -1;
-  let lastIndex = -1;
+    let firstIndex = -1;
+    let lastIndex = -1;
 
-  this.rowsData.forEach((row, index) => {
-    const hasValue = Object.values(row).some(value => value !== null && value !== '');
-    if (hasValue) {
-      if (firstIndex === -1) firstIndex = index;
-      lastIndex = index;
-    }
-  });
+    this.rowsData.forEach((row, index) => {
+      const hasValue = Object.values(row).some(value => value !== null && value !== '');
+      if (hasValue) {
+        if (firstIndex === -1) firstIndex = index;
+        lastIndex = index;
+      }
+    });
 
-  if (firstIndex === -1 || lastIndex === -1) return;
+    if (firstIndex === -1 || lastIndex === -1) return;
 
-  const body = this.rowsData
-    .slice(firstIndex, lastIndex + 1)
-    .filter(row => Object.values(row).some(value => value !== null && value !== ''))
-    .map(row => {
+    const body = this.rowsData.slice(firstIndex, lastIndex + 1).map(row => {
       const normalizedRow: any = {};
-
       this.customColumns.forEach(col => {
-        let value = row[col.key] ?? null;
-
-        if (value) {
-          const date = new Date(value);
-          if (!isNaN(date.getTime())) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            value = `${day}-${month}-${year}`;
-          }
-        }
-
-        normalizedRow[col.key] = value;
+        normalizedRow[col.key] = row[col.key] ?? null;
       });
-
       return normalizedRow;
     });
 
-  const hasChanged = JSON.stringify(body) !== JSON.stringify(this.lastCollectedData);
-  if (!hasChanged) return;
+    const hasChanged = JSON.stringify(body) !== JSON.stringify(this.lastCollectedData);
+    if (!hasChanged) return;
 
-  this.lastCollectedData = body;
-  const finalData = {
-    request_data: {
-      body
-    }
-  };
+    this.lastCollectedData = body;
+    const finalData = {
+      request_data: {
+        body
+      }
+    };
 
-  this.syncStatus = 'syncing';
+    this.syncStatus = 'syncing';
 
-  this._systemCloudService.updateSheet(this.SystemFileId!, finalData).subscribe({
-    next: (response) => {
-      this.syncStatus = 'synced';
-    },
-    error: (err) => {
-      console.error(err.error?.details);
-      this.syncStatus = 'error';
-    }
-  });
-}
+    this._systemCloudService.updateSheet(this.SystemFileId!, finalData).subscribe({
+      next: (response) => {
+        this.syncStatus = 'synced';
+      },
+      error: (err) => {
+        console.error(err.error?.details);
+        this.syncStatus = 'error';
+      }
+    });
+  }
+
 
 
   fileEditable: boolean = false;
@@ -421,7 +405,7 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
-        // this.gridsEditable = true;
+        this.gridsEditable = true;
         this.upLoading = false;
         this.cdr.detectChanges();
       }
@@ -470,11 +454,11 @@ export class SystemFileComponent implements OnInit {
               this.upLoading = false;
               this.uploadType = 'Pending';
               this.percentage = 0;
-              // this.gridsEditable = true;
+              this.gridsEditable = true;
               this.cdr.detectChanges();
             }, 4000);
 
-            // this.stopUploadTracking();
+            this.stopUploadTracking();
 
             if (objectInfo?.main_data?.header) {
               this.importedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, false);
@@ -490,7 +474,7 @@ export class SystemFileComponent implements OnInit {
 
           if (this.uploadType === 'Cancelled') {
             this.upLoading = false;
-            // this.stopUploadTracking();
+            this.stopUploadTracking();
 
             if (objectInfo?.main_data?.header) {
               this.importedColumns = this.generateCustomColumnsFromHeaders(objectInfo.main_data.header, false);
@@ -509,16 +493,16 @@ export class SystemFileComponent implements OnInit {
 
             this.loadData = false;
             this.isAllLoaded = true;
-            // this.gridsEditable = true;
+            this.gridsEditable = true;
             this.cdr.detectChanges();
           }
         },
         error: (err) => {
           console.error('Error:', err.error?.details);
           this.upLoading = false;
-          // this.stopUploadTracking();
+          this.stopUploadTracking();
           this.loadData = false;
-          // this.gridsEditable = true;
+          this.gridsEditable = true;
           this.isAllLoaded = true;
           this.cdr.detectChanges();
         }
@@ -642,7 +626,7 @@ export class SystemFileComponent implements OnInit {
       error: (err) => {
         console.log(err.error?.details);
         this.errMsg = err.error?.details || 'An error occurred while adding to system.';
-        // this.gridsEditable = true;
+        this.gridsEditable = true;
         this.cdr.detectChanges();
       }
     });
@@ -680,7 +664,7 @@ export class SystemFileComponent implements OnInit {
     this._systemCloudService.cancelUpload(formData).subscribe({
       next: (res) => {
         console.log('Upload canceled:', res);
-        // this.stopUploadTracking();
+        this.stopUploadTracking();
         this.showUploadPopup = false;
       },
       error: (err) => {
@@ -690,7 +674,7 @@ export class SystemFileComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    // this.stopUploadTracking();
+    this.stopUploadTracking();
   }
 
 

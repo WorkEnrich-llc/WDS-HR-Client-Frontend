@@ -29,7 +29,8 @@ export const authInterceptor: HttpInterceptorFn = (
 
   if (
     req.url.includes('assets') ||
-    req.url.includes('authentication') || 
+    req.url.endsWith('login') ||
+    req.url.endsWith('register') ||
     req.url.includes('manifest.json')
   ) {
     return next(req);
