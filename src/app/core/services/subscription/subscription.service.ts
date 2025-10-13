@@ -2,12 +2,16 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "environments/environment";
 import { BehaviorSubject, map, Observable, of } from "rxjs";
+import { AuthHelperService } from "../authentication/auth-helper.service";
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
   private apiBaseUrl: string;
 
-  constructor(private _HttpClient: HttpClient) {
+  constructor(
+    private _HttpClient: HttpClient,
+    private _AuthHelper: AuthHelperService
+  ) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
@@ -66,26 +70,15 @@ export class SubscriptionService {
     })
   );
 
-  getSubscription(): Observable<any> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.warn('User not logged in — skipping getSubscription request.');
-      return of(null);
-    }
+ getSubscription(): Observable<any> {
+  const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
 
-    const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
+  return this._HttpClient.get<any>(url).pipe(
+    map(res => {
+      const features = res?.data?.features ?? null;
+      return features ? { features } : null;
+    })
+  );
+}
 
-    const headers = new HttpHeaders({
-      'ver': '1.0.1',
-      'plat': 'DASHBOARD',
-      'Authorization': token
-    });
-
-    return this._HttpClient.get<any>(url, { headers }).pipe(
-      map(res => {
-        const features = res?.data?.features ?? null;
-        return features ? { features } : null;
-      })
-    );
-  }
 }
