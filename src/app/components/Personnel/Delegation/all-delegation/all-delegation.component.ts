@@ -73,7 +73,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   initializeFilterForm(): void {
     this.filterForm = this.fb.group({
       status: [''],
-      created_from: [''],
+      from_date: [''],
     });
   }
 
@@ -81,7 +81,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   loadDelegations(): void {
     this.loading = true;
-    this.delegationService.getDelegations(this.currentPage, this.itemsPerPage, this.searchTerm)
+    this.delegationService.getDelegations(this.currentPage, this.itemsPerPage, this.searchTerm, this.filters)
       .subscribe({
         next: (response) => {
           this.delegations = response.data.list_items;
@@ -156,7 +156,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   // Confirm and delete a delegation by id
   confirmAndCancel(id: number): void {
-    // Open project-styled confirmation popup instead of native confirm()
+    this.loading = true;
     this.selectedCancelId = id;
     this.deleteOpen = true;
   }
@@ -173,6 +173,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   }
 
   confirmCancel(): void {
+    this.loading = true;
     if (this.selectedCancelId == null) return;
     const id = this.selectedCancelId;
     this.closeDeleteConfirm();
@@ -182,7 +183,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   // Call service to delete and refresh list
   cancelDelegation(id: number): void {
-    this.loading = true;
+    // this.loading = true;
     this.delegationService.updateDelegationStatus(id, false).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Delegation cancelled successfully');
@@ -199,6 +200,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
+    this.loading = true;
     this.filters = { ...this.filterForm.value };
     Object.keys(this.filters).forEach(key => {
       if (!this.filters[key as keyof DelegationFilters]) {

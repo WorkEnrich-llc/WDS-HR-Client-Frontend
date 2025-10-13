@@ -70,7 +70,7 @@ export interface DelegationResponse {
 export interface DelegationFilters {
   search?: string;
   status?: string;
-  created_from?: string;
+  from_date?: string;
 }
 
 @Injectable({

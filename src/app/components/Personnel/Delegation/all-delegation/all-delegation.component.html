@@ -90,26 +90,9 @@
             <td>{{ delegation.startDate }}</td>
             <td>{{ delegation.endDate }}</td>
             <td>
-                <!-- <span class="badge-newjoiner" *ngIf="delegation.status ==='Pending'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path
-                                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-                            <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-                        </g>
-                    </svg>
-                    <span>Pending</span>
-                </span> -->
-                <span class="badge-danger" *ngIf="delegation.status ==='Upcoming'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                        </g>
-                    </svg>
-                    <span>Upcoming</span>
-                </span>
-                <span class="badge-success" *ngIf="delegation.status ==='Accepted'">
+                @switch (delegation.status) {
+                @case ('Accepted') {
+                <span class="badge-success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -118,7 +101,19 @@
                     </svg>
                     <span>Accepted</span>
                 </span>
-                <span class="badge-danger" *ngIf="delegation.status ==='Cancelled'">
+                }
+                @case ('Pending') {
+                <span class="badge-newjoiner">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M5.95317 0.9375H6.04679C7.55709 0.937488 8.74903 0.937479 9.6172 1.05195C10.4705 1.16445 11.2372 1.41239 11.6014 2.11939C11.6538 2.22125 11.6981 2.32711 11.7338 2.43596C11.9822 3.19419 11.6146 3.9104 11.0909 4.58827C10.5584 5.27763 9.71518 6.11258 8.64769 7.16968L6.79939 9L8.64769 10.8303C9.71519 11.8874 10.5584 12.7224 11.0909 13.4117C11.6146 14.0896 11.9822 14.8058 11.7338 15.564C11.6981 15.6729 11.6538 15.7787 11.6014 15.8806C11.2372 16.5876 10.4705 16.8355 9.6172 16.9481C8.74903 17.0625 7.55708 17.0625 6.04678 17.0625H5.95318C4.44288 17.0625 3.25093 17.0625 2.38275 16.9481C1.52944 16.8355 0.762726 16.5876 0.398595 15.8806C0.346133 15.7787 0.301852 15.6729 0.266183 15.564C0.0177354 14.8058 0.3854 14.0896 0.909063 13.4117C1.4416 12.7224 2.28477 11.8874 3.35227 10.8303L5.20057 9L3.35227 7.16968C2.28477 6.11258 1.4416 5.27763 0.909063 4.58827C0.3854 3.9104 0.0177353 3.1942 0.266183 2.43597C0.301852 2.32711 0.346132 2.22126 0.398595 2.11939C0.762726 1.41239 1.52944 1.16445 2.38275 1.05195C3.25092 0.937479 4.44287 0.937488 5.95317 0.9375ZM5.99998 8.20836L7.82245 6.40361C8.9309 5.30595 9.7195 4.52329 10.2006 3.90051C10.6962 3.25901 10.7231 2.96439 10.6647 2.78627C10.6476 2.73415 10.6264 2.6834 10.6012 2.6345C10.5137 2.46456 10.2796 2.27402 9.47015 2.16729C8.68447 2.0637 7.56725 2.0625 5.99998 2.0625C4.43271 2.0625 3.31549 2.0637 2.52981 2.16729C1.72033 2.27402 1.48627 2.46456 1.39874 2.6345C1.37355 2.6834 1.35233 2.73415 1.33525 2.78627C1.27689 2.96439 1.30378 3.25901 1.79935 3.90051C2.28046 4.52329 3.06906 5.30595 4.17751 6.40362L5.99998 8.20836ZM5.99998 9.79164L4.1775 11.5964C3.06906 12.694 2.28046 13.4767 1.79935 14.0995C1.30378 14.741 1.27689 15.0356 1.33525 15.2137C1.35233 15.2659 1.37355 15.3166 1.39874 15.3655C1.48627 15.5354 1.72033 15.726 2.52981 15.8327C3.31549 15.9363 4.43271 15.9375 5.99998 15.9375C7.56725 15.9375 8.68447 15.9363 9.47015 15.8327C10.2796 15.726 10.5137 15.5354 10.6012 15.3655C10.6264 15.3166 10.6476 15.2659 10.6647 15.2137C10.7231 15.0356 10.6962 14.741 10.2006 14.0995C9.7195 13.4767 8.93089 12.694 7.82245 11.5964L5.99998 9.79164ZM3.93748 4.125C3.93748 3.81434 4.18932 3.5625 4.49998 3.5625H7.49998C7.81064 3.5625 8.06248 3.81434 8.06248 4.125C8.06248 4.43566 7.81064 4.6875 7.49998 4.6875H4.49998C4.18932 4.6875 3.93748 4.43566 3.93748 4.125ZM3.93748 13.875C3.93748 13.5643 4.18932 13.3125 4.49998 13.3125H7.49998C7.81064 13.3125 8.06248 13.5643 8.06248 13.875C8.06248 14.1857 7.81064 14.4375 7.49998 14.4375H4.49998C4.18932 14.4375 3.93748 14.1857 3.93748 13.875Z"
+                            fill="#377AFD" />
+                    </svg>
+                    <span>Pending</span>
+                </span>
+                }
+                @case ('Cancelled') {
+                <span class="badge-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -127,20 +122,44 @@
                     </svg>
                     <span>Cancelled</span>
                 </span>
-                <span class="badge-danger" *ngIf="delegation.status ==='Expired'">
+                }
+                @case ('Rejected') {
+                <span class="badge-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
                         </g>
                     </svg>
+                    <span>Rejected</span>
+                </span>
+                }
+                @case ('Expired') {
+                <span class="badge-gray">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M9 0.9375C4.5472 0.9375 0.9375 4.5472 0.9375 9C0.9375 13.4528 4.5472 17.0625 9 17.0625C13.4528 17.0625 17.0625 13.4528 17.0625 9C17.0625 4.5472 13.4528 0.9375 9 0.9375ZM2.0625 9C2.0625 5.16852 5.16852 2.0625 9 2.0625C10.7134 2.0625 12.2817 2.68363 13.492 3.71299C13.487 3.71764 13.4821 3.72239 13.4773 3.72725L3.72727 13.4771C3.72238 13.482 3.7176 13.4869 3.71292 13.492C2.6836 12.2816 2.0625 10.7133 2.0625 9ZM4.50787 14.2869C5.71824 15.3163 7.28658 15.9375 9 15.9375C12.8315 15.9375 15.9375 12.8315 15.9375 9C15.9375 7.28662 15.3164 5.71832 14.287 4.50797C14.2824 4.51296 14.2776 4.51789 14.2727 4.52276L4.52276 14.2726C4.51786 14.2775 4.5129 14.2823 4.50787 14.2869Z"
+                            fill="#4A6D97" />
+                    </svg>
                     <span>Expired</span>
                 </span>
+                }
+                @default {
+                <span class="badge-gray">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M5.95317 0.9375H6.04679C7.55709 0.937488 8.74903 0.937479 9.6172 1.05195C10.4705 1.16445 11.2372 1.41239 11.6014 2.11939C11.6538 2.22125 11.6981 2.32711 11.7338 2.43596C11.9822 3.19419 11.6146 3.9104 11.0909 4.58827C10.5584 5.27763 9.71518 6.11258 8.64769 7.16968L6.79939 9L8.64769 10.8303C9.71519 11.8874 10.5584 12.7224 11.0909 13.4117C11.6146 14.0896 11.9822 14.8058 11.7338 15.564C11.6981 15.6729 11.6538 15.7787 11.6014 15.8806C11.2372 16.5876 10.4705 16.8355 9.6172 16.9481C8.74903 17.0625 7.55708 17.0625 6.04678 17.0625H5.95318C4.44288 17.0625 3.25093 17.0625 2.38275 16.9481C1.52944 16.8355 0.762726 16.5876 0.398595 15.8806C0.346133 15.7787 0.301852 15.6729 0.266183 15.564C0.0177354 14.8058 0.3854 14.0896 0.909063 13.4117C1.4416 12.7224 2.28477 11.8874 3.35227 10.8303L5.20057 9L3.35227 7.16968C2.28477 6.11258 1.4416 5.27763 0.909063 4.58827C0.3854 3.9104 0.0177353 3.1942 0.266183 2.43597C0.301852 2.32711 0.346132 2.22126 0.398595 2.11939C0.762726 1.41239 1.52944 1.16445 2.38275 1.05195C3.25092 0.937479 4.44287 0.937488 5.95317 0.9375ZM5.99998 8.20836L7.82245 6.40361C8.9309 5.30595 9.7195 4.52329 10.2006 3.90051C10.6962 3.25901 10.7231 2.96439 10.6647 2.78627C10.6476 2.73415 10.6264 2.6834 10.6012 2.6345C10.5137 2.46456 10.2796 2.27402 9.47015 2.16729C8.68447 2.0637 7.56725 2.0625 5.99998 2.0625C4.43271 2.0625 3.31549 2.0637 2.52981 2.16729C1.72033 2.27402 1.48627 2.46456 1.39874 2.6345C1.37355 2.6834 1.35233 2.73415 1.33525 2.78627C1.27689 2.96439 1.30378 3.25901 1.79935 3.90051C2.28046 4.52329 3.06906 5.30595 4.17751 6.40362L5.99998 8.20836ZM5.99998 9.79164L4.1775 11.5964C3.06906 12.694 2.28046 13.4767 1.79935 14.0995C1.30378 14.741 1.27689 15.0356 1.33525 15.2137C1.35233 15.2659 1.37355 15.3166 1.39874 15.3655C1.48627 15.5354 1.72033 15.726 2.52981 15.8327C3.31549 15.9363 4.43271 15.9375 5.99998 15.9375C7.56725 15.9375 8.68447 15.9363 9.47015 15.8327C10.2796 15.726 10.5137 15.5354 10.6012 15.3655C10.6264 15.3166 10.6476 15.2659 10.6647 15.2137C10.7231 15.0356 10.6962 14.741 10.2006 14.0995C9.7195 13.4767 8.93089 12.694 7.82245 11.5964L5.99998 9.79164ZM3.93748 4.125C3.93748 3.81434 4.18932 3.5625 4.49998 3.5625H7.49998C7.81064 3.5625 8.06248 3.81434 8.06248 4.125C8.06248 4.43566 7.81064 4.6875 7.49998 4.6875H4.49998C4.18932 4.6875 3.93748 4.43566 3.93748 4.125ZM3.93748 13.875C3.93748 13.5643 4.18932 13.3125 4.49998 13.3125H7.49998C7.81064 13.3125 8.06248 13.5643 8.06248 13.875C8.06248 14.1857 7.81064 14.4375 7.49998 14.4375H4.49998C4.18932 14.4375 3.93748 14.1857 3.93748 13.875Z"
+                            fill="#4A6D97" />
+                    </svg>
+                    <span>Upcoming</span>
+                </span>
+                }
+                }
             </td>
 
             <td>
                 <div class="d-flex align-items-center gap-3">
-                    @if(delegation.status === 'Accepted' || delegation.status === 'Upcoming'){
+                    @if(delegation.status === 'Accepted' || delegation.status === 'Pending'){
                     <!-- Edit icon-only button -->
                     <a class="edit-btn" [routerLink]="['/delegation/edit', delegation.id]" title="Edit">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -163,7 +182,7 @@
 
                     </a>
                     <!-- Delete icon-only button -->
-                    <button type="button" class="remove-btn" (click)="openDeleteConfirm(delegation.id)" title="Delete">
+                    <button type="button" class="remove-btn" (click)="openDeleteConfirm(delegation.id)" title="Cancel">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M7.52272 6.72724C7.30305 6.50757 6.9469 6.50757 6.72723 6.72724C6.50756 6.94691 6.50756 7.30307 6.72723 7.52274L8.20449 9L6.72725 10.4772C6.50758 10.6969 6.50758 11.0531 6.72725 11.2727C6.94692 11.4924 7.30307 11.4924 7.52274 11.2727L8.99998 9.79549L10.4772 11.2727C10.6969 11.4924 11.053 11.4924 11.2727 11.2727C11.4924 11.0531 11.4924 10.6969 11.2727 10.4772L9.79548 9L11.2727 7.52275C11.4924 7.30308 11.4924 6.94693 11.2727 6.72726C11.0531 6.50759 10.6969 6.50759 10.4772 6.72726L8.99998 8.2045L7.52272 6.72724Z"
@@ -201,11 +220,13 @@
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <select formControlName="status" name="" id="status" class="form-select">
-                        <option [value]="null" selected disabled hidden>Select</option>
-                        <option value="all">Any</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="pending">Pending</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="" selected disabled hidden>Select</option>
+                        <option [value]="0">Any</option>
+                        <option [value]="1">Pending</option>
+                        <option [value]="2">Accepted</option>
+                        <option [value]="3">Rejected</option>
+                        <option [value]="4">Cancelled</option>
+                        <option [value]="5">Expired</option>
                     </select>
                 </div>
                 @if(!filterForm.get('status')?.value){
@@ -230,11 +251,11 @@
         </div>
 
         <div class="input">
-            <label for="createdFrom">Created From</label>
+            <label for="fromDate">Created From</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="created_from" type="date" id="createdFrom"
-                        class="form-control custom-date-input" placeholder="Min-Max" />
+                    <input formControlName="from_date" type="date" id="fromDate" class="form-control custom-date-input"
+                        placeholder="Min-Max" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <path stroke-linecap="round"
@@ -244,7 +265,7 @@
                         </g>
                     </svg>
                 </div>
-                @if (!filterForm.get('created_from')?.value) {
+                @if (!filterForm.get('from_date')?.value) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -284,10 +305,10 @@
 
 <!-- delete confirmation popup -->
 
-<app-popup [title]="'Delete Delegation'" [paragraph1]="'Are you sure you want to delete this delegation?'"
+<app-popup [title]="'Cancel Delegation'" [paragraph1]="'Are you sure you want to cancel this delegation?'"
     [isOpen]="deleteOpen" (close)="closeDeleteConfirm()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmCancel()" [disabled]="loading">
-        Delete
+        Confirm
     </button>
     <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteConfirm()">
         Cancel
