@@ -148,7 +148,6 @@ export class SystemFileComponent implements OnInit {
 
     this._systemCloudService.updateSheet(this.SystemFileId!, finalData).subscribe({
       next: (response) => {
-        // console.log(response.data.object_info);
         this.syncStatus = 'synced';
       },
       error: (err) => {

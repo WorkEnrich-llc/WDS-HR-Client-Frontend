@@ -366,16 +366,16 @@ createAccount(): void {
           localStorage.setItem('company_info', JSON.stringify(companyInfo));
         }
 
-        this.subService.getSubscription().subscribe({
-          next: (sub) => {
-            if (sub) {
-              this.subService.setSubscription(sub);
-            }
-          },
-          error: (err) => {
-            console.error('Subscription load error:', err);
-          }
-        });
+        // this.subService.getSubscription().subscribe({
+        //   next: (sub) => {
+        //     if (sub) {
+        //       this.subService.setSubscription(sub);
+        //     }
+        //   },
+        //   error: (err) => {
+        //     console.error('Subscription load error:', err);
+        //   }
+        // });
 
         this._Router.navigate(['/dashboard']);
       } else {
