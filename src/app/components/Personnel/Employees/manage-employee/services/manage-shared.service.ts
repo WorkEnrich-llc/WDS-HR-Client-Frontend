@@ -253,9 +253,9 @@ export class ManageEmployeeSharedService {
       start_contract: this.formatDateForInput(data.job_info.start_contract),
       contract_type: data.job_info.contract_type?.id,
       contract_end_date: this.formatDateForInput(data.job_info.end_contract || ''),
-      notice_period: null,
+      notice_period: data.job_info.notice_period,
       salary: data.job_info.salary,
-      insurance_salary: ''
+      insurance_salary: data.job_info.insurance_salary,
     }, options);
 
     this.attendanceDetails.patchValue({
@@ -274,7 +274,7 @@ export class ManageEmployeeSharedService {
       include_gross_insurance_salary: hasGrossInsurance,
       gross_insurance_salary: hasGrossInsurance ? data.job_info.gross_insurance : ''
     }, options);
-
+    this.updateDaysOnSiteStatus(data.job_info.work_mode?.id);
   }
 
 
@@ -304,29 +304,33 @@ export class ManageEmployeeSharedService {
     });
 
     // Watch for work mode changes to handle days on site requirement
+
     this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workModeId: any) => {
-      const id = Number(workModeId);
-      const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
-
-      const hybridMode = this.workModes().find(mode => mode.name === 'Hybrid');
-      const onSiteMode = this.workModes().find(mode => mode.name === 'On site');
-      const remoteMode = this.workModes().find(mode => mode.name === 'Remote');
-
-      if (id === hybridMode?.id) {
-        daysOnSiteControl?.enable({ emitEvent: false });
-        daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
-      } else if (id === onSiteMode?.id) {
-        daysOnSiteControl?.disable({ emitEvent: false });
-        daysOnSiteControl?.setValue(0);
-        daysOnSiteControl?.clearValidators();
-      } else if (id === remoteMode?.id) {
-        daysOnSiteControl?.disable({ emitEvent: false });
-        daysOnSiteControl?.setValue(0);
-        daysOnSiteControl?.clearValidators();
-      }
-
-      daysOnSiteControl?.updateValueAndValidity({ emitEvent: false });
+      this.updateDaysOnSiteStatus(workModeId);
     });
+
+    // this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workModeId: any) => {
+    //   const id = Number(workModeId);
+    //   const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
+
+    //   const hybridMode = this.workModes().find(mode => mode.name === 'Hybrid');
+    //   const onSiteMode = this.workModes().find(mode => mode.name === 'On site');
+    //   const remoteMode = this.workModes().find(mode => mode.name === 'Remote');
+
+    //   if (id === hybridMode?.id) {
+    //     daysOnSiteControl?.enable({ emitEvent: false });
+    //     daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
+    //   } else if (id === onSiteMode?.id) {
+    //     daysOnSiteControl?.disable({ emitEvent: false });
+    //     daysOnSiteControl?.setValue(0);
+    //     daysOnSiteControl?.clearValidators();
+    //   } else if (id === remoteMode?.id) {
+    //     daysOnSiteControl?.disable({ emitEvent: false });
+    //     daysOnSiteControl?.setValue(0);
+    //     daysOnSiteControl?.clearValidators();
+    //   }
+    //   daysOnSiteControl?.updateValueAndValidity({ emitEvent: false });
+    // });
 
     // Watch for job title changes to update salary ranges
     this.jobDetails.get('job_title_id')?.valueChanges.subscribe((jobTitleId: any) => {
@@ -377,6 +381,47 @@ export class ManageEmployeeSharedService {
         grossInsuranceSalaryControl?.setValue('');
       }
       grossInsuranceSalaryControl?.updateValueAndValidity();
+    });
+  }
+
+  private updateDaysOnSiteStatus(workModeId: number): void {
+    // const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
+    // if (!daysOnSiteControl) return;
+
+    // const id = Number(workModeId);
+    // const hybridMode = this.workModes().find(mode => mode.name === 'Hybrid');
+
+    // if (id === hybridMode?.id) {
+    //   daysOnSiteControl.enable({ emitEvent: false });
+    //   daysOnSiteControl.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
+    // } else {
+    //   daysOnSiteControl.disable({ emitEvent: false });
+    //   daysOnSiteControl.setValue(0, { emitEvent: false });
+    //   daysOnSiteControl.clearValidators();
+    // }
+    // daysOnSiteControl.updateValueAndValidity({ emitEvent: false });
+
+    this.attendanceDetails.get('work_mode')?.valueChanges.subscribe((workModeId: any) => {
+      const id = Number(workModeId);
+      const daysOnSiteControl = this.attendanceDetails.get('days_on_site');
+
+      const hybridMode = this.workModes().find(mode => mode.name === 'Hybrid');
+      const onSiteMode = this.workModes().find(mode => mode.name === 'On site');
+      const remoteMode = this.workModes().find(mode => mode.name === 'Remote');
+
+      if (id === hybridMode?.id) {
+        daysOnSiteControl?.enable({ emitEvent: false });
+        daysOnSiteControl?.setValidators([Validators.required, Validators.min(1), Validators.max(7)]);
+      } else if (id === onSiteMode?.id) {
+        daysOnSiteControl?.disable({ emitEvent: false });
+        daysOnSiteControl?.setValue(0);
+        daysOnSiteControl?.clearValidators();
+      } else if (id === remoteMode?.id) {
+        daysOnSiteControl?.disable({ emitEvent: false });
+        daysOnSiteControl?.setValue(0);
+        daysOnSiteControl?.clearValidators();
+      }
+      daysOnSiteControl?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -533,18 +578,19 @@ export class ManageEmployeeSharedService {
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
       if (field.errors['pattern']) {
+        if (fieldName === 'number' || fieldName.endsWith('.number')) {
+          return 'Number must start with 10, 11, 12, or 15';
+        }
+        return `${displayName} format is incorrect`;
+      }
+      if (field.errors['pattern']) {
         if (fieldName === 'name_english' || fieldName === 'name_arabic') {
           return 'Please enter a valid format';
         }
         return `${displayName} format is incorrect`;
       }
 
-      if (field.errors['pattern']) {
-        if (fieldName === 'number' || fieldName.endsWith('.number')) {
-          return 'Number must start with 10, 11, 12, or 15';
-        }
-        return `${displayName} format is incorrect`;
-      }
+
     }
 
     if (fieldName === 'contract_end_date' && group.errors && group.errors['dateRange']) {
@@ -682,7 +728,7 @@ export class ManageEmployeeSharedService {
 
 
 
-  getFormData(isEditMode: boolean) {
+  getFormDataa(isEditMode: boolean) {
     const formData = this.employeeForm.value;
 
     if (!isEditMode) {
@@ -769,8 +815,8 @@ export class ManageEmployeeSharedService {
           contract_type: originalData.job_info.contract_type?.id || 1, // 1 With End Date, 2 Without End Date
           contract_end_date: originalData.job_info.end_contract ? this.formatDateForAPI(originalData.job_info.end_contract) : '',
           employment_type: originalData.job_info.employment_type?.id || 1, // 1 Full Time, 2 Part Time, 3 Per Hour
-          work_mode: originalData.job_info.work_mode?.id || 1, // 1 On Site, 2 Remote, 3 Hybrid
-          days_on_site: formData.attendance_details.days_on_site || 0,
+          work_mode: originalData.job_info.work_mode?.id, // 1 On Site, 2 Remote, 3 Hybrid
+          days_on_site: formData.attendance_details.days_on_site,
           salary: originalData.job_info.salary ? parseFloat(originalData.job_info.salary.toString()) : 0,
           insurance_salary: formData.insurance_details?.include_insurance_salary && formData.insurance_details?.insurance_salary
             ? parseFloat(formData.insurance_details.insurance_salary)
@@ -778,17 +824,83 @@ export class ManageEmployeeSharedService {
           gross_insurance: formData.insurance_details?.include_gross_insurance_salary && formData.insurance_details?.gross_insurance_salary
             ? parseFloat(formData.insurance_details.gross_insurance_salary)
             : (originalData.job_info.gross_insurance || 0),
-          notice_period: formData.contract_details.notice_period || 0
+          notice_period: formData.contract_details.notice_period || 0,
         }
       }
     };
 
   }
 
+  getFormData(isEditMode: boolean) {
+    const formData = this.employeeForm.value;
+    const requestData = {
+      main_information: {
+        code: formData.main_information.code,
+        name_english: formData.main_information.name_english,
+        name_arabic: formData.main_information.name_arabic,
+        gender: formData.main_information.gender,
+        mobile: {
+          country_id: formData.main_information.mobile.country_id,
+          number: parseInt(formData.main_information.mobile.number)
+        },
+        personal_email: formData.main_information.personal_email,
+        marital_status: formData.main_information.marital_status,
+        date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
+        address: formData.main_information.address
+      },
+      job_details: {
+        years_of_experience: formData.job_details.years_of_experience || 0,
+        branch_id: parseInt(formData.job_details.branch_id, 10),
+        department_id: parseInt(formData.job_details.department_id, 10),
+        section_id: parseInt(formData.job_details.section_id, 10),
+        job_title_id: parseInt(formData.job_details.job_title_id, 10),
+        work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+        activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
+      },
+      contract_details: {
+        start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
+        contract_type: formData.contract_details.contract_type,
+        // contract_end_date: formData.contract_details.contract_type === 1
+        //   ? formData.contract_details.contract_end_date
+        //   : 0,
+        contract_end_date: formData.contract_details.end_contract ? this.formatDateForAPI(formData.contract_details.end_contract) : '',
+        employment_type: formData.attendance_details.employment_type,
+        work_mode: formData.attendance_details.work_mode,
+        days_on_site: formData.attendance_details.days_on_site
+          ? parseInt(formData.attendance_details.days_on_site, 10)
+          : 0,
+        salary: parseFloat(formData.contract_details.salary),
+        insurance_salary: formData.insurance_details.include_insurance_salary
+          ? parseFloat(formData.insurance_details.insurance_salary)
+          : 0,
+        gross_insurance: formData.insurance_details.include_gross_insurance_salary
+          ? parseFloat(formData.insurance_details.gross_insurance_salary)
+          : 0,
+        notice_period: formData.contract_details.notice_period
+          ? parseInt(formData.contract_details.notice_period, 10)
+          : 8
+        // notice_period: formData.contract_details.notice_period || 0,
+      }
+    };
+
+    if (!isEditMode) {
+      return { request_data: requestData };
+    }
+
+    const originalData = this.employeeData();
+    if (!originalData) return null;
+
+    return {
+      request_data: {
+        id: originalData.id,
+        ...requestData
+      }
+    };
+  }
+
 
   resetForm(): void {
     this.employeeForm.reset();
-    // Set default values after reset
     this.mobileGroup.get('country_id')?.setValue(1);
     this.contractDetails.get('contract_type')?.setValue(2);
     this.contractDetails.get('include_probation')?.setValue(false);
