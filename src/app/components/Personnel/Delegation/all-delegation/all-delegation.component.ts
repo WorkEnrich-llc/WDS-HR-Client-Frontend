@@ -180,14 +180,12 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   }
 
 
-
   // Call service to delete and refresh list
   cancelDelegation(id: number): void {
     this.loading = true;
     this.delegationService.updateDelegationStatus(id, false).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Delegation cancelled successfully');
-        // reload list - ensure we stay on the current page if possible
         this.loadDelegations();
       },
       error: (err) => { }
