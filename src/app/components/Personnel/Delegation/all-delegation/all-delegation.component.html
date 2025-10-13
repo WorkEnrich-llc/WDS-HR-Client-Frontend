@@ -109,14 +109,14 @@
                     </svg>
                     <span>Upcoming</span>
                 </span>
-                <span class="badge-success" *ngIf="delegation.status ==='Active'">
+                <span class="badge-success" *ngIf="delegation.status ==='Accepted'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                         </g>
                     </svg>
-                    <span>Active</span>
+                    <span>Accepted</span>
                 </span>
                 <span class="badge-danger" *ngIf="delegation.status ==='Cancelled'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@
 
             <td>
                 <div class="d-flex align-items-center gap-3">
-                    @if(delegation.status === 'Active' || delegation.status === 'Upcoming'){
+                    @if(delegation.status === 'Accepted' || delegation.status === 'Upcoming'){
                     <!-- Edit icon-only button -->
                     <a class="edit-btn" [routerLink]="['/delegation/edit', delegation.id]" title="Edit">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
