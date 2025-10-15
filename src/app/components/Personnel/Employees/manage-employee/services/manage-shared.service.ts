@@ -124,7 +124,7 @@ export class ManageEmployeeSharedService {
         gender: [null, Validators.required],
         mobile: this.fb.group({
           country_id: [1, Validators.required],
-          number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)/), Validators.minLength(10), Validators.maxLength(10)]]
+          number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)\d{8}$/), Validators.minLength(10), Validators.maxLength(10)]]
         }),
         personal_email: ['', [Validators.required, Validators.email]],
         marital_status: [null, Validators.required],
