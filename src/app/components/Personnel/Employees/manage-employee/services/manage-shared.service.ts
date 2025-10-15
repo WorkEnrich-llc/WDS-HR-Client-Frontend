@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Branch } from '../../../../../core/interfaces/branch';
 import { Department } from '../../../../../core/interfaces/department';
 import { JobTitle } from '../../../../../core/interfaces/job-title';
@@ -164,7 +164,6 @@ export class ManageEmployeeSharedService {
   }
 
 
-
   public loadInitialData(): void {
     if (this.branches().length > 0) {
       return;
@@ -183,14 +182,28 @@ export class ManageEmployeeSharedService {
   }
 
 
-  initializeJobDetailsWatchers(): void {
-    const jobDetails = this.jobDetails;
+  // this section related to job details in step 2 for watch value changes in select dropdown
 
+
+  private initializeJobDetailsWatchers(): void {
+    const jobDetails = this.jobDetails;
     const branchCtrl = jobDetails.get('branch_id');
     const deptCtrl = jobDetails.get('department_id');
     const sectionCtrl = jobDetails.get('section_id');
     const jobTitleCtrl = jobDetails.get('job_title_id');
 
+    this.setInitialJobDetailsState(branchCtrl, deptCtrl, sectionCtrl, jobTitleCtrl);
+    this.setupBranchWatcher(branchCtrl, deptCtrl, sectionCtrl, jobTitleCtrl);
+    this.setupDepartmentWatcher(deptCtrl, sectionCtrl, jobTitleCtrl);
+    this.setupSectionWatcher(sectionCtrl, jobTitleCtrl);
+  }
+
+  private setInitialJobDetailsState(
+    branchCtrl: AbstractControl | null,
+    deptCtrl: AbstractControl | null,
+    sectionCtrl: AbstractControl | null,
+    jobTitleCtrl: AbstractControl | null
+  ): void {
     if (!this.isEditMode()) {
       if (!branchCtrl?.value) deptCtrl?.disable();
       sectionCtrl?.disable();
@@ -200,10 +213,17 @@ export class ManageEmployeeSharedService {
       if (deptCtrl?.value) sectionCtrl?.enable();
       if (sectionCtrl?.value) jobTitleCtrl?.enable();
     }
+  }
 
-    // branch watcher
+  private setupBranchWatcher(
+    branchCtrl: AbstractControl | null,
+    deptCtrl: AbstractControl | null,
+    sectionCtrl: AbstractControl | null,
+    jobTitleCtrl: AbstractControl | null
+  ): void {
     branchCtrl?.valueChanges.subscribe((branchId) => {
       if (this.suppressWatchers) return;
+
       if (branchId) {
         this.fetchDepartmentsForBranch(branchId);
         deptCtrl?.enable();
@@ -217,9 +237,13 @@ export class ManageEmployeeSharedService {
         jobTitleCtrl?.disable();
       }
     });
+  }
 
-
-    // department watcher
+  private setupDepartmentWatcher(
+    deptCtrl: AbstractControl | null,
+    sectionCtrl: AbstractControl | null,
+    jobTitleCtrl: AbstractControl | null
+  ): void {
     deptCtrl?.valueChanges.pipe(startWith(deptCtrl?.value), pairwise())
       .subscribe(([prev, current]) => {
         if (this.suppressWatchers) return;
@@ -250,18 +274,20 @@ export class ManageEmployeeSharedService {
         } else {
           this.sections.set([]);
           this.jobTitles.set([]);
-
           sectionCtrl?.disable();
           sectionCtrl?.clearValidators();
           sectionCtrl?.updateValueAndValidity();
-
           jobTitleCtrl?.disable();
           jobTitleCtrl?.clearValidators();
           jobTitleCtrl?.updateValueAndValidity();
         }
       });
+  }
 
-    // section watcher
+  private setupSectionWatcher(
+    sectionCtrl: AbstractControl | null,
+    jobTitleCtrl: AbstractControl | null
+  ): void {
     sectionCtrl?.valueChanges.pipe(startWith(sectionCtrl?.value), pairwise())
       .subscribe(([prev, current]) => {
         if (this.suppressWatchers) return;
@@ -272,26 +298,21 @@ export class ManageEmployeeSharedService {
 
         if (current) {
           this.fetchJobTitlesForSection(current);
-
           jobTitleCtrl?.setValidators(Validators.required);
           jobTitleCtrl?.enable();
           jobTitleCtrl?.updateValueAndValidity();
-
         } else {
           this.jobTitles.set([]);
           jobTitleCtrl?.disable();
-
           jobTitleCtrl?.clearValidators();
           jobTitleCtrl?.updateValueAndValidity();
         }
       });
-
-
   }
 
 
 
-  public fetchDepartmentsForBranch(branchId: number): void {
+  private fetchDepartmentsForBranch(branchId: number): void {
     const jobDetails = this.jobDetails;
     jobDetails.get('department_id')?.reset(null, { emitEvent: false });
     jobDetails.get('section_id')?.reset(null, { emitEvent: false });
@@ -323,8 +344,7 @@ export class ManageEmployeeSharedService {
   }
 
 
-
-  public fetchJobTitlesForSection(sectionId: number): void {
+  private fetchJobTitlesForSection(sectionId: number): void {
     const jobDetails = this.jobDetails;
 
     jobDetails.get('job_title_id')?.reset(null, { emitEvent: false });
