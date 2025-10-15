@@ -63,7 +63,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
         // this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       this.currentPage = 1;
       this.loadDelegations();
     });
@@ -73,7 +73,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   initializeFilterForm(): void {
     this.filterForm = this.fb.group({
       status: [''],
-      from_date: [''],
+      start_date: [''],
     });
   }
 
@@ -81,6 +81,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   loadDelegations(): void {
     this.loading = true;
+    this.loadData = true;
     this.delegationService.getDelegations(this.currentPage, this.itemsPerPage, this.searchTerm, this.filters)
       .subscribe({
         next: (response) => {

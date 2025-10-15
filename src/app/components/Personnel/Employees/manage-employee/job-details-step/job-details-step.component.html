@@ -92,7 +92,11 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
                         <select id="job_title_id" formControlName="job_title_id" class="form-select">
-                            <option [value]="null" disabled hidden>Select Job Title</option>
+
+                            <!-- <option [value]="null" disabled hidden>Select Job Title</option> -->
+                            <option [value]="null" disabled hidden>
+                                {{ sharedService.jobTitles().length > 0 ? 'Select Job Title' : 'No job available' }}
+                            </option>
                             @for (job of sharedService.jobTitles(); track job.id) {
                             <option [value]="job.id">{{ job.name }}</option>
                             }
