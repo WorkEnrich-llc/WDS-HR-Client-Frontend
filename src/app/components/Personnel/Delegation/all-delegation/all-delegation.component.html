@@ -254,7 +254,7 @@
             <label for="fromDate">Created From</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="from_date" type="date" id="fromDate" class="form-control custom-date-input"
+                    <input formControlName="start_date" type="date" id="fromDate" class="form-control custom-date-input"
                         placeholder="Min-Max" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
@@ -265,7 +265,7 @@
                         </g>
                     </svg>
                 </div>
-                @if (!filterForm.get('from_date')?.value) {
+                @if (!filterForm.get('start_date')?.value) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />

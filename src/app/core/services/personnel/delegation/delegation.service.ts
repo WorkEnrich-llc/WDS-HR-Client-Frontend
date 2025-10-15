@@ -70,6 +70,7 @@ export interface DelegationResponse {
 export interface DelegationFilters {
   search?: string;
   status?: string;
+  start_date?: string;
   from_date?: string;
 }
 
