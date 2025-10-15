@@ -1,46 +1,37 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 
 @Component({
   selector: 'app-all-job-openings',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './all-job-openings.component.html',
   styleUrl: './all-job-openings.component.css'
 })
-export class AllJobOpeningsComponent {
+export class AllJobOpeningsComponent implements OnDestroy {
 
   private paginationState = inject(PaginationStateService);
   private router = inject(Router);
+  private jobOpeningsService = inject(JobOpeningsService);
+
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private fb: FormBuilder) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
-  loadData: boolean = false;
+  loadData: boolean = true;
   filterForm!: FormGroup;
-  approvalRequests = [
-    {
-      jobId: 101,
-      jobName: 'Job Name',
-      branchId: 20,
-      branchName: 'Brach Name',
-      empType: 'Full-Time',
-      numApplicant: 100,
-      numApply: 47,
-      numSchadule: 12,
-      numRejected: 10,
-      numAccepted: 2
-    },
-  ];
+  approvalRequests: any[] = [];
+  currentFilters: any = {};
 
 
   searchTerm: string = '';
@@ -55,11 +46,9 @@ export class AllJobOpeningsComponent {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      // const pageFromUrl = +params['page'] || this.paginationState.getPage('roles/all-role') || 1;
-      // this.currentPage = pageFromUrl;
-      // this.getAllApplicants(pageFromUrl);
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllDepartment(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('job-openings/all-job-openings') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllJobOpenings(pageFromUrl);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -72,28 +61,93 @@ export class AllJobOpeningsComponent {
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      // this.getAllDepartment(this.currentPage, value);
+      this.currentPage = 1;
+      this.getAllJobOpenings(this.currentPage);
     });
 
+    this.filterForm = this.fb.group({
+      createdFrom: [''],
+      createdTo: [''],
+      status: ['']
+    });
   }
 
 
-  resetFilterForm(): void {
+  getAllJobOpenings(pageNumber: number, searchTerm: string = '', filters?: any): void {
+    this.loadData = true;
+    this.jobOpeningsService.getAllJobOpenings(pageNumber, this.itemsPerPage, {
+      search: searchTerm || this.searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        if (response.data) {
+          // Transform API response to match table format
+          this.approvalRequests = response.data.list_items.map((job: any) => ({
+            jobId: job.id,
+            jobName: job.job_title.name,
+            branchId: job.branch.id,
+            branchName: job.branch.name,
+            empType: job.employment_type.name,
+            numApplicant: job.applicants,
+            numApply: job.candidates,
+            numSchadule: job.interviewees,
+            numRejected: job.rejected,
+            numAccepted: job.new_joiners,
+            status: job.status,
+            created_at: job.created_at,
+            updated_at: job.updated_at
+          }));
+          this.totalItems = response.data.total_items || 0;
+        }
+        this.loadData = false;
+      },
+      error: (error) => {
+        this.loadData = false;
+        console.error('Error fetching job openings:', error);
+      }
+    });
+  }
 
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      createdFrom: '',
+      createdTo: '',
+      status: ''
+    });
+    this.currentFilters = {};
     this.filterBox.closeOverlay();
-    // this.getAllDepartment(this.currentPage);
+    this.getAllJobOpenings(this.currentPage);
+  }
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      const filters = {
+        created_from: rawFilters.createdFrom || undefined,
+        created_to: rawFilters.createdTo || undefined,
+        status: rawFilters.status || undefined,
+      };
+
+      this.currentFilters = filters;
+
+      this.currentPage = 1;
+      this.filterBox.closeOverlay();
+      this.getAllJobOpenings(this.currentPage, this.searchTerm, this.currentFilters);
+    }
   }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
+
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
+    this.getAllJobOpenings(this.currentPage, this.searchTerm, this.currentFilters);
   }
-  onPageChange(page: number): void {
 
+  onPageChange(page: number): void {
     this.currentPage = page;
     this.paginationState.setPage('job-openings/all-job-openings', page);
     this.router.navigate([], {
@@ -101,12 +155,75 @@ export class AllJobOpeningsComponent {
       queryParams: { page },
       queryParamsHandling: 'merge'
     });
-    // this.getAllDepartment(this.currentPage);
+    this.getAllJobOpenings(this.currentPage, this.searchTerm, this.currentFilters);
   }
 
   navigateToView(jobId: number): void {
     this.paginationState.setPage('job-openings/all-job-openings', this.currentPage);
     this.router.navigate(['/job-openings/view-job-openings', jobId]);
+  }
+
+  /**
+   * Change job opening status
+   * Status values:
+   * 1: Live - The job is currently active and visible to applicants
+   * 2: Completed - The job has been successfully completed
+   * 3: Archived - The job is no longer active and has been archived
+   * 4: Pause - The job is temporarily paused and not visible to applicants
+   */
+  changeJobStatus(jobId: number, newStatus: number): void {
+    const requestBody = {
+      request_data: {
+        status: newStatus
+      }
+    };
+
+    this.jobOpeningsService.updateJobOpeningStatus(jobId, requestBody).subscribe({
+      next: (response) => {
+        // Reload the current page to reflect the changes
+        this.getAllJobOpenings(this.currentPage, this.searchTerm, this.currentFilters);
+      },
+      error: (error) => {
+        console.error('Error updating job status:', error);
+        this.toastr.error('Failed to update job status', '', { timeOut: 3000 });
+      }
+    });
+  }
+
+  /**
+   * Archive a job opening (set status to 3)
+   */
+  archiveJob(jobId: number): void {
+    this.changeJobStatus(jobId, 3);
+  }
+
+  /**
+   * Toggle job status between Live (1) and Pause (4)
+   */
+  toggleJobStatus(job: any): void {
+    // If status is "Live", change to "Pause" (4)
+    // If status is "Pause" or anything else, change to "Live" (1)
+    const newStatus = job.status === 'Live' ? 4 : 1;
+    this.changeJobStatus(job.jobId, newStatus);
+  }
+
+  /**
+   * Check if job is currently paused
+   */
+  isJobPaused(status: string): boolean {
+    return status === 'Pause';
+  }
+
+  /**
+   * Check if job is currently live
+   */
+  isJobLive(status: string): boolean {
+    return status === 'Live';
+  }
+
+  ngOnDestroy(): void {
+    this.toasterSubscription?.unsubscribe();
+    this.searchSubject.complete();
   }
 
 }

@@ -12,116 +12,115 @@
         <tbody>
 
           @for (entry of links; track entry; let i = $index) {
-            <tr>
-              <td>
-                <input type="text" [(ngModel)]="entry.value" class="form-control table-input"
-                  placeholder="Enter Link Name" />
-                </td>
-                <td>
-                  @if (links.length > 1) {
-                    <button type="button" (click)="removeLink(i)"
-                      class="remove-btn p-0 text-xl" aria-label="Remove section">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="currentColor" fill-rule="evenodd"
-                          d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-                          <path fill="currentColor" fill-rule="evenodd"
-                            d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-                          </svg>
-                          <span>Remove</span>
-                        </button>
-                      }
-                    </td>
-                  </tr>
-                }
+          <tr>
+            <td>
+              <input type="text" [(ngModel)]="entry.value" class="form-control table-input"
+                placeholder="Enter Link Name" />
+            </td>
+            <td>
+              @if (links.length > 1) {
+              <button type="button" (click)="removeLink(i)" class="remove-btn p-0 text-xl" aria-label="Remove section">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                </svg>
+                <span>Remove</span>
+              </button>
+              }
+            </td>
+          </tr>
+          }
 
 
-              </tbody>
-            </table>
-          </div>
-          <div class="mt-3">
-            <a type="button" (click)="addLink()" class="view-btn add-sec d-flex align-items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                </g>
-              </svg>
-              <span>Add Required Link</span>
-            </a>
-          </div>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-3">
+      <a type="button" (click)="addLink()" class="view-btn add-sec d-flex align-items-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>Add Required Link</span>
+      </a>
+    </div>
 
-        </div>
+  </div>
 
-        <div class="content-box d-flex flex-column gap-3 mt-4">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead>
-                <tr>
-                  <th class="w-80">Files</th>
-                  <th class="w-20">Actions</th>
-                </tr>
-              </thead>
+  <div class="content-box d-flex flex-column gap-3 mt-4">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th class="w-80">Files</th>
+            <th class="w-20">Actions</th>
+          </tr>
+        </thead>
 
-              <tbody>
+        <tbody>
 
-                @for (entry of Documents; track entry; let i = $index) {
-                  <tr>
-                    <td>
-                      <input type="text" [(ngModel)]="entry.value" class="form-control table-input"
-                        placeholder="Enter Link Name" />
-                      </td>
-                      <td>
-                        @if (Documents.length > 1) {
-                          <button type="button" (click)="removeDocument(i)"
-                            class="remove-btn p-0 text-xl" aria-label="Remove section">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                              <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-                                <path fill="currentColor" fill-rule="evenodd"
-                                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-                                </svg>
-                                <span>Remove</span>
-                              </button>
-                            }
-                          </td>
-                        </tr>
-                      }
+          @for (entry of Documents; track entry; let i = $index) {
+          <tr>
+            <td>
+              <input type="text" [(ngModel)]="entry.value" class="form-control table-input"
+                placeholder="Enter Link Name" />
+            </td>
+            <td>
+              @if (Documents.length > 1) {
+              <button type="button" (click)="removeDocument(i)" class="remove-btn p-0 text-xl"
+                aria-label="Remove section">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+                  <path fill="currentColor" fill-rule="evenodd"
+                    d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+                </svg>
+                <span>Remove</span>
+              </button>
+              }
+            </td>
+          </tr>
+          }
 
 
-                    </tbody>
-                  </table>
-                </div>
-                <div class="mt-3">
-                  <a type="button" (click)="addDocument()" class="view-btn add-sec d-flex align-items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                      <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                      </g>
-                    </svg>
-                    <span>Add Required Document</span>
-                  </a>
-                </div>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-3">
+      <a type="button" (click)="addDocument()" class="view-btn add-sec d-flex align-items-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>Add Required Document</span>
+      </a>
+    </div>
 
-                <!-- prev and confirm buttons -->
-                <div class="btn-fixed d-flex align-items-stretch gap-2">
-                  <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                    routerLink="/job-openings/create-job-openings/required-details">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                      </svg>
-                    </button>
-                    <button type="button" class="btn btn-lg btn-success w-auto">
-                      <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                          <circle cx="12" cy="12" r="10" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                        </g>
-                      </svg>
-                      <span>Create Opportunity</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+    <!-- prev and confirm buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+      <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        routerLink="/job-openings/create-job-openings/required-details">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
+        </svg>
+      </button>
+      <button type="button" class="btn btn-lg btn-success w-auto" (click)="createJobOpening()">
+        <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Create Opportunity</span>
+      </button>
+    </div>
+  </div>
+</div>

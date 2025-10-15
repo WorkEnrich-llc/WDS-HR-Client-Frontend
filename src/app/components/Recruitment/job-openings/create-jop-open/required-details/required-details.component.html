@@ -6,7 +6,8 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="email">
+                        <input class="form-check-input m-0" type="checkbox" id="email" [(ngModel)]="basicInfo.email"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="email">
                             Email
                         </label>
@@ -15,7 +16,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="phone">
+                        <input class="form-check-input m-0" type="checkbox" id="phone" [(ngModel)]="basicInfo.phone"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="phone">
                             Phone number
                         </label>
@@ -24,7 +26,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="gender">
+                        <input class="form-check-input m-0" type="checkbox" id="gender" [(ngModel)]="basicInfo.gender"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="gender">
                             Gender
                         </label>
@@ -33,7 +36,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="age">
+                        <input class="form-check-input m-0" type="checkbox" id="age" [(ngModel)]="basicInfo.age"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="age">
                             Age
                         </label>
@@ -47,7 +51,8 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="university">
+                        <input class="form-check-input m-0" type="checkbox" id="university"
+                            [(ngModel)]="educationDetails.university" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="university">
                             University name
                         </label>
@@ -55,7 +60,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="collage">
+                        <input class="form-check-input m-0" type="checkbox" id="collage"
+                            [(ngModel)]="educationDetails.college" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="collage">
                             College name
                         </label>
@@ -63,7 +69,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="department">
+                        <input class="form-check-input m-0" type="checkbox" id="department"
+                            [(ngModel)]="educationDetails.department" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="department">
                             Department
                         </label>
@@ -71,7 +78,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="major">
+                        <input class="form-check-input m-0" type="checkbox" id="major"
+                            [(ngModel)]="educationDetails.major" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="major">
                             Major
                         </label>
@@ -79,7 +87,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="graduation">
+                        <input class="form-check-input m-0" type="checkbox" id="graduation"
+                            [(ngModel)]="educationDetails.graduation" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="graduation">
                             Graduation
                         </label>
@@ -93,7 +102,8 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="country">
+                        <input class="form-check-input m-0" type="checkbox" id="country"
+                            [(ngModel)]="addressInfo.country" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="country">
                             Country
                         </label>
@@ -101,7 +111,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="city">
+                        <input class="form-check-input m-0" type="checkbox" id="city" [(ngModel)]="addressInfo.city"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="city">
                             City
                         </label>
@@ -109,7 +120,8 @@
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="state">
+                        <input class="form-check-input m-0" type="checkbox" id="state" [(ngModel)]="addressInfo.state"
+                            (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="state">
                             State/Province
                         </label>
@@ -126,7 +138,8 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="currentCompany">
+                        <input class="form-check-input m-0" type="checkbox" id="currentCompany"
+                            [(ngModel)]="currentJobInfo.currentCompany" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="currentCompany">
                             Current Company
                         </label>
@@ -135,7 +148,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="jobTitle">
+                        <input class="form-check-input m-0" type="checkbox" id="jobTitle"
+                            [(ngModel)]="currentJobInfo.currentJobTitle" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="jobTitle">
                             Current job title
                         </label>
@@ -144,7 +158,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="jobLevel">
+                        <input class="form-check-input m-0" type="checkbox" id="jobLevel"
+                            [(ngModel)]="currentJobInfo.jobLevel" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="jobLevel">
                             Job level
                         </label>
@@ -153,7 +168,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="expyears">
+                        <input class="form-check-input m-0" type="checkbox" id="expyears"
+                            [(ngModel)]="currentJobInfo.yearsOfExperience" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="expyears">
                             Years of Experience
                         </label>
@@ -167,7 +183,8 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="currentSalary">
+                        <input class="form-check-input m-0" type="checkbox" id="currentSalary"
+                            [(ngModel)]="salaryInfo.currentSalary" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="currentSalary">
                             Current Salary
                         </label>
@@ -176,7 +193,8 @@
 
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
-                        <input class="form-check-input m-0" type="checkbox" id="expectedSalary">
+                        <input class="form-check-input m-0" type="checkbox" id="expectedSalary"
+                            [(ngModel)]="salaryInfo.expectedSalary" (change)="updateDynamicFields()">
                         <label class="form-check-label m-0" for="expectedSalary">
                             Expected Salary
                         </label>
