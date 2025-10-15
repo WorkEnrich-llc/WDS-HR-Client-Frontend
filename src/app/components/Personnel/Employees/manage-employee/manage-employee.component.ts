@@ -52,9 +52,10 @@ export class ManageEmployeeComponent implements OnInit {
   private paginationState = inject(PaginationStateService);
 
   private route = inject(ActivatedRoute);
-  public isEditMode = false;
+  // public isEditMode = false;
   isModalOpen = false;
   public employeeId!: number;
+
 
 
   // Component state as signals
@@ -67,16 +68,17 @@ export class ManageEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     // Reset the form when component initializes
-    this.sharedService.resetForm();
-
+    this.sharedService.loadInitialData();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      this.sharedService.resetForm();
       if (id) {
-        this.isEditMode = true;
+        this.sharedService.isEditMode.set(true);
         this.employeeId = +id;
         this.sharedService.loadEmployeeData(+id);
       } else {
-        this.isEditMode = false;
+        this.sharedService.isEditMode.set(false);
+        // this.sharedService.loadInitialData();
         this.sharedService.resetForm();
       }
     });
@@ -103,6 +105,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   confirmAction() {
     // this.isModalOpen = false;
+    this.sharedService.isEditMode()
     this.sharedService.isModalOpen.set(false);
     const currentPage = this.paginationState.getPage('employees/all-employees');
     this.router.navigate(['/employees'], { queryParams: { page: currentPage } });
@@ -140,7 +143,14 @@ export class ManageEmployeeComponent implements OnInit {
     this.sharedService.errMsg.set('');
     console.log('Form Status:', this.sharedService.employeeForm.status);
     console.log('Form Value:', this.sharedService.employeeForm.value);
-    const employeeData = this.sharedService.getFormData(this.isEditMode);
+    const employeeData = this.sharedService.getFormData();
+
+    if (this.sharedService.isEditMode() && !this.sharedService.employeeData()) {
+      this.toasterMessageService.showError('Employee data not loaded yet.');
+      this.sharedService.isLoading.set(false);
+      return;
+    }
+
     if (!employeeData) {
       this.toasterMessageService.showError('Invalid form data');
       this.sharedService.isLoading.set(false);
@@ -148,7 +158,7 @@ export class ManageEmployeeComponent implements OnInit {
       return;
     }
 
-    if (this.isEditMode) {
+    if (this.sharedService.isEditMode()) {
       this.employeeService.updateEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);

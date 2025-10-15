@@ -1,8 +1,8 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
-    { label: isEditMode ? 'Edit Employee ' : 'Create New Employee' }
-  ]" [title]="isEditMode ? 'Edit Employee ' : 'Create New Employee'"
+    { label: sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee' }
+  ]" [title]="sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee'"
   [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
   [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
 
@@ -20,7 +20,7 @@
       </g>
     </svg>
     }
-    <span>{{ isEditMode ? 'Save changes' : 'Create Employee' }}</span>
+    <span>{{ sharedService.isEditMode() ? 'Save changes' : 'Create Employee' }}</span>
   </button>
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
@@ -54,8 +54,8 @@
 </app-popup>
 }
 
-<app-popup [title]="!isEditMode?'Discard New Employee' : 'Discard Changes'"
-  [paragraph1]="!isEditMode?'Are you sure you want to discard creating the new employee?': 'Are you sure you want to discard changes?'"
+<app-popup [title]="!sharedService.isEditMode()?'Discard New Employee' : 'Discard Changes'"
+  [paragraph1]="!sharedService.isEditMode()?'Are you sure you want to discard creating the new employee?': 'Are you sure you want to discard changes?'"
   [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
   <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
     Discard Changes

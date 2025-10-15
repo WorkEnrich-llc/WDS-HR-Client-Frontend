@@ -50,7 +50,7 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
-  code?: string;
+  code: string;
   contact_info: {
     name: string;
     name_arabic: string;
@@ -132,6 +132,7 @@ export interface Employee {
     };
     days_on_site: number;
     salary: number;
+    notice_period: number;
     insurance_salary?: number;
     gross_insurance?: number;
   };

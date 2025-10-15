@@ -81,4 +81,29 @@ export class SubscriptionService {
   );
 }
 
+
+  // getSubscription(): Observable<any> {
+  //   const tokenWithQuotes = localStorage.getItem('token');
+  //   const tokenValue = tokenWithQuotes ? tokenWithQuotes.replace(/^"|"$/g, '') : null;
+
+  //   if (!tokenValue) {
+  //     console.warn('User not logged in — skipping getSubscription request.');
+  //     return of(null);
+  //   }
+
+  //   const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
+
+  //   const headers = new HttpHeaders({
+  //     'ver': '1.0.1',
+  //     'plat': 'DASHBOARD',
+  //     'Authorization': `Token ${tokenValue}`
+  //   });
+
+  //   return this._HttpClient.get<any>(url, { headers }).pipe(
+  //     map(res => {
+  //       const features = res?.data?.features ?? null;
+  //       return features ? { features } : null;
+  //     })
+  //   );
+  // }
 }
