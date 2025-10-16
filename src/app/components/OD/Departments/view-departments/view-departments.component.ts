@@ -33,8 +33,20 @@ setActiveTab(tab: 'sections' | 'goals') {
   totalItemsGoals: number = 0;
   itemsPerPage: number = 10;
   currentPage: number = 1;
+  departmentsSub: any;
+  
   ngOnInit(): void {
-     
+      // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.departmentsSub = sub?.Departments;
+      // if (this.departmentsSub) {
+      //   console.log("info:", this.departmentsSub.info);
+      //   console.log("create:", this.departmentsSub.create);
+      //   console.log("update:", this.departmentsSub.update);
+      //   console.log("delete:", this.departmentsSub.delete);
+      // }
+    });
+
 
     this.deptId = this.route.snapshot.paramMap.get('id');
     // this.getDepartment(Number(this.deptId));

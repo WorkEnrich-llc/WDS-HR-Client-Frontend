@@ -3,6 +3,7 @@
     { label: 'Operational Development', link: '/departments' },
     { label: 'Department Checklist' }
   ]" title="Department Checklist">
+    @if(DepartementCheckSub?.update){
     @if (!loadData) {
     <button class="btn btn-lg btn-primary" routerLink="/dept-check/edit-checklist">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -18,6 +19,8 @@
 
     }
 
+    }
+
 </app-page-header>
 
 <!-- page content -->
@@ -25,8 +28,8 @@
     <div class="content-box d-flex flex-column gap-3">
         <h2>Checklist</h2>
         @if(loadData) {
-              <app-skelaton-loading [rows]="2" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
-    </app-skelaton-loading>
+        <app-skelaton-loading [rows]="2" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
+        </app-skelaton-loading>
         }@else {
         @if (checks.length > 0) {
         <div class="checks">

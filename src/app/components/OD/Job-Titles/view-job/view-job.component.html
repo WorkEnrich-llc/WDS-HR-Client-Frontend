@@ -3,9 +3,11 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Job Titles', link: '/jobs' },
     { label: 'View Job ' + jobTitleData?.name}
-  ]" [title]="'View Job - ' + jobTitleData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt" [isLoading]="loadData">
+  ]" [title]="'View Job - ' + jobTitleData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
   @if (!loadData) {
-      <button class="btn btn-lg btn-primary" [routerLink]="['/jobs/edit',jobTitleData.id]">
+  @if(jobTitleSub?.update){
+  <button class="btn btn-lg btn-primary" [routerLink]="['/jobs/edit',jobTitleData.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round"
@@ -16,6 +18,8 @@
     </svg>
     <span>Edit</span>
   </button>
+
+  }
 
   @if (!jobTitleData.is_active) {
   <button class="btn btn-lg btn-outline-success" (click)="openActivate()">

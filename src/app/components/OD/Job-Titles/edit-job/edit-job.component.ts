@@ -112,8 +112,8 @@ export class EditJobComponent {
   }
 
   jobStep1: FormGroup = new FormGroup({
-    code: new FormControl('',Validators.maxLength(26)),
-    jobName: new FormControl('', [Validators.required,Validators.maxLength(80)]),
+    code: new FormControl('', Validators.maxLength(26)),
+    jobName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
@@ -276,7 +276,7 @@ export class EditJobComponent {
   isSectionSelected: boolean = false;
   showJobLevel: boolean = true;
 
-onLevelChange() {
+  onLevelChange() {
     const level = this.jobStep1.get('managementLevel')?.value;
 
     const jobLevelControl = this.jobStep1.get('jobLevel');
@@ -347,11 +347,16 @@ onLevelChange() {
       next: (response) => {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
-        // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
+
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        this.departments = activeDepartments.map((item: any) => ({
           id: item.id,
           name: item.name,
         }));
+
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -367,17 +372,24 @@ onLevelChange() {
     this._DepartmentsService.showDepartment(deptid).subscribe({
       next: (response) => {
         const rawSections = response.data.object_info.sections;
-        this.sections = rawSections.map((section: any) => ({
+
+        const activeSections = rawSections.filter(
+          (section: any) => section.is_active === true
+        );
+
+        this.sections = activeSections.map((section: any) => ({
           id: section.id,
           name: section.name
         }));
-        // console.log(this.sections);
+
+        // console.log(activeSections);
       },
       error: (err) => {
         console.log(err.error?.details);
       }
     });
   }
+
   ManageCurrentPage: number = 1;
   ManagetotalPages: number = 0;
   ManageTotalItems: number = 0;
@@ -441,14 +453,14 @@ onLevelChange() {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
     hourly_restrict: new FormControl(false),

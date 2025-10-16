@@ -5,7 +5,7 @@
     { label: 'Create New Branch' }
   ]" title="Create New Branch" [create]="todayFormatted">
     @if(branchSub?.create){
-    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
+    <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1 || !isLocationReady"
         (click)="createBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -542,8 +542,8 @@
             </svg>
         </button>
         @if(branchSub?.create){
-        <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1"
-            (click)="createBranch()">
+        <button class="btn btn-lg btn-success" [disabled]="isLoading || !branchStep1.valid || addeddepartments.length<1 || !isLocationReady" 
+        (click)="createBranch()">
             <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
             <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                 <g fill="none" stroke="currentColor" stroke-width="1.5">

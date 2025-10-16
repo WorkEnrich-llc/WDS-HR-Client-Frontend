@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -46,7 +46,8 @@ export class CreateNewBranchComponent implements OnInit {
     private _BranchesService: BranchesService,
     private toasterMessageService: ToasterMessageService,
     private _DepartmentsService: DepartmentsService,
-    private subService: SubscriptionService
+    private subService: SubscriptionService,
+    private ngZone: NgZone
   ) {
 
 
@@ -322,6 +323,8 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
 
+
+
   // create branch
   createBranch(): void {
     if (this.branchStep1.invalid) {
@@ -436,18 +439,22 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
   // Handle location confirmation from Google Maps component
-  onLocationConfirmed(event: LocationData): void {
+onLocationConfirmed(event: LocationData): void {
+
+  this.ngZone.run(() => {
     this.locationData = { ...event };
 
-    setTimeout(() => {
-      this.isLocationReady = !!(
-        this.locationData.map_country &&
-        this.locationData.map_city &&
-        this.locationData.map_region &&
-        this.locationData.map_address
-      );
-    });
-  }
+    this.isLocationReady = !!(
+      this.locationData.map_country &&
+      this.locationData.map_city &&
+      this.locationData.map_address &&
+      this.locationData.latitude &&
+      this.locationData.longitude
+    );
+  });
+}
+
+
 
 
 }

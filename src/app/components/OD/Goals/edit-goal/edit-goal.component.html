@@ -3,8 +3,12 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Goals', link: '/goals' },
     { label: 'Edit Goal' + goalData.name  }
-  ]" [title]="'Edit Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-    <button class="btn btn-lg btn-success" (click)="updateGoal()" [disabled]="goalForm.pristine || goalForm.invalid || isLoading">
+  ]" [title]="'Edit Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+    [isLoading]="loadData">
+    @if(!loadData){
+    @if(GoalsSub?.update){
+    <button class="btn btn-lg btn-success" (click)="updateGoal()"
+        [disabled]="goalForm.pristine || goalForm.invalid || isLoading">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -19,6 +23,8 @@
         <span>Save Changes</span>
     </button>
 
+    }
+
     <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -28,12 +34,19 @@
         </svg>
         <span>Discard Goal</span>
     </button>
+    }
+
 </app-page-header>
 
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
         <form [formGroup]="goalForm" class="w-lg-50 d-flex flex-column gap-2">
+            @if(loadData) {
+            <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="20" [valueHeight]="40">
+            </app-skelaton-loading>
+
+            }@else {
             <div class="input">
                 <label for="code">Goal Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -93,6 +106,8 @@
                 </p>
                 }
             </div>
+            }
+
 
             @if (errMsg) {
             <div class="alert alert-danger mb-0 mt-2" role="alert">
