@@ -81,12 +81,6 @@ export class EditJobComponent {
     // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.jobTitleSub = sub?.Branches;
-      // if (this.jobTitleSub) {
-      //   console.log("info:", this.jobTitleSub.info);
-      //   console.log("create:", this.jobTitleSub.create);
-      //   console.log("update:", this.jobTitleSub.update);
-      //   console.log("delete:", this.jobTitleSub.delete);
-      // }
     });
 
     this.jobId = this.route.snapshot.paramMap.get('id');
@@ -141,7 +135,7 @@ export class EditJobComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.jobTitleData);
+  // jobTitleData loaded
         if (
           this.jobTitleData.department?.id &&
           (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)
@@ -154,6 +148,8 @@ export class EditJobComponent {
         } else {
           this.originalAssignedId = null;
         }
+
+        // Initial Job Title Data loaded (debug logs removed)
 
         this.jobStep1.patchValue({
           code: this.jobTitleData.code || '',
@@ -203,7 +199,7 @@ export class EditJobComponent {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        // Error details available in err.error?.details
         this.loadData = false;
       }
     });
@@ -252,15 +248,19 @@ export class EditJobComponent {
       return;
     }
 
-    const assignedId = this.jobTitles.find(j => j.assigned)?.id || null;
+    // Get the currently assigned manager ID from jobTitles array
+    const currentAssignedId = this.jobTitles.find(j => j.assigned)?.id || null;
+
+    // checkForChanges debug logs removed
 
     this.hasChanges =
       JSON.stringify(this.jobStep1.getRawValue()) !== JSON.stringify(this.originalData.jobStep1) ||
       JSON.stringify(this.jobStep2.getRawValue()) !== JSON.stringify(this.originalData.jobStep2) ||
       JSON.stringify(this.jobStep4.getRawValue()) !== JSON.stringify(this.originalData.jobStep4) ||
       JSON.stringify(this.requirements) !== JSON.stringify(this.originalData.requirements) ||
-      this.removedManagerId !== this.originalData.removedManagerId ||
-      assignedId !== this.originalData.assignedId;
+      currentAssignedId !== this.originalAssignedId;
+
+  // hasChanges state updated
   }
 
   watchFormChanges() {
@@ -362,7 +362,7 @@ export class EditJobComponent {
         this.sortBy();
       },
       error: (err) => {
-        console.log(err.error?.details);
+        // Error details available in err.error?.details
       }
     });
   }
@@ -382,10 +382,10 @@ export class EditJobComponent {
           name: section.name
         }));
 
-        // console.log(activeSections);
+  // activeSections available for debugging
       },
       error: (err) => {
-        console.log(err.error?.details);
+        // Error details available in err.error?.details
       }
     });
   }
@@ -413,21 +413,24 @@ export class EditJobComponent {
         this.ManagetotalPages = response.data.total_pages;
 
         this.jobTitles = response.data.list_items.map((item: any) => {
-          const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+          // Use originalAssignedId as the source of truth for which manager is currently assigned
+          const isAssigned = this.originalAssignedId !== null && item.id === this.originalAssignedId;
           return {
             id: item.id,
+            code: item.code || null,  // Include the code field
             name: item.name,
-            assigned: isAssigned || false
+            assigned: isAssigned
           };
         });
-        // console.log(this.jobTitles);
+        
+        // Job titles loaded/updated (debug logs removed)
 
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
       },
       error: (err) => {
-        console.error(err.error?.details);
+      // Error details available in err.error?.details
       }
     });
   }
@@ -519,38 +522,100 @@ export class EditJobComponent {
     );
   }
 
+  // Get the manager to display in the info box
+  getDisplayedManager(): any {
+    // If a new manager was selected from the list, show that one
+    const currentlyAssigned = this.jobTitles.find(j => j.assigned);
+    if (currentlyAssigned) {
+      return currentlyAssigned;
+    }
+    
+    // If manager was removed, show the removed one
+    if (this.removedManager) {
+      return this.removedManager;
+    }
+    
+    // Otherwise show the original from jobTitleData
+    return this.jobTitleData?.assigns?.[0] || null;
+  }
+
+  // Check if there's any manager to display (original or newly assigned)
+  hasManagerToDisplay(): boolean {
+    return this.getDisplayedManager() !== null;
+  }
+
 
   removeCurrentManager() {
+    // removeCurrentManager invoked
+
+    // Find the currently assigned manager in the jobTitles array
     const current = this.jobTitles.find(job => job.assigned);
+    
+    // The manager to remove should be the one with originalAssignedId
+    // Check if it exists in the jobTitles array
+    const originalManagerInList = this.jobTitles.find(job => job.id === this.originalAssignedId);
+    
     if (current) {
-      this.removedManagerId = current.id;
-      this.removedManager = { ...current };
+      // Store the ID and details for display purposes
+      this.removedManagerId = this.originalAssignedId; // Use original, not current!
+      this.removedManager = this.jobTitleData?.assigns?.[0] || { ...current };
+
+      // Unassign in the local array
       current.assigned = false;
       current.assigns = [];
+
+      // Mark as removed
       this.managerRemoved = true;
+
       this.checkForChanges();
+    } else if (this.originalAssignedId !== null) {
+      // Handle case where original manager exists but not in current jobTitles array
+      // (might be on a different page or filtered out)
+      this.removedManagerId = this.originalAssignedId;
+      this.removedManager = this.jobTitleData?.assigns?.[0] || null;
+      this.managerRemoved = true;
+
+      // If the original manager is in the list but not marked as assigned, unassign it
+      if (originalManagerInList) {
+        originalManagerInList.assigned = false;
+        originalManagerInList.assigns = [];
+      }
+
+      this.checkForChanges();
+    } else {
+      // No manager to remove
     }
   }
 
   toggleAssignStatus(selectedJob: any) {
+    // toggleAssignStatus invoked
+
     const currentAssigned = this.jobTitles.find(job => job.assigned);
 
     if (!selectedJob.assigned) {
+      // Unassign all current jobs
       this.jobTitles.forEach(job => {
         job.assigned = false;
         job.assigns = [];
       });
 
+      // Assign the selected job
       selectedJob.assigned = true;
       selectedJob.assigns = [selectedJob];
 
+      // Assigned new manager locally
+
+      // Track the previous assigned for removal purposes
       this.previousAssignedId = currentAssigned ? currentAssigned.id : null;
 
-      this.removedManagerId = this.previousAssignedId;
-      this.removedManager = currentAssigned ? { ...currentAssigned } : null;
+      // Only set removedManager if there was a current assigned manager different from original
+      if (currentAssigned && currentAssigned.id !== selectedJob.id) {
+        this.removedManager = { ...currentAssigned };
+      }
 
       this.newManagerSelected = true;
-      this.managerRemoved = true;
+      // Reset managerRemoved flag since we're now assigning a new manager
+      this.managerRemoved = false;
     }
 
     this.checkForChanges();
@@ -579,7 +644,7 @@ export class EditJobComponent {
     this.confirmRequirement();
   }
   confirmRequirement() {
-    // console.log('New requirement:', this.newRequirement);
+  // newRequirement processed
     if (this.newRequirement.trim()) {
       this.requirements.push(this.newRequirement.trim());
       this.checkForChanges();
@@ -669,25 +734,47 @@ export class EditJobComponent {
     const setArray: number[] = [];
     const removeArray: number[] = [];
 
-    const hasOld = this.originalAssignedId !== null;
-    const hasNew = !!assignedJob;
+    // Determine the currently selected manager ID from jobTitles array
+    const currentlySelectedId = assignedJob ? assignedJob.id : null;
 
-    if (hasOld && hasNew) {
-      if (assignedJob.id !== this.originalAssignedId!) {
+    const hasOriginal = this.originalAssignedId !== null;
+    const hasSelected = currentlySelectedId !== null;
+
+    // Manager assignment debug logs removed
+
+    // Case 1: Had original manager AND selected a new manager
+    if (hasOriginal && hasSelected) {
+      // Only make changes if they're different
+      if (currentlySelectedId !== this.originalAssignedId) {
         removeArray.push(this.originalAssignedId!);
-        setArray.push(assignedJob.id);
+        setArray.push(currentlySelectedId!);
+  // Case 1: Replacing manager
+      } else {
+  // Case 1: Same manager, no changes
       }
-    } else if (hasOld && !hasNew) {
+      // If same, no changes needed (arrays stay empty)
+    } 
+    // Case 2: Had original manager but NO manager selected now (removed)
+    else if (hasOriginal && !hasSelected) {
       removeArray.push(this.originalAssignedId!);
-    } else if (!hasOld && hasNew) {
-      setArray.push(assignedJob.id);
+  // Case 2: Removing manager
+    } 
+    // Case 3: No original manager but selected a new one
+    else if (!hasOriginal && hasSelected) {
+      setArray.push(currentlySelectedId!);
+  // Case 3: Adding new manager
+    } else {
+  // Case 4: No changes (no original, no selected)
     }
+    // Case 4: No original and no selected = no changes
+
+  // Final arrays prepared for request
 
     requestData.request_data.assigns = {
       set: setArray,
       remove: removeArray
     };
-    // console.log('row', requestData);
+  // requestData prepared
 
     this._JobsService.updateJobTitle(requestData).subscribe({
 

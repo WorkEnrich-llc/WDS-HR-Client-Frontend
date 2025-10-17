@@ -587,33 +587,29 @@
 @if (currentStep === 3) {
 <div class="content-hug">
   <div class="d-flex flex-column gap-4">
-    @if (jobTitleData.assigns && jobTitleData.assigns.length > 0) {
+    @if (hasManagerToDisplay() && !managerRemoved) {
     <div class="content-box d-flex flex-column gap-3 w-100">
       <h2>Direct Manager</h2>
       <div class="info">
         <h6>Job Title ID</h6>
         <span>
-          {{
-          removedManagerId !== null
-          ? removedManagerId.toString().padStart(4, '0')
-          : jobTitleData.assigns[0]?.id.toString().padStart(4, '0')
-          }}
+          {{ getDisplayedManager()?.id?.toString().padStart(4, '0') }}
         </span>
       </div>
-      @if (removedManager?.code || jobTitleData.assigns[0]?.code) {
+      @if (getDisplayedManager()?.code) {
       <div class="info">
         <h6>Job Title Code</h6>
-        <span>{{ removedManager?.code || jobTitleData.assigns[0]?.code }}</span>
+        <span>{{ getDisplayedManager()?.code }}</span>
       </div>
       }
       <div class="info">
         <h6>Job Title</h6>
-        <span>{{ removedManager?.name || jobTitleData.assigns[0]?.name }}</span>
+        <span>{{ getDisplayedManager()?.name }}</span>
       </div>
       <div>
         <button class="btn btn-lg w-auto"
-          [ngClass]="removedManagerId !== null || managerRemoved || newManagerSelected ? 'btn-danger' : 'btn-outline-danger'"
-          [disabled]="!selectedManagerExists() || managerRemoved || newManagerSelected"
+          [ngClass]="newManagerSelected ? 'btn-danger' : 'btn-outline-danger'"
+          [disabled]="!hasManagerToDisplay()"
           (click)="removeCurrentManager()">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -623,14 +619,7 @@
                 d="M6.5 6h.11a2 2 0 0 0 1.83-1.32l.034-.103l.097-.291c.083-.249.125-.373.18-.479a1.5 1.5 0 0 1 1.094-.788C9.962 3 10.093 3 10.355 3h3.29c.262 0 .393 0 .51.019a1.5 1.5 0 0 1 1.094.788c.055.106.097.23.18.479l.097.291A2 2 0 0 0 17.5 6" />
             </g>
           </svg>
-          @if (removedManagerId !== null || managerRemoved || newManagerSelected) {
-          <span>Manager
-            removed</span>
-          }
-          @if (removedManagerId === null && !managerRemoved && !newManagerSelected && jobTitleData.assigns.length > 0) {
-          <span>Remove
-            as Manager</span>
-          }
+          <span>Remove as Manager</span>
         </button>
       </div>
     </div>
