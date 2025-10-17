@@ -36,6 +36,7 @@
       </div>
       <!-- <span>{{subscription?.plan}}</span> -->
       <!-- New Branch button -->
+      @if(GoalsSub?.create){
       <button class="btn btn-lg btn-primary" routerLink="/goals/create">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="#ffffff" stroke-width="1.5">
@@ -45,6 +46,8 @@
         </svg>
         <span>New Goal</span>
       </button>
+      }
+
     </div>
 
     <!-- start Table -->
@@ -130,7 +133,8 @@
               </g>
             </svg>
           </a>
-          <a [routerLink]="['/goals/edit', goal.id]" [queryParams]="{ page: currentPage }"
+          @if(GoalsSub?.update){
+             <a [routerLink]="['/goals/edit', goal.id]" [queryParams]="{ page: currentPage }"
             class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -141,6 +145,8 @@
               </g>
             </svg>
           </a>
+          }
+         
         </div>
 
       </td>

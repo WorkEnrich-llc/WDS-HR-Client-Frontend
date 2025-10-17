@@ -26,7 +26,7 @@ export class AllJobTitlesComponent {
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder,private subService: SubscriptionService) { }
+    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder, private subService: SubscriptionService) { }
   departments: any[] = [];
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
@@ -37,10 +37,10 @@ export class AllJobTitlesComponent {
   currentFilters: any = {};
   currentSearchTerm: string = '';
 
-    jobTitleSub: any;
+  jobTitleSub: any;
   ngOnInit(): void {
 
-      // subscription data
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.jobTitleSub = sub?.Branches;
       // if (this.jobTitleSub) {
@@ -146,7 +146,9 @@ export class AllJobTitlesComponent {
       // console.log('Filters submitted:', filters);
       this.currentPage = 1;
       this.filterBox.closeOverlay();
-      this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+      this.currentFilters = filters;
+      this.getAllJobTitles(this.currentPage, this.currentSearchTerm, filters);
+
     }
   }
 

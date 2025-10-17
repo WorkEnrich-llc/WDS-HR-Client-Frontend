@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsModule, MapCircle } from '@angular/google-maps';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 
 export interface LocationData {
@@ -37,7 +37,7 @@ export class GoogleMapsLocationComponent implements OnInit {
   @Input() isEditMode: boolean = false;
   @Input() mapHeight: string = '300px';
   @Input() mapWidth: string = '50%';
-
+  @ViewChild('circleRef') circle!: MapCircle;
   @Output() locationChanged = new EventEmitter<LocationData>();
   @Output() locationConfirmed = new EventEmitter<LocationData>();
 
@@ -170,12 +170,19 @@ export class GoogleMapsLocationComponent implements OnInit {
   }
 
   // Handle circle radius change
-  onCircleRadiusChanged(event: any) {
-    if (event && event.target) {
-      this.radiusRange = Math.round(event.target.getRadius());
+  // onCircleRadiusChanged(event: any) {
+  //   if (event && event.target) {
+  //     this.radiusRange = Math.round(event.target.getRadius());
+  //     this.emitLocationChange();
+  //   }
+  // }
+  onCircleRadiusChanged() {
+    if (this.circle && this.circle.circle) {
+      this.radiusRange = Math.round(this.circle.circle.getRadius());
       this.emitLocationChange();
     }
   }
+
 
   getCurrentLocation() {
     if (navigator.geolocation) {
@@ -266,34 +273,34 @@ export class GoogleMapsLocationComponent implements OnInit {
     this.emitLocationChange();
   }
 
- async confirmLocation() {
-  if (this.branchMarker) {
-    this.displayLatitude = this.latitude.toFixed(6);
-    this.displayLongitude = this.longitude.toFixed(6);
+  async confirmLocation() {
+    if (this.branchMarker) {
+      this.displayLatitude = this.latitude.toFixed(6);
+      this.displayLongitude = this.longitude.toFixed(6);
 
-    const addressData = await this.reverseGeocode(this.latitude, this.longitude);
+      const addressData = await this.reverseGeocode(this.latitude, this.longitude);
 
-    this.map_country = addressData.country;
-    this.map_city = addressData.city;
-    this.map_region = addressData.region;
-    this.map_address = addressData.fullAddress;
+      this.map_country = addressData.country;
+      this.map_city = addressData.city;
+      this.map_region = addressData.region;
+      this.map_address = addressData.fullAddress;
 
-    const locationData: LocationData = {
-      latitude: this.latitude,
-      longitude: this.longitude,
-      radiusRange: this.radiusRange,
-      displayLatitude: this.displayLatitude,
-      displayLongitude: this.displayLongitude,
-      map_country: this.map_country,
-      map_city: this.map_city,
-      map_region: this.map_region,
-      map_address: this.map_address
-    };
+      const locationData: LocationData = {
+        latitude: this.latitude,
+        longitude: this.longitude,
+        radiusRange: this.radiusRange,
+        displayLatitude: this.displayLatitude,
+        displayLongitude: this.displayLongitude,
+        map_country: this.map_country,
+        map_city: this.map_city,
+        map_region: this.map_region,
+        map_address: this.map_address
+      };
 
-    this.locationConfirmed.emit(locationData);
-    this.toasterMessageService.showSuccess(`Location confirmed ${this.map_address}`);
+      this.locationConfirmed.emit(locationData);
+      this.toasterMessageService.showSuccess(`Location confirmed ${this.map_address}`);
+    }
   }
-}
 
 
 
@@ -320,10 +327,10 @@ export class GoogleMapsLocationComponent implements OnInit {
         this.map_address = results[0].formatted_address;
         this.map_country = this.getComponent(components, 'country');
         this.map_city = this.getComponent(components, 'locality') || this.getComponent(components, 'administrative_area_level_2');
-        this.map_region = this.getComponent(components, 'sublocality') 
-                || this.getComponent(components, 'neighborhood')
-                || this.getComponent(components, 'locality') 
-                || this.getComponent(components, 'administrative_area_level_2');
+        this.map_region = this.getComponent(components, 'sublocality')
+          || this.getComponent(components, 'neighborhood')
+          || this.getComponent(components, 'locality')
+          || this.getComponent(components, 'administrative_area_level_2');
 
         this.emitLocationChange();
       }

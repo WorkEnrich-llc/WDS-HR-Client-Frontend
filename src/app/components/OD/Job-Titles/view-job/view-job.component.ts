@@ -5,22 +5,37 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { DatePipe } from '@angular/common';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-view-job',
-  imports: [PageHeaderComponent, RouterLink,SkelatonLoadingComponent, PopupComponent],
+  imports: [PageHeaderComponent, RouterLink, SkelatonLoadingComponent, PopupComponent],
   providers: [DatePipe],
   templateUrl: './view-job.component.html',
   styleUrl: './view-job.component.css'
 })
 export class ViewJobComponent {
 
-  constructor(private _JobsService: JobsService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _JobsService: JobsService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   jobTitleData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   jobId: string | null = null;
+
+  jobTitleSub: any;
+
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
     this.jobId = this.route.snapshot.paramMap.get('id');
     // this.getJobTitle(Number(this.jobId));
     if (this.jobId) {
@@ -28,9 +43,9 @@ export class ViewJobComponent {
     }
   }
 
-  loadData:boolean=false;
+  loadData: boolean = false;
   getJobTitle(jobId: number) {
-    this.loadData=true;
+    this.loadData = true;
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
@@ -47,11 +62,11 @@ export class ViewJobComponent {
 
         this.sortDirection = 'desc';
         this.sortBy('id');
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
       }
     });
   }

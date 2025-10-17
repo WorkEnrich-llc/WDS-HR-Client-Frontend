@@ -8,6 +8,7 @@ import { BranchesService } from '../../../../core/services/od/branches/branches.
 import { GoogleMapsLocationComponent, LocationData } from 'app/components/shared/google-maps-location/google-maps-location.component';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 interface Department {
   id: number;
@@ -28,7 +29,7 @@ interface Department {
 export class ViewBranchesComponent {
 
 
-  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe,private subService: SubscriptionService) { }
   departments: Department[] = [];
   branchData: any = { sections: [] };
   formattedCreatedAt: string = '';
@@ -37,8 +38,21 @@ export class ViewBranchesComponent {
   latitude: number = 0;
   longitude: number = 0;
   loadData: boolean = false;
-
+branchSub: any;
   ngOnInit(): void {
+
+     // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
+
     this.branchId = this.route.snapshot.paramMap.get('id');
     // this.showBranch(Number(this.branchId));
     if (this.branchId) {

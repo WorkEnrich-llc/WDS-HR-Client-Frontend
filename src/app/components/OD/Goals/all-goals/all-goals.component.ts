@@ -5,6 +5,7 @@ import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
@@ -28,7 +29,8 @@ export class AllGoalsComponent {
     private fb: FormBuilder,
     private toasterMessageService: ToasterMessageService,
     private toastr: ToastrService,
-    private goalsService: GoalsService
+    private goalsService: GoalsService,
+    private subService: SubscriptionService
   ) { }
 
   searchTerm: string = '';
@@ -41,12 +43,25 @@ export class AllGoalsComponent {
   loadData: boolean = false;
   sortDirection: string = 'asc';
   Goals: any[] = [];
-currentFilters: { goal_type?: number } = {};
-currentSearchTerm: string = '';
+  currentFilters: { goal_type?: number } = {};
+  currentSearchTerm: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
+  GoalsSub: any;
   ngOnInit(): void {
+
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.GoalsSub = sub?.Goals;
+      // if (this.GoalsSub) {
+      //   console.log("info:", this.GoalsSub.info);
+      //   console.log("create:", this.GoalsSub.create);
+      //   console.log("update:", this.GoalsSub.update);
+      //   console.log("delete:", this.GoalsSub.delete);
+      // }
+    });
+
     this.getAllGoals(this.currentPage);
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -69,36 +84,36 @@ currentSearchTerm: string = '';
     });
   }
 
-getAllGoals(
-  pageNumber: number = 1,
-  searchTerm: string = '',
-  filters: { goal_type?: number } = {}
-): void {
-  this.loadData = true;
+  getAllGoals(
+    pageNumber: number = 1,
+    searchTerm: string = '',
+    filters: { goal_type?: number } = {}
+  ): void {
+    this.loadData = true;
 
-  this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
-    search: searchTerm || undefined,
-    goal_type: filters.goal_type || undefined   
-  }).subscribe({
-    next: (response) => {
-      const data = response?.data;
+    this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      goal_type: filters.goal_type || undefined
+    }).subscribe({
+      next: (response) => {
+        const data = response?.data;
 
-      this.currentPage = Number(data?.page ?? 1);
-      this.totalItems = data?.total_items ?? 0;
-      this.totalpages = data?.total_pages ?? 0;
-      this.Goals = data?.list_items ?? [];
+        this.currentPage = Number(data?.page ?? 1);
+        this.totalItems = data?.total_items ?? 0;
+        this.totalpages = data?.total_pages ?? 0;
+        this.Goals = data?.list_items ?? [];
 
-      this.sortDirection = 'desc';
-      this.sortBy();
+        this.sortDirection = 'desc';
+        this.sortBy();
 
-      this.loadData = false;
-    },
-    error: (err) => {
-      console.error("Error loading goals:", err.error?.details || err.message);
-      this.loadData = false;
-    }
-  });
-}
+        this.loadData = false;
+      },
+      error: (err) => {
+        console.error("Error loading goals:", err.error?.details || err.message);
+        this.loadData = false;
+      }
+    });
+  }
 
   getAssignedDepartmentsText(goal: any, maxLength: number = 40): string {
     if (!goal.assigned_department || goal.assigned_department.length === 0) {
@@ -136,48 +151,48 @@ getAllGoals(
 
 
   // search and filter
- onSearchChange() {
-  this.currentPage = 1;
-  this.currentSearchTerm = this.searchTerm;
-  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
-}
-
-
- filter(): void {
-  if (this.filterForm.valid) {
-    const rawFilters = this.filterForm.value;
-
-    this.currentFilters = {
-      goal_type: rawFilters.goal_type || undefined
-    };
-
+  onSearchChange() {
     this.currentPage = 1;
-    this.filterBox.closeOverlay();
+    this.currentSearchTerm = this.searchTerm;
     this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
-}
+
+
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+
+      this.currentFilters = {
+        goal_type: rawFilters.goal_type || undefined
+      };
+
+      this.currentPage = 1;
+      this.filterBox.closeOverlay();
+      this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    }
+  }
 
 
 
-resetFilterForm(): void {
-  this.filterForm.reset({
-    goal_type: '',
-  });
-  this.filterBox.closeOverlay();
-  this.getAllGoals(1); 
-}
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      goal_type: '',
+    });
+    this.filterBox.closeOverlay();
+    this.getAllGoals(1);
+  }
 
 
 
-onItemsPerPageChange(newItemsPerPage: number) {
-  this.itemsPerPage = newItemsPerPage;
-  this.currentPage = 1;
-  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
-}
+  onItemsPerPageChange(newItemsPerPage: number) {
+    this.itemsPerPage = newItemsPerPage;
+    this.currentPage = 1;
+    this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  }
 
-onPageChange(page: number): void {
-  this.currentPage = page;
-  this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
-}
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  }
 
 }

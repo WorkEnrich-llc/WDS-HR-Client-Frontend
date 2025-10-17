@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -50,7 +50,8 @@ export class EditBranchInfoComponent implements OnInit {
     private _DepartmentsService: DepartmentsService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private subService: SubscriptionService
+    private subService: SubscriptionService,
+    private ngZone: NgZone
   ) { }
 
   branchData: any = { sections: [] };
@@ -629,15 +630,16 @@ onLocationChanged(locationData: LocationData): void {
 
 // Handle location confirmation (user pressed "Confirm")
 onLocationConfirmed(event: LocationData): void {
-  this.locationData = { ...event };
 
-  // Use setTimeout to ensure change detection updates the button state
-  setTimeout(() => {
+  this.ngZone.run(() => {
+    this.locationData = { ...event };
+
     this.isLocationReady = !!(
       this.locationData.map_country &&
       this.locationData.map_city &&
-      this.locationData.map_region &&
-      this.locationData.map_address
+      this.locationData.map_address &&
+      this.locationData.latitude &&
+      this.locationData.longitude
     );
   });
 }

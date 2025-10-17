@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
@@ -24,6 +25,7 @@ export class NewGoalComponent {
     private datePipe: DatePipe,
     private goalsService:GoalsService,
     private toasterMessageService: ToasterMessageService,
+    private subService: SubscriptionService
   ) {
 
 
@@ -32,7 +34,19 @@ export class NewGoalComponent {
     // console.log(this.todayFormatted); 
   }
 
-
+  GoalsSub: any;
+  ngOnInit(): void {
+      // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.GoalsSub = sub?.Goals;
+      // if (this.GoalsSub) {
+      //   console.log("info:", this.GoalsSub.info);
+      //   console.log("create:", this.GoalsSub.create);
+      //   console.log("update:", this.GoalsSub.update);
+      //   console.log("delete:", this.GoalsSub.delete);
+      // }
+    });
+  }
 
   
   goalForm: FormGroup = new FormGroup({
