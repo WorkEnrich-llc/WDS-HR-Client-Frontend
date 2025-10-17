@@ -18,73 +18,102 @@
             </div>
 
             <div class="input">
-                <label for="branch_id">Branch <span>*</span></label>
+                <label for="level">Management Level <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="branch_id" formControlName="branch_id" class="form-select">
-                            <option [value]="null" disabled hidden>Select Branch</option>
-                            @for (branch of sharedService.getActiveBranches(); track
-                            branch.id) {
-                            <option [value]="branch.id">{{ branch.name }}</option>
-                            }
+                        <select name="level" formControlName="managementLevel" id="level" class="form-select">
+                            <!-- (change)="onLevelChange()" -->
+                            <option value="" disabled hidden>Select Level</option>
+                            <option value="1">Company</option>
+                            <option value="2">Branch</option>
+                            <option value="3">Department</option>
+                            <option value="4">Section</option>
+                            <option value="5">None</option>
                         </select>
                     </div>
                 </div>
-                @if (sharedService.isFieldInvalid('branch_id',
+                @if (sharedService.isFieldInvalid('managementLevel',
                 sharedService.jobDetails)) {
                 <p class="error-msg">
                     {{
-                    sharedService.getFieldError("branch_id", sharedService.jobDetails)
+                    sharedService.getFieldError("managementLevel", sharedService.jobDetails)
                     }}
                 </p>
                 }
             </div>
 
-            <div class="input">
-                <label for="department_id">Department <span>*</span></label>
-                <div class="d-flex align-items-center gap-4">
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="department_id" formControlName="department_id" class="form-select">
-                            <option [value]="null" disabled hidden>Select Department</option>
-                            @for (dept of sharedService.getActiveDepartments(); track dept.id)
-                            {
-                            <option [value]="dept.id">{{ dept.name }}</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                @if (sharedService.isFieldInvalid('department_id',
-                sharedService.jobDetails)) {
-                <p class="error-msg">
-                    {{
-                    sharedService.getFieldError(
-                    "department_id",
-                    sharedService.jobDetails
-                    )
-                    }}
-                </p>
-                }
-            </div>
+            <div [hidden]="sharedService.jobDetails.get('managementLevel')?.value != 5">
 
-            <div class="input">
-                <label for="section_id">Section</label>
-                <div class="d-flex align-items-center gap-4">
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="section_id" formControlName="section_id" class="form-select"
-                            [disabled]="sharedService.getSections().length === 0">
-                            <option [value]="null" disabled hidden>
-                                {{
-                                sharedService.getSections().length === 0
-                                ? "Select Department first"
-                                : "Select Section"
-                                }}
-                            </option>
-                            @for (section of sharedService.getSections(); track section.id) {
-                            <option [value]="section.id">{{ section.name }}</option>
-                            }
-                        </select>
+                <div class="input">
+                    <label for="branch_id">Branch <span>*</span></label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select id="branch_id" formControlName="branch_id" class="form-select">
+                                <option [value]="null" disabled hidden>Select Branch</option>
+                                @for (branch of sharedService.getActiveBranches(); track
+                                branch.id) {
+                                <option [value]="branch.id">{{ branch.name }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    @if (sharedService.isFieldInvalid('branch_id',
+                    sharedService.jobDetails)) {
+                    <p class="error-msg">
+                        {{
+                        sharedService.getFieldError("branch_id", sharedService.jobDetails)
+                        }}
+                    </p>
+                    }
+                </div>
+
+                <div class="input">
+                    <label for="department_id">Department <span>*</span></label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select id="department_id" formControlName="department_id" class="form-select">
+                                <option [value]="null" disabled hidden>Select Department</option>
+                                @for (dept of sharedService.getActiveDepartments(); track dept.id)
+                                {
+                                <option [value]="dept.id">{{ dept.name }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    @if (sharedService.isFieldInvalid('department_id',
+                    sharedService.jobDetails)) {
+                    <p class="error-msg">
+                        {{
+                        sharedService.getFieldError(
+                        "department_id",
+                        sharedService.jobDetails
+                        )
+                        }}
+                    </p>
+                    }
+                </div>
+
+                <div class="input">
+                    <label for="section_id">Section</label>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select id="section_id" formControlName="section_id" class="form-select"
+                                [disabled]="sharedService.getSections().length === 0">
+                                <option [value]="null" disabled hidden>
+                                    {{
+                                    sharedService.getSections().length === 0
+                                    ? "Select Department first"
+                                    : "Select Section"
+                                    }}
+                                </option>
+                                @for (section of sharedService.getSections(); track section.id) {
+                                <option [value]="section.id">{{ section.name }}</option>
+                                }
+                            </select>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="input">

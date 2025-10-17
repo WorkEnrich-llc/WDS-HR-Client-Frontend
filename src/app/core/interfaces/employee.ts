@@ -21,6 +21,7 @@ export interface CreateEmployeeRequest {
       branch_id: number;
       department_id: number;
       section_id?: number;
+      management_level?: number;
       job_title_id: number;
       work_schedule_id: number;
       activate_attendance_rules?: boolean;
@@ -130,6 +131,10 @@ export interface Employee {
       id: number;
       name: string;
     };
+    management_level: {
+      id: number;
+      name: string;
+    }
     days_on_site: number;
     salary: number;
     notice_period: number;

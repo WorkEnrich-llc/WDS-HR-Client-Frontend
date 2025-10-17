@@ -135,6 +135,7 @@ export class ManageEmployeeSharedService {
         branch_id: [null, Validators.required],
         department_id: [null, Validators.required],
         section_id: [null],
+        managementLevel: [null, Validators.required],
         job_title_id: [null, Validators.required],
         years_of_experience: [null]
       }),
@@ -145,7 +146,7 @@ export class ManageEmployeeSharedService {
         include_probation: [false],
         notice_period: [null],
         salary: ['', [Validators.required, Validators.min(0)]],
-        insurance_salary: ['']
+        // insurance_salary: ['']
       }, { validators: this.dateRangeValidator.bind(this) }),
       attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
@@ -458,6 +459,7 @@ export class ManageEmployeeSharedService {
       branch_id: data.job_info.branch?.id,
       department_id: data.job_info.department?.id,
       section_id: data.job_info.section?.id,
+      managementLevel: data.job_info.management_level,
       job_title_id: data.job_info.job_title?.id,
       years_of_experience: data.job_info.years_of_experience || 0
     }, options);
@@ -939,6 +941,7 @@ export class ManageEmployeeSharedService {
         branch_id: parseInt(formData.job_details.branch_id, 10),
         department_id: parseInt(formData.job_details.department_id, 10),
         section_id: parseInt(formData.job_details.section_id, 10),
+        management_level: parseInt(formData.job_details.management_level, 10),
         job_title_id: parseInt(formData.job_details.job_title_id, 10),
         work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
         activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
