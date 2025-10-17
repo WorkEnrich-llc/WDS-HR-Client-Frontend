@@ -244,7 +244,6 @@ export class UsersComponent {
 
   remove(email: string): void {
     if (!email) {
-      this.toasterService.showError('Enter Email');
       return;
     }
     this.userService.deleteRole(email).subscribe({
