@@ -74,7 +74,7 @@ export class EditPartTimeComponent implements OnInit {
     const overtimeSettings = (partTimeSettings as any).overtime;
     if (overtimeSettings) {
       this.allowOvertime = overtimeSettings.flat_rate?.status || overtimeSettings.custom_hours?.status || false;
-      
+
       if (overtimeSettings.flat_rate?.status) {
         this.overtimeType = 'flatRate';
         this.flatRateValue = overtimeSettings.flat_rate.value?.toString() || '';
@@ -161,6 +161,7 @@ export class EditPartTimeComponent implements OnInit {
 
   // steps navigation
   currentStep = 1;
+  isLoading: boolean = false;
 
   goNext() {
     this.currentStep++;
