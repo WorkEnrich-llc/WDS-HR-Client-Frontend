@@ -759,12 +759,7 @@ export class ManageEmployeeSharedService {
 
       if (field.errors['minlength']) return `Minimum length is ${field.errors['minlength'].requiredLength}`;
       if (field.errors['maxlength']) return `Maximum length is ${field.errors['maxlength'].requiredLength}`;
-      if (field.errors['pattern']) {
-        if (fieldName === 'number' || fieldName.endsWith('.number')) {
-          return 'Number must start with 10, 11, 12, or 15';
-        }
-        return `${displayName} format is incorrect`;
-      }
+
       if (field.errors['min']) return `Minimum value is ${field.errors['min'].min}`;
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
       if (field.errors['containsSpecialChars']) return `${displayName} cannot contain special characters`;
@@ -772,12 +767,19 @@ export class ManageEmployeeSharedService {
       if (field.errors['containsEnglish']) return `${displayName} cannot contain English characters`;
       if (field.errors['numbersPattern']) return `${displayName} cannot contain numbers`;
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
-      if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
+      if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 
       if (field.errors['pattern']) {
         if (fieldName === 'name_english' || fieldName === 'name_arabic') {
           return 'Please enter a valid format';
+        }
+        return `${displayName} format is incorrect`;
+      }
+
+      if (field.errors['pattern']) {
+        if (fieldName === 'number' || fieldName.endsWith('.number')) {
+          return 'Number must start with 10, 11, 12, or 15';
         }
         return `${displayName} format is incorrect`;
       }
