@@ -44,6 +44,7 @@ export class UsersComponent {
   userStatus = UserStatus
   status = Status
   roles: Partial<Roles>[] = [];
+  lastInvitationTimes = new Map<string, number>();
   statusOptions = Object.entries(Status)
     .filter(([key, value]) => typeof value === 'number')
     .map(([key, value]) => ({ label: key, value }));
@@ -90,6 +91,7 @@ export class UsersComponent {
       status: [''],
       role: ['']
     });
+    this.loadSavedTimes();
   }
 
 
@@ -182,12 +184,76 @@ export class UsersComponent {
 
 
   resendInvitation(email: string): void {
+
+    const now = Date.now();
+    const lastSent = this.lastInvitationTimes.get(email);
+    if (lastSent && now - lastSent < 86400000) {
+      const remainingHours = Math.ceil((86400000 - (now - lastSent)) / (1000 * 60 * 60));
+      this.toasterService.showWarning(`You can not resend again before ${remainingHours} hour(s).`);
+      return;
+    }
+
+    this.loadData = true;
     this.userService.resendInvitation(email).subscribe({
       next: () => {
+        this.lastInvitationTimes.set(email, now);
+        this.saveInvitationTimes();
         this.toasterService.showSuccess('Invitation resent successfully');
+        this.loadData = false;
+        this.getAllUsers(this.currentPage);
       },
       error: () => {
+        this.loadData = false;
         this.toasterService.showError('Error resending invitation');
+      }
+    });
+  }
+
+  canResend(email: string): boolean {
+    const lastSent = this.lastInvitationTimes.get(email);
+    if (!lastSent) return true;
+    return Date.now() - lastSent >= 86400000;
+  }
+
+  getRemainingTime(email: string): string | null {
+    const lastSent = this.lastInvitationTimes.get(email);
+    if (!lastSent) return null;
+
+    const diff = 86400000 - (Date.now() - lastSent);
+    if (diff <= 0) return null;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${mins}m`;
+  }
+
+  private saveInvitationTimes() {
+    const data = JSON.stringify(Array.from(this.lastInvitationTimes.entries()));
+    localStorage.setItem('lastInvitationTimes', data);
+  }
+
+  private loadSavedTimes() {
+    const saved = localStorage.getItem('lastInvitationTimes');
+    if (saved) {
+      this.lastInvitationTimes = new Map(JSON.parse(saved));
+    }
+  }
+
+
+  emailToDelete = '';
+
+  remove(email: string): void {
+    if (!email) {
+      this.toasterService.showError('Enter Email');
+      return;
+    }
+    this.userService.deleteRole(email).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('Deleted successfully');
+      },
+      error: (err) => {
+        this.toasterService.showError('Failed to delete');
+        console.error(err);
       }
     });
   }
