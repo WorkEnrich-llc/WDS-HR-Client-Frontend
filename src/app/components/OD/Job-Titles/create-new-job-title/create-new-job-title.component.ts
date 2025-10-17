@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -62,6 +62,7 @@ export class CreateNewJobTitleComponent {
   }
 
   jobTitleSub: any;
+  private departmentValueSub?: Subscription;
   ngOnInit(): void {
     // subscription data
     this.subService.subscription$.subscribe(sub => {
@@ -84,6 +85,14 @@ export class CreateNewJobTitleComponent {
       this.ManageCurrentPage = 1; // Reset to page 1 when searching
       this.getAllJobTitles(1, value);
     });
+
+    // Only enable/validate section after a department is selected.
+    const departmentControl = this.jobStep1.get('department');
+    if (departmentControl) {
+      this.departmentValueSub = departmentControl.valueChanges.subscribe(value => {
+        this.onDepartmentValueChange(value);
+      });
+    }
   }
 
   jobStep1: FormGroup = new FormGroup({
@@ -149,6 +158,43 @@ export class CreateNewJobTitleComponent {
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
+
+    // For Management Level = '5' (None) we should not enable or validate section until a department is chosen.
+    if (level === '5') {
+      // ensure section is disabled until a department is selected
+      sectionControl?.reset('');
+      sectionControl?.disable();
+      sectionControl?.clearValidators();
+      sectionControl?.updateValueAndValidity();
+      this.isSectionSelected = false;
+    }
+  }
+
+  onDepartmentValueChange(value: any) {
+    const level = this.jobStep1.get('managementLevel')?.value;
+    const sectionControl = this.jobStep1.get('section');
+
+    if (value) {
+      // Load sections for the selected department
+      this.getsections(+value);
+
+      // Enable section and make it required once a department is selected
+      sectionControl?.enable();
+      sectionControl?.setValidators([Validators.required]);
+      sectionControl?.updateValueAndValidity();
+      this.isSectionSelected = true;
+    } else {
+      // No department selected -> keep section disabled and clear validation
+      sectionControl?.reset('');
+      sectionControl?.disable();
+      sectionControl?.clearValidators();
+      sectionControl?.updateValueAndValidity();
+      this.isSectionSelected = false;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.departmentValueSub?.unsubscribe();
   }
 
 

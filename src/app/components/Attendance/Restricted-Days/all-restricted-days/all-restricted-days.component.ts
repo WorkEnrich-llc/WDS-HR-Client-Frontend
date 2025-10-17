@@ -36,12 +36,17 @@ export class AllRestrictedDaysComponent {
   loadData: boolean = true;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private activeFilters: { restriction_type?: string } = {};
 
 
   ngOnInit(): void {
+    this.filterForm = this.fb.group({
+      restriction_type: ''
+    });
+
     this.route.queryParams.subscribe(params => {
       this.currentPage = +params['page'] || 1;
-      this.getAllResterictedDays(this.currentPage);
+      this.getAllResterictedDays(this.currentPage, this.searchTerm, this.activeFilters);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -54,10 +59,7 @@ export class AllRestrictedDaysComponent {
       });
 
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllResterictedDays(this.currentPage, value);
-    });
-    this.filterForm = this.fb.group({
-      restriction_type: ''
+      this.getAllResterictedDays(this.currentPage, value, this.activeFilters);
     });
   }
 
@@ -121,21 +123,22 @@ sortBy() {
     this.filterForm.reset({
       restriction_type: ''
     });
+    this.activeFilters = {};
     this.filterBox.closeOverlay();
-    this.getAllResterictedDays(this.currentPage);
+    this.getAllResterictedDays(this.currentPage, this.searchTerm, this.activeFilters);
   }
 
   filter(): void {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
 
-      const filters = {
+      this.activeFilters = {
         restriction_type: rawFilters.restriction_type || undefined
       };
 
-      // console.log('Filters submitted:', filters);
+      // console.log('Filters submitted:', this.activeFilters);
       this.filterBox.closeOverlay();
-      this.getAllResterictedDays(this.currentPage, '', filters);
+      this.getAllResterictedDays(this.currentPage, this.searchTerm, this.activeFilters);
     }
   }
 
@@ -146,12 +149,12 @@ sortBy() {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.getAllResterictedDays(this.currentPage);
+    this.getAllResterictedDays(this.currentPage, this.searchTerm, this.activeFilters);
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllResterictedDays(this.currentPage);
+    this.getAllResterictedDays(this.currentPage, this.searchTerm, this.activeFilters);
   }
 
 }
