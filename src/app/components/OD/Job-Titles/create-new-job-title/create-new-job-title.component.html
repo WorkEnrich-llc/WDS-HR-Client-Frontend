@@ -274,6 +274,11 @@
             Department is required.
           </p>
           }
+           @if (jobStep1.get('section')?.touched && jobStep1.get('section')?.errors?.['required']) {
+          <p class="error-msg">
+            Department is required First.
+          </p>
+          }
         </div>
         <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
           <label for="section">Assign Section</label>

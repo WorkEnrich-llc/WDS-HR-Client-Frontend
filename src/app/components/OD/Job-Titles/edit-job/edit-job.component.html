@@ -192,7 +192,7 @@
           <input type="text" id="jobCode" formControlName="code" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
-         @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
+        @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
         <p class="error-msg">
           Job Title Code max lengh 26.
         </p>
@@ -286,6 +286,11 @@
           </div>
           @if (jobStep1.get('department')?.touched && jobStep1.get('department')?.errors?.['required']) {
           <p class="error-msg">Department is required.</p>
+          }
+          @if (jobStep1.get('section')?.touched && jobStep1.get('section')?.errors?.['required']) {
+          <p class="error-msg">
+            Department is required First.
+          </p>
           }
         </div>
 

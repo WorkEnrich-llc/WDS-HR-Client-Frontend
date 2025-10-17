@@ -85,7 +85,7 @@ export class CreateNewBranchComponent implements OnInit {
 
   // form step 1
   branchStep1: FormGroup = new FormGroup({
-    code: new FormControl('',Validators.maxLength(26)),
+    code: new FormControl('', Validators.maxLength(26)),
     name: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     location: new FormControl(''),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -120,47 +120,47 @@ export class CreateNewBranchComponent implements OnInit {
     this.searchSubject.next(this.searchTerm);
   }
 
- getAllDepartment(pageNumber: number, searchTerm: string = '') {
-  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-    search: searchTerm || undefined,
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
-      this.totalpages = response.data.total_pages;
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
 
-      // console.log('Departments List (before filter):', response.data.list_items);
+        // console.log('Departments List (before filter):', response.data.list_items);
 
-      const activeDepartments = response.data.list_items.filter(
-        (item: any) => item.is_active === true
-      );
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
 
-      // console.log('Active Departments Only:', activeDepartments);
+        // console.log('Active Departments Only:', activeDepartments);
 
-      this.departments = activeDepartments.map((item: any) => {
-        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+        this.departments = activeDepartments.map((item: any) => {
+          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
-        const sectionsWithSelection = (item.sections || []).map((section: any) => ({
-          ...section,
-          selected: false
-        }));
+          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
+            ...section,
+            selected: false
+          }));
 
-        return {
-          id: item.id,
-          name: item.name,
-          sectionsCount: sectionsWithSelection.length,
-          sections: sectionsWithSelection,
-          selected: isSelected
-        };
-      });
+          return {
+            id: item.id,
+            name: item.name,
+            sectionsCount: sectionsWithSelection.length,
+            sections: sectionsWithSelection,
+            selected: isSelected
+          };
+        });
 
-      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
   //checkboxes 
   toggleSelectAll() {
@@ -168,14 +168,16 @@ export class CreateNewBranchComponent implements OnInit {
       department.selected = this.selectAll;
     });
   }
-  toggleDepartment(department: any) {
-    // department.selected = !department.selected;
+ toggleDepartment(department: any) {
+  setTimeout(() => {
     if (!department.selected) {
       this.selectAll = false;
     } else if (this.departments.length && this.departments.every(dep => dep.selected)) {
       this.selectAll = true;
     }
-  }
+  });
+}
+
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
@@ -186,11 +188,11 @@ export class CreateNewBranchComponent implements OnInit {
     this.currentPage = page;
     this.getAllDepartment(this.currentPage);
   }
-  discardDepartment(): void {
-    this.departmentsOverlay.closeOverlay();
-    // Reset search input after closing overlay
-    this.searchTerm = '';
-  }
+ discardDepartment(): void {
+  this.departmentsOverlay.closeOverlay();
+  this.searchTerm = '';
+}
+
 
   addSelectedDepartments(): void {
     const selected = this.departments.filter(dep => dep.selected);
@@ -276,13 +278,22 @@ export class CreateNewBranchComponent implements OnInit {
 
 
   // overlays boxes sliders
-  openFirstOverlay() {
-    // Reset search input and load full departments list when opening overlay
-    this.searchTerm = '';
-    this.currentPage = 1;
-    this.getAllDepartment(this.currentPage);
+openFirstOverlay() {
+  this.searchTerm = '';
+
+  if (this.departments.length > 0) {
+    this.departments.forEach(dep => {
+      dep.selected = this.addeddepartments.some(a => a.id === dep.id);
+    });
+
+    this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+
+    this.departmentsOverlay.openOverlay();
+  } else {
+    this.getAllDepartment(1);
     this.departmentsOverlay.openOverlay();
   }
+}
 
   selectedDepartmentSections: any[] = [];
 
@@ -439,20 +450,20 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
   // Handle location confirmation from Google Maps component
-onLocationConfirmed(event: LocationData): void {
+  onLocationConfirmed(event: LocationData): void {
 
-  this.ngZone.run(() => {
-    this.locationData = { ...event };
+    this.ngZone.run(() => {
+      this.locationData = { ...event };
 
-    this.isLocationReady = !!(
-      this.locationData.map_country &&
-      this.locationData.map_city &&
-      this.locationData.map_address &&
-      this.locationData.latitude &&
-      this.locationData.longitude
-    );
-  });
-}
+      this.isLocationReady = !!(
+        this.locationData.map_country &&
+        this.locationData.map_city &&
+        this.locationData.map_address &&
+        this.locationData.latitude &&
+        this.locationData.longitude
+      );
+    });
+  }
 
 
 
