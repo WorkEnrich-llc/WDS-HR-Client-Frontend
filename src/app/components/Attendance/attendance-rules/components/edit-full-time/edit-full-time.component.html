@@ -28,7 +28,7 @@
 <!-- end page header -->
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" (click)="currentStep=1" [ngClass]="{
+    <li class="nav-item" [ngClass]="{
         'active': currentStep === 1
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -41,8 +41,8 @@
         </svg>
         <span class="nav-link">Grace Period</span>
     </li>
-    
-    <li class="nav-item" (click)="currentStep=2" [ngClass]="{
+
+    <li class="nav-item" [ngClass]="{
         'active': currentStep === 2
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -55,7 +55,7 @@
     </li>
 
 
-    <li class="nav-item" (click)="currentStep=3" [ngClass]="{
+    <li class="nav-item" [ngClass]="{
         'active': currentStep === 3
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@
         <span class="nav-link">Early Leave</span>
     </li>
 
-    <li class="nav-item" (click)="currentStep=4" [ngClass]="{
+    <li class="nav-item" [ngClass]="{
         'active': currentStep === 4
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@
         <span class="nav-link">Absence</span>
     </li>
 
-    <li class="nav-item" (click)="currentStep=5" [ngClass]="{
+    <li class="nav-item" [ngClass]="{
         'active': currentStep === 5
     }">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@
         <span class="nav-link">Overtime</span>
     </li>
 
-    
+
 </ul>
 
 <!-- Grace Period -->
@@ -433,6 +433,47 @@
 </div>
 }
 
+
+<div class="btn-fixed d-flex align-items-stretch gap-2">
+    @if( currentStep > 1){
+    <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M20 12H4m0 0l6-6m-6 6l6 6" />
+        </svg>
+    </button>
+    }
+
+    @if(currentStep < 5){ <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+        <span>Next ({{currentStep}}/5)</span>
+        </button>
+        }
+
+        @if(currentStep === 5){
+        <button type="button" class="btn btn-lg btn-success" (click)="saveChanges()">
+            @if (isLoading) {
+            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+            }
+            @if (!isLoading) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                </g>
+            </svg>
+            }
+            <span>
+                Save Changes
+            </span>
+        </button>
+        }
+
+</div>
 
 
 

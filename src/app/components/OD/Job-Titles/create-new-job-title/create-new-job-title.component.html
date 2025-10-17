@@ -185,7 +185,7 @@
           <input type="text" id="jobCode" formControlName="code" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
-         @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
+        @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
         <p class="error-msg">
           Job Title Code max lengh 26.
         </p>
@@ -545,7 +545,8 @@
       </div>
       @if (errMsg) {
       <div class="alert alert-danger mb-0 mt-3" role="alert">
-        {{errMsg}}
+        <!-- {{errMsg}} -->
+        {{'please fill empty fields or deactivate it'}}
       </div>
       }
     </form>
