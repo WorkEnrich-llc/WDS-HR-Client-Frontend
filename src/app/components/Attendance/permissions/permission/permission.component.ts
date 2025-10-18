@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-permission',
-  imports: [PageHeaderComponent, RouterLink,CommonModule],
+  imports: [PageHeaderComponent, RouterLink, CommonModule],
   templateUrl: './permission.component.html',
   styleUrl: './permission.component.css'
 })
@@ -28,5 +28,14 @@ export class PermissionComponent implements OnInit {
         console.error('Error fetching permissions:', error);
       }
     });
+  }
+
+
+  getTime(totalMinutes: number | undefined) {
+    if (totalMinutes == null) return { hours: 0, minutes: 0 };
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return { hours, minutes };
   }
 }
