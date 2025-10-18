@@ -5,7 +5,7 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of, Subject, tap } from 'rxjs';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -23,7 +23,7 @@ interface Department {
 }
 @Component({
   selector: 'app-edit-branch-info',
-  imports: [PageHeaderComponent, CommonModule,SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
   providers: [DatePipe],
   templateUrl: './edit-branch-info.component.html',
   styleUrl: './edit-branch-info.component.css',
@@ -80,24 +80,20 @@ export class EditBranchInfoComponent implements OnInit {
 
   branchSub: any;
   ngOnInit(): void {
-    
-    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.branchSub = sub?.Branches;
-      // if (this.branchSub) {
-      //   console.log("info:", this.branchSub.info);
-      //   console.log("create:", this.branchSub.create);
-      //   console.log("update:", this.branchSub.update);
-      //   console.log("delete:", this.branchSub.delete);
-      // }
     });
 
-    // get branch data
     this.branchId = this.route.snapshot.paramMap.get('id');
+
     if (this.branchId) {
-      this.showBranch(Number(this.branchId));
+      this.showBranch(Number(this.branchId)).subscribe(() => {
+        this.getAllDepartment(this.currentPage);
+      });
+    } else {
+      this.getAllDepartment(this.currentPage);
     }
-    // department added and search
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -105,8 +101,8 @@ export class EditBranchInfoComponent implements OnInit {
       this.currentPage = 1;
       this.getAllDepartment(this.currentPage, search);
     });
-    this.getAllDepartment(this.currentPage);
   }
+
 
 
 
@@ -136,71 +132,71 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   // get all departments
- getAllDepartment(pageNumber: number, searchTerm: string = '') {
-  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-    search: searchTerm || undefined,
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
-      this.totalpages = response.data.total_pages;
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
 
-      // console.log('Departments (before filter):', response.data.list_items);
+        // console.log('Departments (before filter):', response.data.list_items);
 
-      const activeDepartments = response.data.list_items.filter(
-        (item: any) => item.is_active === true
-      );
-
-      this.departments = activeDepartments.map((item: any) => {
-        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
-
-        let rawSections: any[] = [];
-
-        if (item.sections) {
-          if (Array.isArray(item.sections)) {
-            rawSections = item.sections;
-          } else if (item.sections.options_list) {
-            rawSections = item.sections.options_list;
-          }
-        }
-
-        const activeSections = rawSections.filter(
-          (section: any) => section.is_active === true
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
         );
 
-        const optionsList = activeSections.map((section: any) => ({
-          ...section,
-          selected: false
-        }));
+        this.departments = activeDepartments.map((item: any) => {
+          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
-        const selectedList = optionsList.filter(s => s.selected);
+          let rawSections: any[] = [];
 
-        return {
-          id: item.id,
-          name: item.name,
-          code: item.code || '',
-          objectives: item.objectives || '',
-          is_active: item.is_active ?? true,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-          selected: isSelected,
-          relationship_id: item.relationship_id || null,
-          sections: {
-            selected_list: selectedList,
-            options_list: optionsList
+          if (item.sections) {
+            if (Array.isArray(item.sections)) {
+              rawSections = item.sections;
+            } else if (item.sections.options_list) {
+              rawSections = item.sections.options_list;
+            }
           }
-        };
-      });
 
-      // console.log('Filtered Active Departments:', this.departments);
+          const activeSections = rawSections.filter(
+            (section: any) => section.is_active === true
+          );
 
-      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+          const optionsList = activeSections.map((section: any) => ({
+            ...section,
+            selected: false
+          }));
+
+          const selectedList = optionsList.filter(s => s.selected);
+
+          return {
+            id: item.id,
+            name: item.name,
+            code: item.code || '',
+            objectives: item.objectives || '',
+            is_active: item.is_active ?? true,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+            selected: isSelected,
+            relationship_id: item.relationship_id || null,
+            sections: {
+              selected_list: selectedList,
+              options_list: optionsList
+            }
+          };
+        });
+
+        // console.log('Filtered Active Departments:', this.departments);
+
+        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
 
   //checkboxes 
@@ -211,12 +207,15 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   toggleDepartment(department: any) {
-    if (!department.selected) {
-      this.selectAll = false;
-    } else if (this.departments.length && this.departments.every(dep => dep.selected)) {
-      this.selectAll = true;
-    }
+    setTimeout(() => {
+      if (!department.selected) {
+        this.selectAll = false;
+      } else if (this.departments.length && this.departments.every(dep => dep.selected)) {
+        this.selectAll = true;
+      }
+    });
   }
+
 
   // pagination
   onItemsPerPageChange(newItemsPerPage: number) {
@@ -270,11 +269,11 @@ export class EditBranchInfoComponent implements OnInit {
   loadData: boolean = false;
   showBranch(branchId: number) {
     this.loadData = true;
-    this._BranchesService.showBranch(branchId).subscribe({
-      next: (response) => {
-        // console.log(response.data.object_info);
+    return this._BranchesService.showBranch(branchId).pipe(
+      tap((response) => {
         this.branchData = response.data.object_info;
-        this.addeddepartments = this.branchData.departments;
+        this.addeddepartments = this.branchData.departments || [];
+
         this.branchStep1.patchValue({
           code: this.branchData.code || '',
           name: this.branchData.name || '',
@@ -282,7 +281,6 @@ export class EditBranchInfoComponent implements OnInit {
           maxEmployee: this.branchData.max_employee || '',
         });
 
-        // Set map coordinates if available
         if (this.branchData.latitude && this.branchData.longitude) {
           this.locationData = {
             latitude: parseFloat(this.branchData.latitude),
@@ -293,28 +291,43 @@ export class EditBranchInfoComponent implements OnInit {
           };
         }
 
-        // console.log(this.addeddepartments);
         this.originalFormData = { ...this.branchStep1.value };
         this.originalDepartmentsSnapshot = JSON.parse(JSON.stringify(this.addeddepartments));
         this.originalDepartments = [...this.addeddepartments];
+
         const created = this.branchData?.created_at;
         const updated = this.branchData?.updated_at;
-        if (created) {
-          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        if (this.branchData.latitude && this.branchData.longitude) {
+          this.locationData = {
+            latitude: parseFloat(this.branchData.latitude),
+            longitude: parseFloat(this.branchData.longitude),
+            radiusRange: this.branchData.radius_range || 120,
+            displayLatitude: this.branchData.latitude,
+            displayLongitude: this.branchData.longitude,
+            map_country: this.branchData.map_country || '',
+            map_city: this.branchData.map_city || '',
+            map_address: this.branchData.map_address || ''
+          };
+
+          this.isLocationReady = true;
+          this.locationConfirmed = true;
         }
-        if (updated) {
-          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
-        }
+
         this.loadData = false;
-      },
-      error: (err) => {
+      }),
+      catchError((err) => {
         console.log(err.error?.details);
         this.loadData = false;
-      }
-    });
+        return of(null);
+      })
+    );
   }
 
+
   // check form changed
+  
   isFormChanged(): boolean {
     const currentForm = this.branchStep1.value;
     const originalForm = this.originalFormData;
@@ -362,6 +375,7 @@ export class EditBranchInfoComponent implements OnInit {
     }
 
     this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    this.isFormChanged();
   }
 
   // sort
@@ -398,11 +412,18 @@ export class EditBranchInfoComponent implements OnInit {
 
   // overlays boxes sliders
   openFirstOverlay() {
-    // reset search and pagination before opening overlay
     this.searchTerm = '';
-    this.currentPage = 1;
-    this.getAllDepartment(this.currentPage);
-    this.departmentsOverlay.openOverlay();
+
+    if (this.departments.length > 0) {
+      this.departments.forEach(dep => {
+        dep.selected = this.addeddepartments.some(a => a.id === dep.id);
+      });
+      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+      this.departmentsOverlay.openOverlay();
+    } else {
+      this.getAllDepartment(1);
+      this.departmentsOverlay.openOverlay();
+    }
   }
 
   selectedDepartmentSections: any[] = [];
@@ -620,28 +641,28 @@ export class EditBranchInfoComponent implements OnInit {
 
   // Handle location changes from Google Maps component
   // Handle location changes (marker moved, search, etc.)
-onLocationChanged(locationData: LocationData): void {
-  this.locationData = { ...locationData };
-  // Reset confirmation flag until user confirms the location
-  this.isLocationReady = false;
-  // Clear any previous errors
-  this.errMsg = '';
-}
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
+    // Reset confirmation flag until user confirms the location
+    this.isLocationReady = false;
+    // Clear any previous errors
+    this.errMsg = '';
+  }
 
-// Handle location confirmation (user pressed "Confirm")
-onLocationConfirmed(event: LocationData): void {
+  // Handle location confirmation (user pressed "Confirm")
+  onLocationConfirmed(event: LocationData): void {
 
-  this.ngZone.run(() => {
-    this.locationData = { ...event };
+    this.ngZone.run(() => {
+      this.locationData = { ...event };
 
-    this.isLocationReady = !!(
-      this.locationData.map_country &&
-      this.locationData.map_city &&
-      this.locationData.map_address &&
-      this.locationData.latitude &&
-      this.locationData.longitude
-    );
-  });
-}
+      this.isLocationReady = !!(
+        this.locationData.map_country &&
+        this.locationData.map_city &&
+        this.locationData.map_address &&
+        this.locationData.latitude &&
+        this.locationData.longitude
+      );
+    });
+  }
 
 }

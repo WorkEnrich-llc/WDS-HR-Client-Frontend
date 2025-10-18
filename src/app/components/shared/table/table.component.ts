@@ -28,6 +28,9 @@ export class TableComponent {
 
   skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i, isSkeleton: true }));
 
+trackByFn(index: number, row: any): any {
+  return row?.id ?? index; 
+}
 
   onPageChanged(newPage: number) {
     this.currentPage = newPage;
