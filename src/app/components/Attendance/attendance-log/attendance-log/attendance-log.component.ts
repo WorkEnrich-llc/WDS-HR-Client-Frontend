@@ -7,7 +7,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, map, Observable, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, map, Observable, Subject, Subscription, tap } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
@@ -146,6 +146,11 @@ export class AttendanceLogComponent {
     this.departmentList$ = this.departmentService.getAllDepartments().pipe(
       map((res: any) => res?.data?.list_items ?? [])
     );
+    // this.departmentList$ = this.departmentService.getAllDepartments().pipe(
+    //   tap((res: any) => console.log('Departments response:', res)),
+    //   map((res: any) => res?.data?.list_items ?? []),
+    //   tap((list) => console.log('Filtered list_items:', list))
+    // );
 
   }
 

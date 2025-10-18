@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../../core/interfaces/employee';
+// import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../../core/interfaces/employee';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -105,7 +105,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   confirmAction() {
     // this.isModalOpen = false;
-    this.sharedService.isEditMode()
+    this.sharedService.isEditMode();
     this.sharedService.isModalOpen.set(false);
     const currentPage = this.paginationState.getPage('employees/all-employees');
     this.router.navigate(['/employees'], { queryParams: { page: currentPage } });

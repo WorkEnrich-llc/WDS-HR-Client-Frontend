@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { ManageEmployeeSharedService } from '../../manage-employee/services/manage-shared.service';
 
 export interface StepperNavigationConfig {
   currentStep: () => number;
@@ -16,6 +17,7 @@ export interface StepperNavigationConfig {
 export class SharedStepperNavigationComponent {
   @Input() stepperConfig!: StepperNavigationConfig;
   @Output() stepClicked = new EventEmitter<number>();
+  public sharedService = inject(ManageEmployeeSharedService);
 
   goToStep(step: number) {
     this.stepClicked.emit(step);

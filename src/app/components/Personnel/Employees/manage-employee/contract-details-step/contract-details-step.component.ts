@@ -13,6 +13,7 @@ import { ManageEmployeeSharedService } from '../services/manage-shared.service';
 })
 export class ContractDetailsStepComponent {
   sharedService = inject(ManageEmployeeSharedService);
+
   currentDate = new Date().toISOString().split('T')[0];
 
   goPrev() {

@@ -151,7 +151,10 @@
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next (4/5)</span>
+        <span>
+          {{ sharedService.isEditMode() ? 'Next (3/4)' : 'Next (4/5)' }}
+          <!-- Next (4/5) -->
+        </span>
       </button>
     </div>
   </div>

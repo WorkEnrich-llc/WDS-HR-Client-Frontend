@@ -21,28 +21,28 @@
                 <label for="level">Management Level <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="level" formControlName="managementLevel" id="level" class="form-select">
+                        <select name="level" formControlName="management_level" id="level" class="form-select">
                             <!-- (change)="onLevelChange()" -->
-                            <option value="" disabled hidden>Select Level</option>
-                            <option value="1">Company</option>
-                            <option value="2">Branch</option>
-                            <option value="3">Department</option>
-                            <option value="4">Section</option>
-                            <option value="5">None</option>
+                            <option [value]="null" disabled hidden>Select Level</option>
+                            <option [ngValue]="1">Company</option>
+                            <option [ngValue]="2">Branch</option>
+                            <option [ngValue]="3">Department</option>
+                            <option [ngValue]="4">Section</option>
+                            <option [ngValue]="5">None</option>
                         </select>
                     </div>
                 </div>
-                @if (sharedService.isFieldInvalid('managementLevel',
+                @if (sharedService.isFieldInvalid('management_level',
                 sharedService.jobDetails)) {
                 <p class="error-msg">
                     {{
-                    sharedService.getFieldError("managementLevel", sharedService.jobDetails)
+                    sharedService.getFieldError("management_level", sharedService.jobDetails)
                     }}
                 </p>
                 }
             </div>
 
-            <div [hidden]="sharedService.jobDetails.get('managementLevel')?.value != 5">
+            <div [hidden]="sharedService.jobDetails.get('management_level')?.value != 5">
 
                 <div class="input">
                     <label for="branch_id">Branch <span>*</span></label>
@@ -72,7 +72,11 @@
                     <div class="d-flex align-items-center gap-4">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <select id="department_id" formControlName="department_id" class="form-select">
-                                <option [value]="null" disabled hidden>Select Department</option>
+                                <!-- <option [value]="null" disabled hidden>Select Department</option> -->
+                                <option [value]="null" disabled hidden>
+                                    {{ sharedService.getActiveDepartments().length > 0 ? 'Select Department' : 'No
+                                    department available' }}
+                                </option>
                                 @for (dept of sharedService.getActiveDepartments(); track dept.id)
                                 {
                                 <option [value]="dept.id">{{ dept.name }}</option>
@@ -124,7 +128,8 @@
 
                             <!-- <option [value]="null" disabled hidden>Select Job Title</option> -->
                             <option [value]="null" disabled hidden>
-                                {{ sharedService.jobTitles().length > 0 ? 'Select Job Title' : 'No job available' }}
+                                {{ sharedService.jobTitles().length > 0 ? 'Select Job Title' : 'No job title available'
+                                }}
                             </option>
                             @for (job of sharedService.jobTitles(); track job.id) {
                             <option [value]="job.id">{{ job.name }}</option>
@@ -167,7 +172,9 @@
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
                 </svg>
-                <span>Next (2/5)</span>
+                <span>
+                    {{ sharedService.isEditMode() ? 'Next (2/4)' : 'Next (2/5)' }}
+                </span>
             </button>
         </div>
     </div>
