@@ -97,7 +97,7 @@
         }
       </div>
 
-      <div class="input">
+      <!-- <div class="input">
         <label for="insurance_salary">Insurance Salary</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" id="insurance_salary" formControlName="insurance_salary"
@@ -108,7 +108,7 @@
           {{sharedService.getFieldError('insurance_salary', sharedService.contractDetails)}}
         </p>
         }
-      </div>
+      </div> -->
 
       @if (sharedService.getSalaryRangeDisplay()) {
       <div class="salary-info d-flex justify-content-between gap-3">
@@ -147,11 +147,14 @@
         </svg>
       </button>
       <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
-       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next (4/5)</span>
+        <span>
+          {{ sharedService.isEditMode() ? 'Next (3/4)' : 'Next (4/5)' }}
+          <!-- Next (4/5) -->
+        </span>
       </button>
     </div>
   </div>

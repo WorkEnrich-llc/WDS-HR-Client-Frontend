@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, distinctUntilChanged, forkJoin, map, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, forkJoin, map, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -135,6 +135,7 @@ export class ManageEmployeeSharedService {
         branch_id: [null, Validators.required],
         department_id: [null, Validators.required],
         section_id: [null],
+        management_level: [null, Validators.required],
         job_title_id: [null, Validators.required],
         years_of_experience: [null]
       }),
@@ -145,7 +146,7 @@ export class ManageEmployeeSharedService {
         include_probation: [false],
         notice_period: [null],
         salary: ['', [Validators.required, Validators.min(0)]],
-        insurance_salary: ['']
+        // insurance_salary: ['']
       }, { validators: this.dateRangeValidator.bind(this) }),
       attendance_details: this.fb.group({
         employment_type: [null, Validators.required],
@@ -187,6 +188,7 @@ export class ManageEmployeeSharedService {
 
   private initializeJobDetailsWatchers(): void {
     const jobDetails = this.jobDetails;
+    const managementCtrl = jobDetails.get('management_level');
     const branchCtrl = jobDetails.get('branch_id');
     const deptCtrl = jobDetails.get('department_id');
     const sectionCtrl = jobDetails.get('section_id');
@@ -196,6 +198,7 @@ export class ManageEmployeeSharedService {
     this.setupBranchWatcher(branchCtrl, deptCtrl, sectionCtrl, jobTitleCtrl);
     this.setupDepartmentWatcher(deptCtrl, sectionCtrl, jobTitleCtrl);
     this.setupSectionWatcher(sectionCtrl, jobTitleCtrl);
+    this.setupManagementLevelWatcher(managementCtrl, jobTitleCtrl, branchCtrl, deptCtrl, sectionCtrl);
   }
 
   private setInitialJobDetailsState(
@@ -215,13 +218,66 @@ export class ManageEmployeeSharedService {
     }
   }
 
+  private setupManagementLevelWatcher(
+    managementCtrl: AbstractControl | null,
+    jobTitleCtrl: AbstractControl | null,
+    branchCtrl: AbstractControl | null,
+    deptCtrl: AbstractControl | null,
+    sectionCtrl: AbstractControl | null,
+  ): void {
+    // const jobDetails = this.jobDetails;
+    managementCtrl?.valueChanges.pipe(
+      startWith(managementCtrl?.value)
+    ).subscribe(currentLevel => {
+      if (this.suppressWatchers) return;
+
+      jobTitleCtrl?.reset(null, { emitEvent: false });
+      this.jobTitles.set([]);
+
+      if (currentLevel && currentLevel !== 5) {
+        this.fetchJobTitlesForManagementLevel(currentLevel.toString());
+        jobTitleCtrl?.setValidators(Validators.required);
+        jobTitleCtrl?.enable();
+
+        branchCtrl?.disable();
+        deptCtrl?.disable();
+        sectionCtrl?.disable();
+        branchCtrl?.reset(null, { emitEvent: false });
+        deptCtrl?.reset(null, { emitEvent: false });
+        sectionCtrl?.reset(null, { emitEvent: false });
+
+      } else if (currentLevel === 5) {
+        jobTitleCtrl?.clearValidators();
+        jobTitleCtrl?.disable();
+        branchCtrl?.enable();
+        deptCtrl?.disable();
+        sectionCtrl?.disable();
+
+      }
+      else {
+        jobTitleCtrl?.clearValidators();
+        jobTitleCtrl?.disable();
+        branchCtrl?.disable();
+        deptCtrl?.disable();
+        sectionCtrl?.disable();
+      }
+
+      jobTitleCtrl?.updateValueAndValidity();
+      branchCtrl?.updateValueAndValidity();
+      deptCtrl?.updateValueAndValidity();
+      sectionCtrl?.updateValueAndValidity();
+    });
+  }
+
   private setupBranchWatcher(
     branchCtrl: AbstractControl | null,
     deptCtrl: AbstractControl | null,
     sectionCtrl: AbstractControl | null,
     jobTitleCtrl: AbstractControl | null
   ): void {
-    branchCtrl?.valueChanges.subscribe((branchId) => {
+    branchCtrl?.valueChanges.pipe(
+      filter(() => this.jobDetails.get('management_level')?.value === 5)
+    ).subscribe((branchId) => {
       if (this.suppressWatchers) return;
 
       if (branchId) {
@@ -244,73 +300,88 @@ export class ManageEmployeeSharedService {
     sectionCtrl: AbstractControl | null,
     jobTitleCtrl: AbstractControl | null
   ): void {
-    deptCtrl?.valueChanges.pipe(startWith(deptCtrl?.value), pairwise())
-      .subscribe(([prev, current]) => {
-        if (this.suppressWatchers) return;
+    deptCtrl?.valueChanges.pipe(startWith(deptCtrl?.value), pairwise(),
+      filter(() => this.jobDetails.get('management_level')?.value === 5)
+    ).subscribe(([prev, current]) => {
+      if (this.suppressWatchers) return;
 
-        if (prev !== current) {
-          sectionCtrl?.setValue(null);
-          jobTitleCtrl?.setValue(null);
-        }
+      if (prev !== current) {
+        sectionCtrl?.setValue(null);
+        jobTitleCtrl?.setValue(null);
+      }
 
-        if (current) {
-          const selectedDept = this.departments().find(d => d.id == current);
-          const deptSections = selectedDept?.sections ?? [];
-          this.sections.set(deptSections);
+      if (current) {
+        const selectedDept = this.departments().find(d => d.id == current);
+        const deptSections = selectedDept?.sections ?? [];
+        this.sections.set(deptSections);
 
-          if (deptSections.length > 0) {
-            sectionCtrl?.setValidators(Validators.required);
-            sectionCtrl?.enable();
-          } else {
-            sectionCtrl?.clearValidators();
-            sectionCtrl?.disable();
-          }
-          sectionCtrl?.updateValueAndValidity();
-
-          jobTitleCtrl?.disable();
-          jobTitleCtrl?.clearValidators();
-          jobTitleCtrl?.updateValueAndValidity();
-
+        if (deptSections.length > 0) {
+          sectionCtrl?.setValidators(Validators.required);
+          sectionCtrl?.enable();
         } else {
-          this.sections.set([]);
-          this.jobTitles.set([]);
-          sectionCtrl?.disable();
           sectionCtrl?.clearValidators();
-          sectionCtrl?.updateValueAndValidity();
-          jobTitleCtrl?.disable();
-          jobTitleCtrl?.clearValidators();
-          jobTitleCtrl?.updateValueAndValidity();
+          sectionCtrl?.disable();
         }
-      });
+        sectionCtrl?.updateValueAndValidity();
+
+        jobTitleCtrl?.disable();
+        jobTitleCtrl?.clearValidators();
+        jobTitleCtrl?.updateValueAndValidity();
+
+      } else {
+        this.sections.set([]);
+        this.jobTitles.set([]);
+        sectionCtrl?.disable();
+        sectionCtrl?.clearValidators();
+        sectionCtrl?.updateValueAndValidity();
+        jobTitleCtrl?.disable();
+        jobTitleCtrl?.clearValidators();
+        jobTitleCtrl?.updateValueAndValidity();
+      }
+    });
   }
 
   private setupSectionWatcher(
     sectionCtrl: AbstractControl | null,
     jobTitleCtrl: AbstractControl | null
   ): void {
-    sectionCtrl?.valueChanges.pipe(startWith(sectionCtrl?.value), pairwise())
-      .subscribe(([prev, current]) => {
-        if (this.suppressWatchers) return;
+    sectionCtrl?.valueChanges.pipe(startWith(sectionCtrl?.value), pairwise(),
+      filter(() => this.jobDetails.get('management_level')?.value === 5)
+    ).subscribe(([prev, current]) => {
+      if (this.suppressWatchers) return;
 
-        if (prev !== current) {
-          jobTitleCtrl?.setValue(null);
-        }
+      if (prev !== current) {
+        jobTitleCtrl?.setValue(null);
+      }
 
-        if (current) {
-          this.fetchJobTitlesForSection(current);
-          jobTitleCtrl?.setValidators(Validators.required);
-          jobTitleCtrl?.enable();
-          jobTitleCtrl?.updateValueAndValidity();
-        } else {
-          this.jobTitles.set([]);
-          jobTitleCtrl?.disable();
-          jobTitleCtrl?.clearValidators();
-          jobTitleCtrl?.updateValueAndValidity();
-        }
-      });
+      if (current) {
+        this.fetchJobTitlesForSection(current);
+        jobTitleCtrl?.setValidators(Validators.required);
+        jobTitleCtrl?.enable();
+        jobTitleCtrl?.updateValueAndValidity();
+      } else {
+        this.jobTitles.set([]);
+        jobTitleCtrl?.disable();
+        jobTitleCtrl?.clearValidators();
+        jobTitleCtrl?.updateValueAndValidity();
+      }
+    });
   }
 
-
+  private fetchJobTitlesForManagementLevel(management: string): void {
+    this.jobsService.getAllJobTitles(1, 100, { management_level: management.toString() }).subscribe({
+      next: (res) => {
+        if (this.jobDetails.get('management_level')?.value?.toString() === management) {
+          const jobTitles = res.data?.list_items || [];
+          this.jobTitles.set(jobTitles);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading job titles for management', err);
+        this.jobTitles.set([]);
+      }
+    });
+  }
 
   private fetchDepartmentsForBranch(branchId: number): void {
     const jobDetails = this.jobDetails;
@@ -331,10 +402,12 @@ export class ManageEmployeeSharedService {
     }
     jobDetails.get('department_id')?.enable({ emitEvent: false });
 
-    this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'all' }).subscribe({
+    this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'active' }).subscribe({
       next: (res) => {
+        // if (this.jobDetails.get('branch_id')?.value === branchId) {
         const depts = res.data?.list_items || [];
         this.departments.set(depts);
+        // }
       },
       error: (err) => {
         console.error('Error loading departments for branch', err);
@@ -342,7 +415,6 @@ export class ManageEmployeeSharedService {
       }
     });
   }
-
 
   private fetchJobTitlesForSection(sectionId: number): void {
     const jobDetails = this.jobDetails;
@@ -356,48 +428,20 @@ export class ManageEmployeeSharedService {
     }
 
     jobDetails.get('job_title_id')?.enable({ emitEvent: false });
-
     this.jobsService.getAllJobTitles(1, 100, { section: sectionId.toString() }).subscribe({
       next: (res) => {
+        // if (this.jobDetails.get('section_id')?.value === sectionId) {
         const jobTitles = res.data?.list_items || [];
         this.jobTitles.set(jobTitles);
+        // }
       },
       error: (err) => {
         console.error('Error loading job titles for section', err);
         this.jobTitles.set([]);
       }
-    });
+    })
   }
 
-
-  loadEmployeeData(id: number): void {
-    this.isLoading.set(true);
-    this.employeeService.getEmployeeById(id).subscribe({
-      next: (response) => {
-        const data = response.data.object_info;
-        this.employeeData.set(data);
-        this.suppressWatchers = true;
-        this.patchEmployeeForm(data);
-        this.createdAt.set(data.created_at || '');
-        this.updatedAt.set(data.updated_at || '');
-
-        const branchId = data.job_info.branch?.id;
-        const sectionId = data.job_info.section?.id;
-
-        if (branchId && sectionId) {
-          this.loadDropdownDataInSameTime(branchId, sectionId);
-        } else {
-          this.isLoading.set(false);
-          this.suppressWatchers = false;
-        }
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        this.suppressWatchers = false;
-        console.error('Failed to load employee', error);
-      }
-    });
-  }
 
   private loadDropdownDataInSameTime(branchId: number, sectionId: number): void {
     const departments$ = this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'all' }).pipe(
@@ -434,6 +478,34 @@ export class ManageEmployeeSharedService {
     });
   }
 
+  loadEmployeeData(id: number): void {
+    this.isLoading.set(true);
+    this.employeeService.getEmployeeById(id).subscribe({
+      next: (response) => {
+        const data = response.data.object_info;
+        this.employeeData.set(data);
+        this.suppressWatchers = true;
+        this.patchEmployeeForm(data);
+        this.createdAt.set(data.created_at || '');
+        this.updatedAt.set(data.updated_at || '');
+
+        const branchId = data.job_info.branch?.id;
+        const sectionId = data.job_info.section?.id;
+
+        if (branchId && sectionId) {
+          this.loadDropdownDataInSameTime(branchId, sectionId);
+        } else {
+          this.isLoading.set(false);
+          this.suppressWatchers = false;
+        }
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        this.suppressWatchers = false;
+        console.error('Failed to load employee', error);
+      }
+    });
+  }
 
   private patchEmployeeForm(data: Employee): void {
     const options = { emitEvent: false };
@@ -458,6 +530,7 @@ export class ManageEmployeeSharedService {
       branch_id: data.job_info.branch?.id,
       department_id: data.job_info.department?.id,
       section_id: data.job_info.section?.id,
+      managementLevel: data.job_info.management_level,
       job_title_id: data.job_info.job_title?.id,
       years_of_experience: data.job_info.years_of_experience || 0
     }, options);
@@ -679,7 +752,7 @@ export class ManageEmployeeSharedService {
         break;
     }
 
-    if (salaryRange && salaryRange.status) {
+    if (salaryRange && salaryRange.restrict === true) {
       this.currentSalaryRange.set({
         minimum: salaryRange.minimum,
         maximum: salaryRange.maximum,
@@ -757,12 +830,7 @@ export class ManageEmployeeSharedService {
 
       if (field.errors['minlength']) return `Minimum length is ${field.errors['minlength'].requiredLength}`;
       if (field.errors['maxlength']) return `Maximum length is ${field.errors['maxlength'].requiredLength}`;
-      if (field.errors['pattern']) {
-        if (fieldName === 'number' || fieldName.endsWith('.number')) {
-          return 'Number must start with 10, 11, 12, or 15';
-        }
-        return `${displayName} format is incorrect`;
-      }
+
       if (field.errors['min']) return `Minimum value is ${field.errors['min'].min}`;
       if (field.errors['max']) return `Maximum value is ${field.errors['max'].max}`;
       if (field.errors['containsSpecialChars']) return `${displayName} cannot contain special characters`;
@@ -770,12 +838,19 @@ export class ManageEmployeeSharedService {
       if (field.errors['containsEnglish']) return `${displayName} cannot contain English characters`;
       if (field.errors['numbersPattern']) return `${displayName} cannot contain numbers`;
       if (field.errors['fourParts']) return `${displayName} must contain exactly 4 words`;
-      if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 3 characters long`;
+      if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 
       if (field.errors['pattern']) {
         if (fieldName === 'name_english' || fieldName === 'name_arabic') {
           return 'Please enter a valid format';
+        }
+        return `${displayName} format is incorrect`;
+      }
+
+      if (field.errors['pattern']) {
+        if (fieldName === 'number' || fieldName.endsWith('.number')) {
+          return 'Number must start with 10, 11, 12, or 15';
         }
         return `${displayName} format is incorrect`;
       }
@@ -939,6 +1014,7 @@ export class ManageEmployeeSharedService {
         branch_id: parseInt(formData.job_details.branch_id, 10),
         department_id: parseInt(formData.job_details.department_id, 10),
         section_id: parseInt(formData.job_details.section_id, 10),
+        management_level: parseInt(formData.job_details.management_level, 10),
         job_title_id: parseInt(formData.job_details.job_title_id, 10),
         work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
         activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
