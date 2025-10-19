@@ -103,6 +103,8 @@
         <span>Overtime</span>
         } @if (workflow?.permission) {
         <span>Permission</span>
+        } @if (workflow?.mission) {
+        <span>Mission</span>
         }
       </td>
       <td>{{ workflow.leave?.name }}</td>
