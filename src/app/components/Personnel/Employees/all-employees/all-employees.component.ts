@@ -67,7 +67,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     });
 
     this.filterForm = this.fb.group({
-      created_at: [''],
+      created_from: [''],
       status: [''],
     });
   }
@@ -121,7 +121,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       const rawFilters = this.filterForm.value;
       this.activeFilters = {
         status: rawFilters.status === 'all' ? null : rawFilters.status,
-        created_at: rawFilters.created_at || null
+        created_from: rawFilters.created_from || null
       };
       this.currentPage = 1;
       this.loadEmployees();
