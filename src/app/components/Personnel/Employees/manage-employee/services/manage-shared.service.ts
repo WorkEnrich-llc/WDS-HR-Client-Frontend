@@ -25,6 +25,7 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
   'marital_status': 'Marital Status',
   'date_of_birth': 'Date of Birth',
   'address': 'Address',
+  'management_level': 'Management Level',
   'branch_id': 'Branch',
   'department_id': 'Department',
   'section_id': 'Section',
