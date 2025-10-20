@@ -454,17 +454,21 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   confirmSectionChanges(): void {
-    const department = this.addeddepartments.find(dep => dep.id === this.selectedDepartmentId);
+    const department = this.addeddepartments.find(
+      (dep) => dep.id === this.selectedDepartmentId
+    );
     if (!department) return;
 
-    const selectedSections = this.tempSections.filter(section => section.selected);
+    const selectedSections = this.tempSections.filter((section) => section.selected);
 
-    const originalDept = this.originalDepartments.find(d => d.id === department.id);
-    const originalSelected = originalDept?.sections?.selected_list || [];
+    const originalDept = this.originalDepartments.find((d) => d.id === department.id);
+    const originalSelected: any[] = originalDept?.sections?.selected_list || [];
 
-
-    const isDifferent = department.selectedSection !== originalDept?.selectedSection ||
-      JSON.stringify(selectedSections) !== JSON.stringify(originalSelected);
+    // تحقق إذا كان في اختلاف فعلي
+    const isDifferent =
+      department.selectedSection !== originalDept?.selectedSection ||
+      JSON.stringify(selectedSections.map((s) => s.id).sort()) !==
+      JSON.stringify(originalSelected.map((s) => s.id).sort());
 
     if (!isDifferent) {
       this.sectionsOverlay.closeOverlay();
@@ -475,18 +479,55 @@ export class EditBranchInfoComponent implements OnInit {
       department.sections = { selected_list: [], options_list: [] };
     }
 
-    department.sections.selected_list = selectedSections;
-
-    if (!department.sections.options_list || department.sections.options_list.length === 0) {
+    // تأكد أن عندنا نسخة من options_list
+    if (!Array.isArray(department.sections.options_list)) {
       department.sections.options_list = [...this.tempSections];
     }
 
+    // تحديد السكاشن اللي اتشالت
+    const removedSections = originalSelected.filter(
+      (orig: any) => !selectedSections.some((sel: any) => sel.id === orig.id)
+    );
+
+    // تحديد السكاشن الجديدة
+    const addedSections = selectedSections.filter(
+      (sel: any) => !originalSelected.some((orig: any) => orig.id === sel.id)
+    );
+
+    // حدّث السكاشن المختارة
+    department.sections.selected_list = selectedSections;
+
+    // عدّل الـ record_type في السكاشن اللي اتشالت
+    removedSections.forEach((removed: any) => {
+      const existing = department.sections.options_list.find((opt: any) => opt.id === removed.id);
+      if (existing) {
+        existing.record_type = "delete";
+        existing.selected = false;
+      } else {
+        department.sections.options_list.push({
+          ...removed,
+          selected: false,
+          record_type: "delete",
+        });
+      }
+    });
+
+    // رجّع record_type طبيعي للسكاشن اللي رجعت تتحدد
+    addedSections.forEach((added: any) => {
+      const existing = department.sections.options_list.find((opt: any) => opt.id === added.id);
+      if (existing) {
+        existing.record_type = null;
+        existing.selected = true;
+      }
+    });
+
+    // عدّد السكاشن
     department.selectedSection = selectedSections.length;
 
     this.cdr.detectChanges();
-
     this.sectionsOverlay.closeOverlay();
   }
+
 
   discardSectionChanges(): void {
     this.selectedDepartmentId = null;
