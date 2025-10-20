@@ -10,6 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 import { AttendanceLog } from 'app/core/models/attendance-log';
 import { TimeInputDirective } from 'app/core/directives/app-time-input.directive';
 import { DateInputDirective } from 'app/core/directives/date.directive';
+import { formatTimeToHHMM } from 'app/core/utils/utils';
 
 @Component({
   selector: 'app-manage-attendance',
@@ -98,8 +99,8 @@ export class ManageAttendanceComponent {
       id: this.attendanceId,
       employee_id: raw.employee_id,
       date: raw.date,
-      start: raw.start,
-      end: raw.end,
+      start: formatTimeToHHMM(raw.start),
+      end: formatTimeToHHMM(raw.end),
     };
 
     let request: Observable<AttendanceLog>;
