@@ -111,7 +111,7 @@
                     'bg-light-success': currentStep > 3  
                 }">
     @if (currentStep <= 3) { <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-      
+
       <path [style.fill]="currentStep === 3 ? '#007bff' : '#4A6D97'"
         d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22"
         opacity=".5" />
@@ -143,7 +143,7 @@
     <h2>Main Information</h2>
     <form [formGroup]="leaveType1" class="w-lg-50 d-flex flex-column gap-2">
       <div class="input">
-        <label for="leaveId">Leave Type ID (Optional)</label>
+        <label for="leaveId">Leave Type Code (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" formControlName="code" id="leaveId" class="form-control custom-date-input"
             placeholder="0050" />
@@ -180,7 +180,7 @@
         </div>
       </div>
       <div class="input">
-        <label for="emptype">Employment Type</label>
+        <label for="emptype">Employment Type<span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <select name="emptype" formControlName="employmentType" id="emptype" class="form-select">
@@ -227,7 +227,7 @@
     <h2>Leave Settings</h2>
     <form [formGroup]="leaveType2" class="w-lg-50 d-flex flex-column gap-2">
       <div class="input">
-        <label for="accrualRate">Accrual Rate</label>
+        <label for="accrualRate">Accrual Rate<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="accrual_rate" id="accrualRate" class="form-control custom-date-input"
             placeholder="Per Month" />
@@ -244,7 +244,7 @@
         }
       </div>
       <div class="input">
-        <label for="leaveLimits">Leave Limits</label>
+        <label for="leaveLimits">Leave Limits<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="leave_limits" id="leaveLimits" class="form-control custom-date-input"
             placeholder="Per Year" />
@@ -261,7 +261,7 @@
         }
       </div>
       <div class="input">
-        <label for="maxReview">Max Review Days</label>
+        <label for="maxReview">Max Review Days<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="max_review_days" id="maxReview" class="form-control custom-date-input"
             placeholder="ex: 5" />
