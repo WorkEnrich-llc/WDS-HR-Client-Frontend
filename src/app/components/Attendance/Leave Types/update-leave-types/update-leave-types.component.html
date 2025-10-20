@@ -149,7 +149,7 @@
     <h2>Main Information</h2>
     <form [formGroup]="leaveType1" class="w-lg-50 d-flex flex-column gap-2">
       <div class="input">
-        <label for="leaveId">Leave Type ID (Optional)</label>
+        <label for="leaveId">Leave Type Code (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" formControlName="code" id="leaveId" class="form-control custom-date-input"
             placeholder="0050" />
@@ -176,7 +176,7 @@
         </div>
       </div>
       <div class="input">
-        <label for="emptype">Employment Type</label>
+        <label for="emptype">Employment Type<span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <select name="emptype" formControlName="employmentType" id="emptype" class="form-select">
@@ -223,7 +223,7 @@
     <h2>Leave Settings</h2>
     <form [formGroup]="leaveType2" class="w-lg-50 d-flex flex-column gap-2">
       <div class="input">
-        <label for="accrualRate">Accrual Rate</label>
+        <label for="accrualRate">Accrual Rate<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="accrual_rate" id="accrualRate" class="form-control custom-date-input"
             placeholder="Per Month" />
@@ -240,7 +240,7 @@
         }
       </div>
       <div class="input">
-        <label for="leaveLimits">Leave Limits</label>
+        <label for="leaveLimits">Leave Limits<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="leave_limits" id="leaveLimits" class="form-control custom-date-input"
             placeholder="Per Year" />
@@ -257,7 +257,7 @@
         }
       </div>
       <div class="input">
-        <label for="maxReview">Max Review Days</label>
+        <label for="maxReview">Max Review Days<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="max_review_days" id="maxReview" class="form-control custom-date-input"
             placeholder="ex: 5" />
