@@ -98,8 +98,8 @@ export class ManageAttendanceComponent {
       id: this.attendanceId,
       employee_id: raw.employee_id,
       date: raw.date,
-      start: this.formatTimeToHHMM(raw.start),
-      end: this.formatTimeToHHMM(raw.end),
+      start: raw.start,
+      end: raw.end,
     };
 
     let request: Observable<AttendanceLog>;
@@ -121,13 +121,6 @@ export class ManageAttendanceComponent {
   }
 
 
-  formatTimeToHHMM(timeString: string): string {
-    if (!timeString) return "";
-    const date = new Date(timeString);
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
 
 
 }
