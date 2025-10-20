@@ -327,7 +327,7 @@ export class EditBranchInfoComponent implements OnInit {
 
 
   // check form changed
-  
+
   isFormChanged(): boolean {
     const currentForm = this.branchStep1.value;
     const originalForm = this.originalFormData;
@@ -457,7 +457,14 @@ export class EditBranchInfoComponent implements OnInit {
     const department = this.addeddepartments.find(dep => dep.id === this.selectedDepartmentId);
     if (!department) return;
 
-    const selectedSections = this.tempSections.filter(section => section.selected);
+    const selectedSections = this.tempSections.filter(section => {
+      if (section.selected) {
+        return section;
+      } else {
+        section.record_type = 'remove';
+        return section;
+      }
+    });
 
     const originalDept = this.originalDepartments.find(d => d.id === department.id);
     const originalSelected = originalDept?.sections?.selected_list || [];
