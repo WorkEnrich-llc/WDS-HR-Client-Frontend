@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './../../../../../environments/environment';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
-import { ContractsResponse, ContractAdjustmentsResponse } from '../../../interfaces/contract';
+import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse } from '../../../interfaces/contract';
 
 @Injectable({
   providedIn: 'root'
@@ -161,20 +161,87 @@ export class EmployeeService {
   }
 
   // Cancel employee contract
-  cancelEmployeeContract(contractId: number): Observable<ContractsResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-contracts/${contractId}/`;
-    return this.http.patch<ContractsResponse>(url, {});
-  }
+  // cancelEmployeeContract(contractId: number): Observable<ContractsResponse> {
+  //   const url = `${this.apiBaseUrl}personnel/employees-contracts/${contractId}/`;
+  //   return this.http.patch<ContractsResponse>(url, {});
+  // }
 
   // Adjust employee contract (appraisal, correction, raise)
-  adjustEmployeeContractAdjustment(requestData: { contract_id: number; adjustment_type: number; new_salary: number; start_date: string; }): Observable<ContractAdjustmentsResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments`;
-    return this.http.post<ContractAdjustmentsResponse>(url, { request_data: requestData });
+  // adjustEmployeeContractAdjustment(requestData: { contract_id: number; adjustment_type: number; new_salary: number; start_contract: string; end_contract: string; notice_period: string; }): Observable<ContractAdjustmentsResponse> {
+  //   const url = `${this.apiBaseUrl}personnel/contract/update`;
+  //   return this.http.put<ContractAdjustmentsResponse>(url, { request_data: requestData });
+  // }
+
+  adjustEmployeeContractAdjustment(requestData: {
+    contract_id: number;
+    adjustment_type: number;
+    salary: number;
+    start_contract: string;
+    end_contract: string;
+    notice_period: string;
+  }): Observable<ContractAdjustmentsResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/update`;
+
+    const formData = new FormData();
+
+    formData.append('contract_id', requestData.contract_id.toString());
+    formData.append('adjustment_type', requestData.adjustment_type.toString());
+    formData.append('salary', requestData.salary.toString());
+    formData.append('start_contract', requestData.start_contract);
+    formData.append('end_contract', requestData.end_contract);
+    formData.append('notice_period', requestData.notice_period);
+
+    return this.http.put<ContractAdjustmentsResponse>(url, formData);
+  }
+
+  // Resign employee contract
+  resignEmployeeContract(requestData: {
+    contract_id: number;
+    last_date: string;
+    resign_date: string;
+    reason: string;
+  }): Observable<ContractResignationResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/resign`;
+
+    const formData = new FormData();
+
+    formData.append('contract_id', requestData.contract_id.toString());
+    formData.append('last_date', requestData.last_date.toString());
+    formData.append('resign_date', requestData.resign_date.toString());
+    formData.append('reason', requestData.reason);
+    return this.http.put<ContractResignationResponse>(url, formData);
+  }
+
+
+  // Terminate employee contract
+  terminateEmployeeContract(requestData: {
+    contract_id: number;
+    last_date: string;
+    reason: string;
+  }): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/terminate`;
+    const formData = new FormData();
+    formData.append('contract_id', requestData.contract_id.toString());
+    formData.append('last_date', requestData.last_date);
+    formData.append('reason', requestData.reason);
+
+    return this.http.put<ContractsResponse>(url, formData);
+  }
+
+  // Cancel employee contract
+  cancelEmployeeContract(requestData: {
+    contract_id: number;
+  }): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/cancel`;
+    const formData = new FormData();
+    formData.append('contract_id', requestData.contract_id.toString());
+    return this.http.put<ContractsResponse>(url, formData);
   }
 
   // Get contract adjustments history for a specific contract
   getEmployeeContractAdjustments(contractId: number): Observable<ContractAdjustmentsResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-contracts-adjustments/${contractId}/`;
+    const url = `${this.apiBaseUrl}personnel/contract/history?contract_id=${contractId}`;
+    console.log(url);
     return this.http.get<ContractAdjustmentsResponse>(url);
   }
 }

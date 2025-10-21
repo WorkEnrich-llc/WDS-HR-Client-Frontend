@@ -265,7 +265,7 @@ export class ManageRoleComponent implements OnInit {
       users: this.addedUsers.map(u => u.id)
     });
 
-    this.usersOverlay.closeOverlay();
+    // this.usersOverlay.closeOverlay();
   }
 
   removeUser(user: IUser): void {

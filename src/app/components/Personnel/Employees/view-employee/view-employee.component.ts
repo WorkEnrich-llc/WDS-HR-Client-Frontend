@@ -364,7 +364,9 @@ export class ViewEmployeeComponent implements OnInit {
             doc.uploaded = true;
           }
           delete this.uploadProgress[docKey];
+          this.loadEmployeeDocuments();
           this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+
         }
       }, error => {
         console.error('Error uploading document', error);

@@ -20,4 +20,8 @@ export class ContractHistoryModalComponent {
   closeModal(): void {
     this.onClose.emit();
   }
+
+  getFormattedSalary(salary: number, currency: string): string {
+    return `${salary.toLocaleString()} ${currency || 'EGP'}`;
+  }
 }
