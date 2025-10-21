@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
 
@@ -11,6 +11,10 @@ import { JobCreationDataService } from '../../../../../core/services/recruitment
 })
 export class RequiredDetailsComponent implements OnInit {
   private jobCreationDataService = inject(JobCreationDataService);
+  private route = inject(ActivatedRoute);
+
+  isUpdateMode = false;
+  jobId: number | null = null;
 
   // Personal Details - Basic Info
   basicInfo = {
@@ -52,11 +56,20 @@ export class RequiredDetailsComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // Load existing data if any
-    const currentData = this.jobCreationDataService.getCurrentData();
-    if (currentData.recruiter_dynamic_fields) {
-      this.loadExistingSelections(currentData.recruiter_dynamic_fields);
-    }
+    // Check if we're in update mode
+    this.route.parent?.params.subscribe(params => {
+      if (params['id']) {
+        this.isUpdateMode = true;
+        this.jobId = +params['id'];
+      }
+    });
+
+    // Subscribe to service data to pre-fill form (for update mode)
+    this.jobCreationDataService.jobData$.subscribe(data => {
+      if (data.recruiter_dynamic_fields) {
+        this.loadExistingSelections(data.recruiter_dynamic_fields);
+      }
+    });
   }
 
   loadExistingSelections(dynamicFields: any): void {

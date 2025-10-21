@@ -327,7 +327,7 @@ export class EditBranchInfoComponent implements OnInit {
 
 
   // check form changed
-  
+
   isFormChanged(): boolean {
     const currentForm = this.branchStep1.value;
     const originalForm = this.originalFormData;

@@ -44,9 +44,14 @@ export class JobOpeningsService {
         return this._HttpClient.get(url);
     }
 
+    // get job opening by id (alias for showJobOpening)
+    getJobOpeningById(id: number): Observable<any> {
+        return this.showJobOpening(id);
+    }
+
     // create a new job opening
     createJobOpening(jobOpeningData: any): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/jobs-openings/`;
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings`;
         return this._HttpClient.post(url, jobOpeningData);
     }
 

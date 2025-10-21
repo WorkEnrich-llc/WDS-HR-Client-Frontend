@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
 import { BranchesService } from '../../../../../core/services/od/branches/branches.service';
 import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
@@ -23,6 +23,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   private workScheduleService = inject(WorkSchaualeService);
   private jobOpeningsService = inject(JobOpeningsService);
   private jobCreationDataService = inject(JobCreationDataService);
+  private route = inject(ActivatedRoute);
 
   selectedWorkMode: string = '';
   selectedJobTitle: any = null;
@@ -35,6 +36,8 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   isJobTitleDropdownOpen: boolean = false;
   isBranchDropdownOpen: boolean = false;
   isWorkScheduleDropdownOpen: boolean = false;
+  isUpdateMode = false;
+  jobId: number | null = null;
 
   // Job Titles infinite scroll
   jobTitles: any[] = [];
@@ -73,9 +76,20 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   private workScheduleSearchSubject = new Subject<string>();
 
   ngOnInit(): void {
+    // Check if we're in update mode
+    this.route.parent?.params.subscribe(params => {
+      if (params['id']) {
+        this.isUpdateMode = true;
+        this.jobId = +params['id'];
+      }
+    });
+
     this.loadJobTitles();
     this.loadBranches();
     this.loadWorkSchedules();
+
+    // Load existing data from service (for update mode)
+    this.loadExistingData();
 
     // Setup debounced search for job titles
     this.jobTitleSearchSubject.pipe(debounceTime(300)).subscribe(() => {
@@ -99,6 +113,63 @@ export class MainInfoComponent implements OnInit, OnDestroy {
       this.workSchedulesPage = 1;
       this.workSchedulesHasMore = true;
       this.loadWorkSchedules();
+    });
+  }
+
+  loadExistingData(): void {
+    // Subscribe to service data to pre-fill form (for update mode)
+    this.jobCreationDataService.jobData$.subscribe(data => {
+      if (data.main_information) {
+        const mainInfo = data.main_information;
+
+        // Pre-fill employment type
+        if (mainInfo.employment_type) {
+          this.selectedEmploymentType = mainInfo.employment_type.toString();
+        }
+
+        // Pre-fill days on site
+        if (mainInfo.days_on_site !== undefined) {
+          this.selectedOnsiteDays = mainInfo.days_on_site.toString();
+        }
+
+        // Pre-fill time limit and cv limit
+        if (mainInfo.time_limit !== undefined) {
+          this.timeLimit = mainInfo.time_limit;
+        }
+        if (mainInfo.cv_limit !== undefined) {
+          this.cvLimit = mainInfo.cv_limit;
+        }
+
+        // Pre-select job title (we need to wait for job titles to load)
+        if (mainInfo.job_title_id) {
+          setTimeout(() => {
+            const jobTitle = this.jobTitles.find(jt => jt.id === mainInfo.job_title_id);
+            if (jobTitle) {
+              this.selectedJobTitle = jobTitle;
+            }
+          }, 1000); // Wait for initial load
+        }
+
+        // Pre-select branch
+        if (mainInfo.branch_id) {
+          setTimeout(() => {
+            const branch = this.branches.find(b => b.id === mainInfo.branch_id);
+            if (branch) {
+              this.selectedBranch = branch;
+            }
+          }, 1000); // Wait for initial load
+        }
+
+        // Pre-select work schedule
+        if (mainInfo.work_schedule_id) {
+          setTimeout(() => {
+            const workSchedule = this.workSchedules.find(ws => ws.id === mainInfo.work_schedule_id);
+            if (workSchedule) {
+              this.selectedWorkSchedule = workSchedule;
+            }
+          }, 1000); // Wait for initial load
+        }
+      }
     });
   }
 

@@ -1,0 +1,134 @@
+@media (min-width:991px) {
+    .width-fix {
+        width: 190px !important;
+    }
+
+    .w-lg-50 {
+        width: 50% !important;
+    }
+}
+
+:host {
+    /* Active tab/icon color (requested: #377AFD) */
+    --active-tab-color: #377AFD;
+    /* Non-active tab/icon color (requested: #4A6D97) */
+    --inactive-tab-color: #4A6D97;
+}
+
+/* Tab Navigation Styles - Matching Image Design */
+.nav-tabs {
+    border-bottom: none;
+    gap: 0;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.nav-tabs .nav-item .nav-link {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 40px;
+}
+
+.nav-tabs .nav-item>svg {
+    transition: all 0.2s ease;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.nav-tabs .nav-item.active .nav-link {
+    background: transparent;
+    color: var(--active-tab-color);
+    box-shadow: none;
+    border-bottom: 3px solid var(--active-tab-color);
+    border-radius: 0;
+}
+
+.nav-tabs .nav-item.active>svg {
+    color: var(--active-tab-color);
+}
+
+.nav-tabs .nav-item:not(.active):hover .nav-link {
+    background: transparent;
+    color: #374151;
+}
+
+.nav-tabs .nav-item:not(.active):hover>svg {
+    color: #374151;
+}
+
+/* Ensure tabs are evenly distributed - split into 6 parts */
+.nav-tabs .nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.nav-tabs .nav-item:nth-child(6) {
+    flex: 1;
+    /* Empty 6th tab - maintains spacing */
+}
+
+/* Active tab icon styling */
+.nav-tabs .nav-item.active>svg {
+    color: #377AFD !important;
+}
+
+.nav-tabs .nav-item.active>svg path,
+.nav-tabs .nav-item.active>svg circle:not([fill="white"]),
+.nav-tabs .nav-item.active>svg rect:not([fill="white"]),
+.nav-tabs .nav-item.active>svg g {
+    fill: #377AFD !important;
+    stroke: #377AFD !important;
+}
+
+/* Non-active tab icon styling */
+.nav-tabs .nav-item:not(.active)>svg {
+    color: #4A6D97 !important;
+}
+
+.nav-tabs .nav-item:not(.active)>svg path,
+.nav-tabs .nav-item:not(.active)>svg circle:not([fill="white"]),
+.nav-tabs .nav-item:not(.active)>svg rect:not([fill="white"]),
+.nav-tabs .nav-item:not(.active)>svg g {
+    fill: #4A6D97 !important;
+    stroke: #4A6D97 !important;
+}
+
+.nav-tabs .nav-item:not(.active) .nav-link {
+    color: #6b7280;
+}
+
+/* Skeleton loader styles to match actual content height */
+.placeholder-glow .info {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.placeholder-glow .info h6.placeholder {
+    height: 20px;
+    margin-bottom: 0;
+}
+
+.placeholder-glow .info span.placeholder {
+    height: 24px;
+    margin-bottom: 0;
+}
