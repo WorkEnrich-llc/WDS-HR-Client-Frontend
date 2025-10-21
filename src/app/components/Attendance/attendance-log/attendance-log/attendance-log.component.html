@@ -166,17 +166,30 @@
                 </span>
             </td>
 
-            <td
-                [ngClass]="isLate(attendance.working_details?.actual_check_in, attendance.working_details?.scheduled_check_in) ? 'text-danger' : ''">
-                {{ attendance.working_details?.actual_check_in ? (toTime(attendance.working_details.actual_check_in) |
-                date: 'hh:mm a') : '-' }}
+            <td>
+                <div
+                    [ngClass]="isLate(attendance.working_details?.actual_check_in, attendance.working_details?.scheduled_check_in) ? 'text-danger' : ''">
+                    {{ attendance.working_details?.actual_check_in ? (toTime(attendance.working_details.actual_check_in)
+                    | date: 'hh:mm a') : '-' }}
+                </div>
 
+                <div>
+                    {{ attendance.working_details?.working_check_in ?
+                    (toTime(attendance.working_details.working_check_in) | date: 'hh:mm a') : '-' }}
+                </div>
             </td>
+            <td>
+                <div
+                    [ngClass]="isLate(attendance.working_details?.actual_check_out, attendance.working_details?.scheduled_check_out) ? 'text-danger' : ''">
+                    {{ attendance.working_details?.actual_check_out ?
+                    (toTime(attendance.working_details.actual_check_out)
+                    | date: 'hh:mm a') : '-' }}
+                </div>
 
-            <td
-                [ngClass]="leftEarly(attendance.working_details?.actual_check_out, attendance.working_details?.scheduled_check_out) ? 'text-danger' : ''">
-                {{ attendance.working_details?.actual_check_out ? (toTime(attendance.working_details.actual_check_out) |
-                date: 'hh:mm a') : '-' }}
+                <div>
+                    {{ attendance.working_details?.working_check_out ?
+                    (toTime(attendance.working_details.working_check_out) | date: 'hh:mm a') : '-' }}
+                </div>
             </td>
 
 
