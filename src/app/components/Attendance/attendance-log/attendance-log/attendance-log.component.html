@@ -179,7 +179,7 @@
                 </div>
             </td>
             <td>
-                <div
+                <div class="text-secondary small-text-size"
                     [ngClass]="isLate(attendance.working_details?.actual_check_out, attendance.working_details?.scheduled_check_out) ? 'text-danger' : ''">
                     {{ attendance.working_details?.actual_check_out ?
                     (toTime(attendance.working_details.actual_check_out)
