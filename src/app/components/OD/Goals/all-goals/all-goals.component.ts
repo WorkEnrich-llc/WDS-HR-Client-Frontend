@@ -1,10 +1,11 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
@@ -21,6 +22,8 @@ export class AllGoalsComponent {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
 
   filterForm!: FormGroup;
@@ -62,7 +65,13 @@ export class AllGoalsComponent {
       // }
     });
 
-    this.getAllGoals(this.currentPage);
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('goals/all-goals') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllGoals(pageFromUrl);
+    });
+
+    // this.getAllGoals(this.currentPage);
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -82,6 +91,9 @@ export class AllGoalsComponent {
     this.filterForm = this.fb.group({
       goal_type: [''],
     });
+
+
+
   }
 
   getAllGoals(
@@ -190,9 +202,33 @@ export class AllGoalsComponent {
     this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    this.paginationState.setPage('goals/all-goals', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
+
+
+  navigateToEdit(goalId: number): void {
+    this.paginationState.setPage('goals/all-goals', this.currentPage);
+    this.router.navigate(['/goals/edit', goalId]);
+  }
+
+
+  navigateToView(goalId: number): void {
+    this.paginationState.setPage('goals/all-goals', this.currentPage);
+    this.router.navigate(['/goals/view-goal', goalId]);
+  }
+
+
 
 }

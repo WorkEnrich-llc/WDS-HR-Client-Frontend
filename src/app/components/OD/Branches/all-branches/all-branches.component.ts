@@ -1,16 +1,17 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 interface Branch {
   id: number;
@@ -34,6 +35,8 @@ export class AllBranchesComponent implements OnInit {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
 
   filterForm!: FormGroup;
@@ -65,9 +68,15 @@ export class AllBranchesComponent implements OnInit {
     });
 
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllBranches(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('branches/all-branches') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllBranches(pageFromUrl);
     });
+
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.getAllBranches(this.currentPage);
+    // });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -216,15 +225,38 @@ export class AllBranchesComponent implements OnInit {
 
 
 
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
-  }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  // }
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.paginationState.setPage('branches/all-branches', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  navigateToEdit(branchId: number): void {
+    this.paginationState.setPage('branches/all-branches', this.currentPage);
+    this.router.navigate(['/branches/edit', branchId]);
+  }
+
+
+  navigateToView(branchId: number): void {
+    this.paginationState.setPage('branches/all-branches', this.currentPage);
+    this.router.navigate(['/branches/view-branch', branchId]);
+  }
+
+
 
 }

@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
@@ -10,6 +10,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 
 @Component({
@@ -24,6 +25,8 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
 
   filterForm!: FormGroup;
@@ -57,12 +60,15 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
     });
 
 
-
-
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.getAllDepartment(this.currentPage);
+    // });
 
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllDepartment(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('departments/all-departments') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllDepartment(pageFromUrl);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -194,14 +200,38 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
 
 
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
-  }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  // }
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.paginationState.setPage('departments/all-departments', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  navigateToEdit(departmentId: number): void {
+    this.paginationState.setPage('departments/all-departments', this.currentPage);
+    this.router.navigate(['/departments/edit', departmentId]);
+  }
+
+
+  navigateToView(departmentId: number): void {
+    this.paginationState.setPage('departments/all-departments', this.currentPage);
+    this.router.navigate(['/departments/view-department', departmentId]);
+  }
+
+
+
 }
