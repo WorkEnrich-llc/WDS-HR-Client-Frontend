@@ -268,12 +268,13 @@ getsections(deptid: number) {
     this.getAllJobTitles(page, this.searchTerm);
   }
 
-  onItemsPerPageChange(itemsPerPage: number) {
-    this.manageItemsPerPage = itemsPerPage;
-    this.ManageCurrentPage = 1;
-    // Don't call API here - the table component also emits pageChange event
-    // which will trigger onPageChange() and make the API call
-  }
+onItemsPerPageChange(newItemsPerPage: number): void {
+  this.manageItemsPerPage = newItemsPerPage;
+  this.ManageCurrentPage = 1;
+  this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+}
+
+
 
   nextGetJobs(): void {
     this.goNext();

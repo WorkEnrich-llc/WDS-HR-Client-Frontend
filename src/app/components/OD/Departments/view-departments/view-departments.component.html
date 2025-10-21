@@ -114,7 +114,7 @@
     @if (activeTab === 'sections') {
     <h2 class="mb-3">Sections</h2>
 
-    <app-table [isLoading]="loadData" [columnsCount]="2" [data]="departmentData.sections" [totalItems]="totalItems"
+    <app-table [isLoading]="loadData" [columnsCount]="3" [data]="departmentData.sections" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="sectionsTableHeader"
       [rowTemplate]="sectionsTableRow" [emptyTemplate]="noSections"></app-table>
@@ -140,6 +140,7 @@
           }
         </div>
       </th>
+      <th class="width-fix">Subsections</th>
 
       <th>Status</th>
 
@@ -152,6 +153,10 @@
           {{ section.name }}
         </span>
       </td>
+      <td>
+        {{ getSubsectionNames(section) }}
+      </td>
+
       <td>
         @if (section.is_active ===true) {
         <span class="badge-success">

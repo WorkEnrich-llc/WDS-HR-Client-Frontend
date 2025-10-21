@@ -441,6 +441,17 @@ export class EditJobComponent {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
   }
+  onPageChange(newPage: number): void {
+    this.ManageCurrentPage = newPage;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
+
+  onItemsPerPageChange(newItemsPerPage: number): void {
+    this.manageItemsPerPage = newItemsPerPage;
+    this.ManageCurrentPage = 1;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
+
   nextGetJobs(): void {
     this.goNext();
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
@@ -453,14 +464,14 @@ export class EditJobComponent {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
     hourly_restrict: new FormControl(false),
@@ -533,27 +544,30 @@ export class EditJobComponent {
   }
 
   toggleAssignStatus(selectedJob: any) {
-    const currentAssigned = this.jobTitles.find(job => job.assigned);
+    this.jobTitles.forEach(job => {
+      job.assigned = false;
+      job.assigns = [];
+    });
 
-    if (!selectedJob.assigned) {
-      this.jobTitles.forEach(job => {
-        job.assigned = false;
-        job.assigns = [];
-      });
+    selectedJob.assigned = true;
+    selectedJob.assigns = [selectedJob];
 
-      selectedJob.assigned = true;
-      selectedJob.assigns = [selectedJob];
-
-      this.previousAssignedId = currentAssigned ? currentAssigned.id : null;
-
-      this.removedManagerId = this.previousAssignedId;
-      this.removedManager = currentAssigned ? { ...currentAssigned } : null;
-
-      this.newManagerSelected = true;
-      this.managerRemoved = true;
-    }
+    this.removedManagerId = null;
+    this.removedManager = null;
+    this.newManagerSelected = true;
+    this.managerRemoved = false;
 
     this.checkForChanges();
+  }
+  get currentManager() {
+    if (this.newManagerSelected) {
+      return this.jobTitles.find(j => j.assigned);
+    } else if (this.removedManagerId !== null) {
+      return this.removedManager;
+    } else if (this.jobTitleData?.assigns?.length > 0) {
+      return this.jobTitleData.assigns[0];
+    }
+    return null;
   }
 
 

@@ -11,22 +11,22 @@ import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading
 @Component({
   selector: 'app-view-departments',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent,SkelatonLoadingComponent],
+  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-departments.component.html',
   styleUrls: ['./view-departments.component.css']
 })
 export class ViewDepartmentsComponent implements OnInit {
-  constructor(private _DepartmentsService: DepartmentsService,private subService:SubscriptionService, private route: ActivatedRoute,private datePipe: DatePipe) { }
+  constructor(private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   departmentData: any = { sections: [] };
-formattedCreatedAt: string = '';
+  formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   deptId: string | null = null;
   activeTab: 'sections' | 'goals' = 'sections';
 
-setActiveTab(tab: 'sections' | 'goals') {
-  this.activeTab = tab;
-}
+  setActiveTab(tab: 'sections' | 'goals') {
+    this.activeTab = tab;
+  }
   // Table pagination properties
   loadData: boolean = false;
   totalItems: number = 0;
@@ -34,9 +34,9 @@ setActiveTab(tab: 'sections' | 'goals') {
   itemsPerPage: number = 10;
   currentPage: number = 1;
   departmentsSub: any;
-  
+
   ngOnInit(): void {
-      // subscription data
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.departmentsSub = sub?.Departments;
       // if (this.departmentsSub) {
@@ -57,13 +57,13 @@ setActiveTab(tab: 'sections' | 'goals') {
 
   getDepartment(deptId: number) {
     this.loadData = true;
-    
+
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
         this.totalItems = this.departmentData.sections?.length || 0;
         this.totalItemsGoals = this.departmentData.assigned_goals?.length || 0;
-         const created = this.departmentData?.created_at;
+        const created = this.departmentData?.created_at;
         const updated = this.departmentData?.updated_at;
         if (created) {
           this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
@@ -71,7 +71,7 @@ setActiveTab(tab: 'sections' | 'goals') {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.departmentData);
+        console.log(this.departmentData);
 
         this.sortDirection = 'desc';
         this.sortBy('id');
@@ -83,6 +83,15 @@ setActiveTab(tab: 'sections' | 'goals') {
       }
     });
   }
+
+  getSubsectionNames(section: any): string {
+    if (section?.sub_sections?.length > 0) {
+      return section.sub_sections.map((sub: any) => sub.name).join(', ');
+    }
+    return '';
+  }
+
+
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   sortBy(column: string) {
@@ -149,7 +158,7 @@ setActiveTab(tab: 'sections' | 'goals') {
   }
   confirmActivate() {
     this.activateOpen = false;
-     const deptStatus = {
+    const deptStatus = {
       request_data: {
         status: true
       }

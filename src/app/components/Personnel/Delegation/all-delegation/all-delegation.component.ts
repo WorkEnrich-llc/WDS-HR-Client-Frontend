@@ -216,10 +216,14 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
 
   resetFilterForm(): void {
-    this.filterForm.reset();
-    this.filters = {};
-    this.currentPage = 1;
-    this.loadDelegations();
-    this.filterBox.closeOverlay();
-  }
+  this.filterForm.reset({
+    status: '',
+    start_date: '',
+  });
+  this.filters = {};
+  this.currentPage = 1;
+  this.loadDelegations();
+  this.filterBox.closeOverlay();
+}
+
 }

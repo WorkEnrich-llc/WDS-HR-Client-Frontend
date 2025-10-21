@@ -48,7 +48,7 @@
         </div>
 
         <!-- start Table -->
-        <app-table [isLoading]="loadData" [columnsCount]="5" [data]="filteredDelegations" [totalItems]="totalItems"
+        <app-table [isLoading]="loadData" [columnsCount]="6" [data]="filteredDelegations" [totalItems]="totalItems"
             [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="delegationTableHeader"
             [rowTemplate]="delegationTableRow" [emptyTemplate]="noDelegations"></app-table>
