@@ -4,7 +4,6 @@ import { Messaging } from '@angular/fire/messaging';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { Observable, from } from 'rxjs';
 import { environment } from './../../../../environments/environment';
-import { switchMap } from 'rxjs/operators';
 import { initializeApp } from 'firebase/app';
 
 @Injectable({
@@ -95,46 +94,4 @@ export class FcmService {
     });
   }
 
-
-  // async getToken(): Promise<string> {
-  //   if (this.token) return this.token;
-
-  //   try {
-  //     const permission = Notification.permission;
-
-  //     if (permission === 'granted') {
-  //       const token = await getToken(this.messaging, {
-  //         vapidKey: 'BAZJR-lUBhT5aY0HsiJOszKuU6U9ifiAkgOIGzaY59oe4WO9Wm_ISlnNfolCg2FMuMbMIKOAcOGjz2XcVeQiW9A'
-  //       });
-  //       this.token = token ?? '';
-  //       return this.token;
-
-  //     } else if (permission === 'default') {
-  //       Notification.requestPermission().then(async (request) => {
-  //         if (request === 'granted') {
-  //           const token = await getToken(this.messaging, {
-  //             vapidKey: 'BAZJR-lUBhT5aY0HsiJOszKuU6U9ifiAkgOIGzaY59oe4WO9Wm_ISlnNfolCg2FMuMbMIKOAcOGjz2XcVeQiW9A'
-  //           });
-  //           this.token = token ?? '';
-  //         } else {
-  //           this.token = '';
-  //         }
-  //       }).catch(() => {
-  //         this.token = '';
-  //       });
-
-  //       return '';
-  //     } else {
-  //       return '';
-  //     }
-
-  //   } catch (err) {
-  //     console.error('Error getting FCM token:', err);
-  //     return '';
-  //   }
-  // }
-
-  // fcmUpdate(formData: FormData) {
-  //   return this.http.post(`${environment.apiBaseUrl}/fcm/update`, formData);
-  // }
 }
