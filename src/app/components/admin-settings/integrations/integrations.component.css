@@ -1,0 +1,188 @@
+/* Search input styles */
+.form-outline {
+  position: relative;
+}
+
+.form-outline svg {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.form-outline input {
+  padding-right: 40px;
+}
+
+/* Badge styles */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+  color: white;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+  color: white;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+/* Text truncate */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Copy button transitions */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn-sm {
+  transition: all 0.2s ease;
+}
+
+/* Copy button success state */
+.btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+}
+
+.btn-success:hover {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+
+.documentation-btn {
+  background-color: white;
+  border: 1px solid #0d6efd;
+  color: #0d6efd;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 180px;
+  justify-content: center;
+  height: fit-content;
+  align-self: center;
+}
+
+.documentation-btn:hover {
+  background-color: #0d6efd;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(13, 110, 253, 0.25);
+  text-decoration: none;
+}
+
+.documentation-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(13, 110, 253, 0.25);
+}
+
+.documentation-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+.documentation-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+/* Documentation section in page header */
+.documentation-text h6 {
+  color: #495057;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+  white-space: pre-line;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Filter styling */
+.calendar-icon,
+.dropdown-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.btn-close-filter {
+  position: absolute;
+  right: 35px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc3545;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-close-filter:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.form-control:read-only {
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.form-select {
+  padding-right: 50px;
+}
+
+.form-control {
+  padding-right: 50px;
+}
+
+/* Remove underline from Clear Filters button */
+.btn-outline-secondary {
+  text-decoration: none;
+}
+
+.btn-outline-secondary:hover {
+  text-decoration: none;
+}
+
+/* Ensure X buttons are visible */
+.btn-close-filter {
+  z-index: 10;
+}

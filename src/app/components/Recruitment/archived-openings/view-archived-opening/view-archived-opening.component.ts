@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { RouterLink, ActivatedRoute } from '@angular/router';
-import { JobOpeningsService } from '../../../../core/services/recruitment/job-openings/job-openings.service';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ArchivedOpeningsService } from '../../../../core/services/recruitment/archived-openings/archived-openings.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject, debounceTime, take } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
@@ -29,15 +29,16 @@ type DynamicFieldSection = {
   fields: DynamicField[];
 };
 @Component({
-  selector: 'app-view-jop-open',
+  selector: 'app-view-archived-opening',
   standalone: true,
   imports: [PageHeaderComponent, TableComponent, RouterLink, CommonModule, FormsModule, PopupComponent],
-  templateUrl: './view-jop-open.component.html',
-  styleUrl: './view-jop-open.component.css'
+  templateUrl: './view-archived-opening.component.html',
+  styleUrl: './view-archived-opening.component.css'
 })
-export class ViewJopOpenComponent implements OnInit, OnDestroy {
+export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
-  private jobOpeningsService = inject(JobOpeningsService);
+  private router = inject(Router);
+  private archivedOpeningsService = inject(ArchivedOpeningsService);
   private toastr = inject(ToastrService);
 
   // Job opening data
@@ -64,13 +65,24 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Search functionality
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private currentJobId: number | null = null;
+  private isLoadingRequest: boolean = false;
 
-  // Status change confirmation modals
-  isPauseModalOpen: boolean = false;
-  isMakeLiveModalOpen: boolean = false;
+  // Duplicate confirmation modal
+  isDuplicateModalOpen: boolean = false;
+
+  // Unarchive confirmation modal
+  isUnarchiveModalOpen: boolean = false;
 
   ngOnInit(): void {
-    this.loadJobOpeningFromRoute();
+    // Load job opening from route
+    this.route.params.subscribe(params => {
+      const jobId = +params['id'];
+      if (jobId && jobId !== this.currentJobId) {
+        this.currentJobId = jobId;
+        this.getJobOpeningDetails(jobId);
+      }
+    });
 
     // Setup debounced search
     this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
@@ -79,23 +91,20 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadJobOpeningFromRoute(): void {
-    this.route.params.subscribe(params => {
-      const jobId = params['id'];
-      if (jobId) {
-        this.getJobOpeningDetails(jobId);
-      }
-    });
-  }
-
   getJobOpeningDetails(jobId: number): void {
-    // Set all loading states to true
+    // Prevent duplicate calls if already making a request
+    if (this.isLoadingRequest) {
+      return;
+    }
+
+    // Set request flag and loading states to true
+    this.isLoadingRequest = true;
     this.jobDetailsLoading = true;
     this.mainInfoLoading = true;
     this.jobDetailsInfoLoading = true;
     this.dynamicFieldsLoading = true;
 
-    this.jobOpeningsService.showJobOpening(jobId).subscribe({
+    this.archivedOpeningsService.getArchivedOpeningById(jobId).subscribe({
       next: (response) => {
         // Use object_info from the response as it contains the actual job opening data
         this.jobOpening = response.data.object_info;
@@ -105,6 +114,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.mainInfoLoading = false;
         this.jobDetailsInfoLoading = false;
         this.dynamicFieldsLoading = false;
+        this.isLoadingRequest = false;
 
         // Load applicants for the current tab
         this.loadApplicants();
@@ -115,7 +125,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.mainInfoLoading = false;
         this.jobDetailsInfoLoading = false;
         this.dynamicFieldsLoading = false;
-        console.error('Error fetching job opening details:', error);
+        this.isLoadingRequest = false;
+        console.error('Error fetching archived opening details:', error);
       }
     });
   }
@@ -131,7 +142,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.applicantsLoading = true;
     const status = this.getStatusFromTab(this.activeTab);
 
-    this.jobOpeningsService.getJobApplications(
+    this.archivedOpeningsService.getJobApplications(
       this.currentPage,
       this.itemsPerPage,
       this.jobOpening.id,
@@ -141,13 +152,13 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.data) {
           // Transform API response to match table format
-          this.applicant = response.data.list_items.map((item: any) => ({
-            id: item.application?.id || item.applicant?.id,
-            name: item.applicant?.name || 'N/A',
-            phoneNumber: item.applicant?.phone || 'N/A',
-            email: item.applicant?.email || 'N/A',
-            status: item.application?.status || 'N/A',
-            statusAt: item.application?.created_at || 'N/A'
+          this.applicant = response.data.list_items.map((app: any) => ({
+            id: app.id,
+            name: app.applicant?.name || 'N/A',
+            phoneNumber: app.applicant?.phone || 'N/A',
+            email: app.applicant?.email || 'N/A',
+            status: app.status || 'N/A',
+            statusAt: app.created_at || 'N/A'
           }));
           this.totalItems = response.data.total_items || 0;
         }
@@ -270,6 +281,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     return sections;
   }
+
   applicant: Applicant[] = [
     {
       id: 11,
@@ -280,8 +292,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       statusAt: '28/12/2025 8:30 PM',
     }
   ];
+
   sortDirection: string = 'asc';
   currentSortColumn: keyof Applicant | '' = '';
+
   sortBy(column: keyof Applicant) {
     if (this.currentSortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -303,134 +317,75 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Change job opening status
-   * Status values:
-   * 1: Live - The job is currently active and visible to applicants
-   * 2: Completed - The job has been successfully completed
-   * 3: Archived - The job is no longer active and has been archived
-   * 4: Pause - The job is temporarily paused and not visible to applicants
+   * Open duplicate confirmation modal
    */
-  changeJobStatus(newStatus: number): void {
-    if (!this.jobOpening?.id) {
-      return;
+  openDuplicateModal(): void {
+    this.isDuplicateModalOpen = true;
+  }
+
+  /**
+   * Close duplicate confirmation modal
+   */
+  closeDuplicateModal(): void {
+    this.isDuplicateModalOpen = false;
+  }
+
+  /**
+   * Confirm and duplicate archived job opening
+   */
+  confirmDuplicate(): void {
+    if (this.jobOpening?.id) {
+      this.archivedOpeningsService.duplicateJobOpening(this.jobOpening.id).subscribe({
+        next: (response) => {
+          this.toastr.success('Job opening duplicated successfully');
+          this.closeDuplicateModal();
+          // Navigate to job openings list
+          this.router.navigate(['/job-openings']);
+        },
+        error: (error) => {
+          console.error('Error duplicating job opening:', error);
+          this.toastr.error('Failed to duplicate job opening');
+          this.closeDuplicateModal();
+        }
+      });
     }
-
-    const requestBody = {
-      request_data: {
-        status: newStatus
-      }
-    };
-
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
-      next: (response) => {
-        // Reload job opening details to get updated status
-        this.getJobOpeningDetails(this.jobOpening.id);
-      },
-      error: (error) => {
-        console.error('Error updating job status:', error);
-        this.toastr.error('Failed to update job status', '', { timeOut: 3000 });
-      }
-    });
   }
 
   /**
-   * Open pause confirmation modal
+   * Open unarchive confirmation modal
    */
-  openPauseModal(): void {
-    this.isPauseModalOpen = true;
+  openUnarchiveModal(): void {
+    this.isUnarchiveModalOpen = true;
   }
 
   /**
-   * Close pause confirmation modal
+   * Close unarchive confirmation modal
    */
-  closePauseModal(): void {
-    this.isPauseModalOpen = false;
+  closeUnarchiveModal(): void {
+    this.isUnarchiveModalOpen = false;
   }
 
   /**
-   * Open make live confirmation modal
+   * Confirm and unarchive job opening
+   * Changes status from 3 (Archived) to 1 (Live)
+   * Uses PATCH method to /recruiter/jobs-openings/:id/ endpoint
    */
-  openMakeLiveModal(): void {
-    this.isMakeLiveModalOpen = true;
-  }
-
-  /**
-   * Close make live confirmation modal
-   */
-  closeMakeLiveModal(): void {
-    this.isMakeLiveModalOpen = false;
-  }
-
-  /**
-   * Confirm pause job (change status to 4)
-   */
-  confirmPause(): void {
-    if (!this.jobOpening?.id) {
-      return;
+  confirmUnarchive(): void {
+    if (this.jobOpening?.id) {
+      this.archivedOpeningsService.unarchiveJobOpening(this.jobOpening.id).subscribe({
+        next: (response) => {
+          this.toastr.success('Job opening unarchived successfully');
+          this.closeUnarchiveModal();
+          // Navigate back to archived openings list
+          this.router.navigate(['/archived-openings']);
+        },
+        error: (error) => {
+          console.error('Error unarchiving job opening:', error);
+          this.toastr.error('Failed to unarchive job opening');
+          this.closeUnarchiveModal();
+        }
+      });
     }
-
-    const requestBody = {
-      request_data: {
-        status: 4 // Pause status
-      }
-    };
-
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
-      next: (response) => {
-        this.toastr.success('Job opening paused successfully');
-        this.closePauseModal();
-        // Reload job opening details to get updated status
-        this.getJobOpeningDetails(this.jobOpening.id);
-      },
-      error: (error) => {
-        console.error('Error pausing job:', error);
-        this.toastr.error('Failed to pause job opening');
-        this.closePauseModal();
-      }
-    });
-  }
-
-  /**
-   * Confirm make live (change status to 1)
-   */
-  confirmMakeLive(): void {
-    if (!this.jobOpening?.id) {
-      return;
-    }
-
-    const requestBody = {
-      request_data: {
-        status: 1 // Live status
-      }
-    };
-
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
-      next: (response) => {
-        this.toastr.success('Job opening is now live');
-        this.closeMakeLiveModal();
-        // Reload job opening details to get updated status
-        this.getJobOpeningDetails(this.jobOpening.id);
-      },
-      error: (error) => {
-        console.error('Error making job live:', error);
-        this.toastr.error('Failed to make job opening live');
-        this.closeMakeLiveModal();
-      }
-    });
-  }
-
-  /**
-   * Check if job is currently live
-   */
-  isJobLive(): boolean {
-    return this.jobOpening?.status === 'Live';
-  }
-
-  /**
-   * Check if job is currently paused
-   */
-  isJobPaused(): boolean {
-    return this.jobOpening?.status === 'Pause';
   }
 
   ngOnDestroy(): void {

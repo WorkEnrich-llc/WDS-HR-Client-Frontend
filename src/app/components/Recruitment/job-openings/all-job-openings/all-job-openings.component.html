@@ -152,7 +152,7 @@
                         <span>View</span>
                     </a>
                     <!-- Archive button -->
-                    <a (click)="archiveJob(job.jobId)"
+                    <a (click)="openArchiveModal(job.jobId)"
                         class="remove-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="Archive">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -334,3 +334,15 @@
 
 
 </app-overlay-filter-box>
+
+<!-- Archive confirmation popup -->
+<app-popup [title]="'Archive Job Opening'" [paragraph1]="'Are you sure you want to archive this job opening?'"
+    [paragraph2]="'This will move the job opening to archived status and it will no longer be visible to applicants.'"
+    [isOpen]="isArchiveModalOpen" (close)="closeArchiveModal()">
+    <button modal-btn-left class="btn btn-lg btn-warning w-100" (click)="confirmArchive()">
+        Confirm Archive
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeArchiveModal()">
+        Cancel
+    </button>
+</app-popup>
