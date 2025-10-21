@@ -13,20 +13,20 @@ export class InterviewComponent {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   status = 'Interviewee';
-  interviewStatus=true;
+  interviewStatus = true;
   overlayTitle: string = 'Schedule Interview';
 
-openOverlay(title: string, target: 'filter' | 'job' = 'filter'): void {
-  this.overlayTitle = title;
-  if (target === 'filter') {
-    this.filterBox.openOverlay();
-  } else {
-    this.jobBox.openOverlay();
+  openOverlay(title: string, target: 'filter' | 'job' = 'filter'): void {
+    this.overlayTitle = title;
+    if (target === 'filter') {
+      this.filterBox.openOverlay();
+    } else {
+      this.jobBox.openOverlay();
+    }
   }
-}
-closeAllOverlays(): void {
-  this.filterBox?.closeOverlay();
-  this.jobBox?.closeOverlay();
-}
+  closeAllOverlays(): void {
+    this.filterBox?.closeOverlay();
+    this.jobBox?.closeOverlay();
+  }
 
 }

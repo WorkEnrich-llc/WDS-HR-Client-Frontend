@@ -1,15 +1,13 @@
 <!-- Resign Contract Modal -->
-<app-overlay-filter-box
-  [title]="'Resign Contract'"
-  [customWidth]="'500px'"
-  [isOverlayVisible]="isOpen"
+<app-overlay-filter-box [title]="'Resign Contract'" [customWidth]="'500px'" [isOverlayVisible]="isOpen"
   (onClose)="closeModal()">
   <div modal-content>
     <div class="warning-message">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-        <path d="M12 9v4"/>
-        <path d="m12 17 .01 0"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+        <path d="M12 9v4" />
+        <path d="m12 17 .01 0" />
       </svg>
       Any upcoming contracts for this employee will be cancelled automatically.
     </div>
@@ -17,18 +15,15 @@
     <form [formGroup]="resignForm" class="resign-form">
       <div class="form-group">
         <label for="resignDate" class="form-label">Resign date</label>
-        <input 
-          type="date" 
-          id="resignDate"
-          class="form-control" 
-          formControlName="resignDate"
+        <input type="date" id="resignDate" class="form-control" formControlName="resignDate"
           [class.is-invalid]="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
-        <div class="invalid-feedback" *ngIf="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
+        <div class="invalid-feedback"
+          *ngIf="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
           Resign date is required
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="noticePeriod" class="form-label">Notice Period</label>
         <div class="notice-period-container">
           <input 
@@ -43,16 +38,11 @@
         <div class="invalid-feedback" *ngIf="resignForm.get('noticePeriod')?.invalid && resignForm.get('noticePeriod')?.touched">
           Notice period is required
         </div>
-      </div>
+      </div> -->
 
       <div class="form-group">
         <label for="lastDay" class="form-label">Last day</label>
-        <input 
-          type="date" 
-          id="lastDay"
-          class="form-control" 
-          formControlName="lastDay"
-          readonly
+        <input type="date" id="lastDay" class="form-control" formControlName="lastDay"
           [class.is-invalid]="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched">
         <div class="invalid-feedback" *ngIf="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched">
           Last day is required
@@ -61,11 +51,7 @@
 
       <div class="form-group">
         <label for="reason" class="form-label">Reason</label>
-        <textarea 
-          id="reason"
-          class="form-control" 
-          rows="3"
-          placeholder="Why did this employee resign?"
+        <textarea id="reason" class="form-control" rows="3" placeholder="Why did this employee resign?"
           formControlName="reason"
           [class.is-invalid]="resignForm.get('reason')?.invalid && resignForm.get('reason')?.touched">
         </textarea>
@@ -76,15 +62,12 @@
     </form>
 
     <div class="modal-footer">
-      <button 
-        type="button" 
-        class="btn btn-resign" 
-        (click)="confirmResign()"
-        [disabled]="resignForm.invalid">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16,17 21,12 16,7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+      <button type="button" class="btn btn-resign" (click)="confirmResign()" [disabled]="resignForm.invalid">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16,17 21,12 16,7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
         Resign
       </button>

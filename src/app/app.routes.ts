@@ -875,6 +875,32 @@ export const routes: Routes = [
                 ]
               },
               {
+                path: 'update-job-openings/:id',
+                loadComponent: () => import('./components/Recruitment/job-openings/update-job-open/update-job-open.component').then(m => m.UpdateJobOpenComponent),
+                title: 'Update Job Opening',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings', action: 'update' },
+                children: [
+                  {
+                    path: '',
+                    redirectTo: 'main-information',
+                    pathMatch: 'full'
+                  },
+                  {
+                    path: 'main-information',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
+                  },
+                  {
+                    path: 'required-details',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
+                  },
+                  {
+                    path: 'attachments',
+                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
+                  },
+                ]
+              },
+              {
                 path: 'view-applicant-details/:id',
                 loadComponent: () => import('./components/Recruitment/applicant-detais/applicant-detais.component').then(m => m.ApplicantDetaisComponent),
                 title: 'View Applicant Details',
@@ -900,8 +926,8 @@ export const routes: Routes = [
               },
               {
                 path: 'view-archived-openings/:id',
-                loadComponent: () => import('./components/Recruitment/archived-openings/view-archived-openings/view-archived-openings.component').then(m => m.ViewArchivedOpeningsComponent),
-                title: 'View Archived Openings',
+                loadComponent: () => import('./components/Recruitment/archived-openings/view-archived-opening/view-archived-opening.component').then(m => m.ViewArchivedOpeningComponent),
+                title: 'View Archived Opening',
               },
             ]
           },
@@ -1162,6 +1188,44 @@ export const routes: Routes = [
                 title: 'View User'
               }
             ]
+          },
+          {
+            path: 'integrations',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'External_Integration' },
+            loadComponent: () =>
+              import(
+                './components/admin-settings/integrations/integrations.component'
+              ).then(m => m.IntegrationsComponent),
+            title: 'Integrations'
+          },
+          {
+            path: 'integrations/create-integration',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'External_Integration' },
+            loadComponent: () =>
+              import(
+                './components/admin-settings/integrations/create-integration/create-integration.component'
+              ).then(m => m.CreateIntegrationComponent),
+            title: 'Create Integration Key'
+          },
+          {
+            path: 'integrations/update-integration/:id',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'External_Integration', action: 'update' },
+            loadComponent: () =>
+              import(
+                './components/admin-settings/integrations/update-integration/update-integration.component'
+              ).then(m => m.UpdateIntegrationComponent),
+            title: 'Update Integration Key'
+          },
+          {
+            path: 'announcements',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Announcement' },
+            loadComponent: () =>
+              import('./components/admin-settings/announcements/announcements.component').then(m => m.AnnouncementsComponent),
+            title: 'Announcements'
           }
         ]
       },

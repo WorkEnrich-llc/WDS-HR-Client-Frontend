@@ -7,6 +7,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
   id: number;
@@ -29,7 +30,8 @@ type DynamicFieldSection = {
 };
 @Component({
   selector: 'app-view-jop-open',
-  imports: [PageHeaderComponent, TableComponent, RouterLink, CommonModule, FormsModule],
+  standalone: true,
+  imports: [PageHeaderComponent, TableComponent, RouterLink, CommonModule, FormsModule, PopupComponent],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
 })
@@ -62,6 +64,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Search functionality
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+
+  // Status change confirmation modals
+  isPauseModalOpen: boolean = false;
+  isMakeLiveModalOpen: boolean = false;
 
   ngOnInit(): void {
     this.loadJobOpeningFromRoute();
@@ -135,13 +141,13 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.data) {
           // Transform API response to match table format
-          this.applicant = response.data.list_items.map((app: any) => ({
-            id: app.id,
-            name: app.applicant?.name || 'N/A',
-            phoneNumber: app.applicant?.phone || 'N/A',
-            email: app.applicant?.email || 'N/A',
-            status: app.status || 'N/A',
-            statusAt: app.created_at || 'N/A'
+          this.applicant = response.data.list_items.map((item: any) => ({
+            id: item.application?.id || item.applicant?.id,
+            name: item.applicant?.name || 'N/A',
+            phoneNumber: item.applicant?.phone || 'N/A',
+            email: item.applicant?.email || 'N/A',
+            status: item.application?.status || 'N/A',
+            statusAt: item.application?.created_at || 'N/A'
           }));
           this.totalItems = response.data.total_items || 0;
         }
@@ -328,13 +334,89 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle job status between Live (1) and Pause (4)
+   * Open pause confirmation modal
    */
-  toggleJobStatus(): void {
-    // If status is "Live", change to "Pause" (4)
-    // If status is "Pause" or anything else, change to "Live" (1)
-    const newStatus = this.isJobLive() ? 4 : 1;
-    this.changeJobStatus(newStatus);
+  openPauseModal(): void {
+    this.isPauseModalOpen = true;
+  }
+
+  /**
+   * Close pause confirmation modal
+   */
+  closePauseModal(): void {
+    this.isPauseModalOpen = false;
+  }
+
+  /**
+   * Open make live confirmation modal
+   */
+  openMakeLiveModal(): void {
+    this.isMakeLiveModalOpen = true;
+  }
+
+  /**
+   * Close make live confirmation modal
+   */
+  closeMakeLiveModal(): void {
+    this.isMakeLiveModalOpen = false;
+  }
+
+  /**
+   * Confirm pause job (change status to 4)
+   */
+  confirmPause(): void {
+    if (!this.jobOpening?.id) {
+      return;
+    }
+
+    const requestBody = {
+      request_data: {
+        status: 4 // Pause status
+      }
+    };
+
+    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
+      next: (response) => {
+        this.toastr.success('Job opening paused successfully');
+        this.closePauseModal();
+        // Reload job opening details to get updated status
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        console.error('Error pausing job:', error);
+        this.toastr.error('Failed to pause job opening');
+        this.closePauseModal();
+      }
+    });
+  }
+
+  /**
+   * Confirm make live (change status to 1)
+   */
+  confirmMakeLive(): void {
+    if (!this.jobOpening?.id) {
+      return;
+    }
+
+    const requestBody = {
+      request_data: {
+        status: 1 // Live status
+      }
+    };
+
+    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
+      next: (response) => {
+        this.toastr.success('Job opening is now live');
+        this.closeMakeLiveModal();
+        // Reload job opening details to get updated status
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        console.error('Error making job live:', error);
+        this.toastr.error('Failed to make job opening live');
+        this.closeMakeLiveModal();
+      }
+    });
   }
 
   /**

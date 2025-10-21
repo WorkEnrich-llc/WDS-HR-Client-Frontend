@@ -1,0 +1,48 @@
+.search-input {
+  position: relative;
+  width: 280px;
+}
+
+.search-input svg {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.recipient-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.recipient-type {
+  color: #9aa7b8;
+  font-size: 12px;
+}
+
+.recipient-name {
+  color: #2b3a4b;
+  font-weight: 600;
+}
+
+.title-text {
+  color: #2b3a4b;
+}
+
+.view-link {
+  color: #377AFD;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-two-line {
+  display: block;
+  line-height: 1.1;
+}
+
+.announcements-container {
+    padding: 20px;
+}

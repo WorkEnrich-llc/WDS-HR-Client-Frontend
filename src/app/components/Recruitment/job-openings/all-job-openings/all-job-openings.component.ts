@@ -10,10 +10,11 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 
 @Component({
   selector: 'app-all-job-openings',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule, ReactiveFormsModule, FormsModule, PopupComponent],
   templateUrl: './all-job-openings.component.html',
   styleUrl: './all-job-openings.component.css'
 })
@@ -42,6 +43,10 @@ export class AllJobOpeningsComponent implements OnDestroy {
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+
+  // Archive confirmation modal
+  isArchiveModalOpen: boolean = false;
+  selectedJobIdToArchive: number | null = null;
 
 
   ngOnInit(): void {
@@ -155,7 +160,7 @@ export class AllJobOpeningsComponent implements OnDestroy {
       queryParams: { page },
       queryParamsHandling: 'merge'
     });
-    this.getAllJobOpenings(this.currentPage, this.searchTerm, this.currentFilters);
+    // Remove direct API call - queryParams subscription will handle it
   }
 
   navigateToView(jobId: number): void {
@@ -191,10 +196,29 @@ export class AllJobOpeningsComponent implements OnDestroy {
   }
 
   /**
-   * Archive a job opening (set status to 3)
+   * Open archive confirmation modal
    */
-  archiveJob(jobId: number): void {
-    this.changeJobStatus(jobId, 3);
+  openArchiveModal(jobId: number): void {
+    this.selectedJobIdToArchive = jobId;
+    this.isArchiveModalOpen = true;
+  }
+
+  /**
+   * Close archive confirmation modal
+   */
+  closeArchiveModal(): void {
+    this.isArchiveModalOpen = false;
+    this.selectedJobIdToArchive = null;
+  }
+
+  /**
+   * Confirm and archive a job opening (set status to 3)
+   */
+  confirmArchive(): void {
+    if (this.selectedJobIdToArchive) {
+      this.changeJobStatus(this.selectedJobIdToArchive, 3);
+      this.closeArchiveModal();
+    }
   }
 
   /**

@@ -33,19 +33,14 @@
                     </svg>
                     <span>Filter</span>
                 </button>
-
             </div>
-
-
         </div>
 
         <!-- start Table -->
-
-        <app-table [data]="approvalRequests" [isLoading]="loadData" [columnsCount]="9"
-            [totalItems]="approvalRequests.length" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
-            (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
-            [headerTemplate]="archivedTableHeader" [rowTemplate]="archivedTableRow"
-            [emptyTemplate]="noArchived"></app-table>
+        <app-table [data]="archivedOpenings" [isLoading]="loadData" [columnsCount]="9" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="archivedTableHeader"
+            [rowTemplate]="archivedTableRow" [emptyTemplate]="noArchived"></app-table>
 
         <ng-template #archivedTableHeader>
             <th class="w-20">Job title</th>
@@ -100,38 +95,38 @@
 
         <ng-template #archivedTableRow let-job let-i="index">
             <td>
-                <span class="d-block text-gray-sm">{{ job.jobId.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-gray-sm">{{ job.id.toString().padStart(4, '0') }}</span>
                 <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ job.jobName }}
+                    {{ job.job_title?.name || 'N/A' }}
                 </span>
             </td>
             <td>
-                <span class="d-block text-gray-sm">{{ job.branchId.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-gray-sm">{{ job.branch?.id?.toString().padStart(4, '0') || 'N/A' }}</span>
                 <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ job.branchName }}
+                    {{ job.branch?.name || 'N/A' }}
                 </span>
             </td>
             <td>
-                {{ job.empType }}
+                {{ job.employment_type?.name || 'N/A' }}
             </td>
             <td class="text-center">
-                {{job.numApplicant}}
+                {{ job.applicants || 0 }}
             </td>
             <td class="text-center">
-                {{job.numApply}}
+                {{ job.candidates || 0 }}
             </td>
             <td class="text-center text-primary">
-                {{job.numSchadule}}
+                {{ job.interviewees || 0 }}
             </td>
             <td class="text-center text-danger">
-                {{job.numRejected}}
+                {{ job.rejected || 0 }}
             </td>
             <td class="text-center text-success">
-                {{job.numAccepted}}
+                {{ job.new_joiners || 0 }}
             </td>
             <td>
                 <div class="d-flex justify-content-start gap-5 align-items-center w-100">
-                    <a [routerLink]="['/archived-openings/view-archived-openings', job.jobId]"
+                    <a [routerLink]="['/archived-openings/view-archived-openings', job.id]"
                         class="view-btn h-100 d-flex align-items-center gap-1 w-auto me-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -142,8 +137,8 @@
                         </svg>
                         <span>View</span>
                     </a>
-                    <a class="success-btn h-100 d-flex align-items-center gap-1 w-auto" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Un archived">
+                    <button class="success-btn h-100 d-flex align-items-center gap-1 w-auto" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Unarchive" (click)="openUnarchiveModal(job.id)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path fill="currentColor"
                                 d="M12.53 10.47a.75.75 0 0 0-1.06 0l-2.5 2.5a.75.75 0 1 0 1.06 1.06l1.22-1.22V17a.75.75 0 0 0 1.5 0v-4.19l1.22 1.22a.75.75 0 1 0 1.06-1.06z" />
@@ -151,15 +146,14 @@
                                 d="M12.057 1.25h-.114c-2.309 0-4.118 0-5.53.19c-1.444.194-2.584.6-3.479 1.494c-.895.895-1.3 2.035-1.494 3.48c-.19 1.411-.19 3.22-.19 5.529V12h.01c-.01.579-.01 1.23-.01 1.966v.068c0 1.371 0 2.447.07 3.311c.073.88.221 1.607.557 2.265a5.75 5.75 0 0 0 2.513 2.513c.658.336 1.385.485 2.265.556c.864.071 1.94.071 3.311.071h4.068c1.371 0 2.447 0 3.311-.07c.88-.072 1.607-.221 2.265-.557a5.75 5.75 0 0 0 2.513-2.513c.336-.658.485-1.385.556-2.265c.071-.864.071-1.94.071-3.311v-.068c0-.736 0-1.387-.01-1.966h.01v-.057c0-2.309 0-4.118-.19-5.53c-.194-1.444-.6-2.584-1.494-3.479c-.895-.895-2.035-1.3-3.48-1.494c-1.411-.19-3.22-.19-5.529-.19M4.39 5.877a5.8 5.8 0 0 0-1.508 1.11q.02-.192.044-.373c.172-1.279.5-2.05 1.069-2.62c.57-.569 1.34-.896 2.619-1.068c1.3-.174 3.008-.176 5.386-.176s4.086.002 5.386.176c1.279.172 2.05.5 2.62 1.069c.569.57.896 1.34 1.068 2.619q.023.18.044.373a5.8 5.8 0 0 0-1.508-1.11c-.658-.336-1.385-.484-2.265-.556c-.864-.071-1.94-.071-3.311-.071H9.966c-1.371 0-2.447 0-3.311.07c-.88.073-1.607.221-2.265.557m.68 1.336c.412-.21.92-.333 1.707-.397c.796-.065 1.81-.066 3.223-.066h4c1.412 0 2.427 0 3.223.066c.787.064 1.295.188 1.707.397a4.25 4.25 0 0 1 1.857 1.858c.21.411.333.919.397 1.706c.065.796.066 1.81.066 3.223s0 2.427-.066 3.223c-.064.787-.188 1.295-.397 1.707a4.25 4.25 0 0 1-1.857 1.857c-.412.21-.92.333-1.707.397c-.796.065-1.81.066-3.223.066h-4c-1.413 0-2.427 0-3.223-.066c-.787-.064-1.295-.188-1.706-.397a4.25 4.25 0 0 1-1.858-1.857c-.21-.412-.333-.92-.397-1.707c-.065-.796-.066-1.81-.066-3.223s0-2.427.066-3.223c.064-.787.188-1.295.397-1.706a4.25 4.25 0 0 1 1.858-1.858"
                                 clip-rule="evenodd" />
                         </svg>
-                    </a>
+                    </button>
                 </div>
             </td>
-
         </ng-template>
 
         <ng-template #noArchived>
             <tr>
-                <td colspan="7" class="no-data py-4">
+                <td colspan="9" class="no-data py-4">
                     <ng-container *ngIf="searchTerm?.trim(); else noArchived">
                         No Archived Opening match your search.
                     </ng-container>
@@ -172,42 +166,15 @@
     </div>
 </div>
 
-
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form class="w-100 d-flex flex-column gap-3">
+    <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3">
         <div class="input">
-            <label for="status">Status</label>
+            <label for="dateFrom">Date From</label>
             <div class="d-flex align-items-center gap-4">
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="" id="status" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option value="all">Any</option>
-                        <option value="true">Active</option>
-                        <option value="false">Not Active</option>
-                    </select>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
-        </div>
-
-        <div class="input">
-            <label for="createdFrom">Created From</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="date" id="createdFrom" class="form-control custom-date-input" placeholder="Min-Max" />
+                    <input type="date" id="dateFrom" formControlName="dateFrom"
+                        class="form-control custom-date-input" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
                             <path stroke-linecap="round"
@@ -217,31 +184,28 @@
                         </g>
                     </svg>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
             </div>
         </div>
 
-
-
-
-
-
-
+        <div class="input">
+            <label for="dateTo">Date To</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="date" id="dateTo" formControlName="dateTo" class="form-control custom-date-input" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <path stroke-linecap="round"
+                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                            <circle cx="18" cy="18" r="3" />
+                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
 
         <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-lg btn-primary w-100">
+            <button type="button" (click)="applyFilters()" class="btn btn-lg btn-primary w-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <g fill="none" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
@@ -255,7 +219,16 @@
             </a>
         </div>
     </form>
-
-
-
 </app-overlay-filter-box>
+
+<!-- Unarchive confirmation popup -->
+<app-popup [title]="'Unarchive Job Opening'" [paragraph1]="'Are you sure you want to unarchive this job opening?'"
+    [paragraph2]="'This will move the job opening back to active status.'" [isOpen]="isUnarchiveModalOpen"
+    (close)="closeUnarchiveModal()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmUnarchive()">
+        Confirm Unarchive
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeUnarchiveModal()">
+        Cancel
+    </button>
+</app-popup>

@@ -5,11 +5,11 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @Component({
   selector: 'app-cv',
-    standalone: true,
+  standalone: true,
   imports: [OverlayFilterBoxComponent, PdfViewerModule],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class CvComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
@@ -18,17 +18,17 @@ export class CvComponent {
 
   totalPages: number | null = null;
 
-onPdfLoad(pdf: any) {
-  this.totalPages = pdf.numPages;
-}
-zoom = 0.9;
+  onPdfLoad(pdf: any) {
+    this.totalPages = pdf.numPages;
+  }
+  zoom = 0.9;
 
-zoomIn() {
-  this.zoom = Math.min(this.zoom + 0.1, 3); 
-}
+  zoomIn() {
+    this.zoom = Math.min(this.zoom + 0.1, 3);
+  }
 
-zoomOut() {
-  this.zoom = Math.max(this.zoom - 0.1, 0.5); 
-}
+  zoomOut() {
+    this.zoom = Math.max(this.zoom - 0.1, 0.5);
+  }
 
 }
