@@ -45,7 +45,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
     // Set up conditional validation for end date
     this.setupConditionalValidation();
-    
+
     // Set up salary range validation when employee data changes
     if (changes['employee'] && this.employee) {
       this.setupSalaryValidation();
@@ -76,7 +76,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       if (ranges) {
         const minSalary = parseFloat(ranges.minimum);
         const maxSalary = parseFloat(ranges.maximum);
-        
+
         salaryControl.setValidators([
           Validators.required,
           Validators.min(minSalary),
@@ -99,7 +99,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       endDate: formattedEndDate,
       noticePeriod: 60
     });
-    
+
     // Set up salary validation after populating
     this.setupSalaryValidation();
   }
@@ -113,7 +113,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       endDate: null,
       noticePeriod: 60
     });
-    
+
     // Set up salary validation after reset
     this.setupSalaryValidation();
   }
@@ -189,7 +189,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const field = this.contractForm.get(fieldName);
     if (field && field.errors && field.touched) {
       if (field.errors['required']) return `${fieldName} is required`;
-      
+
       if (fieldName === 'salary') {
         if (field.errors['min']) {
           if (this.shouldShowSalaryRanges()) {
