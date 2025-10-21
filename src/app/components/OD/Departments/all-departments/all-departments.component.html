@@ -43,9 +43,9 @@
       </div>
       <!-- <span>{{subscription?.plan}}</span> -->
       <!-- New Branch button -->
-        <!-- [disabled]="departmentsSub?.info?.usage_active > departmentsSub?.info?.count" -->
-       @if(departmentsSub?.create){
-        <button class="btn btn-lg btn-primary" routerLink="/departments/create">
+      <!-- [disabled]="departmentsSub?.info?.usage_active > departmentsSub?.info?.count" -->
+      @if(departmentsSub?.create){
+      <button class="btn btn-lg btn-primary" routerLink="/departments/create">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="#ffffff" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -53,10 +53,10 @@
           </g>
         </svg>
         <span>New Department</span>
-        
+
       </button>
-       }
-      
+      }
+
 
     </div>
 
@@ -131,8 +131,8 @@
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
-          <a [routerLink]="['/departments/view-department', department.id]"
-            class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
+          <!-- [routerLink]="['/departments/view-department', department.id]" -->
+          <a (click)="navigateToView(department.id)" class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path
@@ -143,8 +143,8 @@
             <span>View</span>
           </a>
           @if(departmentsSub?.update){
-            <a [routerLink]="['/departments/edit', department.id]" [queryParams]="{ page: currentPage }"
-            class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
+          <!-- [routerLink]="['/departments/edit', department.id]" [queryParams]="{ page: currentPage }" -->
+          <a (click)="navigateToEdit(department.id)" class="edit-btn d-flex align-items-center gap-1 w-50 ms-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -156,7 +156,7 @@
             <span>Edit</span>
           </a>
           }
-          
+
         </div>
 
       </td>
