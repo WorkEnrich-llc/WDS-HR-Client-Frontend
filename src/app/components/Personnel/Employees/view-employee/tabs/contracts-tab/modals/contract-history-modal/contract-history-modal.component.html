@@ -1,48 +1,48 @@
 <!-- Contract History Modal -->
-<app-overlay-filter-box
-  [title]="'Contract History'"
-  [customWidth]="'700px'"
-  [isOverlayVisible]="isOpen"
+<app-overlay-filter-box [title]="'Contract History'" [customWidth]="'700px'" [isOverlayVisible]="isOpen"
   (onClose)="closeModal()">
   <div modal-content>
     <div class="history-table-container">
       <!-- Table Header Template -->
       <ng-template #historyHeaderTemplate>
         <th class="text-start">ID</th>
-        <th class="text-start">Adjustment Type</th>
-        <th class="text-start">Adjusted Salary</th>
         <th class="text-start">Date</th>
+        <th class="text-start">Type</th>
+        <th class="text-start">New Salary</th>
+        <th class="text-start">End Date</th>
+        <!-- <th class="text-start">Adjustment Type</th>
+        <th class="text-start">Adjusted Salary</th>
+        <th class="text-start">Date</th> -->
       </ng-template>
 
       <!-- Table Row Template -->
       <ng-template #historyRowTemplate let-historyItem>
         <td class="text-start">{{ ('00' + historyItem.id).slice(-3) }}</td>
-        <td class="text-start">{{ historyItem.action }}</td>
-        <td class="text-start">{{ historyItem.newValue }}</td>
-        <td class="text-start">{{ historyItem.changeDate }}</td>
+        <td class="text-start">{{ historyItem.date }}</td>
+        <td class="text-start">{{ historyItem.type }}</td>
+        <td class="text-start">{{ getFormattedSalary(historyItem.salary, historyItem.currency || 'EGP') }}</td>
+        <!-- <td class="text-start">{{ historyItem.salary }}</td> -->
+        <td class="text-start">{{ historyItem.endDate }}</td>
+
+
+        <!-- <td class="text-start">{{ historyItem.newValue }}</td>
+        <td class="text-start">{{ historyItem.changeDate }}</td> -->
       </ng-template>
 
       <!-- Empty Template -->
       <ng-template #historyEmptyTemplate>
         <tr>
-          <td colspan="4" class="text-center py-4">
+          <td colspan="5" class="text-center py-4">
             <div class="no-data">
-              No history available for this contract.
+              There is no Contract Adjustment available for this contract.
             </div>
           </td>
         </tr>
       </ng-template>
 
-      <app-table
-        [data]="historyData"
-        [totalItems]="historyData.length"
-        [currentPage]="1"
-        [itemsPerPage]="historyData.length"
-        [disablePagination]="true"
-        [isLoading]="false"
-        [columnsCount]="4"
-        [headerTemplate]="historyHeaderTemplate"
-        [rowTemplate]="historyRowTemplate"
+      <app-table [data]="historyData" [totalItems]="historyData.length" [currentPage]="1"
+        [itemsPerPage]="historyData.length" [disablePagination]="true" [isLoading]="false" [columnsCount]="4"
+        [headerTemplate]="historyHeaderTemplate" [rowTemplate]="historyRowTemplate"
         [emptyTemplate]="historyEmptyTemplate">
       </app-table>
     </div>
