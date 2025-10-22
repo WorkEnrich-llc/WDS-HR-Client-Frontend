@@ -20,7 +20,7 @@ export class EditOnboardingComponent {
   checkForm: FormGroup;
   constructor(private router: Router, private fb: FormBuilder, private onboardingService: OnboardingService) {
     this.checkForm = this.fb.group({
-      checkName: ['', Validators.required]
+      checkName: ['', [Validators.required, Validators.maxLength(100)]]
     });
   }
   ngOnInit() {
@@ -50,6 +50,10 @@ export class EditOnboardingComponent {
 
   // add new check
   addCheck() {
+      if (this.checkForm.invalid) {
+    this.checkForm.markAllAsTouched(); 
+    return;
+  }
     if (this.checkForm.valid) {
       this.checks.push({
         name: this.checkForm.value.checkName,

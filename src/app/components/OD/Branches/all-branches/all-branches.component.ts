@@ -208,7 +208,7 @@ export class AllBranchesComponent implements OnInit {
           updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
           status: item.is_active ? 'Active' : 'Inactive',
         }));
-        // console.log(this.branches)
+        console.log(this.branches)
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
 

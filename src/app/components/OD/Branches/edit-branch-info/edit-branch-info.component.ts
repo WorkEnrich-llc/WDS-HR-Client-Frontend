@@ -13,13 +13,24 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+interface Section {
+  id: number;
+  name?: string;
+  is_active?: boolean;
+  selected?: boolean;
+}
+
 interface Department {
   id: number;
   name: string;
   createdAt: string;
   updatedAt: string;
-  sections: string;
   status: string;
+  is_active?: boolean;
+  sections: {
+    selected_list: Section[];
+    options_list: Section[];
+  };
 }
 @Component({
   selector: 'app-edit-branch-info',
@@ -110,7 +121,7 @@ export class EditBranchInfoComponent implements OnInit {
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl(''),
     name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
-    location: new FormControl(''),
+    location: new FormControl('', Validators.required),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
 
@@ -293,7 +304,9 @@ export class EditBranchInfoComponent implements OnInit {
 
         this.originalFormData = { ...this.branchStep1.value };
         this.originalDepartmentsSnapshot = JSON.parse(JSON.stringify(this.addeddepartments));
-        this.originalDepartments = [...this.addeddepartments];
+        // this.originalDepartments = [...this.addeddepartments];
+        this.originalDepartments = JSON.parse(JSON.stringify(this.addeddepartments));
+
 
         const created = this.branchData?.created_at;
         const updated = this.branchData?.updated_at;
@@ -350,7 +363,6 @@ export class EditBranchInfoComponent implements OnInit {
       );
     });
 
-    // Check if map coordinates have changed
     const originalLatitude = this.branchData?.latitude ? parseFloat(this.branchData.latitude) : 0;
     const originalLongitude = this.branchData?.longitude ? parseFloat(this.branchData.longitude) : 0;
     const originalRadiusRange = this.branchData?.radius_range || 120;
@@ -359,10 +371,12 @@ export class EditBranchInfoComponent implements OnInit {
       this.locationData.longitude !== originalLongitude ||
       this.locationData.radiusRange !== originalRadiusRange;
 
+
     return isFormDifferent || isDepartmentsDifferent || isSectionChanged || isLocationChanged;
   }
 
   // remove Department from selected departments
+  removedOnce = false;
   removeDepartment(department: any): void {
     const index = this.addeddepartments.findIndex(dep => dep.id === department.id);
     if (index !== -1) {
@@ -376,6 +390,7 @@ export class EditBranchInfoComponent implements OnInit {
 
     this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
     this.isFormChanged();
+    this.removedOnce = true;
   }
 
   // sort
@@ -463,8 +478,12 @@ export class EditBranchInfoComponent implements OnInit {
     const originalSelected = originalDept?.sections?.selected_list || [];
 
 
-    const isDifferent = department.selectedSection !== originalDept?.selectedSection ||
-      JSON.stringify(selectedSections) !== JSON.stringify(originalSelected);
+    const isDifferent =
+      department.selectedSection !== originalDept?.selectedSection ||
+      JSON.stringify((selectedSections || []).map(s => s.id).sort()) !==
+      JSON.stringify(((originalSelected || []).map((s: any) => s.id).sort()));
+
+
 
     if (!isDifferent) {
       this.sectionsOverlay.closeOverlay();
@@ -498,7 +517,6 @@ export class EditBranchInfoComponent implements OnInit {
   // update branch
   updateBranch() {
     this.isLoading = true;
-    // Prevent saving if in step 3 and location not yet confirmed
     if (this.currentStep === 3 && !this.locationConfirmed) {
       this.isLoading = false;
       this.errMsg = 'Please confirm the location on the map before saving.';
@@ -511,30 +529,41 @@ export class EditBranchInfoComponent implements OnInit {
 
     const formData = this.branchStep1.value;
 
-    const originalDepartments = this.originalDepartments || [];
+    const originalDepartments: Department[] = this.originalDepartments || [];
 
-    const removedDepartments = originalDepartments.filter(origDep =>
-      !this.addeddepartments.some(dep => dep.id === origDep.id)
-    ).map((dep, depIndex) => ({
-      id: dep.id,
-      record_type: 'remove',
-      index: depIndex + 1,
-      sections: []
-    }));
+    const removedDepartments = originalDepartments
+      .filter(origDep => !this.addeddepartments.some(dep => dep.id === origDep.id))
+      .map((dep, depIndex) => ({
+        id: dep.id,
+        record_type: 'remove',
+        index: depIndex + 1,
+        sections: []
+      }));
 
-    const updatedDepartments = this.addeddepartments.map((dep, depIndex) => {
+    const updatedDepartments = this.addeddepartments.map((dep: Department, depIndex: number) => {
       const originalDep = originalDepartments.find(od => od.id === dep.id);
 
       const isNew = !originalDep;
-      const record_type = isNew ? 'add' : 'nothing';
 
-      const selectedSections = dep.sections?.selected_list || [];
+      const selectedSections: Section[] = dep.sections?.selected_list || [];
+      const originalSections: Section[] = originalDep?.sections?.selected_list || [];
 
-      const sections = selectedSections.map((section: any, secIndex: number) => {
-        const originalSections = originalDep?.sections?.selected_list || [];
-        const originalSection = originalSections.find((os: any) => os.id === section.id);
+      const removedSections = originalSections
+        .filter((origSec: Section) => !selectedSections.some((sec: Section) => sec.id === origSec.id))
+        .map((sec: Section, secIndex: number) => ({
+          id: sec.id,
+          record_type: 'remove',
+          index: secIndex + 1
+        }));
 
-        const sectionRecordType = !originalSection ? 'add' : 'nothing';
+      const sections = selectedSections.map((section: Section, secIndex: number) => {
+        const originalSection = originalSections.find((os: Section) => os.id === section.id);
+
+        const sectionRecordType = !originalSection
+          ? 'add'
+          : section.is_active !== originalSection.is_active || section.name !== originalSection.name
+            ? 'update'
+            : 'nothing';
 
         return {
           id: section.id,
@@ -543,11 +572,26 @@ export class EditBranchInfoComponent implements OnInit {
         };
       });
 
+      const allSections = [...sections, ...removedSections];
+
+      const isSectionsChanged =
+        removedSections.length > 0 ||
+        sections.some(sec => sec.record_type === 'add' || sec.record_type === 'update') ||
+        selectedSections.length !== originalSections.length;
+
+      const isActiveChanged = originalDep && dep.is_active !== originalDep.is_active;
+
+      const record_type = isNew
+        ? 'add'
+        : isSectionsChanged || isActiveChanged
+          ? 'update'
+          : 'nothing';
+
       return {
         id: dep.id,
         record_type: record_type,
         index: depIndex + 1,
-        sections: sections
+        sections: allSections
       };
     });
 
@@ -571,98 +615,97 @@ export class EditBranchInfoComponent implements OnInit {
       }
     };
 
-    // console.log(requestPayload);
-
+    // console.log('Request Payload:', requestPayload);
     this._BranchesService.updateBranch(requestPayload).subscribe({
 
-      next: (response) => {
-        this.isLoading = false;
-        this.errMsg = '';
-        // create success
-        this.router.navigate(['/branches/all-branches']);
-        this.toasterMessageService.sendMessage("Branch Updated successfully");
+        next: (response) => {
+          this.isLoading = false;
+          this.errMsg = '';
+          // create success
+          this.router.navigate(['/branches/all-branches']);
+          this.toasterMessageService.sendMessage("Branch Updated successfully");
 
-      },
-      error: (err) => {
-        this.isLoading = false;
-        const statusCode = err?.status;
-        const errorHandling = err?.error?.data?.error_handling;
+        },
+        error: (err) => {
+          this.isLoading = false;
+          const statusCode = err?.status;
+          const errorHandling = err?.error?.data?.error_handling;
 
-        if (statusCode === 400) {
-          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-            this.currentStep = errorHandling[0].tap;
-            this.errMsg = errorHandling[0].error;
-          } else if (err?.error?.details) {
-            this.errMsg = err.error.details;
+          if (statusCode === 400) {
+            if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+              this.currentStep = errorHandling[0].tap;
+              this.errMsg = errorHandling[0].error;
+            } else if (err?.error?.details) {
+              this.errMsg = err.error.details;
+            } else {
+              this.errMsg = "An unexpected error occurred. Please try again later.";
+            }
           } else {
             this.errMsg = "An unexpected error occurred. Please try again later.";
           }
-        } else {
-          this.errMsg = "An unexpected error occurred. Please try again later.";
         }
-      }
 
-    });
-  }
+      });
+    }
 
 
 
   // steps
   currentStep = 1;
 
-  goNext() {
-    this.currentStep++;
+    goNext() {
+      this.currentStep++;
 
-  }
+    }
 
-  goPrev() {
-    this.currentStep--;
+    goPrev() {
+      this.currentStep--;
 
-  }
+    }
 
 
-  // added departmets table search
-  searchAddedDepartmentTerm: string = '';
+    // added departmets table search
+    searchAddedDepartmentTerm: string = '';
 
   get filteredDepartments() {
-    return this.addeddepartments.filter(dept =>
-      dept.name?.toLowerCase().includes(this.searchAddedDepartmentTerm.toLowerCase())
-    );
-  }
+      return this.addeddepartments.filter(dept =>
+        dept.name?.toLowerCase().includes(this.searchAddedDepartmentTerm.toLowerCase())
+      );
+    }
 
 
-  searchDeptSectionsTerm: string = '';
+    searchDeptSectionsTerm: string = '';
 
   get filteredSections() {
-    return this.selectedDepartmentSections.filter(dept =>
-      dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
-    );
-  }
-
-  // Handle location changes from Google Maps component
-  // Handle location changes (marker moved, search, etc.)
-  onLocationChanged(locationData: LocationData): void {
-    this.locationData = { ...locationData };
-    // Reset confirmation flag until user confirms the location
-    this.isLocationReady = false;
-    // Clear any previous errors
-    this.errMsg = '';
-  }
-
-  // Handle location confirmation (user pressed "Confirm")
-  onLocationConfirmed(event: LocationData): void {
-
-    this.ngZone.run(() => {
-      this.locationData = { ...event };
-
-      this.isLocationReady = !!(
-        this.locationData.map_country &&
-        this.locationData.map_city &&
-        this.locationData.map_address &&
-        this.locationData.latitude &&
-        this.locationData.longitude
+      return this.selectedDepartmentSections.filter(dept =>
+        dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
       );
-    });
-  }
+    }
 
-}
+    // Handle location changes from Google Maps component
+    // Handle location changes (marker moved, search, etc.)
+    onLocationChanged(locationData: LocationData): void {
+      this.locationData = { ...locationData };
+      // Reset confirmation flag until user confirms the location
+      this.isLocationReady = false;
+      // Clear any previous errors
+      this.errMsg = '';
+    }
+
+    // Handle location confirmation (user pressed "Confirm")
+    onLocationConfirmed(event: LocationData): void {
+
+      this.ngZone.run(() => {
+        this.locationData = { ...event };
+
+        this.isLocationReady = !!(
+          this.locationData.map_country &&
+          this.locationData.map_city &&
+          this.locationData.map_address &&
+          this.locationData.latitude &&
+          this.locationData.longitude
+        );
+      });
+    }
+
+  }
