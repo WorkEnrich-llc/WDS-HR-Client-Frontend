@@ -1,15 +1,7 @@
 <div class="leave-balance-container">
   <h5 class="mb-3">Leave Balance</h5>
-  <app-table
-    [data]="records"
-    [totalItems]="records.length"
-    [itemsPerPage]="10"
-    [currentPage]="1"
-    [columnsCount]="6"
-    [isLoading]="loading"
-    [headerTemplate]="header"
-    [rowTemplate]="row"
-    [emptyTemplate]="empty">
+  <app-table [data]="records" [totalItems]="records.length" [itemsPerPage]="10" [currentPage]="1" [columnsCount]="5"
+    [isLoading]="loading" [headerTemplate]="header" [rowTemplate]="row" [emptyTemplate]="empty">
   </app-table>
 
   <ng-template #header>
@@ -29,7 +21,8 @@
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" (click)="edit(r)">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M16.862 3.487a1.88 1.88 0 0 1 2.657 2.657L7.707 17.956a1.875 1.875 0 0 1-.88.486l-4 1a.75.75 0 0 1-.93-.93l1-4a1.875 1.875 0 0 1 .486-.88L16.862 3.487z" />
+            <path
+              d="M16.862 3.487a1.88 1.88 0 0 1 2.657 2.657L7.707 17.956a1.875 1.875 0 0 1-.88.486l-4 1a.75.75 0 0 1-.93-.93l1-4a1.875 1.875 0 0 1 .486-.88L16.862 3.487z" />
           </g>
         </svg>
         <span>Edit</span>
@@ -47,12 +40,12 @@
 <!-- Edit Leave Balance Popup -->
 <app-overlay-filter-box #editBox [title]="'Edit Leave Balance'">
   <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="w-100 d-flex flex-column gap-3">
-    
+
     <div class="input">
       <label for="leaveType">Leave Type</label>
       <div>
         <span class="form-control-plaintext">
-         {{ editingRecord?.leaveType }}
+          {{ editingRecord?.leaveType }}
         </span>
       </div>
     </div>
@@ -60,12 +53,7 @@
     <div class="input">
       <label for="totalBalance">Total Balance</label>
       <div class="form-outline position-relative">
-        <input 
-          type="number" 
-          id="totalBalance" 
-          class="form-control" 
-          formControlName="totalBalance"
-          min="0"
+        <input type="number" id="totalBalance" class="form-control" formControlName="totalBalance" min="0"
           placeholder="20">
       </div>
       <div class="d-flex justify-content-between mt-1">
@@ -79,23 +67,18 @@
     </div>
 
     <div class="d-flex align-items-center gap-3 mt-3">
-      <button 
-        type="submit" 
-        class="btn btn-lg btn-primary d-flex align-items-center gap-2 px-0 w-100"
+      <button type="submit" class="btn btn-lg btn-primary d-flex align-items-center gap-2 px-0 w-100"
         [disabled]="editForm.invalid || isSubmitting">
         @if (isSubmitting) {
-          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+        </svg>
         }
         <span>{{ isSubmitting ? 'Saving...' : 'Save Changes' }}</span>
       </button>
-      <button 
-        type="button" 
-        class="btn btn-lg btn-outline-dark border-0 w-100" 
-        (click)="discardChanges()"
+      <button type="button" class="btn btn-lg btn-outline-dark border-0 w-100" (click)="discardChanges()"
         [disabled]="isSubmitting">
         <span>Discard Changes</span>
       </button>

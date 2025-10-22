@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './../../../../../environments/environment';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
-import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse } from '../../../interfaces/contract';
+import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse, EmployeeLeaveBalance, EmployeeLeaveBalanceResponse } from '../../../interfaces/contract';
 
 @Injectable({
   providedIn: 'root'
@@ -210,6 +210,41 @@ export class EmployeeService {
     formData.append('resign_date', requestData.resign_date.toString());
     formData.append('reason', requestData.reason);
     return this.http.put<ContractResignationResponse>(url, formData);
+  }
+
+  // getEmployeeLeaveBalance(status: boolean, employeeId: number): Observable<EmployeeLeaveBalanceResponse> {
+  //   const url = `${this.apiBaseUrl}/personnel/employees/leave-balance`;
+  //   let params = new HttpParams();
+  //   params = params.append('status', status.toString());
+  //   params = params.append('employee_id', employeeId.toString());
+  //   return this.http.get<EmployeeLeaveBalanceResponse>(url, { params: params });
+  // }
+
+  // Get employee leave balance
+  getEmployeeLeaveBalance(employeeId: number, page?: number, perPage?: number): Observable<EmployeeLeaveBalanceResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/leave-balance?`;
+    let params = new HttpParams();
+    params = params.append('employee_id', employeeId.toString());
+    if (page) {
+      params = params.append('page', page.toString());
+    }
+    if (perPage) {
+      params = params.append('per_page', perPage.toString());
+    }
+    return this.http.get<EmployeeLeaveBalanceResponse>(url, { params: params });
+  }
+
+  // Update employee leave balance
+  updateEmployeeLeaveBalance(employeeId: number, leaveId: number, total: number): Observable<EmployeeLeaveBalanceResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/leave-balance`;
+    const body = {
+      request_data: {
+        employee_id: employeeId,
+        leave_id: leaveId,
+        total: total
+      }
+    };
+    return this.http.put<EmployeeLeaveBalanceResponse>(url, body);
   }
 
 
