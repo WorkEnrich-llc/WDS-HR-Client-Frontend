@@ -225,7 +225,6 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/employees/leave-balance?`;
     let params = new HttpParams();
     params = params.append('employee_id', employeeId.toString());
-
     if (page) {
       params = params.append('page', page.toString());
     }

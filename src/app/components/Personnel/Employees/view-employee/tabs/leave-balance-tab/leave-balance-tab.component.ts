@@ -55,28 +55,28 @@ export class LeaveBalanceTabComponent implements OnChanges {
     }
   }
 
-  private loadLeaveBalancess(): void {
-    if (!this.employee) {
-      this.records = [];
-      return;
-    }
-    // TODO: replace mock with API integration when backend endpoint is ready
-    this.loading = true;
-    this.error = null;
-    setTimeout(() => {
-      try {
-        this.records = [
-          { id: 1, leaveId: 'AL001', leaveType: 'Annual Leave', total: 21, used: 8, available: 13 },
-          { id: 2, leaveId: 'SL001', leaveType: 'Sick Leave', total: 10, used: 2, available: 8 },
-          { id: 3, leaveId: 'EL001', leaveType: 'Emergency Leave', total: 5, used: 1, available: 4 }
-        ];
-      } catch (e) {
-        this.records = [];
-        this.error = 'Failed to load leave balance';
-      }
-      this.loading = false;
-    }, 400);
-  }
+  // private loadLeaveBalances(): void {
+  //   if (!this.employee) {
+  //     this.records = [];
+  //     return;
+  //   }
+  //   // TODO: replace mock with API integration when backend endpoint is ready
+  //   this.loading = true;
+  //   this.error = null;
+  //   setTimeout(() => {
+  //     try {
+  //       this.records = [
+  //         { id: 1, leaveId: 'AL001', leaveType: 'Annual Leave', total: 21, used: 8, available: 13 },
+  //         { id: 2, leaveId: 'SL001', leaveType: 'Sick Leave', total: 10, used: 2, available: 8 },
+  //         { id: 3, leaveId: 'EL001', leaveType: 'Emergency Leave', total: 5, used: 1, available: 4 }
+  //       ];
+  //     } catch (e) {
+  //       this.records = [];
+  //       this.error = 'Failed to load leave balance';
+  //     }
+  //     this.loading = false;
+  //   }, 400);
+  // }
 
   private loadLeaveBalances(): void {
     if (!this.employee) {
@@ -155,7 +155,7 @@ export class LeaveBalanceTabComponent implements OnChanges {
       )
       .subscribe({
         next: (response) => {
-          this.toasterService.showSuccess('Leave balance updated successfully.');
+          // this.toasterService.showSuccess('Leave balance updated successfully.');
           console.log('Update successful', response.data);
           this.loadLeaveBalances();
         },
