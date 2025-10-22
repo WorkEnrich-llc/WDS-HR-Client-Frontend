@@ -74,8 +74,8 @@
                             <select id="department_id" formControlName="department_id" class="form-select">
                                 <!-- <option [value]="null" disabled hidden>Select Department</option> -->
                                 <option [value]="null" disabled hidden>
-                                    {{ sharedService.getActiveDepartments().length > 0 ? 'Select Department' : 'No
-                                    department available' }}
+                                    {{ sharedService.getActiveDepartments().length > 0
+                                    ? 'Select Department' : 'No department available' }}
                                 </option>
                                 @for (dept of sharedService.getActiveDepartments(); track dept.id)
                                 {

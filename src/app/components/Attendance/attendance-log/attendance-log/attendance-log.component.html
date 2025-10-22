@@ -120,7 +120,7 @@
 
         <!-- start Table -->
 
-        <app-table [data]="attendanceLogs" [isLoading]="loadData" [columnsCount]="8" [totalItems]="totalItems"
+        <app-table [data]="attendanceLogs" [isLoading]="loadData" [columnsCount]="9" [totalItems]="totalItems"
             [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="attedanceTableHeader"
             [rowTemplate]="attendanceTableRow" [emptyTemplate]="noAttendance"></app-table>
@@ -279,7 +279,7 @@
         </ng-template>
         <ng-template #noAttendance>
             <tr>
-                <td colspan="8" class="no-data py-4">
+                <td colspan="9" class="no-data py-4">
                     @if (searchTerm.trim()) {
                     No Attendance Log match your search and filter.
                     } @else {

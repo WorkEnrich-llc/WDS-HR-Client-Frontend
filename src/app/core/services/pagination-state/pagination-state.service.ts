@@ -7,7 +7,7 @@ export class PaginationStateService {
 
   private pages: Record<string, number> = {};
 
-  // Store current page for a specific module (e.g., 'roles', 'users')
+  // Store current page for a specific component
   setPage(moduleKey: string, page: number): void {
     this.pages[moduleKey] = page;
   }
@@ -17,7 +17,7 @@ export class PaginationStateService {
     return this.pages[moduleKey] ?? 1;
   }
 
-  // (Optional) clear one module’s page state
+  // (Optional) clear one component’s page state
   clearPage(moduleKey: string): void {
     delete this.pages[moduleKey];
   }
