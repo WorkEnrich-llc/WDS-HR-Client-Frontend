@@ -162,7 +162,8 @@
             </td>
             <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
-                    <a [routerLink]="['/requests/view-requests', request.id]"
+                    <!-- [routerLink]="['/requests/view-requests', request.id]" -->
+                    <a (click)="navigateToView(request.id)"
                         class="view-btn h-100 d-flex align-items-center gap-1 w-auto me-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">

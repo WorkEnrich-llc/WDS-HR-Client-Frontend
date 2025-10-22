@@ -528,6 +528,7 @@ export class ManageEmployeeSharedService {
     }, options);
 
     this.jobDetails.patchValue({
+      management_level: data.job_info.management_level,
       branch_id: data.job_info.branch?.id,
       department_id: data.job_info.department?.id,
       section_id: data.job_info.section?.id,
@@ -1012,12 +1013,12 @@ export class ManageEmployeeSharedService {
       },
       job_details: {
         years_of_experience: formData.job_details.years_of_experience || 0,
-        branch_id: parseInt(formData.job_details.branch_id, 10),
-        department_id: parseInt(formData.job_details.department_id, 10),
-        section_id: parseInt(formData.job_details.section_id, 10),
-        management_level: parseInt(formData.job_details.management_level, 10),
-        job_title_id: parseInt(formData.job_details.job_title_id, 10),
-        work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+        branch_id: parseInt(formData.job_details.branch_id, 10) || 0,
+        department_id: parseInt(formData.job_details.department_id, 10) || 0,
+        section_id: parseInt(formData.job_details.section_id, 10) || 0,
+        management_level: parseInt(formData.job_details.management_level, 10) || 0,
+        job_title_id: parseInt(formData.job_details.job_title_id, 10) || 0,
+        work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10) || 0,
         activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
       },
       contract_details: {
