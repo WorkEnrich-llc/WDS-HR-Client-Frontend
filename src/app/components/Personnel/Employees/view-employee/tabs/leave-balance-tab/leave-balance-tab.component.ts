@@ -1,9 +1,13 @@
-import { Component, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { ActivatedRoute } from '@angular/router';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { finalize } from 'rxjs';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 interface LeaveBalanceRecord {
   id: number;
@@ -25,7 +29,9 @@ export class LeaveBalanceTabComponent implements OnChanges {
   @Input() employee: Employee | null = null;
   @Input() isEmployeeActive: boolean = false;
   @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
-
+  private employeeService = inject(EmployeeService);
+  private toasterService = inject(ToasterMessageService);
+  employeeId!: number;
   records: LeaveBalanceRecord[] = [];
   loading = false;
   error: string | null = null;
@@ -34,6 +40,7 @@ export class LeaveBalanceTabComponent implements OnChanges {
   editForm: FormGroup;
   editingRecord: LeaveBalanceRecord | null = null;
   isSubmitting = false;
+
 
   constructor(private fb: FormBuilder) {
     this.editForm = this.fb.group({
@@ -48,7 +55,7 @@ export class LeaveBalanceTabComponent implements OnChanges {
     }
   }
 
-  private loadLeaveBalances(): void {
+  private loadLeaveBalancess(): void {
     if (!this.employee) {
       this.records = [];
       return;
@@ -71,6 +78,51 @@ export class LeaveBalanceTabComponent implements OnChanges {
     }, 400);
   }
 
+  private loadLeaveBalances(): void {
+    if (!this.employee) {
+      this.records = [];
+      return;
+    }
+
+    this.loading = true;
+    this.error = null;
+
+    const employeeId = this.employee.id;
+    const page = 1;
+    const perPage = 1000;
+
+    this.employeeService.getEmployeeLeaveBalance(employeeId, page, perPage)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.records = response.data.list_items.map(item => {
+            return {
+              id: item.id,
+              leaveId: item.leave.id.toString(),
+              leaveType: item.leave.name,
+              total: item.total,
+              used: item.used,
+              available: item.available
+            };
+          });
+
+          if (response.data.page < response.data.total_pages) {
+            console.warn('Warning: Not all leave balances were loaded.');
+          }
+        },
+        error: (err) => {
+          this.records = [];
+          this.error = 'Failed to load leave balance';
+          console.error('Error loading leave balance:', err);
+        }
+      });
+  }
+
+
   edit(record: LeaveBalanceRecord) {
     this.editingRecord = record;
     this.editForm.patchValue({
@@ -87,30 +139,51 @@ export class LeaveBalanceTabComponent implements OnChanges {
   }
 
   saveChanges() {
-    if (this.editForm.valid && this.editingRecord) {
-      this.isSubmitting = true;
-      
-      // TODO: Replace with actual API call when backend endpoint is ready
-      setTimeout(() => {
-        if (this.editingRecord) {
-          const formValue = this.editForm.value;
-          
-          // Update the record
-          this.editingRecord.leaveType = formValue.leaveType;
-          this.editingRecord.total = formValue.totalBalance;
-          this.editingRecord.available = formValue.totalBalance - this.editingRecord.used;
-          
-          // Update the record in the array
-          const index = this.records.findIndex(r => r.id === this.editingRecord!.id);
-          if (index !== -1) {
-            this.records[index] = { ...this.editingRecord };
-          }
-        }
-        
-        this.isSubmitting = false;
-        this.closeEditModal();
-      }, 1000);
+    if (this.editForm.invalid || !this.editingRecord || !this.employee) {
+      return;
     }
+    this.isSubmitting = true;
+    const formValues = this.editForm.value;
+    const employeeId = this.employee.id;
+    const leaveId = parseInt(this.editingRecord.leaveId, 10);
+    const newTotal = formValues.totalBalance;
+    this.employeeService.updateEmployeeLeaveBalance(employeeId, leaveId, newTotal)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.toasterService.showSuccess('Leave balance updated successfully.');
+          console.log('Update successful', response.data);
+          this.loadLeaveBalances();
+        },
+        error: (err) => {
+          console.error('Update failed', err);
+          this.error = 'Failed to update balance.';
+        }
+      });
+
+    // setTimeout(() => {
+    //   if (this.editingRecord) {
+    //     const formValue = this.editForm.value;
+
+    //     // Update the record
+    //     this.editingRecord.leaveType = formValue.leaveType;
+    //     this.editingRecord.total = formValue.totalBalance;
+    //     this.editingRecord.available = formValue.totalBalance - this.editingRecord.used;
+
+    //     // Update the record in the array
+    //     const index = this.records.findIndex(r => r.id === this.editingRecord!.id);
+    //     if (index !== -1) {
+    //       this.records[index] = { ...this.editingRecord };
+    //     }
+    //   }
+
+    //   this.isSubmitting = false;
+    //   this.closeEditModal();
+    // }, 1000);
   }
 
   discardChanges() {

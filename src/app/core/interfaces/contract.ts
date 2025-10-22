@@ -133,3 +133,29 @@ export interface ContractResignationResponse {
     error_handling?: any[];
   };
 }
+
+
+export interface EmployeeLeaveBalanceResponse {
+  details: string;
+  data: {
+    subscription?: any;
+    list_items: EmployeeLeaveBalance[];
+    total_items: number;
+    page: number;
+    total_pages: number;
+  };
+}
+
+export interface EmployeeLeaveBalance {
+  id: number;
+  leave: {
+    id: number;
+    name: string;
+  };
+  total: number;
+  used: number;
+  available: number;
+  created_at: string;
+  updated_at: string;
+}
+
