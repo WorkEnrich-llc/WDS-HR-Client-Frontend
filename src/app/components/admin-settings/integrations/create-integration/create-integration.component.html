@@ -233,7 +233,8 @@
         <app-table [data]="selectedServices" [totalItems]="tableTotalItems" [itemsPerPage]="tableItemsPerPage"
             [currentPage]="tableCurrentPage" [isLoading]="tableIsLoading" [columnsCount]="3"
             [headerTemplate]="tableHeaderTemplate" [rowTemplate]="tableRowTemplate" [emptyTemplate]="tableEmptyTemplate"
-            (pageChange)="onTablePageChange($event)" (itemsPerPageChange)="onTableItemsPerPageChange($event)">
+            [disablePagination]="!shouldShowPagination()" (pageChange)="onTablePageChange($event)"
+            (itemsPerPageChange)="onTableItemsPerPageChange($event)">
         </app-table>
     </div>
 </div>
@@ -248,7 +249,7 @@
                     d="M15 5l-6 7l6 7" />
             </svg>
         </button>
-        <!-- Create Entry primary -->
+        <!-- Create/Update Entry primary -->
         <button class="btn btn-lg btn-success" [disabled]="isSubmitting || selectedServices.length === 0"
             (click)="onSubmit()">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -257,7 +258,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                 </g>
             </svg>
-            <span>Create Entry</span>
+            <span>{{ isUpdate ? 'Update Entry' : 'Create Entry' }}</span>
         </button>
     </div>
 </div>

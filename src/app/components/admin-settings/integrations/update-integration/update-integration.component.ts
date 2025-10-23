@@ -188,8 +188,7 @@ export class UpdateIntegrationComponent implements OnInit {
                 this.availableServices = this.flattenServices(response.data.subscription.features);
                 this.filteredServices = this.availableServices;
                 this.totalServices = this.availableServices.length;
-                // capture features keys for request
-                this.featureKeys = (response?.data?.object_info?.features?.features ?? []) as string[];
+                // Do NOT override featureKeys here; keep from details
                 this.isLoadingServices = false;
                 this.applyPreselectedFeatures();
             },
@@ -247,8 +246,9 @@ export class UpdateIntegrationComponent implements OnInit {
         const endIndex = startIndex + this.itemsPerPage;
         const currentPageServices = this.filteredServices.slice(startIndex, endIndex);
         const allSelected = currentPageServices.every(service => service.selected);
+        const targetState = !allSelected;
         currentPageServices.forEach(service => {
-            service.selected = allSelected;
+            service.selected = targetState;
         });
     }
 
@@ -319,12 +319,19 @@ export class UpdateIntegrationComponent implements OnInit {
         this.tableIsLoading = false;
     }
 
+    /**
+     * Check if pagination should be shown (10 or more services)
+     */
+    shouldShowPagination(): boolean {
+        return this.selectedServices.length >= 10;
+    }
+
     private prefillFromDetails(): void {
         this.integrationsService.getIntegrationDetails(this.integrationId).subscribe({
             next: (response) => {
                 const objectInfo = response?.data?.object_info;
-                // No name provided in API response; keep name empty or from route param if available
-                const startsAt = response?.data?.subscription?.created_at?.slice(0, 10) || '';
+                const subscription = response?.data?.subscription;
+                const startsAt = subscription?.created_at?.slice(0, 10) || '';
                 const noExpire = objectInfo?.no_expire === true ? true : false;
                 const expiresAt = objectInfo?.expires_at || '';
 
@@ -335,9 +342,15 @@ export class UpdateIntegrationComponent implements OnInit {
                     expiryDate: !noExpire && expiresAt ? expiresAt : ''
                 });
 
-                // capture features keys
+                // capture features keys from details
                 const featuresList: string[] = (objectInfo?.features?.features ?? []) as string[];
                 this.featureKeys = featuresList;
+
+                // populate available services and preselect based on featureKeys
+                this.availableServices = this.flattenServices(subscription?.features ?? []);
+                this.filteredServices = this.availableServices;
+                this.totalServices = this.availableServices.length;
+                this.applyPreselectedFeatures();
             },
             error: (err) => {
                 console.error('Failed to load integration details', err);

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -9,7 +10,7 @@ import { AnnouncementsService } from '../../../core/services/admin-settings/anno
 @Component({
   selector: 'app-announcements',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './announcements.component.html',
   styleUrls: ['./announcements.component.css']
 })
@@ -30,6 +31,7 @@ export class AnnouncementsComponent implements OnInit {
   // Search and filter
   searchTerm: string = '';
   filterForm!: FormGroup;
+
 
   // Breadcrumb
   breadcrumb = [
@@ -56,8 +58,7 @@ export class AnnouncementsComponent implements OnInit {
           this.totalPages = Number(data?.total_pages || 0);
           this.announcements = (data?.list_items || []).map((item: any) => ({
             id: item.id,
-            recipientName: (item.recipients && item.recipients[0]?.recipient_name) || '-',
-            recipientType: (item.recipients && item.recipients[0]?.recipient_type) || '-',
+            recipients: item.recipients || [],
             title: item.title,
             createdAt: this.formatDate(item.created_at)
           }));
@@ -73,6 +74,29 @@ export class AnnouncementsComponent implements OnInit {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB');
+  }
+
+  /**
+   * Format recipients for display
+   */
+  formatRecipients(recipients: any[]): string {
+    if (!recipients || recipients.length === 0) return '-';
+    
+    return recipients.map(recipient => {
+      const type = recipient.recipient_type || 'Unknown';
+      const name = recipient.recipient_name || 'Unknown';
+      return `${type}: ${name}`;
+    }).join(', ');
+  }
+
+  /**
+   * Get recipient type for display
+   */
+  getRecipientType(recipients: any[]): string {
+    if (!recipients || recipients.length === 0) return '-';
+    
+    const types = [...new Set(recipients.map(r => r.recipient_type).filter(Boolean))];
+    return types.join(', ');
   }
 
   onSearchChange(): void {
@@ -101,5 +125,12 @@ export class AnnouncementsComponent implements OnInit {
     this.filterForm.reset();
     this.currentPage = 1;
     this.fetchAnnouncements();
+  }
+
+  /**
+   * Navigate to view announcement
+   */
+  viewAnnouncement(id: number): void {
+    // This will be handled by routerLink in the template
   }
 }

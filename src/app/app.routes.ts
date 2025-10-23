@@ -1226,6 +1226,22 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./components/admin-settings/announcements/announcements.component').then(m => m.AnnouncementsComponent),
             title: 'Announcements'
+          },
+          {
+            path: 'announcements/view/:id',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Announcement' },
+            loadComponent: () =>
+              import('./components/admin-settings/announcements/view-announcement/view-announcement.component').then(m => m.ViewAnnouncementComponent),
+            title: 'View Announcement'
+          },
+          {
+            path: 'announcements/create',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Announcement', action: 'create' },
+            loadComponent: () =>
+              import('./components/admin-settings/announcements/create-announcement/create-announcement.component').then(m => m.CreateAnnouncementComponent),
+            title: 'Create Announcement'
           }
         ]
       },

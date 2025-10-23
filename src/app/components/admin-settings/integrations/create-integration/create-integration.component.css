@@ -362,3 +362,30 @@
     background: transparent !important;
     box-shadow: none !important;
 }
+
+/* Ensure selected squares in overlay are solid blue */
+.services-list-table td .service-square-checkbox:checked,
+.services-list-table .service-row .service-square-checkbox:checked {
+    background: #377AFD !important;
+    border-color: #377AFD !important;
+}
+
+/* Make rows clickable */
+.services-list-table tbody tr,
+.service-row {
+    cursor: pointer;
+}
+
+/* Ensure the provided SVG tick is used when checked */
+.service-square-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 8px;
+    transform: translate(-50%, -50%);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
+}
