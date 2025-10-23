@@ -139,9 +139,9 @@ export class AppComponent {
         formData.append('fcm_token', newToken);
 
         await this.fcmService.fcmUpdate(formData).toPromise();
-        console.log('FCM token updated successfully');
+        // console.log('FCM token updated successfully');
       } else {
-        console.log('No token change detected.');
+        // console.log('No token change detected.');
       }
     } catch (err) {
       console.error('Error while checking FCM token:', err);

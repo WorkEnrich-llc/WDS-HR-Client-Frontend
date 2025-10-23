@@ -338,3 +338,7 @@
 <app-contract-resigned-view-modal [isOpen]="isResignedViewModalOpen" [contract]="selectedContract"
   [resignationData]="contractResignationData" (onClose)="closeResignedViewModal()">
 </app-contract-resigned-view-modal>
+
+<app-contract-form-modal [contract]="editedContract" [employee]="employee" [isEditMode]="isEditMode"
+  [isSaving]="isSaving" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
+</app-contract-form-modal>
