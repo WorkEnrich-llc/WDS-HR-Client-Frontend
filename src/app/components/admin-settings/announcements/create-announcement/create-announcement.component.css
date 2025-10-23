@@ -1,6 +1,6 @@
-/* Tab styles (matching create-departments pattern) */
+/* Tab styles */
 .nav-tabs {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6
 }
 
 .nav-tabs .nav-item {
@@ -12,26 +12,26 @@
     border-bottom: 3px solid transparent;
     color: #6c757d;
     font-weight: 500;
-    transition: all 0.15s ease-in-out;
+    transition: all 0.15s ease-in-out
 }
 
 .nav-tabs .nav-item:hover {
-    color: #0d6efd;
+    color: #0d6efd
 }
 
 .nav-tabs .nav-item.active {
     color: #0d6efd;
     border-bottom-color: #0d6efd;
-    background-color: transparent;
+    background-color: transparent
 }
 
 .nav-tabs .nav-item.text-success {
     color: #198754 !important;
-    border-bottom-color: #198754;
+    border-bottom-color: #198754
 }
 
 .nav-tabs .nav-item.bg-light-success {
-    background-color: rgba(25, 135, 84, 0.1);
+    background-color: rgba(25, 135, 84, 0.1)
 }
 
 .nav-tabs .nav-link {
@@ -39,7 +39,7 @@
     background: none;
     color: inherit;
     font-weight: inherit;
-    padding: 0;
+    padding: 0
 }
 
 /* Error message styling */
@@ -47,7 +47,7 @@
     color: #dc3545;
     font-size: 0.875rem;
     margin-top: 0.25rem;
-    margin-bottom: 0;
+    margin-bottom: 0
 }
 
 /* Form check styling */
@@ -55,18 +55,18 @@
     padding-left: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.5rem
 }
 
 .form-check-input {
     margin: 0;
-    border-radius: 50% !important;
+    border-radius: 50% !important
 }
 
 .form-check-label {
     margin: 0;
     color: #333;
-    font-weight: 400;
+    font-weight: 400
 }
 
 /* Recipient radios spacing */
@@ -74,14 +74,14 @@
     gap: 1.25rem;
     width: 100%;
     justify-content: space-between;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap
 }
 
 .recipients-radio-group .form-check {
-    flex: 1 1 0;
+    flex: 1 1 0
 }
 
-/* Circular custom radios matching mock */
+/* Circular custom radios */
 .recipients-radio-group .form-check-input[type="radio"] {
     width: 16px;
     height: 16px;
@@ -93,11 +93,11 @@
     appearance: none;
     position: relative;
     outline: none;
-    box-shadow: none;
+    box-shadow: none
 }
 
 .recipients-radio-group .form-check-input[type="radio"]:checked {
-    border-color: #377AFD;
+    border-color: #377AFD
 }
 
 .recipients-radio-group .form-check-input[type="radio"]:checked::after {
@@ -109,33 +109,46 @@
     height: 8px;
     transform: translate(-50%, -50%);
     background: #377AFD;
-    border-radius: 50%;
+    border-radius: 50%
 }
 
 .recipients-radio-group .form-check span {
-    color: #334155;
+    color: #334155
 }
 
-/* Search width like mock */
+/* Search width */
 .recipients-search {
-    width: 320px;
+    width: 320px
 }
 
-/* Extra spacing for expiry date checkbox */
 .input.mt-4 {
-    margin-top: 2rem !important;
+    margin-top: 2rem !important
 }
-
-
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width:768px) {
     .content-box {
-        padding: 1rem;
+        padding: 1rem
     }
 
     .w-lg-50 {
-        width: 100% !important;
+        width: 100% !important
+    }
+
+    .nav-tabs {
+        flex-direction: column
+    }
+
+    .nav-item {
+        justify-content: center
+    }
+
+    .btn {
+        justify-content: center
+    }
+
+    .btn-fixed {
+        padding: 1rem
     }
 }
 
@@ -148,7 +161,7 @@
     border: none;
     padding: 0;
     z-index: 1000;
-    box-shadow: none;
+    box-shadow: none
 }
 
 /* Back square button */
@@ -162,29 +175,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease
 }
 
 .back-square-btn:hover {
     background: #f8f9fa;
-    border-color: #9ca3af;
+    border-color: #9ca3af
 }
 
 .back-square-btn:active {
-    transform: translateY(1px);
+    transform: translateY(1px)
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: #6c757d;
+    color: #6c757d
 }
 
 /* Image Upload Styles */
 .image-upload-container {
     position: relative;
-    width: 100%;
+    width: 100%
 }
 
 .image-input {
@@ -192,7 +204,7 @@
     opacity: 0;
     width: 0;
     height: 0;
-    overflow: hidden;
+    overflow: hidden
 }
 
 .image-upload-area {
@@ -207,47 +219,41 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: relative
 }
 
 .image-upload-area:hover {
     border-color: #377AFD;
     background: #f8f9ff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(55, 122, 253, 0.15);
+    box-shadow: 0 4px 12px rgba(55, 122, 253, 0.15)
 }
 
 .image-upload-area.has-image {
     border-color: #10b981;
     background: #f0fdf4;
     padding: 0;
-    min-height: auto;
+    min-height: auto
 }
 
 .upload-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1rem
 }
 
 .upload-text h4 {
     margin: 0;
     color: #374151;
     font-size: 1.125rem;
-    font-weight: 600;
+    font-weight: 600
 }
 
 .upload-text p {
     margin: 0.5rem 0;
     color: #6b7280;
-    font-size: 0.875rem;
-}
-
-.file-types {
-    color: #9ca3af;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.875rem
 }
 
 .image-preview {
@@ -255,14 +261,14 @@
     width: 100%;
     height: 200px;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: hidden
 }
 
 .preview-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 12px
 }
 
 .image-overlay {
@@ -278,11 +284,11 @@
     gap: 1rem;
     opacity: 0;
     transition: opacity 0.3s ease;
-    border-radius: 12px;
+    border-radius: 12px
 }
 
 .image-preview:hover .image-overlay {
-    opacity: 1;
+    opacity: 1
 }
 
 .remove-image-btn,
@@ -297,32 +303,30 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: #374151;
+    color: #374151
 }
 
 .remove-image-btn:hover {
     background: #ef4444;
     color: white;
-    transform: scale(1.1);
+    transform: scale(1.1)
 }
 
 .change-image-btn:hover {
     background: #377AFD;
     color: white;
-    transform: scale(1.1);
+    transform: scale(1.1)
 }
 
-/* Drag and drop states */
 .image-upload-area.drag-over {
     border-color: #377AFD;
     background: #f0f4ff;
-    transform: scale(1.02);
+    transform: scale(1.02)
 }
 
-/* Loading state */
 .image-upload-area.uploading {
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.7
 }
 
 .image-upload-area.uploading::after {
@@ -336,45 +340,22 @@
     border: 2px solid #377AFD;
     border-top: 2px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite
 }
 
 @keyframes spin {
     0% {
-        transform: rotate(0deg);
+        transform: rotate(0deg)
     }
 
     100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .nav-tabs {
-        flex-direction: column;
-    }
-
-    .nav-item {
-        justify-content: center;
-    }
-
-    .content-box {
-        padding: 1rem;
-    }
-
-    .btn {
-        justify-content: center;
-    }
-
-    .btn-fixed {
-        padding: 1rem;
+        transform: rotate(360deg)
     }
 }
 
 /* Department Selection Styles */
 .search-container {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem
 }
 
 .search-container .form-outline svg {
@@ -382,26 +363,24 @@
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none;
+    pointer-events: none
 }
 
-/* Department dropdown styling */
 .form-outline select.custom-date-input {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     background-image: none;
     padding-right: 40px;
-    cursor: pointer;
+    cursor: pointer
 }
 
 .form-outline select.custom-date-input:disabled {
     background-color: #f8f9fa;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.6
 }
 
-/* Clear search button styling */
 .clear-search-btn {
     position: absolute;
     right: 8px;
@@ -416,16 +395,16 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease
 }
 
 .clear-search-btn:hover {
-    background-color: #f8f9fa;
+    background-color: #f8f9fa
 }
 
 .clear-search-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(55, 122, 253, 0.25);
+    box-shadow: 0 0 0 2px rgba(55, 122, 253, 0.25)
 }
 
 .add-department-link {
@@ -436,25 +415,25 @@
     text-decoration: none;
     font-weight: 500;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease
 }
 
 .add-department-link:hover {
     color: #2c5aa0;
-    text-decoration: none;
+    text-decoration: none
 }
 
 .selected-departments-container {
     margin-top: 1rem;
     background: #fff;
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1rem
 }
 
-/* Selected table header styles to match integration */
+/* Selected table header styles */
 .selected-only-header {
     padding: 0;
-    border: none;
+    border: none
 }
 
 .selected-only-header-inner {
@@ -464,19 +443,19 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.9rem 1.25rem;
-    border-radius: 12px 12px 0 0;
+    border-radius: 12px 12px 0 0
 }
 
 .selected-id-text {
     color: #9db7da;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.85rem
 }
 
 .selected-name-text {
     color: #ffffff;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.95rem
 }
 
 .selected-actions-header {
@@ -484,28 +463,26 @@
     color: #fff;
     border-top-right-radius: 12px;
     text-align: right;
-    padding: 0.9rem 1.25rem;
+    padding: 0.9rem 1.25rem
 }
 
-/* Remove link styling like integration */
 .remove-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    text-decoration: none;
+    text-decoration: none
 }
 
 .remove-link svg {
-    color: #dc3545;
+    color: #dc3545
 }
 
-/* Zebra rows similar to service selected table */
 .selected-departments-container .table tbody tr:nth-child(even) td {
-    background: #f7f7f7;
+    background: #f7f7f7
 }
 
 .selected-departments-container .table tbody tr td {
-    vertical-align: middle;
+    vertical-align: middle
 }
 
 /* Department Selection Overlay Styles */
@@ -513,65 +490,70 @@
     max-height: 400px;
     overflow-y: auto;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 8px
 }
 
 .departments-list-table table {
     margin: 0;
     border-collapse: separate;
-    border-spacing: 0;
+    border-spacing: 0
 }
 
 .department-header-row {
     background: #f8f9fa;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb
 }
 
 .department-header-cell {
     padding: 1rem;
     border: none;
     font-weight: 600;
-    color: #374151;
+    color: #374151
 }
 
 .department-row {
     cursor: pointer;
     transition: background-color 0.2s ease;
     border-bottom: 1px solid #f3f4f6;
+    background: transparent;
+    border: none;
+    padding: 0
 }
 
 .department-row:hover {
-    background-color: #f8f9fa;
+    background-color: #f8f9fa
 }
 
 .department-row:last-child {
-    border-bottom: none;
+    border-bottom: none
 }
 
 .department-cell {
     padding: 1rem;
-    border: none;
+    border: none
 }
 
+/* Square checkbox styles */
 .department-square-checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid #7ea0c9;
+    background: transparent;
+    display: inline-block;
     position: relative;
+    cursor: pointer;
     appearance: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease
 }
 
 .department-square-checkbox:hover {
-    border-color: #9ca3af;
+    border-color: #9ca3af
 }
 
 .department-square-checkbox:checked {
     background: #377AFD;
-    border-color: #377AFD;
+    border-color: #377AFD
 }
 
 .department-square-checkbox:checked::after {
@@ -582,56 +564,59 @@
     width: 10px;
     height: 8px;
     transform: translate(-50%, -50%);
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
-}
-
-.department-square-checkbox--header {
-    background: #377AFD;
-    border-color: #377AFD;
-}
-
-.department-square-checkbox--header:checked {
-    background: #377AFD;
-    border-color: #377AFD;
+    background: #E0EBFF;
+    border-radius: 2px
 }
 
 .department-info {
-    flex: 1;
+    flex: 1
 }
 
 .department-name {
     font-weight: 600;
     color: #374151;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.25rem
 }
 
 .department-description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: #6b7280
 }
 
 .department-header-text {
     font-weight: 600;
-    color: #374151;
+    color: #374151
+}
+
+.department-id-label {
+    color: #6b86a6;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 2px
+}
+
+.department-name-label {
+    color: #2b3a4b;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.2
 }
 
 .pagination-info {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: #6b7280
 }
 
 .pagination-controls {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.5rem
 }
 
 .loading-state {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 2rem
 }
 
 .spinner-border {
@@ -640,13 +625,13 @@
     border: 0.25rem solid #f3f3f3;
     border-top: 0.25rem solid #377AFD;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite
 }
 
-/* Modal Table Styles - Matching Create Integration */
+/* Modal Table Styles */
 .department-only-header {
     padding: 0;
-    border: none;
+    border: none
 }
 
 .department-only-header-inner {
@@ -656,173 +641,59 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.9rem 1.25rem;
-    border-radius: 12px 12px 0 0;
+    border-radius: 12px 12px 0 0
 }
 
-/* Square checkbox styles */
-.department-square-checkbox {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    appearance: none;
-    border: 2px solid #9db7da;
-    background: transparent;
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-}
-
-/* Selected state: blue background with custom SVG checkmark */
-.department-square-checkbox:checked {
-    background: #377AFD;
-    border-color: #377AFD;
-}
-
-/* Inject the provided SVG tick as background image */
-.department-square-checkbox:checked::after {
-    content: '';
-    position: absolute;
-    left: 7px;
-    top: 9px;
-    width: 10px;
-    height: 8px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
-}
-
-/* Row layout - matching create-integration exactly */
-.department-row {
-    background: transparent;
-    border: none;
-    padding: 0;
-    /* padding handled by td */
-}
-
-.department-id-label {
-    color: #6b86a6;
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin-bottom: 2px;
-}
-
-.department-name-label {
-    color: #2b3a4b;
-    font-weight: 700;
-    font-size: 1.05rem;
-    line-height: 1.2;
-}
-
-/* Table wrapper to apply alternating backgrounds */
 .departments-list-table table {
     width: 100%;
     border-collapse: collapse;
-    /* no gaps so widths are identical */
-    border-spacing: 0;
+    border-spacing: 0
 }
 
 .departments-list-table tbody tr {
-    background: #ffffff;
-    /* default white */
+    background: #ffffff
 }
 
 .departments-list-table tbody tr:nth-child(even) {
-    background: #f3f4f6;
-    /* light gray band */
+    background: #f3f4f6
 }
 
 .departments-list-table tbody tr td {
     padding: 12px 16px;
-    /* consistent inner spacing */
     border: none;
-    /* no borders between rows */
-    background: transparent;
-    /* inherit row background */
+    background: transparent
 }
 
-/* First header bar rounded top corners already set; ensure table top aligns */
-.department-only-header-inner {
-    border-radius: 12px 12px 0 0;
-}
-
-/* Checkbox visual to match screenshot: rounded square lighter border */
-.department-square-checkbox {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    border: 2px solid #7ea0c9;
-}
-
-.department-square-checkbox:checked {
-    background: #377AFD;
-    border-color: #377AFD;
-}
-
-/* Department row content uses the row background (no extra card) */
-.department-row {
-    background: transparent;
-    border: none;
-    padding: 0;
-    /* padding handled by td */
-}
-
-/* Keep checkbox and text styles */
-.department-id-label {
-    margin-bottom: 2px;
-}
-
-.department-name-label {
-    line-height: 1.2;
-}
-
-/* Override Bootstrap table defaults inside departments list */
 .departments-list-table .table {
-    margin-bottom: 0;
+    margin-bottom: 0
 }
 
 .departments-list-table .table> :not(caption)>*>* {
     border: 0;
-    box-shadow: none;
+    box-shadow: none
 }
 
 .departments-list-table .table-hover tbody tr:hover {
-    background-color: inherit;
+    background-color: inherit
 }
 
 .departments-list-table .table-hover tbody tr:hover>* {
-    background-color: inherit;
+    background-color: inherit
 }
 
-/* Ensure inner content never paints a different background */
 .departments-list-table .department-row,
 .departments-list-table .department-row * {
     background: transparent !important;
-    box-shadow: none !important;
+    box-shadow: none !important
 }
 
-/* Ensure selected squares in overlay are solid blue */
 .departments-list-table td .department-square-checkbox:checked,
 .departments-list-table .department-row .department-square-checkbox:checked {
     background: #377AFD !important;
-    border-color: #377AFD !important;
+    border-color: #377AFD !important
 }
 
-/* Make rows clickable */
 .departments-list-table tbody tr,
 .department-row {
-    cursor: pointer;
-}
-
-/* Ensure the provided SVG tick is used when checked */
-.department-square-checkbox:checked::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 10px;
-    height: 8px;
-    transform: translate(-50%, -50%);
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
+    cursor: pointer
 }
