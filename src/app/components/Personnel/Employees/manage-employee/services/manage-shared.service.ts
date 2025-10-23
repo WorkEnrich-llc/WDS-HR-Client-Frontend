@@ -46,9 +46,11 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
   'gross_insurance_salary': 'Gross Insurance Salary',
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable(
+  // {
+  // providedIn: 'root'
+  // }
+)
 export class ManageEmployeeSharedService {
   private fb = new FormBuilder();
   private employeeService = inject(EmployeeService);
@@ -1090,143 +1092,6 @@ export class ManageEmployeeSharedService {
       }
     };
   }
-
-  // getFormData() {
-  //   const formData = this.employeeForm.getRawValue();
-  //   const jobDetailsPayload: any = {
-  //     years_of_experience: formData.job_details.years_of_experience || 0,
-  //     management_level: parseInt(formData.job_details.management_level, 10),
-  //     work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
-  //     activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
-  //   };
-
-  //   const managementLevel = jobDetailsPayload.management_level;
-
-  //   if (managementLevel === 5) {
-  //     jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
-  //     jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
-  //     if (formData.job_details.section_id) {
-  //       jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
-  //     }
-  //   }
-
-  //   if (formData.job_details.job_title_id) {
-  //     jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
-  //   }
-
-  //   const requestData: any = {
-  //     main_information: {
-  //       code: formData.main_information.code,
-  //       name_english: formData.main_information.name_english,
-  //       name_arabic: formData.main_information.name_arabic,
-  //       gender: formData.main_information.gender,
-  //       mobile: {
-  //         country_id: formData.main_information.mobile.country_id,
-  //         number: parseInt(formData.main_information.mobile.number)
-  //       },
-  //       personal_email: formData.main_information.personal_email,
-  //       marital_status: formData.main_information.marital_status,
-  //       date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
-  //       address: formData.main_information.address
-  //     },
-  //     job_details: jobDetailsPayload
-  //   };
-
-
-  //   let contractDetailsPayload: any = {};
-  //   const isCreateMode = !this.isEditMode();
-
-  //   // if (!this.isEditMode()) {
-  //   // if (this.employeeForm.get('contract_details')) {
-  //   //   requestData.contract_details = {
-  //   //     start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
-  //   //     contract_type: formData.contract_details.contract_type,
-  //   //     contract_end_date: formData.contract_details.contract_type === 1
-  //   //       ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
-  //   //     employment_type: formData.attendance_details.employment_type,
-  //   //     work_mode: formData.attendance_details.work_mode,
-  //   //     days_on_site: formData.attendance_details.days_on_site
-  //   //       ? parseInt(formData.attendance_details.days_on_site, 10)
-  //   //       : 0,
-  //   //     salary: parseFloat(formData.contract_details.salary),
-  //   //     insurance_salary: formData.insurance_details.include_insurance_salary
-  //   //       ? parseFloat(formData.insurance_details.insurance_salary)
-  //   //       : 0,
-  //   //     gross_insurance: formData.insurance_details.include_gross_insurance_salary
-  //   //       ? parseFloat(formData.insurance_details.gross_insurance_salary)
-  //   //       : 0,
-  //   //     notice_period: formData.contract_details.notice_period
-  //   //       ? parseInt(formData.contract_details.notice_period, 10)
-  //   //       : 0
-  //   //   };
-  //   // }
-  //   if (this.employeeForm.get('contract_details')) {
-  //     contractDetailsPayload = {
-  //       employment_type: formData.attendance_details.employment_type,
-  //       work_mode: formData.attendance_details.work_mode,
-  //       days_on_site: formData.attendance_details.days_on_site
-  //         ? parseInt(formData.attendance_details.days_on_site, 10)
-  //         : 0,
-  //       insurance_salary: formData.insurance_details.include_insurance_salary
-  //         ? parseFloat(formData.insurance_details.insurance_salary)
-  //         : 0,
-  //       gross_insurance: formData.insurance_details.include_gross_insurance_salary
-  //         ? parseFloat(formData.insurance_details.gross_insurance_salary)
-  //         : 0
-  //     };
-
-  //     if (isCreateMode) {
-  //       contractDetailsPayload = {
-  //         ...contractDetailsPayload,
-  //         start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
-  //         contract_type: formData.contract_details.contract_type,
-  //         contract_end_date: formData.contract_details.contract_type === 1
-  //           ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
-  //         salary: parseFloat(formData.contract_details.salary),
-  //         notice_period: formData.contract_details.notice_period
-  //           ? parseInt(formData.contract_details.notice_period, 10)
-  //           : 0
-  //       };
-  //     }
-
-  //   }
-  //   else {
-  //     contractDetailsPayload = {
-  //       employment_type: formData.attendance_details.employment_type,
-  //       work_mode: formData.attendance_details.work_mode,
-  //       days_on_site: formData.attendance_details.days_on_site
-  //         ? parseInt(formData.attendance_details.days_on_site, 10)
-  //         : 0,
-  //     };
-  //     if (isCreateMode) {
-  //       contractDetailsPayload.salary = 0;
-  //     }
-  //     // requestData.contract_details = {
-  //     //   employment_type: formData.attendance_details.employment_type,
-  //     //   work_mode: formData.attendance_details.work_mode,
-  //     //   days_on_site: formData.attendance_details.days_on_site
-  //     //     ? parseInt(formData.attendance_details.days_on_site, 10)
-  //     //     : 0,
-  //     //   salary: 0,
-  //     // }
-  //   }
-  //   // }
-  //   requestData.contract_details = contractDetailsPayload;
-  //   if (!this.isEditMode()) {
-  //     return { request_data: requestData };
-  //   }
-
-  //   const originalData = this.employeeData();
-  //   if (!originalData) return null;
-
-  //   return {
-  //     request_data: {
-  //       id: originalData.id,
-  //       ...requestData
-  //     }
-  //   };
-  // }
-
 
   resetForm(): void {
     this.employeeForm.reset();
