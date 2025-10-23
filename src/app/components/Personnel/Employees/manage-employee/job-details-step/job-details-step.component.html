@@ -42,8 +42,9 @@
                 }
             </div>
 
-            <div [hidden]="sharedService.jobDetails.get('management_level')?.value != 5">
-
+            @if (sharedService.jobDetails.get('management_level')?.value == 5) {
+            <div>
+                <!-- [hidden]="sharedService.jobDetails.get('management_level')?.value != 5" -->
                 <div class="input">
                     <label for="branch_id">Branch <span>*</span></label>
                     <div class="d-flex align-items-center gap-4">
@@ -119,6 +120,8 @@
                 </div>
 
             </div>
+            }
+
 
             <div class="input">
                 <label for="job_title_id">Job Title <span>*</span></label>

@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, distinctUntilChanged, filter, forkJoin, map, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, forkJoin, map, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -46,9 +46,11 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
   'gross_insurance_salary': 'Gross Insurance Salary',
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable(
+  // {
+  // providedIn: 'root'
+  // }
+)
 export class ManageEmployeeSharedService {
   private fb = new FormBuilder();
   private employeeService = inject(EmployeeService);
@@ -113,6 +115,7 @@ export class ManageEmployeeSharedService {
     this.initializeForm();
     this.setupFormWatchers();
     this.initializeJobDetailsWatchers();
+    // this.loadInitialData()
   }
 
   private initializeForm(): void {
@@ -165,11 +168,18 @@ export class ManageEmployeeSharedService {
     });
   }
 
+  public skipFormGroup(groupName: 'contract_details' | 'job_details' | 'attendance_details' | 'insurance_details'): void {
+    if (this.employeeForm.get(groupName)) {
+      this.employeeForm.removeControl(groupName);
+      console.log(`Form group [${groupName}] has been removed for update mode.`);
+    }
+  }
+
 
   public loadInitialData(): void {
-    if (this.branches().length > 0) {
-      return;
-    }
+    // if (this.branches().length > 0) {
+    //   return;
+    // }
     this.isLoading.set(true);
     this.branchesService.getAllBranches(1, 100).subscribe({
       next: (res) => {
@@ -184,11 +194,10 @@ export class ManageEmployeeSharedService {
   }
 
 
-  // this section related to job details in step 2 for watch value changes in select dropdown
-
-
   private initializeJobDetailsWatchers(): void {
     const jobDetails = this.jobDetails;
+    if (!jobDetails) return;
+
     const managementCtrl = jobDetails.get('management_level');
     const branchCtrl = jobDetails.get('branch_id');
     const deptCtrl = jobDetails.get('department_id');
@@ -212,11 +221,9 @@ export class ManageEmployeeSharedService {
       if (!branchCtrl?.value) deptCtrl?.disable();
       sectionCtrl?.disable();
       jobTitleCtrl?.disable();
-    } else {
-      if (branchCtrl?.value) deptCtrl?.enable();
-      if (deptCtrl?.value) sectionCtrl?.enable();
-      if (sectionCtrl?.value) jobTitleCtrl?.enable();
     }
+    // else {
+    // }
   }
 
   private setupManagementLevelWatcher(
@@ -232,12 +239,11 @@ export class ManageEmployeeSharedService {
     ).subscribe(currentLevel => {
       if (this.suppressWatchers) return;
 
-      jobTitleCtrl?.reset(null, { emitEvent: false });
-      this.jobTitles.set([]);
 
       if (currentLevel && currentLevel !== 5) {
         this.fetchJobTitlesForManagementLevel(currentLevel.toString());
         jobTitleCtrl?.setValidators(Validators.required);
+        jobTitleCtrl?.reset(null, { emitEvent: false });
         jobTitleCtrl?.enable();
 
         branchCtrl?.disable();
@@ -247,19 +253,32 @@ export class ManageEmployeeSharedService {
         deptCtrl?.reset(null, { emitEvent: false });
         sectionCtrl?.reset(null, { emitEvent: false });
 
+        branchCtrl?.clearValidators();
+        deptCtrl?.clearValidators();
+        sectionCtrl?.clearValidators();
+
       } else if (currentLevel === 5) {
+        this.loadInitialData();
         jobTitleCtrl?.clearValidators();
         jobTitleCtrl?.disable();
+        jobTitleCtrl?.reset(null, { emitEvent: false });
+
         branchCtrl?.enable();
+        branchCtrl?.setValidators(Validators.required);
+
         deptCtrl?.disable();
         sectionCtrl?.disable();
+        deptCtrl?.setValidators(Validators.required);
 
       }
       else {
         jobTitleCtrl?.clearValidators();
         jobTitleCtrl?.disable();
+        branchCtrl?.clearValidators();
         branchCtrl?.disable();
+        deptCtrl?.clearValidators();
         deptCtrl?.disable();
+        sectionCtrl?.clearValidators();
         sectionCtrl?.disable();
       }
 
@@ -277,7 +296,7 @@ export class ManageEmployeeSharedService {
     jobTitleCtrl: AbstractControl | null
   ): void {
     branchCtrl?.valueChanges.pipe(
-      filter(() => this.jobDetails.get('management_level')?.value === 5)
+      filter(() => this.jobDetails?.get('management_level')?.value === 5)
     ).subscribe((branchId) => {
       if (this.suppressWatchers) return;
 
@@ -302,7 +321,7 @@ export class ManageEmployeeSharedService {
     jobTitleCtrl: AbstractControl | null
   ): void {
     deptCtrl?.valueChanges.pipe(startWith(deptCtrl?.value), pairwise(),
-      filter(() => this.jobDetails.get('management_level')?.value === 5)
+      filter(() => this.jobDetails?.get('management_level')?.value === 5)
     ).subscribe(([prev, current]) => {
       if (this.suppressWatchers) return;
 
@@ -347,7 +366,7 @@ export class ManageEmployeeSharedService {
     jobTitleCtrl: AbstractControl | null
   ): void {
     sectionCtrl?.valueChanges.pipe(startWith(sectionCtrl?.value), pairwise(),
-      filter(() => this.jobDetails.get('management_level')?.value === 5)
+      filter(() => this.jobDetails?.get('management_level')?.value === 5)
     ).subscribe(([prev, current]) => {
       if (this.suppressWatchers) return;
 
@@ -365,6 +384,47 @@ export class ManageEmployeeSharedService {
         jobTitleCtrl?.disable();
         jobTitleCtrl?.clearValidators();
         jobTitleCtrl?.updateValueAndValidity();
+      }
+    });
+  }
+
+  loadEmployeeData(id: number): void {
+    this.isLoading.set(true);
+    this.employeeService.getEmployeeById(id).subscribe({
+      next: (response) => {
+        const data = response.data.object_info;
+        this.employeeData.set(data);
+        this.suppressWatchers = true;
+        this.patchEmployeeForm(data);
+        this.createdAt.set(data.created_at || '');
+        this.updatedAt.set(data.updated_at || '');
+
+        if (data.job_info.branch) {
+          this.branches.set([data.job_info.branch]);
+        }
+        if (data.job_info.department) {
+          this.departments.set([data.job_info.department]);
+        }
+        if (data.job_info.section) {
+          this.sections.set([data.job_info.section]);
+        }
+        if (data.job_info.job_title) {
+          this.jobTitles.set([data.job_info.job_title]);
+        }
+        if (data.job_info.work_schedule) {
+          this.workSchedules.set([data.job_info.work_schedule]);
+        }
+
+        this.jobDetails?.get('management_level')?.updateValueAndValidity({ emitEvent: true });
+
+        this.isLoading.set(false);
+        this.suppressWatchers = false;
+
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        this.suppressWatchers = false;
+        console.error('Failed to load employee', error);
       }
     });
   }
@@ -422,7 +482,6 @@ export class ManageEmployeeSharedService {
 
     jobDetails.get('job_title_id')?.reset(null, { emitEvent: false });
     this.jobTitles.set([]);
-
     if (!sectionId) {
       jobDetails.get('job_title_id')?.disable({ emitEvent: false });
       return;
@@ -444,69 +503,6 @@ export class ManageEmployeeSharedService {
   }
 
 
-  private loadDropdownDataInSameTime(branchId: number, sectionId: number): void {
-    const departments$ = this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'all' }).pipe(
-      map(res => res.data?.list_items || []),
-      catchError(() => of([]))
-    );
-
-    const jobTitles$ = this.jobsService.getAllJobTitles(1, 100, { section: sectionId.toString() }).pipe(
-      map(res => res.data?.list_items || []),
-      catchError(() => of([]))
-    );
-
-    forkJoin({
-      departments: departments$,
-      jobTitles: jobTitles$
-    }).subscribe(({ departments, jobTitles }) => {
-      this.departments.set(departments);
-
-      const currentDeptId = this.jobDetails.get('department_id')?.value;
-      const selectedDept = departments.find((d: any) => d.id == currentDeptId);
-      if (selectedDept) {
-        const deptSections = Array.isArray(selectedDept.sections) ? selectedDept.sections : [];
-        this.sections.set(deptSections);
-      }
-
-      this.jobTitles.set(jobTitles);
-
-      this.jobDetails.get('department_id')?.enable();
-      this.jobDetails.get('section_id')?.enable();
-      this.jobDetails.get('job_title_id')?.enable();
-
-      this.isLoading.set(false);
-      this.suppressWatchers = false;
-    });
-  }
-
-  loadEmployeeData(id: number): void {
-    this.isLoading.set(true);
-    this.employeeService.getEmployeeById(id).subscribe({
-      next: (response) => {
-        const data = response.data.object_info;
-        this.employeeData.set(data);
-        this.suppressWatchers = true;
-        this.patchEmployeeForm(data);
-        this.createdAt.set(data.created_at || '');
-        this.updatedAt.set(data.updated_at || '');
-
-        const branchId = data.job_info.branch?.id;
-        const sectionId = data.job_info.section?.id;
-
-        if (branchId && sectionId) {
-          this.loadDropdownDataInSameTime(branchId, sectionId);
-        } else {
-          this.isLoading.set(false);
-          this.suppressWatchers = false;
-        }
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        this.suppressWatchers = false;
-        console.error('Failed to load employee', error);
-      }
-    });
-  }
 
   private patchEmployeeForm(data: Employee): void {
     const options = { emitEvent: false };
@@ -526,16 +522,16 @@ export class ManageEmployeeSharedService {
       date_of_birth: this.formatDateForInput(data.contact_info.date_of_birth),
       address: data.contact_info.address
     }, options);
-
-    this.jobDetails.patchValue({
-      management_level: data.job_info.management_level,
-      branch_id: data.job_info.branch?.id,
-      department_id: data.job_info.department?.id,
-      section_id: data.job_info.section?.id,
-      managementLevel: data.job_info.management_level,
-      job_title_id: data.job_info.job_title?.id,
-      years_of_experience: data.job_info.years_of_experience || 0
-    }, options);
+    if (this.jobDetails) {
+      this.jobDetails.patchValue({
+        branch_id: data.job_info.branch?.id,
+        department_id: data.job_info.department?.id,
+        section_id: data.job_info.section?.id,
+        management_level: data.job_info.management_level,
+        job_title_id: data.job_info.job_title?.id,
+        years_of_experience: data.job_info.years_of_experience || 0
+      }, options);
+    }
 
     this.contractDetails.patchValue({
       start_contract: this.formatDateForInput(data.job_info.start_contract),
@@ -647,15 +643,43 @@ export class ManageEmployeeSharedService {
     });
 
     // Watch for department changes to load relevant work schedules
+    // this.jobDetails.get('department_id')?.valueChanges.pipe(
+    //   startWith(this.jobDetails.get('department_id')?.value),
+    //   distinctUntilChanged(),
+    //   switchMap(departmentId => {
+    //     if (departmentId) {
+    //       return this.workScheduleService.getAllWorkSchadule(1, 100, { department: departmentId.toString() });
+    //     }
+    //     else {
+    //       return this.workScheduleService.getAllWorkSchadule(1, 100);
+    //     }
+    //   }),
+    //   catchError(err => {
+    //     console.error('Error loading work schedules', err);
+    //     this.workSchedules.set([]);
+    //     return of(null);
+    //   })
+    // ).subscribe(res => {
+    //   if (res) {
+    //     this.workSchedules.set(res.data?.list_items || []);
+    //   }
+    // });
+
     this.jobDetails.get('department_id')?.valueChanges.pipe(
       startWith(this.jobDetails.get('department_id')?.value),
+
+      debounceTime(0),
+
+      map(value => value || null),
+
       distinctUntilChanged(),
+
       switchMap(departmentId => {
+        const params: { department?: string } = {};
         if (departmentId) {
-          return this.workScheduleService.getAllWorkSchadule(1, 100, { department: departmentId.toString() });
-        } else {
-          return this.workScheduleService.getAllWorkSchadule(1, 100);
+          params.department = departmentId.toString();
         }
+        return this.workScheduleService.getAllWorkSchadule(1, 100, params);
       }),
       catchError(err => {
         console.error('Error loading work schedules', err);
@@ -976,27 +1000,32 @@ export class ManageEmployeeSharedService {
     return this.contractDetails.get('contract_type')?.value === 1;
   }
 
-  // resetEmployeeData(): void {
-  //   // clear form and all related signals
-  //   this.mainInformation.reset();
-  //   this.jobDetails.reset();
-  //   this.contractDetails.reset();
-  //   this.attendanceDetails.reset();
-  //   this.insuranceDetails.reset();
-
-  //   // reset signals
-  //   this.currentStep.set(1);
-  //   this.isModalOpen.set(false);
-  //   this.isLoading.set(false);
-  //   this.errMsg.set('');
-  // }
-
-
 
 
   getFormData() {
-    const formData = this.employeeForm.value;
-    const requestData = {
+    const formData = this.employeeForm.getRawValue();
+    const jobDetailsPayload: any = {
+      years_of_experience: formData.job_details.years_of_experience || 0,
+      management_level: parseInt(formData.job_details.management_level, 10),
+      work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+      activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
+    };
+
+    const managementLevel = jobDetailsPayload.management_level;
+
+    if (managementLevel === 5) {
+      jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+      jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
+      if (formData.job_details.section_id) {
+        jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
+      }
+    }
+
+    if (formData.job_details.job_title_id) {
+      jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
+    }
+
+    const requestData: any = {
       main_information: {
         code: formData.main_information.code,
         name_english: formData.main_information.name_english,
@@ -1011,23 +1040,16 @@ export class ManageEmployeeSharedService {
         date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
         address: formData.main_information.address
       },
-      job_details: {
-        years_of_experience: formData.job_details.years_of_experience || 0,
-        branch_id: parseInt(formData.job_details.branch_id, 10) || 0,
-        department_id: parseInt(formData.job_details.department_id, 10) || 0,
-        section_id: parseInt(formData.job_details.section_id, 10) || 0,
-        management_level: parseInt(formData.job_details.management_level, 10) || 0,
-        job_title_id: parseInt(formData.job_details.job_title_id, 10) || 0,
-        work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10) || 0,
-        activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
-      },
-      contract_details: {
+      job_details: jobDetailsPayload
+    };
+
+    // if (!this.isEditMode()) {
+    if (this.employeeForm.get('contract_details')) {
+      requestData.contract_details = {
         start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
         contract_type: formData.contract_details.contract_type,
-        // contract_end_date: formData.contract_details.contract_type === 1
-        //   ? formData.contract_details.contract_end_date
-        //   : 0,
-        contract_end_date: formData.contract_details.end_contract ? this.formatDateForAPI(formData.contract_details.end_contract) : '',
+        contract_end_date: formData.contract_details.contract_type === 1
+          ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
         employment_type: formData.attendance_details.employment_type,
         work_mode: formData.attendance_details.work_mode,
         days_on_site: formData.attendance_details.days_on_site
@@ -1043,9 +1065,18 @@ export class ManageEmployeeSharedService {
         notice_period: formData.contract_details.notice_period
           ? parseInt(formData.contract_details.notice_period, 10)
           : 0
-        // notice_period: formData.contract_details.notice_period || 0,
+      };
+    } else {
+      requestData.contract_details = {
+        employment_type: formData.attendance_details.employment_type,
+        work_mode: formData.attendance_details.work_mode,
+        days_on_site: formData.attendance_details.days_on_site
+          ? parseInt(formData.attendance_details.days_on_site, 10)
+          : 0,
+        salary: 0,
       }
-    };
+    }
+    // }
 
     if (!this.isEditMode()) {
       return { request_data: requestData };
@@ -1061,7 +1092,6 @@ export class ManageEmployeeSharedService {
       }
     };
   }
-
 
   resetForm(): void {
     this.employeeForm.reset();
@@ -1079,6 +1109,28 @@ export class ManageEmployeeSharedService {
     this.selectedJobTitle.set(null);
     this.currentSalaryRange.set(null);
   }
+
+  // resetForm(): void {
+  //   this.initializeForm();
+  //   this.setupFormWatchers();
+  //   this.initializeJobDetailsWatchers();
+
+  //   this.mobileGroup.get('country_id')?.setValue(1);
+  //   this.contractDetails?.get('contract_type')?.setValue(2);
+  //   this.contractDetails?.get('include_probation')?.setValue(false);
+  //   this.contractDetails?.get('notice_period')?.setValue(null);
+  //   this.contractDetails?.get('insurance_salary')?.setValue('');
+  //   this.insuranceDetails?.get('include_insurance_salary')?.setValue(false);
+  //   this.insuranceDetails?.get('insurance_salary')?.setValue('');
+  //   this.insuranceDetails?.get('include_gross_insurance_salary')?.setValue(false);
+  //   this.insuranceDetails?.get('gross_insurance_salary')?.setValue('');
+
+  //   this.currentStep.set(1);
+  //   this.errMsg.set('');
+  //   this.selectedJobTitle.set(null);
+  //   this.currentSalaryRange.set(null);
+  //   this.isEditMode.set(false);
+  // }
 
   // Debug method to help identify validation issues
   debugFormState(): void {
