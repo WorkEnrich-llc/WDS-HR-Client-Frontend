@@ -16,6 +16,7 @@ import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-f
 export class ContractFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
+  @Input() isSaving = false;
   @Input() contract: Contract | null = null;
   @Input() employee: Employee | null = null;
   @Output() onClose = new EventEmitter<void>();
@@ -29,7 +30,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: [null, [Validators.required, Validators.min(0)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
-      endDate: [null], // conditional field
+      endDate: [null, Validators.required], // conditional field
       noticePeriod: [60, [Validators.required, Validators.min(1)]] // notice period in days
     });
   }

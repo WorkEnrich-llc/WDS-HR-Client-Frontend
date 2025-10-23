@@ -12,6 +12,7 @@ import { ContractResignedViewModalComponent } from './modals/contract-resigned-v
 import { ContractTerminateModalComponent } from './modals/contract-terminate-modal/contract-terminate-modal.component';
 import { ContractTerminatedViewModalComponent } from './modals/contract-terminated-view-modal/contract-terminated-view-modal.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { finalize } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -25,7 +26,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
     ContractTerminateModalComponent,
     ContractResignModalComponent,
     ContractTerminatedViewModalComponent,
-    ContractResignedViewModalComponent
+    ContractResignedViewModalComponent,
   ],
   templateUrl: './contracts-tab.component.html',
   styleUrl: './contracts-tab.component.css'
@@ -42,6 +43,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   itemsPerPage = 10;
   totalItems = 0;
   isLoading = false;
+  isSaving = false;
 
   // Modal states
   isCancelModalOpen = false;
@@ -55,6 +57,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   contractTerminationData: any = null;
   contractResignationData: any = null;
   isAddModalOpen = false;
+  isOpen = false;
   isEditMode = false;
 
   constructor(private employeeService: EmployeeService) { }
@@ -359,12 +362,11 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
-    console.log('Check edit mode before saving:', {
-      isEditMode: this.isEditMode,
-      contractData: contractData
-    });
+    if (this.isSaving) return;
+    this.isSaving = true;
     if (this.isEditMode && contractData) {
-      const contractId = contractData.contractId || this.selectedContract?.id;
+      const contractId = contractData.contractId || this.editedContract?.id;
+      console.log('from save :', contractId)
       // Adjust existing contract via API
       const payload = {
         contract_id: contractId,
@@ -374,7 +376,9 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         end_contract: contractData.endDate,
         notice_period: contractData.noticePeriod
       };
-      this.employeeService.adjustEmployeeContractAdjustment(payload).subscribe({
+      this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
+        finalize(() => this.isSaving = false)
+      ).subscribe({
         next: () => {
           this.toasterService.showSuccess('Contract adjusted successfully');
           // Reload contracts after adjustment
@@ -383,6 +387,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
+          this.isSaving = false;
           // Show error message
         }
       });
@@ -391,6 +396,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       // Add new contract via API
       if (!this.employee?.id) {
         console.error('Employee ID is required to create contract');
+        this.isLoading = false;
         return;
       }
 
@@ -403,12 +409,14 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         insurance_salary: contractData.insuranceSalary || 0
       };
 
-      this.employeeService.createEmployeeContract(payload).subscribe({
-        next: (response) => {
+      this.employeeService.createEmployeeContract(payload).pipe(
+        finalize(() => this.isLoading = false)
+      ).subscribe({
+        next: () => {
           // Reload contracts to get updated list
+          this.toasterService.showSuccess('Contract created successfully');
           this.loadEmployeeContracts();
           this.closeAddModal();
-          this.toasterService.showSuccess('Contract created successfully');
           // Show success message
         },
         error: (error) => {
@@ -493,8 +501,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      // hour: '2-digit',
+      // minute: '2-digit'
     });
   }
 
