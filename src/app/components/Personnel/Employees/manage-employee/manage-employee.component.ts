@@ -68,7 +68,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     // Reset the form when component initializes
-    this.sharedService.loadInitialData();
+    // this.sharedService.loadInitialData();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       this.sharedService.resetForm();
@@ -78,7 +78,6 @@ export class ManageEmployeeComponent implements OnInit {
         this.sharedService.loadEmployeeData(+id);
       } else {
         this.sharedService.isEditMode.set(false);
-        // this.sharedService.loadInitialData();
         this.sharedService.resetForm();
       }
     });
@@ -187,5 +186,71 @@ export class ManageEmployeeComponent implements OnInit {
     }
   }
 
+  // onSubmit() {
+  //   if (this.sharedService.employeeForm.invalid) {
+  //     this.sharedService.employeeForm.markAllAsTouched();
+  //     this.sharedService.mobileGroup.markAllAsTouched();
+  //     this.sharedService.errMsg.set('Please fill in all required fields');
+  //     return;
+  //   }
+  //   this.sharedService.isLoading.set(true);
+  //   this.sharedService.errMsg.set('');
+  //   console.log('Form Status:', this.sharedService.employeeForm.status);
+  //   console.log('Form Value:', this.sharedService.employeeForm.value);
+
+
+  //   if (this.sharedService.isEditMode()) {
+  //     if (!this.sharedService.employeeData()) {
+  //       this.toasterMessageService.showError('Employee data not loaded yet.');
+  //       this.sharedService.isLoading.set(false);
+  //       return;
+  //     }
+
+  //     const employeeData = this.sharedService.getFormData();
+
+  //     if (!employeeData) {
+  //       this.toasterMessageService.showError('Invalid form data');
+  //       this.sharedService.isLoading.set(false);
+  //       console.log('Invalid form data:', employeeData);
+  //       return;
+  //     }
+
+  //     this.employeeService.updateEmployee(employeeData).subscribe({
+  //       next: () => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.toasterMessageService.showSuccess('Employee updated successfully!');
+  //         this.router.navigate(['/employees/all-employees']);
+  //       },
+  //       error: (error) => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.sharedService.errMsg.set(error.message || 'Failed to update employee');
+  //         this.toasterMessageService.showError('Failed to update employee');
+  //       }
+  //     });
+
+  //   } else {
+  //     const employeeData = this.sharedService.getFormData();
+
+  //     if (!employeeData) {
+  //       this.toasterMessageService.showError('Invalid form data');
+  //       this.sharedService.isLoading.set(false);
+  //       console.log('Invalid form data:', employeeData);
+  //       return;
+  //     }
+
+  //     this.employeeService.createEmployee(employeeData).subscribe({
+  //       next: () => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.toasterMessageService.showSuccess('Employee created successfully!');
+  //         this.router.navigate(['/employees/all-employees']);
+  //       },
+  //       error: (error) => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.sharedService.errMsg.set(error.message || 'Failed to create employee');
+  //         this.toasterMessageService.showError('Failed to create employee');
+  //       }
+  //     });
+  //   }
+  // }
 
 }
