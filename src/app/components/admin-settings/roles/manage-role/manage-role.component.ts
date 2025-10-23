@@ -71,10 +71,12 @@ export class ManageRoleComponent implements OnInit {
   allUsers: IUser[] = [];
   originalUsers: IUser[] = [];
   addedUsers: (IUser & { isNew?: boolean })[] = [];
+  paginatedAddedUsers: (IUser & { isNew?: boolean })[] = [];
   selectAllUsers: boolean = false;
   selectAllOverlay: boolean = false;
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private pendingSelections = new Map<number, IUser>();
 
   constructor(
     // private router: Router,
@@ -103,9 +105,10 @@ export class ManageRoleComponent implements OnInit {
   selectedActionsMap = new Map<string, Set<string>>();
 
   ngOnInit() {
+    this.initFormModels();
     this.getAllUsers();
     this.getAllRoles();
-    this.initFormModels();
+    this.updatePaginatedAddedUsers();
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -159,6 +162,9 @@ export class ManageRoleComponent implements OnInit {
         this.currentPage = response.data.page ? Number(response.data.page) : this.currentPage;
 
         const users: IUser[] = response.data.list_items.map((e: Employee) => {
+          if (this.pendingSelections.has(e.id)) {
+            return this.pendingSelections.get(e.id)!;
+          }
           const alreadyAdded = this.addedUsers.some((added: IUser) => added.id === e.id);
           return {
             id: e.id,
@@ -177,6 +183,7 @@ export class ManageRoleComponent implements OnInit {
         this.allUsers = [...users];
 
         this.selectAllUsers = users.length > 0 && users.every(u => u.isSelected);
+        this.updateSelectAllOverlayState();
       },
       error: (err: any) => {
         this.errMsg = err.error?.details ?? 'Failed to load employees';
@@ -184,14 +191,23 @@ export class ManageRoleComponent implements OnInit {
     });
   }
 
+  private updateSelectAllOverlayState(): void {
+    if (this.allUsers.length === 0) {
+      this.selectAllOverlay = false;
+      return;
+    }
+    this.selectAllOverlay = this.allUsers.every(u => u.isSelected);
+  }
 
   onAddedPageChange(page: number) {
     this.addedPage = page;
+    this.updatePaginatedAddedUsers();
   }
 
   onAddedItemsPerPageChange(perPage: number) {
     this.addedItemsPerPage = perPage;
     this.addedPage = 1;
+    this.updatePaginatedAddedUsers();
   }
 
   onItemsPerPageChange(newItemsPerPage: number) {
@@ -202,6 +218,18 @@ export class ManageRoleComponent implements OnInit {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.getAllUsers();
+  }
+
+  private updatePaginatedAddedUsers(): void {
+    const startIndex = (this.addedPage - 1) * this.addedItemsPerPage;
+    const endIndex = startIndex + this.addedItemsPerPage;
+
+    this.paginatedAddedUsers = this.addedUsers.slice(startIndex, endIndex);
+
+    if (this.paginatedAddedUsers.length === 0 && this.addedPage > 1) {
+      this.addedPage--;
+      this.updatePaginatedAddedUsers();
+    }
   }
 
 
@@ -237,40 +265,55 @@ export class ManageRoleComponent implements OnInit {
 
 
   toggleUsersOverlay(user: IUser): void {
-    if (!user.isSelected) {
-      this.selectAllOverlay = false;
-    } else if (this.allUsers.length && this.allUsers.every(u => u.isSelected)) {
-      this.selectAllOverlay = true;
+    // if (!user.isSelected) {
+    //   this.selectAllOverlay = false;
+    // } else if (this.allUsers.length && this.allUsers.every(u => u.isSelected)) {
+    //   this.selectAllOverlay = true;
+    // }
+    if (user.isSelected) {
+      this.pendingSelections.set(user.id, user);
+    } else {
+      this.pendingSelections.delete(user.id);
     }
+    this.updateSelectAllOverlayState();
   }
 
   toggleSelectAll() {
+    // this.allUsers.forEach((user: IUser) => {
+    //   user.isSelected = this.selectAllOverlay;
+    // });
     this.allUsers.forEach((user: IUser) => {
       user.isSelected = this.selectAllOverlay;
-    });
-  }
 
-
-  addSelectedUsers() {
-    const selected = this.allUsers.filter(u => u.isSelected);
-
-    selected.forEach(user => {
-      if (!this.addedUsers.some(au => au.id === user.id)) {
-        // this.addedUsers.push(user);
-        this.addedUsers.push({ ...(user as IUser), isNew: true } as IUser & { isNew: boolean });
+      if (this.selectAllOverlay) {
+        this.pendingSelections.set(user.id, user);
+      } else {
+        this.pendingSelections.delete(user.id);
       }
     });
-
-    this.createRoleForm.patchValue({
-      users: this.addedUsers.map(u => u.id)
-    });
-
-    // this.usersOverlay.closeOverlay();
   }
+
+
+  // addSelectedUserss() {
+  //   const selected = this.allUsers.filter(u => u.isSelected);
+
+  //   selected.forEach(user => {
+  //     if (!this.addedUsers.some(au => au.id === user.id)) {
+  //       // this.addedUsers.push(user);
+  //       this.addedUsers.push({ ...(user as IUser), isNew: true } as IUser & { isNew: boolean });
+  //     }
+  //   });
+
+  //   this.createRoleForm.patchValue({
+  //     users: this.addedUsers.map(u => u.id)
+  //   });
+
+  //   this.usersOverlay.closeOverlay();
+  // }
 
   removeUser(user: IUser): void {
     this.addedUsers = this.addedUsers.filter(u => u.id !== user.id);
-
+    this.pendingSelections.delete(user.id);
     const match = this.allUsers.find(u => u.id === user.id);
     if (match) {
       match.isSelected = false;
@@ -284,6 +327,7 @@ export class ManageRoleComponent implements OnInit {
     if (this.isEditMode && user.id && !this.removedUsers.includes(user.id)) {
       this.removedUsers.push(user.id);
     }
+    this.updatePaginatedAddedUsers();
   }
 
 
@@ -297,9 +341,35 @@ export class ManageRoleComponent implements OnInit {
     });
 
     this.selectAllUsers = this.addedUsers.length > 0 && this.addedUsers.every(user => user.isSelected);
+    this.updatePaginatedAddedUsers();
+  }
+
+  addSelectedUsers() {
+    const selected = Array.from(this.pendingSelections.values());
+
+    selected.forEach(user => {
+      if (!this.addedUsers.some(au => au.id === user.id)) {
+        this.addedUsers.push({ ...(user as IUser), isNew: true } as IUser & { isNew: boolean });
+      }
+    });
+
+    this.pendingSelections.clear();
+
+    this.createRoleForm.patchValue({
+      users: this.addedUsers.map(u => u.id)
+    });
+
+    this.usersOverlay.closeOverlay();
+    this.allUsers.forEach(user => {
+      if (this.addedUsers.some(au => au.id === user.id)) {
+        user.isSelected = true;
+      }
+    });
+    this.updatePaginatedAddedUsers();
   }
 
   discardUsers(): void {
+    this.pendingSelections.clear();
     this.allUsers.forEach(user => {
       user.isSelected = false;
     });
@@ -527,7 +597,7 @@ export class ManageRoleComponent implements OnInit {
             }
           }
         }
-
+        this.updatePaginatedAddedUsers();
       },
       error: (err) => {
         console.error("Error loading role", err);

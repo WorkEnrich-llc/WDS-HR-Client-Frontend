@@ -818,11 +818,11 @@
 
             <!-- start table -->
             <div>
-                <app-table [data]="addedUsers" [totalItems]="addedTotalUsers" [itemsPerPage]="addedItemsPerPage"
-                    [currentPage]="addedPage" (pageChange)="onAddedPageChange($event)"
-                    (itemsPerPageChange)="onAddedItemsPerPageChange($event)" [disablePagination]="false"
-                    [headerTemplate]="addedUsersTableHeader" [rowTemplate]="addedUserTableRow"
-                    [emptyTemplate]="addeduserTableEmptyRow">
+                <app-table [data]="paginatedAddedUsers" [totalItems]="addedUsers.length"
+                    [itemsPerPage]="addedItemsPerPage" [currentPage]="addedPage"
+                    (pageChange)="onAddedPageChange($event)" (itemsPerPageChange)="onAddedItemsPerPageChange($event)"
+                    [disablePagination]="true" [headerTemplate]="addedUsersTableHeader"
+                    [rowTemplate]="addedUserTableRow" [emptyTemplate]="addeduserTableEmptyRow">
                 </app-table>
 
                 <ng-template #addedUsersTableHeader>
