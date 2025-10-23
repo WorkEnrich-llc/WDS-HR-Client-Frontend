@@ -4,7 +4,7 @@
     { label: 'Onboarding List',link:'/onboarding' },
     { label: 'Edit Onboarding List'},
   ]" title="Edit Onboarding List">
- 
+
 </app-page-header>
 
 
@@ -12,13 +12,25 @@
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Onboarding Checklist</h2>
-        <form [formGroup]="checkForm" (ngSubmit)="addCheck()" class="w-lg-50 d-flex align-items-end gap-3">
-            <div class="input w-100">
-                <label for="checkName">Add a new check</label>
+        <form [formGroup]="checkForm" (ngSubmit)="addCheck()" class="w-lg-50">
+            <label for="checkName">Add a new check</label>
+            <div class="d-flex align-items-start gap-3">
+                <div class="input w-100">
+                
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" id="checkName" class="form-control custom-date-input"
                         placeholder="Enter new check" formControlName="checkName" />
                 </div>
+                @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['required']) {
+                <p class="error-msg">
+                    Checklist Item is required.
+                </p>
+                }
+                @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['maxlength']) {
+                <p class="error-msg">
+                    Checklist Item maxlength is 100 characters only.
+                </p>
+                }
             </div>
             <button type="submit" class="btn btn-lg btn-primary w-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -29,6 +41,8 @@
                 </svg>
                 <span>Add new</span>
             </button>
+            </div>
+            
         </form>
 
         @if (checks.length > 0) {
@@ -95,5 +109,3 @@
 
     </div>
 </div>
-
-

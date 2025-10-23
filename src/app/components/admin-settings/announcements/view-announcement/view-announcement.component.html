@@ -1,0 +1,95 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="View Announcement">
+</app-page-header>
+
+<!-- content -->
+<div class="content-hug">
+    <div class="content-box">
+
+        <!-- Loading State with Skeleton -->
+        @if (isLoading) {
+        <div class="skeleton-container">
+            <!-- Title Skeleton -->
+            <div class="skeleton-line skeleton-title"></div>
+
+            <!-- Meta Skeleton -->
+            <div class="skeleton-meta">
+                <div class="skeleton-line skeleton-meta-line"></div>
+                <div class="skeleton-line skeleton-meta-line"></div>
+            </div>
+
+            <!-- Body Skeleton -->
+            <div class="skeleton-body">
+                <div class="skeleton-line skeleton-body-line"></div>
+                <div class="skeleton-line skeleton-body-line"></div>
+                <div class="skeleton-line skeleton-body-line short"></div>
+            </div>
+
+            <!-- Recipients Skeleton -->
+            <div class="skeleton-recipients">
+                <div class="skeleton-line skeleton-section-title"></div>
+                <div class="skeleton-recipient-item">
+                    <div class="skeleton-line skeleton-recipient-type"></div>
+                    <div class="skeleton-line skeleton-recipient-name"></div>
+                </div>
+                <div class="skeleton-recipient-item">
+                    <div class="skeleton-line skeleton-recipient-type"></div>
+                    <div class="skeleton-line skeleton-recipient-name"></div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Announcement Details -->
+        @if (announcementDetails && !isLoading) {
+        <div class="main-info-card">
+            <h3 class="main-info-header">Main Information</h3>
+
+            <div class="info-item">
+                <span class="info-label">Recipient</span>
+                <span class="info-value">{{ getRecipientsText() }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Title</span>
+                <span class="info-value">{{ announcementDetails.title }}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">Body</span>
+                <div class="info-value-body">
+                    <p>{{ getDisplayedBody() }}</p>
+                    @if (isBodyTruncated()) {
+                    <button class="see-more-btn" (click)="toggleBodyVisibility()">
+                        <svg class="chevron-icon" [class.rotate-180]="showFullBody" width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                        <span>{{ showFullBody ? 'See Less' : 'See More' }}</span>
+                    </button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Error State -->
+        @if (!announcementDetails && !isLoading) {
+        <div class="error-state">
+            <div class="error-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+            </div>
+            <h3>Announcement Not Found</h3>
+            <p>The requested announcement could not be found or may have been deleted.</p>
+            <button class="btn btn-primary" (click)="goBack()">Back to Announcements</button>
+        </div>
+        }
+
+    </div>
+</div>

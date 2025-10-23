@@ -317,8 +317,9 @@ export class CreateIntegrationComponent implements OnInit {
         const currentPageServices = this.filteredServices.slice(startIndex, endIndex);
 
         const allSelected = currentPageServices.every(service => service.selected);
+        const targetState = !allSelected;
         currentPageServices.forEach(service => {
-            service.selected = allSelected;
+            service.selected = targetState;
         });
     }
 
@@ -412,5 +413,12 @@ export class CreateIntegrationComponent implements OnInit {
     updateTableData(): void {
         this.tableTotalItems = this.selectedServices.length;
         this.tableIsLoading = false;
+    }
+
+    /**
+     * Check if pagination should be shown (10 or more services)
+     */
+    shouldShowPagination(): boolean {
+        return this.selectedServices.length >= 10;
     }
 }

@@ -18,6 +18,20 @@ export class AnnouncementsService {
 
         return this.http.get(`${this.apiBaseUrl}main/admin-settings/announce`, { params });
     }
+
+    /**
+     * Get announcement details by ID
+     */
+    getAnnouncementDetails(id: number): Observable<any> {
+        return this.http.get(`${this.apiBaseUrl}main/admin-settings/announce/${id}/`);
+    }
+
+    /**
+     * Create a new announcement
+     */
+    createAnnouncement(formData: FormData): Observable<any> {
+        return this.http.post(`${this.apiBaseUrl}main/admin-settings/announce`, formData);
+    }
 }
 
 
