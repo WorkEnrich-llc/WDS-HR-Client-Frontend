@@ -87,7 +87,7 @@ export class CreateNewBranchComponent implements OnInit {
   branchStep1: FormGroup = new FormGroup({
     code: new FormControl('', Validators.maxLength(26)),
     name: new FormControl('', [Validators.required, Validators.maxLength(80)]),
-    location: new FormControl(''),
+    location: new FormControl('',Validators.required),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
 
@@ -220,6 +220,7 @@ export class CreateNewBranchComponent implements OnInit {
 
 
   // remove Department from selected departments
+   removedOnce = false; 
   removeDepartment(department: any): void {
     const index = this.addeddepartments.findIndex(dep => dep.id === department.id);
     if (index !== -1) {
@@ -232,6 +233,7 @@ export class CreateNewBranchComponent implements OnInit {
     }
 
     this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    this.removedOnce = true;
   }
 
 

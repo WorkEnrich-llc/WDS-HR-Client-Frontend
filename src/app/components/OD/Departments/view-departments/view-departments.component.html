@@ -120,7 +120,7 @@
       [rowTemplate]="sectionsTableRow" [emptyTemplate]="noSections"></app-table>
 
     <ng-template #sectionsTableHeader>
-      <th (click)="sortBy('id')" style="cursor: pointer;" class="width-fix">
+      <th (click)="sortBy('id')" style="cursor: pointer;" class="w-25">
         <div class="d-flex align-items-center justify-content-between">
           <span>Section</span>
           @if (sortDirection === 'desc') {
@@ -147,15 +147,36 @@
     </ng-template>
 
     <ng-template #sectionsTableRow let-section let-i="index">
-      <td class="width-fix">
+      <td>
         <span class="d-block text-gray-sm">{{ section.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 200px;">
           {{ section.name }}
         </span>
       </td>
       <td>
-        {{ getSubsectionNames(section) }}
+        @if (section.sub_sections?.length > 0) {
+        @for (sub of section.sub_sections; track sub.id) {
+        <span class="inline-flex items-center gap-1">
+          @if (sub.is_active) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="5" fill="#4ca883" />
+          </svg>
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="5" fill="#e04f5f" />
+          </svg>
+          }
+          <span class="ms-1 text-gray-sm">{{ sub.name }}</span>
+        </span>
+        @if (section.sub_sections.indexOf(sub) !== section.sub_sections.length - 1) {
+        <span class="ms-1 me-2">, </span>
+        }
+        }
+        } @else {
+        <span class="text-gray-400 italic">No subsections</span>
+        }
       </td>
+
 
       <td>
         @if (section.is_active ===true) {

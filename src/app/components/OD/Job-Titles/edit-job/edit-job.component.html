@@ -287,15 +287,7 @@
           @if (jobStep1.get('department')?.touched && jobStep1.get('department')?.errors?.['required']) {
           <p class="error-msg">Department is required.</p>
           }
-          @if (
-          jobStep1.get('section')?.touched &&
-          jobStep1.get('section')?.errors?.['required'] &&
-          !jobStep1.get('department')?.value
-          ) {
-          <p class="error-msg">
-            Department is required First.
-          </p>
-          }
+          
         </div>
 
         <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
@@ -310,8 +302,24 @@
               </select>
             </div>
           </div>
-          @if (jobStep1.get('section')?.touched && jobStep1.get('section')?.errors?.['required']) {
-          <p class="error-msg">Section is required.</p>
+           @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          !jobStep1.get('department')?.value
+          ) {
+          <p class="error-msg">
+            Department is required first.
+          </p>
+          }
+
+          @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          jobStep1.get('department')?.value
+          ) {
+          <p class="error-msg">
+            Section is required.
+          </p>
           }
         </div>
         }
