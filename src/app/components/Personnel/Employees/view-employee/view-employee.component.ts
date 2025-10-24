@@ -27,8 +27,8 @@ import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance
     AttendanceTabComponent,
     RequestsTabComponent,
     DocumentsTabComponent,
-  ContractsTabComponent,
-  LeaveBalanceTabComponent
+    ContractsTabComponent,
+    LeaveBalanceTabComponent
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
@@ -364,12 +364,14 @@ export class ViewEmployeeComponent implements OnInit {
             doc.uploaded = true;
           }
           delete this.uploadProgress[docKey];
-          this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+          this.loadEmployeeDocuments();
+          // this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+
         }
       }, error => {
         console.error('Error uploading document', error);
         delete this.uploadProgress[docKey];
-        this.toasterMessageService.showError(`Error uploading ${docKey}`);
+        // this.toasterMessageService.showError(`Error uploading ${docKey}`);
       });
     }
     // reset input and selected key
@@ -386,11 +388,11 @@ export class ViewEmployeeComponent implements OnInit {
           doc.uploaded = false;
           delete doc.url;
           delete doc.id;
-          this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
+          // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
         },
         error: (error) => {
           console.error('Error deleting document', error);
-          this.toasterMessageService.showError(`Error deleting ${docKey}`);
+          // this.toasterMessageService.showError(`Error deleting ${docKey}`);
         }
       });
     }

@@ -9,23 +9,25 @@
 
     <tbody>
       @if (isLoading) {
-        <!-- Skeleton loader rows -->
-        @for (_ of [1, 2]; track _) {
-          <tr>
-            <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
-          </tr>
-        }
+      @for (row of skeletonRows; track row.id) {
+      <tr>
+        <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
+      </tr>
+      }
+
+      }
+      @else {
+      @if (data && data.length > 0) {
+      @for (row of data | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems };
+      track trackByFn($index, row)) {
+
+      <tr>
+        <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row }"></ng-container>
+      </tr>
+      }
       } @else {
-        @if (data && data.length > 0) {
-          @for (row of data | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }; track row) {
-            <tr
-              >
-              <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row }"></ng-container>
-            </tr>
-          }
-        } @else {
-          <ng-container *ngTemplateOutlet="emptyTemplate"></ng-container>
-        }
+      <ng-container *ngTemplateOutlet="emptyTemplate"></ng-container>
+      }
       }
 
     </tbody>
@@ -34,58 +36,57 @@
 
 <!-- Skeleton Template -->
 <ng-template #skeletonRowTemplate let-columnsCount="columnsCount">
-@for (i of getColumnsArray(columnsCount); track indexFn($index, i)) {
+  @for (i of getColumnsArray(columnsCount); track indexFn($index, i)) {
 
   <td>
-      <div class="skeleton-block h-4 w-full"></div>
-    </td>
-}
+    <div class="skeleton-block h-4 w-full"></div>
+  </td>
+  }
 
 </ng-template>
 <!-- Pagination Section -->
 @if (!disablePagination && (data?.length ?? 0) > 0) {
 
 
-  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center"
-    >
-    <div class="d-flex align-items-center gap-2">
-      <div class="text-gray-sm pe-3">
-        Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–
-        {{
-        (currentPage * itemsPerPage) > totalItems
-        ? totalItems
-        : (currentPage * itemsPerPage)
-        }}
-        from {{ totalItems }}
-      </div>
-      <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
-        View
-        <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage"
-          (ngModelChange)="onItemsPerPageChange()">
-          @for (option of [5, 10, 25, 50]; track option) {
-            <option [value]="option">
-              {{ option }}
-            </option>
-          }
-        </select>
-      </div>
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-2">
+    <div class="text-gray-sm pe-3">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–
+      {{
+      (currentPage * itemsPerPage) > totalItems
+      ? totalItems
+      : (currentPage * itemsPerPage)
+      }}
+      from {{ totalItems }}
     </div>
-    <div class="d-flex align-items-center justify-content-center gap-2">
-      <button class="prev p-0 btn border-0" [disabled]="currentPage === 1" (click)="onPageChanged(currentPage - 1)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="m15 5l-6 7l6 7" />
-          </svg>
-        </button>
-        <pagination-controls (pageChange)="onPageChanged($event)">
-        </pagination-controls>
-        <button class="next p-0 btn border-0" [disabled]="currentPage >= totalPages"
-          (click)="onPageChanged(currentPage + 1)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="m9 5l6 7l-6 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    }
+    <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
+      View
+      <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage"
+        (ngModelChange)="onItemsPerPageChange()">
+        @for (option of [5, 10, 25, 50]; track option) {
+        <option [value]="option">
+          {{ option }}
+        </option>
+        }
+      </select>
+    </div>
+  </div>
+  <div class="d-flex align-items-center justify-content-center gap-2">
+    <button class="prev p-0 btn border-0" [disabled]="currentPage === 1" (click)="onPageChanged(currentPage - 1)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="m15 5l-6 7l6 7" />
+      </svg>
+    </button>
+    <pagination-controls (pageChange)="onPageChanged($event)">
+    </pagination-controls>
+    <button class="next p-0 btn border-0" [disabled]="currentPage >= totalPages"
+      (click)="onPageChanged(currentPage + 1)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="m9 5l6 7l-6 7" />
+      </svg>
+    </button>
+  </div>
+</div>
+}

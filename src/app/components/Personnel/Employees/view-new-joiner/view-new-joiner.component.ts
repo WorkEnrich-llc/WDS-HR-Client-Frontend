@@ -25,7 +25,7 @@ export class ViewNewJoinerComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private workScheduleService = inject(WorkSchaualeService);
   private route = inject(ActivatedRoute);
-  
+
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   workScheduleData: WorkSchedule | null = null;
@@ -63,7 +63,7 @@ export class ViewNewJoinerComponent implements OnInit {
         this.subscription = response.data.subscription;
         this.loading = false;
         console.log('New joiner data loaded:', response);
-        
+
         // Load work schedule data if employee has a work schedule
         if (this.employee?.job_info?.work_schedule?.id) {
           this.loadWorkScheduleData(this.employee.job_info.work_schedule.id);
@@ -153,7 +153,7 @@ export class ViewNewJoinerComponent implements OnInit {
   private getEmployeeStatus(employee: Employee): string {
     const today = new Date();
     const startDate = new Date(employee.job_info.start_contract);
-    
+
     if (startDate > today) {
       return 'New Joiner'; // Contract hasn't started yet
     } else if (startDate.toDateString() === today.toDateString()) {
@@ -171,13 +171,13 @@ export class ViewNewJoinerComponent implements OnInit {
   // Helper method to check subscription permissions
   hasEmployeePermission(action: string): boolean {
     if (!this.subscription) return false;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature || !personnelFeature.is_support) return false;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub || !employeeSub.is_support) return false;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.status : false;
   }
@@ -185,13 +185,13 @@ export class ViewNewJoinerComponent implements OnInit {
   // Helper method to get remaining action count
   getEmployeeActionCount(action: string): number {
     if (!this.subscription) return 0;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature) return 0;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub) return 0;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.count : 0;
   }
@@ -199,13 +199,13 @@ export class ViewNewJoinerComponent implements OnInit {
   // Helper method to check if action has infinite usage
   hasInfiniteEmployeePermission(action: string): boolean {
     if (!this.subscription) return false;
-    
+
     const personnelFeature = this.subscription.features.find(f => f.main.name === 'Personnel');
     if (!personnelFeature) return false;
-    
+
     const employeeSub = personnelFeature.sub_list.find(s => s.sub.name === 'Employees');
     if (!employeeSub) return false;
-    
+
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.infinity : false;
   }
@@ -235,20 +235,20 @@ export class ViewNewJoinerComponent implements OnInit {
   // Get formatted working days
   getWorkingDays(): string {
     if (!this.workScheduleData?.system?.days) return 'N/A';
-    
+
     const days = this.workScheduleData.system.days;
     const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const workingDays = dayOrder
       .filter(day => (days as any)[day])
       .map(day => day.charAt(0).toUpperCase() + day.slice(1));
-    
+
     return workingDays.join(', ');
   }
 
   // Get employment type display
   getEmploymentTypeDisplay(): string {
     if (!this.workScheduleData?.system?.employment_type) return 'N/A';
-    
+
     const employmentType = this.workScheduleData.system.employment_type;
     switch (employmentType) {
       case 1: return 'Full-time';
@@ -261,7 +261,7 @@ export class ViewNewJoinerComponent implements OnInit {
   // Get work schedule type display
   getWorkScheduleTypeDisplay(): string {
     if (!this.workScheduleData?.system?.work_schedule_type) return 'N/A';
-    
+
     const scheduleType = this.workScheduleData.system.work_schedule_type;
     switch (scheduleType) {
       case 1: return 'Fixed';
@@ -318,12 +318,12 @@ export class ViewNewJoinerComponent implements OnInit {
   closeModal() {
     this.isModalOpen = false;
   }
-  
+
   // Open the reschedule join date overlay
   openRescheduleOverlay(): void {
     this.rescheduleBox.openOverlay();
   }
-  
+
   // Submit the rescheduled join date
   submitReschedule(): void {
     if (this.employee && this.newJoinDate) {

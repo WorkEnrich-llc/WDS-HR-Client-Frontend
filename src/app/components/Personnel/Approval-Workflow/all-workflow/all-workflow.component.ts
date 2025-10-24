@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { CommonModule } from '@angular/common';
@@ -7,23 +7,26 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-workflow',
-  imports: [PageHeaderComponent, TableComponent, CommonModule,ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, CommonModule, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
   templateUrl: './all-workflow.component.html',
   styleUrl: './all-workflow.component.css'
 })
 export class AllWorkflowComponent {
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute,private _DepartmentsService:DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private fb: FormBuilder, private _WorkflowService: WorkflowService) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   workflows: any[] = [];
   departments: any[] = [];
@@ -40,10 +43,15 @@ export class AllWorkflowComponent {
 
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllWorkflows(this.currentPage);
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.getAllWorkflows(this.currentPage);
+    // });
+
+    this.filterForm = this.fb.group({
+      department: ''
     });
+
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -58,9 +66,14 @@ export class AllWorkflowComponent {
       this.getAllWorkflows(this.currentPage, value);
     });
     this.getAllDepartment(1);
-    this.filterForm = this.fb.group({
-      department: ''
+
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('workflow/all-workflows') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllWorkflows(pageFromUrl);
     });
+
+
   }
 
   getAllWorkflows(
@@ -92,15 +105,15 @@ export class AllWorkflowComponent {
     });
   }
 
-  
+
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
     this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
     }).subscribe({
       next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        this.totalpages = response.data.total_pages;
+        // this.currentPage = Number(response.data.page);
+        // this.totalItems = response.data.total_items;
+        // this.totalpages = response.data.total_pages;
         this.departments = response.data.list_items;
       },
       error: (err) => {
@@ -153,9 +166,31 @@ export class AllWorkflowComponent {
     this.currentPage = 1;
     this.getAllWorkflows(this.currentPage);
   }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllWorkflows(this.currentPage);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllWorkflows(this.currentPage);
+    this.paginationState.setPage('workflow/all-workflows', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
+
+  navigateToEdit(workflowId: number): void {
+    this.paginationState.setPage('workflow/all-workflows', this.currentPage);
+    this.router.navigate(['/workflow/update-workflows', workflowId]);
+  }
+
+
+  navigateToView(workflowId: number): void {
+    this.paginationState.setPage('workflow/all-workflows', this.currentPage);
+    this.router.navigate(['/workflow/view-workflows', workflowId]);
+  }
+
 
 }

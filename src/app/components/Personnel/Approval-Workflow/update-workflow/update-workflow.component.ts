@@ -44,10 +44,10 @@ export class UpdateWorkflowComponent {
   ngOnInit(): void {
     this.updateLeaveControlState(this.workflow1.get('workflow_type')?.value);
 
-   this.workflow1.get('workflow_type')?.valueChanges.subscribe(value => {
-    this.updateLeaveControlState(value);
-    // this.isChanges = true; 
-  });
+    this.workflow1.get('workflow_type')?.valueChanges.subscribe(value => {
+      this.updateLeaveControlState(value);
+      // this.isChanges = true; 
+    });
 
     this.getAllLeaveTypes();
     this.getAllDepartments();
@@ -100,6 +100,8 @@ export class UpdateWorkflowComponent {
           workflowType = 'permission';
         } else if (this.workflowData.overtime) {
           workflowType = 'overtime';
+        } else if (this.workflowData.mission) {
+          workflowType = 'mission';
         } else if (this.workflowData.leave) {
           workflowType = 'leave';
           leaveId = this.workflowData.leave.id;

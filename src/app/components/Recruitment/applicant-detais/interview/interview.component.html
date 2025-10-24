@@ -3,326 +3,322 @@
     <h2>Current Status</h2>
     <div>
       @if (status === 'Applicant') {
-        <div class="badge-gray">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="currentColor" fill-rule="evenodd"
-              d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
-              clip-rule="evenodd" />
-            </svg>
-            <span>Applicant</span>
+      <div class="badge-gray">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Applicant</span>
+      </div>
+      }
+      @if (status === 'Candidate') {
+      <div class="badge-newjoiner">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
+            clip-rule="evenodd" />
+          <path fill="currentColor"
+            d="M18.856 16.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 1 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M13.91 21.608c-.61.093-1.251.142-1.91.142c-2.04 0-3.922-.47-5.322-1.27C5.3 19.692 4.25 18.49 4.25 17s1.05-2.692 2.428-3.48c1.4-.8 3.283-1.27 5.322-1.27c1.805 0 3.483.368 4.812 1.004q.093-.004.188-.004a4.75 4.75 0 1 1-3.09 8.358M13.75 18a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m.668-3.987A4.75 4.75 0 0 0 12.25 18c0 .803.2 1.56.55 2.222q-.393.028-.8.028c-1.827 0-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17s.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073c.861 0 1.677.094 2.418.263"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Candidate</span>
+      </div>
+      }
+      @if (status === 'Interviewee') {
+      <div class="badge-newemployee">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <path
+              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+            <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+            <circle cx="16.5" cy="16.5" r="1.5" />
+            <path stroke-linecap="round" d="M2.5 9h19" />
+          </g>
+        </svg>
+        <span>Interviewee</span>
+      </div>
+      }
+      @if (status === 'Job Offer Sent') {
+      <div class="badge-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Job Offer Sent</span>
+      </div>
+      }
+      @if (status === 'New Joiner') {
+      <div class="badge-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>New Joiner</span>
+      </div>
+      }
+    </div>
+  </div>
+
+  @if (status === 'Applicant') {
+  <button class="btn btn-primary btn-lg w-100" (click)="status = 'Candidate'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="6" r="4" />
+        <circle cx="17" cy="18" r="4" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m15.667 18l.833 1l1.833-1.889" />
+        <path d="M14 20.834c-.634.108-1.305.166-2 .166c-3.866 0-7-1.79-7-4s3.134-4 7-4c1.713 0 3.283.352 4.5.936" />
+      </g>
+    </svg>
+    <span>Add as Candidate</span>
+  </button>
+  }
+
+  @if (status === 'Candidate') {
+  <button class="btn btn-primary btn-lg w-100" (click)="openOverlay('Schedule Interview', 'filter')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <path
+          d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+        <path stroke-linecap="round" d="M18 16h-2m0 0h-2m2 0v-2m0 2v2M7 4V2.5M17 4V2.5M2.5 9h19" />
+      </g>
+    </svg>
+    <span>Interview</span>
+  </button>
+  }
+
+  @if (status === 'Interviewee' && !interviewStatus) {
+  <button class="btn btn-outline-primary btn-lg w-100" (click)="openOverlay('Reschedule Interview', 'filter')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
+    </svg>
+    <span>Reschedule</span>
+  </button>
+  }
+  @if (status === 'Interviewee' && interviewStatus) {
+  <div class="d-flex align-items-center justify-content-between gap-3">
+    <button class="btn btn-outline-primary btn-lg w-100">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <path
+            d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+          <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+          <circle cx="16.5" cy="16.5" r="1.5" />
+          <path stroke-linecap="round" d="M2.5 9h19" />
+        </g>
+      </svg>
+      <span>Interview</span>
+    </button>
+    <button class="btn btn-success btn-lg w-100" (click)="openOverlay('Job Offer', 'job')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <path fill="currentColor" fill-rule="evenodd"
+          d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+          clip-rule="evenodd" />
+      </svg>
+      <span>Job Offer</span>
+    </button>
+  </div>
+  }
+
+</div>
+
+
+
+<!-- Add interview -->
+<app-overlay-filter-box #filterBox [title]="overlayTitle">
+  <form class="w-100 d-flex flex-column gap-1">
+    <div class="input">
+      <label for="title">Interview Title</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <input type="text" id="title" class="form-control" placeholder="Enter Title" />
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Department">Department</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="Department" class="form-select">
+            <option value="" selected disabled hidden>Select Department</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Section">Section</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="Section" class="form-select">
+            <option value="" selected disabled hidden>Select Section</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Interviewer">Interviewer</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="Interviewer" class="form-select">
+            <option value="" selected disabled hidden>Select Interviewer</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Date">Date</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" id="Date" class="form-control custom-date-input" placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Time">Time</label>
+      <div class="d-flex align-items-start justify-content-between gap-3">
+        <div class="w-100">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" id="Time" class="form-control custom-date-input" placeholder="From"
+              pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" />
+
           </div>
-        }
-        @if (status === 'Candidate') {
-          <div class="badge-newjoiner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <path fill="currentColor" fill-rule="evenodd"
-                d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
-                clip-rule="evenodd" />
-                <path fill="currentColor"
-                  d="M18.856 16.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 1 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016" />
-                  <path fill="currentColor" fill-rule="evenodd"
-                    d="M13.91 21.608c-.61.093-1.251.142-1.91.142c-2.04 0-3.922-.47-5.322-1.27C5.3 19.692 4.25 18.49 4.25 17s1.05-2.692 2.428-3.48c1.4-.8 3.283-1.27 5.322-1.27c1.805 0 3.483.368 4.812 1.004q.093-.004.188-.004a4.75 4.75 0 1 1-3.09 8.358M13.75 18a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m.668-3.987A4.75 4.75 0 0 0 12.25 18c0 .803.2 1.56.55 2.222q-.393.028-.8.028c-1.827 0-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17s.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073c.861 0 1.677.094 2.418.263"
-                    clip-rule="evenodd" />
-                  </svg>
-                  <span>Candidate</span>
-                </div>
-              }
-              @if (status === 'Interviewee') {
-                <div class="badge-newemployee">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path
-                        d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
-                        <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
-                        <circle cx="16.5" cy="16.5" r="1.5" />
-                        <path stroke-linecap="round" d="M2.5 9h19" />
-                      </g>
-                    </svg>
-                    <span>Interviewee</span>
-                  </div>
-                }
-                @if (status === 'Job Offer Sent') {
-                  <div class="badge-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                      <path fill="currentColor" fill-rule="evenodd"
-                        d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                        clip-rule="evenodd" />
-                      </svg>
-                      <span>Job Offer Sent</span>
-                    </div>
-                  }
-                  @if (status === 'New Joiner') {
-                    <div class="badge-success">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                          d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                          <path fill="currentColor" fill-rule="evenodd"
-                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                            clip-rule="evenodd" />
-                          </svg>
-                          <span>New Joiner</span>
-                        </div>
-                      }
-                    </div>
-                  </div>
+        </div>
+        <div class="w-100">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" id="Time" class="form-control custom-date-input" placeholder="To"
+              pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="type">Interview Type</label>
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-2 w-100">
+          <input class="form-check-input radio" type="radio" name="type" id="Online" checked>
+          <label for="Online" class="m-0">
+            Online
+          </label>
+        </div>
+        <div class="d-flex align-items-center gap-2 w-100">
+          <input class="form-check-input radio" type="radio" name="type" id="Offline">
+          <label for="Offline" class="m-0">
+            Offline
+          </label>
+        </div>
+      </div>
+    </div>
 
-                  @if (status === 'Applicant') {
-                    <button class="btn btn-primary btn-lg w-100" (click)="status = 'Candidate'">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                          <circle cx="12" cy="6" r="4" />
-                          <circle cx="17" cy="18" r="4" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m15.667 18l.833 1l1.833-1.889" />
-                          <path
-                            d="M14 20.834c-.634.108-1.305.166-2 .166c-3.866 0-7-1.79-7-4s3.134-4 7-4c1.713 0 3.283.352 4.5.936" />
-                          </g>
-                        </svg>
-                        <span>Add as Candidate</span>
-                      </button>
-                    }
-
-                    @if (status === 'Candidate') {
-                      <button class="btn btn-primary btn-lg w-100"
-                        (click)="openOverlay('Schedule Interview', 'filter')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                          <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path
-                              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
-                              <path stroke-linecap="round" d="M18 16h-2m0 0h-2m2 0v-2m0 2v2M7 4V2.5M17 4V2.5M2.5 9h19" />
-                            </g>
-                          </svg>
-                          <span>Interview</span>
-                        </button>
-                      }
-
-                      @if (status === 'Interviewee' && !interviewStatus) {
-                        <button class="btn btn-outline-primary btn-lg w-100"
-                          (click)="openOverlay('Reschedule Interview', 'filter')">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                              d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
-                            </svg>
-                            <span>Reschedule</span>
-                          </button>
-                        }
-                        @if (status === 'Interviewee' && interviewStatus) {
-                          <div class="d-flex align-items-center justify-content-between gap-3"
-                            >
-                            <button class="btn btn-outline-primary btn-lg w-100">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                  <path
-                                    d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
-                                    <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
-                                    <circle cx="16.5" cy="16.5" r="1.5" />
-                                    <path stroke-linecap="round" d="M2.5 9h19" />
-                                  </g>
-                                </svg>
-                                <span>Interview</span>
-                              </button>
-                              <button class="btn btn-success btn-lg w-100" (click)="openOverlay('Job Offer', 'job')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                  <path fill="currentColor" fill-rule="evenodd"
-                                    d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                                    clip-rule="evenodd" />
-                                  </svg>
-                                  <span>Job Offer</span>
-                                </button>
-                              </div>
-                            }
-
-                          </div>
+    <div class="input">
+      <label for="Branch">Interview Location</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select name="" id="Branch" class="form-select">
+            <option value="" selected disabled hidden>Select Branch</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
 
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Send Invitation</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Invitation</span>
+      </a>
+    </div>
 
-                          <!-- Add interview -->
-                          <app-overlay-filter-box #filterBox [title]="overlayTitle">
-                            <form class="w-100 d-flex flex-column gap-1">
-                              <div class="input">
-                                <label for="title">Interview Title</label>
-                                <div class="d-flex align-items-center gap-4">
-                                  <div class="form-outline w-100 position-relative">
-                                    <input type="text" id="title" class="form-control" placeholder="Enter Title" />
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="input">
-                                <label for="Department">Department</label>
-                                <div class="d-flex align-items-center gap-4">
-                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <select name="" id="Department" class="form-select">
-                                      <option value="" selected disabled hidden>Select Department</option>
-                                      <option value="1">1</option>
-                                      <option value="2">2</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="input">
-                                <label for="Section">Section</label>
-                                <div class="d-flex align-items-center gap-4">
-                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <select name="" id="Section" class="form-select">
-                                      <option value="" selected disabled hidden>Select Section</option>
-                                      <option value="1">1</option>
-                                      <option value="2">2</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="input">
-                                <label for="Interviewer">Interviewer</label>
-                                <div class="d-flex align-items-center gap-4">
-                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <select name="" id="Interviewer" class="form-select">
-                                      <option value="" selected disabled hidden>Select Interviewer</option>
-                                      <option value="1">1</option>
-                                      <option value="2">2</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="input">
-                                <label for="Date">Date</label>
-                                <div class="d-flex align-items-center gap-4">
-                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <input type="date" id="Date" class="form-control custom-date-input" placeholder="Min-Max" />
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                      <g fill="none" stroke-width="1.5">
-                                        <path stroke-linecap="round"
-                                          d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                                          <circle cx="18" cy="18" r="3" />
-                                          <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                                        </g>
-                                      </svg>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="input">
-                                  <label for="Time">Time</label>
-                                  <div class="d-flex align-items-start justify-content-between gap-3">
-                                    <div class="w-100">
-                                      <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                        <input type="text" id="Time" class="form-control custom-date-input" placeholder="From"
-                                          pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" />
-
-                                        </div>
-                                      </div>
-                                      <div class="w-100">
-                                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                          <input type="text" id="Time" class="form-control custom-date-input" placeholder="To"
-                                            pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="input">
-                                      <label for="type">Interview Type</label>
-                                      <div class="d-flex align-items-center justify-content-between gap-3">
-                                        <div class="d-flex align-items-center gap-2 w-100">
-                                          <input class="form-check-input radio" type="radio" name="type" id="Online" checked>
-                                          <label for="Online" class="m-0">
-                                            Online
-                                          </label>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2 w-100">
-                                          <input class="form-check-input radio" type="radio" name="type" id="Offline">
-                                          <label for="Offline" class="m-0">
-                                            Offline
-                                          </label>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div class="input">
-                                      <label for="Branch">Interview Location</label>
-                                      <div class="d-flex align-items-center gap-4">
-                                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                          <select name="" id="Branch" class="form-select">
-                                            <option value="" selected disabled hidden>Select Branch</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </div>
+  </form>
+</app-overlay-filter-box>
 
 
-                                    <div class="d-flex align-items-center gap-3 mt-2">
-                                      <button type="submit" class="btn btn-lg btn-primary w-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                          <g fill="none" stroke-width="1.5">
-                                            <circle cx="12" cy="12" r="10" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                          </g>
-                                        </svg>
-                                        <span>Send Invitation</span>
-                                      </button>
-                                      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
-                                        <span>Discard Invitation</span>
-                                      </a>
-                                    </div>
+<!-- job offer -->
+<app-overlay-filter-box #jobBox title="Job Offer">
+  <form class="w-100 d-flex flex-column gap-2">
+    <div class="input">
+      <label for="Email">Email</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <input type="text" id="Email" class="form-control" placeholder="Enter Email" />
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="salary">Salary</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <input type="text" id="salary" class="form-control" placeholder="20,000 EGP" />
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="joinDate">Join Date</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" id="joinDate" class="form-control custom-date-input" placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="details">Offer Details</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <textarea type="text" id="details" class="form-control" placeholder="Enter Offer Details"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Send Job Offer</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Job Offer</span>
+      </a>
+    </div>
 
-                                  </form>
-                                </app-overlay-filter-box>
-
-
-                                <!-- job offer -->
-                                <app-overlay-filter-box #jobBox title="Job Offer">
-                                  <form class="w-100 d-flex flex-column gap-2">
-                                    <div class="input">
-                                      <label for="Email">Email</label>
-                                      <div class="d-flex align-items-center gap-4">
-                                        <div class="form-outline w-100 position-relative">
-                                          <input type="text" id="Email" class="form-control" placeholder="Enter Email" />
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="input">
-                                      <label for="salary">Salary</label>
-                                      <div class="d-flex align-items-center gap-4">
-                                        <div class="form-outline w-100 position-relative">
-                                          <input type="text" id="salary" class="form-control" placeholder="20,000 EGP" />
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="input">
-                                      <label for="joinDate">Join Date</label>
-                                      <div class="d-flex align-items-center gap-4">
-                                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                          <input type="date" id="joinDate" class="form-control custom-date-input" placeholder="Min-Max" />
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                            <g fill="none" stroke-width="1.5">
-                                              <path stroke-linecap="round"
-                                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                                                <circle cx="18" cy="18" r="3" />
-                                                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                                              </g>
-                                            </svg>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div class="input">
-                                        <label for="details">Offer Details</label>
-                                        <div class="d-flex align-items-center gap-4">
-                                          <div class="form-outline w-100 position-relative">
-                                            <textarea type="text" id="details" class="form-control" placeholder="Enter Offer Details"></textarea>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div class="d-flex align-items-center gap-3 mt-3">
-                                        <button type="submit" class="btn btn-lg btn-primary w-100">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                            <path fill="currentColor" fill-rule="evenodd"
-                                              d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
-                                              clip-rule="evenodd" />
-                                            </svg>
-                                            <span>Send Job Offer</span>
-                                          </button>
-                                          <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
-                                            <span>Discard Job Offer</span>
-                                          </a>
-                                        </div>
-
-                                      </form>
-                                    </app-overlay-filter-box>
+  </form>
+</app-overlay-filter-box>

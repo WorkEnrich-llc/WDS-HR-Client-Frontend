@@ -2,7 +2,11 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Departments', link: '/departments' },
     {  label: 'View Department ' + departmentData?.name }
-  ]" [title]="'View Department - ' + departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+  ]" [title]="'View Department - ' + departmentData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
+
+  @if (!loadData) {
+  @if(departmentsSub?.update){
   <button class="btn btn-lg btn-primary" [routerLink]="['/departments/edit', departmentData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -14,6 +18,8 @@
     </svg>
     <span>Edit</span>
   </button>
+  }
+
 
   @if (!departmentData.is_active) {
   <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
@@ -34,12 +40,19 @@
     <span>Deactivate</span>
   </button>
   }
+  }
+
 </app-page-header>
 
 
 <div class="content-hug d-flex flex-column gap-4">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Main Information</h2>
+    @if(loadData) {
+    <app-skelaton-loading class="w-50" [rows]="3" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+    </app-skelaton-loading>
+
+    }@else {
     <div class="info">
       <h6>Department Code</h6>
       <span>{{ departmentData?.id?.toString()?.padStart(4, '0') || 'N/A' }}</span>
@@ -52,13 +65,16 @@
       <h6>Department Objectives</h6>
       @if (departmentData?.objectives) {
       <ul>
-      @for (item of departmentData.objectives.split('\n'); track $index) {
-  <li class="fs-6 lh-base">{{ item }}</li>
-}
+        @for (item of departmentData.objectives.split('\n'); track $index) {
+        <li class="fs-6 lh-base">{{ item }}</li>
+        }
 
       </ul>
       }
     </div>
+    }
+
+
   </div>
 
   <div class="content-box pt-0">
@@ -98,13 +114,13 @@
     @if (activeTab === 'sections') {
     <h2 class="mb-3">Sections</h2>
 
-    <app-table [isLoading]="loadData" [columnsCount]="2" [data]="departmentData.sections" [totalItems]="totalItems"
+    <app-table [isLoading]="loadData" [columnsCount]="3" [data]="departmentData.sections" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="sectionsTableHeader"
       [rowTemplate]="sectionsTableRow" [emptyTemplate]="noSections"></app-table>
 
     <ng-template #sectionsTableHeader>
-      <th (click)="sortBy('id')" style="cursor: pointer;" class="width-fix">
+      <th (click)="sortBy('id')" style="cursor: pointer;" class="w-25">
         <div class="d-flex align-items-center justify-content-between">
           <span>Section</span>
           @if (sortDirection === 'desc') {
@@ -124,18 +140,44 @@
           }
         </div>
       </th>
+      <th class="width-fix">Subsections</th>
 
       <th>Status</th>
 
     </ng-template>
 
     <ng-template #sectionsTableRow let-section let-i="index">
-      <td class="width-fix">
+      <td>
         <span class="d-block text-gray-sm">{{ section.id.toString().padStart(4, '0') }}</span>
         <span class="d-block text-truncate" style="max-width: 200px;">
           {{ section.name }}
         </span>
       </td>
+      <td>
+        @if (section.sub_sections?.length > 0) {
+        @for (sub of section.sub_sections; track sub.id) {
+        <span class="inline-flex items-center gap-1">
+          @if (sub.is_active) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="5" fill="#4ca883" />
+          </svg>
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="5" fill="#e04f5f" />
+          </svg>
+          }
+          <span class="ms-1 text-gray-sm">{{ sub.name }}</span>
+        </span>
+        @if (section.sub_sections.indexOf(sub) !== section.sub_sections.length - 1) {
+        <span class="ms-1 me-2">, </span>
+        }
+        }
+        } @else {
+        <span class="text-gray-400 italic">No subsections</span>
+        }
+      </td>
+
+
       <td>
         @if (section.is_active ===true) {
         <span class="badge-success">
@@ -171,17 +213,17 @@
     </ng-template>
 
 
-    
+
     }
 
 
     @if (activeTab === 'goals') {
-      <h2 class="mb-3">Assigned Goals</h2>
+    <h2 class="mb-3">Assigned Goals</h2>
 
-    <app-table [isLoading]="loadData" [columnsCount]="1" [data]="departmentData.assigned_goals" [totalItems]="totalItemsGoals"
-      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="goalsTableHeader"
-      [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
+    <app-table [isLoading]="loadData" [columnsCount]="1" [data]="departmentData.assigned_goals"
+      [totalItems]="totalItemsGoals" [itemsPerPage]="itemsPerPage" [currentPage]="currentPage"
+      (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
+      [headerTemplate]="goalsTableHeader" [rowTemplate]="goalsTableRow" [emptyTemplate]="noGoals"></app-table>
 
     <ng-template #goalsTableHeader>
       <th style="cursor: pointer;">

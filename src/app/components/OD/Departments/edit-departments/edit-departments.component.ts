@@ -11,10 +11,11 @@ import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 
 @Component({
   selector: 'app-edit-departments',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
   providers: [DatePipe],
   templateUrl: './edit-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-departments.component.css'],
@@ -46,9 +47,22 @@ export class EditDepartmentsComponent implements OnInit {
   errMsg: string = '';
   isLoading: boolean = false;
   deptStep2: FormGroup;
+  loadData: boolean = false;
 
+
+  departmentsSub: any;
   ngOnInit(): void {
 
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.departmentsSub = sub?.Departments;
+      // if (this.departmentsSub) {
+      //   console.log("info:", this.departmentsSub.info);
+      //   console.log("create:", this.departmentsSub.create);
+      //   console.log("update:", this.departmentsSub.update);
+      //   console.log("delete:", this.departmentsSub.delete);
+      // }
+    });
     this.deptId = this.route.snapshot.paramMap.get('id');
     if (this.deptId) {
       this.getDepartment(Number(this.deptId));
@@ -79,10 +93,11 @@ export class EditDepartmentsComponent implements OnInit {
 
   initialData: any = null;
   getDepartment(deptId: number) {
+    this.loadData = true;
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-
+        // console.log(this.departmentData);
         this.deptStep1.patchValue({
           code: this.departmentData.code || '',
           name: this.departmentData.name || '',
@@ -119,9 +134,11 @@ export class EditDepartmentsComponent implements OnInit {
           goals: [...this.addedGoal],
           sections: this.sectionsFormArray.value
         };
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
@@ -147,7 +164,7 @@ export class EditDepartmentsComponent implements OnInit {
   createSectionGroup(section?: any): FormGroup {
     return this.fb.group({
       id: [section?.id || null],
-      secCode: [section?.code || '', Validators.pattern(/^(?=.*[^A-Za-z0-9]).+$/)],
+      secCode: [section?.code || ''],
       secName: [section?.name || '', Validators.required],
       status: [section?.is_active ?? true],
       collapsed: [true],
@@ -197,7 +214,7 @@ export class EditDepartmentsComponent implements OnInit {
     const subSections = this.getSubSections(parent);
     subSections.push(
       this.fb.group({
-        secCode: ['', Validators.pattern(/^(?=.*[^A-Za-z0-9]).+$/)],
+        secCode: [''],
         secName: ['', Validators.required],
         status: [true],
         record_type: ['create']
@@ -248,7 +265,7 @@ export class EditDepartmentsComponent implements OnInit {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData: boolean = false;
+
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -256,7 +273,6 @@ export class EditDepartmentsComponent implements OnInit {
 
 
   getAllGoals(pageNumber: number = 1, searchTerm: string = ''): void {
-    this.loadData = true;
 
     const goalType = this.deptStep1.get('department_type')?.value;
 
@@ -276,13 +292,15 @@ export class EditDepartmentsComponent implements OnInit {
           selected: this.addedGoal.some(a => a.id === goal.id)
         }));
 
-        this.loadData = false;
       },
       error: (err) => {
         console.error("Error loading goals:", err.error?.details || err.message);
-        this.loadData = false;
+
       }
     });
+  }
+  onDepartmentTypeChange(): void {
+    this.addedGoal = [];
   }
 
   //checkboxes 
@@ -299,13 +317,13 @@ export class EditDepartmentsComponent implements OnInit {
   }
 
   toggleGoal(goal: any) {
-    // goal.selected = !goal.selected;
     if (!goal.selected) {
       this.selectAllOverlay = false;
-    } else if (this.Goals.length && this.Goals.every(goal => goal.selected)) {
+    } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
       this.selectAllOverlay = true;
     }
   }
+
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;

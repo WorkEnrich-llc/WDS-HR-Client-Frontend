@@ -167,6 +167,7 @@ export class EditFullTimeComponent implements OnInit {
 
   // steps navigation
   currentStep = 1;
+  isLoading: boolean = false;
 
   goNext() {
     this.currentStep++;
@@ -280,7 +281,7 @@ export class EditFullTimeComponent implements OnInit {
     // Send data to API
     this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
       next: (response) => {
-       this.toasterMessageService.showSuccess('Full-time attendance rules updated successfully!');
+        this.toasterMessageService.showSuccess('Full-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);
       },
       error: (error) => {
@@ -288,5 +289,8 @@ export class EditFullTimeComponent implements OnInit {
       }
     });
   }
+
+
+
 
 }

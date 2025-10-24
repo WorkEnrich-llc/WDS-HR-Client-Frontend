@@ -1,0 +1,73 @@
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Employees', link: '/employees' },
+    { label: sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee' }
+  ]" [title]="sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee'"
+  [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
+  [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
+
+
+  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()"
+    [disabled]="sharedService.employeeForm.invalid || sharedService.isLoading()">
+    @if (sharedService.isLoading()) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    @if (!sharedService.isLoading()) {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
+    }
+    <span>{{ sharedService.isEditMode() ? 'Save changes' : 'Create Employee' }}</span>
+  </button>
+
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Changes</span>
+  </button>
+</app-page-header>
+<app-stepper-navigation></app-stepper-navigation>
+
+<form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
+  <app-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-main-information-step>
+  <app-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-job-details-step>
+
+  <app-attendance-details-step [hidden]="sharedService.currentStep() !== 3"></app-attendance-details-step>
+  @if (!sharedService.isEditMode()) {
+  <app-contract-details-step [hidden]="sharedService.currentStep() !== 4"></app-contract-details-step>
+  <app-insurance-details-step [hidden]="sharedService.currentStep() !== 5"
+    (submitForm)="onSubmit()"></app-insurance-details-step>
+  }@else{
+  <app-insurance-details-step [hidden]="sharedService.currentStep() !== 4"
+    (submitForm)="onSubmit()"></app-insurance-details-step>
+  }
+
+</form>
+
+@if (sharedService.isModalOpen()) {
+<app-popup (confirmAction)="confirmAction()" (cancelAction)="closeModal()">
+</app-popup>
+}
+
+@if (sharedService.isSuccessModalOpen()) {
+<app-popup (confirmAction)="viewEmployees()">
+</app-popup>
+}
+
+<app-popup [title]="!sharedService.isEditMode()?'Discard New Employee' : 'Discard Changes'"
+  [paragraph1]="!sharedService.isEditMode()?'Are you sure you want to discard creating the new employee?': 'Are you sure you want to discard changes?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+    Discard Changes
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Cancel
+  </button>
+</app-popup>

@@ -53,8 +53,6 @@ export class LeaveBalanceComponent {
             this.getAllLLeaveBalances(this.currentPage);
         });
 
-        this.getAllLLeaveBalances(this.currentPage);
-
         this.toasterSubscription = this.toasterMessageService.currentMessage$
             .pipe(filter(msg => !!msg && msg.trim() !== ''))
             .subscribe(msg => {

@@ -1,8 +1,11 @@
 export interface CreateEmployeeRequest {
   request_data: {
+    id?: number;
+
     main_information: {
       code?: string;
-      name: string;
+      name_english?: string;
+      name_arabic?: string;
       gender: number; // 1 - Male, 2 - Female
       mobile: {
         country_id: number;
@@ -14,18 +17,19 @@ export interface CreateEmployeeRequest {
       address: string;
     };
     job_details: {
-      years_of_experience?: number;
-      branch_id: number;
-      department_id: number;
-      section_id?: number;
-      job_title_id: number;
-      work_schedule_id: number;
+      years_of_experience?: number | null;
+      branch_id?: number | null;
+      department_id?: number | null;
+      section_id?: number | null;
+      management_level?: number | null;
+      job_title_id?: number | null;
+      work_schedule_id?: number | null;
       activate_attendance_rules?: boolean;
     };
-    contract_details: {
+    contract_details?: {
       start_contract: string;
       contract_type: number; // 1 With End Date, 2 Without End Date
-      contract_end_date?: string;
+      contract_end_date?: string | null;
       employment_type: number; // 1 Full Time, 2 Part Time, 3 Per Hour
       work_mode: number; // 1 On Site, 2 Remote, 3 Hybrid
       days_on_site?: number | null;
@@ -47,8 +51,10 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
+  code: string;
   contact_info: {
     name: string;
+    name_arabic: string;
     mobile: {
       country: {
         id: number;
@@ -70,6 +76,7 @@ export interface Employee {
     };
   };
   job_info: {
+    years_of_experience: number;
     branch: {
       id: number;
       name: string;
@@ -88,18 +95,21 @@ export interface Employee {
       salary_ranges?: {
         per_hour: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
         };
         full_time: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
         };
         part_time: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
@@ -124,8 +134,13 @@ export interface Employee {
       id: number;
       name: string;
     };
+    management_level: {
+      id: number;
+      name: string;
+    }
     days_on_site: number;
     salary: number;
+    notice_period: number;
     insurance_salary?: number;
     gross_insurance?: number;
   };

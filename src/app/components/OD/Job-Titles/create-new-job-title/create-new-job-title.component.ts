@@ -1,15 +1,16 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
-import { TableComponent } from '../../../shared/table/table.component';
-import { PopupComponent } from '../../../shared/popup/popup.component';
-import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { Component } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { debounceTime, Subject } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { debounceTime, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
+import { TableComponent } from '../../../shared/table/table.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -44,13 +45,14 @@ export class CreateNewJobTitleComponent {
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
+  loadData: boolean = false; // used for table skeleton/loading state
   departments: any[] = [];
   sections: any[] = [];
   filterForm!: FormGroup;
   private searchSubject = new Subject<string>();
 
   constructor(private toasterMessageService: ToasterMessageService, private fb: FormBuilder, private toastr: ToastrService,
-    private _DepartmentsService: DepartmentsService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router) {
+    private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router) {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
@@ -59,7 +61,19 @@ export class CreateNewJobTitleComponent {
 
   }
 
+  jobTitleSub: any;
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
     this.getAllDepartment(this.currentPage);
     this.jobStep4 = new FormGroup({
       jobDescription: new FormControl('', [Validators.required, Validators.minLength(10)]),
@@ -67,17 +81,20 @@ export class CreateNewJobTitleComponent {
 
     });
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
+      this.ManageCurrentPage = 1; // Reset to page 1 when searching
+      this.getAllJobTitles(1, value);
     });
   }
+
   jobStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    jobName: new FormControl('', [Validators.required]),
+    code: new FormControl('', Validators.maxLength(26)),
+    jobName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
     section: new FormControl({ value: '', disabled: true }),
   });
+
   toggleDepartment(enable: boolean) {
     this.isDepartmentSelected = enable;
     const control = this.jobStep1.get('department');
@@ -96,30 +113,31 @@ export class CreateNewJobTitleComponent {
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
-    // Reset validation and disable jobLevel, department, section
+    departmentControl?.reset('');
+    sectionControl?.reset('');
+
+    this.sections = [];
+
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
 
-    // Disable department and section by default
     departmentControl?.disable();
     sectionControl?.disable();
 
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    // Always show Job Level field
     this.showJobLevel = true;
     jobLevelControl?.enable();
     jobLevelControl?.setValidators([Validators.required]);
 
     if (level === '3') {
-      // Enable department only
       departmentControl?.enable();
       departmentControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
     } else if (level === '4' || level === '5') {
-      // Enable both
+
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
@@ -128,7 +146,6 @@ export class CreateNewJobTitleComponent {
       this.isSectionSelected = true;
     }
 
-    // Update validity for all affected controls
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
@@ -141,55 +158,67 @@ export class CreateNewJobTitleComponent {
   totalItems: number = 0;
   itemsPerPage: number = 10000;
 
-  getAllDepartment(
-    pageNumber: number,
-    searchTerm: string = '',
-    filters?: {
-      status?: string;
-      updated_from?: string;
-      updated_to?: string;
-      created_from?: string;
-      created_to?: string;
+getAllDepartment(
+  pageNumber: number,
+  searchTerm: string = '',
+  filters?: {
+    status?: string;
+    updated_from?: string;
+    updated_to?: string;
+    created_from?: string;
+    created_to?: string;
+  }
+) {
+  this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+    search: searchTerm || undefined,
+    ...filters
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+
+      const activeDepartments = response.data.list_items.filter(
+        (item: any) => item.is_active === true
+      );
+
+      this.departments = activeDepartments.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+      }));
+
+      this.sortDirection = 'desc';
+      this.currentSortColumn = 'id';
+      this.sortBy();
+    },
+    error: (err) => {
+      console.log(err.error?.details);
     }
-  ) {
-    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
-      search: searchTerm || undefined,
-      ...filters
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-        }));
-        this.sortDirection = 'desc';
-        this.currentSortColumn = 'id';
-        this.sortBy();
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+  });
+}
+
+getsections(deptid: number) {
+  this._DepartmentsService.showDepartment(deptid).subscribe({
+    next: (response) => {
+      const rawSections = response.data.object_info.sections;
+
+      const activeSections = rawSections.filter(
+        (section: any) => section.is_active === true
+      );
+
+      this.sections = activeSections.map((section: any) => ({
+        id: section.id,
+        name: section.name
+      }));
+
+      // console.log(activeSections);
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
 
 
-  getsections(deptid: number) {
-    this._DepartmentsService.showDepartment(deptid).subscribe({
-      next: (response) => {
-        const rawSections = response.data.object_info.sections;
-        this.sections = rawSections.map((section: any) => ({
-          id: section.id,
-          name: section.name
-        }));
-        // console.log(this.sections);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
   ManageCurrentPage: number = 1;
   ManagetotalPages: number = 0;
   ManageTotalItems: number = 0;
@@ -200,14 +229,15 @@ export class CreateNewJobTitleComponent {
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
-
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
+    this.loadData = true;
     this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
       management_level: managementLevel,
       search: this.searchTerm,
       request_in: 'create'
     }).subscribe({
       next: (response) => {
+        this.loadData = false;
         this.ManageCurrentPage = Number(response.data.page);
         this.ManageTotalItems = response.data.total_items;
         this.ManagetotalPages = response.data.total_pages;
@@ -223,6 +253,7 @@ export class CreateNewJobTitleComponent {
         this.sortBy();
       },
       error: (err) => {
+        this.loadData = false;
         console.error(err.error?.details);
       }
     });
@@ -231,9 +262,25 @@ export class CreateNewJobTitleComponent {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
   }
+
+  onPageChange(page: number) {
+    this.ManageCurrentPage = page;
+    this.getAllJobTitles(page, this.searchTerm);
+  }
+
+onItemsPerPageChange(newItemsPerPage: number): void {
+  this.manageItemsPerPage = newItemsPerPage;
+  this.ManageCurrentPage = 1;
+  this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+}
+
+
+
   nextGetJobs(): void {
     this.goNext();
-    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+    this.ManageCurrentPage = 1; // Reset to page 1 when entering step 3
+    this.searchTerm = ''; // Clear search term
+    this.getAllJobTitles(1, '');
   }
   // step 2 salary ranges
   jobStep2: FormGroup = new FormGroup({
@@ -243,14 +290,14 @@ export class CreateNewJobTitleComponent {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
     hourly_restrict: new FormControl(false),

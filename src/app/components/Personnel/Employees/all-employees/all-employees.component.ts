@@ -3,17 +3,18 @@ import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
@@ -21,6 +22,8 @@ import { Employee } from '../../../../core/interfaces/employee';
 export class AllEmployeesComponent implements OnInit, OnDestroy {
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
@@ -30,13 +33,14 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   employees: Employee[] = [];
   filteredEmployees: any[] = []; // For display purposes with transformed data
-    loadData:boolean =true;
+  loadData: boolean = true;
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+  private activeFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
   loading: boolean = true;
@@ -44,7 +48,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
+      this.currentPage = pageFromUrl;
       this.loadEmployees();
     });
 
@@ -56,15 +61,44 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       this.currentPage = 1;
       this.loadEmployees();
     });
+
+    this.filterForm = this.fb.group({
+      created_from: [''],
+      status: [''],
+    });
   }
+
+  // loadEmployees(currentPage: number): void {
+  //   this.loading = true;
+  //   this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
+  //     .subscribe({
+  //       next: (response) => {
+  //         this.employees = response.data.list_items;
+  //         this.totalItems = response.data.total_items;
+  //         this.transformEmployeesForDisplay();
+  //         this.loading = false;
+  //         this.loadData = false;
+  //         // console.log('Employees loaded:', response);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error loading employees:', error);
+  //         this.loading = false;
+  //         this.loadData = false;
+  //         this.toastr.error('Failed to load employees', 'Error');
+  //       }
+  //     });
+  // }
 
   loadEmployees(): void {
     this.loading = true;
-    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm)
+    this.loadData = true;
+
+    // Pass all state properties to the service method
+    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters)
       .subscribe({
         next: (response) => {
           this.employees = response.data.list_items;
@@ -72,7 +106,6 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.transformEmployeesForDisplay();
           this.loading = false;
           this.loadData = false;
-          // console.log('Employees loaded:', response);
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -83,11 +116,27 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       });
   }
 
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
+      this.activeFilters = {
+        status: rawFilters.status === 'all' ? null : rawFilters.status,
+        created_from: rawFilters.created_from || null
+      };
+      this.currentPage = 1;
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    }
+  }
+
+
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
     this.filteredEmployees = this.employees.map(employee => ({
       id: employee.id,
+      code: employee.code,
       name: employee.contact_info.name,
+      name_arabic: employee.contact_info.name_arabic,
       employeeStatus: employee.employee_status,
       accountStatus: this.getAccountStatus(employee.employee_active),
       jobTitle: employee.job_info.job_title.name,
@@ -144,10 +193,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     });
   }
 
-  resetFilterForm(): void {
-    this.filterBox.closeOverlay();
-    this.loadEmployees();
-  }
+  // resetFilterForm(): void {
+  //   this.filterBox.closeOverlay();
+  //   this.loadEmployees(this.currentPage);
+  // }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -159,9 +208,19 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.loadEmployees();
   }
 
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.loadEmployees(this.currentPage);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadEmployees();
+    this.paginationState.setPage('employees/all-employees', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
 
   ngOnDestroy(): void {
@@ -169,4 +228,28 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       this.toasterSubscription.unsubscribe();
     }
   }
+
+  navigateToEdit(employeeId: number): void {
+    this.paginationState.setPage('employees/all-employees', this.currentPage);
+    this.router.navigate(['/employees/edit-employee', employeeId]);
+  }
+
+
+
+  navigateToView(employee: any): void {
+    if (employee.employeeStatus === 'New Joiner') {
+      this.router.navigate(['/employees/view-newjoiner', employee.id]);
+    } else {
+      this.router.navigate(['/employees/view-employee', employee.id]);
+    }
+  }
+
+  resetFilterForm(): void {
+    this.filterForm.reset();
+    this.activeFilters = {};
+    this.currentPage = 1;
+    this.loadEmployees();
+    this.filterBox.closeOverlay();
+  }
+
 }

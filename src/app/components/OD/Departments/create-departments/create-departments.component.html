@@ -4,8 +4,9 @@
     { label: 'Departments', link: '/departments' },
     { label: 'Create New Department' }
   ]" title="Create New Department" [create]="todayFormatted">
-  <button class="btn btn-lg btn-success w-auto" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
-    (click)="createDept()">
+  @if(departmentsSub?.create){
+  <button class="btn btn-lg btn-success w-auto"
+    [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || addedGoal.length === 0" (click)="createDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
@@ -19,6 +20,8 @@
     }
     <span>Create Department</span>
   </button>
+  }
+
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -144,6 +147,11 @@
           <input formControlName="code" type="text" id="deptCode" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
+        @if (deptStep1.get('code')?.touched && deptStep1.get('code')?.errors?.['maxlength']) {
+        <p class="error-msg">
+          Department Code max lengh 26.
+        </p>
+        }
       </div>
       <div class="input">
         <label for="deptName">Department Name <span>*</span></label>
@@ -154,6 +162,11 @@
         @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['required']) {
         <p class="error-msg">
           Department Name is required.
+        </p>
+        }
+        @if (deptStep1.get('name')?.touched && deptStep1.get('name')?.errors?.['maxlength']) {
+        <p class="error-msg">
+          Department Name max lengh 80.
         </p>
         }
       </div>
@@ -255,9 +268,9 @@
                   </div>
                   <div class="w-20 d-flex flex-column align-items-start">
                     <input type="text" class="form-control table-input" placeholder="Code" formControlName="secCode" />
-                    @if (section.get('secCode')?.hasError('pattern')) {
+                    @if (section.get('secCode')?.hasError('maxlength')) {
                     <p class="error-msg">
-                      Must contain at least 1 special character
+                      Max lengh 26
                     </p>
                     }
                   </div>
@@ -267,6 +280,11 @@
                     @if (section.get('secName')?.invalid && section.get('secName')?.touched) {
                     <p class="error-msg">
                       Section name is required
+                    </p>
+                    }
+                    @if (section.get('secName')?.hasError('secName')) {
+                    <p class="error-msg">
+                      Max lengh 80
                     </p>
                     }
                   </div>
@@ -293,7 +311,7 @@
                       </a>
                     </div>
                   </div>
-                  <div class="w-5 d-flex align-items-center">
+                  <div class="w-5 d-flex align-items-center justify-content-end">
                     @if (i >= 1) {
                     <button type="button" class="remove-btn" (click)="removeSection(i)" data-bs-toggle="tooltip"
                       data-bs-placement="top" title="Remove">
@@ -335,15 +353,22 @@
 
                       <input type="text" class="form-control table-input" placeholder="Sub Code"
                         formControlName="secCode" />
-                       @if (sub.get('secCode')?.hasError('pattern') && sub.get('secCode')?.touched) {
-    <p class="error-msg">Must contain at least 1 special character</p>
-  }
+                      @if (sub.get('secCode')?.hasError('maxlength')) {
+                      <p class="error-msg">
+                        Max lengh 26
+                      </p>
+                      }
                     </div>
                     <div class="w-45 d-flex flex-column align-items-start">
                       <input type="text" class="form-control table-input" placeholder="Sub Section Name"
                         formControlName="secName" />
                       @if (sub.get('secName')?.invalid && sub.get('secName')?.touched) {
                       <p class="error-msg">Subsection name is required</p>
+                      }
+                      @if (sub.get('secName')?.hasError('secName')) {
+                      <p class="error-msg">
+                        Max lengh 80
+                      </p>
                       }
                     </div>
                     <div class="w-15 d-flex align-items-center">
@@ -359,7 +384,7 @@
                         </a>
                       </div>
                     </div>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-end">
                       <button type="button" class="remove-btn" (click)="removeSubSection(i, j)" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Remove">
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
@@ -525,8 +550,9 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid"
-        (click)="createDept()">
+      @if(departmentsSub?.create){
+      <button class="btn btn-lg w-auto btn-success"
+        [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || addedGoal.length === 0" (click)="createDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -540,6 +566,8 @@
         }
         <span>Create Department</span>
       </button>
+      }
+
     </div>
   </div>
 </div>

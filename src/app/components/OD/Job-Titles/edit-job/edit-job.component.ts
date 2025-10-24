@@ -10,6 +10,8 @@ import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, Subject } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -35,7 +37,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-edit-job',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent],
   providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
@@ -64,14 +66,29 @@ export class EditJobComponent {
     private _JobsService: JobsService,
     private datePipe: DatePipe,
     private router: Router,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private subService: SubscriptionService
+  ) {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
 
   }
 
+
+  jobTitleSub: any;
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
     this.jobId = this.route.snapshot.paramMap.get('id');
     if (this.jobId) {
       this.getJobTitle(Number(this.jobId));
@@ -95,8 +112,8 @@ export class EditJobComponent {
   }
 
   jobStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    jobName: new FormControl('', [Validators.required]),
+    code: new FormControl('', Validators.maxLength(26)),
+    jobName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     managementLevel: new FormControl('', [Validators.required]),
     jobLevel: new FormControl('', [Validators.required]),
     department: new FormControl({ value: '', disabled: true }),
@@ -110,7 +127,9 @@ export class EditJobComponent {
     enable ? control?.enable() : control?.disable();
   }
 
+  loadData: boolean = false;
   getJobTitle(jobId: number) {
+    this.loadData = true;
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
@@ -181,9 +200,11 @@ export class EditJobComponent {
         };
         this.sortDirection = 'desc';
         this.sortBy();
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
@@ -262,30 +283,31 @@ export class EditJobComponent {
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
-    // Reset validation and disable jobLevel, department, section
+    departmentControl?.reset('');
+    sectionControl?.reset('');
+
+    this.sections = [];
+
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
 
-    // Disable department and section by default
     departmentControl?.disable();
     sectionControl?.disable();
 
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    // Always show Job Level field
     this.showJobLevel = true;
     jobLevelControl?.enable();
     jobLevelControl?.setValidators([Validators.required]);
 
     if (level === '3') {
-      // Enable department only
       departmentControl?.enable();
       departmentControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
     } else if (level === '4' || level === '5') {
-      // Enable both
+
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
@@ -294,11 +316,11 @@ export class EditJobComponent {
       this.isSectionSelected = true;
     }
 
-    // Update validity for all affected controls
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
   }
+
 
 
 
@@ -325,11 +347,16 @@ export class EditJobComponent {
       next: (response) => {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
-        // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
+
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        this.departments = activeDepartments.map((item: any) => ({
           id: item.id,
           name: item.name,
         }));
+
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -345,17 +372,24 @@ export class EditJobComponent {
     this._DepartmentsService.showDepartment(deptid).subscribe({
       next: (response) => {
         const rawSections = response.data.object_info.sections;
-        this.sections = rawSections.map((section: any) => ({
+
+        const activeSections = rawSections.filter(
+          (section: any) => section.is_active === true
+        );
+
+        this.sections = activeSections.map((section: any) => ({
           id: section.id,
           name: section.name
         }));
-        // console.log(this.sections);
+
+        // console.log(activeSections);
       },
       error: (err) => {
         console.log(err.error?.details);
       }
     });
   }
+
   ManageCurrentPage: number = 1;
   ManagetotalPages: number = 0;
   ManageTotalItems: number = 0;
@@ -407,6 +441,17 @@ export class EditJobComponent {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
   }
+  onPageChange(newPage: number): void {
+    this.ManageCurrentPage = newPage;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
+
+  onItemsPerPageChange(newItemsPerPage: number): void {
+    this.manageItemsPerPage = newItemsPerPage;
+    this.ManageCurrentPage = 1;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
+
   nextGetJobs(): void {
     this.goNext();
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
@@ -419,14 +464,14 @@ export class EditJobComponent {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
     partTime_status: new FormControl(true, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
     hourly_status: new FormControl(true, [Validators.required]),
     hourly_restrict: new FormControl(false),
@@ -499,27 +544,30 @@ export class EditJobComponent {
   }
 
   toggleAssignStatus(selectedJob: any) {
-    const currentAssigned = this.jobTitles.find(job => job.assigned);
+    this.jobTitles.forEach(job => {
+      job.assigned = false;
+      job.assigns = [];
+    });
 
-    if (!selectedJob.assigned) {
-      this.jobTitles.forEach(job => {
-        job.assigned = false;
-        job.assigns = [];
-      });
+    selectedJob.assigned = true;
+    selectedJob.assigns = [selectedJob];
 
-      selectedJob.assigned = true;
-      selectedJob.assigns = [selectedJob];
-
-      this.previousAssignedId = currentAssigned ? currentAssigned.id : null;
-
-      this.removedManagerId = this.previousAssignedId;
-      this.removedManager = currentAssigned ? { ...currentAssigned } : null;
-
-      this.newManagerSelected = true;
-      this.managerRemoved = true;
-    }
+    this.removedManagerId = null;
+    this.removedManager = null;
+    this.newManagerSelected = true;
+    this.managerRemoved = false;
 
     this.checkForChanges();
+  }
+  get currentManager() {
+    if (this.newManagerSelected) {
+      return this.jobTitles.find(j => j.assigned);
+    } else if (this.removedManagerId !== null) {
+      return this.removedManager;
+    } else if (this.jobTitleData?.assigns?.length > 0) {
+      return this.jobTitleData.assigns[0];
+    }
+    return null;
   }
 
 

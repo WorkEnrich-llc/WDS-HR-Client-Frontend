@@ -1,0 +1,161 @@
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Contract Details</h2>
+    <div formGroupName="contract_details" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <input class="form-check-input m-0" type="checkbox" id="includeProbation" formControlName="include_probation" />
+        <label class="form-check-label m-0" for="includeProbation">Include Probation Period</label>
+      </div>
+      <div class="input">
+        <label for="start_contract">Contract Start Date <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+
+            <input type="date" id="start_contract" formControlName="start_contract"
+              class="form-control custom-date-input" [min]="currentDate" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <g fill="none" stroke-width="1.5">
+                <path stroke-linecap="round"
+                  d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                <circle cx="18" cy="18" r="3" />
+                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('start_contract', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('start_contract', sharedService.contractDetails)}}
+        </p>
+        }
+      </div>
+
+      <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+        <input class="form-check-input m-0" type="checkbox" id="withEnd" [checked]="sharedService.withEndDate"
+          (change)="sharedService.contractDetails.get('contract_type')?.setValue($any($event.target).checked ? 1 : 2)" />
+        <label class="form-check-label m-0" for="withEnd">
+          With end date
+        </label>
+      </div>
+
+      @if (sharedService.withEndDate) {
+      <div class="input">
+        <label for="contract_end_date">Contract End Date</label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="date" id="contract_end_date" formControlName="contract_end_date"
+              class="form-control custom-date-input" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <g fill="none" stroke-width="1.5">
+                <path stroke-linecap="round"
+                  d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                <circle cx="18" cy="18" r="3" />
+                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        @if (sharedService.isFieldInvalid('contract_end_date', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
+        </p>
+        }
+        @if (sharedService.contractDetails.errors?.['dateRange'] &&
+        (sharedService.contractDetails.get('contract_end_date')?.dirty ||
+        sharedService.contractDetails.get('contract_end_date')?.touched)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('contract_end_date', sharedService.contractDetails)}}
+        </p>
+        }
+      </div>
+      }
+
+      <div class="input">
+        <label for="notice_period">Notice Period (in Days)</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="notice_period" formControlName="notice_period" class="form-control custom-date-input"
+            placeholder="Enter number of days" min="0" />
+        </div>
+        @if (sharedService.isFieldInvalid('notice_period', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('notice_period', sharedService.contractDetails)}}
+        </p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="salary">Salary <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="salary" formControlName="salary" class="form-control custom-date-input"
+            placeholder="Enter the Employee Salary" [min]="sharedService.currentSalaryRange()?.minimum || 0"
+            [max]="sharedService.currentSalaryRange()?.maximum || 999999999" step="0.01" />
+        </div>
+        @if (sharedService.isFieldInvalid('salary', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('salary', sharedService.contractDetails)}}
+        </p>
+        }
+      </div>
+
+      <!-- <div class="input">
+        <label for="insurance_salary">Insurance Salary</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="insurance_salary" formControlName="insurance_salary"
+            class="form-control custom-date-input" placeholder="Enter the Insurance Salary" min="0" step="0.01" />
+        </div>
+        @if (sharedService.isFieldInvalid('insurance_salary', sharedService.contractDetails)) {
+        <p class="error-msg">
+          {{sharedService.getFieldError('insurance_salary', sharedService.contractDetails)}}
+        </p>
+        }
+      </div> -->
+
+      @if (sharedService.getSalaryRangeDisplay()) {
+      <div class="salary-info d-flex justify-content-between gap-3">
+        <div class="d-flex flex-column w-100">
+          <span>Min. Salary</span>
+          <h6>{{sharedService.getSalaryRangeDisplay()?.min}} {{sharedService.getSalaryRangeDisplay()?.currency}}</h6>
+        </div>
+        <div class="d-flex flex-column w-100">
+          <span>Max. Salary</span>
+          <h6>{{sharedService.getSalaryRangeDisplay()?.max}} {{sharedService.getSalaryRangeDisplay()?.currency}}</h6>
+        </div>
+      </div>
+      }
+
+      @if (!sharedService.getSalaryRangeDisplay() && sharedService.attendanceDetails.get('employment_type')?.value &&
+      sharedService.selectedJobTitle()) {
+      <div class="alert alert-info mb-0 mt-2">
+        <small>No salary range defined for this employment type and job title.</small>
+      </div>
+      }
+
+      <!-- @if (sharedService.errMsg()) {
+      <div class="alert alert-danger mb-0 mt-3" role="alert">
+        {{sharedService.errMsg()}}
+      </div>
+      } -->
+    </div>
+
+    <!-- prev and next buttons -->
+    <div class="btn-fixed d-flex align-items-stretch gap-2">
+      <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goPrev()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
+        </svg>
+      </button>
+      <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+        <span>
+          {{ sharedService.isEditMode() ? 'Next (3/4)' : 'Next (4/5)' }}
+          <!-- Next (4/5) -->
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

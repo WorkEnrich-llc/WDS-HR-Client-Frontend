@@ -1,8 +1,18 @@
 @media (min-width:991px) {
-    .width-fix{
+    .width-fix {
         width: 450px !important;
-    }    
-    .w-lg-50{
+    }
+
+    .w-lg-50 {
         width: 50% !important;
     }
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover {
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
 }
