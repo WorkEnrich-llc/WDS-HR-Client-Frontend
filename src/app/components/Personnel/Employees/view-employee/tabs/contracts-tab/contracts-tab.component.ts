@@ -294,11 +294,13 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   confirmCancel(): void {
     if (this.selectedContract) {
+      this.isLoading = true;
       // Call API to cancel contract
       this.employeeService.cancelEmployeeContract({
         contract_id: this.selectedContract.id,
       }).subscribe({
         next: (response) => {
+          this.isLoading = false;
           // Update local data with the response
           this.contractsData = this.mapApiContractsToUI(response.data.list_items);
           this.totalItems = this.contractsData.length;
@@ -359,17 +361,19 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.isAddModalOpen = false;
     this.isOpen = false;
     this.isEditMode = false;
+    // if (this.addForm) {
+    //   this.addForm.resetForm();
+    // }
     // this.editedContract = null;
 
   }
 
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
-    // if (this.isOpen) return;
-    // this.isOpen = true;
+    if (this.isLoading) return;
+    this.isLoading = true;
     if (this.isEditMode && contractData) {
       const contractId = contractData.contractId || this.editedContract?.id;
-      console.log('from save :', contractId)
       // Adjust existing contract via API
       const payload = {
         contract_id: contractId,
@@ -380,9 +384,13 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         notice_period: contractData.noticePeriod
       };
       this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
-        finalize(() => this.isOpen = false)
+        finalize(() => {
+          this.isLoading = false;
+          this.isOpen = false;
+        })
       ).subscribe({
         next: () => {
+          // this.isLoading = false;
           this.toasterService.showSuccess('Contract adjusted successfully');
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
@@ -390,7 +398,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
-          this.isOpen = false;
           // Show error message
         }
       });
@@ -416,6 +423,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         finalize(() => this.isLoading = false)
       ).subscribe({
         next: () => {
+          this.isLoading = false;
           // Reload contracts to get updated list
           this.toasterService.showSuccess('Contract created successfully');
           this.loadEmployeeContracts();

@@ -307,8 +307,8 @@
 </div>
 
 <!-- Cancel Confirmation Modal -->
-<app-contract-cancel-modal [isOpen]="isCancelModalOpen" [contract]="selectedContract" (onClose)="closeCancelModal()"
-  (onCancel)="onContractCancel($event)">
+<app-contract-cancel-modal [isOpen]="isCancelModalOpen" [isLoading]="isLoading" [contract]="selectedContract"
+  (onClose)="closeCancelModal()" (onCancel)="onContractCancel($event)">
 </app-contract-cancel-modal>
 
 <!-- Contract History Modal -->
@@ -338,5 +338,5 @@
 </app-contract-resigned-view-modal>
 
 <app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
-  [isEditMode]="isEditMode" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
+  [isEditMode]="isEditMode" [isLoading]="isLoading" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
 </app-contract-form-modal>

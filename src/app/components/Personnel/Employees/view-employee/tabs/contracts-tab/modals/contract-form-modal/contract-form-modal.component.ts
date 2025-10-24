@@ -17,6 +17,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
   @Input() isSaving = false;
+  @Input() isLoading = false;
   @Input() contract: Contract | null = null;
   @Input() employee: Employee | null = null;
   @Output() onClose = new EventEmitter<void>();
