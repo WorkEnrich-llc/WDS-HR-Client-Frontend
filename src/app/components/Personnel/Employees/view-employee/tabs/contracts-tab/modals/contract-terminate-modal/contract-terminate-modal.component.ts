@@ -38,7 +38,6 @@ export class ContractTerminateModalComponent {
     if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
       const today = new Date();
       const formattedDate = today.toISOString().split('T')[0];
-
       this.terminateForm.reset({
         lastDay: formattedDate,
         reason: ''

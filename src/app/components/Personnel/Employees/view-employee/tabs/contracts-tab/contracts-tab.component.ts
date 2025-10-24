@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
@@ -33,6 +33,7 @@ import { finalize } from 'rxjs';
 })
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
+  @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
   private toasterService = inject(ToasterMessageService);
   historyContract: Contract | null = null;
   editedContract: Contract | null = null;
@@ -293,11 +294,13 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   confirmCancel(): void {
     if (this.selectedContract) {
+      this.isLoading = true;
       // Call API to cancel contract
       this.employeeService.cancelEmployeeContract({
         contract_id: this.selectedContract.id,
       }).subscribe({
         next: (response) => {
+          this.isLoading = false;
           // Update local data with the response
           this.contractsData = this.mapApiContractsToUI(response.data.list_items);
           this.totalItems = this.contractsData.length;
@@ -342,8 +345,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Edit contract
   editContract(contract: Contract): void {
     this.editedContract = contract;
+    this.isOpen = true;
     this.isEditMode = true;
-    this.isAddModalOpen = true;
   }
 
   // Add new contract
@@ -356,17 +359,21 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Close add/edit contract overlay
   closeAddModal(): void {
     this.isAddModalOpen = false;
+    this.isOpen = false;
     this.isEditMode = false;
-    this.selectedContract = null;
+    // if (this.addForm) {
+    //   this.addForm.resetForm();
+    // }
+    // this.editedContract = null;
+
   }
 
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
-    if (this.isSaving) return;
-    this.isSaving = true;
+    if (this.isLoading) return;
+    this.isLoading = true;
     if (this.isEditMode && contractData) {
       const contractId = contractData.contractId || this.editedContract?.id;
-      console.log('from save :', contractId)
       // Adjust existing contract via API
       const payload = {
         contract_id: contractId,
@@ -377,9 +384,13 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         notice_period: contractData.noticePeriod
       };
       this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
-        finalize(() => this.isSaving = false)
+        finalize(() => {
+          this.isLoading = false;
+          this.isOpen = false;
+        })
       ).subscribe({
         next: () => {
+          // this.isLoading = false;
           this.toasterService.showSuccess('Contract adjusted successfully');
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
@@ -387,7 +398,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
-          this.isSaving = false;
           // Show error message
         }
       });
@@ -413,6 +423,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         finalize(() => this.isLoading = false)
       ).subscribe({
         next: () => {
+          this.isLoading = false;
           // Reload contracts to get updated list
           this.toasterService.showSuccess('Contract created successfully');
           this.loadEmployeeContracts();
@@ -544,7 +555,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       next: response => {
         const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
         if (contractIndex !== -1) {
-          this.contractsData[contractIndex].status = 'Terminated';
+          this.contractsData[contractIndex].status = 'Terminate';
           this.contractsData[contractIndex].terminationData = data.terminationData;
         }
 

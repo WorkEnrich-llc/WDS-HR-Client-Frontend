@@ -143,7 +143,7 @@ export class AttendanceLogComponent {
     });
 
 
-    this.departmentList$ = this.departmentService.getAllDepartments().pipe(
+    this.departmentList$ = this.departmentService.getAllDepartment(1, 100, { status: 'true' }).pipe(
       map((res: any) => res?.data?.list_items ?? [])
     );
     // this.departmentList$ = this.departmentService.getAllDepartments().pipe(
