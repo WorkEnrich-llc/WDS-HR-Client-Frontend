@@ -192,6 +192,20 @@ export class AttendanceLogComponent {
     });
   }
 
+  isInvalidTime(time: string | null | undefined): boolean {
+    return !time || time === '00:00';
+  }
+
+  formatTimeDisplay(time: string | null | undefined): string {
+    if (this.isInvalidTime(time)) {
+      return '--';
+    }
+
+    const dateObj = this.toTime(time!);
+    return this.datePipe.transform(dateObj, 'hh:mm a') || '--';
+  }
+
+
   toTime(timeString: string | null): Date | null {
     if (!timeString) return null;
     const [hours, minutes] = timeString.split(':').map(Number);
