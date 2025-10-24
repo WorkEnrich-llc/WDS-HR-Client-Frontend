@@ -79,6 +79,7 @@
                 <option value="permission">Permission</option>
                 <option value="overtime">Overtime</option>
                 <option value="leave">Leave</option>
+                <option value="mission">Mission</option>
               </select>
             </div>
           </div>
@@ -94,7 +95,6 @@
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
               <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select"
-                
                 [disabled]="workflow1.get('workflow_type')?.value !== 'leave'">
 
                 <option value="" disabled selected hidden>Select one Leave Type</option>

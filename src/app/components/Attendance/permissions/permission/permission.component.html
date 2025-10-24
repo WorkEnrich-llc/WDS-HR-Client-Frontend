@@ -30,8 +30,10 @@
     }
     <div class="info">
       <h6>Maximum requirements per month</h6>
-      <span>{{ (permissions?.late_arrive?.minutes / 60) | number:'2.0-0' }}:
-        {{ (permissions?.late_arrive?.minutes % 60) | number:'2.0-0' }} hr</span>
+      <span>
+        {{ getTime(permissions?.late_arrive?.minutes).hours }}:
+        {{ getTime(permissions?.late_arrive?.minutes).minutes | number:'2.0-0' }} hr
+      </span>
     </div>
     <div class="info">
       <h6>Notes</h6>
@@ -74,8 +76,8 @@
     <div class="info">
       <h6>Maximum requirements per month</h6>
       <span>
-        {{ (permissions?.early_leave?.minutes / 60) | number:'2.0-0' }}:
-        {{ (permissions?.early_leave?.minutes % 60) | number:'2.0-0' }} hr
+        {{ getTime(permissions?.early_leave?.minutes).hours }}:
+        {{ getTime(permissions?.early_leave?.minutes).minutes | number:'2.0-0' }} hr
 
       </span>
     </div>

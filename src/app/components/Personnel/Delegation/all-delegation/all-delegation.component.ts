@@ -4,16 +4,17 @@ import { PageHeaderComponent } from './../../../shared/page-header/page-header.c
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
-import { DelegationService, DelegationItem } from '../../../../core/services/personnel/delegation/delegation.service';
+import { DelegationService, DelegationItem, DelegationFilters } from '../../../../core/services/personnel/delegation/delegation.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-delegation',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-delegation.component.html',
   styleUrl: './all-delegation.component.css'
@@ -30,8 +31,12 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private fb = inject(FormBuilder);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   delegations: DelegationItem[] = [];
+  filters: DelegationFilters = {};
   filteredDelegations: any[] = []; // For display purposes with transformed data
   loadData: boolean = true;
   searchTerm: string = '';
@@ -45,13 +50,14 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   // delete confirmation popup state
   deleteOpen: boolean = false;
-  selectedDeleteId: number | null = null;
+  selectedCancelId: number | null = null;
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.loadDelegations();
-    });
+    this.initializeFilterForm();
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.loadDelegations();
+    // });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -61,15 +67,33 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
         // this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       this.currentPage = 1;
-      this.loadDelegations();
+      this.loadDelegations(this.currentPage);
+    });
+
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('delegation/all-delegation') || 1;
+      this.currentPage = pageFromUrl;
+      this.loadDelegations(pageFromUrl);
+    });
+
+  }
+
+  initializeFilterForm(): void {
+    this.filterForm = this.fb.group({
+      status: [''],
+      start_date: [''],
     });
   }
 
-  loadDelegations(): void {
+
+
+  loadDelegations(pageNumber: number): void {
     this.loading = true;
-    this.delegationService.getDelegations(this.currentPage, this.itemsPerPage, this.searchTerm)
+    this.currentPage = pageNumber;
+    this.loadData = true;
+    this.delegationService.getDelegations(pageNumber, this.itemsPerPage, this.searchTerm, this.filters)
       .subscribe({
         next: (response) => {
           this.delegations = response.data.list_items;
@@ -126,10 +150,6 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
     });
   }
 
-  resetFilterForm(): void {
-    this.filterBox.closeOverlay();
-    this.loadDelegations();
-  }
 
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
@@ -138,49 +158,60 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadDelegations();
+    this.loadDelegations(this.currentPage);
   }
+
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.loadDelegations(this.currentPage);
+  // }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadDelegations();
+    this.paginationState.setPage('delegation/all-delegation', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
 
   // Confirm and delete a delegation by id
-  confirmAndDelete(id: number): void {
-    // Open project-styled confirmation popup instead of native confirm()
-    this.selectedDeleteId = id;
+  confirmAndCancel(id: number): void {
+    this.loading = true;
+    this.selectedCancelId = id;
     this.deleteOpen = true;
   }
 
   // Popup handlers
   openDeleteConfirm(id: number): void {
-    this.selectedDeleteId = id;
+    this.selectedCancelId = id;
     this.deleteOpen = true;
   }
 
   closeDeleteConfirm(): void {
-    this.selectedDeleteId = null;
+    this.selectedCancelId = null;
     this.deleteOpen = false;
   }
 
-  confirmDelete(): void {
-    if (this.selectedDeleteId == null) return;
-    const id = this.selectedDeleteId;
+  confirmCancel(): void {
+    this.loading = true;
+    if (this.selectedCancelId == null) return;
+    const id = this.selectedCancelId;
     this.closeDeleteConfirm();
-    this.deleteDelegation(id);
+    this.cancelDelegation(id);
   }
 
+
   // Call service to delete and refresh list
-  deleteDelegation(id: number): void {
-    this.loading = true;
-    this.delegationService.deleteDelegation(id).subscribe({
+  cancelDelegation(id: number): void {
+    // this.loading = true;
+    this.delegationService.updateDelegationStatus(id, false).subscribe({
       next: () => {
-        this.toasterMessageService.showSuccess('Delegation deleted successfully');
-        // reload list - ensure we stay on the current page if possible
-        this.loadDelegations();
+        this.toasterMessageService.showSuccess('Delegation cancelled successfully');
+        this.loadDelegations(this.currentPage);
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -189,4 +220,36 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
       this.toasterSubscription.unsubscribe();
     }
   }
+
+  applyFilters(): void {
+    this.loading = true;
+    this.filters = { ...this.filterForm.value };
+    Object.keys(this.filters).forEach(key => {
+      if (!this.filters[key as keyof DelegationFilters]) {
+        delete this.filters[key as keyof DelegationFilters];
+      }
+    });
+
+    this.currentPage = 1;
+    this.loadDelegations(this.currentPage);
+    this.filterBox.closeOverlay();
+  }
+
+
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      status: '',
+      start_date: '',
+    });
+    this.filters = {};
+    this.currentPage = 1;
+    this.loadDelegations(this.currentPage);
+    this.filterBox.closeOverlay();
+  }
+
+  navigateToEdit(delegationId: number): void {
+    this.paginationState.setPage('delegation/all-delegation', this.currentPage);
+    this.router.navigate(['/delegation/edit', delegationId]);
+  }
+
 }

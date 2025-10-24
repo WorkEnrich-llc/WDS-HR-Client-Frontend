@@ -8,7 +8,7 @@
     @if(!loadData){
     @if(branchSub?.update){
     <button class="btn btn-lg btn-success"
-        [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || (currentStep===3 && !locationConfirmed)"
+        [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || (currentStep===3 && !locationConfirmed) || !isLocationReady"
         (click)="updateBranch()">
         <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -133,10 +133,10 @@
 
         <form [formGroup]="branchStep1" class="w-lg-50 d-flex flex-column gap-2">
             @if(loadData) {
-      <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="20" [valueHeight]="40">
-      </app-skelaton-loading>
+            <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="20" [valueHeight]="40">
+            </app-skelaton-loading>
 
-      }@else {
+            }@else {
             <div class="input">
                 <label for="branchCode">Branch Code (Optional)</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -170,11 +170,15 @@
             </div>
 
             <div class="input">
-                <label for="branchLocation">Branch Location (Optional)</label>
+                <label for="branchLocation">Branch Location <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="text" formControlName="location" id="branchLocation"
                         class="form-control custom-date-input" />
                 </div>
+                <p class="error-msg"
+                    *ngIf="branchStep1.get('location')?.touched && branchStep1.get('location')?.errors?.['required']">
+                    Branch location is required.
+                </p>
             </div>
 
             <div class="input">
@@ -192,8 +196,8 @@
                     Max No. Employees must be numbers only.
                 </p>
             </div>
-      }
-            
+            }
+
 
         </form>
         <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
@@ -330,27 +334,32 @@
                 </tr>
             </ng-template>
         </div>
-        <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
-            {{errMsg}}
-        </div>
-        <!-- prev and confirm buttons -->
-        <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                (click)="goPrev()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
-                </svg>
-            </button>
-            <button class="btn btn-lg btn-primary" [disabled]=" !branchStep1.valid || addeddepartments.length<1"
-                (click)="goNext()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                </svg>
-                <span>Next (2/3)</span>
-            </button>
-        </div>
+        @if (removedOnce && addeddepartments.length < 1) { <p class="error-msg">
+            You must add at least one department.
+            </p>
+            }
+
+            <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+                {{errMsg}}
+            </div>
+            <!-- prev and confirm buttons -->
+            <div class="btn-fixed d-flex align-items-stretch gap-2">
+                <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                    (click)="goPrev()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                    </svg>
+                </button>
+                <button class="btn btn-lg btn-primary" [disabled]=" !branchStep1.valid || addeddepartments.length<1"
+                    (click)="goNext()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                    </svg>
+                    <span>Next (2/3)</span>
+                </button>
+            </div>
 
 
     </div>
@@ -542,7 +551,7 @@
         </button>
         @if(branchSub?.update){
         <button class="btn btn-lg btn-success"
-            [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || !locationConfirmed"
+            [disabled]="isLoading || !branchStep1.valid || addeddepartments.length < 1 || !isFormChanged() || !locationConfirmed || !isLocationReady"
             (click)="updateBranch()">
             <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
             <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

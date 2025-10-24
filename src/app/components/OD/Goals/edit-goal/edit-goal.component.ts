@@ -4,12 +4,14 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-goal',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule,SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './edit-goal.component.html',
   styleUrl: './edit-goal.component.css'
@@ -30,6 +32,7 @@ export class EditGoalComponent {
     private route: ActivatedRoute,
     private goalsService: GoalsService,
     private toasterMessageService: ToasterMessageService,
+    private subService: SubscriptionService
   ) {
 
 
@@ -39,16 +42,26 @@ export class EditGoalComponent {
   }
 
 
-
+ GoalsSub: any;
   ngOnInit(): void {
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.GoalsSub = sub?.Goals;
+      // if (this.GoalsSub) {
+      //   console.log("info:", this.GoalsSub.info);
+      //   console.log("create:", this.GoalsSub.create);
+      //   console.log("update:", this.GoalsSub.update);
+      //   console.log("delete:", this.GoalsSub.delete);
+      // }
+    });
     this.goalId = this.route.snapshot.paramMap.get('id');
-    // this.getDepartment(Number(this.goalId));
+    // this.getGoal(Number(this.goalId));
     if (this.goalId) {
-      this.getDepartment(Number(this.goalId));
+      this.getGoal(Number(this.goalId));
     }
   }
 
-  getDepartment(goalId: number) {
+  getGoal(goalId: number) {
     this.loadData = true;
 
     this.goalsService.showGoal(goalId).subscribe({

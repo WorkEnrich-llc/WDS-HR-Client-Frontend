@@ -1,12 +1,17 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { filter } from 'rxjs/operators';
 
 interface SideNavToggle {
   screenWidth: number;
   collapsed: boolean;
+}
+
+interface RouteAccordionMapping {
+  [accordionId: string]: string[];
 }
 
 @Component({
@@ -17,6 +22,17 @@ interface SideNavToggle {
 })
 export class SidebarComponent implements OnInit {
   currentRoute: string = '';
+
+  // Map route patterns to accordion IDs
+  private routeAccordionMap: RouteAccordionMapping = {
+    'collapseOne': ['departments', 'branches', 'jobs', 'organizational-Chart', 'goals', 'dept-check'],
+    'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
+    'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
+    'collapseFour': ['calendar', 'job-openings', 'archived-openings'],
+    'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
+    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements']
+  };
+
   constructor(
     private router: Router,
     public subService: SubscriptionService
@@ -33,10 +49,10 @@ export class SidebarComponent implements OnInit {
   hasNewNotifications = true;
 
   // get logo from local storage
- companyInfo = localStorage.getItem('company_info');
- parsedCompanyInfo = this.companyInfo ? JSON.parse(this.companyInfo) : null;
- logo = this.parsedCompanyInfo ? this.parsedCompanyInfo.logo : null;
- companyName = this.parsedCompanyInfo ? this.parsedCompanyInfo.name : null;
+  companyInfo = localStorage.getItem('company_info');
+  parsedCompanyInfo = this.companyInfo ? JSON.parse(this.companyInfo) : null;
+  logo = this.parsedCompanyInfo ? this.parsedCompanyInfo.logo : null;
+  companyName = this.parsedCompanyInfo ? this.parsedCompanyInfo.name : null;
 
 
   handleNotificationClick() {
@@ -50,11 +66,6 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  ngAfterViewInit() {
-    this.overlay.onClose.subscribe(() => {
-      this.isNotificationOpen = false;
-    });
-  }
   // end notification popup
 
 
@@ -97,7 +108,6 @@ export class SidebarComponent implements OnInit {
   }
   // screen responsive in start page
   ngOnInit(): void {
-    // console.log(this.logo);
     // supscription all feature supported 
     this.subService.allFeatures$.subscribe(features => {
       if (features && Object.keys(features).length > 0) {
@@ -106,11 +116,17 @@ export class SidebarComponent implements OnInit {
       }
     });
 
-    // route contain to active icon 
+    // Set initial route
     this.currentRoute = this.router.url;
-    this.router.events.subscribe(() => {
-      this.currentRoute = this.router.url;
+
+    // Listen to route changes using NavigationEnd event
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentRoute = event.urlAfterRedirects;
+      this.openActiveAccordion();
     });
+
     // open responsive
     this.screenWidth = window.innerWidth;
     if (this.screenWidth <= 768) {
@@ -118,6 +134,55 @@ export class SidebarComponent implements OnInit {
     } else if (this.screenWidth > 768) {
       this.collapsed = true;
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Open active accordion after view is initialized
+    this.openActiveAccordion();
+
+    // Setup notification overlay
+    this.overlay.onClose.subscribe(() => {
+      this.isNotificationOpen = false;
+    });
+  }
+
+  /**
+   * Open accordion that contains the active route
+   */
+  private openActiveAccordion(): void {
+    if (!this.accordionWrapper) {
+      return;
+    }
+
+    // Find which accordion should be open based on current route
+    const targetAccordionId = this.getAccordionIdForRoute(this.currentRoute);
+
+    if (targetAccordionId) {
+      // Close all accordions first
+      this.closeAllAccordions();
+
+      // Open the target accordion
+      const accordionElement = this.accordionWrapper.nativeElement.querySelector(`#${targetAccordionId}`);
+      const buttonElement = this.accordionWrapper.nativeElement.querySelector(`[data-bs-target="#${targetAccordionId}"]`);
+
+      if (accordionElement && buttonElement) {
+        accordionElement.classList.add('show');
+        buttonElement.classList.remove('collapsed');
+        buttonElement.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+
+  /**
+   * Get accordion ID based on current route
+   */
+  private getAccordionIdForRoute(route: string): string | null {
+    for (const [accordionId, routePatterns] of Object.entries(this.routeAccordionMap)) {
+      if (routePatterns.some(pattern => route.includes(pattern))) {
+        return accordionId;
+      }
+    }
+    return null;
   }
   // toggle sidenav, hidden texts in small side and small pages
   toggleCollapse(): void {

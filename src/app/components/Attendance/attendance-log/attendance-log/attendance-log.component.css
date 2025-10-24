@@ -32,14 +32,17 @@
   justify-content: center;
   color: var(--color-secondary-700);
 }
+
 .date-box .day-label {
   font-size: var(--font-size-b3);
   line-height: var(--line-height-xss);
 }
+
 .date-box .day-number {
   font-size: var(--font-size-b2);
   line-height: var(--line-height-xss);
 }
+
 .date-box.disabled {
   pointer-events: none;
   opacity: 0.5;
@@ -93,4 +96,8 @@
 
 .import-btn svg path {
   fill: currentColor;
+}
+
+.small-text-size {
+  font-size: 0.85em;
 }

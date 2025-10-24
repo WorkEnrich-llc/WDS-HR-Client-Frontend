@@ -9,17 +9,18 @@
 
     <tbody>
       @if (isLoading) {
-     @for (row of skeletonRows; track row.id) {
-  <tr>
-    <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
-  </tr>
-}
+      @for (row of skeletonRows; track row.id) {
+      <tr>
+        <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
+      </tr>
+      }
 
       }
       @else {
       @if (data && data.length > 0) {
       @for (row of data | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems };
-      track row) {
+      track trackByFn($index, row)) {
+
       <tr>
         <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row }"></ng-container>
       </tr>

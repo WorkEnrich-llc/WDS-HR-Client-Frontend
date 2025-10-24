@@ -1,4 +1,4 @@
-/* Component-specific styles for all-delegation component */
+
 .width-fix {
   min-width: 200px;
 }
@@ -21,11 +21,6 @@
   border: 1px solid #f5c6cb;
 }
 
-.no-data {
-  text-align: center;
-  font-style: italic;
-  color: #6c757d;
-}
 @media (min-width:991px) {
     .width-fix{
         width: 450px !important;

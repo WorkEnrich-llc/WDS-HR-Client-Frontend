@@ -185,7 +185,7 @@
           <input type="text" id="jobCode" formControlName="code" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
-         @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
+        @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
         <p class="error-msg">
           Job Title Code max lengh 26.
         </p>
@@ -274,6 +274,8 @@
             Department is required.
           </p>
           }
+
+
         </div>
         <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
           <label for="section">Assign Section</label>
@@ -287,11 +289,26 @@
               </select>
             </div>
           </div>
-          @if (jobStep1.get('section')?.touched && jobStep1.get('section')?.errors?.['required']) {
+          @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          !jobStep1.get('department')?.value
+          ) {
+          <p class="error-msg">
+            Department is required first.
+          </p>
+          }
+
+          @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          jobStep1.get('department')?.value
+          ) {
           <p class="error-msg">
             Section is required.
           </p>
           }
+
         </div>
       </div>
       @if (errMsg) {
@@ -540,7 +557,8 @@
       </div>
       @if (errMsg) {
       <div class="alert alert-danger mb-0 mt-3" role="alert">
-        {{errMsg}}
+        <!-- {{errMsg}} -->
+        {{'please fill empty fields or deactivate it'}}
       </div>
       }
     </form>
@@ -588,7 +606,7 @@
       <app-table [data]="jobTitles" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
         [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="manageItemsPerPage"
         [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)"
-        (itemsPerPageChange)="onItemsPerPageChange($event)" [isLoading]="loadData" [columnsCount]="3">
+        (itemsPerPageChange)="onItemsPerPageChange($event)" [isLoading]="loadData" [columnsCount]="2">
       </app-table>
       <ng-template #jobsTableHeader>
         <th (click)="sortBy()" style="cursor: pointer;">

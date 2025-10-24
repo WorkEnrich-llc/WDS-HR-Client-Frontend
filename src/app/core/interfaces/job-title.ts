@@ -17,18 +17,21 @@ export interface JobTitle {
   salary_ranges?: {
     per_hour?: {
       status: boolean;
+      restrict: boolean;
       maximum: string | number;
       minimum: string | number;
       currency: string;
     };
     full_time?: {
       status: boolean;
+      restrict: boolean;
       maximum: string | number;
       minimum: string | number;
       currency: string;
     };
     part_time?: {
       status: boolean;
+      restrict: boolean;
       maximum: string | number;
       minimum: string | number;
       currency: string;

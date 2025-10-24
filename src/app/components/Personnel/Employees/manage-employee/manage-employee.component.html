@@ -1,8 +1,8 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
-    { label: isEditMode ? 'Edit Employee ' : 'Create New Employee' }
-  ]" [title]="isEditMode ? 'Edit Employee ' : 'Create New Employee'"
+    { label: sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee' }
+  ]" [title]="sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee'"
   [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
   [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
 
@@ -20,7 +20,7 @@
       </g>
     </svg>
     }
-    <span>{{ isEditMode ? 'Save changes' : 'Create Employee' }}</span>
+    <span>{{ sharedService.isEditMode() ? 'Save changes' : 'Create Employee' }}</span>
   </button>
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
@@ -38,10 +38,17 @@
 <form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
   <app-main-information-step [hidden]="sharedService.currentStep() !== 1"></app-main-information-step>
   <app-job-details-step [hidden]="sharedService.currentStep() !== 2"></app-job-details-step>
+
   <app-attendance-details-step [hidden]="sharedService.currentStep() !== 3"></app-attendance-details-step>
+  @if (!sharedService.isEditMode()) {
   <app-contract-details-step [hidden]="sharedService.currentStep() !== 4"></app-contract-details-step>
   <app-insurance-details-step [hidden]="sharedService.currentStep() !== 5"
     (submitForm)="onSubmit()"></app-insurance-details-step>
+  }@else{
+  <app-insurance-details-step [hidden]="sharedService.currentStep() !== 4"
+    (submitForm)="onSubmit()"></app-insurance-details-step>
+  }
+
 </form>
 
 @if (sharedService.isModalOpen()) {
@@ -54,8 +61,8 @@
 </app-popup>
 }
 
-<app-popup [title]="!isEditMode?'Discard New Employee' : 'Discard Changes'"
-  [paragraph1]="!isEditMode?'Are you sure you want to discard creating the new employee?': 'Are you sure you want to discard changes?'"
+<app-popup [title]="!sharedService.isEditMode()?'Discard New Employee' : 'Discard Changes'"
+  [paragraph1]="!sharedService.isEditMode()?'Are you sure you want to discard creating the new employee?': 'Are you sure you want to discard changes?'"
   [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
   <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
     Discard Changes

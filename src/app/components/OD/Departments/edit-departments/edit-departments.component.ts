@@ -97,7 +97,7 @@ export class EditDepartmentsComponent implements OnInit {
     this._DepartmentsService.showDepartment(deptId).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-
+        // console.log(this.departmentData);
         this.deptStep1.patchValue({
           code: this.departmentData.code || '',
           name: this.departmentData.name || '',
@@ -318,9 +318,9 @@ export class EditDepartmentsComponent implements OnInit {
 
   toggleGoal(goal: any) {
     if (!goal.selected) {
-      this.selectAllAdded = false;
-    } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
-      this.selectAllAdded = true;
+      this.selectAllOverlay = false;
+    } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
+      this.selectAllOverlay = true;
     }
   }
 

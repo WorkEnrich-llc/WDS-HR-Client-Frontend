@@ -226,10 +226,10 @@ export class CreateDepartmentsComponent {
 
   //checkboxes 
   toggleSelectAll() {
-    this.Goals.forEach(goal => {
-      goal.selected = this.selectAllOverlay;
-    });
-  }
+  this.Goals.forEach(goal => {
+    goal.selected = this.selectAllOverlay;
+  });
+}
 
   toggleSelectAllSelected() {
     this.addedGoal.forEach(addedGoal => {
@@ -238,12 +238,12 @@ export class CreateDepartmentsComponent {
   }
 
   toggleGoal(goal: any) {
-    if (!goal.selected) {
-      this.selectAllAdded = false;
-    } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
-      this.selectAllAdded = true;
-    }
+  if (!goal.selected) {
+    this.selectAllOverlay = false;
+  } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
+    this.selectAllOverlay = true;
   }
+}
 
 
   onItemsPerPageChange(newItemsPerPage: number) {

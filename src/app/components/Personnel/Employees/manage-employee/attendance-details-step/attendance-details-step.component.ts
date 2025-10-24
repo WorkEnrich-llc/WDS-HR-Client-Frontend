@@ -15,27 +15,9 @@ export class AttendanceDetailsStepComponent implements OnInit {
   @Output() submitForm = new EventEmitter<void>();
 
   sharedService = inject(ManageEmployeeSharedService);
-  private workScheduleService = inject(WorkSchaualeService);
 
   ngOnInit(): void {
-    // load work schedules initially
-    this.workScheduleService.getAllWorkSchadule(1, 100).subscribe({
-      next: (res) => this.sharedService.workSchedules.set(res.data.list_items),
-      error: (err) => console.error('Error loading work schedules', err),
-    });
 
-    // react to department selection (if department controlled in shared service)
-    this.sharedService.jobDetails.get('department_id')?.valueChanges.subscribe(departmentId => {
-      if (departmentId) {
-        this.workScheduleService.getAllWorkSchadule(1, 100, { department: departmentId.toString() }).subscribe({
-          next: (res) => this.sharedService.workSchedules.set(res.data?.list_items || []),
-          error: (err) => {
-            console.error('Error loading work schedules for department', err);
-            this.sharedService.workSchedules.set([]);
-          }
-        });
-      }
-    });
   }
 
   goPrev() {

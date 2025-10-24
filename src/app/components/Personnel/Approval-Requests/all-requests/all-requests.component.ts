@@ -1,6 +1,6 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounceTime, filter, skip, Subject, Subscription } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -10,6 +10,7 @@ import { TableComponent } from '../../../shared/table/table.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ApprovalRequestsService } from '../service/approval-requests.service';
 import { ApprovalRequestItem, ApprovalRequestFilters } from '../../../../core/interfaces/approval-request';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-requests',
@@ -30,6 +31,8 @@ export class AllRequestsComponent {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   approvalRequests: ApprovalRequestItem[] = [];
   loading: boolean = false;
@@ -47,12 +50,19 @@ export class AllRequestsComponent {
 
   ngOnInit(): void {
     this.initializeFilterForm();
-    this.loadApprovalRequests();
+    this.loadApprovalRequests(this.currentPage);
 
-    this.route.queryParams.pipe(skip(1)).subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.loadApprovalRequests();
+    // this.route.queryParams.pipe(skip(1)).subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.loadApprovalRequests();
+    // });
+
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('requests/all-requests') || 1;
+      this.currentPage = pageFromUrl;
+      this.loadApprovalRequests(pageFromUrl);
     });
+
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -65,7 +75,7 @@ export class AllRequestsComponent {
     this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       this.filters.search = value;
       this.currentPage = 1;
-      this.loadApprovalRequests();
+      this.loadApprovalRequests(this.currentPage);
     });
   }
 
@@ -87,11 +97,12 @@ export class AllRequestsComponent {
     });
   }
 
-  loadApprovalRequests(): void {
+  loadApprovalRequests(pageNumber: number): void {
     this.loading = true;
-
+    this.currentPage = pageNumber;
     this.approvalRequestsService.getAllApprovalRequests(
-      this.currentPage,
+      // this.currentPage,
+      pageNumber,
       this.itemsPerPage,
       this.filters
     ).subscribe({
@@ -118,7 +129,7 @@ export class AllRequestsComponent {
     });
 
     this.currentPage = 1;
-    this.loadApprovalRequests();
+    this.loadApprovalRequests(this.currentPage);
     this.filterBox.closeOverlay();
   }
 
@@ -139,7 +150,7 @@ export class AllRequestsComponent {
     this.filterForm.reset();
     this.filters = {};
     this.currentPage = 1;
-    this.loadApprovalRequests();
+    this.loadApprovalRequests(this.currentPage);
     this.filterBox.closeOverlay();
   }
 
@@ -150,12 +161,22 @@ export class AllRequestsComponent {
   onItemsPerPageChange(newItemsPerPage: number): void {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadApprovalRequests();
+    this.loadApprovalRequests(this.currentPage);
   }
+
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.loadApprovalRequests(this.currentPage);
+  // }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadApprovalRequests();
+    this.paginationState.setPage('requests/all-requests', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
 
   // Helper methods to access nested properties for template
@@ -211,5 +232,10 @@ export class AllRequestsComponent {
       default:
         return request.work_type || 'N/A';
     }
+  }
+
+  navigateToView(requestId: number): void {
+    this.paginationState.setPage('requests/all-requests', this.currentPage);
+    this.router.navigate(['/requests/view-requests', requestId]);
   }
 }

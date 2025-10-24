@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../../core/interfaces/employee';
+// import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../../core/interfaces/employee';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -37,7 +37,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent
   ],
-  providers: [DatePipe],
+  providers: [DatePipe, ManageEmployeeSharedService],
   templateUrl: './manage-employee.component.html',
   styleUrls: ['./manage-employee.component.css'],
 })
@@ -52,9 +52,10 @@ export class ManageEmployeeComponent implements OnInit {
   private paginationState = inject(PaginationStateService);
 
   private route = inject(ActivatedRoute);
-  public isEditMode = false;
+  // public isEditMode = false;
   isModalOpen = false;
   public employeeId!: number;
+
 
 
   // Component state as signals
@@ -67,16 +68,16 @@ export class ManageEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     // Reset the form when component initializes
-    this.sharedService.resetForm();
-
+    // this.sharedService.loadInitialData();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      this.sharedService.resetForm();
       if (id) {
-        this.isEditMode = true;
+        this.sharedService.isEditMode.set(true);
         this.employeeId = +id;
         this.sharedService.loadEmployeeData(+id);
       } else {
-        this.isEditMode = false;
+        this.sharedService.isEditMode.set(false);
         this.sharedService.resetForm();
       }
     });
@@ -103,6 +104,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   confirmAction() {
     // this.isModalOpen = false;
+    this.sharedService.isEditMode();
     this.sharedService.isModalOpen.set(false);
     const currentPage = this.paginationState.getPage('employees/all-employees');
     this.router.navigate(['/employees'], { queryParams: { page: currentPage } });
@@ -140,7 +142,14 @@ export class ManageEmployeeComponent implements OnInit {
     this.sharedService.errMsg.set('');
     console.log('Form Status:', this.sharedService.employeeForm.status);
     console.log('Form Value:', this.sharedService.employeeForm.value);
-    const employeeData = this.sharedService.getFormData(this.isEditMode);
+    const employeeData = this.sharedService.getFormData();
+
+    if (this.sharedService.isEditMode() && !this.sharedService.employeeData()) {
+      this.toasterMessageService.showError('Employee data not loaded yet.');
+      this.sharedService.isLoading.set(false);
+      return;
+    }
+
     if (!employeeData) {
       this.toasterMessageService.showError('Invalid form data');
       this.sharedService.isLoading.set(false);
@@ -148,7 +157,7 @@ export class ManageEmployeeComponent implements OnInit {
       return;
     }
 
-    if (this.isEditMode) {
+    if (this.sharedService.isEditMode()) {
       this.employeeService.updateEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);
@@ -177,5 +186,71 @@ export class ManageEmployeeComponent implements OnInit {
     }
   }
 
+  // onSubmit() {
+  //   if (this.sharedService.employeeForm.invalid) {
+  //     this.sharedService.employeeForm.markAllAsTouched();
+  //     this.sharedService.mobileGroup.markAllAsTouched();
+  //     this.sharedService.errMsg.set('Please fill in all required fields');
+  //     return;
+  //   }
+  //   this.sharedService.isLoading.set(true);
+  //   this.sharedService.errMsg.set('');
+  //   console.log('Form Status:', this.sharedService.employeeForm.status);
+  //   console.log('Form Value:', this.sharedService.employeeForm.value);
+
+
+  //   if (this.sharedService.isEditMode()) {
+  //     if (!this.sharedService.employeeData()) {
+  //       this.toasterMessageService.showError('Employee data not loaded yet.');
+  //       this.sharedService.isLoading.set(false);
+  //       return;
+  //     }
+
+  //     const employeeData = this.sharedService.getFormData();
+
+  //     if (!employeeData) {
+  //       this.toasterMessageService.showError('Invalid form data');
+  //       this.sharedService.isLoading.set(false);
+  //       console.log('Invalid form data:', employeeData);
+  //       return;
+  //     }
+
+  //     this.employeeService.updateEmployee(employeeData).subscribe({
+  //       next: () => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.toasterMessageService.showSuccess('Employee updated successfully!');
+  //         this.router.navigate(['/employees/all-employees']);
+  //       },
+  //       error: (error) => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.sharedService.errMsg.set(error.message || 'Failed to update employee');
+  //         this.toasterMessageService.showError('Failed to update employee');
+  //       }
+  //     });
+
+  //   } else {
+  //     const employeeData = this.sharedService.getFormData();
+
+  //     if (!employeeData) {
+  //       this.toasterMessageService.showError('Invalid form data');
+  //       this.sharedService.isLoading.set(false);
+  //       console.log('Invalid form data:', employeeData);
+  //       return;
+  //     }
+
+  //     this.employeeService.createEmployee(employeeData).subscribe({
+  //       next: () => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.toasterMessageService.showSuccess('Employee created successfully!');
+  //         this.router.navigate(['/employees/all-employees']);
+  //       },
+  //       error: (error) => {
+  //         this.sharedService.isLoading.set(false);
+  //         this.sharedService.errMsg.set(error.message || 'Failed to create employee');
+  //         this.toasterMessageService.showError('Failed to create employee');
+  //       }
+  //     });
+  //   }
+  // }
 
 }

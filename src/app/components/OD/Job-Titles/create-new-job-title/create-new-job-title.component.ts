@@ -158,55 +158,67 @@ export class CreateNewJobTitleComponent {
   totalItems: number = 0;
   itemsPerPage: number = 10000;
 
-  getAllDepartment(
-    pageNumber: number,
-    searchTerm: string = '',
-    filters?: {
-      status?: string;
-      updated_from?: string;
-      updated_to?: string;
-      created_from?: string;
-      created_to?: string;
+getAllDepartment(
+  pageNumber: number,
+  searchTerm: string = '',
+  filters?: {
+    status?: string;
+    updated_from?: string;
+    updated_to?: string;
+    created_from?: string;
+    created_to?: string;
+  }
+) {
+  this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+    search: searchTerm || undefined,
+    ...filters
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+
+      const activeDepartments = response.data.list_items.filter(
+        (item: any) => item.is_active === true
+      );
+
+      this.departments = activeDepartments.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+      }));
+
+      this.sortDirection = 'desc';
+      this.currentSortColumn = 'id';
+      this.sortBy();
+    },
+    error: (err) => {
+      console.log(err.error?.details);
     }
-  ) {
-    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
-      search: searchTerm || undefined,
-      ...filters
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-        }));
-        this.sortDirection = 'desc';
-        this.currentSortColumn = 'id';
-        this.sortBy();
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
+  });
+}
+
+getsections(deptid: number) {
+  this._DepartmentsService.showDepartment(deptid).subscribe({
+    next: (response) => {
+      const rawSections = response.data.object_info.sections;
+
+      const activeSections = rawSections.filter(
+        (section: any) => section.is_active === true
+      );
+
+      this.sections = activeSections.map((section: any) => ({
+        id: section.id,
+        name: section.name
+      }));
+
+      // console.log(activeSections);
+    },
+    error: (err) => {
+      console.log(err.error?.details);
+    }
+  });
+}
 
 
-  getsections(deptid: number) {
-    this._DepartmentsService.showDepartment(deptid).subscribe({
-      next: (response) => {
-        const rawSections = response.data.object_info.sections;
-        this.sections = rawSections.map((section: any) => ({
-          id: section.id,
-          name: section.name
-        }));
-        // console.log(this.sections);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
-  }
   ManageCurrentPage: number = 1;
   ManagetotalPages: number = 0;
   ManageTotalItems: number = 0;
@@ -256,12 +268,13 @@ export class CreateNewJobTitleComponent {
     this.getAllJobTitles(page, this.searchTerm);
   }
 
-  onItemsPerPageChange(itemsPerPage: number) {
-    this.manageItemsPerPage = itemsPerPage;
-    this.ManageCurrentPage = 1;
-    // Don't call API here - the table component also emits pageChange event
-    // which will trigger onPageChange() and make the API call
-  }
+onItemsPerPageChange(newItemsPerPage: number): void {
+  this.manageItemsPerPage = newItemsPerPage;
+  this.ManageCurrentPage = 1;
+  this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+}
+
+
 
   nextGetJobs(): void {
     this.goNext();

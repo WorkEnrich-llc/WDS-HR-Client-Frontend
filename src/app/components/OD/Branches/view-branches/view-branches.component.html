@@ -5,7 +5,7 @@
   ]" [title]="'View Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
   [isLoading]="loadData">
   @if (!loadData) {
-
+  @if(branchSub?.update){
   <button class="btn btn-lg btn-primary" [routerLink]="['/branches/edit', branchData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -17,6 +17,9 @@
     </svg>
     <span>Edit</span>
   </button>
+  }
+
+
 
   @if (!branchData.is_active) {
   <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
