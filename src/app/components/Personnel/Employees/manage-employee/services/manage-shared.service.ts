@@ -126,7 +126,10 @@ export class ManageEmployeeSharedService {
           country_id: [1, Validators.required],
           number: ['', [Validators.required, Validators.pattern(/^(?:10|11|12|15)\d{8}$/), Validators.minLength(10), Validators.maxLength(10)]]
         }),
-        personal_email: ['', [Validators.required, Validators.email]],
+        // Use a stricter email pattern anchored to the end to prevent extra characters after the TLD
+        // This pattern allows common email characters before @, domain labels separated by dots, and
+        // enforces a TLD of at least 2 letters with no trailing characters after it.
+        personal_email: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)]],
         marital_status: [null, Validators.required],
         date_of_birth: ['', Validators.required],
         address: ['', Validators.required]

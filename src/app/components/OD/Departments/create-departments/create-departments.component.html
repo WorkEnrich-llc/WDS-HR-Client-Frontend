@@ -198,11 +198,7 @@
         }
       </div>
 
-      @if (errMsg) {
-      <div class="alert alert-danger mb-0 mt-2" role="alert">
-        {{errMsg}}
-      </div>
-      }
+      
 
 
     </form>
@@ -424,11 +420,7 @@
           <span>Add Section</span>
         </a>
       </div>
-      @if (errMsg) {
-      <div class="alert alert-danger mb-0 mt-3" role="alert">
-        {{errMsg}}
-      </div>
-      }
+      
     </form>
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
@@ -538,9 +530,7 @@
         <span>Assign Goal(s)</span>
       </a>
     </div>
-    <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
-      {{errMsg}}
-    </div>
+    
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
       <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
