@@ -124,6 +124,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   }
 
   closeModal(): void {
+    this.resetForm();
     this.onClose.emit();
   }
 
