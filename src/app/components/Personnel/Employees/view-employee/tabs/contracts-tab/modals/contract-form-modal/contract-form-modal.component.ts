@@ -250,13 +250,13 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         maximum: salaryRanges.full_time.maximum,
         currency: salaryRanges.full_time.currency
       };
-    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status === true && salaryRanges.part_time.restrict === true) {
+    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status && salaryRanges.part_time.restrict) {
       return {
         minimum: salaryRanges.part_time.minimum,
         maximum: salaryRanges.part_time.maximum,
         currency: salaryRanges.part_time.currency
       };
-    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status === true && salaryRanges.per_hour.restrict === true) {
+    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status && salaryRanges.per_hour.restrict) {
       return {
         minimum: salaryRanges.per_hour.minimum,
         maximum: salaryRanges.per_hour.maximum,
