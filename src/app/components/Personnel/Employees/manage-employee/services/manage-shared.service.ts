@@ -895,16 +895,26 @@ export class ManageEmployeeSharedService {
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 
-      if (field.errors['pattern']) {
-        if (fieldName === 'name_english' || fieldName === 'name_arabic') {
-          return 'Please enter a valid format';
-        }
-        return `${displayName} format is incorrect`;
-      }
+      // if (field.errors['pattern']) {
+      //   if (fieldName === 'name_english' || fieldName === 'name_arabic') {
+      //     return 'Please enter a valid format';
+      //   }
+      //   return `${displayName} format is incorrect`;
+      // }
+
+      // if (field.errors['pattern']) {
+      //   if (fieldName === 'number' || fieldName.endsWith('.number')) {
+      //     return 'Number must start with 10, 11, 12, or 15';
+      //   }
+      //   return `${displayName} format is incorrect`;
+      // }
 
       if (field.errors['pattern']) {
         if (fieldName === 'number' || fieldName.endsWith('.number')) {
           return 'Number must start with 10, 11, 12, or 15';
+        }
+        if (fieldName === 'name_english' || fieldName === 'name_arabic') {
+          return 'Please enter a valid format';
         }
         return `${displayName} format is incorrect`;
       }

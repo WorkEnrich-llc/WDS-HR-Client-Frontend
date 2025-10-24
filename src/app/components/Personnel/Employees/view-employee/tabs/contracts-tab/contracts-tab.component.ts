@@ -361,10 +361,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.isAddModalOpen = false;
     this.isOpen = false;
     this.isEditMode = false;
-    // if (this.addForm) {
-    //   this.addForm.resetForm();
-    // }
-    // this.editedContract = null;
 
   }
 
@@ -673,7 +669,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
+    if (this.isOpen || this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
       return;
     }
     const target = event.target as HTMLElement;
