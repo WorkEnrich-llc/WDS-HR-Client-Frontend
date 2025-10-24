@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -38,14 +38,14 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (changes['contract'] && this.contract && this.isEditMode) {
-    //   this.populateForm();
-    // }
     if (changes['contract'] && this.contract && this.isEditMode) {
       this.populateForm();
-    } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
-      this.resetForm();
     }
+    // if (changes['contract'] && this.contract && this.isEditMode) {
+    //   this.populateForm();
+    // } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
+    //   this.resetForm();
+    // }
 
     // Set up conditional validation for end date
     this.setupConditionalValidation();
@@ -98,7 +98,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
     this.contractForm.patchValue({
       adjustmentType: 1,
-      withEndDate: true,
+      // withEndDate: true,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
@@ -229,28 +229,33 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     return this.isEditMode ? 'New Salary' : 'New Salary';
   }
 
+
+
+
+
   // Get salary ranges based on employment type
   getSalaryRanges(): { minimum: string; maximum: string; currency: string } | null {
     if (!this.employee?.job_info?.job_title?.salary_ranges || !this.employee?.job_info?.employment_type) {
       return null;
     }
+    console.log('Employee Data in Contract Modal:', this.employee);
 
     const employmentTypeName = this.employee.job_info.employment_type.name.toLowerCase();
     const salaryRanges = this.employee.job_info.job_title.salary_ranges;
 
-    if (employmentTypeName === 'full time' && salaryRanges.full_time?.status) {
+    if (employmentTypeName === 'full time' && salaryRanges.full_time?.status && salaryRanges.full_time.restrict) {
       return {
         minimum: salaryRanges.full_time.minimum,
         maximum: salaryRanges.full_time.maximum,
         currency: salaryRanges.full_time.currency
       };
-    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status) {
+    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status === true && salaryRanges.part_time.restrict === true) {
       return {
         minimum: salaryRanges.part_time.minimum,
         maximum: salaryRanges.part_time.maximum,
         currency: salaryRanges.part_time.currency
       };
-    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status) {
+    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status === true && salaryRanges.per_hour.restrict === true) {
       return {
         minimum: salaryRanges.per_hour.minimum,
         maximum: salaryRanges.per_hour.maximum,

@@ -343,8 +343,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Edit contract
   editContract(contract: Contract): void {
     this.editedContract = contract;
+    this.isOpen = true;
     this.isEditMode = true;
-    this.isAddModalOpen = true;
   }
 
   // Add new contract
@@ -359,14 +359,14 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.isAddModalOpen = false;
     this.isOpen = false;
     this.isEditMode = false;
-    this.editedContract = null;
+    // this.editedContract = null;
 
   }
 
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
-    if (this.isSaving) return;
-    this.isSaving = true;
+    // if (this.isOpen) return;
+    // this.isOpen = true;
     if (this.isEditMode && contractData) {
       const contractId = contractData.contractId || this.editedContract?.id;
       console.log('from save :', contractId)
@@ -380,7 +380,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         notice_period: contractData.noticePeriod
       };
       this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
-        finalize(() => this.isSaving = false)
+        finalize(() => this.isOpen = false)
       ).subscribe({
         next: () => {
           this.toasterService.showSuccess('Contract adjusted successfully');
@@ -390,7 +390,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
-          this.isSaving = false;
+          this.isOpen = false;
           // Show error message
         }
       });

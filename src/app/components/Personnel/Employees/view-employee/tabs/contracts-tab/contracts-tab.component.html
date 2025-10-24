@@ -337,6 +337,6 @@
   [resignationData]="contractResignationData" (onClose)="closeResignedViewModal()">
 </app-contract-resigned-view-modal>
 
-<!-- <app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
-  [isEditMode]="isEditMode" [isSaving]="isSaving" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
-</app-contract-form-modal> -->
+<app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
+  [isEditMode]="isEditMode" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
+</app-contract-form-modal>

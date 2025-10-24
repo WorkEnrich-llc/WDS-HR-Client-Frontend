@@ -47,9 +47,9 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
 };
 
 @Injectable(
-  // {
-  // providedIn: 'root'
-  // }
+  {
+    providedIn: 'root'
+  }
 )
 export class ManageEmployeeSharedService {
   private fb = new FormBuilder();
