@@ -166,7 +166,7 @@
                 </span>
             </td>
 
-            <td>
+            <!-- <td>
                 <div class="text-secondary small-text-size"
                     [ngClass]="isLate(attendance.working_details?.actual_check_in, attendance.working_details?.scheduled_check_in) ? 'text-danger' : ''">
                     {{ attendance.working_details?.actual_check_in ? (toTime(attendance.working_details.actual_check_in)
@@ -189,6 +189,36 @@
                 <div>
                     {{ attendance.working_details?.working_check_out ?
                     (toTime(attendance.working_details.working_check_out) | date: 'hh:mm a') : '-' }}
+                </div>
+            </td> -->
+
+            <td>
+                <div class="text-secondary small-text-size" [ngClass]="{
+                               'text-danger': isLate(attendance.working_details?.actual_check_in, attendance.working_details?.scheduled_check_in) ||
+                                              isInvalidTime(attendance.working_details?.actual_check_in)
+                             }">
+                    {{ formatTimeDisplay(attendance.working_details?.actual_check_in) }}
+                </div>
+
+                <div [ngClass]="{
+                               'text-danger': isInvalidTime(attendance.working_details?.working_check_in)
+                             }">
+                    {{ formatTimeDisplay(attendance.working_details?.working_check_in) }}
+                </div>
+            </td>
+
+            <td>
+                <div class="text-secondary small-text-size" [ngClass]="{
+                               'text-danger': isLate(attendance.working_details?.actual_check_out, attendance.working_details?.scheduled_check_out) ||
+                                              isInvalidTime(attendance.working_details?.actual_check_out)
+                             }">
+                    {{ formatTimeDisplay(attendance.working_details?.actual_check_out) }}
+                </div>
+
+                <div [ngClass]="{
+                               'text-danger': isInvalidTime(attendance.working_details?.working_check_out)
+                             }">
+                    {{ formatTimeDisplay(attendance.working_details?.working_check_out) }}
                 </div>
             </td>
 

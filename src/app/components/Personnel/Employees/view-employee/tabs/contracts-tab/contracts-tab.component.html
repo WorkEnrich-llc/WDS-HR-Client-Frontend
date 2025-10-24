@@ -1,6 +1,6 @@
 <!-- Contract Form Modal -->
-<app-contract-form-modal [isOpen]="isAddModalOpen" [isEditMode]="isEditMode" [contract]="selectedContract"
-  [employee]="employee" (onClose)="closeAddModal()" (onSave)="onContractSave($event)">
+<app-contract-form-modal [isOpen]="isAddModalOpen" [isLoading]="isLoading" [isEditMode]="isEditMode"
+  [contract]="selectedContract" [employee]="employee" (onClose)="closeAddModal()" (onSave)="onContractSave($event)">
 </app-contract-form-modal>
 <div class="contracts-content">
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -173,7 +173,7 @@
             </a>
             <ul class="dropdown-menu" [class.show]="selectedContract?.id === contract.id">
               <!-- Terminate Action -->
-              <li>
+              @if (contract.status === 'Active' || contract.status === 'Probation') {<li>
                 <a class="dropdown-item terminate-item" (click)="openTerminateModal(contract); closeDropdown()">
                   <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -189,7 +189,7 @@
 
                   Terminate
                 </a>
-              </li>
+              </li>}
               <!-- Cancel Action - Only for Upcoming -->
               @if (contract.status === 'Upcoming') {
               <li>
@@ -228,7 +228,7 @@
               </li>
               }
               <!-- Resign Action -->
-              <li>
+              @if (contract.status === 'Active' || contract.status === 'Probation') {<li>
                 <a class="dropdown-item resign-item" (click)="openResignModal(contract)">
                   <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -256,7 +256,7 @@
 
                   Resign
                 </a>
-              </li>
+              </li>}
             </ul>
           </div>
         </div>

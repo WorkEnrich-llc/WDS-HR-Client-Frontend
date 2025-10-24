@@ -1,12 +1,12 @@
 <!-- Cancel Confirmation Modal -->
-<app-popup 
-  [title]="'Cancel Contract'" 
-  [paragraph1]="'Are you sure you want to cancel this contract?'"
-  [paragraph2]="'Contract: ' + getContractNumber()"
-  [isOpen]="isOpen" 
-  (close)="closeModal()">
+<app-popup [title]="'Cancel Contract'" [paragraph1]="'Are you sure you want to cancel this contract?'"
+  [paragraph2]="'Contract: ' + getContractNumber()" [isOpen]="isOpen" (close)="closeModal()">
   <button modal-btn-left class="btn btn-lg btn-warning w-100" (click)="confirmCancel()">
+    @if (isLoading) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    } @else {
     Cancel Contract
+    }
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
     Close

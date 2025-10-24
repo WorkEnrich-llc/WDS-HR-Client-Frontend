@@ -318,6 +318,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Handle cancel from modal
   onContractCancel(contract: Contract): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
     // Call API to cancel contract
     this.employeeService.cancelEmployeeContract({
       contract_id: contract.id,
@@ -328,6 +330,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           response?.data?.list_items ??
           [];
         // Update local data with the response
+        this.isLoading = false;
         this.closeCancelModal();
         this.toasterService.showSuccess('Contract cancelled successfully');
         this.contractsData = this.mapApiContractsToUI(listItems);
@@ -361,10 +364,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.isAddModalOpen = false;
     this.isOpen = false;
     this.isEditMode = false;
-    // if (this.addForm) {
-    //   this.addForm.resetForm();
-    // }
-    // this.editedContract = null;
 
   }
 
@@ -673,7 +672,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
+    if (this.isOpen || this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
       return;
     }
     const target = event.target as HTMLElement;
