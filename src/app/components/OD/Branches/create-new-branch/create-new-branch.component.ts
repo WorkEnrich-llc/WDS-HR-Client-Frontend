@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -11,6 +11,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-create-new-branch',
@@ -44,7 +45,9 @@ export class CreateNewBranchComponent implements OnInit {
     private datePipe: DatePipe,
     private _BranchesService: BranchesService,
     private toasterMessageService: ToasterMessageService,
-    private _DepartmentsService: DepartmentsService
+    private _DepartmentsService: DepartmentsService,
+    private subService: SubscriptionService,
+    private ngZone: NgZone
   ) {
 
 
@@ -54,8 +57,20 @@ export class CreateNewBranchComponent implements OnInit {
   }
 
 
-
+  branchSub: any;
   ngOnInit(): void {
+
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
     // department added and search
     this.searchSubject.pipe(
       debounceTime(300),
@@ -70,9 +85,9 @@ export class CreateNewBranchComponent implements OnInit {
 
   // form step 1
   branchStep1: FormGroup = new FormGroup({
-    code: new FormControl(''),
-    name: new FormControl('', [Validators.required, Validators.maxLength(81)]),
-    location: new FormControl(''),
+    code: new FormControl('', Validators.maxLength(26)),
+    name: new FormControl('', [Validators.required, Validators.maxLength(80)]),
+    location: new FormControl('',Validators.required),
     maxEmployee: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
 
@@ -114,7 +129,15 @@ export class CreateNewBranchComponent implements OnInit {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
 
-        this.departments = response.data.list_items.map((item: any) => {
+        // console.log('Departments List (before filter):', response.data.list_items);
+
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        // console.log('Active Departments Only:', activeDepartments);
+
+        this.departments = activeDepartments.map((item: any) => {
           const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
           const sectionsWithSelection = (item.sections || []).map((section: any) => ({
@@ -130,6 +153,7 @@ export class CreateNewBranchComponent implements OnInit {
             selected: isSelected
           };
         });
+
         this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
@@ -144,14 +168,16 @@ export class CreateNewBranchComponent implements OnInit {
       department.selected = this.selectAll;
     });
   }
-  toggleDepartment(department: any) {
-    // department.selected = !department.selected;
+ toggleDepartment(department: any) {
+  setTimeout(() => {
     if (!department.selected) {
       this.selectAll = false;
     } else if (this.departments.length && this.departments.every(dep => dep.selected)) {
       this.selectAll = true;
     }
-  }
+  });
+}
+
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
@@ -162,11 +188,11 @@ export class CreateNewBranchComponent implements OnInit {
     this.currentPage = page;
     this.getAllDepartment(this.currentPage);
   }
-  discardDepartment(): void {
-    this.departmentsOverlay.closeOverlay();
-    // Reset search input after closing overlay
-    this.searchTerm = '';
-  }
+ discardDepartment(): void {
+  this.departmentsOverlay.closeOverlay();
+  this.searchTerm = '';
+}
+
 
   addSelectedDepartments(): void {
     const selected = this.departments.filter(dep => dep.selected);
@@ -194,6 +220,7 @@ export class CreateNewBranchComponent implements OnInit {
 
 
   // remove Department from selected departments
+   removedOnce = false; 
   removeDepartment(department: any): void {
     const index = this.addeddepartments.findIndex(dep => dep.id === department.id);
     if (index !== -1) {
@@ -206,6 +233,7 @@ export class CreateNewBranchComponent implements OnInit {
     }
 
     this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    this.removedOnce = true;
   }
 
 
@@ -252,13 +280,22 @@ export class CreateNewBranchComponent implements OnInit {
 
 
   // overlays boxes sliders
-  openFirstOverlay() {
-    // Reset search input and load full departments list when opening overlay
-    this.searchTerm = '';
-    this.currentPage = 1;
-    this.getAllDepartment(this.currentPage);
+openFirstOverlay() {
+  this.searchTerm = '';
+
+  if (this.departments.length > 0) {
+    this.departments.forEach(dep => {
+      dep.selected = this.addeddepartments.some(a => a.id === dep.id);
+    });
+
+    this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+
+    this.departmentsOverlay.openOverlay();
+  } else {
+    this.getAllDepartment(1);
     this.departmentsOverlay.openOverlay();
   }
+}
 
   selectedDepartmentSections: any[] = [];
 
@@ -297,6 +334,8 @@ export class CreateNewBranchComponent implements OnInit {
     this.selectedDepartmentSections = [];
     this.sectionsOverlay.closeOverlay();
   }
+
+
 
 
   // create branch
@@ -414,17 +453,21 @@ export class CreateNewBranchComponent implements OnInit {
 
   // Handle location confirmation from Google Maps component
   onLocationConfirmed(event: LocationData): void {
-    this.locationData = { ...event };
 
-    setTimeout(() => {
+    this.ngZone.run(() => {
+      this.locationData = { ...event };
+
       this.isLocationReady = !!(
         this.locationData.map_country &&
         this.locationData.map_city &&
-        this.locationData.map_region &&
-        this.locationData.map_address
+        this.locationData.map_address &&
+        this.locationData.latitude &&
+        this.locationData.longitude
       );
     });
   }
+
+
 
 
 }

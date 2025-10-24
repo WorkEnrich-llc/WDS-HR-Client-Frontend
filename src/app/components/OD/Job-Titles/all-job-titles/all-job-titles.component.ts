@@ -1,5 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, inject, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from './../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -10,6 +10,8 @@ import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-job-titles',
@@ -21,11 +23,12 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 export class AllJobTitlesComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
-
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder) { }
+    private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder, private subService: SubscriptionService) { }
   departments: any[] = [];
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
@@ -36,12 +39,30 @@ export class AllJobTitlesComponent {
   currentFilters: any = {};
   currentSearchTerm: string = '';
 
-
+  jobTitleSub: any;
   ngOnInit(): void {
+
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.jobTitleSub = sub?.Branches;
+      // if (this.jobTitleSub) {
+      //   console.log("info:", this.jobTitleSub.info);
+      //   console.log("create:", this.jobTitleSub.create);
+      //   console.log("update:", this.jobTitleSub.update);
+      //   console.log("delete:", this.jobTitleSub.delete);
+      // }
+    });
+
+
     this.getAllDepartment(1);
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.getAllJobTitles(this.currentPage);
+    // });
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllJobTitles(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('jobs/all-job-titles') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllJobTitles(pageFromUrl);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -132,7 +153,9 @@ export class AllJobTitlesComponent {
       // console.log('Filters submitted:', filters);
       this.currentPage = 1;
       this.filterBox.closeOverlay();
-      this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+      this.currentFilters = filters;
+      this.getAllJobTitles(this.currentPage, this.currentSearchTerm, filters);
+
     }
   }
 
@@ -220,9 +243,35 @@ export class AllJobTitlesComponent {
     this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    this.paginationState.setPage('jobs/all-job-titles', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
+
+
+  navigateToEdit(componentId: number): void {
+    this.paginationState.setPage('jobs/all-job-titles', this.currentPage);
+    this.router.navigate(['/jobs/edit', componentId]);
+  }
+
+
+  navigateToView(componentId: number): void {
+    this.paginationState.setPage('jobs/all-job-titles', this.currentPage);
+    this.router.navigate(['/jobs/view-job', componentId]);
+  }
+
+
+
+
 
 }

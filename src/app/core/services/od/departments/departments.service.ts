@@ -33,9 +33,14 @@ export class DepartmentsService {
   }
 
   // Get all departments without pagination using it in filter-attendance dropdown
+  // getAllDepartments(): Observable<any> {
+  //   const url = `${this.apiBaseUrl}od/departments`;
+  //   return this._HttpClient.get(url);
+  // }
   getAllDepartments(): Observable<any> {
     const url = `${this.apiBaseUrl}od/departments`;
-    return this._HttpClient.get(url);
+    const params = new HttpParams().set('status', 'true');
+    return this._HttpClient.get(url, { params });
   }
 
   // get all departments with pagination and filters

@@ -2,7 +2,10 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Goals', link: '/goals' },
     {  label: 'View Goal ' + goalData.name }
-  ]" [title]="'View Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+  ]" [title]="'View Goal - ' + goalData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
+  @if(!loadData){
+  @if(GoalsSub?.update){
   <button class="btn btn-lg btn-primary" [routerLink]="['/goals/edit', goalData.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -14,6 +17,8 @@
     </svg>
     <span>Edit</span>
   </button>
+
+  }
 
 
   @if (!goalData.is_active) {
@@ -39,6 +44,8 @@
     <span>Unassigned</span>
   </button>
   }
+  }
+
 
 
 </app-page-header>
@@ -48,6 +55,11 @@
     <div class="col-lg-8">
       <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
+        @if(loadData) {
+        <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+        </app-skelaton-loading>
+
+        }@else {
         <div class="info">
           <h6>Goal ID</h6>
           <span>{{ goalData?.id ? goalData.id.toString().padStart(4, '0') : 'N/A' }}</span>
@@ -73,6 +85,8 @@
           <span>{{goalData?.priority || 'N/A'}}</span>
         </div>
         }
+        }
+
 
       </div>
     </div>
@@ -81,6 +95,11 @@
       @if (goalData) {
       <div class="content-box d-flex flex-column gap-3">
         <h2>Assign Information</h2>
+        @if(loadData) {
+        <app-skelaton-loading [rows]="1" [hasLabel]="false" [labelHeight]="16" [valueHeight]="30">
+        </app-skelaton-loading>
+
+        }@else {
         @if (goalData?.is_active) {
         <span class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -103,7 +122,14 @@
           <span>Unassigned</span>
         </span>
         }
-        @for (item of goalData?.assigned_department ?? []; track $index){
+        }
+
+         @if(loadData) {
+        <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+        </app-skelaton-loading>
+
+        }@else {
+           @for (item of goalData?.assigned_department ?? []; track $index){
         <div class="d-flex align-items-center justify-content-between">
           <div class="info">
             <h6>Assigned Department #{{ $index + 1 }}</h6>
@@ -120,6 +146,8 @@
           </button>
         </div>
         }
+        }
+       
 
 
 

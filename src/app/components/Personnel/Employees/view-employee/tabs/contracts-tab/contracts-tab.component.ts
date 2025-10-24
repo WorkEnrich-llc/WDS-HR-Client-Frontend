@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
@@ -11,26 +11,31 @@ import { ContractResignModalComponent } from './modals/contract-resign-modal/con
 import { ContractResignedViewModalComponent } from './modals/contract-resigned-view-modal/contract-resigned-view-modal.component';
 import { ContractTerminateModalComponent } from './modals/contract-terminate-modal/contract-terminate-modal.component';
 import { ContractTerminatedViewModalComponent } from './modals/contract-terminated-view-modal/contract-terminated-view-modal.component';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { finalize } from 'rxjs';
 
 @Component({
   standalone: true,
   selector: 'app-contracts-tab',
   imports: [
-    CommonModule, 
-    TableComponent, 
-    ContractFormModalComponent, 
-    ContractCancelModalComponent, 
+    CommonModule,
+    TableComponent,
+    ContractFormModalComponent,
+    ContractCancelModalComponent,
     ContractHistoryModalComponent,
     ContractTerminateModalComponent,
     ContractResignModalComponent,
     ContractTerminatedViewModalComponent,
-    ContractResignedViewModalComponent
+    ContractResignedViewModalComponent,
   ],
   templateUrl: './contracts-tab.component.html',
   styleUrl: './contracts-tab.component.css'
 })
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
+  private toasterService = inject(ToasterMessageService);
+  historyContract: Contract | null = null;
+  editedContract: Contract | null = null;
 
   // Table data and pagination
   contractsData: Contract[] = [];
@@ -38,6 +43,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   itemsPerPage = 10;
   totalItems = 0;
   isLoading = false;
+  isSaving = false;
 
   // Modal states
   isCancelModalOpen = false;
@@ -51,9 +57,10 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   contractTerminationData: any = null;
   contractResignationData: any = null;
   isAddModalOpen = false;
+  isOpen = false;
   isEditMode = false;
 
-  constructor(private employeeService: EmployeeService) {}
+  constructor(private employeeService: EmployeeService) { }
 
   ngOnInit(): void {
     if (this.employee?.id) {
@@ -70,7 +77,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Load contracts from API
   private loadEmployeeContracts(): void {
     if (!this.employee?.id) return;
-    
+
     this.isLoading = true;
     this.employeeService.getEmployeeContracts(this.employee.id).subscribe({
       next: (response) => {
@@ -87,110 +94,110 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   }
 
   // Sample contracts for demonstration - Remove in production
-  private addSampleContracts(): void {
-    const sampleContracts: Contract[] = [
-      {
-        id: 1001,
-        expired: false,
-        trial: false,
-        start_contract: '2024-01-01',
-        end_contract: '2025-12-31',
-        salary: 15000,
-        insurance_salary: 12000,
-        status: 'Active',
-        created_at: '2024-01-01T00:00:00Z',
-        created_by: 'Admin',
-        contractNumber: '001',
-        startDate: '01/01/2024',
-        endDate: '31/12/2025',
-        currency: 'EGP',
-        employmentType: { id: 1, name: 'Full Time' },
-        contractType: { id: 1, name: 'Permanent' },
-        workMode: { id: 1, name: 'On Site' },
-        branch: { id: 1, name: 'Main Branch' },
-        department: { id: 1, name: 'HR' },
-        jobTitle: { id: 1, name: 'HR Manager' }
-      },
-      {
-        id: 1002,
-        expired: false,
-        trial: false,
-        start_contract: '2025-01-01',
-        end_contract: '2026-12-31',
-        salary: 18000,
-        insurance_salary: 15000,
-        status: 'Upcoming',
-        created_at: '2024-12-01T00:00:00Z',
-        created_by: 'Admin',
-        contractNumber: '002',
-        startDate: '01/01/2025',
-        endDate: '31/12/2026',
-        currency: 'EGP',
-        employmentType: { id: 1, name: 'Full Time' },
-        contractType: { id: 1, name: 'Permanent' },
-        workMode: { id: 2, name: 'Remote' },
-        branch: { id: 1, name: 'Main Branch' },
-        department: { id: 2, name: 'IT' },
-        jobTitle: { id: 2, name: 'Developer' }
-      },
-      {
-        id: 1003,
-        expired: false,
-        trial: false,
-        start_contract: '2023-01-01',
-        end_contract: '2024-01-01',
-        salary: 12000,
-        insurance_salary: 10000,
-        status: 'Terminated',
-        created_at: '2023-01-01T00:00:00Z',
-        created_by: 'Admin',
-        contractNumber: '003',
-        startDate: '01/01/2023',
-        endDate: '01/01/2024',
-        currency: 'EGP',
-        employmentType: { id: 1, name: 'Full Time' },
-        contractType: { id: 1, name: 'Permanent' },
-        workMode: { id: 1, name: 'On Site' },
-        branch: { id: 1, name: 'Main Branch' },
-        department: { id: 3, name: 'Finance' },
-        jobTitle: { id: 3, name: 'Accountant' },
-        terminationData: {
-          lastDay: '2024-01-01',
-          reason: 'Performance issues and failure to meet targets consistently.'
-        }
-      },
-      {
-        id: 1004,
-        expired: false,
-        trial: false,
-        start_contract: '2022-06-01',
-        end_contract: '2024-03-15',
-        salary: 14000,
-        insurance_salary: 11000,
-        status: 'Resigned',
-        created_at: '2022-06-01T00:00:00Z',
-        created_by: 'Admin',
-        contractNumber: '004',
-        startDate: '01/06/2022',
-        endDate: '15/03/2024',
-        currency: 'EGP',
-        employmentType: { id: 1, name: 'Full Time' },
-        contractType: { id: 1, name: 'Permanent' },
-        workMode: { id: 1, name: 'On Site' },
-        branch: { id: 2, name: 'Branch 2' },
-        department: { id: 4, name: 'Marketing' },
-        jobTitle: { id: 4, name: 'Marketing Specialist' },
-        resignationData: {
-          resignDate: '2024-01-15',
-          noticePeriod: 60,
-          lastDay: '2024-03-15',
-          reason: 'Found a better opportunity with higher compensation and growth prospects.'
-        }
-      }
-    ];
+  // private addSampleContracts(): void {
+  //   const sampleContracts: Contract[] = [
+  //     {
+  //       id: 1001,
+  //       expired: false,
+  //       trial: false,
+  //       start_contract: '2024-01-01',
+  //       end_contract: '2025-12-31',
+  //       salary: 15000,
+  //       insurance_salary: 12000,
+  //       status: 'Active',
+  //       created_at: '2024-01-01T00:00:00Z',
+  //       created_by: 'Admin',
+  //       contractNumber: '001',
+  //       startDate: '01/01/2024',
+  //       endDate: '31/12/2025',
+  //       currency: 'EGP',
+  //       employmentType: { id: 1, name: 'Full Time' },
+  //       contractType: { id: 1, name: 'Permanent' },
+  //       workMode: { id: 1, name: 'On Site' },
+  //       branch: { id: 1, name: 'Main Branch' },
+  //       department: { id: 1, name: 'HR' },
+  //       jobTitle: { id: 1, name: 'HR Manager' }
+  //     },
+  //     {
+  //       id: 1002,
+  //       expired: false,
+  //       trial: false,
+  //       start_contract: '2025-01-01',
+  //       end_contract: '2026-12-31',
+  //       salary: 18000,
+  //       insurance_salary: 15000,
+  //       status: 'Upcoming',
+  //       created_at: '2024-12-01T00:00:00Z',
+  //       created_by: 'Admin',
+  //       contractNumber: '002',
+  //       startDate: '01/01/2025',
+  //       endDate: '31/12/2026',
+  //       currency: 'EGP',
+  //       employmentType: { id: 1, name: 'Full Time' },
+  //       contractType: { id: 1, name: 'Permanent' },
+  //       workMode: { id: 2, name: 'Remote' },
+  //       branch: { id: 1, name: 'Main Branch' },
+  //       department: { id: 2, name: 'IT' },
+  //       jobTitle: { id: 2, name: 'Developer' }
+  //     },
+  //     {
+  //       id: 1003,
+  //       expired: false,
+  //       trial: false,
+  //       start_contract: '2023-01-01',
+  //       end_contract: '2024-01-01',
+  //       salary: 12000,
+  //       insurance_salary: 10000,
+  //       status: 'Terminated',
+  //       created_at: '2023-01-01T00:00:00Z',
+  //       created_by: 'Admin',
+  //       contractNumber: '003',
+  //       startDate: '01/01/2023',
+  //       endDate: '01/01/2024',
+  //       currency: 'EGP',
+  //       employmentType: { id: 1, name: 'Full Time' },
+  //       contractType: { id: 1, name: 'Permanent' },
+  //       workMode: { id: 1, name: 'On Site' },
+  //       branch: { id: 1, name: 'Main Branch' },
+  //       department: { id: 3, name: 'Finance' },
+  //       jobTitle: { id: 3, name: 'Accountant' },
+  //       terminationData: {
+  //         lastDay: '2024-01-01',
+  //         reason: 'Performance issues and failure to meet targets consistently.'
+  //       }
+  //     },
+  //     {
+  //       id: 1004,
+  //       expired: false,
+  //       trial: false,
+  //       start_contract: '2022-06-01',
+  //       end_contract: '2024-03-15',
+  //       salary: 14000,
+  //       insurance_salary: 11000,
+  //       status: 'Resigned',
+  //       created_at: '2022-06-01T00:00:00Z',
+  //       created_by: 'Admin',
+  //       contractNumber: '004',
+  //       startDate: '01/06/2022',
+  //       endDate: '15/03/2024',
+  //       currency: 'EGP',
+  //       employmentType: { id: 1, name: 'Full Time' },
+  //       contractType: { id: 1, name: 'Permanent' },
+  //       workMode: { id: 1, name: 'On Site' },
+  //       branch: { id: 2, name: 'Branch 2' },
+  //       department: { id: 4, name: 'Marketing' },
+  //       jobTitle: { id: 4, name: 'Marketing Specialist' },
+  //       resignationData: {
+  //         resignDate: '2024-01-15',
+  //         noticePeriod: 60,
+  //         lastDay: '2024-03-15',
+  //         reason: 'Found a better opportunity with higher compensation and growth prospects.'
+  //       }
+  //     }
+  //   ];
 
-    this.contractsData = sampleContracts;
-  }
+  //   this.contractsData = sampleContracts;
+  // }
 
   // Map API response to UI format
   private mapApiContractsToUI(apiContracts: Contract[]): Contract[] {
@@ -198,7 +205,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       ...contract,
       contractNumber: contract.id.toString().padStart(3, '0'),
       startDate: this.formatDateToDisplay(contract.start_contract),
-      endDate: this.formatDateToDisplay(contract.end_contract),
+      endDate: contract.end_contract ? this.formatDateToDisplay(contract.end_contract) : 'Indefinite term contract',
       insuranceSalary: contract.insurance_salary,
       currency: 'EGP',
       createdAt: contract.created_at,
@@ -246,9 +253,11 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         return 'badge-gray';
       case 'cancelled':
         return 'badge-danger';
-      case 'terminated':
+      case 'terminate':
         return 'badge-terminated';
-      case 'resigned':
+      case 'probation':
+        return 'badge-probation';
+      case 'resign':
         return 'badge-resigned';
       default:
         return 'badge-gray';
@@ -285,12 +294,15 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   confirmCancel(): void {
     if (this.selectedContract) {
       // Call API to cancel contract
-      this.employeeService.cancelEmployeeContract(this.selectedContract.id).subscribe({
+      this.employeeService.cancelEmployeeContract({
+        contract_id: this.selectedContract.id,
+      }).subscribe({
         next: (response) => {
           // Update local data with the response
           this.contractsData = this.mapApiContractsToUI(response.data.list_items);
           this.totalItems = this.contractsData.length;
           this.closeCancelModal();
+          this.toasterService.showSuccess('Contract cancelled successfully');
           // Show success message
         },
         error: (error) => {
@@ -304,12 +316,20 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Handle cancel from modal
   onContractCancel(contract: Contract): void {
     // Call API to cancel contract
-    this.employeeService.cancelEmployeeContract(contract.id).subscribe({
+    this.employeeService.cancelEmployeeContract({
+      contract_id: contract.id,
+    }).subscribe({
       next: (response) => {
+        const listItems =
+          response?.data?.list_items ??
+          response?.data?.list_items ??
+          [];
         // Update local data with the response
-        this.contractsData = this.mapApiContractsToUI(response.data.list_items);
-        this.totalItems = this.contractsData.length;
         this.closeCancelModal();
+        this.toasterService.showSuccess('Contract cancelled successfully');
+        this.contractsData = this.mapApiContractsToUI(listItems);
+        this.totalItems = this.contractsData.length;
+        this.loadEmployeeContracts();
         // Show success message
       },
       error: (error) => {
@@ -321,7 +341,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Edit contract
   editContract(contract: Contract): void {
-    this.selectedContract = contract;
+    this.editedContract = contract;
     this.isEditMode = true;
     this.isAddModalOpen = true;
   }
@@ -329,7 +349,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Add new contract
   addContract(): void {
     this.isEditMode = false;
-    this.selectedContract = null;
+    this.editedContract = null;
     this.isAddModalOpen = true;
   }
 
@@ -342,29 +362,41 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Save contract (add or edit) - called from modal
   onContractSave(contractData: any): void {
-    if (contractData.isEdit && this.selectedContract) {
+    if (this.isSaving) return;
+    this.isSaving = true;
+    if (this.isEditMode && contractData) {
+      const contractId = contractData.contractId || this.editedContract?.id;
+      console.log('from save :', contractId)
       // Adjust existing contract via API
       const payload = {
-        contract_id: this.selectedContract.id,
+        contract_id: contractId,
         adjustment_type: contractData.adjustmentType,
-        new_salary: contractData.salary,
-        start_date: contractData.startDate
+        salary: contractData.salary,
+        start_contract: contractData.startDate,
+        end_contract: contractData.endDate,
+        notice_period: contractData.noticePeriod
       };
-      this.employeeService.adjustEmployeeContractAdjustment(payload).subscribe({
+      this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
+        finalize(() => this.isSaving = false)
+      ).subscribe({
         next: () => {
+          this.toasterService.showSuccess('Contract adjusted successfully');
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
           this.closeAddModal();
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
+          this.isSaving = false;
           // Show error message
         }
       });
-    } else {
+    }
+    else {
       // Add new contract via API
       if (!this.employee?.id) {
         console.error('Employee ID is required to create contract');
+        this.isLoading = false;
         return;
       }
 
@@ -372,14 +404,17 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         employee_id: this.employee.id,
         contract_type: 1, // Default contract type
         start_contract: contractData.startDate,
-        end_contract: contractData.endDate || '2030-12-31', // Default far future date if no end date
+        end_contract: contractData.endDate || null, // Default far future date if no end date
         salary: contractData.salary,
         insurance_salary: contractData.insuranceSalary || 0
       };
 
-      this.employeeService.createEmployeeContract(payload).subscribe({
-        next: (response) => {
+      this.employeeService.createEmployeeContract(payload).pipe(
+        finalize(() => this.isLoading = false)
+      ).subscribe({
+        next: () => {
           // Reload contracts to get updated list
+          this.toasterService.showSuccess('Contract created successfully');
           this.loadEmployeeContracts();
           this.closeAddModal();
           // Show success message
@@ -391,17 +426,17 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       });
     }
   }
-  
+
   // View contract history
   viewHistory(contract: Contract): void {
-    this.selectedContract = contract;
+    this.historyContract = contract;
     this.loadContractHistory(contract.id);
     this.isHistoryModalOpen = true;
   }
 
   closeHistoryModal(): void {
     this.isHistoryModalOpen = false;
-    this.selectedContract = null;
+    this.historyContract = null;
     this.contractHistory = [];
   }
 
@@ -410,16 +445,48 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.employeeService.getEmployeeContractAdjustments(contractId).subscribe({
       next: response => {
         const adjustments = response.data.list_items;
+        console.log('Loaded contract adjustments:', response.data.list_items);
         this.contractHistory = adjustments.map(adj => ({
           id: adj.id,
           contractId: contractId,
+          date: this.getFormattedDateTime(adj.created_at || ''),
+          endDate: adj.end_contract ? this.getFormattedDate(adj.end_contract) : '',
+          type: adj.adjustment_type || '',
+          salary: adj.salary,
+
           action: adj.adjustment_type,
           changedBy: adj.created_by,
           changeDate: this.getFormattedDate(adj.start_date || adj.created_at),
           previousValue: '',
-          newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
+          // newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
           reason: ''
         }));
+
+
+        adjustment_type
+        :
+        "Appraisal"
+        created_at
+        :
+        "2025-10-20T16:24:22.318164"
+        created_by
+        :
+        "Assem"
+        end_contract
+        :
+        "2025-09-11"
+        id
+        :
+        6
+        notice_period
+        :
+        20
+        salary
+        :
+        50000
+        start_contract
+        :
+        "2025-09-11"
       },
       error: error => {
         console.error('Error loading contract history:', error);
@@ -434,8 +501,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      // hour: '2-digit',
+      // minute: '2-digit'
     });
   }
 
@@ -448,51 +515,92 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     return this.contractsData.filter(contract => contract.status === 'Upcoming').length;
   }
 
+  getProbationContractsCount(): number {
+    return this.contractsData.filter(contract => contract.status === 'Probation').length;
+  }
+
   // Terminate contract actions
   openTerminateModal(contract: Contract): void {
+    console.log('CONTRACT RECEIVED FROM HTML:', contract);
     this.selectedContract = contract;
     this.isTerminateModalOpen = true;
   }
 
   closeTerminateModal(): void {
     this.isTerminateModalOpen = false;
-    this.selectedContract = null;
+    // this.selectedContract = null;
   }
 
-  onContractTerminate(data: {contract: Contract, terminationData: any}): void {
+  onContractTerminate(data: { contract: Contract, terminationData: any }): void {
     // TODO: Call API to terminate contract
     // this.employeeService.terminateEmployeeContract(data.contract.id, data.terminationData).subscribe({
     // For now, just update local data
-    const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
-    if (contractIndex !== -1) {
-      this.contractsData[contractIndex].status = 'Terminated';
-      this.contractsData[contractIndex].terminationData = data.terminationData;
-    }
+
+    this.employeeService.terminateEmployeeContract({
+      contract_id: data.contract.id,
+      last_date: data.terminationData.lastDay,
+      reason: data.terminationData.reason
+    }).subscribe({
+      next: response => {
+        const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
+        if (contractIndex !== -1) {
+          this.contractsData[contractIndex].status = 'Terminated';
+          this.contractsData[contractIndex].terminationData = data.terminationData;
+        }
+
+      },
+      error: error => {
+        console.error('Error terminating contract:', error);
+      }
+    });
+    this.toasterService.showSuccess('contract terminated successfully');
     console.log('Contract terminated successfully');
     // TODO: Add toast notification
   }
 
-  // Resign contract actions
-  openResignModal(contract: Contract): void {
+
+  openResignModal(contract: Contract) {
     this.selectedContract = contract;
     this.isResignModalOpen = true;
   }
+
 
   closeResignModal(): void {
     this.isResignModalOpen = false;
     this.selectedContract = null;
   }
 
-  onContractResign(data: {contract: Contract, resignationData: any}): void {
+  onContractResign(data: { contract: Contract, resignationData: any }): void {
     // TODO: Call API to process resignation
     // this.employeeService.resignEmployeeContract(data.contract.id, data.resignationData).subscribe({
     // For now, just update local data
-    const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
-    if (contractIndex !== -1) {
-      this.contractsData[contractIndex].status = 'Resigned';
-      this.contractsData[contractIndex].resignationData = data.resignationData;
-    }
-    console.log('Contract resignation processed successfully');
+    if (!data?.contract?.id) return;
+    this.employeeService.resignEmployeeContract({
+      contract_id: data.contract.id,
+      last_date: data.resignationData.lastDay,
+      resign_date: data.resignationData.resignDate,
+      reason: data.resignationData.reason
+    }).subscribe({
+      next: () => {
+        // const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
+        // if (contractIndex !== -1) {
+        //   this.contractsData[contractIndex].status = 'Resigned';
+        //   this.contractsData[contractIndex].resignationData = data.resignationData;
+        // }
+        const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
+        if (contractIndex !== -1) {
+          this.contractsData[contractIndex] = {
+            ...this.contractsData[contractIndex],
+            status: 'Resign',
+            resignationData: data.resignationData
+          };
+        }
+      },
+      error: error => {
+        console.error('Error processing contract resignation:', error);
+      }
+    });
+    this.toasterService.showSuccess('contract resignation processed successfully');
     // TODO: Add toast notification
   }
 
@@ -514,6 +622,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // View resigned contract details
   viewResignedContract(contract: Contract): void {
+
     this.selectedContract = contract;
     this.contractResignationData = contract.resignationData || {
       resignDate: contract.endDate,
@@ -543,8 +652,19 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   }
 
   // Close dropdown when clicking outside
+  // @HostListener('document:click', ['$event'])
+  // onDocumentClick(event: Event): void {
+  //   const target = event.target as HTMLElement;
+  //   if (!target.closest('.custom-dropdown')) {
+  //     this.selectedContract = null;
+  //   }
+  // }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
+    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
+      return;
+    }
     const target = event.target as HTMLElement;
     if (!target.closest('.custom-dropdown')) {
       this.selectedContract = null;

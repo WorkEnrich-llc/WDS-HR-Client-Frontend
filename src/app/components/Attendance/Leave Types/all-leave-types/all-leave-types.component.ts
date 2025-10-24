@@ -1,7 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -9,10 +9,11 @@ import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-leave-types',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule,ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './all-leave-types.component.html',
   styleUrl: './all-leave-types.component.css'
 })
@@ -33,12 +34,16 @@ export class AllLeaveTypesComponent {
   currentSortColumn: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router)
 
 
   ngOnInit(): void {
+
     this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllJobTitles(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('leave-types/all-leave-types') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllJobTitles(pageFromUrl);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -78,7 +83,7 @@ export class AllLeaveTypesComponent {
       }
     });
   }
-  
+
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
@@ -112,7 +117,7 @@ export class AllLeaveTypesComponent {
   totalpages: number = 0;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  loadData:boolean =true;
+  loadData: boolean = true;
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
@@ -133,11 +138,11 @@ export class AllLeaveTypesComponent {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
       }
     });
   }
@@ -148,9 +153,32 @@ export class AllLeaveTypesComponent {
     this.currentPage = 1;
     this.getAllJobTitles(this.currentPage);
   }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllJobTitles(this.currentPage);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllJobTitles(this.currentPage);
+    this.paginationState.setPage('leave-types/all-leave-types', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+
+
+  navigateToEdit(componentId: number): void {
+    this.paginationState.setPage('leave-types/all-leave-types', this.currentPage);
+    this.router.navigate(['/leave-types/update-leave-types', componentId]);
+  }
+
+
+  navigateToView(componentId: number): void {
+    this.paginationState.setPage('leave-types/all-leave-types', this.currentPage);
+    this.router.navigate(['/leave-types/view-leave-types', componentId]);
   }
 
 }

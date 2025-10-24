@@ -18,14 +18,15 @@ export interface CreateEmployeeRequest {
     };
     job_details: {
       years_of_experience?: number | null;
-      branch_id: number;
-      department_id: number;
-      section_id?: number;
-      job_title_id: number;
-      work_schedule_id: number;
+      branch_id?: number | null;
+      department_id?: number | null;
+      section_id?: number | null;
+      management_level?: number | null;
+      job_title_id?: number | null;
+      work_schedule_id?: number | null;
       activate_attendance_rules?: boolean;
     };
-    contract_details: {
+    contract_details?: {
       start_contract: string;
       contract_type: number; // 1 With End Date, 2 Without End Date
       contract_end_date?: string | null;
@@ -50,7 +51,7 @@ export interface CreateEmployeeResponse {
 // API Response Interfaces
 export interface Employee {
   id: number;
-  code?: string;
+  code: string;
   contact_info: {
     name: string;
     name_arabic: string;
@@ -94,18 +95,21 @@ export interface Employee {
       salary_ranges?: {
         per_hour: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
         };
         full_time: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
         };
         part_time: {
           status: boolean;
+          restrict: boolean;
           maximum: string;
           minimum: string;
           currency: string;
@@ -130,8 +134,13 @@ export interface Employee {
       id: number;
       name: string;
     };
+    management_level: {
+      id: number;
+      name: string;
+    }
     days_on_site: number;
     salary: number;
+    notice_period: number;
     insurance_salary?: number;
     gross_insurance?: number;
   };

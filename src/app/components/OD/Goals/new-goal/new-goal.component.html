@@ -4,6 +4,7 @@
     { label: 'Goals', link: '/goals' },
     { label: 'Create New Goal' }
   ]" title="Create New Goal" [create]="todayFormatted">
+    @if(GoalsSub?.create){
     <button class="btn btn-lg btn-success" [disabled]="isLoading || !goalForm.valid" (click)="createGoal()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -18,6 +19,8 @@
         }
         <span>Create Goal</span>
     </button>
+
+    }
 
     <button class="btn btn-lg btn-outline-dark" (click)="openModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

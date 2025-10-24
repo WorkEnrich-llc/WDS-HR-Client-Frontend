@@ -50,7 +50,20 @@ export class CreateDepartmentsComponent {
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
     // console.log(this.todayFormatted); 
   }
+
+
+  departmentsSub: any;
   ngOnInit(): void {
+    this.subService.subscription$.subscribe(sub => {
+      this.departmentsSub = sub?.Departments;
+      // if (this.departmentsSub) {
+      //   console.log("info:", this.departmentsSub.info);
+      //   console.log("create:", this.departmentsSub.create);
+      //   console.log("update:", this.departmentsSub.update);
+      //   console.log("delete:", this.departmentsSub.delete);
+      // }
+    });
+
 
 
     this.searchSubject.pipe(
@@ -74,8 +87,8 @@ export class CreateDepartmentsComponent {
 
   deptStep1: FormGroup = new FormGroup({
     // Optional code must include both letters and numbers when provided
-    code: new FormControl('', []),
-    name: new FormControl('', [Validators.required]),
+    code: new FormControl('', [Validators.maxLength(26)]),
+    name: new FormControl('', [Validators.required,Validators.maxLength(80)]),
     department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });
@@ -89,8 +102,8 @@ export class CreateDepartmentsComponent {
   }
   createSectionGroup(): FormGroup {
     return this.fb.group({
-      secCode: [''],
-      secName: ['', Validators.required],
+      secCode: ['', Validators.maxLength(26)],
+      secName: ['', [Validators.required,Validators.maxLength(80)]],
       status: [true],
       collapsed: [true],
       sub_sections: this.fb.array<FormGroup>([])
@@ -126,8 +139,8 @@ export class CreateDepartmentsComponent {
     const subSections = this.getSubSections(parent);
     subSections.push(
       this.fb.group({
-        secCode: [''],
-        secName: ['', Validators.required],
+        secCode: ['',Validators.maxLength(26)],
+        secName: ['', [Validators.required,Validators.maxLength(80)]],
         status: [true]
       })
     );
@@ -213,22 +226,22 @@ export class CreateDepartmentsComponent {
 
   //checkboxes 
   toggleSelectAll() {
-    this.Goals.forEach(goal => {
-      goal.selected = this.selectAllOverlay;
-    });
-  }
+  this.Goals.forEach(goal => {
+    goal.selected = this.selectAllOverlay;
+  });
+}
 
   toggleSelectAllSelected() {
     this.addedGoal.forEach(addedGoal => {
       addedGoal.selected = this.selectAllAdded;
     });
   }
-  
-    toggleGoal(goal: any) {
+
+  toggleGoal(goal: any) {
   if (!goal.selected) {
-    this.selectAllAdded = false;
-  } else if (this.addedGoal.length && this.addedGoal.every(g => g.selected)) {
-    this.selectAllAdded = true;
+    this.selectAllOverlay = false;
+  } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
+    this.selectAllOverlay = true;
   }
 }
 

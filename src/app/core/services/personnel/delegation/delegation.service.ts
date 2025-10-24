@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -67,6 +67,13 @@ export interface DelegationResponse {
   data: any;
 }
 
+export interface DelegationFilters {
+  search?: string;
+  status?: string;
+  start_date?: string;
+  from_date?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -78,13 +85,35 @@ export class DelegationService {
   }
 
   // Get delegations with pagination and search
-  getDelegations(page: number = 1, per_page: number = 10, search: string = ''): Observable<DelegationListResponse> {
-    let url = `${this.apiBaseUrl}personnel/delegation?page=${page}&per_page=${per_page}`;
+  getDelegations(page: number = 1, per_page: number = 10, search: string = '', filters: any = {}): Observable<DelegationListResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('per_page', per_page.toString());
+
     if (search) {
-      url += `&search=${search}`;
+      params = params.set('search', search);
     }
-    return this.http.get<DelegationListResponse>(url);
+
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        const value = filters[key];
+        if (value !== null && value !== undefined && value !== '') {
+          params = params.append(key, value);
+        }
+      });
+    }
+    const url = `${this.apiBaseUrl}personnel/delegation`;
+
+    return this.http.get<DelegationListResponse>(url, { params });
+
+    // let url = `${this.apiBaseUrl}personnel/delegation?page=${page}&per_page=${per_page}`;
+    // if (search) {
+    //   url += `&search=${search}`;
+    // }
+    // return this.http.get<DelegationListResponse>(url);
   }
+
+
 
   // Get a single delegation by ID
   getDelegationById(id: number): Observable<DelegationDetailResponse> {
@@ -102,6 +131,12 @@ export class DelegationService {
   updateDelegation(requestData: UpdateDelegationRequest): Observable<DelegationResponse> {
     const url = `${this.apiBaseUrl}personnel/delegation`;
     return this.http.put<DelegationResponse>(url, requestData);
+  }
+
+  updateDelegationStatus(id: number, isActive: boolean): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/delegation/${id}/`;
+    const body = { isActive: isActive };
+    return this.http.patch(url, body);
   }
 
   // Delete a delegation

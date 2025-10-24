@@ -74,16 +74,16 @@ export class LoginComponent implements OnInit {
           }
 
 
-          this.subService.getSubscription().subscribe({
-            next: (sub) => {
-              if (sub) {
-                this.subService.setSubscription(sub);
-              }
-            },
-            error: (err) => {
-              console.error('Subscription load error:', err);
-            }
-          });
+          // this.subService.getSubscription().subscribe({
+          //   next: (sub) => {
+          //     if (sub) {
+          //       this.subService.setSubscription(sub);
+          //     }
+          //   },
+          //   error: (err) => {
+          //     console.error('Subscription load error:', err);
+          //   }
+          // });
 
           this._Router.navigate(['/dashboard']);
         } else {

@@ -7,7 +7,9 @@
   [isLoading]="loadData">
 
   @if(!loadData){
-  <button class="btn btn-lg btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
+  @if(departmentsSub?.update){
+  <button class="btn btn-lg btn-success"
+    [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
     (click)="updateDept()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -22,6 +24,8 @@
     }
     <span>Save Changes</span>
   </button>
+  }
+
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -173,9 +177,11 @@
         }
       </div>
       <div class="input">
-        <label for="deptType">Department Type <span>*</span> <small class="ms-2">If You Change Department Type You Should Choose New goals</small></label>
+        <label for="deptType">Department Type <span>*</span> <small class="ms-2">If You Change Department Type You
+            Should Choose New goals</small></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select id="deptType" formControlName="department_type" class="form-select" (change)="onDepartmentTypeChange()">
+          <select id="deptType" formControlName="department_type" class="form-select"
+            (change)="onDepartmentTypeChange()">
             <option value="" selected disabled hidden>Select Department Type</option>
             <option [ngValue]="1">Support</option>
             <option [ngValue]="2">Technical</option>
@@ -307,7 +313,7 @@
                       </a>
                     </div>
                   </div>
-                  <div class="w-5 d-flex align-items-center">
+                  <div class="w-5 d-flex align-items-center justify-content-end">
                     @if (i >= 1) {
                     <button type="button" class="remove-btn" (click)="removeSection(i)" data-bs-toggle="tooltip"
                       data-bs-placement="top" title="Remove">
@@ -373,7 +379,7 @@
                         </a>
                       </div>
                     </div>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-end">
                       <button type="button" class="remove-btn" (click)="removeSubSection(i, j)" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Remove">
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
@@ -539,8 +545,10 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button class="btn btn-lg w-auto btn-success" [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
-    (click)="updateDept()">
+      @if(departmentsSub?.update){
+      <button class="btn btn-lg w-auto btn-success"
+        [disabled]="isLoading || !deptStep1.valid || !isStep2Valid || !hasChanges() || addedGoal.length === 0"
+        (click)="updateDept()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -554,6 +562,8 @@
         }
         <span>Save Changes</span>
       </button>
+      }
+
     </div>
   </div>
 </div>

@@ -41,6 +41,7 @@
         }
       </div>
 
+      @if(sharedService.attendanceDetails.get('work_mode')?.value == 3){
       <div class="input">
         <label for="days_on_site">No. of Days on site</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -53,6 +54,8 @@
         </p>
         }
       </div>
+      }
+
 
       <div class="input">
         <label for="work_schedule_id">Work Schedule <span>*</span></label>
@@ -100,7 +103,10 @@
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next (3/5)</span>
+        <span>
+          {{ sharedService.isEditMode() ? 'Next (3/4)' : 'Next (3/5)' }}
+          <!-- Next (3/5) -->
+        </span>
       </button>
     </div>
   </div>

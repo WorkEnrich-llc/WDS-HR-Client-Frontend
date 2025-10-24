@@ -97,7 +97,6 @@ export class AdminDashboardComponent {
     this.adminDashboardService.viewDashboard(this.params).subscribe({
       next: (response) => {
         const dashboardData = response.data.object_info;
-        // console.log(dashboardData);
         dashboardData.forEach((item: any) => {
           const valuesArray = Array.isArray(item.value) ? item.value : [];
 

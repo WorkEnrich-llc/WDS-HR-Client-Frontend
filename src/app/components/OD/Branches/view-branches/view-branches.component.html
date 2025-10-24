@@ -2,7 +2,10 @@
     { label: 'Operations Development', link: '/departments' },
     { label: 'Branches', link: '/branches' },
     { label: 'View Branch ' + branchData?.name}
-  ]" [title]="'View Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
+  ]" [title]="'View Branch - ' + branchData?.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt"
+  [isLoading]="loadData">
+  @if (!loadData) {
+  @if(branchSub?.update){
   <button class="btn btn-lg btn-primary" [routerLink]="['/branches/edit', branchData?.id]">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -14,6 +17,9 @@
     </svg>
     <span>Edit</span>
   </button>
+  }
+
+
 
   @if (!branchData.is_active) {
   <button class="btn btn-lg btn-outline-success" (click)="openActivate()">
@@ -34,6 +40,11 @@
     <span>Deactivate</span>
   </button>
   }
+
+
+
+  }
+
 </app-page-header>
 
 
@@ -42,6 +53,11 @@
     <div class="col-lg-8">
       <div class="content-box d-flex flex-column gap-3 h-100">
         <h2>Main Information</h2>
+        @if(loadData) {
+        <app-skelaton-loading [rows]="5" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+        </app-skelaton-loading>
+
+        }@else {
         @if (branchData.code) {
         <div class="info">
           <h6>Branch Code</h6>
@@ -61,31 +77,36 @@
         </div>
         }
         @if (branchData.max_employee){
-          <div class="info">
+        <div class="info">
           <h6>Max No. Employees</h6>
           <p class="fs-6 lh-base">{{branchData.max_employee}}</p>
         </div>
         }
         @if (branchData.map_address){
-          <div class="info">
+        <div class="info">
           <h6>Address</h6>
           <p class="fs-6 lh-base">{{branchData.map_address}}</p>
         </div>
         }
-        
+        }
+
+
       </div>
     </div>
     <div class="col-lg-4">
       <div class="content-box d-flex flex-column gap-3 h-100">
         <h2>Branch Location</h2>
+        @if(loadData) {
+        <app-skelaton-loading [rows]="1" [hasLabel]="false" [labelHeight]="16" [valueHeight]="140">
+        </app-skelaton-loading>
+
+        }@else {
         <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 140px; width: 100%;">
 
-          <!-- Transparent overlay div -->
           <div (click)="openInGoogleMaps()"
             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
           </div>
 
-          <!-- Google Map -->
           <google-map height="100%" width="100%" [center]="{ lat: latitude, lng: longitude }" [zoom]="15"
             [options]="{ disableDefaultUI: true, draggable: false, scrollwheel: false, zoomControl: false }">
 
@@ -95,33 +116,60 @@
           </google-map>
 
         </div>
+        }
+
         <div class="d-flex align-items-center mt-3">
-          <div class="w-100">
+          @if (loadData) {
+          <div class="w-100 pe-2">
+            <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+            </app-skelaton-loading>
+          </div>
+          <div class="w-100 ps-2">
+            <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+            </app-skelaton-loading>
+          </div>
+          }
+          @else {
+          <div class="w-100" *ngIf="branchData.longitude">
             <div class="info">
               <h6>Longitude</h6>
-              <p class="fs-6 lh-base">{{branchData.longitude}}</p>
+              <p class="fs-6 lh-base">{{ branchData.longitude }}</p>
             </div>
           </div>
-          <div class="w-100">
+          <div class="w-100" *ngIf="branchData.latitude">
             <div class="info">
               <h6>Latitude</h6>
-              <p class="fs-6 lh-base">{{branchData.latitude}}</p>
+              <p class="fs-6 lh-base">{{ branchData.latitude }}</p>
             </div>
           </div>
+          }
         </div>
+
         <div class="d-flex align-items-center mt-3">
-          <div class="w-100"  *ngIf="branchData.map_country">
+          @if (loadData) {
+          <div class="w-100 pe-2">
+            <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+            </app-skelaton-loading>
+          </div>
+          <div class="w-100 ps-2">
+            <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+            </app-skelaton-loading>
+          </div>
+          }
+          @else {
+          <div class="w-100" *ngIf="branchData.map_country">
             <div class="info">
               <h6>Country</h6>
-              <p class="fs-6 lh-base">{{branchData.map_country}}</p>
+              <p class="fs-6 lh-base">{{ branchData.map_country }}</p>
             </div>
           </div>
           <div class="w-100" *ngIf="branchData.map_city">
             <div class="info">
               <h6>City</h6>
-              <p class="fs-6 lh-base">{{branchData.map_city}}</p>
+              <p class="fs-6 lh-base">{{ branchData.map_city }}</p>
             </div>
           </div>
+          }
         </div>
       </div>
     </div>
@@ -135,8 +183,9 @@
     <h2 class="mb-3">Departments</h2>
 
 
-    <app-table [data]="branchData.departments" [itemsPerPage]="10" [totalItems]="branchData?.departments?.length"
-      [headerTemplate]="departmentTableHeader" [rowTemplate]="departmentTableRow"></app-table>
+    <app-table [data]="branchData.departments" [isLoading]="loadData" [columnsCount]="5" [itemsPerPage]="10"
+      [totalItems]="branchData?.departments?.length" [headerTemplate]="departmentTableHeader"
+      [rowTemplate]="departmentTableRow"></app-table>
 
     <ng-template #departmentTableHeader>
       <th (click)="sortBy('id')" style="cursor: pointer;">

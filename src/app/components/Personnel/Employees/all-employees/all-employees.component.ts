@@ -61,13 +61,13 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       this.currentPage = 1;
       this.loadEmployees();
     });
 
     this.filterForm = this.fb.group({
-      created_at: [''],
+      created_from: [''],
       status: [''],
     });
   }
@@ -119,12 +119,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   filter(): void {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
-
       this.activeFilters = {
         status: rawFilters.status === 'all' ? null : rawFilters.status,
-        created_at: rawFilters.created_from || null
+        created_from: rawFilters.created_from || null
       };
-
       this.currentPage = 1;
       this.loadEmployees();
       this.filterBox.closeOverlay();

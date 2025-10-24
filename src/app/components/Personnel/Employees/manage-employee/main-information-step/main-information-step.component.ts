@@ -16,6 +16,9 @@ import { Validators } from '@angular/forms';
 })
 export class MainInformationStepComponent {
   sharedService = inject(ManageEmployeeSharedService);
+  today = new Date();
+  minDate = new Date(this.today.setFullYear(this.today.getFullYear() - 70)).toISOString().split('T')[0];
+  maxDate = new Date(new Date().setFullYear(new Date().getFullYear() - 15)).toISOString().split('T')[0];
 
   constructor() {
     // Add pattern validator for full name: at least four parts (words)

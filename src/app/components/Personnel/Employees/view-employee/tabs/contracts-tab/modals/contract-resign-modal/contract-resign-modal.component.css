@@ -53,10 +53,10 @@
   border-color: #ef4444;
 }
 
-.form-control.is-invalid:focus {
+/* .form-control.is-invalid:focus {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
+} */
 
 .form-control[readonly] {
   background-color: #f9fafb;
@@ -132,4 +132,13 @@ textarea.form-control {
 
 .btn-secondary:hover {
   background-color: #4b5563;
+}
+
+/* input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+} */
+
+textarea,
+input.is-invalid {
+  background-image: none !important;
 }

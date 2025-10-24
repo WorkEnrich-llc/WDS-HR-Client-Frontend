@@ -1,0 +1,391 @@
+/* Tab styles (matching create-departments pattern) */
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+.nav-tabs .nav-item:hover {
+    color: #0d6efd;
+}
+
+.nav-tabs .nav-item.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-item.text-success {
+    color: #198754 !important;
+    border-bottom-color: #198754;
+}
+
+.nav-tabs .nav-item.bg-light-success {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    background: none;
+    color: inherit;
+    font-weight: inherit;
+    padding: 0;
+}
+
+/* Error message styling */
+.error-msg {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+/* Form check styling */
+.form-check {
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-check-input {
+    margin: 0;
+}
+
+.form-check-label {
+    margin: 0;
+    color: #333;
+    font-weight: 400;
+}
+
+/* Extra spacing for expiry date checkbox */
+.input.mt-4 {
+    margin-top: 2rem !important;
+}
+
+/* Content box styling */
+.content-box {
+    background: #fff;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .content-box {
+        padding: 1rem;
+    }
+
+    .w-lg-50 {
+        width: 100% !important;
+    }
+}
+
+/* Access APIs Tab Styles */
+.search-container {
+    margin-bottom: 1rem;
+}
+
+.search-container .form-outline svg {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* Add service link */
+.add-service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    color: #377AFD;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 700;
+    /* bold to match screenshot */
+}
+
+.add-service-link svg {
+    color: #377AFD;
+    /* ensure icon is the same blue */
+}
+
+.add-service-link:hover {
+    text-decoration: none;
+    /* screenshot shows no underline on hover */
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+/* Filter Overlay Styles */
+.module-filter {
+    min-width: 150px;
+}
+
+/* 2/3 - 1/3 layout for search + select */
+.search-filter-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    /* search 2/3, select 1/3 */
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .search-filter-grid {
+        grid-template-columns: 1fr;
+        /* stack on small screens */
+    }
+}
+
+/* Make the select look like the search input */
+.search-filter-grid .module-filter {
+    height: 48px;
+    /* match input visual height */
+    border-radius: 12px;
+    /* match input radius */
+    padding: 0 12px;
+    /* similar horizontal padding */
+}
+
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Single Service header bar */
+.service-only-header {
+    padding: 0;
+    border: none;
+}
+
+.service-only-header-inner {
+    background: #2f2f2f;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.25rem;
+    border-radius: 12px 12px 0 0;
+}
+
+/* Square checkbox styles */
+.service-square-checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    appearance: none;
+    border: 2px solid #9db7da;
+    background: transparent;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+/* Selected state: blue background with custom SVG checkmark */
+.service-square-checkbox:checked {
+    background: #377AFD;
+    /* 377AFD */
+    border-color: #377AFD;
+}
+
+/* Inject the provided SVG tick as background image */
+.service-square-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 9px;
+    width: 10px;
+    height: 8px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
+}
+
+/* Row layout */
+.service-row {
+    padding: 1rem 1.25rem;
+    background: #ffffff;
+    border-bottom: 8px solid #f3f3f3;
+}
+
+.service-module-label {
+    color: #6b86a6;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.service-name-text {
+    color: #2b3a4b;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* Table wrapper to apply alternating backgrounds */
+.services-list-table table {
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    /* vertical spacing between rows */
+    width: 100%;
+}
+
+/* Row cell container to look like white card inside gray band */
+.services-list-table tbody tr td {
+    background: #ffffff;
+    padding: 12px 16px;
+    border-top: 1px solid #eef0f2;
+    border-bottom: 1px solid #eef0f2;
+}
+
+/* Alternating gray band behind rows */
+.services-list-table tbody tr:nth-child(even) td {
+    background: #f3f4f6;
+}
+
+/* But keep the inner content of our single-cell row white, using service-row block */
+.services-list-table .service-row {
+    background: #ffffff;
+    border-radius: 6px;
+}
+
+/* First header bar rounded top corners already set; ensure table top aligns */
+.service-only-header-inner {
+    border-radius: 12px 12px 0 0;
+}
+
+/* Checkbox visual to match screenshot: rounded square lighter border */
+.service-square-checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid #7ea0c9;
+}
+
+.service-square-checkbox:checked {
+    background: #377AFD;
+    border-color: #377AFD;
+}
+
+/* Typography spacing to match */
+.service-module-label {
+    margin-bottom: 2px;
+}
+
+.service-name-text {
+    line-height: 1.2;
+}
+
+/* Ensure rows share exact width and alternate only by background */
+.services-list-table table {
+    width: 100%;
+    border-collapse: collapse;
+    /* no gaps so widths are identical */
+    border-spacing: 0;
+}
+
+.services-list-table tbody tr {
+    background: #ffffff;
+    /* default white */
+}
+
+.services-list-table tbody tr:nth-child(even) {
+    background: #f3f4f6;
+    /* light gray band */
+}
+
+.services-list-table tbody tr td {
+    padding: 12px 16px;
+    /* consistent inner spacing */
+    border: none;
+    /* no borders between rows */
+    background: transparent;
+    /* inherit row background */
+}
+
+/* Service row content uses the row background (no extra card) */
+.service-row {
+    background: transparent;
+    border: none;
+    padding: 0;
+    /* padding handled by td */
+}
+
+/* Keep checkbox and text styles */
+.service-module-label {
+    margin-bottom: 2px;
+}
+
+.service-name-text {
+    line-height: 1.2;
+}
+
+/* Override Bootstrap table defaults inside services list */
+.services-list-table .table {
+    margin-bottom: 0;
+}
+
+.services-list-table .table> :not(caption)>*>* {
+    border: 0;
+    box-shadow: none;
+}
+
+.services-list-table .table-hover tbody tr:hover {
+    background-color: inherit;
+}
+
+.services-list-table .table-hover tbody tr:hover>* {
+    background-color: inherit;
+}
+
+/* Ensure inner content never paints a different background */
+.services-list-table .service-row,
+.services-list-table .service-row * {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Ensure selected squares in overlay are solid blue */
+.services-list-table td .service-square-checkbox:checked,
+.services-list-table .service-row .service-square-checkbox:checked {
+    background: #377AFD !important;
+    border-color: #377AFD !important;
+}
+
+/* Make rows clickable */
+.services-list-table tbody tr,
+.service-row {
+    cursor: pointer;
+}
+
+/* Ensure the provided SVG tick is used when checked */
+.service-square-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 8px;
+    transform: translate(-50%, -50%);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
+}

@@ -4,6 +4,8 @@
     { label: 'Job Titles', link: '/jobs' },
     { label: 'Create New Job Title' }
   ]" title="Create New Job Title" [create]="todayFormatted">
+
+  @if(jobTitleSub?.create){
   <button class="btn btn-lg btn-success" (click)="createJobTitle()"
     [disabled]="!jobStep4.valid || requirements.length === 0|| !jobStep1.valid || !jobStep2.valid">
     @if (isLoading) {
@@ -19,6 +21,8 @@
     }
     <span>Create Job Title</span>
   </button>
+
+  }
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -181,6 +185,11 @@
           <input type="text" id="jobCode" formControlName="code" class="form-control custom-date-input"
             placeholder="0050" />
         </div>
+        @if (jobStep1.get('code')?.touched && jobStep1.get('code')?.errors?.['maxlength']) {
+        <p class="error-msg">
+          Job Title Code max lengh 26.
+        </p>
+        }
       </div>
       <div class="input">
         <label for="jobTitle">Job Title <span>*</span></label>
@@ -191,6 +200,11 @@
         @if (jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['required']) {
         <p class="error-msg">
           Job Title is required.
+        </p>
+        }
+        @if (jobStep1.get('jobName')?.touched && jobStep1.get('jobName')?.errors?.['maxlength']) {
+        <p class="error-msg">
+          Job Title max lengh 80.
         </p>
         }
       </div>
@@ -220,8 +234,7 @@
         <label for="jobLevel">Job Level <span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select name="jobLevel" formControlName="jobLevel" id="jobLevel" class="form-select"
-              (change)="onLevelChange()">
+            <select name="jobLevel" formControlName="jobLevel" id="jobLevel" class="form-select">
               <option value="" disabled hidden>Select Level</option>
               <option value="0">Not Selected</option>
               <option value="1">Intern</option>
@@ -261,6 +274,8 @@
             Department is required.
           </p>
           }
+
+
         </div>
         <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
           <label for="section">Assign Section</label>
@@ -274,11 +289,26 @@
               </select>
             </div>
           </div>
-          @if (jobStep1.get('section')?.touched && jobStep1.get('section')?.errors?.['required']) {
+          @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          !jobStep1.get('department')?.value
+          ) {
+          <p class="error-msg">
+            Department is required first.
+          </p>
+          }
+
+          @if (
+          jobStep1.get('section')?.touched &&
+          jobStep1.get('section')?.errors?.['required'] &&
+          jobStep1.get('department')?.value
+          ) {
           <p class="error-msg">
             Section is required.
           </p>
           }
+
         </div>
       </div>
       @if (errMsg) {
@@ -527,7 +557,8 @@
       </div>
       @if (errMsg) {
       <div class="alert alert-danger mb-0 mt-3" role="alert">
-        {{errMsg}}
+        <!-- {{errMsg}} -->
+        {{'please fill empty fields or deactivate it'}}
       </div>
       }
     </form>
@@ -574,8 +605,8 @@
     <div>
       <app-table [data]="jobTitles" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
         [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="manageItemsPerPage"
-        [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)"
-        [isLoading]="loadData" [columnsCount]="3">
+        [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)"
+        (itemsPerPageChange)="onItemsPerPageChange($event)" [isLoading]="loadData" [columnsCount]="2">
       </app-table>
       <ng-template #jobsTableHeader>
         <th (click)="sortBy()" style="cursor: pointer;">
@@ -756,6 +787,7 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
+      @if (jobTitleSub?.create){
       <button class="btn btn-lg btn-success" (click)="createJobTitle()"
         [disabled]="!jobStep4.valid || requirements.length === 0|| !jobStep1.valid || !jobStep2.valid">
         @if (isLoading) {
@@ -771,6 +803,8 @@
         }
         <span>Create Job Title</span>
       </button>
+      }
+
     </div>
   </div>
 </div>

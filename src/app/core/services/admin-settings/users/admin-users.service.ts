@@ -63,6 +63,15 @@ export class AdminUsersService {
 
     return this.http.put<any>(url, formData);
   }
+
+  deleteRole(email: string): Observable<any> {
+    const url = `${environment.apiBaseUrl}main/admin-settings/delete-role`;
+    const formData = new FormData();
+    formData.append('email', email);
+    return this.http.delete(url, { body: formData });
+  }
+
+
 }
 
 

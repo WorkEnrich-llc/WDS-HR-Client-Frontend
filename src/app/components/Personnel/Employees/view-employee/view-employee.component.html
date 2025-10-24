@@ -84,10 +84,12 @@
         <h6>Full Name(English)</h6>
         <span>{{ employee.contact_info.name || "N/A" }}</span>
       </div>
-      <div class="info">
+      @if (employee.contact_info.name_arabic) {
+        <div class="info">
         <h6>Full Name(Arabic)</h6>
         <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
       </div>
+      }
       <div class="info">
         <h6>Phone Number</h6>
         <span>{{ employee.contact_info.mobile.country.phone_prefix || ""

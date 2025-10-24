@@ -75,12 +75,13 @@
 
                       <!-- Radius Circle -->
                       @if (branchMarker) {
-                        <map-circle
-                          [center]="branchMarker"
-                          [radius]="radiusRange"
-                          [options]="circleOptions"
-                          (radiusChanged)="onCircleRadiusChanged($event)">
-                        </map-circle>
+                      <map-circle
+  #circleRef="mapCircle"
+  [center]="branchMarker"
+  [radius]="radiusRange"
+  [options]="circleOptions"
+  (radiusChanged)="onCircleRadiusChanged()">
+</map-circle>
                       }
                     </google-map>
 

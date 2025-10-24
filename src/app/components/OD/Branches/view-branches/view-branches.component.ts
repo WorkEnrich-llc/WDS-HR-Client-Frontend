@@ -7,6 +7,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { GoogleMapsLocationComponent, LocationData } from 'app/components/shared/google-maps-location/google-maps-location.component';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 interface Department {
   id: number;
@@ -19,7 +21,7 @@ interface Department {
 
 @Component({
   selector: 'app-view-branches',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink,GoogleMapsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink, GoogleMapsModule, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
@@ -27,32 +29,46 @@ interface Department {
 export class ViewBranchesComponent {
 
 
-  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe,private subService: SubscriptionService) { }
   departments: Department[] = [];
   branchData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   branchId: string | null = null;
-  latitude:number = 0;
-longitude:number = 0;
-
+  latitude: number = 0;
+  longitude: number = 0;
+  loadData: boolean = false;
+branchSub: any;
   ngOnInit(): void {
+
+     // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
+    });
+
+
     this.branchId = this.route.snapshot.paramMap.get('id');
     // this.showBranch(Number(this.branchId));
     if (this.branchId) {
       this.showBranch(Number(this.branchId));
     }
   }
- 
-  showBranch(branchId: number) {
 
+  showBranch(branchId: number) {
+    this.loadData = true;
     this._BranchesService.showBranch(branchId).subscribe({
       next: (response) => {
         // console.log(response);
         this.branchData = response.data.object_info;
         // console.log(this.branchData);
-        this.latitude=this.branchData?.latitude;
-        this.longitude=this.branchData?.longitude;
+        this.latitude = this.branchData?.latitude;
+        this.longitude = this.branchData?.longitude;
         const created = this.branchData?.created_at;
         const updated = this.branchData?.updated_at;
         if (created) {
@@ -61,20 +77,22 @@ longitude:number = 0;
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.loadData = false;
       }
     });
   }
 
 
   openInGoogleMaps() {
-  if (this.latitude && this.longitude) {
-    const url = `https://www.google.com/maps?q=${this.latitude},${this.longitude}`;
-    window.open(url, '_blank');
+    if (this.latitude && this.longitude) {
+      const url = `https://www.google.com/maps?q=${this.latitude},${this.longitude}`;
+      window.open(url, '_blank');
+    }
   }
-}
 
 
   sortDirection: string = 'asc';

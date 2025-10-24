@@ -3,11 +3,13 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-view-goal',
-  imports: [PageHeaderComponent, RouterLink, CommonModule, PopupComponent],
+  imports: [PageHeaderComponent, RouterLink, CommonModule, PopupComponent,SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-goal.component.html',
   styleUrl: './view-goal.component.css'
@@ -17,7 +19,8 @@ export class ViewGoalComponent {
   constructor(
     private goalsService: GoalsService,
     private route: ActivatedRoute,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private subService: SubscriptionService
   ) { }
   goalData: any = [];
   formattedCreatedAt: string = '';
@@ -25,16 +28,28 @@ export class ViewGoalComponent {
   goalId: string | null = null;
   loadData: boolean = false;
 
-
+GoalsSub: any;
   ngOnInit(): void {
+          // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.GoalsSub = sub?.Goals;
+      // if (this.GoalsSub) {
+      //   console.log("info:", this.GoalsSub.info);
+      //   console.log("create:", this.GoalsSub.create);
+      //   console.log("update:", this.GoalsSub.update);
+      //   console.log("delete:", this.GoalsSub.delete);
+      // }
+    });
+  
+
     this.goalId = this.route.snapshot.paramMap.get('id');
-    // this.getDepartment(Number(this.goalId));
+    // this.getGoal(Number(this.goalId));
     if (this.goalId) {
-      this.getDepartment(Number(this.goalId));
+      this.getGoal(Number(this.goalId));
     }
   }
 
-  getDepartment(goalId: number) {
+  getGoal(goalId: number) {
     this.loadData = true;
 
     this.goalsService.showGoal(goalId).subscribe({
@@ -58,27 +73,6 @@ export class ViewGoalComponent {
       }
     });
   }
-  // goalData = {
-  //   id: 1,
-  //   name: "Increase Sales",
-  //   createdAt: "01/09/2025",
-  //   updatedAt: "05/09/2025",
-  //   goalDepartmentType: "Sales",
-  //   priority: 4,
-  //   status: "Assigned",
-  //   assignedDepartments: [
-  //     {
-  //       id: 101,
-  //       name: "Marketing Department"
-  //     },
-  //     {
-  //       id: 102,
-  //       name: "Sales Department"
-  //     }
-  //   ]
-  // };
-
-
 
   deactivateOpen = false;
   activateOpen = false;

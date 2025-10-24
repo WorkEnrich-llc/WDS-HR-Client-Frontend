@@ -27,7 +27,7 @@
         <label for="name_arabic">Full Name(Arabic) <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" id="name_arabic" formControlName="name_arabic" class="form-control custom-date-input"
-            placeholder="الاسم يتكون من أربعة أجزاء باللغة العربية " dir="rtl" />
+            placeholder="الاسم  باللغة العربية و يتكون من اربعة مقاطع" />
         </div>
         @if (sharedService.isFieldInvalid('name_arabic', sharedService.mainInformation)) {
         <p class="error-msg">
@@ -60,8 +60,8 @@
         <label for="date_of_birth">Date of Birth <span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="date" id="date_of_birth" formControlName="date_of_birth"
-              class="form-control custom-date-input" />
+            <input type="date" id="date_of_birth" formControlName="date_of_birth" class="form-control custom-date-input"
+              [min]="minDate" [max]="maxDate" />
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <g fill="none" stroke-width="1.5">
                 <path stroke-linecap="round"
@@ -183,7 +183,7 @@
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
-        <span>Next (1/5)</span>
+        <span>{{ sharedService.isEditMode() ? 'Next (1/4)' : 'Next (1/5)' }}</span>
       </button>
     </div>
   </div>

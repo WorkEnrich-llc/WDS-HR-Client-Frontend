@@ -1,15 +1,17 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 interface Branch {
   id: number;
@@ -33,11 +35,13 @@ export class AllBranchesComponent implements OnInit {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
 
   filterForm!: FormGroup;
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private _BranchesService: BranchesService, private datePipe: DatePipe, private fb: FormBuilder) { }
+    private _BranchesService: BranchesService, private datePipe: DatePipe, private fb: FormBuilder, private subService: SubscriptionService) { }
 
   branches: any[] = [];
   sortDirection: string = 'asc';
@@ -49,12 +53,30 @@ export class AllBranchesComponent implements OnInit {
   currentSearchTerm: string = '';
 
 
+  branchSub: any;
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.currentPage = +params['page'] || 1;
-      this.getAllBranches(this.currentPage);
+    // subscription data
+    this.subService.subscription$.subscribe(sub => {
+      this.branchSub = sub?.Branches;
+      // if (this.branchSub) {
+      //   console.log("info:", this.branchSub.info);
+      //   console.log("create:", this.branchSub.create);
+      //   console.log("update:", this.branchSub.update);
+      //   console.log("delete:", this.branchSub.delete);
+      // }
     });
+
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('branches/all-branches') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllBranches(pageFromUrl);
+    });
+
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPage = +params['page'] || 1;
+    //   this.getAllBranches(this.currentPage);
+    // });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -125,28 +147,28 @@ export class AllBranchesComponent implements OnInit {
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
-filter(): void {
-  if (this.filterForm.valid) {
-    const rawFilters = this.filterForm.value;
+  filter(): void {
+    if (this.filterForm.valid) {
+      const rawFilters = this.filterForm.value;
 
-    const filters = {
-      status: rawFilters.status || undefined,
-      updated_from: rawFilters.updatedFrom || undefined,
-      updated_to: rawFilters.updatedTo || undefined,
-      created_from: rawFilters.createdFrom || undefined,
-      created_to: rawFilters.createdTo || undefined,
-      min_employees: rawFilters.min_employees ? Number(rawFilters.min_employees) : undefined,
-      max_employees: rawFilters.max_employees ? Number(rawFilters.max_employees) : undefined,
-      branch: rawFilters.branch || undefined,
-    };
+      const filters = {
+        status: rawFilters.status || undefined,
+        updated_from: rawFilters.updatedFrom || undefined,
+        updated_to: rawFilters.updatedTo || undefined,
+        created_from: rawFilters.createdFrom || undefined,
+        created_to: rawFilters.createdTo || undefined,
+        min_employees: rawFilters.min_employees ? Number(rawFilters.min_employees) : undefined,
+        max_employees: rawFilters.max_employees ? Number(rawFilters.max_employees) : undefined,
+        branch: rawFilters.branch || undefined,
+      };
 
-    this.currentFilters = filters;
+      this.currentFilters = filters;
 
-    this.currentPage = 1;
-    this.filterBox.closeOverlay();
-    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+      this.currentPage = 1;
+      this.filterBox.closeOverlay();
+      this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    }
   }
-}
 
 
 
@@ -186,7 +208,7 @@ filter(): void {
           updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
           status: item.is_active ? 'Active' : 'Inactive',
         }));
-        // console.log(this.branches)
+        console.log(this.branches)
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
 
@@ -203,15 +225,38 @@ filter(): void {
 
 
 
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
-  }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+  // }
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.paginationState.setPage('branches/all-branches', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  navigateToEdit(branchId: number): void {
+    this.paginationState.setPage('branches/all-branches', this.currentPage);
+    this.router.navigate(['/branches/edit', branchId]);
+  }
+
+
+  navigateToView(branchId: number): void {
+    this.paginationState.setPage('branches/all-branches', this.currentPage);
+    this.router.navigate(['/branches/view-branch', branchId]);
+  }
+
+
 
 }
