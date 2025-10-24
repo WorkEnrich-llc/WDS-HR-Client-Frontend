@@ -318,6 +318,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Handle cancel from modal
   onContractCancel(contract: Contract): void {
+    if (this.isLoading) return;
+    this.isLoading = true;
     // Call API to cancel contract
     this.employeeService.cancelEmployeeContract({
       contract_id: contract.id,
@@ -328,6 +330,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           response?.data?.list_items ??
           [];
         // Update local data with the response
+        this.isLoading = false;
         this.closeCancelModal();
         this.toasterService.showSuccess('Contract cancelled successfully');
         this.contractsData = this.mapApiContractsToUI(listItems);
