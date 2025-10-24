@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
@@ -33,6 +33,7 @@ import { finalize } from 'rxjs';
 })
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
+  @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
   private toasterService = inject(ToasterMessageService);
   historyContract: Contract | null = null;
   editedContract: Contract | null = null;
@@ -356,8 +357,10 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // Close add/edit contract overlay
   closeAddModal(): void {
     this.isAddModalOpen = false;
+    this.isOpen = false;
     this.isEditMode = false;
-    this.selectedContract = null;
+    this.editedContract = null;
+
   }
 
   // Save contract (add or edit) - called from modal
@@ -544,7 +547,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       next: response => {
         const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
         if (contractIndex !== -1) {
-          this.contractsData[contractIndex].status = 'Terminated';
+          this.contractsData[contractIndex].status = 'Terminate';
           this.contractsData[contractIndex].terminationData = data.terminationData;
         }
 

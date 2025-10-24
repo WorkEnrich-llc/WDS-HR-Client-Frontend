@@ -30,7 +30,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: [null, [Validators.required, Validators.min(0)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
-      endDate: [null, Validators.required], // conditional field
+      endDate: [null], // conditional field
       noticePeriod: [60, [Validators.required, Validators.min(1)]] // notice period in days
     });
   }
@@ -38,6 +38,9 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // if (changes['contract'] && this.contract && this.isEditMode) {
+    //   this.populateForm();
+    // }
     if (changes['contract'] && this.contract && this.isEditMode) {
       this.populateForm();
     } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
@@ -95,6 +98,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
     this.contractForm.patchValue({
       adjustmentType: 1,
+      withEndDate: true,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
@@ -105,7 +109,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     this.setupSalaryValidation();
   }
 
-  private resetForm(): void {
+  resetForm(): void {
     this.contractForm.reset({
       adjustmentType: 1,
       salary: null,
