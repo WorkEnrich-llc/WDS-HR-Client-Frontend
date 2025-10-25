@@ -26,10 +26,12 @@ export class JobsService {
       created_from?: string;
       created_to?: string;
       management_level?: string;
+      branch_id?: string;
       department?: string;
       section?: string;
       status?: string;
       request_in?: string;
+      request_in_create?: string;
     }
   ): Observable<any> {
     const url = `${this.apiBaseUrl}od/job-titles`;
@@ -45,10 +47,12 @@ export class JobsService {
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
       if (filters.management_level) params = params.set('management_level', filters.management_level);
+      if (filters.branch_id) params = params.set('branch_id', filters.branch_id);
       if (filters.department) params = params.set('department', filters.department);
       if (filters.section) params = params.set('section', filters.section);
       if (filters.status) params = params.set('status', filters.status);
       if (filters.request_in) params = params.set('request_in', filters.request_in);
+      if (filters.request_in_create) params = params.set('request_in_create', filters.request_in_create);
     }
 
     return this._HttpClient.get(url, { params });
