@@ -1350,9 +1350,9 @@ export class ManageEmployeeSharedService {
     //   }
     // }
 
-    // if (formData.job_details.job_title_id) {
-    //   jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
-    // }
+    if (formData.job_details.job_title_id) {
+      jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
+    }
 
     if (managementLevel >= 2) {
       if (formData.job_details.branch_id) {
