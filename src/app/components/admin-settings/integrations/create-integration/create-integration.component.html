@@ -1,7 +1,7 @@
 <!-- page header -->
 <app-page-header [breadcrumbs]="breadcrumb" title="Create Integration" [create]="todayFormatted">
-    <button class="btn btn-lg btn-success w-auto" [disabled]="isSubmitting || !integrationForm.valid"
-        (click)="onSubmit()">
+    <button class="btn btn-lg btn-success w-auto"
+        [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0" (click)="onSubmit()">
         @if (isSubmitting) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -251,6 +251,20 @@
             </svg>
             <span>Add Service(s)</span>
         </a>
+
+        <!-- Service Selection Error Alert -->
+        @if (showServiceError) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert"
+            style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Please select at least one service to continue.</span>
+        </div>
+        }
 
         <!-- Table Component -->
         <app-table [data]="selectedServices" [totalItems]="tableTotalItems" [itemsPerPage]="tableItemsPerPage"

@@ -53,6 +53,9 @@ export class UpdateIntegrationComponent implements OnInit {
     // Captured features keys for request
     featureKeys: string[] = [];
 
+    // Service selection validation
+    showServiceError: boolean = false;
+
     // Breadcrumb data
     breadcrumb = [
         { label: 'Admin Settings', link: '/cloud' },
@@ -121,6 +124,16 @@ export class UpdateIntegrationComponent implements OnInit {
     }
 
     onSubmit(): void {
+        // Check if at least one service is selected
+        if (this.selectedServices.length === 0) {
+            this.showServiceError = true;
+            // Scroll to the service section if we're not already there
+            if (this.currentTab !== 'access-apis') {
+                this.setCurrentTab('access-apis');
+            }
+            return;
+        }
+
         if (this.integrationForm.valid && !this.isSubmitting) {
             this.isSubmitting = true;
             const formData = this.integrationForm.value;
@@ -257,6 +270,10 @@ export class UpdateIntegrationComponent implements OnInit {
         this.selectedServices = this.availableServices.filter(service => service.selected);
         // Update featureKeys based on selected services (remove spaces from service names)
         this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        // Clear error if services are selected
+        if (this.selectedServices.length > 0) {
+            this.showServiceError = false;
+        }
         this.updateTableData();
         this.closeServiceFilter();
     }
@@ -272,6 +289,10 @@ export class UpdateIntegrationComponent implements OnInit {
         }
         // Update featureKeys to stay in sync
         this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        // Show error if no services remain
+        if (this.selectedServices.length === 0) {
+            this.showServiceError = true;
+        }
         this.updateTableData();
     }
 
