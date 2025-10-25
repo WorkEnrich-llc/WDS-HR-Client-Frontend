@@ -143,14 +143,9 @@ export class AttendanceLogComponent {
     });
 
 
-    this.departmentList$ = this.departmentService.getAllDepartment(1, 100, { status: 'true' }).pipe(
+    this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
       map((res: any) => res?.data?.list_items ?? [])
     );
-    // this.departmentList$ = this.departmentService.getAllDepartments().pipe(
-    //   tap((res: any) => console.log('Departments response:', res)),
-    //   map((res: any) => res?.data?.list_items ?? []),
-    //   tap((list) => console.log('Filtered list_items:', list))
-    // );
 
   }
 

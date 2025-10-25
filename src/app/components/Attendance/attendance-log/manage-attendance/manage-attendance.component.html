@@ -54,7 +54,7 @@
             <label for="date">Select a date<span>*</span></label>
             <div class="form-outline w-100 position-relative custom-date-wrapper">
                <input type="text" id="date" class="form-control custom-date-input" placeholder="Select a Day or More"
-                  formControlName="date" appDateInput />
+                  formControlName="date" appDateInput [max]="maxDate" />
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <g fill="none" stroke-width="1.5">
                      <path stroke-linecap="round"
@@ -69,6 +69,11 @@
                Date is required.
             </p>
             }
+            @if (newLogForm.get('date')?.touched && newLogForm.get('date')?.errors?.['futureDate']) {
+            <p class="error-msg">
+               Cannot select a future date. Attendance logs can only be created for today or past dates.
+            </p>
+            }
          </div>
 
          <div class="input gap-3">
@@ -77,7 +82,7 @@
                <div class="input w-50">
                   <div class="form-outline w-100 position-relative custom-date-wrapper">
                      <input type="text" id="start" class="form-control custom-date-input" placeholder="Start"
-                        formControlName="start" appTimeInput />
+                        formControlName="start" appTimeDisplay />
                   </div>
                   @if (newLogForm.get('start')?.touched && newLogForm.get('start')?.errors?.['required']) {
                   <p class="error-msg">
@@ -88,7 +93,7 @@
                <div class="input w-50">
                   <div class="form-outline w-100 position-relative custom-date-wrapper">
                      <input type="text" id="end" class="form-control custom-date-input" placeholder="End"
-                        formControlName="end" appTimeInput />
+                        formControlName="end" appTimeDisplay />
                   </div>
                   @if (newLogForm.get('end')?.touched && newLogForm.get('end')?.errors?.['required']) {
                   <p class="error-msg">

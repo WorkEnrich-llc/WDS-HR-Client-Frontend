@@ -37,6 +37,7 @@ export class CreateLeaveTypeComponent implements OnInit {
     this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
     this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+    // this.setupAccrualValidation(); // 
   }
 
   private setupCheckboxControl(checkbox: string, dependentControls: string[]) {
@@ -67,6 +68,44 @@ export class CreateLeaveTypeComponent implements OnInit {
     max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
     maximum_carryover_days: new FormControl({ value: '', disabled: true }, [Validators.pattern('^\\d+(\\.\\d+)?$')])
   });
+
+  // private setupAccrualValidation() {
+  //   const accrualRate = this.leaveType2.get('accrual_rate');
+  //   const leaveLimits = this.leaveType2.get('leave_limits');
+
+  //   // Listen to accrual rate changes
+  //   accrualRate?.valueChanges.subscribe(() => {
+  //     leaveLimits?.updateValueAndValidity({ emitEvent: false });
+  //   });
+
+  //   // Listen to leave limits changes
+  //   leaveLimits?.valueChanges.subscribe(() => {
+  //     leaveLimits?.updateValueAndValidity({ emitEvent: false });
+  //   });
+
+  //   // Add custom validator to leave_limits
+  //   leaveLimits?.addValidators(this.accrualAlignmentValidator.bind(this));
+  // }
+
+  // private accrualAlignmentValidator(control: any) {
+  //   const accrualRate = this.leaveType2.get('accrual_rate')?.value;
+  //   const leaveLimits = control.value;
+
+  //   if (!accrualRate || !leaveLimits) {
+  //     return null;
+  //   }
+
+  //   const expectedLeaveLimits = Number(accrualRate) * 12;
+  //   const actualLeaveLimits = Number(leaveLimits);
+
+  //   // Allow a small tolerance for floating point comparison
+  //   const tolerance = 0.01;
+  //   if (Math.abs(actualLeaveLimits - expectedLeaveLimits) > tolerance) {
+  //     return { accrualMismatch: { expectedLeaveLimits, accrualRate } };
+  //   }
+
+  //   return null;
+  // }
 
 
   leaveType3 = this.fb.group({
