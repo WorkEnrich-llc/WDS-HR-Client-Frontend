@@ -16,6 +16,9 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 })
 export class EditLateArriveComponent {
   private toasterService = inject(ToasterMessageService);
+  // Maximum allowed minutes for permission inputs. Backend appears to cap values (e.g., 60),
+  // so we validate on the frontend to avoid confusing resets where backend returns 0.
+  readonly maxMinutes = 60;
   constructor(
     private router: Router,
     private _PermissionsService: PermissionsService
@@ -81,27 +84,44 @@ export class EditLateArriveComponent {
 
   saveChanges() {
     this.isLoading = true;
-    if (!this.isChanged) return;
+    if (!this.isChanged) {
+      this.isLoading = false;
+      return;
+    }
 
+    // Validation: minutes must not be negative when permission is allowed
+    if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes < 0) {
+      // field-level validation is displayed in template; stop submission
+      this.isLoading = false;
+      return;
+    }
+
+    // Validation: prevent values greater than allowed max to avoid backend clipping to 0.
+    if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes > this.maxMinutes) {
+      this.isLoading = false;
+      this.errMsg = `Maximum allowed minutes is ${this.maxMinutes}. Please enter a smaller value.`;
+      this.toasterService.showError(this.errMsg);
+      return;
+    }
     const earlyLeave = this.permissions?.early_leave || {
       minutes: null,
       note: null
     };
 
-    const early_leave_status =
-      (earlyLeave.minutes && earlyLeave.minutes !== 0) ||
-        (earlyLeave.note && earlyLeave.note.trim() !== '')
-        ? 'true'
-        : 'false';
+    // Determine whether early_leave has content (minutes defined or note non-empty)
+    const earlyLeaveHasContent =
+      (earlyLeave.minutes !== null && earlyLeave.minutes !== undefined) ||
+      (earlyLeave.note && earlyLeave.note.trim() !== '');
 
+    const early_leave_status = earlyLeaveHasContent ? 'true' : 'false';
     const late_arrive_status = this.allowPermission ? 'true' : 'false';
 
     const formData = new FormData();
-    formData.append('late_arrive_minutes', this.minutes ? this.minutes.toString() : '');
+    formData.append('late_arrive_minutes', this.minutes !== null && this.minutes !== undefined ? this.minutes.toString() : '');
     formData.append('late_arrive_note', this.note || '');
     formData.append('late_arrive_status', late_arrive_status);
 
-    formData.append('early_leave_minutes', earlyLeave.minutes ? earlyLeave.minutes.toString() : '');
+    formData.append('early_leave_minutes', earlyLeave.minutes !== null && earlyLeave.minutes !== undefined ? earlyLeave.minutes.toString() : '');
     formData.append('early_leave_note', earlyLeave.note || '');
     formData.append('early_leave_status', early_leave_status);
 
