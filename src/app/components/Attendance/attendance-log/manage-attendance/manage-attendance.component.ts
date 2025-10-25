@@ -40,8 +40,16 @@ export class ManageAttendanceComponent {
 
     const today = new Date().toLocaleDateString('en-GB');
     this.createDate = today;
-    this.employeesService.getAllEmployees().subscribe(res => {
-      this.employeeList = res?.data?.list_items ?? [];
+    // load employees and set loading state
+    this.employeesService.getAllEmployees().subscribe({
+      next: (res) => {
+        this.employeeList = res?.data?.list_items ?? [];
+        this.newLogForm.get('employee_id')?.enable();
+      },
+      error: (err) => {
+        console.error('Failed to load employees', err);
+        this.employeeList = [];
+      }
     });
     this.patchFormValues();
 
@@ -67,7 +75,7 @@ export class ManageAttendanceComponent {
 
   private initFormModel(): void {
     this.newLogForm = this.fb.group({
-      employee_id: ['', [Validators.required]],
+      employee_id: [{ value: '', disabled: true }, [Validators.required]],
       date: ['', [Validators.required]],
       start: ['', [Validators.required]],
       end: ['', [Validators.required]],
