@@ -47,9 +47,9 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
 };
 
 @Injectable(
-  // {
-  // providedIn: 'root'
-  // }
+  {
+    providedIn: 'root'
+  }
 )
 export class ManageEmployeeSharedService {
   private fb = new FormBuilder();
@@ -181,7 +181,7 @@ export class ManageEmployeeSharedService {
     //   return;
     // }
     this.isLoading.set(true);
-    this.branchesService.getAllBranches(1, 100).subscribe({
+    this.branchesService.getAllBranches(1, 1000).subscribe({
       next: (res) => {
         this.branches.set(res.data.list_items || []);
         this.isLoading.set(false);
@@ -209,6 +209,7 @@ export class ManageEmployeeSharedService {
     this.setupDepartmentWatcher(deptCtrl, sectionCtrl, jobTitleCtrl);
     this.setupSectionWatcher(sectionCtrl, jobTitleCtrl);
     this.setupManagementLevelWatcher(managementCtrl, jobTitleCtrl, branchCtrl, deptCtrl, sectionCtrl);
+    this.setupJobTitleWatcher(jobTitleCtrl, branchCtrl);
   }
 
   private setInitialJobDetailsState(
@@ -241,19 +242,24 @@ export class ManageEmployeeSharedService {
 
 
       if (currentLevel && currentLevel !== 5) {
+        this.loadInitialData();
         this.fetchJobTitlesForManagementLevel(currentLevel.toString());
         jobTitleCtrl?.setValidators(Validators.required);
         jobTitleCtrl?.reset(null, { emitEvent: false });
         jobTitleCtrl?.enable();
 
+        branchCtrl?.setValidators(Validators.required);
         branchCtrl?.disable();
+        branchCtrl?.reset(null, { emitEvent: false });
+
+        // branchCtrl?.disable();
         deptCtrl?.disable();
         sectionCtrl?.disable();
-        branchCtrl?.reset(null, { emitEvent: false });
+        // branchCtrl?.reset(null, { emitEvent: false });
         deptCtrl?.reset(null, { emitEvent: false });
         sectionCtrl?.reset(null, { emitEvent: false });
 
-        branchCtrl?.clearValidators();
+        // branchCtrl?.clearValidators();
         deptCtrl?.clearValidators();
         sectionCtrl?.clearValidators();
 
@@ -286,6 +292,29 @@ export class ManageEmployeeSharedService {
       branchCtrl?.updateValueAndValidity();
       deptCtrl?.updateValueAndValidity();
       sectionCtrl?.updateValueAndValidity();
+    });
+  }
+
+
+  private setupJobTitleWatcher(
+    jobTitleCtrl: AbstractControl | null,
+    branchCtrl: AbstractControl | null
+  ): void {
+    jobTitleCtrl?.valueChanges.pipe(
+      startWith(jobTitleCtrl.value),
+      filter(() => {
+        const level = this.jobDetails?.get('management_level')?.value;
+        return level && level < 5;
+      })
+    ).subscribe((jobTitleId) => {
+      if (this.suppressWatchers) return;
+
+      if (jobTitleId) {
+        branchCtrl?.enable();
+      } else {
+        branchCtrl?.disable();
+        branchCtrl?.reset(null, { emitEvent: false });
+      }
     });
   }
 
@@ -414,11 +443,11 @@ export class ManageEmployeeSharedService {
         if (data.job_info.work_schedule) {
           this.workSchedules.set([data.job_info.work_schedule]);
         }
-
+        this.suppressWatchers = false;
         this.jobDetails?.get('management_level')?.updateValueAndValidity({ emitEvent: true });
 
         this.isLoading.set(false);
-        this.suppressWatchers = false;
+        // this.suppressWatchers = false;
 
       },
       error: (error) => {
@@ -501,7 +530,6 @@ export class ManageEmployeeSharedService {
       }
     })
   }
-
 
 
   private patchEmployeeForm(data: Employee): void {
@@ -867,16 +895,26 @@ export class ManageEmployeeSharedService {
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 
-      if (field.errors['pattern']) {
-        if (fieldName === 'name_english' || fieldName === 'name_arabic') {
-          return 'Please enter a valid format';
-        }
-        return `${displayName} format is incorrect`;
-      }
+      // if (field.errors['pattern']) {
+      //   if (fieldName === 'name_english' || fieldName === 'name_arabic') {
+      //     return 'Please enter a valid format';
+      //   }
+      //   return `${displayName} format is incorrect`;
+      // }
+
+      // if (field.errors['pattern']) {
+      //   if (fieldName === 'number' || fieldName.endsWith('.number')) {
+      //     return 'Number must start with 10, 11, 12, or 15';
+      //   }
+      //   return `${displayName} format is incorrect`;
+      // }
 
       if (field.errors['pattern']) {
         if (fieldName === 'number' || fieldName.endsWith('.number')) {
           return 'Number must start with 10, 11, 12, or 15';
+        }
+        if (fieldName === 'name_english' || fieldName === 'name_arabic') {
+          return 'Please enter a valid format';
         }
         return `${displayName} format is incorrect`;
       }
@@ -1002,6 +1040,97 @@ export class ManageEmployeeSharedService {
 
 
 
+  // getFormData() {
+  //   const formData = this.employeeForm.getRawValue();
+  //   const jobDetailsPayload: any = {
+  //     years_of_experience: formData.job_details.years_of_experience || 0,
+  //     management_level: parseInt(formData.job_details.management_level, 10),
+  //     work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
+  //     activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
+  //   };
+
+  //   const managementLevel = jobDetailsPayload.management_level;
+
+  //   if (managementLevel === 5) {
+  //     jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+  //     jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
+  //     if (formData.job_details.section_id) {
+  //       jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
+  //     }
+  //   }
+
+  //   if (formData.job_details.job_title_id) {
+  //     jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
+  //   }
+
+  //   const requestData: any = {
+  //     main_information: {
+  //       code: formData.main_information.code,
+  //       name_english: formData.main_information.name_english,
+  //       name_arabic: formData.main_information.name_arabic,
+  //       gender: formData.main_information.gender,
+  //       mobile: {
+  //         country_id: formData.main_information.mobile.country_id,
+  //         number: parseInt(formData.main_information.mobile.number)
+  //       },
+  //       personal_email: formData.main_information.personal_email,
+  //       marital_status: formData.main_information.marital_status,
+  //       date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
+  //       address: formData.main_information.address
+  //     },
+  //     job_details: jobDetailsPayload
+  //   };
+
+  //   // if (!this.isEditMode()) {
+  //   if (this.employeeForm.get('contract_details')) {
+  //     requestData.contract_details = {
+  //       start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
+  //       contract_type: formData.contract_details.contract_type,
+  //       contract_end_date: formData.contract_details.contract_type === 1
+  //         ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
+  //       employment_type: formData.attendance_details.employment_type,
+  //       work_mode: formData.attendance_details.work_mode,
+  //       days_on_site: formData.attendance_details.days_on_site
+  //         ? parseInt(formData.attendance_details.days_on_site, 10)
+  //         : 0,
+  //       salary: parseFloat(formData.contract_details.salary),
+  //       insurance_salary: formData.insurance_details.include_insurance_salary
+  //         ? parseFloat(formData.insurance_details.insurance_salary)
+  //         : 0,
+  //       gross_insurance: formData.insurance_details.include_gross_insurance_salary
+  //         ? parseFloat(formData.insurance_details.gross_insurance_salary)
+  //         : 0,
+  //       notice_period: formData.contract_details.notice_period
+  //         ? parseInt(formData.contract_details.notice_period, 10)
+  //         : 0
+  //     };
+  //   } else {
+  //     requestData.contract_details = {
+  //       employment_type: formData.attendance_details.employment_type,
+  //       work_mode: formData.attendance_details.work_mode,
+  //       days_on_site: formData.attendance_details.days_on_site
+  //         ? parseInt(formData.attendance_details.days_on_site, 10)
+  //         : 0,
+  //       salary: 0,
+  //     }
+  //   }
+  //   // }
+
+  //   if (!this.isEditMode()) {
+  //     return { request_data: requestData };
+  //   }
+
+  //   const originalData = this.employeeData();
+  //   if (!originalData) return null;
+
+  //   return {
+  //     request_data: {
+  //       id: originalData.id,
+  //       ...requestData
+  //     }
+  //   };
+  // }
+
   getFormData() {
     const formData = this.employeeForm.getRawValue();
     const jobDetailsPayload: any = {
@@ -1043,41 +1172,61 @@ export class ManageEmployeeSharedService {
       job_details: jobDetailsPayload
     };
 
-    // if (!this.isEditMode()) {
+    let contractDetailsPayload: any = {};
+    const isCreateMode = !this.isEditMode();
+
     if (this.employeeForm.get('contract_details')) {
-      requestData.contract_details = {
-        start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
-        contract_type: formData.contract_details.contract_type,
-        contract_end_date: formData.contract_details.contract_type === 1
-          ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
+      contractDetailsPayload = {
         employment_type: formData.attendance_details.employment_type,
         work_mode: formData.attendance_details.work_mode,
         days_on_site: formData.attendance_details.days_on_site
           ? parseInt(formData.attendance_details.days_on_site, 10)
           : 0,
-        salary: parseFloat(formData.contract_details.salary),
         insurance_salary: formData.insurance_details.include_insurance_salary
           ? parseFloat(formData.insurance_details.insurance_salary)
           : 0,
         gross_insurance: formData.insurance_details.include_gross_insurance_salary
           ? parseFloat(formData.insurance_details.gross_insurance_salary)
-          : 0,
-        notice_period: formData.contract_details.notice_period
-          ? parseInt(formData.contract_details.notice_period, 10)
           : 0
       };
-    } else {
-      requestData.contract_details = {
+
+      if (isCreateMode) {
+        contractDetailsPayload = {
+          ...contractDetailsPayload,
+          start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
+          contract_type: formData.contract_details.contract_type,
+          contract_end_date: formData.contract_details.contract_type === 1
+            ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
+          salary: parseFloat(formData.contract_details.salary),
+          notice_period: formData.contract_details.notice_period
+            ? parseInt(formData.contract_details.notice_period, 10)
+            : 0
+        };
+      }
+
+    }
+    else {
+      contractDetailsPayload = {
         employment_type: formData.attendance_details.employment_type,
         work_mode: formData.attendance_details.work_mode,
         days_on_site: formData.attendance_details.days_on_site
           ? parseInt(formData.attendance_details.days_on_site, 10)
           : 0,
-        salary: 0,
+      };
+      if (isCreateMode) {
+        contractDetailsPayload.salary = 0;
       }
+      // requestData.contract_details = {
+      //   employment_type: formData.attendance_details.employment_type,
+      //   work_mode: formData.attendance_details.work_mode,
+      //   days_on_site: formData.attendance_details.days_on_site
+      //     ? parseInt(formData.attendance_details.days_on_site, 10)
+      //     : 0,
+      //   salary: 0,
+      // }
     }
     // }
-
+    requestData.contract_details = contractDetailsPayload;
     if (!this.isEditMode()) {
       return { request_data: requestData };
     }
@@ -1092,6 +1241,7 @@ export class ManageEmployeeSharedService {
       }
     };
   }
+
 
   resetForm(): void {
     this.employeeForm.reset();

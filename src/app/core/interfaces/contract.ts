@@ -7,9 +7,10 @@ export interface Contract {
   end_contract: string;
   salary: number;
   insurance_salary: number;
-  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned' | 'Probation' | 'Resign';
+  status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned' | 'Probation' | 'Resign' | 'Terminate';
   created_at: string;
   created_by: string;
+
 
   // Mapped properties for compatibility with existing UI
   contractNumber?: string;

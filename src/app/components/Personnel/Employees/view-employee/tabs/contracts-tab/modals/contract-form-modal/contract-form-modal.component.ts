@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -17,6 +17,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
   @Input() isSaving = false;
+  @Input() isLoading = false;
   @Input() contract: Contract | null = null;
   @Input() employee: Employee | null = null;
   @Output() onClose = new EventEmitter<void>();
@@ -30,7 +31,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: [null, [Validators.required, Validators.min(0)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
-      endDate: [null, Validators.required], // conditional field
+      endDate: [null], // conditional field
       noticePeriod: [60, [Validators.required, Validators.min(1)]] // notice period in days
     });
   }
@@ -40,9 +41,12 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contract'] && this.contract && this.isEditMode) {
       this.populateForm();
-    } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
-      this.resetForm();
     }
+    // if (changes['contract'] && this.contract && this.isEditMode) {
+    //   this.populateForm();
+    // } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
+    //   this.resetForm();
+    // }
 
     // Set up conditional validation for end date
     this.setupConditionalValidation();
@@ -95,6 +99,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
     this.contractForm.patchValue({
       adjustmentType: 1,
+      // withEndDate: true,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
@@ -105,7 +110,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     this.setupSalaryValidation();
   }
 
-  private resetForm(): void {
+  resetForm(): void {
     this.contractForm.reset({
       adjustmentType: 1,
       salary: null,
@@ -120,6 +125,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   }
 
   closeModal(): void {
+    this.resetForm();
     this.onClose.emit();
   }
 
@@ -224,28 +230,33 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     return this.isEditMode ? 'New Salary' : 'New Salary';
   }
 
+
+
+
+
   // Get salary ranges based on employment type
   getSalaryRanges(): { minimum: string; maximum: string; currency: string } | null {
     if (!this.employee?.job_info?.job_title?.salary_ranges || !this.employee?.job_info?.employment_type) {
       return null;
     }
+    console.log('Employee Data in Contract Modal:', this.employee);
 
     const employmentTypeName = this.employee.job_info.employment_type.name.toLowerCase();
     const salaryRanges = this.employee.job_info.job_title.salary_ranges;
 
-    if (employmentTypeName === 'full time' && salaryRanges.full_time?.status) {
+    if (employmentTypeName === 'full time' && salaryRanges.full_time?.status && salaryRanges.full_time.restrict) {
       return {
         minimum: salaryRanges.full_time.minimum,
         maximum: salaryRanges.full_time.maximum,
         currency: salaryRanges.full_time.currency
       };
-    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status) {
+    } else if (employmentTypeName === 'part time' && salaryRanges.part_time?.status && salaryRanges.part_time.restrict) {
       return {
         minimum: salaryRanges.part_time.minimum,
         maximum: salaryRanges.part_time.maximum,
         currency: salaryRanges.part_time.currency
       };
-    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status) {
+    } else if (employmentTypeName === 'per hour' && salaryRanges.per_hour?.status && salaryRanges.per_hour.restrict) {
       return {
         minimum: salaryRanges.per_hour.minimum,
         maximum: salaryRanges.per_hour.maximum,

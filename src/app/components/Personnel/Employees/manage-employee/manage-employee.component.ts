@@ -37,7 +37,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent
   ],
-  providers: [DatePipe, ManageEmployeeSharedService],
+  providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
   styleUrls: ['./manage-employee.component.css'],
 })
