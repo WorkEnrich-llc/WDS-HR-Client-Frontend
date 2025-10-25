@@ -276,12 +276,9 @@ export class EditFullTimeComponent implements OnInit {
       }
     };
 
-    console.log('Save Data:', requestData);
-
     // Send data to API
     this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
       next: (response) => {
-        this.toasterMessageService.showSuccess('Full-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);
       },
       error: (error) => {

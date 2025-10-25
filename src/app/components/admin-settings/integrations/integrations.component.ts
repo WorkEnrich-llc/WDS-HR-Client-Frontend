@@ -114,6 +114,7 @@ export class IntegrationsComponent implements OnInit {
                         createDate: this.formatDate(item.created_at),
                         expiryDate: this.formatDate(item.expires_at),
                         status: this.getStatusInfo(item.status, item.expires_at),
+                        originalStatus: item.status, // Store the original status from API
                         key: item.access_key || 'N/A',
                         features: this.formatFeatures(item.features?.features || []),
                         createdBy: item.created_by || 'N/A',
@@ -153,14 +154,25 @@ export class IntegrationsComponent implements OnInit {
         const now = new Date();
         const expiryDate = expiresAt ? new Date(expiresAt) : null;
 
-        if (status === 'inactive' || status === 'deactivated') {
+        // Normalize status to lowercase for comparison
+        const normalizedStatus = status?.toLowerCase() || '';
+
+        // Check if pending
+        if (normalizedStatus === 'pending') {
+            return UserStatus.Pending;
+        }
+
+        // Check if revoked, inactive, or deactivated
+        if (normalizedStatus === 'revoked' || normalizedStatus === 'inactive' || normalizedStatus === 'deactivated') {
             return UserStatus.Inactive;
         }
 
+        // Check if expired based on expiry date
         if (expiryDate && expiryDate < now) {
             return UserStatus.Expired;
         }
 
+        // Default to active
         return UserStatus.Active;
     }
 
@@ -288,7 +300,7 @@ export class IntegrationsComponent implements OnInit {
      */
     toggleIntegrationStatus(integration: any): void {
         this.selectedIntegration = integration;
-        this.modalAction = integration.status === UserStatus.Active ? 'deactivate' : 'activate';
+        this.modalAction = (integration.status === UserStatus.Active || integration.status === UserStatus.Pending) ? 'deactivate' : 'activate';
         this.isStatusModalOpen = true;
     }
 
@@ -309,17 +321,20 @@ export class IntegrationsComponent implements OnInit {
             return;
         }
 
-        this.integrationsService.updateIntegrationStatus(this.selectedIntegration.id)
+        // Determine the status to send: true for activate, false for deactivate (revoke)
+        const newStatus = this.modalAction === 'activate' ? true : false;
+
+        this.integrationsService.updateIntegrationStatus(this.selectedIntegration.id, newStatus)
             .subscribe({
                 next: (response) => {
-                    const action = this.modalAction === 'deactivate' ? 'deactivated' : 'activated';
+                    const action = this.modalAction === 'deactivate' ? 'revoked' : 'activated';
                     this.toasterService.showSuccess(`Integration ${action} successfully`, 'Success');
                     this.closeStatusModal();
                     this.getAllIntegrations(this.currentPage);
                 },
                 error: (error) => {
                     console.error('Error updating integration status:', error);
-                    const action = this.modalAction === 'deactivate' ? 'deactivate' : 'activate';
+                    const action = this.modalAction === 'deactivate' ? 'revoke' : 'activate';
                     this.toasterService.showError(`Failed to ${action} integration`, 'Error');
                     this.closeStatusModal();
                 }

@@ -242,6 +242,14 @@
           Accrual Rate must be number.
         </p>
         }
+        <!-- @if (leaveType2.get('accrual_rate')?.value && !leaveType2.get('accrual_rate')?.errors) {
+        <p class="text-muted small mt-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" style="vertical-align: middle;">
+            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"/>
+          </svg>
+          Annual leave limit should be: {{ leaveType2.get('accrual_rate')?.value * 12 }} days ({{ leaveType2.get('accrual_rate')?.value }} × 12 months)
+        </p>
+        } -->
       </div>
       <div class="input">
         <label for="leaveLimits">Leave Limits<span>*</span></label>
@@ -259,6 +267,11 @@
           Leave Limits must be number.
         </p>
         }
+        <!-- @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['accrualMismatch']) {
+        <p class="error-msg">
+          Leave Limits must equal Accrual Rate × 12 months. Expected: {{ leaveType2.get('leave_limits')?.errors?.['accrualMismatch']?.expectedLeaveLimits }} days
+        </p>
+        } -->
       </div>
       <div class="input">
         <label for="maxReview">Max Review Days<span>*</span></label>

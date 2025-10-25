@@ -436,7 +436,7 @@
                 <label for="empType">Employment Type</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select name="empType" formControlName="employment_type" id="empType" class="form-select">
+                        <select name="empType" formControlName="employment_type" (change)="onEmploymentTypeChange($event)" id="empType" class="form-select">
                             <option value="" disabled selected hidden>Select Type</option>
                             <option value=1>Full-time</option>
                             <option value=2>Part-time</option>
@@ -476,7 +476,7 @@
                 <label for="shiftHours">Shift Hours</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" formControlName="shift_hours" id="shiftHours"
-                        class="form-control custom-date-input" placeholder="Total Shift Hours Count" />
+                        class="form-control custom-date-input" (input)="onShiftHoursChange()" placeholder="Total Shift Hours Count" />
                 </div>
                 <p class="error-msg"
                     *ngIf="workSchadule2.get('shift_hours')?.touched && workSchadule2.get('shift_hours')?.errors?.['required']">
@@ -491,7 +491,7 @@
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="text" formControlName="from" id="shiftRange"
                                 class="form-control custom-date-input" pattern="[0-9]{2}:[0-9]{2}"
-                                onfocus="this.type='time'" placeholder="From" />
+                                onfocus="this.type='time'" (change)="onShiftRangeChange()" placeholder="From" />
                         </div>
                         <p class="error-msg"
                             *ngIf="workSchadule2.get('from')?.touched && workSchadule2.get('from')?.errors?.['required']">
@@ -501,7 +501,7 @@
                     <div class="w-100">
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="text" formControlName="to" id="shiftTo" class="form-control custom-date-input"
-                                pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" placeholder="To" />
+                                pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'" (change)="onShiftRangeChange()" placeholder="To" />
                         </div>
                         <p class="error-msg"
                             *ngIf="workSchadule2.get('to')?.touched && workSchadule2.get('to')?.errors?.['required']">
@@ -510,6 +510,11 @@
                     </div>
 
                 </div>
+                <p class="error-msg"
+                    *ngIf="(workSchadule2.get('from')?.touched || workSchadule2.get('to')?.touched) && 
+                           (workSchadule2.get('from')?.errors?.['shiftHoursMismatch'] || workSchadule2.get('to')?.errors?.['shiftHoursMismatch'])">
+                    Shift range duration must match the specified shift hours ({{ workSchadule2.get('shift_hours')?.value }} hours).
+                </p>
             </div>
 
 

@@ -1,4 +1,3 @@
-/* Tab styles */
 .nav-tabs {
     border-bottom: 1px solid #dee2e6
 }
@@ -6,13 +5,13 @@
 .nav-tabs .nav-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: .5rem;
     padding: 1rem 1.5rem;
     cursor: pointer;
     border-bottom: 3px solid transparent;
     color: #6c757d;
     font-weight: 500;
-    transition: all 0.15s ease-in-out
+    transition: all .15s
 }
 
 .nav-tabs .nav-item:hover {
@@ -21,8 +20,7 @@
 
 .nav-tabs .nav-item.active {
     color: #0d6efd;
-    border-bottom-color: #0d6efd;
-    background-color: transparent
+    border-bottom-color: #0d6efd
 }
 
 .nav-tabs .nav-item.text-success {
@@ -31,31 +29,27 @@
 }
 
 .nav-tabs .nav-item.bg-light-success {
-    background-color: rgba(25, 135, 84, 0.1)
+    background: rgba(25, 135, 84, .1)
 }
 
 .nav-tabs .nav-link {
-    border: none;
-    background: none;
+    border: 0;
     color: inherit;
     font-weight: inherit;
     padding: 0
 }
 
-/* Error message styling */
 .error-msg {
     color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    margin-bottom: 0
+    font-size: .875rem;
+    margin: .25rem 0 0
 }
 
-/* Form check styling */
 .form-check {
     padding-left: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem
+    gap: .5rem
 }
 
 .form-check-input {
@@ -69,7 +63,6 @@
     font-weight: 400
 }
 
-/* Recipient radios spacing */
 .recipients-radio-group {
     gap: 1.25rem;
     width: 100%;
@@ -81,26 +74,23 @@
     flex: 1 1 0
 }
 
-/* Circular custom radios */
-.recipients-radio-group .form-check-input[type="radio"] {
+.recipients-radio-group .form-check-input[type=radio] {
     width: 16px;
     height: 16px;
     border-radius: 50% !important;
     border: 2px solid #AFC3DA;
     background: #fff;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
     position: relative;
-    outline: none;
+    outline: 0;
     box-shadow: none
 }
 
-.recipients-radio-group .form-check-input[type="radio"]:checked {
+.recipients-radio-group .form-check-input[type=radio]:checked {
     border-color: #377AFD
 }
 
-.recipients-radio-group .form-check-input[type="radio"]:checked::after {
+.recipients-radio-group .form-check-input[type=radio]:checked::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -116,7 +106,6 @@
     color: #334155
 }
 
-/* Search width */
 .recipients-search {
     width: 320px
 }
@@ -125,7 +114,6 @@
     margin-top: 2rem !important
 }
 
-/* Responsive */
 @media (max-width:768px) {
     .content-box {
         padding: 1rem
@@ -139,10 +127,7 @@
         flex-direction: column
     }
 
-    .nav-item {
-        justify-content: center
-    }
-
+    .nav-item,
     .btn {
         justify-content: center
     }
@@ -152,19 +137,15 @@
     }
 }
 
-/* Fixed button positioning */
 .btn-fixed {
     position: absolute;
     bottom: 1rem;
     right: 1rem;
-    background: transparent;
-    border: none;
+    border: 0;
     padding: 0;
-    z-index: 1000;
-    box-shadow: none
+    z-index: 1000
 }
 
-/* Back square button */
 .back-square-btn {
     width: 48px;
     height: 48px;
@@ -175,7 +156,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease
+    transition: all .2s
 }
 
 .back-square-btn:hover {
@@ -193,7 +174,6 @@
     color: #6c757d
 }
 
-/* Image Upload Styles */
 .image-upload-container {
     position: relative;
     width: 100%
@@ -213,7 +193,7 @@
     padding: 2rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all .3s;
     background: #fafafa;
     min-height: 200px;
     display: flex;
@@ -226,7 +206,7 @@
     border-color: #377AFD;
     background: #f8f9ff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(55, 122, 253, 0.15)
+    box-shadow: 0 4px 12px rgba(55, 122, 253, .15)
 }
 
 .image-upload-area.has-image {
@@ -251,9 +231,9 @@
 }
 
 .upload-text p {
-    margin: 0.5rem 0;
+    margin: .5rem 0;
     color: #6b7280;
-    font-size: 0.875rem
+    font-size: .875rem
 }
 
 .image-preview {
@@ -277,13 +257,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, .5);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity .3s;
     border-radius: 12px
 }
 
@@ -293,8 +273,8 @@
 
 .remove-image-btn,
 .change-image-btn {
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
+    background: rgba(255, 255, 255, .9);
+    border: 0;
     border-radius: 8px;
     width: 40px;
     height: 40px;
@@ -302,19 +282,19 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all .2s;
     color: #374151
 }
 
 .remove-image-btn:hover {
     background: #ef4444;
-    color: white;
+    color: #fff;
     transform: scale(1.1)
 }
 
 .change-image-btn:hover {
     background: #377AFD;
-    color: white;
+    color: #fff;
     transform: scale(1.1)
 }
 
@@ -326,7 +306,7 @@
 
 .image-upload-area.uploading {
     pointer-events: none;
-    opacity: 0.7
+    opacity: .7
 }
 
 .image-upload-area.uploading::after {
@@ -345,7 +325,7 @@
 
 @keyframes spin {
     0% {
-        transform: rotate(0deg)
+        transform: rotate(0)
     }
 
     100% {
@@ -353,7 +333,6 @@
     }
 }
 
-/* Department Selection Styles */
 .search-container {
     margin-bottom: 1rem
 }
@@ -368,17 +347,15 @@
 
 .form-outline select.custom-date-input {
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     background-image: none;
     padding-right: 40px;
     cursor: pointer
 }
 
 .form-outline select.custom-date-input:disabled {
-    background-color: #f8f9fa;
+    background: #f8f9fa;
     cursor: not-allowed;
-    opacity: 0.6
+    opacity: .6
 }
 
 .clear-search-btn {
@@ -389,33 +366,33 @@
     width: 24px;
     height: 24px;
     padding: 0;
-    border: none;
+    border: 0;
     background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: background-color 0.2s ease
+    transition: background .2s
 }
 
 .clear-search-btn:hover {
-    background-color: #f8f9fa
+    background: #f8f9fa
 }
 
 .clear-search-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(55, 122, 253, 0.25)
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(55, 122, 253, .25)
 }
 
 .add-department-link {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: .5rem;
     color: #377AFD;
     text-decoration: none;
     font-weight: 500;
     cursor: pointer;
-    transition: color 0.2s ease
+    transition: color .2s
 }
 
 .add-department-link:hover {
@@ -430,10 +407,9 @@
     padding: 1rem
 }
 
-/* Selected table header styles */
 .selected-only-header {
     padding: 0;
-    border: none
+    border: 0
 }
 
 .selected-only-header-inner {
@@ -441,21 +417,21 @@
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.9rem 1.25rem;
+    gap: .5rem;
+    padding: .9rem 1.25rem;
     border-radius: 12px 12px 0 0
 }
 
 .selected-id-text {
     color: #9db7da;
     font-weight: 600;
-    font-size: 0.85rem
+    font-size: .85rem
 }
 
 .selected-name-text {
-    color: #ffffff;
+    color: #fff;
     font-weight: 700;
-    font-size: 0.95rem
+    font-size: .95rem
 }
 
 .selected-actions-header {
@@ -463,7 +439,7 @@
     color: #fff;
     border-top-right-radius: 12px;
     text-align: right;
-    padding: 0.9rem 1.25rem
+    padding: .9rem 1.25rem
 }
 
 .remove-link {
@@ -485,7 +461,6 @@
     vertical-align: middle
 }
 
-/* Department Selection Overlay Styles */
 .departments-list-table {
     max-height: 400px;
     overflow-y: auto;
@@ -496,7 +471,8 @@
 .departments-list-table table {
     margin: 0;
     border-collapse: separate;
-    border-spacing: 0
+    border-spacing: 0;
+    width: 100%
 }
 
 .department-header-row {
@@ -506,34 +482,31 @@
 
 .department-header-cell {
     padding: 1rem;
-    border: none;
+    border: 0;
     font-weight: 600;
     color: #374151
 }
 
 .department-row {
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background .2s;
     border-bottom: 1px solid #f3f4f6;
-    background: transparent;
-    border: none;
     padding: 0
 }
 
 .department-row:hover {
-    background-color: #f8f9fa
+    background: #f8f9fa
 }
 
 .department-row:last-child {
-    border-bottom: none
+    border-bottom: 0
 }
 
 .department-cell {
     padding: 1rem;
-    border: none
+    border: 0
 }
 
-/* Square checkbox styles */
 .department-square-checkbox {
     width: 24px;
     height: 24px;
@@ -544,7 +517,7 @@
     position: relative;
     cursor: pointer;
     appearance: none;
-    transition: all 0.2s ease
+    transition: all .2s
 }
 
 .department-square-checkbox:hover {
@@ -575,11 +548,11 @@
 .department-name {
     font-weight: 600;
     color: #374151;
-    margin-bottom: 0.25rem
+    margin-bottom: .25rem
 }
 
 .department-description {
-    font-size: 0.875rem;
+    font-size: .875rem;
     color: #6b7280
 }
 
@@ -591,7 +564,7 @@
 .department-id-label {
     color: #6b86a6;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: .95rem;
     margin-bottom: 2px
 }
 
@@ -603,13 +576,13 @@
 }
 
 .pagination-info {
-    font-size: 0.875rem;
+    font-size: .875rem;
     color: #6b7280
 }
 
 .pagination-controls {
     display: flex;
-    gap: 0.5rem
+    gap: .5rem
 }
 
 .loading-state {
@@ -622,16 +595,15 @@
 .spinner-border {
     width: 2rem;
     height: 2rem;
-    border: 0.25rem solid #f3f3f3;
-    border-top: 0.25rem solid #377AFD;
+    border: .25rem solid #f3f3f3;
+    border-top: .25rem solid #377AFD;
     border-radius: 50%;
     animation: spin 1s linear infinite
 }
 
-/* Modal Table Styles */
 .department-only-header {
     padding: 0;
-    border: none
+    border: 0
 }
 
 .department-only-header-inner {
@@ -639,19 +611,13 @@
     color: #fff;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1.25rem;
+    gap: .75rem;
+    padding: .9rem 1.25rem;
     border-radius: 12px 12px 0 0
 }
 
-.departments-list-table table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0
-}
-
 .departments-list-table tbody tr {
-    background: #ffffff
+    background: #fff
 }
 
 .departments-list-table tbody tr:nth-child(even) {
@@ -660,7 +626,7 @@
 
 .departments-list-table tbody tr td {
     padding: 12px 16px;
-    border: none;
+    border: 0;
     background: transparent
 }
 
@@ -668,17 +634,14 @@
     margin-bottom: 0
 }
 
-.departments-list-table .table> :not(caption)>*>* {
+.departments-list-table .table>:not(caption)>*>* {
     border: 0;
     box-shadow: none
 }
 
-.departments-list-table .table-hover tbody tr:hover {
-    background-color: inherit
-}
-
+.departments-list-table .table-hover tbody tr:hover,
 .departments-list-table .table-hover tbody tr:hover>* {
-    background-color: inherit
+    background: inherit
 }
 
 .departments-list-table .department-row,
@@ -696,4 +659,61 @@
 .departments-list-table tbody tr,
 .department-row {
     cursor: pointer
+}
+
+.selected-departments-container ::ng-deep app-table table {
+    width: 100% !important;
+    table-layout: fixed
+}
+
+.selected-departments-container ::ng-deep app-table table thead,
+.selected-departments-container ::ng-deep app-table table tbody,
+.selected-departments-container ::ng-deep app-table table tr {
+    width: 100% !important;
+    display: table;
+    table-layout: fixed
+}
+
+.selected-departments-container ::ng-deep app-table table th,
+.selected-departments-container ::ng-deep app-table table td {
+    display: table-cell
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(1),
+.selected-departments-container ::ng-deep app-table table td:nth-child(1) {
+    width: 20%
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(2),
+.selected-departments-container ::ng-deep app-table table td:nth-child(2) {
+    width: 60%
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(3),
+.selected-departments-container ::ng-deep app-table table td:nth-child(3) {
+    width: 20%;
+    text-align: right
+}
+
+.view-link {
+    color: #377AFD;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: all .2s
+}
+
+.view-link:hover {
+    color: #2c5aa0;
+    text-decoration: none
+}
+
+.view-link.text-danger {
+    color: #dc3545
+}
+
+.view-link.text-danger:hover {
+    color: #b02a37
 }
