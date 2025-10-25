@@ -697,3 +697,62 @@
 .department-row {
     cursor: pointer
 }
+
+/* Selected departments table - ensure full width */
+.selected-departments-container ::ng-deep app-table table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+.selected-departments-container ::ng-deep app-table table thead,
+.selected-departments-container ::ng-deep app-table table tbody,
+.selected-departments-container ::ng-deep app-table table tr {
+    width: 100% !important;
+    display: table;
+    table-layout: fixed;
+}
+
+.selected-departments-container ::ng-deep app-table table th,
+.selected-departments-container ::ng-deep app-table table td {
+    display: table-cell;
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(1),
+.selected-departments-container ::ng-deep app-table table td:nth-child(1) {
+    width: 20%;
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(2),
+.selected-departments-container ::ng-deep app-table table td:nth-child(2) {
+    width: 60%;
+}
+
+.selected-departments-container ::ng-deep app-table table th:nth-child(3),
+.selected-departments-container ::ng-deep app-table table td:nth-child(3) {
+    width: 20%;
+    text-align: right;
+}
+
+/* View/Action link styles */
+.view-link {
+    color: #377AFD;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.view-link:hover {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.view-link.text-danger {
+    color: #dc3545;
+}
+
+.view-link.text-danger:hover {
+    color: #b02a37;
+}

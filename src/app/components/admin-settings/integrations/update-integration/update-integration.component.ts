@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IntegrationsService } from 'app/core/services/admin-settings/integrations/integrations.service';
 
 @Component({
     selector: 'app-update-integration',
-    imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, SkelatonLoadingComponent, FormsModule, ReactiveFormsModule],
     templateUrl: '../create-integration/create-integration.component.html',
     styleUrls: ['../create-integration/create-integration.component.css']
 })
@@ -24,6 +25,7 @@ export class UpdateIntegrationComponent implements OnInit {
     // Form
     integrationForm!: FormGroup;
     isSubmitting: boolean = false;
+    isLoadingDetails: boolean = false;
 
     // Tab management
     currentTab: string = 'main-info';
@@ -127,10 +129,9 @@ export class UpdateIntegrationComponent implements OnInit {
             const requestBody: any = {
                 request_data: {
                     integration_id: this.integrationId,
-                    features: {
-                        features: this.selectedServices.map(s => s.service?.replace(/\s+/g, ''))?.length ? this.selectedServices.map(s => s.service?.replace(/\s+/g, '')) : (this.featureKeys ?? [])
-                    },
-                    starts_at: formData.startDate,
+                    name: formData.name,
+                    features: this.featureKeys ?? [],
+                    start_at: formData.startDate,
                     no_expire: noExpire
                 }
             };
@@ -206,7 +207,6 @@ export class UpdateIntegrationComponent implements OnInit {
                 feature.sub_list.forEach((sub: any) => {
                     services.push({
                         id: sub.sub.id,
-                        module: feature.main.name,
                         service: sub.sub.name,
                         selected: false
                     });
@@ -220,12 +220,8 @@ export class UpdateIntegrationComponent implements OnInit {
         let filtered = this.availableServices;
         if (this.searchTerm.trim()) {
             filtered = filtered.filter(service =>
-                service.service.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                service.module.toLowerCase().includes(this.searchTerm.toLowerCase())
+                service.service.toLowerCase().includes(this.searchTerm.toLowerCase())
             );
-        }
-        if (this.selectedModule !== 'All Modules') {
-            filtered = filtered.filter(service => service.module === this.selectedModule);
         }
         this.filteredServices = filtered;
         this.totalServices = filtered.length;
@@ -233,8 +229,8 @@ export class UpdateIntegrationComponent implements OnInit {
     }
 
     getUniqueModules(): string[] {
-        const modules = [...new Set(this.availableServices.map(service => service.module))];
-        return ['All Modules', ...modules];
+        // Module functionality removed
+        return [];
     }
 
     toggleServiceSelection(service: any): void {
@@ -259,6 +255,8 @@ export class UpdateIntegrationComponent implements OnInit {
 
     confirmServiceSelection(): void {
         this.selectedServices = this.availableServices.filter(service => service.selected);
+        // Update featureKeys based on selected services (remove spaces from service names)
+        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
         this.updateTableData();
         this.closeServiceFilter();
     }
@@ -272,6 +270,8 @@ export class UpdateIntegrationComponent implements OnInit {
         if (availableIndex > -1) {
             this.availableServices[availableIndex].selected = false;
         }
+        // Update featureKeys to stay in sync
+        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
         this.updateTableData();
     }
 
@@ -327,49 +327,85 @@ export class UpdateIntegrationComponent implements OnInit {
     }
 
     private prefillFromDetails(): void {
+        this.isLoadingDetails = true;
         this.integrationsService.getIntegrationDetails(this.integrationId).subscribe({
             next: (response) => {
                 const objectInfo = response?.data?.object_info;
                 const subscription = response?.data?.subscription;
-                const startsAt = subscription?.created_at?.slice(0, 10) || '';
+                const startsAt = objectInfo?.start_at || subscription?.created_at?.slice(0, 10) || '';
                 const noExpire = objectInfo?.no_expire === true ? true : false;
                 const expiresAt = objectInfo?.expires_at || '';
 
                 this.integrationForm.patchValue({
-                    name: '',
+                    name: objectInfo?.name || '',
                     startDate: startsAt,
                     hasExpiryDate: !noExpire,
                     expiryDate: !noExpire && expiresAt ? expiresAt : ''
                 });
 
-                // capture features keys from details
-                const featuresList: string[] = (objectInfo?.features?.features ?? []) as string[];
+                // capture features keys from details - handle both possible structures
+                let featuresList: string[] = [];
+                if (Array.isArray(objectInfo?.features)) {
+                    // If features is directly an array
+                    featuresList = objectInfo.features;
+                } else if (objectInfo?.features?.features && Array.isArray(objectInfo.features.features)) {
+                    // If features is nested inside features object
+                    featuresList = objectInfo.features.features;
+                }
                 this.featureKeys = featuresList;
 
                 // populate available services and preselect based on featureKeys
-                this.availableServices = this.flattenServices(subscription?.features ?? []);
-                this.filteredServices = this.availableServices;
-                this.totalServices = this.availableServices.length;
+                if (subscription?.features && Array.isArray(subscription.features)) {
+                    this.availableServices = this.flattenServices(subscription.features);
+                    this.filteredServices = this.availableServices;
+                    this.totalServices = this.availableServices.length;
+                }
+
                 this.applyPreselectedFeatures();
+                this.isLoadingDetails = false;
             },
             error: (err) => {
                 console.error('Failed to load integration details', err);
+                this.isLoadingDetails = false;
             }
         });
     }
 
     private applyPreselectedFeatures(): void {
-        if (!this.featureKeys?.length || !this.availableServices?.length) return;
-        // Match available services to feature keys by normalized name
-        const normalizedSet = new Set(this.featureKeys.map(f => (f || '').toString().toLowerCase().replace(/\s+/g, '')));
-        this.availableServices.forEach(svc => {
-            const normalized = (svc.service || '').toString().toLowerCase().replace(/\s+/g, '');
-            if (normalizedSet.has(normalized)) {
-                svc.selected = true;
-            }
-        });
-        this.selectedServices = this.availableServices.filter(s => s.selected);
+        if (!this.featureKeys?.length) {
+            this.selectedServices = [];
+            this.updateTableData();
+            return;
+        }
+
+        // Convert feature strings directly to service objects for display
+        this.selectedServices = this.featureKeys.map((feature, index) => ({
+            id: `feature-${index}`,
+            service: this.formatFeatureName(feature),
+            selected: true
+        }));
+
+        // Also mark them as selected in availableServices if they exist
+        if (this.availableServices?.length) {
+            const normalizedSet = new Set(this.featureKeys.map(f => (f || '').toString().toLowerCase().replace(/\s+/g, '')));
+            this.availableServices.forEach(svc => {
+                const normalized = (svc.service || '').toString().toLowerCase().replace(/\s+/g, '');
+                if (normalizedSet.has(normalized)) {
+                    svc.selected = true;
+                }
+            });
+        }
+
         this.updateTableData();
+    }
+
+    /**
+     * Format feature name to add spaces between camelCase words
+     */
+    private formatFeatureName(feature: string): string {
+        // Convert camelCase to space-separated words
+        // e.g., "JobTitles" -> "Job Titles"
+        return feature.replace(/([A-Z])/g, ' $1').trim();
     }
 }
 
