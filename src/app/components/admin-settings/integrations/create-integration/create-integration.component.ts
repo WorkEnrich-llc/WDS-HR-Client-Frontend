@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IntegrationsService } from '../../../../core/services/admin-settings/integrations/integrations.service';
 
 @Component({
     selector: 'app-create-integration',
-    imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, SkelatonLoadingComponent, FormsModule, ReactiveFormsModule],
     templateUrl: './create-integration.component.html',
     styleUrls: ['./create-integration.component.css']
 })
@@ -52,6 +53,10 @@ export class CreateIntegrationComponent implements OnInit {
 
     // Flag to differentiate between create and update views in shared template
     isUpdate: boolean = false;
+    isLoadingDetails: boolean = false;
+
+    // Service selection validation
+    showServiceError: boolean = false;
 
     // Breadcrumb data
     breadcrumb = [
@@ -152,6 +157,16 @@ export class CreateIntegrationComponent implements OnInit {
      * Handle form submission
      */
     onSubmit(): void {
+        // Check if at least one service is selected
+        if (this.selectedServices.length === 0) {
+            this.showServiceError = true;
+            // Scroll to the service section if we're not already there
+            if (this.currentTab !== 'access-apis') {
+                this.setCurrentTab('access-apis');
+            }
+            return;
+        }
+
         if (this.integrationForm.valid && !this.isSubmitting) {
             this.isSubmitting = true;
 
@@ -160,10 +175,9 @@ export class CreateIntegrationComponent implements OnInit {
 
             const requestBody: any = {
                 request_data: {
-                    features: {
-                        features: this.featureKeys ?? []
-                    },
-                    starts_at: formData.startDate,
+                    name: formData.name,
+                    features: this.featureKeys ?? [],
+                    start_at: formData.startDate,
                     no_expire: noExpire
                 }
             };
@@ -336,6 +350,12 @@ export class CreateIntegrationComponent implements OnInit {
      */
     confirmServiceSelection(): void {
         this.selectedServices = this.availableServices.filter(service => service.selected);
+        // Update featureKeys based on selected services (remove spaces from service names)
+        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        // Clear error if services are selected
+        if (this.selectedServices.length > 0) {
+            this.showServiceError = false;
+        }
         this.updateTableData();
         this.closeServiceFilter();
     }
@@ -352,6 +372,12 @@ export class CreateIntegrationComponent implements OnInit {
         const availableIndex = this.availableServices.findIndex(s => s.id === service.id);
         if (availableIndex > -1) {
             this.availableServices[availableIndex].selected = false;
+        }
+        // Update featureKeys to stay in sync
+        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        // Show error if no services remain
+        if (this.selectedServices.length === 0) {
+            this.showServiceError = true;
         }
         this.updateTableData();
     }

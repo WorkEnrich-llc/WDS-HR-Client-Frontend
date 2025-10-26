@@ -37,11 +37,11 @@ export class DepartmentsService {
   //   const url = `${this.apiBaseUrl}od/departments`;
   //   return this._HttpClient.get(url);
   // }
-  getAllDepartments(): Observable<any> {
-    const url = `${this.apiBaseUrl}od/departments`;
-    const params = new HttpParams().set('status', 'true');
-    return this._HttpClient.get(url, { params });
-  }
+  // getAllDepartments(): Observable<any> {
+  //   const url = `${this.apiBaseUrl}od/departments`;
+  //   const params = new HttpParams().set('status', 'true');
+  //   return this._HttpClient.get(url, { params });
+  // }
 
   // get all departments with pagination and filters
   getAllDepartment(

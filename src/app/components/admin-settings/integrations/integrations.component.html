@@ -139,7 +139,18 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <span>Active</span>
+          <span>{{ integration.originalStatus }}</span>
+        </span>
+        }
+        @case (userStatus.Pending) {
+        <span class="badge-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M12 7v6" />
+            </g>
+          </svg>
+          <span>{{ integration.originalStatus }}</span>
         </span>
         }
         @case (userStatus.Inactive) {
@@ -150,7 +161,7 @@
               <circle cx="12" cy="12" r="10" />
             </g>
           </svg>
-          <span>Inactive</span>
+          <span>{{ integration.originalStatus }}</span>
         </span>
         }
         @case (userStatus.Expired) {
@@ -160,13 +171,13 @@
               d="M9 4.6875C9.31066 4.6875 9.5625 4.93934 9.5625 5.25V9.75C9.5625 10.0607 9.31066 10.3125 9 10.3125C8.68934 10.3125 8.4375 10.0607 8.4375 9.75V5.25C8.4375 4.93934 8.68934 4.6875 9 4.6875Z"
               fill="#E04F5F" />
             <path
-              d="M9 12.75C9.41421 12.75 9.75 12.4142 9.75 12C9.75 11.5858 9.41421 11.25 9 11.25C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75Z"
+              d="M9 12.75C9.41421 12.75 9.75 12.4142 9.75 12C9.75 11.5858 9.41421 11.25 9 11.25C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4442 8.58579 12.75 9 12.75Z"
               fill="#E04F5F" />
             <path fill-rule="evenodd" clip-rule="evenodd"
               d="M9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5ZM3 9C3 5.68629 5.68629 3 9 3C12.3137 3 15 5.68629 15 9C15 12.3137 12.3137 15 9 15C5.68629 15 3 12.3137 3 9Z"
               fill="#E04F5F" />
           </svg>
-          <span>Expired</span>
+          <span>{{ integration.originalStatus }}</span>
         </span>
         }
         }
@@ -206,18 +217,29 @@
             <span>Edit</span>
           </button>
 
-          <!-- Activate/Deactivate button -->
-          <button class="btn btn-sm"
-            [class]="integration.status === userStatus.Active ? 'btn-outline-danger' : 'btn-outline-success'"
-            (click)="toggleIntegrationStatus(integration)"
-            [title]="integration.status === userStatus.Active ? 'Deactivate' : 'Activate'">
+          <!-- Deactivate button (only for Pending and Active status) -->
+          @if (integration.status === userStatus.Pending || integration.status === userStatus.Active) {
+          <button class="btn btn-sm btn-outline-danger" (click)="toggleIntegrationStatus(integration)" title="Deactivate">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
               <line x1="6" y1="6" x2="6" y2="18"></line>
             </svg>
-            <span>{{ integration.status === userStatus.Active ? 'Deactivate' : 'Activate' }}</span>
+            <span>Deactivate</span>
           </button>
+          }
+
+          <!-- Activate button (only for Inactive and Expired status) -->
+          @if (integration.status === userStatus.Inactive || integration.status === userStatus.Expired) {
+          <button class="btn btn-sm btn-outline-success" (click)="toggleIntegrationStatus(integration)" title="Activate">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+              <line x1="6" y1="6" x2="6" y2="18"></line>
+            </svg>
+            <span>Activate</span>
+          </button>
+          }
         </div>
       </td>
     </ng-template>
@@ -304,6 +326,7 @@
               <select formControlName="status" name="" id="status" class="form-select">
                 <option value="" selected disabled hidden>Select</option>
                 <option value="active">Active</option>
+                <option value="pending">Pending</option>
                 <option value="inactive">Inactive</option>
                 <option value="expired">Expired</option>
               </select>

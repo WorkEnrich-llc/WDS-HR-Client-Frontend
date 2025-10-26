@@ -4,7 +4,8 @@
     { label: 'Permissions', link: '/permissions' },
     { label: 'Edit Late arrive' }
   ]" title="Edit Late Arrive permission">
-    <button class="btn btn-lg btn-success" [disabled]="!isChanged || (allowPermission && !minutes)"
+    <button class="btn btn-lg btn-success"
+        [disabled]="!isChanged || (allowPermission && (minutes === null || minutes === undefined || minutes > maxMinutes))"
         (click)="saveChanges()">
 
         @if (isLoading) {
@@ -49,17 +50,35 @@
 
             <!-- Number input -->
             <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
-                <label for="minutes">Maximum Requested Minutes <span *ngIf="allowPermission">*</span></label>
+                <label for="minutes">Maximum Requested Minutes
+                    @if (allowPermission) {
+                    <span>*</span>
+                    }
+                </label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" id="minutes" class="form-control custom-date-input" placeholder="Per month"
                         [disabled]="!allowPermission" [(ngModel)]="minutes" name="minutes" [required]="allowPermission"
-                        min="1" />
+                        min="0" [max]="maxMinutes" />
                 </div>
             </div>
 
+            <!-- Validation message for invalid minutes (e.g., negative) -->
+            @if (allowPermission && minutes !== null && minutes !== undefined && minutes < 0) { <div
+                class="text-danger mt-1">
+                Maximum Requested Minutes *
+    </div>
+    }
 
-            <!-- Second checkbox -->
-            <!-- <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
+    <!-- Validation message for exceeding maximum allowed minutes -->
+    @if (allowPermission && minutes !== null && minutes !== undefined && minutes > maxMinutes) {
+    <div class="text-danger mt-1">
+        Maximum allowed minutes is {{maxMinutes}}. Please enter a smaller value.
+    </div>
+    }
+
+
+    <!-- Second checkbox -->
+    <!-- <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
                 [style.opacity]="allowPermission ? 1 : 0.5">
                 <input class="form-check-input m-0" type="checkbox" id="linkedPolicy" [disabled]="!allowPermission"
                     [(ngModel)]="linkedPolicy" name="linkedPolicy" />
@@ -68,22 +87,22 @@
                 </label>
             </div> -->
 
-            <!-- Notes textarea -->
-            <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
-                <label for="note">Notes (Optional)</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea id="note" class="form-control" placeholder="Add additional Notes"
-                        [disabled]="!allowPermission" [(ngModel)]="note" name="note"></textarea>
-                </div>
-            </div>
-            @if (errMsg) {
-            <div class="alert alert-danger mb-0 mt-3" role="alert">
-                {{errMsg}}
-            </div>
-            }
-        </form>
-
+    <!-- Notes textarea -->
+    <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
+        <label for="note">Notes (Optional)</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <textarea id="note" class="form-control" placeholder="Add additional Notes" [disabled]="!allowPermission"
+                [(ngModel)]="note" name="note"></textarea>
+        </div>
     </div>
+    @if (errMsg) {
+    <div class="alert alert-danger mb-0 mt-3" role="alert">
+        {{errMsg}}
+    </div>
+    }
+    </form>
+
+</div>
 </div>
 
 

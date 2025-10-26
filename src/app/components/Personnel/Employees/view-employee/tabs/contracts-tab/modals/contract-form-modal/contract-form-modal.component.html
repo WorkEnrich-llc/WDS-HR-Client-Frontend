@@ -13,16 +13,16 @@
           <option [value]="3">Raise</option>
         </select>
       </div>
-      @if (shouldShowSalaryRanges()) {
+      <!-- @if (shouldShowSalaryRanges()) {
       <div class="d-flex justify-content-between mb-2">
         <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
         <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
       </div>
-      }
+      } -->
       }
 
       <!-- Salary range display for new contract mode -->
-      @if (!isEditMode && shouldShowSalaryRanges()) {
+      @if ( shouldShowSalaryRanges()) {
       <div class="d-flex justify-content-between mb-2">
         <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
         <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
@@ -72,7 +72,7 @@
       </div>
 
       <!-- End Date Field - for edit mode (contract adjustments) -->
-      @if (isEditMode) {
+      <!-- @if (isEditMode) {
       <div class="input mb-3">
         <label for="endDate">End Date</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -86,10 +86,10 @@
           }
         </div>
       </div>
-      }
+      } -->
 
       <!-- With end date checkbox - only for new contracts -->
-      @if (!isEditMode) {
+      <!-- @if (!isEditMode) { -->
       <div class="form-check mb-3 d-flex align-items-center gap-2">
         <input class="form-check-input" type="checkbox" id="withEndDate" formControlName="withEndDate">
         <label class="form-check-label" for="withEndDate">
@@ -113,7 +113,7 @@
         </div>
       </div>
       }
-      }
+      <!-- } -->
 
       <!-- Notice Period Field - for both new contracts and adjustments -->
       <div class="input mb-3">
@@ -133,14 +133,19 @@
     </form>
   </div>
   <div class="d-flex align-items-center gap-4 mt-4">
-    <button type="button" [disabled]="isSaving" (click)="saveContract()" class="btn btn-lg btn-primary w-100">
+    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100">
+      @if (isLoading) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+      } @else {
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem;">
         <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="1.5" />
         <path d="M12 8v4l2 2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
       <span>{{ getSaveButtonText() }}</span>
+      }
     </button>
+
     <button type="button" (click)="closeModal()" class="btn btn-lg btn-outline-dark border-0 w-100">Close</button>
   </div>
 </app-overlay-filter-box>

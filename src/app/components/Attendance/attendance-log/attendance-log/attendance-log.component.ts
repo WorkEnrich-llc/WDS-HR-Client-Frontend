@@ -143,14 +143,9 @@ export class AttendanceLogComponent {
     });
 
 
-    this.departmentList$ = this.departmentService.getAllDepartments().pipe(
+    this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
       map((res: any) => res?.data?.list_items ?? [])
     );
-    // this.departmentList$ = this.departmentService.getAllDepartments().pipe(
-    //   tap((res: any) => console.log('Departments response:', res)),
-    //   map((res: any) => res?.data?.list_items ?? []),
-    //   tap((list) => console.log('Filtered list_items:', list))
-    // );
 
   }
 
@@ -191,6 +186,20 @@ export class AttendanceLogComponent {
       }
     });
   }
+
+  isInvalidTime(time: string | null | undefined): boolean {
+    return !time || time === '00:00';
+  }
+
+  formatTimeDisplay(time: string | null | undefined): string {
+    if (this.isInvalidTime(time)) {
+      return '--';
+    }
+
+    const dateObj = this.toTime(time!);
+    return this.datePipe.transform(dateObj, 'hh:mm a') || '--';
+  }
+
 
   toTime(timeString: string | null): Date | null {
     if (!timeString) return null;
