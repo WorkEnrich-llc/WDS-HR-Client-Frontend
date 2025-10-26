@@ -226,7 +226,8 @@
             <td>{{ attendance.date | date: 'dd/MM/yyyy' }}</td>
 
             <td>
-                {{ getRowStatus(attendance.is_working_day) }}
+                <!-- {{ getRowStatus(attendance.is_working_day) }} -->
+                {{ attendance.day_type || '-' }}
             </td>
 
             <td
