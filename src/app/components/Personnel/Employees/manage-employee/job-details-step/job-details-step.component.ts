@@ -2,10 +2,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { ManageEmployeeSharedService } from '../services/manage-shared.service';
-import { BranchesService } from '../../../../../core/services/od/branches/branches.service';
-import { DepartmentsService } from '../../../../../core/services/od/departments/departments.service';
-import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
-import { pairwise, startWith } from 'rxjs';
 // Work schedule moved to attendance step
 
 @Component({

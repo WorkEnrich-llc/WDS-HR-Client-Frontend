@@ -12,7 +12,6 @@ import { BranchesService } from 'app/core/services/od/branches/branches.service'
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
 import { arabicNameValidator, fourPartsValidator } from 'app/components/settings/profile-settings/profile.validators';
-import { CustomValidators } from 'app/core/validators/custom-validators';
 import { WorkSchaualeService } from 'app/core/services/attendance/work-schaduale/work-schauale.service';
 
 // Error message mapping
@@ -115,7 +114,6 @@ export class ManageEmployeeSharedService {
     this.initializeForm();
     this.setupFormWatchers();
     this.initializeJobDetailsWatchers();
-    // this.loadInitialData()
   }
 
   private initializeForm(): void {
@@ -175,7 +173,6 @@ export class ManageEmployeeSharedService {
     }
   }
 
-
   public loadInitialData(): void {
     // if (this.branches().length > 0) {
     //   return;
@@ -193,6 +190,40 @@ export class ManageEmployeeSharedService {
     });
   }
 
+  private fetchJobTitlesForBranch(branchId: number, managementLevel: number): void {
+    const jobDetails = this.jobDetails;
+
+    jobDetails.get('job_title_id')?.reset(null, { emitEvent: false });
+    this.jobTitles.set([]);
+
+    if (!branchId || !managementLevel) {
+      jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+      return;
+    }
+    const params: any = {
+      management_level: managementLevel.toString(),
+      branch_id: branchId.toString(),
+      // request_in: 'create'
+    };
+
+    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
+      next: (res) => {
+        const jobTitles = res.data?.list_items || [];
+        this.jobTitles.set(jobTitles);
+
+        if (jobTitles.length > 0) {
+          jobDetails.get('job_title_id')?.enable({ emitEvent: false });
+        } else {
+          jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+        }
+      },
+      error: (err) => {
+        console.error('Error loading job titles for branch/level', err);
+        this.jobTitles.set([]);
+        jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+      }
+    });
+  }
 
   private initializeJobDetailsWatchers(): void {
     const jobDetails = this.jobDetails;
@@ -209,7 +240,7 @@ export class ManageEmployeeSharedService {
     this.setupDepartmentWatcher(deptCtrl, sectionCtrl, jobTitleCtrl);
     this.setupSectionWatcher(sectionCtrl, jobTitleCtrl);
     this.setupManagementLevelWatcher(managementCtrl, jobTitleCtrl, branchCtrl, deptCtrl, sectionCtrl);
-    this.setupJobTitleWatcher(jobTitleCtrl, branchCtrl);
+    // this.setupJobTitleWatcher(jobTitleCtrl, branchCtrl);
   }
 
   private setInitialJobDetailsState(
@@ -234,58 +265,51 @@ export class ManageEmployeeSharedService {
     deptCtrl: AbstractControl | null,
     sectionCtrl: AbstractControl | null,
   ): void {
-    // const jobDetails = this.jobDetails;
     managementCtrl?.valueChanges.pipe(
-      startWith(managementCtrl?.value)
-    ).subscribe(currentLevel => {
+      startWith(managementCtrl?.value),
+      pairwise()
+    ).subscribe(([prevLevel, currentLevel]) => {
       if (this.suppressWatchers) return;
-
-
-      if (currentLevel && currentLevel !== 5) {
-        this.loadInitialData();
-        this.fetchJobTitlesForManagementLevel(currentLevel.toString());
-        jobTitleCtrl?.setValidators(Validators.required);
+      if (prevLevel !== null) {
         jobTitleCtrl?.reset(null, { emitEvent: false });
-        jobTitleCtrl?.enable();
-
-        branchCtrl?.setValidators(Validators.required);
-        branchCtrl?.disable();
         branchCtrl?.reset(null, { emitEvent: false });
-
-        // branchCtrl?.disable();
-        deptCtrl?.disable();
-        sectionCtrl?.disable();
-        // branchCtrl?.reset(null, { emitEvent: false });
         deptCtrl?.reset(null, { emitEvent: false });
         sectionCtrl?.reset(null, { emitEvent: false });
 
-        // branchCtrl?.clearValidators();
-        deptCtrl?.clearValidators();
-        sectionCtrl?.clearValidators();
-
-      } else if (currentLevel === 5) {
-        this.loadInitialData();
-        jobTitleCtrl?.clearValidators();
-        jobTitleCtrl?.disable();
-        jobTitleCtrl?.reset(null, { emitEvent: false });
-
-        branchCtrl?.enable();
-        branchCtrl?.setValidators(Validators.required);
-
-        deptCtrl?.disable();
-        sectionCtrl?.disable();
-        deptCtrl?.setValidators(Validators.required);
 
       }
-      else {
-        jobTitleCtrl?.clearValidators();
-        jobTitleCtrl?.disable();
-        branchCtrl?.clearValidators();
-        branchCtrl?.disable();
-        deptCtrl?.clearValidators();
-        deptCtrl?.disable();
-        sectionCtrl?.clearValidators();
-        sectionCtrl?.disable();
+
+      jobTitleCtrl?.disable({ emitEvent: false });
+      branchCtrl?.disable({ emitEvent: false });
+      deptCtrl?.disable({ emitEvent: false });
+      sectionCtrl?.disable({ emitEvent: false });
+
+      jobTitleCtrl?.clearValidators();
+      branchCtrl?.clearValidators();
+      deptCtrl?.clearValidators();
+      sectionCtrl?.clearValidators();
+
+
+      if (currentLevel == 1) {
+
+        this.fetchJobTitlesForManagementLevel('1', jobTitleCtrl);
+        jobTitleCtrl?.setValidators(Validators.required);
+
+      } else if (currentLevel >= 2 && currentLevel <= 4) {
+        this.loadInitialData();
+        branchCtrl?.setValidators(Validators.required);
+        branchCtrl?.enable();
+
+        jobTitleCtrl?.setValidators(Validators.required);
+
+      } else if (currentLevel === 5) {
+
+        this.loadInitialData();
+        branchCtrl?.setValidators(Validators.required);
+        branchCtrl?.enable();
+
+        deptCtrl?.setValidators(Validators.required);
+        jobTitleCtrl?.setValidators(Validators.required);
       }
 
       jobTitleCtrl?.updateValueAndValidity();
@@ -296,28 +320,6 @@ export class ManageEmployeeSharedService {
   }
 
 
-  private setupJobTitleWatcher(
-    jobTitleCtrl: AbstractControl | null,
-    branchCtrl: AbstractControl | null
-  ): void {
-    jobTitleCtrl?.valueChanges.pipe(
-      startWith(jobTitleCtrl.value),
-      filter(() => {
-        const level = this.jobDetails?.get('management_level')?.value;
-        return level && level < 5;
-      })
-    ).subscribe((jobTitleId) => {
-      if (this.suppressWatchers) return;
-
-      if (jobTitleId) {
-        branchCtrl?.enable();
-      } else {
-        branchCtrl?.disable();
-        branchCtrl?.reset(null, { emitEvent: false });
-      }
-    });
-  }
-
   private setupBranchWatcher(
     branchCtrl: AbstractControl | null,
     deptCtrl: AbstractControl | null,
@@ -325,17 +327,37 @@ export class ManageEmployeeSharedService {
     jobTitleCtrl: AbstractControl | null
   ): void {
     branchCtrl?.valueChanges.pipe(
-      filter(() => this.jobDetails?.get('management_level')?.value === 5)
-    ).subscribe((branchId) => {
+      startWith(branchCtrl?.value),
+      pairwise()
+    ).subscribe(([prevBranchId, currentBranchId]) => {
       if (this.suppressWatchers) return;
 
-      if (branchId) {
-        this.fetchDepartmentsForBranch(branchId);
-        deptCtrl?.enable();
-        sectionCtrl?.disable();
-        jobTitleCtrl?.disable();
-        sectionCtrl?.setValue(null);
-        jobTitleCtrl?.setValue(null);
+      const currentLevel = this.jobDetails?.get('management_level')?.value;
+
+      if (prevBranchId !== null) {
+        deptCtrl?.reset(null, { emitEvent: false });
+        sectionCtrl?.reset(null, { emitEvent: false });
+        jobTitleCtrl?.reset(null, { emitEvent: false });
+
+        this.departments.set([]);
+        this.sections.set([]);
+        this.jobTitles.set([]);
+      }
+
+
+      if (currentBranchId) {
+        if (currentLevel >= 2 && currentLevel <= 4) {
+          deptCtrl?.disable({ emitEvent: false });
+          sectionCtrl?.disable({ emitEvent: false });
+
+          this.fetchJobTitlesForBranch(currentBranchId, currentLevel);
+
+        } else if (currentLevel === 5) {
+          jobTitleCtrl?.disable({ emitEvent: false });
+          sectionCtrl?.disable({ emitEvent: false });
+
+          this.fetchDepartmentsForBranch(currentBranchId);
+        }
       } else {
         deptCtrl?.disable();
         sectionCtrl?.disable();
@@ -424,17 +446,21 @@ export class ManageEmployeeSharedService {
         const data = response.data.object_info;
         this.employeeData.set(data);
         this.suppressWatchers = true;
-        this.patchEmployeeForm(data);
-        this.createdAt.set(data.created_at || '');
-        this.updatedAt.set(data.updated_at || '');
 
         if (data.job_info.branch) {
+          const branch = data.job_info.branch;
+          (branch as any).is_active = true;
+
           this.branches.set([data.job_info.branch]);
         }
         if (data.job_info.department) {
+          const department = data.job_info.department;
+          (department as any).is_active = true;
           this.departments.set([data.job_info.department]);
         }
         if (data.job_info.section) {
+          const section = data.job_info.section;
+          (section as any).is_active = true;
           this.sections.set([data.job_info.section]);
         }
         if (data.job_info.job_title) {
@@ -443,12 +469,16 @@ export class ManageEmployeeSharedService {
         if (data.job_info.work_schedule) {
           this.workSchedules.set([data.job_info.work_schedule]);
         }
+
+        this.patchEmployeeForm(data);
+        this.createdAt.set(data.created_at || '');
+        this.updatedAt.set(data.updated_at || '');
+
+        this.enableFieldsOnLoad(data.job_info);
+
         this.suppressWatchers = false;
-        this.jobDetails?.get('management_level')?.updateValueAndValidity({ emitEvent: true });
 
         this.isLoading.set(false);
-        // this.suppressWatchers = false;
-
       },
       error: (error) => {
         this.isLoading.set(false);
@@ -458,17 +488,61 @@ export class ManageEmployeeSharedService {
     });
   }
 
-  private fetchJobTitlesForManagementLevel(management: string): void {
+  private enableFieldsOnLoad(jobInfo: any): void {
+    const level = jobInfo.management_level;
+    const jobDetails = this.jobDetails;
+
+    if (!jobDetails) return;
+
+    if (level === 1) {
+      jobDetails.get('job_title_id')?.enable();
+
+    } else if (level >= 2 && level <= 4) {
+      jobDetails.get('branch_id')?.enable();
+      if (jobInfo.branch) {
+        jobDetails.get('job_title_id')?.enable();
+      }
+
+    } else if (level === 5) {
+      jobDetails.get('branch_id')?.enable();
+      if (jobInfo.branch) {
+        jobDetails.get('department_id')?.enable();
+      }
+      if (jobInfo.department) {
+        const deptSections = jobInfo.department.sections ?? [];
+        if (deptSections.length > 0) {
+          jobDetails.get('section_id')?.enable();
+        }
+      }
+      if (jobInfo.section) {
+        jobDetails.get('job_title_id')?.enable();
+      }
+    }
+  }
+
+  private fetchJobTitlesForManagementLevel(
+    management: string,
+    controlToEnable: AbstractControl | null
+  ): void {
+
     this.jobsService.getAllJobTitles(1, 100, { management_level: management.toString() }).subscribe({
       next: (res) => {
         if (this.jobDetails.get('management_level')?.value?.toString() === management) {
+
           const jobTitles = res.data?.list_items || [];
           this.jobTitles.set(jobTitles);
+
+          if (jobTitles.length > 0) {
+            controlToEnable?.enable();
+          } else {
+            controlToEnable?.disable();
+          }
         }
       },
       error: (err) => {
         console.error('Error loading job titles for management', err);
         this.jobTitles.set([]);
+        controlToEnable?.disable();
       }
     });
   }
@@ -530,7 +604,6 @@ export class ManageEmployeeSharedService {
       }
     })
   }
-
 
   private patchEmployeeForm(data: Employee): void {
     const options = { emitEvent: false };
@@ -704,7 +777,7 @@ export class ManageEmployeeSharedService {
 
       switchMap(departmentId => {
         const params: { department?: string } = {};
-        if (departmentId) {
+        if (departmentId && departmentId != null) {
           params.department = departmentId.toString();
         }
         return this.workScheduleService.getAllWorkSchadule(1, 100, params);
@@ -895,20 +968,6 @@ export class ManageEmployeeSharedService {
       if (field.errors['wordTooShort']) return `Each word in ${displayName} must be at least 2 characters long`;
       if (field.errors['pastDate']) return `${displayName}  date cannot be in the past`;
 
-      // if (field.errors['pattern']) {
-      //   if (fieldName === 'name_english' || fieldName === 'name_arabic') {
-      //     return 'Please enter a valid format';
-      //   }
-      //   return `${displayName} format is incorrect`;
-      // }
-
-      // if (field.errors['pattern']) {
-      //   if (fieldName === 'number' || fieldName.endsWith('.number')) {
-      //     return 'Number must start with 10, 11, 12, or 15';
-      //   }
-      //   return `${displayName} format is incorrect`;
-      // }
-
       if (field.errors['pattern']) {
         if (fieldName === 'number' || fieldName.endsWith('.number')) {
           return 'Number must start with 10, 11, 12, or 15';
@@ -1039,98 +1098,6 @@ export class ManageEmployeeSharedService {
   }
 
 
-
-  // getFormData() {
-  //   const formData = this.employeeForm.getRawValue();
-  //   const jobDetailsPayload: any = {
-  //     years_of_experience: formData.job_details.years_of_experience || 0,
-  //     management_level: parseInt(formData.job_details.management_level, 10),
-  //     work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
-  //     activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
-  //   };
-
-  //   const managementLevel = jobDetailsPayload.management_level;
-
-  //   if (managementLevel === 5) {
-  //     jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
-  //     jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
-  //     if (formData.job_details.section_id) {
-  //       jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
-  //     }
-  //   }
-
-  //   if (formData.job_details.job_title_id) {
-  //     jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
-  //   }
-
-  //   const requestData: any = {
-  //     main_information: {
-  //       code: formData.main_information.code,
-  //       name_english: formData.main_information.name_english,
-  //       name_arabic: formData.main_information.name_arabic,
-  //       gender: formData.main_information.gender,
-  //       mobile: {
-  //         country_id: formData.main_information.mobile.country_id,
-  //         number: parseInt(formData.main_information.mobile.number)
-  //       },
-  //       personal_email: formData.main_information.personal_email,
-  //       marital_status: formData.main_information.marital_status,
-  //       date_of_birth: this.formatDateForAPI(formData.main_information.date_of_birth),
-  //       address: formData.main_information.address
-  //     },
-  //     job_details: jobDetailsPayload
-  //   };
-
-  //   // if (!this.isEditMode()) {
-  //   if (this.employeeForm.get('contract_details')) {
-  //     requestData.contract_details = {
-  //       start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
-  //       contract_type: formData.contract_details.contract_type,
-  //       contract_end_date: formData.contract_details.contract_type === 1
-  //         ? this.formatDateForAPI(formData.contract_details.contract_end_date) : '',
-  //       employment_type: formData.attendance_details.employment_type,
-  //       work_mode: formData.attendance_details.work_mode,
-  //       days_on_site: formData.attendance_details.days_on_site
-  //         ? parseInt(formData.attendance_details.days_on_site, 10)
-  //         : 0,
-  //       salary: parseFloat(formData.contract_details.salary),
-  //       insurance_salary: formData.insurance_details.include_insurance_salary
-  //         ? parseFloat(formData.insurance_details.insurance_salary)
-  //         : 0,
-  //       gross_insurance: formData.insurance_details.include_gross_insurance_salary
-  //         ? parseFloat(formData.insurance_details.gross_insurance_salary)
-  //         : 0,
-  //       notice_period: formData.contract_details.notice_period
-  //         ? parseInt(formData.contract_details.notice_period, 10)
-  //         : 0
-  //     };
-  //   } else {
-  //     requestData.contract_details = {
-  //       employment_type: formData.attendance_details.employment_type,
-  //       work_mode: formData.attendance_details.work_mode,
-  //       days_on_site: formData.attendance_details.days_on_site
-  //         ? parseInt(formData.attendance_details.days_on_site, 10)
-  //         : 0,
-  //       salary: 0,
-  //     }
-  //   }
-  //   // }
-
-  //   if (!this.isEditMode()) {
-  //     return { request_data: requestData };
-  //   }
-
-  //   const originalData = this.employeeData();
-  //   if (!originalData) return null;
-
-  //   return {
-  //     request_data: {
-  //       id: originalData.id,
-  //       ...requestData
-  //     }
-  //   };
-  // }
-
   getFormData() {
     const formData = this.employeeForm.getRawValue();
     const jobDetailsPayload: any = {
@@ -1142,16 +1109,31 @@ export class ManageEmployeeSharedService {
 
     const managementLevel = jobDetailsPayload.management_level;
 
-    if (managementLevel === 5) {
-      jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
-      jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
-      if (formData.job_details.section_id) {
-        jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
-      }
-    }
+    // if (managementLevel === 5) {
+    //   jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+    //   jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
+    //   if (formData.job_details.section_id) {
+    //     jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
+    //   }
+    // }
 
     if (formData.job_details.job_title_id) {
       jobDetailsPayload.job_title_id = parseInt(formData.job_details.job_title_id, 10);
+    }
+
+    if (managementLevel >= 2) {
+      if (formData.job_details.branch_id) {
+        jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+      }
+    }
+
+    if (managementLevel === 5) {
+      if (formData.job_details.department_id) {
+        jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
+      }
+      if (formData.job_details.section_id) {
+        jobDetailsPayload.section_id = parseInt(formData.job_details.section_id, 10);
+      }
     }
 
     const requestData: any = {

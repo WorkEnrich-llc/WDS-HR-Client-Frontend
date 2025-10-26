@@ -73,9 +73,16 @@ export class IntegrationsService {
 
     /**
      * Update integration status (activate/deactivate)
+     * @param id - Integration ID
+     * @param status - true for Active, false for Revoked
      */
-    updateIntegrationStatus(id: number): Observable<any> {
-        return this._HttpClient.patch(`${this.apiBaseUrl}main/admin-settings/integration/${id}/`, {});
+    updateIntegrationStatus(id: number, status: boolean): Observable<any> {
+        const body = {
+            request_data: {
+                status: status
+            }
+        };
+        return this._HttpClient.patch(`${this.apiBaseUrl}main/admin-settings/integration/${id}/`, body);
     }
 
     /**

@@ -274,6 +274,18 @@ export class EditWorkScheduleComponent {
     this.getAllDepartment(this.currentPage);
   }
   discardDepartment(): void {
+    // Reset search term
+    this.searchTerm = '';
+    
+    // Reset all department selections to match only those already added
+    this.departments.forEach(dep => {
+      dep.selected = this.addeddepartments.some(added => added.id === dep.id);
+    });
+    
+    // Update selectAll checkbox state
+    this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    
+    // Close the overlay
     this.departmentsOverlay.closeOverlay();
   }
 
@@ -392,6 +404,112 @@ export class EditWorkScheduleComponent {
     to: new FormControl(''),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
   });
+
+  // Custom validator to check if shift range matches the specified shift hours
+  private validateShiftRange(): void {
+    const shiftHours = this.workSchadule2.get('shift_hours')?.value;
+    const from = this.workSchadule2.get('from')?.value;
+    const to = this.workSchadule2.get('to')?.value;
+
+    // Only validate if shift hours is specified and both time fields are filled
+    if (shiftHours && from && to) {
+      const calculatedHours = this.calculateShiftHours(from, to);
+      const expectedHours = Number(shiftHours);
+      
+      // Allow small tolerance for rounding (0.1 hour = 6 minutes)
+      const tolerance = 0.1;
+      const difference = Math.abs(calculatedHours - expectedHours);
+      
+      if (difference > tolerance) {
+        this.workSchadule2.get('from')?.setErrors({ shiftHoursMismatch: true });
+        this.workSchadule2.get('to')?.setErrors({ shiftHoursMismatch: true });
+      } else {
+        // Clear the custom error if hours match
+        const fromControl = this.workSchadule2.get('from');
+        const toControl = this.workSchadule2.get('to');
+        
+        if (fromControl?.hasError('shiftHoursMismatch')) {
+          const errors = fromControl.errors;
+          delete errors?.['shiftHoursMismatch'];
+          fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+        }
+        
+        if (toControl?.hasError('shiftHoursMismatch')) {
+          const errors = toControl.errors;
+          delete errors?.['shiftHoursMismatch'];
+          toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+        }
+      }
+    } else {
+      // Clear errors if validation requirements not met
+      const fromControl = this.workSchadule2.get('from');
+      const toControl = this.workSchadule2.get('to');
+      
+      if (fromControl?.hasError('shiftHoursMismatch')) {
+        const errors = fromControl.errors;
+        delete errors?.['shiftHoursMismatch'];
+        fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+      }
+      
+      if (toControl?.hasError('shiftHoursMismatch')) {
+        const errors = toControl.errors;
+        delete errors?.['shiftHoursMismatch'];
+        toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+      }
+    }
+  }
+
+  // Calculate shift hours from time range
+  private calculateShiftHours(from: string, to: string): number {
+    if (!from || !to) return 0;
+
+    const [fromHours, fromMinutes] = from.split(':').map(Number);
+    const [toHours, toMinutes] = to.split(':').map(Number);
+
+    let hours = toHours - fromHours;
+    let minutes = toMinutes - fromMinutes;
+
+    // Handle case where end time is next day
+    if (hours < 0) {
+      hours += 24;
+    }
+
+    // Convert minutes to decimal hours
+    const totalHours = hours + (minutes / 60);
+
+    return totalHours;
+  }
+
+  onEmploymentTypeChange(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    
+    // Reset shift range errors when employment type changes
+    const fromControl = this.workSchadule2.get('from');
+    const toControl = this.workSchadule2.get('to');
+    
+    if (fromControl?.hasError('shiftHoursMismatch')) {
+      const errors = fromControl.errors;
+      delete errors?.['shiftHoursMismatch'];
+      fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+    }
+    
+    if (toControl?.hasError('shiftHoursMismatch')) {
+      const errors = toControl.errors;
+      delete errors?.['shiftHoursMismatch'];
+      toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+    }
+
+    // Validate shift range
+    this.validateShiftRange();
+  }
+
+  onShiftRangeChange(): void {
+    this.validateShiftRange();
+  }
+
+  onShiftHoursChange(): void {
+    this.validateShiftRange();
+  }
 
   onWorkTypeChange(event: Event): void {
     const selectedValue = (event.target as HTMLSelectElement).value;

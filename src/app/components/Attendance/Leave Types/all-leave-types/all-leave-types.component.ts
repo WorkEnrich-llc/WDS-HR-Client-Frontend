@@ -125,6 +125,7 @@ export class AllLeaveTypesComponent {
       employment_type?: string;
     }
   ) {
+    this.loadData = true;
     this._LeaveTypeService.getAllLeavetypes(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
