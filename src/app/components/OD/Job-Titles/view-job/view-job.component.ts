@@ -20,7 +20,7 @@ export class ViewJobComponent {
   jobTitleData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
-  jobId: string | null = null;
+  jobId: string | number | null = null;
 
   jobTitleSub: any;
 
@@ -36,11 +36,13 @@ export class ViewJobComponent {
       // }
     });
 
-    this.jobId = this.route.snapshot.paramMap.get('id');
-    // this.getJobTitle(Number(this.jobId));
-    if (this.jobId) {
-      this.getJobTitle(Number(this.jobId));
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.jobId = Number(id);
+        this.getJobTitle(this.jobId);
+      }
+    });
   }
 
   loadData: boolean = false;

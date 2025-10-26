@@ -110,19 +110,13 @@
     <!-- Empty State Template -->
     <ng-template #noLeaveBalance>
       <tr>
-        <td colspan="6" class="text-center py-5">
-          <div class="d-flex flex-column align-items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" class="text-muted">
-              <path fill="currentColor" opacity="0.5"
-                d="M2.75 12A9.25 9.25 0 1 1 12 21.25a.75.75 0 0 0 0 1.5c5.937 0 10.75-4.813 10.75-10.75S17.937 1.25 12 1.25S1.25 6.063 1.25 12a.75.75 0 0 0 1.5 0" />
-              <path fill="currentColor"
-                d="M8 22.75a.75.75 0 0 0 0-1.5H3.81l6.72-6.72a.75.75 0 1 0-1.06-1.06l-6.72 6.72V16a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75z" />
-            </svg>
-            <div class="text-center">
-              <h5 class="text-muted">No Leave Balance Found</h5>
-              <p class="text-muted mb-0">There are no leave balance records to display.</p>
-            </div>
-          </div>
+        
+        <td colspan="5" class="no-data py-4">
+          @if (searchTerm.trim() || filterForm.dirty) {
+          No Leave Balance match your search and filter.
+          } @else {
+          No Leave Balance to display.
+          }
         </td>
       </tr>
     </ng-template>

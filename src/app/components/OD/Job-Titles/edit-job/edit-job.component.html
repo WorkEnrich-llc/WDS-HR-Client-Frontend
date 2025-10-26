@@ -667,7 +667,7 @@
       </div>
       <!-- start table -->
       <div>
-        <app-table [data]="filteredJobTitles" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
+        <app-table [data]="filteredJobTitles" [isLoading]="loadJobs" [columnsCount]="2" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
           [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="manageItemsPerPage"
           [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)"
           (itemsPerPageChange)="onItemsPerPageChange($event)" [isLoading]="loadData" [columnsCount]="2">
