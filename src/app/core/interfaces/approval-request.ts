@@ -10,6 +10,23 @@ export interface ContactInformation {
   email: string;
 }
 
+export interface JobInfo {
+  branch: string;
+  department: string;
+  direct_manager: string;
+  employment_type: string;
+  job_title: string;
+  section: string;
+}
+
+export interface RequestsInfo {
+  code: string;
+  created_at: string;
+  id: number;
+  name: string;
+  updated_at: string;
+}
+
 export interface LeaveInfo {
   id: number | string;
   code: string;
@@ -52,18 +69,21 @@ export interface ApprovalRequestItem {
   id: number;
   code: string;
   name: string;
-  work_type: string;
-  current_step: string;
-  permission: PermissionInfo;
-  leave: LeaveInfo;
-  contact_information: ContactInformation;
   employee_info: EmployeeInfo;
   reason: ReasonInfo;
   dates: DateRange;
   document_url: DocumentUrl;
   status: ApprovalRequestStatus;
+  contact_information: ContactInformation;
+  job_info: JobInfo;
+  request_info: RequestsInfo;
   created_at: string;
   updated_at: string;
+
+  work_type?: string;
+  current_step?: string;
+  permission?: PermissionInfo;
+  leave?: LeaveInfo;
 }
 
 export interface AllowedAction {
