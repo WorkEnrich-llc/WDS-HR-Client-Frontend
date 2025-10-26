@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
@@ -6,6 +6,7 @@ import { TableComponent } from '../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { AnnouncementsService } from '../../../core/services/admin-settings/announcements/announcements.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-announcements',
@@ -14,7 +15,7 @@ import { AnnouncementsService } from '../../../core/services/admin-settings/anno
   templateUrl: './announcements.component.html',
   styleUrls: ['./announcements.component.css']
 })
-export class AnnouncementsComponent implements OnInit {
+export class AnnouncementsComponent implements OnInit, OnDestroy {
   private announcementsService = inject(AnnouncementsService);
   private formBuilder = inject(FormBuilder);
 
@@ -32,6 +33,8 @@ export class AnnouncementsComponent implements OnInit {
   searchTerm: string = '';
   filterForm!: FormGroup;
 
+  // Subscriptions for cleanup
+  private announcementsSubscription?: Subscription;
 
   // Breadcrumb
   breadcrumb = [
@@ -46,10 +49,29 @@ export class AnnouncementsComponent implements OnInit {
     this.fetchAnnouncements();
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribeAll();
+  }
+
+  /**
+   * Unsubscribe from all active subscriptions
+   */
+  private unsubscribeAll(): void {
+    if (this.announcementsSubscription) {
+      this.announcementsSubscription.unsubscribe();
+      this.announcementsSubscription = undefined;
+    }
+  }
+
   fetchAnnouncements(page: number = this.currentPage): void {
+    // Unsubscribe from previous call if exists
+    if (this.announcementsSubscription) {
+      this.announcementsSubscription.unsubscribe();
+    }
+
     this.isLoading = true;
     const recipients = this.filterForm.get('recipients')?.value || '';
-    this.announcementsService.getAnnouncements(page, this.itemsPerPage, this.searchTerm, recipients)
+    this.announcementsSubscription = this.announcementsService.getAnnouncements(page, this.itemsPerPage, this.searchTerm, recipients)
       .subscribe({
         next: (res) => {
           const data = res?.data;
@@ -81,7 +103,7 @@ export class AnnouncementsComponent implements OnInit {
    */
   formatRecipients(recipients: any[]): string {
     if (!recipients || recipients.length === 0) return '-';
-    
+
     return recipients.map(recipient => {
       const type = recipient.recipient_type || 'Unknown';
       const name = recipient.recipient_name || 'Unknown';
@@ -94,7 +116,7 @@ export class AnnouncementsComponent implements OnInit {
    */
   getRecipientType(recipients: any[]): string {
     if (!recipients || recipients.length === 0) return '-';
-    
+
     const types = [...new Set(recipients.map(r => r.recipient_type).filter(Boolean))];
     return types.join(', ');
   }

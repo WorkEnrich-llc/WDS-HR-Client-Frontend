@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
@@ -6,7 +6,7 @@ import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overl
 import { PopupComponent } from '../../shared/popup/popup.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 import { IntegrationsService } from '../../../core/services/admin-settings/integrations/integrations.service';
 import { PaginationStateService } from '../../../core/services/pagination-state/pagination-state.service';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
@@ -18,7 +18,7 @@ import { UserStatus } from '../../../core/enums';
     templateUrl: './integrations.component.html',
     styleUrls: ['./integrations.component.css']
 })
-export class IntegrationsComponent implements OnInit {
+export class IntegrationsComponent implements OnInit, OnDestroy {
     private integrationsService = inject(IntegrationsService);
     private paginationState = inject(PaginationStateService);
     private router = inject(Router);
@@ -59,6 +59,12 @@ export class IntegrationsComponent implements OnInit {
     selectedIntegration: any = null;
     modalAction: 'activate' | 'deactivate' | null = null;
 
+    // Subscriptions for cleanup
+    private integrationsSubscription?: Subscription;
+    private searchSubscription?: Subscription;
+    private queryParamsSubscription?: Subscription;
+    private statusUpdateSubscription?: Subscription;
+
     // Breadcrumb data
     breadcrumb = [
         { label: 'Admin Settings', link: '/cloud' },
@@ -70,17 +76,43 @@ export class IntegrationsComponent implements OnInit {
         this.initializeFilterForm();
 
         // Handle pagination from URL
-        this.route.queryParams.subscribe(params => {
+        this.queryParamsSubscription = this.route.queryParams.subscribe(params => {
             const pageFromUrl = +params['page'] || this.paginationState.getPage('integrations') || 1;
             this.currentPage = pageFromUrl;
             this.getAllIntegrations(pageFromUrl);
         });
 
         // Setup search debounce
-        this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+        this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
             this.currentPage = 1;
             this.getAllIntegrations(this.currentPage);
         });
+    }
+
+    ngOnDestroy(): void {
+        this.unsubscribeAll();
+    }
+
+    /**
+     * Unsubscribe from all active subscriptions
+     */
+    private unsubscribeAll(): void {
+        if (this.integrationsSubscription) {
+            this.integrationsSubscription.unsubscribe();
+            this.integrationsSubscription = undefined;
+        }
+        if (this.searchSubscription) {
+            this.searchSubscription.unsubscribe();
+            this.searchSubscription = undefined;
+        }
+        if (this.queryParamsSubscription) {
+            this.queryParamsSubscription.unsubscribe();
+            this.queryParamsSubscription = undefined;
+        }
+        if (this.statusUpdateSubscription) {
+            this.statusUpdateSubscription.unsubscribe();
+            this.statusUpdateSubscription = undefined;
+        }
     }
 
     /**
@@ -98,9 +130,14 @@ export class IntegrationsComponent implements OnInit {
      * Get all integrations with pagination, search, and filters
      */
     getAllIntegrations(pageNumber: number = 1): void {
+        // Unsubscribe from previous call if exists
+        if (this.integrationsSubscription) {
+            this.integrationsSubscription.unsubscribe();
+        }
+
         this.loadData = true;
 
-        this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.searchTerm, this.currentFilters)
+        this.integrationsSubscription = this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.searchTerm, this.currentFilters)
             .subscribe({
                 next: (response: any) => {
                     this.currentPage = Number(response.data.page);
@@ -324,7 +361,12 @@ export class IntegrationsComponent implements OnInit {
         // Determine the status to send: true for activate, false for deactivate (revoke)
         const newStatus = this.modalAction === 'activate' ? true : false;
 
-        this.integrationsService.updateIntegrationStatus(this.selectedIntegration.id, newStatus)
+        // Unsubscribe from previous status update if exists
+        if (this.statusUpdateSubscription) {
+            this.statusUpdateSubscription.unsubscribe();
+        }
+
+        this.statusUpdateSubscription = this.integrationsService.updateIntegrationStatus(this.selectedIntegration.id, newStatus)
             .subscribe({
                 next: (response) => {
                     const action = this.modalAction === 'deactivate' ? 'revoked' : 'activated';

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -7,6 +7,7 @@ import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skela
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IntegrationsService } from '../../../../core/services/admin-settings/integrations/integrations.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-create-integration',
@@ -14,7 +15,7 @@ import { IntegrationsService } from '../../../../core/services/admin-settings/in
     templateUrl: './create-integration.component.html',
     styleUrls: ['./create-integration.component.css']
 })
-export class CreateIntegrationComponent implements OnInit {
+export class CreateIntegrationComponent implements OnInit, OnDestroy {
     private integrationsService = inject(IntegrationsService);
     private router = inject(Router);
     private formBuilder = inject(FormBuilder);
@@ -36,6 +37,7 @@ export class CreateIntegrationComponent implements OnInit {
     availableServices: any[] = [];
     filteredServices: any[] = [];
     searchTerm: string = '';
+    selectedServicesSearchTerm: string = ''; // Search for selected services table
     selectedModule: string = 'All Modules';
     isLoadingServices: boolean = false;
     currentPage: number = 1;
@@ -58,6 +60,10 @@ export class CreateIntegrationComponent implements OnInit {
     // Service selection validation
     showServiceError: boolean = false;
 
+    // Subscriptions for cleanup
+    private featuresSubscription?: Subscription;
+    private createSubscription?: Subscription;
+
     // Breadcrumb data
     breadcrumb = [
         { label: 'Admin Settings', link: '/cloud' },
@@ -68,6 +74,24 @@ export class CreateIntegrationComponent implements OnInit {
     ngOnInit(): void {
         this.initializeForm();
         this.setTodayFormatted();
+    }
+
+    ngOnDestroy(): void {
+        this.unsubscribeAll();
+    }
+
+    /**
+     * Unsubscribe from all active subscriptions
+     */
+    private unsubscribeAll(): void {
+        if (this.featuresSubscription) {
+            this.featuresSubscription.unsubscribe();
+            this.featuresSubscription = undefined;
+        }
+        if (this.createSubscription) {
+            this.createSubscription.unsubscribe();
+            this.createSubscription = undefined;
+        }
     }
 
     /**
@@ -186,7 +210,7 @@ export class CreateIntegrationComponent implements OnInit {
                 requestBody.request_data.expires_at = formData.expiryDate;
             }
 
-            this.integrationsService.createIntegration(requestBody).subscribe({
+            this.createSubscription = this.integrationsService.createIntegration(requestBody).subscribe({
                 next: () => {
                     this.router.navigate(['/integrations']);
                 },
@@ -229,6 +253,7 @@ export class CreateIntegrationComponent implements OnInit {
      */
     openServiceFilter(): void {
         this.serviceFilterBox.openOverlay();
+        this.currentPage = 1; // Reset to first page
         this.loadIntegrationFeatures();
     }
 
@@ -236,8 +261,13 @@ export class CreateIntegrationComponent implements OnInit {
      * Close service selection filter
      */
     closeServiceFilter(): void {
+        // Unsubscribe from features API call when closing modal
+        if (this.featuresSubscription) {
+            this.featuresSubscription.unsubscribe();
+            this.featuresSubscription = undefined;
+        }
         this.serviceFilterBox.closeOverlay();
-        this.searchTerm = '';
+        this.searchTerm = ''; // Reset modal search
         this.selectedModule = 'All Modules';
         this.currentPage = 1;
     }
@@ -246,14 +276,29 @@ export class CreateIntegrationComponent implements OnInit {
      * Load integration features from API
      */
     loadIntegrationFeatures(): void {
+        // Unsubscribe from previous call if exists
+        if (this.featuresSubscription) {
+            this.featuresSubscription.unsubscribe();
+        }
+
         this.isLoadingServices = true;
-        this.integrationsService.getIntegrationFeatures().subscribe({
+        this.featuresSubscription = this.integrationsService.getIntegrationFeatures().subscribe({
             next: (response) => {
-                this.availableServices = this.flattenServices(response.data.subscription.features);
+                // Get features from object_info.features (simple array of strings)
+                const features = (response?.data?.object_info?.features ?? []) as string[];
+
+                // Map features to service objects for display
+                this.availableServices = features.map((feature, index) => ({
+                    id: index + 1,
+                    service: this.formatFeatureName(feature),
+                    featureKey: feature, // Keep original key for request
+                    selected: false
+                }));
+
                 this.filteredServices = this.availableServices;
                 this.totalServices = this.availableServices.length;
                 // capture features keys for request
-                this.featureKeys = (response?.data?.object_info?.features ?? []) as string[];
+                this.featureKeys = [];
                 this.isLoadingServices = false;
             },
             error: (error) => {
@@ -264,27 +309,16 @@ export class CreateIntegrationComponent implements OnInit {
     }
 
     /**
-     * Flatten services from API response
+     * Format feature name to add spaces between camelCase words
      */
-    flattenServices(features: any[]): any[] {
-        const services: any[] = [];
-        features.forEach(feature => {
-            if (feature.sub_list && feature.sub_list.length > 0) {
-                feature.sub_list.forEach((sub: any) => {
-                    services.push({
-                        id: sub.sub.id,
-                        module: feature.main.name,
-                        service: sub.sub.name,
-                        selected: false
-                    });
-                });
-            }
-        });
-        return services;
+    private formatFeatureName(feature: string): string {
+        // Convert camelCase to space-separated words
+        // e.g., "JobTitles" -> "Job Titles"
+        return feature.replace(/([A-Z])/g, ' $1').trim();
     }
 
     /**
-     * Filter services based on search term and module
+     * Filter services based on search term
      */
     filterServices(): void {
         let filtered = this.availableServices;
@@ -292,19 +326,21 @@ export class CreateIntegrationComponent implements OnInit {
         // Filter by search term
         if (this.searchTerm.trim()) {
             filtered = filtered.filter(service =>
-                service.service.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                service.module.toLowerCase().includes(this.searchTerm.toLowerCase())
+                service.service.toLowerCase().includes(this.searchTerm.toLowerCase())
             );
-        }
-
-        // Filter by module
-        if (this.selectedModule !== 'All Modules') {
-            filtered = filtered.filter(service => service.module === this.selectedModule);
         }
 
         this.filteredServices = filtered;
         this.totalServices = filtered.length;
+
+        // Reset to page 1 when filtering
         this.currentPage = 1;
+
+        // Ensure current page doesn't exceed available pages
+        const maxPage = Math.ceil(this.totalServices / this.itemsPerPage);
+        if (this.currentPage > maxPage && maxPage > 0) {
+            this.currentPage = maxPage;
+        }
     }
 
     /**
@@ -350,8 +386,8 @@ export class CreateIntegrationComponent implements OnInit {
      */
     confirmServiceSelection(): void {
         this.selectedServices = this.availableServices.filter(service => service.selected);
-        // Update featureKeys based on selected services (remove spaces from service names)
-        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        // Update featureKeys based on selected services (use original featureKey)
+        this.featureKeys = this.selectedServices.map(s => s.featureKey || s.service?.replace(/\s+/g, '') || '').filter(f => f);
         // Clear error if services are selected
         if (this.selectedServices.length > 0) {
             this.showServiceError = false;
@@ -374,7 +410,7 @@ export class CreateIntegrationComponent implements OnInit {
             this.availableServices[availableIndex].selected = false;
         }
         // Update featureKeys to stay in sync
-        this.featureKeys = this.selectedServices.map(s => s.service?.replace(/\s+/g, '') || '').filter(f => f);
+        this.featureKeys = this.selectedServices.map(s => s.featureKey || s.service?.replace(/\s+/g, '') || '').filter(f => f);
         // Show error if no services remain
         if (this.selectedServices.length === 0) {
             this.showServiceError = true;
@@ -437,14 +473,50 @@ export class CreateIntegrationComponent implements OnInit {
      * Update table data when selected services change
      */
     updateTableData(): void {
-        this.tableTotalItems = this.selectedServices.length;
+        this.tableTotalItems = this.getFilteredSelectedServices().length;
         this.tableIsLoading = false;
+    }
+
+    /**
+     * Filter selected services based on search term
+     */
+    filterSelectedServices(): void {
+        this.tableCurrentPage = 1; // Reset to first page when searching
+        this.updateTableData();
+    }
+
+    /**
+     * Get filtered selected services based on search term
+     */
+    getFilteredSelectedServices(): any[] {
+        if (!this.selectedServicesSearchTerm.trim()) {
+            return this.selectedServices;
+        }
+        return this.selectedServices.filter(service =>
+            service.service.toLowerCase().includes(this.selectedServicesSearchTerm.toLowerCase())
+        );
+    }
+
+    /**
+     * Get selected services for current page (with search filter applied)
+     */
+    getSelectedServicesPage(): any[] {
+        const filtered = this.getFilteredSelectedServices();
+        const start = (this.tableCurrentPage - 1) * this.tableItemsPerPage;
+        return filtered.slice(start, start + this.tableItemsPerPage);
     }
 
     /**
      * Check if pagination should be shown (10 or more services)
      */
     shouldShowPagination(): boolean {
-        return this.selectedServices.length >= 10;
+        return this.getFilteredSelectedServices().length >= 10;
+    }
+
+    /**
+     * Check if modal pagination should be shown (10 or more available services)
+     */
+    shouldShowModalPagination(): boolean {
+        return this.totalServices > 10;
     }
 }
