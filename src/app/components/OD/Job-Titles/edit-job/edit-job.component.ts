@@ -399,8 +399,9 @@ export class EditJobComponent {
   searchNotFound: boolean = false;
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
+  loadJobs: boolean = false;
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
-
+    this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
     this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
       management_level: managementLevel,
@@ -425,9 +426,11 @@ export class EditJobComponent {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.loadJobs = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.loadJobs = false;
       }
     });
   }

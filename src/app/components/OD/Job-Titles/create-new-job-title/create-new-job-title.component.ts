@@ -84,6 +84,22 @@ export class CreateNewJobTitleComponent {
       this.ManageCurrentPage = 1; // Reset to page 1 when searching
       this.getAllJobTitles(1, value);
     });
+
+
+    // see changes in salary range inputs to update status
+    this.jobStep2.get('partTime_minimum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('partTime_minimum', 'partTime_maximum', 'partTime_status');
+    });
+    this.jobStep2.get('partTime_maximum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('partTime_minimum', 'partTime_maximum', 'partTime_status');
+    });
+
+    this.jobStep2.get('hourly_minimum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('hourly_minimum', 'hourly_maximum', 'hourly_status');
+    });
+    this.jobStep2.get('hourly_maximum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('hourly_minimum', 'hourly_maximum', 'hourly_status');
+    });
   }
 
   jobStep1: FormGroup = new FormGroup({
@@ -158,65 +174,65 @@ export class CreateNewJobTitleComponent {
   totalItems: number = 0;
   itemsPerPage: number = 10000;
 
-getAllDepartment(
-  pageNumber: number,
-  searchTerm: string = '',
-  filters?: {
-    status?: string;
-    updated_from?: string;
-    updated_to?: string;
-    created_from?: string;
-    created_to?: string;
+  getAllDepartment(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      status?: string;
+      updated_from?: string;
+      updated_to?: string;
+      created_from?: string;
+      created_to?: string;
+    }
+  ) {
+    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        this.departments = activeDepartments.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+        }));
+
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
   }
-) {
-  this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
-    search: searchTerm || undefined,
-    ...filters
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
 
-      const activeDepartments = response.data.list_items.filter(
-        (item: any) => item.is_active === true
-      );
+  getsections(deptid: number) {
+    this._DepartmentsService.showDepartment(deptid).subscribe({
+      next: (response) => {
+        const rawSections = response.data.object_info.sections;
 
-      this.departments = activeDepartments.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-      }));
+        const activeSections = rawSections.filter(
+          (section: any) => section.is_active === true
+        );
 
-      this.sortDirection = 'desc';
-      this.currentSortColumn = 'id';
-      this.sortBy();
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+        this.sections = activeSections.map((section: any) => ({
+          id: section.id,
+          name: section.name
+        }));
 
-getsections(deptid: number) {
-  this._DepartmentsService.showDepartment(deptid).subscribe({
-    next: (response) => {
-      const rawSections = response.data.object_info.sections;
-
-      const activeSections = rawSections.filter(
-        (section: any) => section.is_active === true
-      );
-
-      this.sections = activeSections.map((section: any) => ({
-        id: section.id,
-        name: section.name
-      }));
-
-      // console.log(activeSections);
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+        // console.log(activeSections);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
 
   ManageCurrentPage: number = 1;
@@ -228,7 +244,9 @@ getsections(deptid: number) {
   searchNotFound: boolean = false;
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
+  loadJobs: boolean = false;
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
+    this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
     this.loadData = true;
     this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
@@ -251,10 +269,12 @@ getsections(deptid: number) {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.loadJobs = false;
       },
       error: (err) => {
         this.loadData = false;
         console.error(err.error?.details);
+        this.loadJobs = false;
       }
     });
   }
@@ -268,11 +288,11 @@ getsections(deptid: number) {
     this.getAllJobTitles(page, this.searchTerm);
   }
 
-onItemsPerPageChange(newItemsPerPage: number): void {
-  this.manageItemsPerPage = newItemsPerPage;
-  this.ManageCurrentPage = 1;
-  this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-}
+  onItemsPerPageChange(newItemsPerPage: number): void {
+    this.manageItemsPerPage = newItemsPerPage;
+    this.ManageCurrentPage = 1;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
 
 
 
@@ -290,18 +310,29 @@ onItemsPerPageChange(newItemsPerPage: number): void {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
-    partTime_status: new FormControl(true, [Validators.required]),
+    partTime_status: new FormControl(false, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
-    hourly_status: new FormControl(true, [Validators.required]),
+    hourly_status: new FormControl(false, [Validators.required]),
     hourly_restrict: new FormControl(false),
   }, { validators: multipleMinMaxValidator });
+
+  updateStatusBasedOnInput(minField: string, maxField: string, statusField: string) {
+    const minValue = this.jobStep2.get(minField)?.value;
+    const maxValue = this.jobStep2.get(maxField)?.value;
+
+    if (minValue || maxValue) {
+      this.jobStep2.get(statusField)?.setValue(true, { emitEvent: false });
+    } else {
+      this.jobStep2.get(statusField)?.setValue(false, { emitEvent: false });
+    }
+  }
 
 
 
