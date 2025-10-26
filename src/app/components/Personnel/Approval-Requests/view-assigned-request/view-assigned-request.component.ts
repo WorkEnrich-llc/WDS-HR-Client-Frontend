@@ -3,6 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { ApprovalRequestsService } from '../service/approval-requests.service';
 import { CommonModule } from '@angular/common';
 import { ApprovalRequestItem } from '../../../../core/interfaces/approval-request';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-view-assigned-request',
@@ -12,6 +13,12 @@ import { ApprovalRequestItem } from '../../../../core/interfaces/approval-reques
   encapsulation: ViewEncapsulation.None
 })
 export class ViewAssignedRequestComponent implements OnInit {
+
+  private route = inject(ActivatedRoute);
+  private approvalService = inject(ApprovalRequestsService);
+  leaveRequest1?: ApprovalRequestItem;
+  requestId!: number;
+
   leaveRequest = {
     requestId: 12,
     createdAt: new Date('2023-06-13'),
@@ -74,13 +81,16 @@ export class ViewAssignedRequestComponent implements OnInit {
       },
     ],
   };
-  private approvalService = inject(ApprovalRequestsService);
-  leaveRequest1?: ApprovalRequestItem;
+
 
   ngOnInit(): void {
-    // Fetch request ID 4; adjust as needed
-    this.approvalService.showApprovalRequest(4).subscribe(res => {
-      this.leaveRequest1 = res.data.object_info;
+    this.route.params.subscribe(params => {
+      this.requestId = +params['id'];
+      if (this.requestId) {
+        this.approvalService.showApprovalRequest(this.requestId).subscribe((res) => {
+          this.leaveRequest1 = res.data.object_info;
+        });
+      }
     });
   }
 }
