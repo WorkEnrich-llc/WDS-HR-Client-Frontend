@@ -411,7 +411,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             });
         } else if (this.selectedRecipientType === 'employee') {
             this.employeeService.getEmployees(page, perPage, search).subscribe({
-                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
+                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.contact_info?.name ?? x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
                 error: () => this.isLoadingItems = false
             });
         } else {
