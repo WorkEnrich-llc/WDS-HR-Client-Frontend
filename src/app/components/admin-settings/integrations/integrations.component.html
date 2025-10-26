@@ -98,7 +98,10 @@
     <ng-template #integrationsTableHeader>
       <th scope="col" (click)="sortBy('integrationName')" style="cursor: pointer;" class="w-30">
         <div class="d-flex align-items-center justify-content-between gap-3">
-          <span>Integration Name</span>
+          <div class="d-flex flex-column">
+            <span class="header-two-line">Integration</span>
+            <span class="header-two-line">Name</span>
+          </div>
           <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
             viewBox="0 0 24 24">
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
