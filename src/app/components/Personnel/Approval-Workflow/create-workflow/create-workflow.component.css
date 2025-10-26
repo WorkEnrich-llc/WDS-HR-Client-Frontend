@@ -23,6 +23,17 @@
     fill: var(--color-secondary-700);
     font-size: var(--font-size-b2);
     line-height: var(--line-height-xss);
+
+     /* Allow step names to wrap onto multiple lines instead of truncating.
+         Break very long words when necessary to avoid layout overflow. */
+     max-width: 100%;
+     /* Let text wrap to the next line */
+     white-space: normal;
+     /* Break long words / unbroken strings when needed */
+     overflow-wrap: anywhere;
+     word-break: break-word;
+     /* remove single-line truncation rules */
+     /* text-overflow and overflow hidden removed so multi-line content is visible */
 }
 .steps-links .link.active{
     color: var(--color-primary-600);

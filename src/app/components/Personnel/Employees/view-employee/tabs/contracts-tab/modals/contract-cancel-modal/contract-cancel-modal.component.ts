@@ -13,6 +13,7 @@ import { PopupComponent } from '../../../../../../../shared/popup/popup.componen
 export class ContractCancelModalComponent {
   @Input() isOpen = false;
   @Input() contract: Contract | null = null;
+  @Input() isLoading = false;
   @Output() onClose = new EventEmitter<void>();
   @Output() onCancel = new EventEmitter<Contract>();
 
