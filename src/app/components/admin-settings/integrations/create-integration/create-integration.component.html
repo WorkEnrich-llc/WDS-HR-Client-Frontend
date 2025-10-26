@@ -218,8 +218,8 @@
         <!-- Search Bar -->
         <div class="search-container">
             <div class="form-outline position-relative w-50">
-                <input type="text" class="form-control custom-date-input" placeholder="Search" [(ngModel)]="searchTerm"
-                    (input)="filterServices()">
+                <input type="text" class="form-control custom-date-input" placeholder="Search"
+                    [(ngModel)]="selectedServicesSearchTerm" (input)="filterSelectedServices()">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_588_10154)">
                         <g clip-path="url(#clip1_588_10154)">
@@ -267,7 +267,7 @@
         }
 
         <!-- Table Component -->
-        <app-table [data]="selectedServices" [totalItems]="tableTotalItems" [itemsPerPage]="tableItemsPerPage"
+        <app-table [data]="getSelectedServicesPage()" [totalItems]="tableTotalItems" [itemsPerPage]="tableItemsPerPage"
             [currentPage]="tableCurrentPage" [isLoading]="tableIsLoading" [columnsCount]="2"
             [headerTemplate]="tableHeaderTemplate" [rowTemplate]="tableRowTemplate" [emptyTemplate]="tableEmptyTemplate"
             [disablePagination]="!shouldShowPagination()" (pageChange)="onTablePageChange($event)"
@@ -332,7 +332,8 @@
             </app-table>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination (only show if more than 10 services) -->
+        @if (shouldShowModalPagination()) {
         <div class="d-flex justify-content-between align-items-center">
             <span class="text-muted">{{ getPaginationInfo() }}</span>
             <div class="d-flex gap-2">
@@ -353,6 +354,7 @@
                 </button>
             </div>
         </div>
+        }
 
         <!-- Action Buttons -->
         <div class="d-flex align-items-center gap-3">
@@ -420,8 +422,8 @@
 
 <ng-template #modalRowTemplate let-service>
     <td colspan="1">
-        <div class="service-row d-flex align-items-start gap-3" (click)="toggleServiceSelection(service)">
-            <input type="checkbox" class="service-square-checkbox mt-1" [checked]="service.selected"
+        <div class="service-row d-flex align-items-center gap-3" (click)="toggleServiceSelection(service)">
+            <input type="checkbox" class="service-square-checkbox" [checked]="service.selected"
                 (click)="$event.stopPropagation(); toggleServiceSelection(service)">
             <div class="d-flex flex-column">
                 <span class="service-name-text">{{ service.service }}</span>

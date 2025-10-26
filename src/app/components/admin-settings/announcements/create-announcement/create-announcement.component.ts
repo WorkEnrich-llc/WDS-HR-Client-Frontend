@@ -49,7 +49,9 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     availableItems: any[] = [];
     availableDepartments: any[] = [];
     selectedDepartmentId: number | null = null;
-    searchTerm: string = '';
+    // Separate search terms: one for modal (server-side) and one for selected list (client-side)
+    modalSearchTerm: string = '';
+    selectedSearchTerm: string = '';
     currentPage: number = 1;
     totalPages: number = 0;
     totalItems: number = 0;
@@ -102,7 +104,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             debounceTime(300),
             distinctUntilChanged()
         ).subscribe(searchTerm => {
-            this.searchTerm = searchTerm;
+            this.modalSearchTerm = searchTerm;
             this.performSearch();
         });
     }
@@ -111,7 +113,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      * Perform search based on current recipient type
      */
     private performSearch(): void {
-        console.log('performSearch called for:', this.selectedRecipientType, 'searchTerm:', this.searchTerm);
+        console.log('performSearch called for:', this.selectedRecipientType, 'searchTerm:', this.modalSearchTerm);
         this.currentPage = 1;
         if (this.selectedRecipientType === 'section') {
             this.loadDepartmentsForSections();
@@ -241,7 +243,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.availableItems = [];
         this.availableDepartments = [];
         this.selectedDepartmentId = null;
-        this.searchTerm = '';
+        this.modalSearchTerm = '';
         this.currentPage = 1;
         // Don't trigger search subject here to avoid duplicate calls
     }
@@ -254,7 +256,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.clearAllSelections();
 
         this.selectedRecipientType = type;
-        this.searchTerm = ''; // Reset search when changing type
+        this.modalSearchTerm = ''; // Reset modal search when changing type
+        this.selectedSearchTerm = ''; // Reset selected-items search when changing type
         this.currentPage = 1; // Reset page when changing type
         this.selectedDepartmentId = null; // Reset department selection for sections
 
@@ -300,7 +303,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      */
     loadDepartmentsForSections(): void {
         this.isLoadingItems = true;
-        this.departmentsService.getAllDepartment(1, 10000, { search: this.searchTerm || undefined }).subscribe({
+        this.departmentsService.getAllDepartment(1, 10000, { search: this.modalSearchTerm || undefined }).subscribe({
             next: (res: any) => {
                 const departments = res?.data?.list_items || [];
                 this.availableDepartments = departments.map((dept: any) => ({
@@ -367,7 +370,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     /**
      * Handle search input with debouncing
      */
-    onSearchInput(event: Event): void {
+    onModalSearchInput(event: Event): void {
         const target = event.target as HTMLInputElement;
         this.searchSubject.next(target.value);
     }
@@ -375,8 +378,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     /**
      * Clear search and reload data
      */
-    clearSearch(): void {
-        this.searchTerm = '';
+    clearModalSearch(): void {
+        this.modalSearchTerm = '';
         this.searchSubject.next('');
         // Don't call performSearch() here as it will be triggered by the searchSubject
     }
@@ -387,7 +390,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
 
         const page = this.currentPage;
         const perPage = this.itemsPerPage;
-        const search = this.searchTerm || '';
+        const search = this.modalSearchTerm || '';
 
         const finish = (res: any, map: (x: any) => any) => {
             const items = (res?.data?.list_items ?? res?.list_items ?? res?.data ?? []) || [];
@@ -411,7 +414,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             });
         } else if (this.selectedRecipientType === 'employee') {
             this.employeeService.getEmployees(page, perPage, search).subscribe({
-                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
+                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.contact_info?.name ?? x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
                 error: () => this.isLoadingItems = false
             });
         } else {
@@ -422,13 +425,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     /**
      * Filter entities based on search term
      */
-    filterDepartments(): void {
-        this.currentPage = 1;
-        if (this.selectedRecipientType === 'section') {
-            this.loadDepartmentsForSections();
-        } else {
-            this.loadEntities();
-        }
+    // Client-side search for selected items table
+    onSelectedSearchInput(): void {
+        this.tableCurrentPage = 1;
+        this.updateSelectedDepartmentsTable();
     }
 
     /**
@@ -518,10 +518,21 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     getCurrentPageDepartments(): any[] { return this.availableItems; }
 
     // Selected departments table helpers
+    private getFilteredSelectedArray(): any[] {
+        const arr = this.getSelectedArray();
+        const term = (this.selectedSearchTerm || '').toLowerCase().trim();
+        if (!term) return arr;
+        return arr.filter(item => {
+            const code = (item.code || '').toString().toLowerCase();
+            const name = (item.name || '').toString().toLowerCase();
+            return code.includes(term) || name.includes(term);
+        });
+    }
+
     getSelectedDepartmentsPage(): any[] {
         const start = (this.tableCurrentPage - 1) * this.tableItemsPerPage;
-        const arr = this.getSelectedArray();
-        return arr.slice(start, start + this.tableItemsPerPage);
+        const filtered = this.getFilteredSelectedArray();
+        return filtered.slice(start, start + this.tableItemsPerPage);
     }
 
     onTablePageChange(page: number): void {
@@ -533,11 +544,11 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.tableCurrentPage = 1;
     }
 
-    shouldShowDepartmentsPagination(): boolean { return this.getSelectedArray().length >= 10; }
+    shouldShowDepartmentsPagination(): boolean { return this.getFilteredSelectedArray().length >= 10; }
 
     private updateSelectedDepartmentsTable(): void {
         this.tableIsLoading = true;
-        this.tableTotalItems = this.getSelectedArray().length;
+        this.tableTotalItems = this.getFilteredSelectedArray().length;
         // ensure current page is not out of range
         const maxPage = Math.max(1, Math.ceil(this.tableTotalItems / this.tableItemsPerPage));
         if (this.tableCurrentPage > maxPage) {

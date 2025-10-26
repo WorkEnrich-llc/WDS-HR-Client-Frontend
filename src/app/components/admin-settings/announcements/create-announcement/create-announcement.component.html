@@ -280,8 +280,8 @@
         @if (selectedRecipientType !== 'company') {
         <div class="search-container">
             <div class="form-outline position-relative w-50">
-                <input type="text" class="form-control custom-date-input" placeholder="Search" [(ngModel)]="searchTerm"
-                    (input)="filterDepartments()">
+                <input type="text" class="form-control custom-date-input" placeholder="Search"
+                    [(ngModel)]="selectedSearchTerm" (input)="onSelectedSearchInput()">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_620_11014)">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -421,12 +421,12 @@
         @if (selectedRecipientType !== 'company' && selectedRecipientType !== 'section') {
         <div class="form-outline position-relative">
             <input type="text" class="form-control custom-date-input"
-                [placeholder]="'Search ' + getRecipientLabelWithS()" [(ngModel)]="searchTerm"
-                (input)="onSearchInput($event)">
+                [placeholder]="'Search ' + getRecipientLabelWithS()" [(ngModel)]="modalSearchTerm"
+                (input)="onModalSearchInput($event)">
 
-            @if (searchTerm) {
+            @if (modalSearchTerm) {
             <!-- Clear search button -->
-            <button type="button" class="btn btn-sm btn-outline-secondary clear-search-btn" (click)="clearSearch()"
+            <button type="button" class="btn btn-sm btn-outline-secondary clear-search-btn" (click)="clearModalSearch()"
                 title="Clear search">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="#6B7280" stroke-width="1.5"
