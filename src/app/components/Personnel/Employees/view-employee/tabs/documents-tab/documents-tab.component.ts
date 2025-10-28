@@ -2,29 +2,32 @@ import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild } from '
 
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-documents-tab',
-  imports: [TableComponent],
+  imports: [TableComponent, PopupComponent],
   templateUrl: './documents-tab.component.html',
   styleUrl: './documents-tab.component.css'
 })
 export class DocumentsTabComponent {
   @Input() employee: Employee | null = null;
-  @Input() documentsRequired: Array<{ 
-    name: string; 
-    key: string; 
-    uploaded: boolean; 
-    url?: string; 
+  @Input() documentsRequired: Array<{
+    name: string;
+    key: string;
+    uploaded: boolean;
+    url?: string;
     id?: number;
     uploadDate?: string;
     fileName?: string;
     size?: number;
     fileExt?: string;
     fileType?: string;
+    isLoading?: boolean;
+    isDeleteModalOpen?: boolean;
   }> = [];
   @Input() uploadProgress: { [key: string]: number } = {};
-  
+
   @Output() fileSelected = new EventEmitter<Event>();
   @Output() uploadDocument = new EventEmitter<{ key: string; fileInput: HTMLInputElement }>();
   @Output() deleteDocument = new EventEmitter<string>();
@@ -75,7 +78,7 @@ export class DocumentsTabComponent {
   // Format upload date to display format
   getFormattedDate(dateString?: string): string {
     if (!dateString) return 'N/A';
-    
+
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -87,7 +90,7 @@ export class DocumentsTabComponent {
   // Format file size to display format
   getFormattedSize(sizeKb?: number): string {
     if (!sizeKb) return '0 KB';
-    
+
     if (sizeKb < 1024) {
       return `${sizeKb.toFixed(2)} KB`;
     } else {
@@ -95,4 +98,17 @@ export class DocumentsTabComponent {
       return `${sizeMb.toFixed(2)} MB`;
     }
   }
+
+
+
+  openDeleteModal(document: any) {
+    this.documentsRequired.forEach(d => d.isDeleteModalOpen = false);
+    document.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(document: any) {
+    document.isDeleteModalOpen = false;
+  }
+
+
 }

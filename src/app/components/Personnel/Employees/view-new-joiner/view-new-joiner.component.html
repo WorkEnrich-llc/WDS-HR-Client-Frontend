@@ -195,7 +195,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="info">
                     <h6>Direct Manager</h6>
-                    <span>Ahmed Hamed</span>
+                    <span>{{ employee.job_info.direct_manager?.name || "--" }}</span>
                 </div>
                 <a class="view-btn h-100 d-flex align-items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

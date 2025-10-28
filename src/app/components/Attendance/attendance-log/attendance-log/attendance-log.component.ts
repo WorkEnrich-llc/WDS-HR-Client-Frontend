@@ -133,11 +133,12 @@ export class AttendanceLogComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
       this.getAllAttendanceLog({
         page: this.currentPage,
         per_page: this.itemsPerPage,
+        from_date: formattedDate,
         search: value
       });
     });

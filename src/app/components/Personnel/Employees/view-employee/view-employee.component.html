@@ -85,7 +85,7 @@
         <span>{{ employee.contact_info.name || "N/A" }}</span>
       </div>
       @if (employee.contact_info.name_arabic) {
-        <div class="info">
+      <div class="info">
         <h6>Full Name(Arabic)</h6>
         <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
       </div>
@@ -162,15 +162,15 @@
       </div>
       <div class="info">
         <h6>Section</h6>
-        <span>{{ employee.job_info.section?.name || "N/A" }}</span>
+        <span>{{ employee.job_info.section?.name || "Not assigned" }}</span>
       </div>
       <div class="info">
         <h6>Department</h6>
-        <span>{{ employee.job_info.department.name || "N/A" }}</span>
+        <span>{{ employee.job_info.department.name || "Not assigned" }}</span>
       </div>
       <div class="info">
         <h6>Branch</h6>
-        <span>{{ employee.job_info.branch.name || "N/A" }}</span>
+        <span>{{ employee.job_info.branch.name || "Not assigned" }}</span>
       </div>
       <!-- <div class="info">
     <h6>Work Schedule</h6>
@@ -203,7 +203,7 @@
       <div class="d-flex align-items-center justify-content-between">
         <div class="info">
           <h6>Direct Manager</h6>
-          <span>N/A</span>
+          <span>{{ employee.job_info.direct_manager?.name || "--" }}</span>
         </div>
         <a class="view-btn h-100 d-flex align-items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -271,7 +271,8 @@
         <span>{{ employee.contact_info.email || "N/A" }}</span>
       </div>
       <div class="info">
-        <h6>Join Date</h6>
+        <h6>Created Date</h6>
+        <!-- <h6>Join Date</h6> -->
         <span>
           {{
           (employee.job_info.start_contract | date : "dd/MM/yyyy") || "N/A"

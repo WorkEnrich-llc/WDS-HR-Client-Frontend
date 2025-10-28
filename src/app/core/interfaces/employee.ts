@@ -143,6 +143,10 @@ export interface Employee {
     notice_period: number;
     insurance_salary?: number;
     gross_insurance?: number;
+    direct_manager?: {
+      id: number;
+      name: string;
+    }
   };
   employee_active: string; // "Active" | "Inactive" | "Pending" | "Disabled"
   employee_status: string; // "New Employee" | "Employed" | etc.
