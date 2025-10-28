@@ -662,10 +662,15 @@ export class ManageEmployeeSharedService {
     this.updateDaysOnSiteStatus(data.job_info.work_mode?.id);
   }
 
-  private formatDateForInput(dateStr: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toISOString().split('T')[0];
+  // private formatDateForInput(dateStr: string): string {
+  //   if (!dateStr) return '';
+  //   const date = new Date(dateStr);
+  //   return date.toISOString().split('T')[0];
+  // }
+
+  private formatDateForInput(dateStr: string): string | null {
+    if (!dateStr) return null;
+    return dateStr.split('T')[0];
   }
 
   formatDateForAPI(dateStr: string): string {
