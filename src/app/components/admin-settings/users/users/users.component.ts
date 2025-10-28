@@ -279,7 +279,7 @@ export class UsersComponent {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('users/all-users', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

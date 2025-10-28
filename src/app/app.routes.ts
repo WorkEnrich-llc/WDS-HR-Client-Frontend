@@ -4,6 +4,7 @@ import { GuestGuard } from './core/guards/guest.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { SubscriptionGuard } from './core/guards/subscription.guard';
 import { invitationResolver } from './core/resolver/invitation-resolver.resolver';
+import { PaginationStateService } from './core/services/pagination-state/pagination-state.service';
 
 export const routes: Routes = [
   {
@@ -130,6 +131,7 @@ export const routes: Routes = [
           // Deparments routes
           {
             path: 'departments',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Departments' },
             children: [
@@ -168,6 +170,7 @@ export const routes: Routes = [
           // Branch routes
           {
             path: 'branches',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Branches' },
             children: [
@@ -206,6 +209,7 @@ export const routes: Routes = [
           // Job routes
           {
             path: 'jobs',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Job_Titles' },
             children: [
@@ -290,6 +294,7 @@ export const routes: Routes = [
           // Goals routes
           {
             path: 'goals',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Goals' },
             children: [
@@ -379,6 +384,7 @@ export const routes: Routes = [
           // Employees routes
           {
             path: 'employees',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Employees' },
             children: [
@@ -436,6 +442,7 @@ export const routes: Routes = [
           // Approval Workflow routes
           {
             path: 'workflow',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Workflow' },
             children: [
@@ -474,6 +481,7 @@ export const routes: Routes = [
           // Approval Requests routes
           {
             path: 'requests',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Requests' },
             children: [
@@ -531,6 +539,7 @@ export const routes: Routes = [
           // delegation routes
           {
             path: 'delegation',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Delegation' },
             children: [
@@ -573,6 +582,7 @@ export const routes: Routes = [
           // Attendance log routes
           {
             path: 'attendance',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Attendance_Log' },
             children: [
@@ -604,6 +614,7 @@ export const routes: Routes = [
           // attendance rules
           {
             path: 'attendance-rules',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Attendance_Rules' },
             children: [
@@ -675,6 +686,7 @@ export const routes: Routes = [
           // Work Schedule routes
           {
             path: 'schedule',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Work_Schedule' },
             children: [
@@ -713,6 +725,7 @@ export const routes: Routes = [
           // Leave Types routes
           {
             path: 'leave-types',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Leave_Types' },
             children: [
@@ -751,6 +764,7 @@ export const routes: Routes = [
           // Leave balance routes
           {
             path: 'leave-balance',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Leave_Balance' },
             children: [
@@ -830,6 +844,7 @@ export const routes: Routes = [
           // Job Openings routes
           {
             path: 'job-openings',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Job_Openings' },
             children: [
@@ -911,6 +926,7 @@ export const routes: Routes = [
           // Archived Openings routes
           {
             path: 'archived-openings',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Archived_Openings' },
             children: [
@@ -946,6 +962,7 @@ export const routes: Routes = [
           // payroll components routes
           {
             path: 'payroll-components',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Payroll_Components' },
             children: [
@@ -985,6 +1002,7 @@ export const routes: Routes = [
           // payroll runs routes
           {
             path: 'payroll-runs',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Payroll_Runs' },
             children: [
@@ -1092,6 +1110,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'roles',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Roles' },
             children: [
@@ -1143,6 +1162,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'users',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'Users' },
             children: [
@@ -1191,6 +1211,7 @@ export const routes: Routes = [
           },
           {
             path: 'integrations',
+            providers: [PaginationStateService],
             canActivate: [SubscriptionGuard],
             data: { feature: 'External_Integration' },
             loadComponent: () =>

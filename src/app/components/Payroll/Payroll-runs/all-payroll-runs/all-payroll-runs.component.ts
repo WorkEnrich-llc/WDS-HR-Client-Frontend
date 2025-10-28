@@ -1,17 +1,18 @@
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
   selector: 'app-all-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule],
   templateUrl: './all-payroll-runs.component.html',
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
@@ -24,10 +25,12 @@ export class AllPayrollRunsComponent {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('configureBox') configureBox!: OverlayFilterBoxComponent;
   @ViewChild('importBox') importBox!: OverlayFilterBoxComponent;
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
   closeOverlays(): void {
     this.importBox?.closeOverlay();
   }
-   closeconfigureBoxOverlays(): void {
+  closeconfigureBoxOverlays(): void {
     this.configureBox?.closeOverlay();
   }
   loadData: boolean = false;
@@ -68,10 +71,17 @@ export class AllPayrollRunsComponent {
 
 
   ngOnInit(): void {
+    // this.route.queryParams.subscribe(params => {
+    //   // this.currentPage = +params['page'] || 1;
+    //   // this.getAllDepartment(this.currentPage);
+    // });
+
     this.route.queryParams.subscribe(params => {
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllDepartment(this.currentPage);
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-runs/payroll-runs') || 1;
+      this.currentPage = pageFromUrl;
+      // this.getAllPayrollRuns(pageFromUrl);
     });
+
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
@@ -103,7 +113,7 @@ export class AllPayrollRunsComponent {
   }
 
   // import
-   selectedFile: File | null = null;
+  selectedFile: File | null = null;
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -138,8 +148,29 @@ export class AllPayrollRunsComponent {
     this.currentPage = 1;
     // this.getAllDepartment(this.currentPage);
   }
+  // onPageChange(page: number): void {
+  //   this.currentPage = page;
+  //   // this.getAllDepartment(this.currentPage);
+  // }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllDepartment(this.currentPage);
+    this.paginationState.setPage('...', page);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  navigateToEdit(runsId: number): void {
+    this.paginationState.setPage('payroll-runs/payroll-runs', this.currentPage);
+    this.router.navigate(['/payroll-runs/edit-payroll-run', runsId]);
+  }
+
+
+  navigateToView(runsId: number): void {
+    this.paginationState.setPage('payroll-runs/payroll-runs', this.currentPage);
+    this.router.navigate(['/payroll-runs/view-payroll-run', runsId]);
   }
 }
