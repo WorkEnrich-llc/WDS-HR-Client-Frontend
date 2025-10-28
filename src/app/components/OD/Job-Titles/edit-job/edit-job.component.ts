@@ -9,9 +9,10 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, map, of, Subject } from 'rxjs';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { forkJoin } from 'rxjs';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -130,83 +131,52 @@ export class EditJobComponent {
   loadData: boolean = false;
   getJobTitle(jobId: number) {
     this.loadData = true;
+
     this._JobsService.showJobTitle(jobId).subscribe({
-      next: (response) => {
-        this.jobTitleData = response.data.object_info;
-        const created = this.jobTitleData?.created_at;
-        const updated = this.jobTitleData?.updated_at;
-        if (created) {
-          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
-        }
-        if (updated) {
-          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
-        }
-        // console.log(this.jobTitleData);
-        if (
-          this.jobTitleData.department?.id &&
-          (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)
-        ) {
-          this.getsections(this.jobTitleData.department.id);
-        }
-        const originalAssigned = this.jobTitleData?.assigns?.[0];
-        if (originalAssigned?.id) {
-          this.originalAssignedId = originalAssigned.id;
-        } else {
-          this.originalAssignedId = null;
+      next: (jobRes) => {
+        this.jobTitleData = jobRes.data.object_info;
+        const jobDept = this.jobTitleData.department;
+        const jobSection = this.jobTitleData.section;
+
+        const dept$ = this.getAllDepartment(this.currentPage, '', {}, jobDept);
+        let section$ = of([]);
+
+        if (jobDept?.id && (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)) {
+          section$ = this.getsections(jobDept.id, jobSection);
         }
 
-        this.jobStep1.patchValue({
-          code: this.jobTitleData.code || '',
-          jobName: this.jobTitleData.name || '',
-          managementLevel: this.jobTitleData.management_level || '',
-          jobLevel: this.jobTitleData.job_level || '',
-          department: this.jobTitleData.department?.id || '',
-          section: this.jobTitleData.section?.id || ''
+        forkJoin([dept$, section$]).subscribe({
+          next: ([departments, sections]) => {
+            this.departments = departments;
+            this.sections = sections;
+            this.patchJobForm();
+            this.loadData = false;
+          },
+          error: () => (this.loadData = false)
         });
-        this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
-        const salary = this.jobTitleData.salary_ranges;
-
-        this.jobStep2.patchValue({
-          fullTime_minimum: salary.full_time?.minimum || '',
-          fullTime_maximum: salary.full_time?.maximum || '',
-          fullTime_currency: salary.full_time?.currency,
-          fullTime_status: salary.full_time?.status,
-          fullTime_restrict: salary.full_time?.restrict || false,
-
-          partTime_minimum: salary.part_time?.minimum || '',
-          partTime_maximum: salary.part_time?.maximum || '',
-          partTime_currency: salary.part_time?.currency,
-          partTime_status: salary.part_time?.status,
-          partTime_restrict: salary.part_time?.restrict || false,
-
-          hourly_minimum: salary.per_hour?.minimum || '',
-          hourly_maximum: salary.per_hour?.maximum || '',
-          hourly_currency: salary.per_hour?.currency,
-          hourly_status: salary.per_hour?.status,
-          hourly_restrict: salary.per_hour?.restrict || false,
-        });
-        this.jobStep4.patchValue({
-          jobDescription: this.jobTitleData.description || '',
-          jobAnalysis: this.jobTitleData.analysis || ''
-        });
-        this.requirements = this.jobTitleData.requirements || [];
-        this.originalData = {
-          jobStep1: this.jobStep1.getRawValue(),
-          jobStep2: this.jobStep2.getRawValue(),
-          jobStep4: this.jobStep4.getRawValue(),
-          requirements: [...this.requirements],
-          assignedId: this.jobTitles.find(j => j.assigned)?.id || null,
-          removedManagerId: this.removedManagerId
-        };
-        this.sortDirection = 'desc';
-        this.sortBy();
-        this.loadData = false;
       },
-      error: (err) => {
-        console.log(err.error?.details);
-        this.loadData = false;
-      }
+      error: () => (this.loadData = false)
     });
+  }
+
+
+  patchJobForm() {
+    const created = this.jobTitleData?.created_at;
+    const updated = this.jobTitleData?.updated_at;
+
+    if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+    if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+
+    this.jobStep1.patchValue({
+      code: this.jobTitleData.code || '',
+      jobName: this.jobTitleData.name || '',
+      managementLevel: this.jobTitleData.management_level || '',
+      jobLevel: this.jobTitleData.job_level || '',
+      department: this.jobTitleData.department?.id || '',
+      section: this.jobTitleData.section?.id || ''
+    });
+
+    this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
   }
 
   setFieldsBasedOnLevel(level: number) {
@@ -338,57 +308,58 @@ export class EditJobComponent {
       updated_to?: string;
       created_from?: string;
       created_to?: string;
-    }
+    },
+    jobDept?: { id: number; name: string }
   ) {
-    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+    return this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
+    }).pipe(
+      map((response: any) => {
+        const activeDepartments = response.data.list_items.filter((d: any) => d.is_active);
 
-        const activeDepartments = response.data.list_items.filter(
-          (item: any) => item.is_active === true
-        );
-
-        this.departments = activeDepartments.map((item: any) => ({
+        const departments = activeDepartments.map((item: any) => ({
           id: item.id,
           name: item.name,
         }));
 
-        this.sortDirection = 'desc';
-        this.currentSortColumn = 'id';
-        this.sortBy();
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
+        if (jobDept && !departments.some((d: { id: number; }) => d.id === jobDept.id)) {
+          departments.unshift({
+            id: jobDept.id,
+            name: `${jobDept.name} (Not active)`,
+          });
+        }
+
+        return departments;
+      })
+    );
   }
 
 
-  getsections(deptid: number) {
-    this._DepartmentsService.showDepartment(deptid).subscribe({
-      next: (response) => {
+  getsections(deptid: number, jobSection?: { id: number; name: string }) {
+    return this._DepartmentsService.showDepartment(deptid).pipe(
+      map((response: any) => {
         const rawSections = response.data.object_info.sections;
+        const activeSections = rawSections.filter((s: any) => s.is_active);
 
-        const activeSections = rawSections.filter(
-          (section: any) => section.is_active === true
-        );
-
-        this.sections = activeSections.map((section: any) => ({
-          id: section.id,
-          name: section.name
+        const sections = activeSections.map((s: any) => ({
+          id: s.id,
+          name: s.name,
         }));
 
-        // console.log(activeSections);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      }
-    });
+        if (jobSection && !sections.some((s: { id: number; }) => s.id === jobSection.id)) {
+          sections.unshift({
+            id: jobSection.id,
+            name: `${jobSection.name} (Not active)`,
+          });
+        }
+
+        return sections;
+      })
+    );
   }
+
+
 
   ManageCurrentPage: number = 1;
   ManagetotalPages: number = 0;

@@ -188,49 +188,46 @@
     </div>
 
 
-   <div class="content-box d-flex flex-column gap-3 w-100">
-  <div class="d-flex align-items-center justify-content-between">
-    <h2>Direct Manager</h2>
-    @if (!loadData && jobTitleData?.assigns?.length > 0) {
-      <a
-        [routerLink]="['/jobs/view-job', jobTitleData.assigns[0].id]"
-        class="view-btn h-100 d-flex align-items-center gap-1"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
-            <path
-              d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2"
-            />
-          </g>
-        </svg>
-        <span>View</span>
-      </a>
-    }
-  </div>
+    <div class="content-box d-flex flex-column gap-3 w-100">
+      <div class="d-flex align-items-center justify-content-between">
+        <h2>Direct Manager</h2>
+        @if (!loadData && jobTitleData?.assigns?.length > 0) {
+        <a [routerLink]="['/jobs/view-job', jobTitleData.assigns[0].id]"
+          class="view-btn h-100 d-flex align-items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+              <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+              <path
+                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+            </g>
+          </svg>
+          <span>View</span>
+        </a>
+        }
+      </div>
 
-  @if (loadData) {
-    <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
-    </app-skelaton-loading>
-  } @else {
-    @if (jobTitleData?.assigns?.length > 0) {
+      @if (loadData) {
+      <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+      </app-skelaton-loading>
+      } @else {
+      @if (jobTitleData?.assigns?.length > 0) {
       <div class="info">
         <h6>Job Title ID</h6>
         <span>{{ jobTitleData.assigns[0].id.toString().padStart(4, '0') }}</span>
       </div>
 
       @if (jobTitleData.assigns[0].code) {
-        <div class="info">
-          <h6>Job Title Code</h6>
-          <span>{{ jobTitleData.assigns[0].code }}</span>
-        </div>
+      <div class="info">
+        <h6>Job Title Code</h6>
+        <span>{{ jobTitleData.assigns[0].code }}</span>
+      </div>
       }
 
       @if (jobTitleData.assigns[0].name) {
-        <div class="info">
-          <h6>Job Title</h6>
-          <span>{{ jobTitleData.assigns[0].name }}</span>
-        </div>
+      <div class="info">
+        <h6>Job Title</h6>
+        <span>{{ jobTitleData.assigns[0].name }}</span>
+      </div>
       }
 
       <div class="d-flex align-items-center justify-content-between">
@@ -238,27 +235,23 @@
           <h6>Direct Manager</h6>
           <span>{{ jobTitleData.assigns[0].name }}</span>
         </div>
-        <a
-          [routerLink]="['/jobs/view-job', jobTitleData.assigns[0].id]"
-          class="view-btn h-100 d-flex align-items-center gap-1"
-        >
+        <a (click)="goToDescriptionFromAssign()" class="view-btn h-100 d-flex align-items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
               <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
               <path
-                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2"
-              />
+                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
             </g>
           </svg>
         </a>
       </div>
-    } @else {
+      } @else {
       <div class="info text-center py-3">
         <h6>No Direct Manager Assigned</h6>
       </div>
-    }
-  }
-</div>
+      }
+      }
+    </div>
 
 
   </div>
@@ -266,7 +259,7 @@
 
 
   <!-- card -->
-  <div class="content-box d-flex flex-column gap-3 w-100">
+  <div class="content-box d-flex flex-column gap-3 w-100" id="description">
     @if(loadData) {
     <app-skelaton-loading [rows]="2" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
     </app-skelaton-loading>
