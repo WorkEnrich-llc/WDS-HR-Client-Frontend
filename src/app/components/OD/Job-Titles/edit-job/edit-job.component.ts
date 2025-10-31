@@ -56,7 +56,7 @@ export class EditJobComponent {
   filterForm!: FormGroup;
   hasChanges: boolean = false;
   originalData: any;
-  originalAssignedId: number | null = null;
+  originalAssignedIds: number[] = [];
   private searchSubject = new Subject<string>();
 
   constructor(
@@ -144,6 +144,8 @@ export class EditJobComponent {
         if (jobDept?.id && (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)) {
           section$ = this.getsections(jobDept.id, jobSection);
         }
+        // console.log('Job Title Data:', this.jobTitleData);
+        this.originalAssignedIds = this.jobTitleData.assigns?.map((a: any) => a.id) || [];
 
         forkJoin([dept$, section$]).subscribe({
           next: ([departments, sections]) => {
@@ -167,6 +169,7 @@ export class EditJobComponent {
     if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
     if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
 
+    // --- Step 1 ---
     this.jobStep1.patchValue({
       code: this.jobTitleData.code || '',
       jobName: this.jobTitleData.name || '',
@@ -176,8 +179,52 @@ export class EditJobComponent {
       section: this.jobTitleData.section?.id || ''
     });
 
+    // --- Step 2 (Salary Ranges) ---
+    const salary = this.jobTitleData.salary_ranges;
+    if (salary) {
+      this.jobStep2.patchValue({
+        fullTime_minimum: salary.full_time?.minimum || '',
+        fullTime_maximum: salary.full_time?.maximum || '',
+        fullTime_currency: salary.full_time?.currency || 'EGP',
+        fullTime_status: salary.full_time?.status ?? true,
+        fullTime_restrict: salary.full_time?.restrict ?? false,
+
+        partTime_minimum: salary.part_time?.minimum || '',
+        partTime_maximum: salary.part_time?.maximum || '',
+        partTime_currency: salary.part_time?.currency || 'EGP',
+        partTime_status: salary.part_time?.status ?? true,
+        partTime_restrict: salary.part_time?.restrict ?? false,
+
+        hourly_minimum: salary.per_hour?.minimum || '',
+        hourly_maximum: salary.per_hour?.maximum || '',
+        hourly_currency: salary.per_hour?.currency || 'EGP',
+        hourly_status: salary.per_hour?.status ?? true,
+        hourly_restrict: salary.per_hour?.restrict ?? false,
+      });
+    }
+
+    // --- Step 4 (Requirements + Analysis + Description) ---
+    this.requirements = this.jobTitleData.requirements || [];
+
+    this.jobStep4.patchValue({
+      jobDescription: this.jobTitleData.description || '',
+      jobAnalysis: this.jobTitleData.analysis || ''
+    });
+
+
     this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
+
+    this.originalData = {
+      jobStep1: this.jobStep1.getRawValue(),
+      jobStep2: this.jobStep2.getRawValue(),
+      jobStep4: this.jobStep4.getRawValue(),
+      requirements: [...this.requirements],
+      removedManagerId: this.removedManagerId,
+      assignedId: this.currentManager?.id || null
+    };
+
   }
+
 
   setFieldsBasedOnLevel(level: number) {
     const jobLevelControl = this.jobStep1.get('jobLevel');
@@ -218,9 +265,7 @@ export class EditJobComponent {
   }
   // check changes
   checkForChanges() {
-    if (!this.originalData) {
-      return;
-    }
+    if (!this.originalData) return;
 
     const assignedId = this.jobTitles.find(j => j.assigned)?.id || null;
 
@@ -232,6 +277,7 @@ export class EditJobComponent {
       this.removedManagerId !== this.originalData.removedManagerId ||
       assignedId !== this.originalData.assignedId;
   }
+
 
   watchFormChanges() {
     this.jobStep1.valueChanges.subscribe(() => this.checkForChanges());
@@ -289,6 +335,11 @@ export class EditJobComponent {
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
+
+    if (this.allDepartments.length > 0) {
+      this.departments = this.allDepartments.filter(d => d.isActive);
+      this.sections = this.sections.filter(s => !s.name.includes('(Not active)'));
+    }
   }
 
 
@@ -298,6 +349,7 @@ export class EditJobComponent {
   currentPage: number = 1;
   totalItems: number = 0;
   itemsPerPage: number = 10000;
+  allDepartments: any[] = [];
 
   getAllDepartment(
     pageNumber: number,
@@ -321,19 +373,23 @@ export class EditJobComponent {
         const departments = activeDepartments.map((item: any) => ({
           id: item.id,
           name: item.name,
+          isActive: true
         }));
 
         if (jobDept && !departments.some((d: { id: number; }) => d.id === jobDept.id)) {
           departments.unshift({
             id: jobDept.id,
             name: `${jobDept.name} (Not active)`,
+            isActive: false
           });
         }
 
+        this.allDepartments = departments;
         return departments;
       })
     );
   }
+
 
 
   getsections(deptid: number, jobSection?: { id: number; name: string }) {
@@ -359,6 +415,26 @@ export class EditJobComponent {
     );
   }
 
+  onDepartmentChange(deptId: number) {
+    if (!deptId) {
+      this.sections = [];
+      this.jobStep1.get('section')?.reset('');
+      return;
+    }
+
+    this.getsections(deptId).subscribe({
+      next: (sections) => {
+        this.sections = sections.filter((s: { name: string | string[]; }) => !s.name.includes('(Not active)'));
+        this.jobStep1.get('section')?.reset('');
+      },
+      error: (err) => {
+        console.error('Error loading sections:', err);
+        this.sections = [];
+      }
+    });
+  }
+
+
 
 
   ManageCurrentPage: number = 1;
@@ -371,6 +447,7 @@ export class EditJobComponent {
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
   loadJobs: boolean = false;
+  selectJobError: boolean = false;
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
     this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
@@ -457,6 +534,14 @@ export class EditJobComponent {
   selectAll: boolean = false;
 
   goNext() {
+     if (this.currentStep === 3) {
+      if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+        this.selectJobError = true;
+        return;
+      }
+    }
+
+    this.selectJobError = false;
     this.currentStep++;
 
   }
@@ -531,8 +616,14 @@ export class EditJobComponent {
     this.newManagerSelected = true;
     this.managerRemoved = false;
 
+    if (this.jobTitleData?.assigns?.length) {
+      this.jobTitleData.assigns = [];
+    }
+
     this.checkForChanges();
   }
+
+
   get currentManager() {
     if (this.newManagerSelected) {
       return this.jobTitles.find(j => j.assigned);
@@ -544,6 +635,9 @@ export class EditJobComponent {
     return null;
   }
 
+  hasAssignedManager(): boolean {
+    return !!this.currentManager;
+  }
 
 
   // input multibule data step 4
@@ -599,6 +693,12 @@ export class EditJobComponent {
   // create job title
   department: any;
   updateJobTitle() {
+     if (this.currentStep === 3 && this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+      this.selectJobError = true;
+      return;
+    }
+
+    this.selectJobError = false;
     this.isLoading = true;
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
 
@@ -657,24 +757,21 @@ export class EditJobComponent {
     const setArray: number[] = [];
     const removeArray: number[] = [];
 
-    const hasOld = this.originalAssignedId !== null;
-    const hasNew = !!assignedJob;
-
-    if (hasOld && hasNew) {
-      if (assignedJob.id !== this.originalAssignedId!) {
-        removeArray.push(this.originalAssignedId!);
-        setArray.push(assignedJob.id);
-      }
-    } else if (hasOld && !hasNew) {
-      removeArray.push(this.originalAssignedId!);
-    } else if (!hasOld && hasNew) {
+    if (assignedJob) {
       setArray.push(assignedJob.id);
+    }
+
+    if (this.originalAssignedIds?.length) {
+      const toRemove = this.originalAssignedIds.filter((id: number) => !setArray.includes(id));
+      removeArray.push(...toRemove);
     }
 
     requestData.request_data.assigns = {
       set: setArray,
       remove: removeArray
     };
+
+
     // console.log('row', requestData);
 
     this._JobsService.updateJobTitle(requestData).subscribe({
