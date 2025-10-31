@@ -323,24 +323,39 @@ export class ManageRoleComponent implements OnInit {
     this.createRoleForm.patchValue({
       users: this.addedUsers.map(u => u.id)
     });
-
-    if (this.isEditMode && user.id && !this.removedUsers.includes(user.id)) {
+    const isUserNew = (user as any).isNew === true;
+    if (this.isEditMode && user.id && !isUserNew && !this.removedUsers.includes(user.id)) {
       this.removedUsers.push(user.id);
     }
     this.updatePaginatedAddedUsers();
+    this.selectAllUsers = this.addedUsers.length > 0 && this.addedUsers.every(u => u.isSelected);
   }
 
 
   removeSelectedUsers(): void {
+    const usersToRemove = this.addedUsers.filter(user => user.isSelected);
+    if (this.isEditMode) {
+      usersToRemove.forEach(user => {
+        const isUserNew = (user as any).isNew === true;
+        if (user.id && !isUserNew && !this.removedUsers.includes(user.id)) {
+          this.removedUsers.push(user.id);
+        }
+      });
+    }
     this.addedUsers = this.addedUsers.filter(user => !user.isSelected);
 
-    this.allUsers.forEach(user => {
-      if (this.addedUsers.every(a => a.id !== user.id)) {
-        user.isSelected = false;
+    this.createRoleForm.patchValue({
+      users: this.addedUsers.map(u => u.id)
+    });
+
+    this.allUsers.forEach(allUser => {
+      if (usersToRemove.some(removedUser => removedUser.id === allUser.id)) {
+        allUser.isSelected = false;
       }
     });
 
-    this.selectAllUsers = this.addedUsers.length > 0 && this.addedUsers.every(user => user.isSelected);
+    this.selectAllUsers = false;
+
     this.updatePaginatedAddedUsers();
   }
 
