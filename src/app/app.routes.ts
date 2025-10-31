@@ -44,6 +44,11 @@ export const routes: Routes = [
             title: 'Reset Password',
           },
           {
+            path: 'link-expired',
+            loadComponent: () => import('./components/auth/link-expired/link-expired.component').then(m => m.LinkExpiredComponent),
+            title: 'Link Expired',
+          },
+          {
             path: 'invitation/set-password',
             loadComponent: () => import('./components/activate-account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent),
             title: 'Activate Your Account',
