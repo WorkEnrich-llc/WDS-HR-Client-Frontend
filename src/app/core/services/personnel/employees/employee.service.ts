@@ -154,9 +154,9 @@ export class EmployeeService {
     start_contract: string;
     end_contract: string;
     salary: number;
-    insurance_salary: number;
+    notice_period: number;
   }): Observable<ContractsResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-contracts`;
+    const url = `${this.apiBaseUrl}personnel/contract/create`;
     return this.http.post<ContractsResponse>(url, { request_data: requestData });
   }
 
