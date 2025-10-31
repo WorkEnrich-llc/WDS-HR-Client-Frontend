@@ -37,6 +37,7 @@ export class LeaveBalanceComponent {
     currentSortColumn: string = '';
     private searchSubject = new Subject<string>();
     private toasterSubscription!: Subscription;
+    isLoading: boolean = false;
 
     loadData: boolean = false;
 
@@ -175,6 +176,7 @@ export class LeaveBalanceComponent {
     }
 
     saveChanges(): void {
+        this.isLoading = true;
         if (!this.selectedBalance) return;
         const data = {
             employee_id: this.selectedBalance.employee.id,
@@ -183,12 +185,14 @@ export class LeaveBalanceComponent {
         };
         this.leaveBalanceService.updateLeaveBalance(data).subscribe({
             next: () => {
+                this.isLoading = false;
+                this.editBox.closeOverlay();
                 this.selectedBalance.total = this.editTotal;
                 this.toasterService.showSuccess('Leave balance updated successfully');
-                this.editBox.closeOverlay();
                 this.getAllLLeaveBalances(this.currentPage);
             },
             error: (err) => {
+                this.isLoading = false;
                 this.toasterService.showError('Error updating leave balance');
                 console.error('Error updating leave balance:', err);
             }
