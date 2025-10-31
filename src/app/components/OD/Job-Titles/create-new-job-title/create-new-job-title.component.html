@@ -601,11 +601,16 @@
         </g>
       </svg>
     </div>
+    @if (selectJobError) {
+    <p class="error-msg">
+      Please select a Job Title before continuing.
+    </p>
+    }
     <!-- start table -->
     <div>
-      <app-table [data]="jobTitles" [isLoading]="loadJobs" [columnsCount]="2" [totalItems]="ManageTotalItems" [headerTemplate]="jobsTableHeader"
-        [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow" [itemsPerPage]="manageItemsPerPage"
-        [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)"
+      <app-table [data]="jobTitles" [isLoading]="loadJobs" [columnsCount]="2" [totalItems]="ManageTotalItems"
+        [headerTemplate]="jobsTableHeader" [rowTemplate]="jobsTableRow" [emptyTemplate]="jobsTableEmptyRow"
+        [itemsPerPage]="manageItemsPerPage" [currentPage]="ManageCurrentPage" (pageChange)="onPageChange($event)"
         (itemsPerPageChange)="onItemsPerPageChange($event)" [isLoading]="loadData" [columnsCount]="2">
       </app-table>
       <ng-template #jobsTableHeader>

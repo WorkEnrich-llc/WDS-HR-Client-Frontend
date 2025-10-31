@@ -245,6 +245,8 @@ export class CreateNewJobTitleComponent {
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
   loadJobs: boolean = false;
+  selectJobError: boolean = false;
+
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
     this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
@@ -340,6 +342,14 @@ export class CreateNewJobTitleComponent {
   selectAll: boolean = false;
 
   goNext() {
+    if (this.currentStep === 3) {
+      if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+        this.selectJobError = true;
+        return;
+      }
+    }
+
+    this.selectJobError = false;
     this.currentStep++;
   }
 
@@ -433,6 +443,12 @@ export class CreateNewJobTitleComponent {
   // create job title
   department: any;
   createJobTitle() {
+    if (this.currentStep === 3 && this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+      this.selectJobError = true;
+      return;
+    }
+
+    this.selectJobError = false;
     this.isLoading = true;
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
     const jobLevel = Number(this.jobStep1.get('jobLevel')?.value);

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewEncapsulation } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
@@ -36,14 +36,19 @@ export class EditDepartmentChecklistsComponent {
     private departmentChecklistService: DepartmentChecklistService
   ) {
     this.checkForm = this.fb.group({
-      checkName: ['', [Validators.required, Validators.maxLength(200)]],
+      checkName: ['', [Validators.required, Validators.maxLength(100),
+      this.noWhitespaceValidator]],
       checkPoint: ['', [
         Validators.required,
-        Validators.pattern(/^[0-9]+$/)
+        Validators.pattern(/^[0-9]+$/),
+        Validators.max(9999)
       ]],
     });
   }
-
+  noWhitespaceValidator(control: FormControl) {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    return !isWhitespace ? null : { whitespace: true };
+  }
   ngOnInit() {
     this.getDepartmetCheck();
   }
