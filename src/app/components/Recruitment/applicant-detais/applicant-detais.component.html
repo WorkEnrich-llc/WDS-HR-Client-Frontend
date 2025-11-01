@@ -2,9 +2,11 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
-    { label: 'Opening 231123', link: '/job-openings/view-job-openings/1' },
+    { label: ('Opening ' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
     {  label: 'View Applicant'}
-  ]" title="Opening 231123 - Applicants" create="16/07/2025" [isApplied]="true" update="16/07/2025">
+  ]" title="Applicant {{ applicantDetails?.name || '...' }}" [isApplied]="true"
+  create="{{ applicantDetails?.created_at | date:'dd/MM/yyyy' }}"
+  update="{{ applicantDetails?.updated_at | date:'dd/MM/yyyy' }}">
   <button class="btn btn-lg btn-outline-danger" (click)="overlay.openOverlay()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
@@ -28,23 +30,76 @@
 
 <!-- page content -->
 <div class="content-hug d-flex flex-column gap-4">
+  @if (isLoading) {
+  <!-- Skeletons while applicant details are loading -->
   <div class="row g-4">
     <div class="col-lg-8">
-      <app-cv></app-cv>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+          <div class="info">
+            <h6 class="placeholder col-4"></h6>
+            <span class="placeholder col-8"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-lg-4">
-      <app-interview></app-interview>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4]">
+          <div class="info">
+            <h6 class="placeholder col-5"></h6>
+            <span class="placeholder col-7"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="row g-4">
     <div class="col-lg-4">
-      <app-attachment-and-info></app-attachment-and-info>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4]">
+          <div class="info">
+            <h6 class="placeholder col-6"></h6>
+            <span class="placeholder col-6"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-lg-8">
-      <app-feedback></app-feedback>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="info">
+            <h6 class="placeholder col-3"></h6>
+            <span class="placeholder col-9"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+  } @else {
+  <!-- Actual content once loaded -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <app-cv [applicant]="applicantDetails" [cvUrl]="getCvUrlFromApplication()"></app-cv>
+    </div>
+    <div class="col-lg-4">
+      <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
+        [applicationDetails]="applicationDetails" (applicationRefreshed)="refreshApplication()"></app-interview>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <app-attachment-and-info [applicant]="applicantDetails"
+        [application]="applicationDetails"></app-attachment-and-info>
+    </div>
+    <div class="col-lg-8">
+      <app-feedback [applicant]="applicantDetails" [feedbacks]="feedbacks" [applicationId]="applicationId"
+        [applicationStatus]="applicantDetails?.status" (feedbackAdded)="fetchFeedbacks()"></app-feedback>
+    </div>
+  </div>
+  }
 </div>
 
 

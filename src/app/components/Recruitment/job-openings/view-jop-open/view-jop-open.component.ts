@@ -10,7 +10,8 @@ import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
-  id: number;
+  id: number; // table row id display (application or applicant code)
+  applicantId: number; // actual applicant id to be used in routing/API
   name: string;
   phoneNumber: string;
   email: string;
@@ -56,7 +57,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   activeTab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected' = 'all';
 
   // Applicants data and pagination
-  applicantsLoading: boolean = false;
+  applicantsLoading: boolean = true;
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalItems: number = 0;
@@ -94,6 +95,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.mainInfoLoading = true;
     this.jobDetailsInfoLoading = true;
     this.dynamicFieldsLoading = true;
+    this.applicantsLoading = true; // Set applicants loading to true while job details are loading
 
     this.jobOpeningsService.showJobOpening(jobId).subscribe({
       next: (response) => {
@@ -142,7 +144,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (response.data) {
           // Transform API response to match table format
           this.applicant = response.data.list_items.map((item: any) => ({
-            id: item.application?.id || item.applicant?.id,
+            id: item.application?.id ?? item.id ?? 0,
+            applicantId: item.applicant?.id ?? 0,
             name: item.applicant?.name || 'N/A',
             phoneNumber: item.applicant?.phone || 'N/A',
             email: item.applicant?.email || 'N/A',
@@ -270,16 +273,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     return sections;
   }
-  applicant: Applicant[] = [
-    {
-      id: 11,
-      name: 'Ahmed Mohamed',
-      phoneNumber: '+2 0122 233 244',
-      email: 'ahmed@email.com',
-      status: 'Applied at',
-      statusAt: '28/12/2025 8:30 PM',
-    }
-  ];
+  applicant: Applicant[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: keyof Applicant | '' = '';
   sortBy(column: keyof Applicant) {

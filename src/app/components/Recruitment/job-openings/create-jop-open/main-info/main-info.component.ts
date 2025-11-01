@@ -7,6 +7,7 @@ import { BranchesService } from '../../../../../core/services/od/branches/branch
 import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { JobOpeningsService } from '../../../../../core/services/recruitment/job-openings/job-openings.service';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
+import { ToasterMessageService } from '../../../../../core/services/tostermessage/tostermessage.service';
 import { Subject, debounceTime } from 'rxjs';
 
 @Component({
@@ -23,6 +24,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   private workScheduleService = inject(WorkSchaualeService);
   private jobOpeningsService = inject(JobOpeningsService);
   private jobCreationDataService = inject(JobCreationDataService);
+  private toasterService = inject(ToasterMessageService);
   private route = inject(ActivatedRoute);
 
   selectedWorkMode: string = '';
@@ -193,7 +195,9 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         if (response.data && response.data.list_items) {
-          this.jobTitles = [...this.jobTitles, ...response.data.list_items];
+          // Filter to only include active job titles
+          const activeJobTitles = response.data.list_items.filter((jobTitle: any) => jobTitle.is_active === true);
+          this.jobTitles = [...this.jobTitles, ...activeJobTitles];
           this.jobTitlesTotalPages = response.data.total_pages || 1;
           this.jobTitlesHasMore = this.jobTitlesPage < this.jobTitlesTotalPages;
         }
@@ -223,7 +227,9 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         if (response.data && response.data.list_items) {
-          this.branches = [...this.branches, ...response.data.list_items];
+          // Filter to only include active branches
+          const activeBranches = response.data.list_items.filter((branch: any) => branch.is_active === true);
+          this.branches = [...this.branches, ...activeBranches];
           this.branchesTotalPages = response.data.total_pages || 1;
           this.branchesHasMore = this.branchesPage < this.branchesTotalPages;
         }
@@ -249,10 +255,13 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         if (response.data && response.data.list_items) {
+          // Filter to only include active work schedules
+          const activeWorkSchedules = response.data.list_items.filter((workSchedule: any) => workSchedule.is_active === true);
+          
           if (this.workSchedulesPage === 1) {
-            this.workSchedules = response.data.list_items;
+            this.workSchedules = activeWorkSchedules;
           } else {
-            this.workSchedules = [...this.workSchedules, ...response.data.list_items];
+            this.workSchedules = [...this.workSchedules, ...activeWorkSchedules];
           }
 
           this.workSchedulesTotalPages = response.data.total_pages || 1;
@@ -434,7 +443,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
    */
   createJobOpening(): void {
     if (!this.selectedJobTitle || !this.selectedBranch || !this.selectedEmploymentType) {
-      alert('Please fill in all required fields');
+      this.toasterService.showError('Please fill in all required fields', 'Validation Error');
       return;
     }
 
@@ -630,11 +639,14 @@ export class MainInfoComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.createJobOpening(jobData).subscribe({
       next: (response) => {
-        alert('Job opening created successfully!');
+        this.toasterService.showSuccess('Job opening created successfully!', 'Success');
         // You can redirect or reset form here
       },
       error: (error) => {
-        alert('Error creating job opening: ' + (error.error?.details || error.message));
+        // Error toast is automatically shown by the interceptor
+        // This additional call is for custom error handling if needed
+        const errorMessage = error.error?.details || error.message || 'Failed to create job opening';
+        this.toasterService.showError(errorMessage, 'Error');
       }
     });
   }

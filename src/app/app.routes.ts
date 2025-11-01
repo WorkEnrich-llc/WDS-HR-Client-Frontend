@@ -916,7 +916,7 @@ export const routes: Routes = [
                 ]
               },
               {
-                path: 'view-applicant-details/:id',
+                path: 'view-applicant-details/:applicationId',
                 loadComponent: () => import('./components/Recruitment/applicant-detais/applicant-detais.component').then(m => m.ApplicantDetaisComponent),
                 title: 'View Applicant Details',
               },

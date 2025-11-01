@@ -18,9 +18,9 @@ export class RequiredDetailsComponent implements OnInit {
 
   // Personal Details - Basic Info
   basicInfo = {
-    name: false,
-    email: false,
-    phone: false,
+    name: true,
+    email: true,
+    phone: true,
     gender: false,
     age: false
   };
@@ -70,6 +70,9 @@ export class RequiredDetailsComponent implements OnInit {
         this.loadExistingSelections(data.recruiter_dynamic_fields);
       }
     });
+
+    // Initialize with default values for Name, Email, and Phone
+    this.updateDynamicFields();
   }
 
   loadExistingSelections(dynamicFields: any): void {

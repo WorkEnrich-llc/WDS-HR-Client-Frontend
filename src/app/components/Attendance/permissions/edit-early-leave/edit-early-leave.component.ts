@@ -16,6 +16,9 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 })
 export class EditEarlyLeaveComponent {
   private toasterService = inject(ToasterMessageService);
+  // Maximum allowed minutes for permission inputs. Backend appears to cap values (e.g., 60),
+  // so we validate on the frontend to avoid confusing resets where backend returns 0.
+  readonly maxMinutes = 60;
   constructor(
     private router: Router,
     private _PermissionsService: PermissionsService
@@ -78,7 +81,25 @@ export class EditEarlyLeaveComponent {
   }
   saveChanges() {
     this.isLoading = true;
-    if (!this.isChanged) return;
+    if (!this.isChanged) {
+      this.isLoading = false;
+      return;
+    }
+
+    // Validation: minutes must not be negative when permission is allowed
+    if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes < 0) {
+      // field-level validation is displayed in template; stop submission
+      this.isLoading = false;
+      return;
+    }
+
+    // Validation: prevent values greater than allowed max to avoid backend clipping to 0.
+    if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes > this.maxMinutes) {
+      this.isLoading = false;
+      this.errMsg = `Maximum allowed minutes is ${this.maxMinutes}. Please enter a smaller value.`;
+      this.toasterService.showError(this.errMsg);
+      return;
+    }
 
     const lateFromApi = this.permissions?.late_arrive || {
       minutes: null,
