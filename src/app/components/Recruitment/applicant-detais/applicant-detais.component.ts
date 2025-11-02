@@ -1,5 +1,6 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CvComponent } from './cv/cv.component';
 import { FeedbackComponent } from './feedback/feedback.component';
@@ -10,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 @Component({
   selector: 'app-applicant-detais',
-  imports: [CommonModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent],
+  imports: [CommonModule, FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
 })
@@ -26,6 +27,88 @@ export class ApplicantDetaisComponent implements OnInit {
   applicationId?: number;
   feedbacks: any[] = [];
   isFeedbackLoading: boolean = false;
+  
+  // Reject form variables
+  rejectionNotes: string = '';
+  rejectionMailMessage: string = '';
+  isRejectSubmitting: boolean = false;
+  rejectValidationErrors: { rejectionMailMessage?: string } = {};
+  
+  // Status mapping
+  private statusMap: Record<number, string> = {
+    0: 'Applicant',
+    1: 'Candidate',
+    2: 'Interviewee',
+    3: 'Job Offer Sent',
+    4: 'New Joiner',
+    5: 'Rejected',
+    6: 'Qualified',
+    7: 'Not Selected'
+  };
+  
+  // Check if status is New Joiner
+  get isNewJoiner(): boolean {
+    if (!this.applicantDetails?.status) return false;
+    const status = typeof this.applicantDetails.status === 'number' 
+      ? this.statusMap[this.applicantDetails.status] 
+      : this.applicantDetails.status;
+    return status === 'New Joiner';
+  }
+  
+  // Check if status is Rejected
+  get isRejected(): boolean {
+    if (!this.applicantDetails?.status) return false;
+    const status = typeof this.applicantDetails.status === 'number' 
+      ? this.statusMap[this.applicantDetails.status] 
+      : this.applicantDetails.status;
+    return status === 'Rejected';
+  }
+  
+  // Open reject overlay
+  openRejectOverlay(): void {
+    this.rejectionNotes = '';
+    this.rejectionMailMessage = '';
+    this.rejectValidationErrors = {};
+    this.overlay?.openOverlay();
+  }
+  
+  // Clear validation errors when user types
+  onRejectFormChange(): void {
+    if (this.rejectValidationErrors.rejectionMailMessage) {
+      this.rejectValidationErrors.rejectionMailMessage = undefined;
+    }
+  }
+  
+  // Submit reject form
+  submitReject(): void {
+    // Clear previous validation errors
+    this.rejectValidationErrors = {};
+    
+    // Validate rejection mail message (mandatory)
+    if (!this.rejectionMailMessage || !this.rejectionMailMessage.trim()) {
+      this.rejectValidationErrors.rejectionMailMessage = 'Rejection email is required';
+      return;
+    }
+    
+    if (!this.applicationId) return;
+    
+    this.isRejectSubmitting = true;
+    
+    this.jobOpeningsService.rejectApplication(
+      this.applicationId,
+      this.rejectionNotes || '',
+      this.rejectionMailMessage.trim()
+    ).subscribe({
+      next: () => {
+        this.isRejectSubmitting = false;
+        this.closeAllOverlays();
+        this.refreshApplication();
+      },
+      error: () => {
+        this.isRejectSubmitting = false;
+      }
+    });
+  }
 
   closeAllOverlays(): void {
     this.filterBox?.closeOverlay();

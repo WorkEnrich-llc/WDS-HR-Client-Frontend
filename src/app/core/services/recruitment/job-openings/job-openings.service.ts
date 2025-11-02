@@ -89,7 +89,43 @@ export class JobOpeningsService {
             .set('per_page', perPage.toString());
 
         // Add status if provided
-        // 0: Applicant, 1: Candidate, 2: Interviewee, 5: Rejected, 6: Qualified
+        // 1: Applicant, 2: Candidate, 3: Interviewee, 4: Job Offer Sent, 5: New Joiner, 6: Rejected, 7: Qualified
+        if (status !== undefined && status !== null) {
+            params = params.set('status', status.toString());
+        }
+
+        // Add search if provided
+        if (search && search.trim()) {
+            params = params.set('search', search.trim());
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get applicants by job_id
+    getApplicantsByJobId(
+        jobId: number,
+        pageNumber?: number,
+        perPage?: number,
+        status?: number,
+        search?: string
+    ): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applicants`;
+
+        let params = new HttpParams()
+            .set('job_id', jobId.toString());
+
+        // Add pagination if provided
+        if (pageNumber !== undefined && pageNumber !== null) {
+            params = params.set('page', pageNumber.toString());
+        }
+
+        if (perPage !== undefined && perPage !== null) {
+            params = params.set('per_page', perPage.toString());
+        }
+
+        // Add status if provided
+        // 1: Applicant, 2: Candidate, 3: Interviewee, 4: Job Offer Sent, 5: New Joiner, 6: Rejected, 7: Qualified
         if (status !== undefined && status !== null) {
             params = params.set('status', status.toString());
         }
@@ -240,6 +276,18 @@ export class JobOpeningsService {
     updateJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/job-offers/${applicationId}/`;
         const body = { request_data: { salary, join_date, offer_details } };
+        return this._HttpClient.put(url, body);
+    }
+
+    // reject application
+    rejectApplication(applicationId: number, rejectionNotes: string, rejectionMailMessage: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/reject/${applicationId}/`;
+        const body = {
+            request_data: {
+                rejection_notes: rejectionNotes,
+                rejection_mail_message: rejectionMailMessage
+            }
+        };
         return this._HttpClient.put(url, body);
     }
 

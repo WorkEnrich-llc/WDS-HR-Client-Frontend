@@ -133,10 +133,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.applicantsLoading = true;
     const status = this.getStatusFromTab(this.activeTab);
 
-    this.jobOpeningsService.getJobApplications(
+    this.jobOpeningsService.getApplicantsByJobId(
+      this.jobOpening.id,
       this.currentPage,
       this.itemsPerPage,
-      this.jobOpening.id,
       status,
       this.searchTerm
     ).subscribe({
@@ -173,15 +173,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   /**
    * Get status code from tab name
-   * Status mapping: 0 - Applicant, 1 - Candidate, 2 - Interviewee, 5 - Rejected, 6 - Qualified
+   * Status mapping: 1 - Applicant, 2 - Candidate, 3 - Interviewee, 4 - Job Offer Sent, 5 - New Joiner, 6 - Rejected, 7 - Qualified
    */
   getStatusFromTab(tab: string): number | undefined {
     const statusMap: { [key: string]: number | undefined } = {
       'all': undefined,          // No filter - show all
-      'candidates': 1,           // Candidate
-      'interviewing': 2,         // Interviewee
-      'qualified': 6,            // Qualified
-      'rejected': 5              // Rejected
+      'candidates': 2,           // Candidate
+      'interviewing': 3,         // Interviewee
+      'qualified': 7,            // Qualified
+      'rejected': 6              // Rejected
     };
     return statusMap[tab];
   }
