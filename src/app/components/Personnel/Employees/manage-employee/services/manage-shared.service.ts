@@ -647,7 +647,8 @@ export class ManageEmployeeSharedService {
       employment_type: data.job_info.employment_type?.id,
       work_mode: data.job_info.work_mode?.id,
       days_on_site: data.job_info.days_on_site,
-      work_schedule_id: data.job_info.work_schedule?.id
+      work_schedule_id: data.job_info.work_schedule?.id,
+      activate_attendance_rules: data.job_info.activate_attendance_rules || false
     }, options);
 
     const hasInsuranceSalary = data.job_info.insurance_salary != null && data.job_info.insurance_salary !== 0;
@@ -1097,6 +1098,43 @@ export class ManageEmployeeSharedService {
     this.currentStep.set(this.currentStep() - 1);
   }
 
+  goToStep(step: number) {
+    const maxStep = this.isEditMode() ? 4 : 5;
+    const current = this.currentStep();
+    
+    // Validate step is within valid range
+    if (step < 1 || step > maxStep) {
+      return;
+    }
+
+    // If going backward or staying on the same step, allow it
+    if (step <= current) {
+      this.currentStep.set(step);
+      return;
+    }
+
+    // If going forward, validate all steps from current to target-1
+    // We need to validate all intermediate steps to ensure they're valid
+    for (let i = current; i < step; i++) {
+      // Temporarily set current step to validate it
+      const originalStep = this.currentStep();
+      this.currentStep.set(i);
+      
+      // Validate this step
+      if (!this.validateCurrentStep()) {
+        // Restore original step if validation fails
+        this.currentStep.set(originalStep);
+        return;
+      }
+      
+      // Restore original step before moving to next validation
+      this.currentStep.set(originalStep);
+    }
+    
+    // All intermediate steps are valid, allow navigation to target step
+    this.currentStep.set(step);
+  }
+
   // Utility methods
   get withEndDate(): boolean {
     return this.contractDetails.get('contract_type')?.value === 1;
@@ -1109,7 +1147,7 @@ export class ManageEmployeeSharedService {
       years_of_experience: formData.job_details.years_of_experience || 0,
       management_level: parseInt(formData.job_details.management_level, 10),
       work_schedule_id: parseInt(formData.attendance_details.work_schedule_id, 10),
-      activate_attendance_rules: formData.attendance_details.activate_attendance_rules || true
+      activate_attendance_rules: formData.attendance_details.activate_attendance_rules ?? false
     };
 
     const managementLevel = jobDetailsPayload.management_level;

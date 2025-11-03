@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { Component, HostListener, inject } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
@@ -13,7 +14,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-manage-attendance',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, AppTimeDisplayDirective, DateInputDirective],
+  imports: [CommonModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule, AppTimeDisplayDirective, DateInputDirective],
   templateUrl: './manage-attendance.component.html',
   styleUrl: './manage-attendance.component.css'
 })
@@ -27,6 +28,11 @@ export class ManageAttendanceComponent {
   private route = inject(ActivatedRoute);
   // employeeList!: Observable<any[]>;
   employeeList: any[] = [];
+  filteredEmployeeList: any[] = [];
+  employeeSearchTerm: string = '';
+  isEmployeeDropdownOpen: boolean = false;
+  selectedEmployee: any = null;
+  employeesLoading: boolean = true;
   createDate: string = '';
   updatedDate: string = '';
   isEditMode = false;
@@ -45,7 +51,7 @@ export class ManageAttendanceComponent {
 
     const selectedDate = new Date(control.value);
     const today = new Date();
-    
+
     // Reset time to compare only dates
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
@@ -68,14 +74,20 @@ export class ManageAttendanceComponent {
     const todayFormatted = new Date().toLocaleDateString('en-GB');
     this.createDate = todayFormatted;
     // load employees and set loading state
-    this.employeesService.getAllEmployees().subscribe({
+    this.employeesLoading = true;
+    this.employeesService.getEmployees(1, 100000).subscribe({
       next: (res) => {
         this.employeeList = res?.data?.list_items ?? [];
+        this.filteredEmployeeList = this.employeeList;
+        this.employeesLoading = false;
         this.newLogForm.get('employee_id')?.enable();
+        this.updateSelectedEmployee();
       },
       error: (err) => {
         console.error('Failed to load employees', err);
         this.employeeList = [];
+        this.filteredEmployeeList = [];
+        this.employeesLoading = false;
       }
     });
     this.patchFormValues();
@@ -121,6 +133,10 @@ export class ManageAttendanceComponent {
         start: navigationRoute.attendance.working_details?.actual_check_in,
         end: navigationRoute.attendance.working_details?.actual_check_out,
       });
+      // Update selected employee after form is patched
+      setTimeout(() => {
+        this.updateSelectedEmployee();
+      }, 0);
       const today = new Date().toLocaleDateString('en-GB');
       this.updatedDate = today;
     }
@@ -132,14 +148,14 @@ export class ManageAttendanceComponent {
       Object.keys(this.newLogForm.controls).forEach(key => {
         this.newLogForm.get(key)?.markAsTouched();
       });
-      
+
       // Show specific error message for future date
       if (this.newLogForm.get('date')?.hasError('futureDate')) {
         this.toasterService.showError('Cannot create attendance log for future dates');
       }
       return;
     }
-    
+
     const raw = this.newLogForm.value;
     // Normalize time values to 24-hour format (HH:mm) before sending to backend
     const startTime = this.normalizeTo24(raw.start);
@@ -169,6 +185,77 @@ export class ManageAttendanceComponent {
       },
       error: (err) => console.error('Error:', err)
     });
+  }
+
+  /**
+   * Toggle employee dropdown
+   */
+  toggleEmployeeDropdown(): void {
+    if (!this.newLogForm.get('employee_id')?.disabled) {
+      this.isEmployeeDropdownOpen = !this.isEmployeeDropdownOpen;
+      if (this.isEmployeeDropdownOpen) {
+        this.employeeSearchTerm = '';
+        this.filterEmployees();
+      }
+    }
+  }
+
+  /**
+   * Close employee dropdown
+   */
+  closeEmployeeDropdown(): void {
+    this.isEmployeeDropdownOpen = false;
+    this.employeeSearchTerm = '';
+    this.filterEmployees();
+  }
+
+  /**
+   * Select an employee
+   */
+  selectEmployee(employee: any): void {
+    this.selectedEmployee = employee;
+    this.newLogForm.patchValue({ employee_id: employee.id });
+    this.newLogForm.get('employee_id')?.markAsTouched();
+    this.closeEmployeeDropdown();
+  }
+
+  /**
+   * Update selected employee based on form value
+   */
+  updateSelectedEmployee(): void {
+    const employeeId = this.newLogForm.get('employee_id')?.value;
+    if (employeeId) {
+      this.selectedEmployee = this.employeeList.find(emp => emp.id === employeeId) || null;
+    } else {
+      this.selectedEmployee = null;
+    }
+  }
+
+  /**
+   * Filter employees based on search term
+   */
+  filterEmployees(): void {
+    if (!this.employeeSearchTerm.trim()) {
+      this.filteredEmployeeList = this.employeeList;
+      return;
+    }
+
+    const searchTerm = this.employeeSearchTerm.toLowerCase().trim();
+    this.filteredEmployeeList = this.employeeList.filter(emp => {
+      const name = emp.contact_info?.name?.toLowerCase() || '';
+      return name.includes(searchTerm);
+    });
+  }
+
+  /**
+   * Close dropdown when clicking outside
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.employee-dropdown-container')) {
+      this.closeEmployeeDropdown();
+    }
   }
 
   /**

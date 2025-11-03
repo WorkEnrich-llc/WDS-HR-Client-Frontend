@@ -158,6 +158,11 @@ export class ManageUserComponent implements OnInit {
   }
 
   async inviteUser(): Promise<void> {
+    // Prevent duplicate requests while loading
+    if (this.isLoading) {
+      return;
+    }
+    
     if (this.isAdmin) {
       this.openPopup();
       return;
@@ -190,6 +195,7 @@ export class ManageUserComponent implements OnInit {
     } catch (err) {
       console.error('Invitation sent failed', err);
     } finally {
+      this.isLoading = false;
       this.isEditMode = false;
     }
   }

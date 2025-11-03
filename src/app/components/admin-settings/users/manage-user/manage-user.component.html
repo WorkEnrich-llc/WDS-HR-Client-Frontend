@@ -3,7 +3,7 @@
     { label: 'Users', link: '/users' },
      { label: isEditMode ? 'Edit User ' + userId : 'Create New User' }
   ]" [title]="isEditMode ? 'Edit User ' + userId : 'Create New User'" [create]="createDate" [update]="updatedDate">
-  <button class="btn btn-lg btn-success" (click)="inviteUser()">
+  <button class="btn btn-lg btn-success" (click)="inviteUser()" [disabled]="isLoading">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }

@@ -143,6 +143,7 @@ export interface Employee {
     notice_period: number;
     insurance_salary?: number;
     gross_insurance?: number;
+    activate_attendance_rules?: boolean;
     direct_manager?: {
       id: number;
       name: string;
