@@ -372,6 +372,65 @@ export class CreateNewJobTitleComponent {
     this.currentStep--;
   }
 
+  goToStep(step: number) {
+    // Allow navigation to previous steps without validation
+    if (step <= this.currentStep) {
+      this.currentStep = step;
+      this.selectJobError = false;
+      return;
+    }
+
+    // For forward navigation, validate all intermediate steps
+    for (let i = this.currentStep; i < step; i++) {
+      if (!this.isStepValid(i + 1)) {
+        // If validation fails, navigate to the first invalid step
+        this.currentStep = i + 1;
+        if (i + 1 === 3) {
+          if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+            this.selectJobError = true;
+          }
+          // Call API when navigating to step 3
+          this.ManageCurrentPage = 1;
+          this.searchTerm = '';
+          this.getAllJobTitles(1, '');
+        }
+        return;
+      }
+    }
+
+    // All validations passed, navigate to the target step
+    this.currentStep = step;
+    this.selectJobError = false;
+
+    // Call APIs when navigating to step 3 (Direct Manager)
+    if (step === 3) {
+      this.ManageCurrentPage = 1;
+      this.searchTerm = '';
+      this.getAllJobTitles(1, '');
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    switch (step) {
+      case 1:
+        return this.jobStep1.valid;
+      case 2:
+        return this.jobStep1.valid && this.jobStep2.valid;
+      case 3:
+        // Step 3 validation: if there are job titles, at least one must be assigned
+        if (this.jobTitles.length > 0) {
+          return this.jobTitles.some(job => job.assigned);
+        }
+        return true; // No job titles means no validation needed
+      case 4:
+        return this.jobStep1.valid && this.jobStep2.valid &&
+          this.jobStep4.valid && this.requirements.length > 0 &&
+          (this.jobTitles.length === 0 || this.jobTitles.some(job => job.assigned));
+      default:
+        return true;
+    }
+  }
+
 
 
   // toggle activate
