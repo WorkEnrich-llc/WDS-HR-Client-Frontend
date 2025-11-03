@@ -11,6 +11,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -36,7 +37,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-create-new-job-title',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './create-new-job-title.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']
@@ -48,6 +49,8 @@ export class CreateNewJobTitleComponent {
   loadData: boolean = false; // used for table skeleton/loading state
   departments: any[] = [];
   sections: any[] = [];
+  departmentsLoading: boolean = false;
+  sectionsLoading: boolean = false;
   filterForm!: FormGroup;
   private searchSubject = new Subject<string>();
 
@@ -133,6 +136,7 @@ export class CreateNewJobTitleComponent {
     sectionControl?.reset('');
 
     this.sections = [];
+    this.sectionsLoading = false;
 
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
@@ -185,6 +189,7 @@ export class CreateNewJobTitleComponent {
       created_to?: string;
     }
   ) {
+    this.departmentsLoading = true;
     this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
@@ -205,14 +210,22 @@ export class CreateNewJobTitleComponent {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.departmentsLoading = false;
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.departmentsLoading = false;
       }
     });
   }
 
   getsections(deptid: number) {
+    if (!deptid) {
+      this.sections = [];
+      this.sectionsLoading = false;
+      return;
+    }
+    this.sectionsLoading = true;
     this._DepartmentsService.showDepartment(deptid).subscribe({
       next: (response) => {
         const rawSections = response.data.object_info.sections;
@@ -226,10 +239,12 @@ export class CreateNewJobTitleComponent {
           name: section.name
         }));
 
+        this.sectionsLoading = false;
         // console.log(activeSections);
       },
       error: (err) => {
         console.log(err.error?.details);
+        this.sectionsLoading = false;
       }
     });
   }

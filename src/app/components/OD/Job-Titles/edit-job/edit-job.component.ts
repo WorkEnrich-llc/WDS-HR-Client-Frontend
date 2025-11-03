@@ -9,7 +9,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, map, of, Subject } from 'rxjs';
+import { debounceTime, map, of, Subject, catchError } from 'rxjs';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { forkJoin } from 'rxjs';
@@ -129,6 +129,8 @@ export class EditJobComponent {
   }
 
   loadData: boolean = false;
+  departmentsLoading: boolean = false;
+  sectionsLoading: boolean = false;
   getJobTitle(jobId: number) {
     this.loadData = true;
 
@@ -303,6 +305,7 @@ export class EditJobComponent {
     sectionControl?.reset('');
 
     this.sections = [];
+    this.sectionsLoading = false;
 
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
@@ -363,6 +366,7 @@ export class EditJobComponent {
     },
     jobDept?: { id: number; name: string }
   ) {
+    this.departmentsLoading = true;
     return this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
@@ -385,7 +389,12 @@ export class EditJobComponent {
         }
 
         this.allDepartments = departments;
+        this.departmentsLoading = false;
         return departments;
+      }),
+      catchError((error) => {
+        this.departmentsLoading = false;
+        return of([]);
       })
     );
   }
@@ -393,6 +402,11 @@ export class EditJobComponent {
 
 
   getsections(deptid: number, jobSection?: { id: number; name: string }) {
+    if (!deptid) {
+      this.sectionsLoading = false;
+      return of([]);
+    }
+    this.sectionsLoading = true;
     return this._DepartmentsService.showDepartment(deptid).pipe(
       map((response: any) => {
         const rawSections = response.data.object_info.sections;
@@ -410,7 +424,12 @@ export class EditJobComponent {
           });
         }
 
+        this.sectionsLoading = false;
         return sections;
+      }),
+      catchError((error) => {
+        this.sectionsLoading = false;
+        return of([]);
       })
     );
   }
@@ -418,6 +437,7 @@ export class EditJobComponent {
   onDepartmentChange(deptId: number) {
     if (!deptId) {
       this.sections = [];
+      this.sectionsLoading = false;
       this.jobStep1.get('section')?.reset('');
       return;
     }
@@ -430,6 +450,7 @@ export class EditJobComponent {
       error: (err) => {
         console.error('Error loading sections:', err);
         this.sections = [];
+        this.sectionsLoading = false;
       }
     });
   }

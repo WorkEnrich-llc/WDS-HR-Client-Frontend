@@ -257,6 +257,13 @@
       <div class="d-flex justify-content-between gap-3">
         <div class="input w-100" [ngClass]="{'opacity-50': !isDepartmentSelected}">
           <label for="depart">Assign Department</label>
+          @if (departmentsLoading && isDepartmentSelected) {
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="form-select placeholder-glow">
+              <span class="placeholder col-12"></span>
+            </div>
+          </div>
+          } @else {
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
               <select #select name="depart" formControlName="department" id="depart" class="form-select"
@@ -269,6 +276,7 @@
               </select>
             </div>
           </div>
+          }
           @if (jobStep1.get('department')?.touched && jobStep1.get('department')?.errors?.['required']) {
           <p class="error-msg">
             Department is required.
@@ -279,6 +287,13 @@
         </div>
         <div class="input w-100" [ngClass]="{'opacity-50': !isSectionSelected}">
           <label for="section">Assign Section</label>
+          @if (sectionsLoading && isSectionSelected) {
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="form-select placeholder-glow">
+              <span class="placeholder col-12"></span>
+            </div>
+          </div>
+          } @else {
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
               <select name="section" formControlName="section" id="section" class="form-select">
@@ -289,6 +304,7 @@
               </select>
             </div>
           </div>
+          }
           @if (
           jobStep1.get('section')?.touched &&
           jobStep1.get('section')?.errors?.['required'] &&
