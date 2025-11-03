@@ -4,14 +4,18 @@
     { label: 'Attendance Rules', link: '/attendance-rules' },
     { label: 'Edit Part Time Rules' }
   ]" title="Edit Absence - Part Time">
-  <button class="btn btn-lg btn-success" (click)="saveChanges()">
-    <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+  <button class="btn btn-lg btn-success" [disabled]="isSaving" (click)="saveChanges()">
+    @if (isSaving) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+    @if (!isSaving) {
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
       </g>
     </svg>
+    }
     <span>Save Changes</span>
   </button>
 
@@ -432,11 +436,11 @@
     }
 
     @if(currentStep === 5){
-    <button type="button" class="btn btn-lg btn-success" (click)="saveChanges()">
-      @if (isLoading) {
+    <button type="button" class="btn btn-lg btn-success" [disabled]="isSaving" (click)="saveChanges()">
+      @if (isSaving) {
       <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
       }
-      @if (!isLoading) {
+      @if (!isSaving) {
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10" />

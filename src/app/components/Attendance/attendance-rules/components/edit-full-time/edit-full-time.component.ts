@@ -168,6 +168,7 @@ export class EditFullTimeComponent implements OnInit {
   // steps navigation
   currentStep = 1;
   isLoading: boolean = false;
+  isSaving: boolean = false;
 
   goNext() {
     this.currentStep++;
@@ -198,10 +199,16 @@ export class EditFullTimeComponent implements OnInit {
 
   // Save function
   saveChanges() {
+    if (this.isSaving) {
+      return;
+    }
+
     if (!this.attendanceRulesData?.object_info?.settings) {
       console.error('No existing data available');
       return;
     }
+
+    this.isSaving = true;
 
     // Get existing part_time settings from API data
     const existingPartTimeSettings = this.attendanceRulesData.object_info.settings.part_time;
@@ -279,10 +286,12 @@ export class EditFullTimeComponent implements OnInit {
     // Send data to API
     this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
       next: (response) => {
+        this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
       },
       error: (error) => {
         console.error('Error saving rules:', error);
+        this.isSaving = false;
       }
     });
   }
