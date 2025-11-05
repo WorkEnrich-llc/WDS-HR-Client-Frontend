@@ -458,12 +458,28 @@
 
             <!-- Flat Rate Input -->
             @if (overtimeType === 'flatRate') {
-            <div class="input w-lg-50">
-                <label for="flatRateValue">Flat Rate</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" class="form-control custom-date-input" id="flatRateValue" placeholder="Per Hour"
-                        [(ngModel)]="flatRateValue" [ngModelOptions]="{ standalone: true }"
-                        [disabled]="!allowOvertime" />
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="input flex-fill" style="min-width: 200px;">
+                    <label for="flatRateValue">Flat Rate</label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" class="form-control custom-date-input" id="flatRateValue"
+                            placeholder="Per Hour" [(ngModel)]="flatRateValue" [ngModelOptions]="{ standalone: true }"
+                            [disabled]="!allowOvertime" />
+                    </div>
+                </div>
+                <div class="input flex-fill" style="min-width: 250px;">
+                    <label for="flatRateSalaryPortion">Salary Portion</label>
+                    <div class="form-outline w-100 position-relative">
+                        <select id="flatRateSalaryPortion" [(ngModel)]="flatRateSalaryPortionIndex" class="form-select"
+                            [disabled]="!allowOvertime || !flatRateValue" [ngModelOptions]="{ standalone: true }">
+                            <option [ngValue]="null" [disabled]="flatRateValue">Select Salary Portion</option>
+                            @for (portion of salaryPortions; track portion.index) {
+                            <option [ngValue]="portion.index">
+                                {{ portion.name }} ({{ portion.percentage }}%)
+                            </option>
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
             }
@@ -474,11 +490,12 @@
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Rate</th>
-                            <th>Actions</th>
+                            <th style="width: 8%;">ID</th>
+                            <th style="width: 20%;">From</th>
+                            <th style="width: 20%;">To</th>
+                            <th style="width: 18%;">Rate</th>
+                            <!-- <th style="width: 28%;">Salary Portion</th> -->
+                            <th style="width: 6%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -498,6 +515,19 @@
                                     [(ngModel)]="entry.rate" [ngModelOptions]="{ standalone: true }"
                                     [disabled]="!allowOvertime" />
                             </td>
+                            <!-- <td>
+                                <select [(ngModel)]="entry.salaryPortionIndex" class="form-select"
+                                    [disabled]="!allowOvertime || entry.rate == null || entry.rate === 0"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [ngValue]="null" [disabled]="entry.rate != null && entry.rate !== 0">Select
+                                        Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                    </option>
+                                    }
+                                </select>
+                            </td> -->
                             <td>
                                 @if (overtimeEntries.length > 1) {
                                 <button type="button" class="btn btn-remove p-0 text-lg"

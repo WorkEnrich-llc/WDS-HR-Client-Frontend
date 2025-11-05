@@ -129,13 +129,19 @@ export class EditPartTimeComponent implements OnInit {
       if (overtimeSettings.flat_rate?.status) {
         this.overtimeType = 'flatRate';
         this.flatRateValue = overtimeSettings.flat_rate.value?.toString() || '';
+        this.flatRateSalaryPortionIndex = overtimeSettings.flat_rate.salary_portion_index !== null && overtimeSettings.flat_rate.salary_portion_index !== undefined
+          ? Number(overtimeSettings.flat_rate.salary_portion_index)
+          : null;
       } else if (overtimeSettings.custom_hours?.status) {
         this.overtimeType = 'customHours';
         if (overtimeSettings.custom_hours.value && overtimeSettings.custom_hours.value.length > 0) {
           this.overtimeEntries = overtimeSettings.custom_hours.value.map((item: any) => ({
             from: item.from_time || '',
             to: item.to_time || '',
-            rate: item.rate || null
+            rate: item.rate || null,
+            salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+              ? Number(item.salary_portion_index)
+              : null
           }));
         }
       }
@@ -237,10 +243,11 @@ export class EditPartTimeComponent implements OnInit {
   allowOvertime: boolean = false;
   overtimeType: string = 'flatRate';
   flatRateValue: string = '';
-  overtimeEntries = [{ from: '', to: '', rate: null as number | null }];
+  flatRateSalaryPortionIndex: number | null = null;
+  overtimeEntries = [{ from: '', to: '', rate: null as number | null, salaryPortionIndex: null as number | null }];
 
   addOvertimeRow() {
-    this.overtimeEntries.push({ from: '', to: '', rate: null });
+    this.overtimeEntries.push({ from: '', to: '', rate: null, salaryPortionIndex: null });
   }
 
   removeOvertimeRow(index: number) {
@@ -608,10 +615,14 @@ export class EditPartTimeComponent implements OnInit {
             overtime: {
               flat_rate: (existingFullTimeSettings as any).overtime?.flat_rate ? {
                 status: (existingFullTimeSettings as any).overtime.flat_rate.status,
-                value: parseFloat(((existingFullTimeSettings as any).overtime.flat_rate.value || 0).toString())
+                value: parseFloat(((existingFullTimeSettings as any).overtime.flat_rate.value || 0).toString()),
+                salary_portion_index: (existingFullTimeSettings as any).overtime.flat_rate.salary_portion_index !== null && (existingFullTimeSettings as any).overtime.flat_rate.salary_portion_index !== undefined
+                  ? Number((existingFullTimeSettings as any).overtime.flat_rate.salary_portion_index)
+                  : 1
               } : {
                 status: false,
-                value: 0.0
+                value: 0.0,
+                salary_portion_index: 1
               },
               custom_hours: (existingFullTimeSettings as any).overtime?.custom_hours ? {
                 status: (existingFullTimeSettings as any).overtime.custom_hours.status,
@@ -619,6 +630,9 @@ export class EditPartTimeComponent implements OnInit {
                   from_time: item.from_time || '0:0',
                   to_time: item.to_time || '0:0',
                   rate: parseFloat((item.rate || 0).toString())
+                  // salary_portion_index: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+                  //   ? Number(item.salary_portion_index)
+                  //   : 1
                 }))
               } : {
                 status: false,
@@ -663,7 +677,10 @@ export class EditPartTimeComponent implements OnInit {
             overtime: {
               flat_rate: {
                 status: this.allowOvertime && this.overtimeType === 'flatRate',
-                value: parseFloat((this.overtimeType === 'flatRate' ? parseFloat(this.flatRateValue) || 0 : 0).toString())
+                value: parseFloat((this.overtimeType === 'flatRate' ? parseFloat(this.flatRateValue) || 0 : 0).toString()),
+                salary_portion_index: this.overtimeType === 'flatRate' && this.flatRateSalaryPortionIndex !== null && this.flatRateSalaryPortionIndex !== undefined
+                  ? Number(this.flatRateSalaryPortionIndex)
+                  : 1
               },
               custom_hours: {
                 status: this.allowOvertime && this.overtimeType === 'customHours',
@@ -671,6 +688,9 @@ export class EditPartTimeComponent implements OnInit {
                   from_time: entry.from || '0:0',
                   to_time: entry.to || '0:0',
                   rate: parseFloat((entry.rate || 0).toString())
+                  // salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
+                  //   ? Number(entry.salaryPortionIndex)
+                  //   : 1
                 })) : [{ from_time: '0:0', to_time: '0:0', rate: 0.0 }]
               }
             }
