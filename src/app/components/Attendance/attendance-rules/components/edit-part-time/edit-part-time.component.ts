@@ -19,6 +19,7 @@ export class EditPartTimeComponent implements OnInit {
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   error: string | null = null;
+  originalData: any;
 
   constructor(
     private router: Router,
@@ -89,8 +90,39 @@ export class EditPartTimeComponent implements OnInit {
         }
       }
     }
+
+
+    this.originalData = JSON.parse(JSON.stringify({
+      allowGrace: this.allowGrace,
+      graceMinutes: this.graceMinutes,
+      latenessEntries: this.latenessEntries,
+      earlyLeaveRows: this.earlyLeaveRows,
+      allowOvertime: this.allowOvertime,
+      overtimeType: this.overtimeType,
+      flatRateValue: this.flatRateValue,
+      overtimeEntries: this.overtimeEntries,
+      absenceEntries: this.absenceEntries
+    }));
+
   }
 
+    hasChanges(): boolean {
+    if (!this.originalData) return false;
+    const current = {
+      allowGrace: this.allowGrace,
+      graceMinutes: this.graceMinutes,
+      latenessEntries: this.latenessEntries,
+      earlyLeaveRows: this.earlyLeaveRows,
+      allowOvertime: this.allowOvertime,
+      overtimeType: this.overtimeType,
+      flatRateValue: this.flatRateValue,
+      overtimeEntries: this.overtimeEntries,
+      absenceEntries: this.absenceEntries
+    };
+    return JSON.stringify(current) !== JSON.stringify(this.originalData);
+  }
+
+  
   // step 1 - Grace Period
   allowGrace: boolean = false;
   graceMinutes: number = 0;

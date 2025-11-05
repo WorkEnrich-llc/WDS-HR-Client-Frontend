@@ -11,7 +11,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
-import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -37,7 +37,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-create-new-job-title',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './create-new-job-title.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']

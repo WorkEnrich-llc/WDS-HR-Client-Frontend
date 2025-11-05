@@ -20,6 +20,7 @@ export class EditFullTimeComponent implements OnInit {
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   error: string | null = null;
+  originalData: any;
 
   constructor(
     private router: Router,
@@ -38,6 +39,7 @@ export class EditFullTimeComponent implements OnInit {
         this.attendanceRulesData = response?.data;
         this.mapDataToForm();
         this.loading = false;
+
       },
       error: (error) => {
         console.error('Error loading attendance rules:', error);
@@ -90,7 +92,38 @@ export class EditFullTimeComponent implements OnInit {
         }
       }
     }
+
+    this.originalData = JSON.parse(JSON.stringify({
+  allowGrace: this.allowGrace,
+  graceMinutes: this.graceMinutes,
+  latenessEntries: this.latenessEntries,
+  earlyLeaveRows: this.earlyLeaveRows,
+  allowOvertime: this.allowOvertime,
+  overtimeType: this.overtimeType,
+  flatRateValue: this.flatRateValue,
+  overtimeEntries: this.overtimeEntries,
+  absenceEntries: this.absenceEntries
+}));
+
   }
+
+  hasChanges(): boolean {
+  if (!this.originalData) return false;
+  const current = {
+    allowGrace: this.allowGrace,
+    graceMinutes: this.graceMinutes,
+    latenessEntries: this.latenessEntries,
+    earlyLeaveRows: this.earlyLeaveRows,
+    allowOvertime: this.allowOvertime,
+    overtimeType: this.overtimeType,
+    flatRateValue: this.flatRateValue,
+    overtimeEntries: this.overtimeEntries,
+    absenceEntries: this.absenceEntries
+  };
+
+  return JSON.stringify(current) !== JSON.stringify(this.originalData);
+}
+
   // step 1 - Grace Period
   allowGrace: boolean = false;
   graceMinutes: number = 0;
@@ -288,6 +321,7 @@ export class EditFullTimeComponent implements OnInit {
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
+        console.log('Rules saved successfully:', response);
       },
       error: (error) => {
         console.error('Error saving rules:', error);
