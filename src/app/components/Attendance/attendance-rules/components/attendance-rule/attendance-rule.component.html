@@ -8,7 +8,7 @@
 
 <div class="content-hug">
   <!-- Loading state -->
-  @if (loading) {
+  @if (loading || salaryPortionsLoading) {
   <!-- Full-Time Skeleton -->
   <div class="content-box d-flex flex-column gap-3">
     <div class="d-flex align-items-center justify-content-between">
@@ -135,21 +135,66 @@
         <tbody>
           <tr>
             <td>Lateness</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.lateness || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.lateness || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
           <tr>
             <td>Early Leave</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.early_leave || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.early_leave || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
           <tr>
             <td>Absence</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getFullTimeSettings()?.absence || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.absence || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
         </tbody>
       </table>
@@ -188,21 +233,66 @@
         <tbody>
           <tr>
             <td>Lateness</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.lateness || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.lateness || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
           <tr>
             <td>Early Leave</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.early_leave || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.early_leave || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
           <tr>
             <td>Absence</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 1) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 2) }}</td>
-            <td>{{ getPenaltyValue(getPartTimeSettings()?.absence || [], 3) }}</td>
+            @for (occurrence of [1, 2, 3]; track occurrence) {
+            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.absence || [], occurrence);
+            <td>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ penaltyData.value }}</span>
+                @if (penaltyData.salaryPortion) {
+                <span class="text-muted small mt-1 salary-portion-text"
+                  [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
+                  @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
+                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  } @else {
+                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                  }
+                </span>
+                }
+              </div>
+            </td>
+            }
           </tr>
         </tbody>
       </table>
