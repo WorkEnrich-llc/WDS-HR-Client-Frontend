@@ -48,7 +48,8 @@
                 <label for="branch_id">Branch <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="branch_id" formControlName="branch_id" class="form-select">
+                        <select id="branch_id" (focus)="sharedService.onBranchFocus()" formControlName="branch_id"
+                            class="form-select">
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
@@ -72,7 +73,8 @@
                 <label for="branch_id">Branch <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="branch_id" formControlName="branch_id" class="form-select">
+                        <select id="branch_id" (focus)="sharedService.onBranchFocus()" formControlName="branch_id"
+                            class="form-select">
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
@@ -95,7 +97,8 @@
                 <label for="department_id">Department <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="department_id" formControlName="department_id" class="form-select">
+                        <select id="department_id" (focus)="sharedService.onDepartmentFocus()"
+                            formControlName="department_id" class="form-select">
                             <option [value]="null" disabled hidden>
                                 {{ sharedService.getActiveDepartments().length > 0
                                 ? 'Select Department' : 'No department available' }}
@@ -126,7 +129,8 @@
                 <label for="branch_id">Branch <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="branch_id" formControlName="branch_id" class="form-select">
+                        <select id="branch_id" (focus)="sharedService.onBranchFocus()" formControlName="branch_id"
+                            class="form-select">
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
@@ -149,7 +153,8 @@
                 <label for="department_id">Department <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="department_id" formControlName="department_id" class="form-select">
+                        <select id="department_id" (focus)="sharedService.onDepartmentFocus()"
+                            formControlName="department_id" class="form-select">
                             <option [value]="null" disabled hidden>
                                 {{ sharedService.getActiveDepartments().length > 0
                                 ? 'Select Department' : 'No department available' }}
@@ -178,8 +183,8 @@
                 <label for="section_id">Section</label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="section_id" formControlName="section_id" class="form-select"
-                            [disabled]="sharedService.getSections().length === 0">
+                        <select id="section_id" (focus)="sharedService.onSectionFocus()" formControlName="section_id"
+                            class="form-select" [disabled]="sharedService.getSections().length === 0">
                             <option [value]="null" disabled hidden>
                                 {{
                                 sharedService.getSections().length === 0
@@ -201,7 +206,8 @@
                 <label for="job_title_id">Job Title <span>*</span></label>
                 <div class="d-flex align-items-center gap-4">
                     <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="job_title_id" formControlName="job_title_id" class="form-select">
+                        <select id="job_title_id" (focus)="sharedService.onJobTitleFocus()"
+                            formControlName="job_title_id" class="form-select">
                             <option [value]="null" disabled hidden>
                                 {{ sharedService.jobTitles().length > 0
                                 ? 'Select Job Title' : 'No job title available'}}
