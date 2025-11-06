@@ -4,10 +4,11 @@ import { ApprovalRequestsService } from '../service/approval-requests.service';
 import { CommonModule } from '@angular/common';
 import { ApprovalRequestItem } from '../../../../core/interfaces/approval-request';
 import { ActivatedRoute } from '@angular/router';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-view-assigned-request',
-  imports: [PageHeaderComponent, CommonModule],
+  imports: [PageHeaderComponent, CommonModule, GoogleMapsModule],
   templateUrl: './view-assigned-request.component.html',
   styleUrl: './view-assigned-request.component.css',
   encapsulation: ViewEncapsulation.None
@@ -92,5 +93,27 @@ export class ViewAssignedRequestComponent implements OnInit {
         });
       }
     });
+  }
+
+  displayLeaveType(): string {
+    const workType = this.leaveRequest1?.work_type;
+    switch (workType) {
+      case 'overtime':
+        return 'Overtime';
+      case 'leave':
+        return this.leaveRequest1?.leave?.name || 'Leave';
+      case 'permission':
+        if (this.leaveRequest1?.permission?.late_arrive) {
+          return 'Late Arrive';
+        }
+        if (this.leaveRequest1?.permission?.early_leave) {
+          return 'Early Leave';
+        }
+        return 'Permission';
+      case 'mission':
+        return this.leaveRequest1?.mission?.title || 'Mission';
+      default:
+        return this.leaveRequest1?.work_type || '-----';
+    }
   }
 }

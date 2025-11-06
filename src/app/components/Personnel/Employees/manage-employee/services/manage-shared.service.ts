@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -174,14 +174,38 @@ export class ManageEmployeeSharedService {
     }
   }
 
+  // public loadInitialData(): void {
+  //   // if (this.branches().length > 0) {
+  //   //   return;
+  //   // }
+  //   this.isLoading.set(true);
+  //   this.branchesService.getAllBranches(1, 1000).subscribe({
+  //     next: (res) => {
+  //       this.branches.set(res.data.list_items || []);
+  //       this.isLoading.set(false);
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to load initial branches', err);
+  //       this.isLoading.set(false);
+  //     }
+  //   });
+  // }
+
   public loadInitialData(): void {
-    // if (this.branches().length > 0) {
-    //   return;
-    // }
+    if (this.branches().length > 1 && !this.isEditMode()) {
+      return;
+    }
+
+    const currentItem = (this.isEditMode() && this.branches().length === 1)
+      ? this.branches()[0]
+      : null;
+
     this.isLoading.set(true);
     this.branchesService.getAllBranches(1, 1000).subscribe({
       next: (res) => {
-        this.branches.set(res.data.list_items || []);
+        let fullList = res.data.list_items || [];
+        fullList = this.mergeItemIntoList(fullList, currentItem);
+        this.branches.set(fullList);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -327,7 +351,6 @@ export class ManageEmployeeSharedService {
       sectionCtrl?.updateValueAndValidity();
     });
   }
-
 
   private setupBranchWatcher(
     branchCtrl: AbstractControl | null,
@@ -512,7 +535,6 @@ export class ManageEmployeeSharedService {
         this.enableFieldsOnLoad(data.job_info);
 
         this.suppressWatchers = false;
-
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -522,6 +544,72 @@ export class ManageEmployeeSharedService {
       }
     });
   }
+
+  private mergeItemIntoList(list: any[], item: any): any[] {
+    if (!item) {
+      return list;
+    }
+    const exists = list.some(i => i.id === item.id);
+    if (!exists) {
+      return [item, ...list];
+    }
+    return list;
+  }
+
+  public onBranchFocus(): void {
+    if (this.branches().length <= 1) {
+      this.loadInitialData();
+    }
+  }
+
+  public onDepartmentFocus(): void {
+    if (this.departments().length <= 1) {
+      const branchId = this.jobDetails.get('branch_id')?.value;
+      if (branchId) {
+        this.fetchDepartmentsForBranch(branchId);
+      }
+    }
+  }
+
+  public onSectionFocus(): void {
+    if (this.sections().length <= 1) {
+      const deptId = this.jobDetails.get('department_id')?.value;
+      const currentLevel = this.jobDetails.get('management_level')?.value;
+
+      if (deptId && (currentLevel === 4 || currentLevel === 5)) {
+        const selectedDept = this.departments().find(d => d.id == deptId);
+        const deptSections = selectedDept?.sections ?? [];
+
+        const currentItem = (this.isEditMode() && this.sections().length === 1)
+          ? this.sections()[0]
+          : null;
+
+        const fullList = this.mergeItemIntoList(deptSections, currentItem);
+        this.sections.set(fullList);
+      }
+    }
+  }
+
+  public onJobTitleFocus(): void {
+    if (this.jobTitles().length <= 1) {
+      const level = this.jobDetails.get('management_level')?.value;
+      const branchId = this.jobDetails.get('branch_id')?.value;
+      const deptId = this.jobDetails.get('department_id')?.value;
+      const sectionId = this.jobDetails.get('section_id')?.value;
+
+      if (level === 1) {
+        this.fetchJobTitlesForManagementLevel('1', this.jobDetails.get('job_title_id'));
+      } else if (level === 2 && branchId) {
+        this.fetchJobTitlesForBranch(branchId, level);
+      } else if (level === 3 && deptId) {
+        this.fetchJobTitlesForDepartment(deptId);
+      } else if ((level === 4 || level === 5) && sectionId) {
+        this.fetchJobTitlesForSection(sectionId);
+      }
+    }
+  }
+
+
 
   private enableFieldsOnLoad(jobInfo: any): void {
     const level = jobInfo.management_level;
@@ -572,11 +660,18 @@ export class ManageEmployeeSharedService {
     controlToEnable: AbstractControl | null
   ): void {
 
+    const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
+      ? this.jobTitles()[0]
+      : null;
     this.jobsService.getAllJobTitles(1, 100, { management_level: management.toString() }).subscribe({
       next: (res) => {
         if (this.jobDetails.get('management_level')?.value?.toString() === management) {
 
-          const jobTitles = res.data?.list_items || [];
+          // const jobTitles = res.data?.list_items || [];
+          // this.jobTitles.set(jobTitles);
+
+          let jobTitles = res.data?.list_items || [];
+          jobTitles = this.mergeItemIntoList(jobTitles, currentItem);
           this.jobTitles.set(jobTitles);
 
           if (jobTitles.length > 0) {
@@ -612,13 +707,19 @@ export class ManageEmployeeSharedService {
       return;
     }
     jobDetails.get('department_id')?.enable({ emitEvent: false });
-
+    const currentItem = (this.isEditMode() && this.departments().length === 1)
+      ? this.departments()[0]
+      : null;
     this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'active' }).subscribe({
       next: (res) => {
         // if (this.jobDetails.get('branch_id')?.value === branchId) {
-        const depts = res.data?.list_items || [];
-        this.departments.set(depts);
+        // const depts = res.data?.list_items || [];
+        // this.departments.set(depts);
         // }
+
+        let depts = res.data?.list_items || [];
+        depts = this.mergeItemIntoList(depts, currentItem);
+        this.departments.set(depts);
       },
       error: (err) => {
         console.error('Error loading departments for branch', err);
@@ -638,9 +739,17 @@ export class ManageEmployeeSharedService {
     }
 
     jobDetails.get('job_title_id')?.enable({ emitEvent: false });
+
+    const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
+      ? this.jobTitles()[0]
+      : null;
     this.jobsService.getAllJobTitles(1, 100, { department: departmentId.toString() }).subscribe({
       next: (res) => {
-        const jobTitles = res.data?.list_items || [];
+        // const jobTitles = res.data?.list_items || [];
+        // this.jobTitles.set(jobTitles);
+
+        let jobTitles = res.data?.list_items || [];
+        jobTitles = this.mergeItemIntoList(jobTitles, currentItem);
         this.jobTitles.set(jobTitles);
       },
       error: (err) => {
@@ -661,12 +770,19 @@ export class ManageEmployeeSharedService {
     }
 
     jobDetails.get('job_title_id')?.enable({ emitEvent: false });
+    const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
+      ? this.jobTitles()[0]
+      : null;
     this.jobsService.getAllJobTitles(1, 100, { section: sectionId.toString() }).subscribe({
       next: (res) => {
         // if (this.jobDetails.get('section_id')?.value === sectionId) {
-        const jobTitles = res.data?.list_items || [];
-        this.jobTitles.set(jobTitles);
+        // const jobTitles = res.data?.list_items || [];
+        // this.jobTitles.set(jobTitles);
         // }
+
+        let jobTitles = res.data?.list_items || [];
+        jobTitles = this.mergeItemIntoList(jobTitles, currentItem);
+        this.jobTitles.set(jobTitles);
       },
       error: (err) => {
         console.error('Error loading job titles for section', err);

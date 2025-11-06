@@ -1,51 +1,56 @@
-.page-header .parag{
-    margin-top: 1.5rem;
+.page-header .parag {
+  margin-top: 1.5rem;
 }
 
+.step-info {
+  color: var(--color-secondary-700);
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  -o-transition: 0.3s;
+}
+.step-info .name,
+.step-info h5 {
+  font-size: var(--font-size-b2) !important;
+  font-weight: 400;
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  -o-transition: 0.3s;
+}
+.step-info:not(:last-of-type) {
+  border-bottom: 1px solid var(--color-secondary-200);
+}
+.step-info .name,
+.step-info .job {
+  border-left: 1px solid var(--color-secondary-200);
+}
+.step-info .job span {
+  font-size: var(--font-size-b3);
+  line-height: var(--line-height-xss);
+}
+.step-info .arrow svg {
+  color: var(--color-primary-600) !important;
+  stroke: var(--color-primary-600) !important;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -ms-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+}
+.step-info:hover {
+  background-color: var(--color-primary-100);
+}
+.step-info:hover .name {
+  color: var(--color-primary-600);
+}
+.step-info:hover .arrow svg {
+  opacity: 1;
+}
 
-.step-info{
-    color: var(--color-secondary-700);
-    transition: 0.3s;
-    -webkit-transition: 0.3s;
-    -moz-transition: 0.3s;
-    -ms-transition: 0.3s;
-    -o-transition: 0.3s;
-}
-.step-info .name ,.step-info h5{
-    font-size: var(--font-size-b2) !important;
-    font-weight: 400;
-    transition: 0.3s;
-    -webkit-transition: 0.3s;
-    -moz-transition: 0.3s;
-    -ms-transition: 0.3s;
-    -o-transition: 0.3s;
-}
-.step-info:not(:last-of-type){
-    border-bottom: 1px solid var(--color-secondary-200);
-}
-.step-info .name,.step-info .job{
-    border-left:  1px solid var(--color-secondary-200);
-}
-.step-info .job span{
-    font-size: var(--font-size-b3);
-    line-height: var(--line-height-xss);
-}
-.step-info .arrow svg{
-    color: var(--color-primary-600) !important;
-    stroke: var(--color-primary-600) !important;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    -webkit-transition: opacity 0.3s ease-in-out;
-    -moz-transition: opacity 0.3s ease-in-out;
-    -ms-transition: opacity 0.3s ease-in-out;
-    -o-transition: opacity 0.3s ease-in-out;
-}
-.step-info:hover{
-    background-color: var(--color-primary-100);
-}
-.step-info:hover .name{
-    color: var(--color-primary-600);
-}
-.step-info:hover .arrow svg{
-    opacity: 1;
+.custom-btn {
+  border: none;
 }
