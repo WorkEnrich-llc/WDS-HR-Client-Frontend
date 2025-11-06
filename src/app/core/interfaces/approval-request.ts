@@ -33,6 +33,15 @@ export interface LeaveInfo {
   name: string;
 }
 
+export interface MissionInfo {
+  id: number | string;
+  description: string;
+  mission_type: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface PermissionInfo {
   late_arrive: boolean;
   early_leave: boolean;
@@ -80,6 +89,7 @@ export interface ApprovalRequestItem {
   created_at: string;
   updated_at: string;
 
+  mission: MissionInfo
   work_type?: string;
   current_step?: string;
   permission?: PermissionInfo;
@@ -146,13 +156,20 @@ export interface ApprovalRequestsResponse {
 
 export interface ApprovalRequestFilters {
   search?: string;
-  status?: string;
   employee_id?: number;
   leave_type?: string;
   from_date?: string;
   to_date?: string;
   created_from?: string;
   created_to?: string;
+  status?: string;
+
+  request_status?: string;
+  request_type?: string;
+  request_from_date?: string;
+  request_to_date?: string;
+  request_from_range?: string;
+  request_to_range?: string;
 }
 // Detailed single approval request response
 export interface ApprovalRequestDetailData {
