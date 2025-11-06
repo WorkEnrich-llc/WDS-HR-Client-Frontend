@@ -31,12 +31,14 @@
 </app-page-header>
 <!-- end page header -->
 <!-- steps navigation -->
-<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3" role="tablist" aria-label="Attendance Rules Steps">
 
-    <li class="nav-item" [ngClass]="{
+    <li class="nav-item" role="presentation" [ngClass]="{
         'active': currentStep === 1
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    }" (click)="goToStep(1)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 1"
+        [attr.tabindex]="currentStep === 1 ? '0' : '-1'" role="tab" id="tab-1" aria-controls="panel-1"
+        aria-label="Step 1: Lateness" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path fill-rule="evenodd"
                 d="M10.47 8.47a.75.75 0 0 0 0 1.06l1.72 1.72H4a.75.75 0 0 0 0 1.5h8.19l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 0 0-1.06 0"
                 clip-rule="evenodd" />
@@ -46,10 +48,12 @@
     </li>
 
 
-    <li class="nav-item" [ngClass]="{
+    <li class="nav-item" role="presentation" [ngClass]="{
         'active': currentStep === 2
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    }" (click)="goToStep(2)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 2"
+        [attr.tabindex]="currentStep === 2 ? '0' : '-1'" role="tab" id="tab-2" aria-controls="panel-2"
+        aria-label="Step 2: Early Leave" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 20a8 8 0 1 1 0-16z" opacity=".5" />
             <path fill-rule="evenodd"
                 d="M16.47 8.47a.75.75 0 0 0 0 1.06l1.72 1.72H10a.75.75 0 0 0 0 1.5h8.19l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 0 0-1.06 0"
@@ -58,10 +62,12 @@
         <span class="nav-link">Early Leave</span>
     </li>
 
-    <li class="nav-item" [ngClass]="{
+    <li class="nav-item" role="presentation" [ngClass]="{
         'active': currentStep === 3
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    }" (click)="goToStep(3)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 3"
+        [attr.tabindex]="currentStep === 3 ? '0' : '-1'" role="tab" id="tab-3" aria-controls="panel-3"
+        aria-label="Step 3: Absence" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M4.929 4.929c-3.905 3.905-3.905 10.237 0 14.142s10.237 3.905 14.142 0s3.905-10.237 0-14.142s-10.237-3.905-14.142 0"
                 opacity=".5" />
@@ -70,10 +76,12 @@
         <span class="nav-link">Absence</span>
     </li>
 
-    <li class="nav-item" [ngClass]="{
+    <li class="nav-item" role="presentation" [ngClass]="{
         'active': currentStep === 4
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    }" (click)="goToStep(4)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 4"
+        [attr.tabindex]="currentStep === 4 ? '0' : '-1'" role="tab" id="tab-4" aria-controls="panel-4"
+        aria-label="Step 4: Overtime" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8s8 3.6 8 8s-3.6 8-8 8" />
             <path d="M12.5 7H11v6l5.2 3.2l.8-1.3l-4.5-2.7V7z" />
@@ -81,10 +89,12 @@
         <span class="nav-link">Overtime</span>
     </li>
 
-    <li class="nav-item" [ngClass]="{
+    <li class="nav-item" role="presentation" [ngClass]="{
         'active': currentStep === 5
-    }">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+    }" (click)="goToStep(5)" (keydown)="handleTabKeydown($event)" [attr.aria-selected]="currentStep === 5"
+        [attr.tabindex]="currentStep === 5 ? '0' : '-1'" role="tab" id="tab-5" aria-controls="panel-5"
+        aria-label="Step 5: Grace Period" style="cursor: pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path
                 d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12"
                 opacity=".5" />
@@ -127,59 +137,133 @@
 
 <!-- Lateness -->
 @if (currentStep === 1) {
-<div class="content-hug">
+<div class="content-hug" role="tabpanel" id="panel-1" aria-labelledby="tab-1" [attr.aria-hidden]="currentStep !== 1">
     <div class="content-box d-flex flex-column gap-3">
 
         <h2>Lateness</h2>
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle" role="table" aria-label="Lateness entries">
                 <thead>
                     <tr>
-                        <th class="w-20">Occurrence</th>
-                        <th class="w-75">Deduction Value</th>
-                        <th class="w-5"></th>
+                        <th class="w-20" scope="col">Occurrence</th>
+                        <th class="w-35" scope="col">Deduction Value</th>
+                        <th class="w-40" scope="col">Salary Portion</th>
+                        <th class="w-5" scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
 
                 <tbody>
-
+                    @if (loading || salaryPortionsLoading) {
+                    @for (i of [1, 2, 3]; track i) {
+                    <tr>
+                        <td>
+                            <div class="skeleton-block h-4 w-75"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    }
+                    } @else {
                     @for (entry of latenessEntries; track $index) {
                     <tr>
                         <td>{{ getOccurrenceLabel($index)}}</td>
                         <td>
-                            <input type="number" [(ngModel)]="entry.value" class="form-control table-input"
-                                placeholder="Enter Value in days" />
+                            <div class="w-100">
+                                <label [for]="'lateness-value-' + $index" class="visually-hidden">
+                                    Deduction value for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <input type="number" [id]="'lateness-value-' + $index" [(ngModel)]="entry.value"
+                                    class="form-control table-input"
+                                    [class.is-invalid]="latenessValidationErrors[$index]?.value"
+                                    (input)="clearLatenessValidationError($index, 'value')"
+                                    (keydown)="handleRowKeydown($event, $index, 'value')"
+                                    [attr.aria-invalid]="latenessValidationErrors[$index]?.value"
+                                    [attr.aria-describedby]="latenessValidationErrors[$index]?.value ? 'lateness-value-error-' + $index : null"
+                                    [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel($index)"
+                                    placeholder="Enter Value in days" />
+                                @if (latenessValidationErrors[$index]?.value) {
+                                <div class="invalid-feedback d-block" [id]="'lateness-value-error-' + $index"
+                                    role="alert">
+                                    Deduction value is required
+                                </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="w-100">
+                                <label [for]="'lateness-salary-' + $index" class="visually-hidden">
+                                    Salary portion for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <select [id]="'lateness-salary-' + $index" [(ngModel)]="entry.salaryPortionIndex"
+                                    class="form-select table-input"
+                                    [class.is-invalid]="latenessValidationErrors[$index]?.salaryPortion"
+                                    (change)="clearLatenessValidationError($index, 'salaryPortion')"
+                                    (keydown)="handleRowKeydown($event, $index, 'salaryPortion')"
+                                    [attr.aria-invalid]="latenessValidationErrors[$index]?.salaryPortion"
+                                    [attr.aria-describedby]="latenessValidationErrors[$index]?.salaryPortion ? 'lateness-salary-error-' + $index : null"
+                                    [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel($index)"
+                                    [attr.aria-required]="true" [disabled]="entry.value == null || entry.value === 0"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [value]="null" [disabled]="entry.value != null && entry.value !== 0">Select
+                                        Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                    </option>
+                                    }
+                                </select>
+                                @if (latenessValidationErrors[$index]?.salaryPortion) {
+                                <div class="invalid-feedback d-block" [id]="'lateness-salary-error-' + $index"
+                                    role="alert">
+                                    Salary portion is required
+                                </div>
+                                }
+                            </div>
                         </td>
 
                         <td>
                             @if (latenessEntries.length > 1) {
-                            <button type="button" (click)="removeLatenessRow($index)" class="btn btn-remove p-0 text-lg"
-                                aria-label="Remove section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                            <button type="button" (click)="removeLatenessRow($index)"
+                                (keydown.enter)="removeLatenessRow($index)"
+                                (keydown.space)="removeLatenessRow($index); $event.preventDefault()"
+                                class="btn btn-remove p-0 text-lg"
+                                [attr.aria-label]="'Remove ' + getOccurrenceLabel($index) + ' entry'"
+                                title="Remove {{ getOccurrenceLabel($index) }} entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                                    aria-hidden="true">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
                                     <path fill="#4A6D97"
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
+                                <span class="visually-hidden">Remove {{ getOccurrenceLabel($index) }} entry</span>
                             </button>
                             }
                         </td>
                     </tr>
+                    }
                     }
 
                 </tbody>
             </table>
         </div>
         <div class="mt-3">
-            <a type="button" (click)="addLatenessRow()" class="view-btn add-sec d-flex align-items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <button type="button" (click)="addLatenessRow()" (keydown.enter)="addLatenessRow()"
+                (keydown.space)="addLatenessRow(); $event.preventDefault()"
+                class="view-btn add-sec d-flex align-items-center gap-1" aria-label="Add new lateness occurrence">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
                     </g>
                 </svg>
                 <span>Add Occurrence</span>
-            </a>
+            </button>
         </div>
 
     </div>
@@ -205,54 +289,128 @@
 
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle" role="table" aria-label="Early Leave entries">
                 <thead>
                     <tr>
-                        <th class="w-20">Occurrence</th>
-                        <th class="w-75">Deduction Value</th>
-                        <th class="w-5"></th>
+                        <th class="w-20" scope="col">Occurrence</th>
+                        <th class="w-35" scope="col">Deduction Value</th>
+                        <th class="w-40" scope="col">Salary Portion</th>
+                        <th class="w-5" scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
 
                 <tbody>
-
+                    @if (loading || salaryPortionsLoading) {
+                    @for (i of [1, 2, 3]; track i) {
+                    <tr>
+                        <td>
+                            <div class="skeleton-block h-4 w-75"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    }
+                    } @else {
                     @for (row of earlyLeaveRows; track $index) {
                     <tr>
                         <td>{{ getOccurrenceLabel($index) }}</td>
                         <td>
-                            <input type="number" class="form-control table-input" [(ngModel)]="row.deduction"
-                                placeholder="Enter Value in days" />
+                            <div class="w-100">
+                                <label [for]="'earlyleave-value-' + $index" class="visually-hidden">
+                                    Deduction value for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <input type="number" [id]="'earlyleave-value-' + $index"
+                                    class="form-control table-input" [(ngModel)]="row.deduction"
+                                    [class.is-invalid]="earlyLeaveValidationErrors[$index]?.value"
+                                    (input)="clearEarlyLeaveValidationError($index, 'value')"
+                                    [attr.aria-invalid]="earlyLeaveValidationErrors[$index]?.value"
+                                    [attr.aria-describedby]="earlyLeaveValidationErrors[$index]?.value ? 'earlyleave-value-error-' + $index : null"
+                                    placeholder="Enter Value in days"
+                                    [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel($index)"
+                                    [disabled]="sameAsLateness" />
+                                @if (earlyLeaveValidationErrors[$index]?.value) {
+                                <div class="invalid-feedback d-block" [id]="'earlyleave-value-error-' + $index"
+                                    role="alert">
+                                    Deduction value is required
+                                </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="w-100">
+                                <label [for]="'earlyleave-salary-' + $index" class="visually-hidden">
+                                    Salary portion for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <select [id]="'earlyleave-salary-' + $index" [(ngModel)]="row.salaryPortionIndex"
+                                    class="form-select table-input"
+                                    [class.is-invalid]="earlyLeaveValidationErrors[$index]?.salaryPortion"
+                                    (change)="clearEarlyLeaveValidationError($index, 'salaryPortion')"
+                                    [attr.aria-invalid]="earlyLeaveValidationErrors[$index]?.salaryPortion"
+                                    [attr.aria-describedby]="earlyLeaveValidationErrors[$index]?.salaryPortion ? 'earlyleave-salary-error-' + $index : null"
+                                    [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel($index)"
+                                    [attr.aria-required]="true"
+                                    [disabled]="sameAsLateness || row.deduction == null || row.deduction === 0"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [value]="null" [disabled]="row.deduction != null && row.deduction !== 0">
+                                        Select Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                    </option>
+                                    }
+                                </select>
+                                @if (earlyLeaveValidationErrors[$index]?.salaryPortion) {
+                                <div class="invalid-feedback d-block" [id]="'earlyleave-salary-error-' + $index"
+                                    role="alert">
+                                    Salary portion is required
+                                </div>
+                                }
+                            </div>
                         </td>
 
                         <td>
                             @if (earlyLeaveRows.length > 1) {
-                            <button type="button" (click)="removeRow($index)" class="btn btn-remove p-0 text-lg"
-                                aria-label="Remove section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                            <button type="button" (click)="removeRow($index)" (keydown.enter)="removeRow($index)"
+                                (keydown.space)="removeRow($index); $event.preventDefault()"
+                                class="btn btn-remove p-0 text-lg"
+                                [attr.aria-label]="'Remove ' + getOccurrenceLabel($index) + ' entry'"
+                                [disabled]="sameAsLateness" title="Remove {{ getOccurrenceLabel($index) }} entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                                    aria-hidden="true">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
                                     <path fill="#4A6D97"
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
+                                <span class="visually-hidden">Remove {{ getOccurrenceLabel($index) }} entry</span>
                             </button>
                             }
                         </td>
                     </tr>
+                    }
                     }
 
                 </tbody>
             </table>
         </div>
         <div class="mt-3">
-            <a type="button" (click)="addRow()" class="view-btn add-sec d-flex align-items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <button type="button" (click)="addRow()" (keydown.enter)="addRow()"
+                (keydown.space)="addRow(); $event.preventDefault()"
+                class="view-btn add-sec d-flex align-items-center gap-1" [disabled]="sameAsLateness"
+                aria-label="Add new early leave occurrence">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
                     </g>
                 </svg>
                 <span>Add Occurrence</span>
-            </a>
+            </button>
         </div>
     </div>
 </div>
@@ -300,12 +458,28 @@
 
             <!-- Flat Rate Input -->
             @if (overtimeType === 'flatRate') {
-            <div class="input w-lg-50">
-                <label for="flatRateValue">Flat Rate</label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" class="form-control custom-date-input" id="flatRateValue" placeholder="Per Hour"
-                        [(ngModel)]="flatRateValue" [ngModelOptions]="{ standalone: true }"
-                        [disabled]="!allowOvertime" />
+            <div class="d-flex gap-3 flex-wrap">
+                <div class="input flex-fill" style="min-width: 200px;">
+                    <label for="flatRateValue">Flat Rate</label>
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" class="form-control custom-date-input" id="flatRateValue"
+                            placeholder="Per Hour" [(ngModel)]="flatRateValue" [ngModelOptions]="{ standalone: true }"
+                            [disabled]="!allowOvertime" />
+                    </div>
+                </div>
+                <div class="input flex-fill" style="min-width: 250px;">
+                    <label for="flatRateSalaryPortion">Salary Portion</label>
+                    <div class="form-outline w-100 position-relative">
+                        <select id="flatRateSalaryPortion" [(ngModel)]="flatRateSalaryPortionIndex" class="form-select"
+                            [disabled]="!allowOvertime || !flatRateValue" [ngModelOptions]="{ standalone: true }">
+                            <option [ngValue]="null" [disabled]="flatRateValue">Select Salary Portion</option>
+                            @for (portion of salaryPortions; track portion.index) {
+                            <option [ngValue]="portion.index">
+                                {{ portion.name }} ({{ portion.percentage }}%)
+                            </option>
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
             }
@@ -316,11 +490,12 @@
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Rate</th>
-                            <th>Actions</th>
+                            <th style="width: 8%;">ID</th>
+                            <th style="width: 20%;">From</th>
+                            <th style="width: 20%;">To</th>
+                            <th style="width: 18%;">Rate</th>
+                            <!-- <th style="width: 28%;">Salary Portion</th> -->
+                            <th style="width: 6%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -340,6 +515,19 @@
                                     [(ngModel)]="entry.rate" [ngModelOptions]="{ standalone: true }"
                                     [disabled]="!allowOvertime" />
                             </td>
+                            <!-- <td>
+                                <select [(ngModel)]="entry.salaryPortionIndex" class="form-select"
+                                    [disabled]="!allowOvertime || entry.rate == null || entry.rate === 0"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [ngValue]="null" [disabled]="entry.rate != null && entry.rate !== 0">Select
+                                        Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                    </option>
+                                    }
+                                </select>
+                            </td> -->
                             <td>
                                 @if (overtimeEntries.length > 1) {
                                 <button type="button" class="btn btn-remove p-0 text-lg"
@@ -380,58 +568,128 @@
 
 <!-- Absence -->
 @if (currentStep === 3) {
-<div class="content-hug">
+<div class="content-hug" role="tabpanel" id="panel-3" aria-labelledby="tab-3" [attr.aria-hidden]="currentStep !== 3">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Absence</h2>
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle" role="table" aria-label="Absence entries">
                 <thead>
                     <tr>
-                        <th class="w-20">Occurrence</th>
-                        <th class="w-75">Deduction Value</th>
-                        <th class="w-5"></th>
+                        <th class="w-20" scope="col">Occurrence</th>
+                        <th class="w-35" scope="col">Deduction Value</th>
+                        <th class="w-40" scope="col">Salary Portion</th>
+                        <th class="w-5" scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
 
                 <tbody>
-
+                    @if (loading || salaryPortionsLoading) {
+                    @for (i of [1, 2, 3]; track i) {
+                    <tr>
+                        <td>
+                            <div class="skeleton-block h-4 w-75"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-block h-4 w-100"></div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    }
+                    } @else {
                     @for (entry of absenceEntries; track $index) {
                     <tr>
                         <td>{{ getOccurrenceLabel($index) }}</td>
                         <td>
-                            <input type="number" [(ngModel)]="entry.value" class="form-control table-input"
-                                placeholder="Enter Value in days" />
+                            <div class="w-100">
+                                <label [for]="'absence-value-' + $index" class="visually-hidden">
+                                    Deduction value for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <input type="number" [id]="'absence-value-' + $index" [(ngModel)]="entry.value"
+                                    class="form-control table-input"
+                                    [class.is-invalid]="absenceValidationErrors[$index]?.value"
+                                    (input)="clearAbsenceValidationError($index, 'value')"
+                                    [attr.aria-invalid]="absenceValidationErrors[$index]?.value"
+                                    [attr.aria-describedby]="absenceValidationErrors[$index]?.value ? 'absence-value-error-' + $index : null"
+                                    placeholder="Enter Value in days"
+                                    [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel($index)" />
+                                @if (absenceValidationErrors[$index]?.value) {
+                                <div class="invalid-feedback d-block" [id]="'absence-value-error-' + $index"
+                                    role="alert">
+                                    Deduction value is required
+                                </div>
+                                }
+                            </div>
                         </td>
-
+                        <td>
+                            <div class="w-100">
+                                <label [for]="'absence-salary-' + $index" class="visually-hidden">
+                                    Salary portion for {{ getOccurrenceLabel($index) }}
+                                </label>
+                                <select [id]="'absence-salary-' + $index" [(ngModel)]="entry.salaryPortionIndex"
+                                    class="form-select table-input"
+                                    [class.is-invalid]="absenceValidationErrors[$index]?.salaryPortion"
+                                    (change)="clearAbsenceValidationError($index, 'salaryPortion')"
+                                    [attr.aria-invalid]="absenceValidationErrors[$index]?.salaryPortion"
+                                    [attr.aria-describedby]="absenceValidationErrors[$index]?.salaryPortion ? 'absence-salary-error-' + $index : null"
+                                    [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel($index)"
+                                    [attr.aria-required]="true" [disabled]="entry.value == null || entry.value === 0"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option [value]="null" [disabled]="entry.value != null && entry.value !== 0">Select
+                                        Salary Portion</option>
+                                    @for (portion of salaryPortions; track portion.index) {
+                                    <option [ngValue]="portion.index">
+                                        {{ portion.name }} ({{ portion.percentage }}%)
+                                    </option>
+                                    }
+                                </select>
+                                @if (absenceValidationErrors[$index]?.salaryPortion) {
+                                <div class="invalid-feedback d-block" [id]="'absence-salary-error-' + $index"
+                                    role="alert">
+                                    Salary portion is required
+                                </div>
+                                }
+                            </div>
+                        </td>
                         <td>
                             @if (absenceEntries.length > 1) {
-                            <button type="button" (click)="removeAbsenceRow($index)" class="btn btn-remove p-0 text-lg"
-                                aria-label="Remove section">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">
+                            <button type="button" (click)="removeAbsenceRow($index)"
+                                (keydown.enter)="removeAbsenceRow($index)"
+                                (keydown.space)="removeAbsenceRow($index); $event.preventDefault()"
+                                class="btn btn-remove p-0 text-lg"
+                                [attr.aria-label]="'Remove ' + getOccurrenceLabel($index) + ' entry'"
+                                title="Remove {{ getOccurrenceLabel($index) }} entry">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+                                    aria-hidden="true">
                                     <path fill="#4A6D97"
                                         d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
                                     <path fill="#4A6D97"
                                         d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
                                 </svg>
+                                <span class="visually-hidden">Remove {{ getOccurrenceLabel($index) }} entry</span>
                             </button>
                             }
                         </td>
                     </tr>
                     }
-
+                    }
                 </tbody>
             </table>
         </div>
         <div class="mt-3">
-            <a type="button" (click)="addAbsenceRow()" class="view-btn add-sec d-flex align-items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <button type="button" (click)="addAbsenceRow()" (keydown.enter)="addAbsenceRow()"
+                (keydown.space)="addAbsenceRow(); $event.preventDefault()"
+                class="view-btn add-sec d-flex align-items-center gap-1" aria-label="Add new absence occurrence">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
                     <g fill="none" stroke="currentColor" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
                     </g>
                 </svg>
                 <span>Add Occurrence</span>
-            </a>
+            </button>
         </div>
     </div>
 </div>
@@ -459,7 +717,8 @@
         }
 
         @if(currentStep === 5){
-        <button type="button" class="btn btn-lg btn-success" [disabled]="isSaving || !hasChanges()" (click)="saveChanges()">
+        <button type="button" class="btn btn-lg btn-success" [disabled]="isSaving || !hasChanges()"
+            (click)="saveChanges()">
             @if (isSaving) {
             <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
             }
