@@ -6,8 +6,18 @@
             <div class="row">
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+                        <input class="form-check-input m-0" type="checkbox" id="name" [(ngModel)]="basicInfo.name"
+                            disabled>
+                        <label class="form-check-label m-0" for="name">
+                            Name
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                         <input class="form-check-input m-0" type="checkbox" id="email" [(ngModel)]="basicInfo.email"
-                            (change)="updateDynamicFields()">
+                            disabled>
                         <label class="form-check-label m-0" for="email">
                             Email
                         </label>
@@ -17,7 +27,7 @@
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                         <input class="form-check-input m-0" type="checkbox" id="phone" [(ngModel)]="basicInfo.phone"
-                            (change)="updateDynamicFields()">
+                            disabled>
                         <label class="form-check-label m-0" for="phone">
                             Phone number
                         </label>

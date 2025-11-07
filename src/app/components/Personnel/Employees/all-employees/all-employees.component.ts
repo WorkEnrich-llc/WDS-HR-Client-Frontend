@@ -53,6 +53,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       this.loadEmployees();
     });
 
+
     this.toasterSubscription = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
@@ -215,7 +216,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('employees/all-employees', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

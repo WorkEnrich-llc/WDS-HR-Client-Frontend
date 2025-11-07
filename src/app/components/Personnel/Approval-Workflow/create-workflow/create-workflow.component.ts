@@ -149,11 +149,17 @@ export class CreateWorkflowComponent {
 
   createStepForm(): FormGroup {
     return this.fb.group({
-      stepName: ['', Validators.required],
+      stepName: ['', [Validators.required, this.noWhitespaceValidator]],
       mandatory: [false],
       assignee: ['', Validators.required],
     });
   }
+
+  noWhitespaceValidator(control: FormControl) {
+  const isWhitespace = (control.value || '').trim().length === 0;
+  const isValid = !isWhitespace;
+  return isValid ? null : { whitespace: true };
+}
 
   addStep() {
     const lastStep = this.steps[this.steps.length - 1];

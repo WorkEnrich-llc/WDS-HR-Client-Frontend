@@ -173,7 +173,7 @@ export class AllWorkflowComponent {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('workflow/all-workflows', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

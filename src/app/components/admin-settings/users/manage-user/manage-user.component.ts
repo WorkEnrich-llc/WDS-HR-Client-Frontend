@@ -74,7 +74,7 @@ export class ManageUserComponent implements OnInit {
     this.usersForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       code: [{ value: '', disabled: true }],
-      userName: [{ value: '', disabled: true }, [Validators.required]],
+      user_name: [{ value: '', disabled: true }, [Validators.required]],
       permissions: [{ value: [], disabled: true }, [Validators.required]],
     });
   }
@@ -87,7 +87,7 @@ export class ManageUserComponent implements OnInit {
         next: (data) => {
           this.usersForm.patchValue({
             code: data.user.code,
-            userName: data.user.name,
+            user_name: data.user.name,
             email: data.user.email,
             permissions: (data.permissions ?? []).map((p: any) => p.role?.id)
           });
@@ -158,6 +158,11 @@ export class ManageUserComponent implements OnInit {
   }
 
   async inviteUser(): Promise<void> {
+    // Prevent duplicate requests while loading
+    if (this.isLoading) {
+      return;
+    }
+    
     if (this.isAdmin) {
       this.openPopup();
       return;
@@ -172,7 +177,7 @@ export class ManageUserComponent implements OnInit {
       ...this.usersForm.value,
       code: formValues.code,
       email: formValues.email,
-      userName: formValues.userName,
+      user_name: formValues.user_name,
       permissions: formValues.permissions,
     };
     if (this.isEditMode && this.userId) {
@@ -190,6 +195,7 @@ export class ManageUserComponent implements OnInit {
     } catch (err) {
       console.error('Invitation sent failed', err);
     } finally {
+      this.isLoading = false;
       this.isEditMode = false;
     }
   }
@@ -211,37 +217,37 @@ export class ManageUserComponent implements OnInit {
         if (user && user.employee === true && user.available === false) {
           this.isAdmin = true;
           this.usersForm.get('code')?.disable();
-          this.usersForm.get('userName')?.disable();
+          this.usersForm.get('user_name')?.disable();
           this.usersForm.get('email')?.enable();
           this.usersForm.get('permissions')?.disable();
           this.usersForm.patchValue({
             email: user?.email || '',
             code: user?.code || '',
-            userName: user?.name || '',
+            user_name: user?.name || '',
           });
         }
         else if (user && user.employee === true && user.available === true) {
           this.isExistingUser = true;
           this.isAdmin = false;
           this.usersForm.get('code')?.disable();
-          this.usersForm.get('userName')?.disable();
+          this.usersForm.get('user_name')?.disable();
           this.usersForm.get('email')?.enable();
           this.usersForm.get('permissions')?.enable();
           this.usersForm.patchValue({
             email: user?.email || '',
             code: user?.code || '',
-            userName: user?.name || '',
+            user_name: user?.name || '',
           });
         }
         else {
           this.isExistingUser = false;
           this.isAdmin = false;
           this.usersForm.get('code')?.enable();
-          this.usersForm.get('userName')?.enable();
+          this.usersForm.get('user_name')?.enable();
           this.usersForm.get('permissions')?.enable();
           this.usersForm.patchValue({
             code: '',
-            userName: '',
+            user_name: '',
             permissions: []
           });
         }

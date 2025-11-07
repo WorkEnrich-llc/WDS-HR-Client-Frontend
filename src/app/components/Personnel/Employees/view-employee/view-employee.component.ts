@@ -42,12 +42,13 @@ export class ViewEmployeeComponent implements OnInit {
   subscription: Subscription | null = null;
   loading = false;
   employeeId: number = 0;
+  isLoading = false;
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' = 'attendance';
 
   // Documents checklist
-  readonly documentsRequired: Array<{
+  documentsRequired: Array<{
     name: string;
     key: string;
     uploaded: boolean;
@@ -58,6 +59,8 @@ export class ViewEmployeeComponent implements OnInit {
     size?: number;
     fileExt?: string;
     fileType?: string;
+    isLoading?: boolean;
+    isDeleteModalOpen?: boolean;
   }> = [
       { name: 'CV', key: 'cv', uploaded: false },
       { name: 'ID Front', key: 'id_front', uploaded: false },
@@ -380,22 +383,62 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   /** Delete an uploaded document */
+  // onDelete(docKey: string): void {
+  //   this.isLoading = true;
+  //   const doc = this.documentsRequired.find(d => d.key === docKey);
+  //   if (doc?.id) {
+  //     this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
+  //       next: () => {
+  //         doc.uploaded = false;
+  //         delete doc.url;
+  //         delete doc.id;
+  //         // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
+  //       },
+  //       error: (error) => {
+  //         console.error('Error deleting document', error);
+  //         // this.toasterMessageService.showError(`Error deleting ${docKey}`);
+  //       }
+  //     });
+  //   }
+  // }
+
   onDelete(docKey: string): void {
     const doc = this.documentsRequired.find(d => d.key === docKey);
-    if (doc?.id) {
-      this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
-        next: () => {
-          doc.uploaded = false;
-          delete doc.url;
-          delete doc.id;
-          // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
-        },
-        error: (error) => {
-          console.error('Error deleting document', error);
-          // this.toasterMessageService.showError(`Error deleting ${docKey}`);
-        }
-      });
+
+    if (!doc || !doc.id || doc.isLoading) {
+      if (!doc?.id) {
+        console.warn('Cannot delete document, missing ID.');
+      }
+      return;
     }
+
+    doc.isLoading = true;
+
+    this.documentsRequired = [...this.documentsRequired];
+
+    this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
+      next: () => {
+        doc.uploaded = false;
+        delete doc.url;
+        delete doc.id;
+        doc.isLoading = false;
+        doc.isDeleteModalOpen = false;
+
+        this.documentsRequired = [...this.documentsRequired];
+
+        // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
+      },
+      error: (error) => {
+        console.error('Error deleting document', error);
+
+        doc.isLoading = false;
+        doc.isDeleteModalOpen = false;
+
+        this.documentsRequired = [...this.documentsRequired];
+
+        // this.toasterMessageService.showError(`Error deleting ${docKey}`);
+      }
+    });
   }
 
   // Message for deactivate popup

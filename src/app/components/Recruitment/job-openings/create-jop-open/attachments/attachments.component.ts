@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobOpeningsService } from '../../../../../core/services/recruitment/job-openings/job-openings.service';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
+import { ToasterMessageService } from '../../../../../core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-attachments',
@@ -14,6 +15,7 @@ import { JobCreationDataService } from '../../../../../core/services/recruitment
 export class AttachmentsComponent implements OnInit {
   private jobOpeningsService = inject(JobOpeningsService);
   private jobCreationDataService = inject(JobCreationDataService);
+  private toasterService = inject(ToasterMessageService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -74,7 +76,7 @@ export class AttachmentsComponent implements OnInit {
 
     // Validate that required fields are filled
     if (!currentData.main_information.job_title_id || !currentData.main_information.branch_id || !currentData.main_information.employment_type) {
-      alert('Please fill in all required fields in the previous tabs');
+      this.toasterService.showError('Please fill in all required fields in the previous tabs', 'Validation Error');
       return;
     }
 
@@ -122,21 +124,27 @@ export class AttachmentsComponent implements OnInit {
     if (this.isUpdateMode && this.jobId) {
       this.jobOpeningsService.updateJobOpening(this.jobId, jobData).subscribe({
         next: (response) => {
-          alert('Job opening updated successfully!');
+          this.toasterService.showSuccess('Job opening updated successfully!', 'Success');
           this.router.navigate(['/job-openings/view-job-openings', this.jobId]);
         },
         error: (error) => {
-          alert('Error updating job opening: ' + (error.error?.details || error.message));
+          // Error toast is automatically shown by the interceptor
+          // This additional call is for custom error handling if needed
+          const errorMessage = error.error?.details || error.message || 'Failed to update job opening';
+          this.toasterService.showError(errorMessage, 'Error');
         }
       });
     } else {
       this.jobOpeningsService.createJobOpening(jobData).subscribe({
         next: (response) => {
-          alert('Job opening created successfully!');
+          this.toasterService.showSuccess('Job opening created successfully!', 'Success');
           this.router.navigate(['/job-openings']);
         },
         error: (error) => {
-          alert('Error creating job opening: ' + (error.error?.details || error.message));
+          // Error toast is automatically shown by the interceptor
+          // This additional call is for custom error handling if needed
+          const errorMessage = error.error?.details || error.message || 'Failed to create job opening';
+          this.toasterService.showError(errorMessage, 'Error');
         }
       });
     }

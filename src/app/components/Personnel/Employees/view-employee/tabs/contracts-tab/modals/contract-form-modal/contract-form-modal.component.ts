@@ -23,6 +23,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<any>();
 
+
   contractForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -32,7 +33,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
-      noticePeriod: [60, [Validators.required, Validators.min(1)]] // notice period in days
+      noticePeriod: [null, [Validators.required, Validators.min(1)]] // notice period in days
     });
   }
 
@@ -96,14 +97,14 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     if (!this.contract) return;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
     const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
-    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
+    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
     this.contractForm.patchValue({
       adjustmentType: 1,
-      // withEndDate: true,
+      withEndDate: this.contract.endDate ? true : false,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      noticePeriod: 60
+      noticePeriod: this.contract.noticePeriod
     });
 
     // Set up salary validation after populating
@@ -111,14 +112,29 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   }
 
   resetForm(): void {
-    this.contractForm.reset({
-      adjustmentType: 1,
-      salary: null,
-      startDate: null,
-      withEndDate: false,
-      endDate: null,
-      noticePeriod: 60
-    });
+    if (this.contract) {
+      const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
+      const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
+      this.contractForm.patchValue({
+        adjustmentType: 1,
+        withEndDate: this.contract.endDate ? true : false,
+        salary: this.contract.salary,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        noticePeriod: this.contract.noticePeriod
+      });
+
+    } else {
+      this.contractForm.reset({
+        adjustmentType: 1,
+        salary: null,
+        startDate: null,
+        withEndDate: false,
+        endDate: null,
+        noticePeriod: 0
+      });
+    }
+
 
     // Set up salary validation after reset
     this.setupSalaryValidation();
@@ -145,7 +161,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         adjustmentType: formValue.adjustmentType,
         salary: formValue.salary,
         startDate: formValue.startDate,
-        endDate: formValue.endDate,
+        endDate: formValue.withEndDate ? formValue.endDate : null,
         noticePeriod: formValue.noticePeriod,
         isEdit: true,
         contractId: this.contract?.id
@@ -229,9 +245,6 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   getSalaryLabel(): string {
     return this.isEditMode ? 'New Salary' : 'New Salary';
   }
-
-
-
 
 
   // Get salary ranges based on employment type
