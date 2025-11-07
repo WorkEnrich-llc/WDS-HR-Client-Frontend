@@ -29,13 +29,22 @@ export class ApprovalRequestsService {
 
     if (filters) {
       if (filters.search) params = params.set('search', filters.search);
-      if (filters.status) params = params.set('status', filters.status);
       if (filters.employee_id) params = params.set('employee_id', filters.employee_id.toString());
       if (filters.leave_type) params = params.set('leave_type', filters.leave_type);
       if (filters.from_date) params = params.set('from_date', filters.from_date);
       if (filters.to_date) params = params.set('to_date', filters.to_date);
       if (filters.created_from) params = params.set('created_from', filters.created_from);
       if (filters.created_to) params = params.set('created_to', filters.created_to);
+      if (filters.status) params = params.set('status', filters.status);
+
+      // if (filters.requested_at) params = params.set('requested_at', filters.requested_at);
+      // if (filters.date_range) params = params.set('date_range', filters.date_range);
+      if (filters.request_status) params = params.set('request_status', filters.request_status);
+      if (filters.request_type) params = params.set('request_type', filters.request_type);
+      if (filters.request_from_date) params = params.set('request_from_date', filters.request_from_date);
+      if (filters.request_to_date) params = params.set('request_to_date', filters.request_to_date);
+      if (filters.request_from_range) params = params.set('request_from_range', filters.request_from_range);
+      if (filters.request_to_range) params = params.set('request_to_range', filters.request_to_range);
     }
 
     return this._HttpClient.get<ApprovalRequestsResponse>(url, { params });

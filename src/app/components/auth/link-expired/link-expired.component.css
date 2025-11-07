@@ -1,0 +1,9 @@
+h2{
+    font-weight: 600;
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-xl);
+}
+p{
+    color: var(--color-secondary-700);
+    font-size: var(--font-size-h3);
+}

@@ -10,7 +10,8 @@ import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
-  id: number;
+  id: number; // table row id display (application or applicant code)
+  applicantId: number; // actual applicant id to be used in routing/API
   name: string;
   phoneNumber: string;
   email: string;
@@ -56,7 +57,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   activeTab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected' = 'all';
 
   // Applicants data and pagination
-  applicantsLoading: boolean = false;
+  applicantsLoading: boolean = true;
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalItems: number = 0;
@@ -94,6 +95,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.mainInfoLoading = true;
     this.jobDetailsInfoLoading = true;
     this.dynamicFieldsLoading = true;
+    this.applicantsLoading = true; // Set applicants loading to true while job details are loading
 
     this.jobOpeningsService.showJobOpening(jobId).subscribe({
       next: (response) => {
@@ -131,10 +133,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.applicantsLoading = true;
     const status = this.getStatusFromTab(this.activeTab);
 
-    this.jobOpeningsService.getJobApplications(
+    this.jobOpeningsService.getApplicantsByJobId(
+      this.jobOpening.id,
       this.currentPage,
       this.itemsPerPage,
-      this.jobOpening.id,
       status,
       this.searchTerm
     ).subscribe({
@@ -142,7 +144,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (response.data) {
           // Transform API response to match table format
           this.applicant = response.data.list_items.map((item: any) => ({
-            id: item.application?.id || item.applicant?.id,
+            id: item.application?.id ?? item.id ?? 0,
+            applicantId: item.applicant?.id ?? 0,
             name: item.applicant?.name || 'N/A',
             phoneNumber: item.applicant?.phone || 'N/A',
             email: item.applicant?.email || 'N/A',
@@ -170,15 +173,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   /**
    * Get status code from tab name
-   * Status mapping: 0 - Applicant, 1 - Candidate, 2 - Interviewee, 5 - Rejected, 6 - Qualified
+   * Status mapping: 1 - Applicant, 2 - Candidate, 3 - Interviewee, 4 - Job Offer Sent, 5 - New Joiner, 6 - Rejected, 7 - Qualified
    */
   getStatusFromTab(tab: string): number | undefined {
     const statusMap: { [key: string]: number | undefined } = {
       'all': undefined,          // No filter - show all
-      'candidates': 1,           // Candidate
-      'interviewing': 2,         // Interviewee
-      'qualified': 6,            // Qualified
-      'rejected': 5              // Rejected
+      'candidates': 2,           // Candidate
+      'interviewing': 3,         // Interviewee
+      'qualified': 7,            // Qualified
+      'rejected': 6              // Rejected
     };
     return statusMap[tab];
   }
@@ -270,16 +273,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     return sections;
   }
-  applicant: Applicant[] = [
-    {
-      id: 11,
-      name: 'Ahmed Mohamed',
-      phoneNumber: '+2 0122 233 244',
-      email: 'ahmed@email.com',
-      status: 'Applied at',
-      statusAt: '28/12/2025 8:30 PM',
-    }
-  ];
+  applicant: Applicant[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: keyof Applicant | '' = '';
   sortBy(column: keyof Applicant) {

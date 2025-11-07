@@ -13,10 +13,10 @@
   <div class="content-box d-flex flex-column gap-3">
     <h2>Checklist</h2>
     @if(loadData) {
-      <app-skelaton-loading [rows]="3" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
-      </app-skelaton-loading>
+    <app-skelaton-loading [rows]="3" [hasLabel]="false" [labelHeight]="16" [valueHeight]="50">
+    </app-skelaton-loading>
     }@else {
-       @if (checks.length > 0) {
+    @if (checks.length > 0) {
     <div class="checks pt-1">
 
       @for (check of checks; track $index; let i = $index) {
@@ -90,6 +90,9 @@
             Checklist Item maxlength 100 only.
           </p>
           }
+          @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['whitespace']) {
+          <p class="error-msg">Checklist Item is required and cannot be only spaces.</p>
+          }
         </div>
         <div class="input w-25">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -105,6 +108,9 @@
           <p class="error-msg">
             Numbers only.
           </p>
+          }
+          @if (checkForm.get('checkPoint')?.touched && checkForm.get('checkPoint')?.errors?.['max']) {
+          <p class="error-msg">Points must be less than 10000.</p>
           }
         </div>
       </div>
@@ -123,7 +129,7 @@
     </form>
 
     }
-   
+
 
   </div>
 </div>

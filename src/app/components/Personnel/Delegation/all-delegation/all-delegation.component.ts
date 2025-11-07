@@ -25,6 +25,8 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   private datePipe = inject(DatePipe)
   private toasterMessageService = inject(ToasterMessageService);
   private route = inject(ActivatedRoute);
+  private paginationState = inject(PaginationStateService);
+  private router = inject(Router);
 
   constructor(
   ) { }
@@ -32,8 +34,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   private fb = inject(FormBuilder);
-  private paginationState = inject(PaginationStateService);
-  private router = inject(Router);
+
 
   delegations: DelegationItem[] = [];
   filters: DelegationFilters = {};
@@ -168,7 +169,7 @@ export class AllDelegationComponent implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('delegation/all-delegation', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

@@ -114,7 +114,8 @@
                 </span>
             </td>
             <td>
-                <span class="d-block text-gray-sm">{{ job.branchId.toString().padStart(4, '0') }}</span>
+                <span class="d-block text-gray-sm">{{ job.branchId != null ? job.branchId.toString().padStart(4, '0') :
+                    '—' }}</span>
                 <span class="d-block text-truncate" style="max-width: 300px;">
                     {{ job.branchName }}
                 </span>

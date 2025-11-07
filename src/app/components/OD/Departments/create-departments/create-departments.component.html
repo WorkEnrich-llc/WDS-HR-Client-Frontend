@@ -625,7 +625,7 @@
     <ng-template #noGoals>
       <tr>
         <td colspan="3" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noGoals">
+          <ng-container *ngIf="searchTerm.trim(); else noGoals">
             No Goals match your search.
           </ng-container>
           <ng-template #noGoals>

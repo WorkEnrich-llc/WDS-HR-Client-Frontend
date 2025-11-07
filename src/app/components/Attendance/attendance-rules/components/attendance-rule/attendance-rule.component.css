@@ -6,3 +6,47 @@
 tbody td{
     padding: var(--spacing-20) !important;
 }
+
+.salary-portion-text {
+    position: relative;
+}
+
+.salary-portion-text[data-tooltip] {
+    cursor: help;
+}
+
+.salary-portion-text[data-tooltip]:hover {
+    color: var(--color-primary, #4A6D97) !important;
+}
+
+/* Custom tooltip styling for better appearance */
+.salary-portion-text[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background-color: #2b3a4b;
+    color: white;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
+.salary-portion-text[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    border: 5px solid transparent;
+    border-top-color: #2b3a4b;
+    z-index: 1000;
+    margin-bottom: -1px;
+    pointer-events: none;
+}

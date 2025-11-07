@@ -1,7 +1,7 @@
 import { Component, inject, ViewChild, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, finalize } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -43,6 +43,7 @@ export class AllJobOpeningsComponent implements OnDestroy {
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private listSubscription?: Subscription;
 
   // Archive confirmation modal
   isArchiveModalOpen: boolean = false;
@@ -79,35 +80,37 @@ export class AllJobOpeningsComponent implements OnDestroy {
 
 
   getAllJobOpenings(pageNumber: number, searchTerm: string = '', filters?: any): void {
+    // cancel any in-flight request to avoid race conditions that keep loader on
+    if (this.listSubscription) {
+      this.listSubscription.unsubscribe();
+    }
     this.loadData = true;
-    this.jobOpeningsService.getAllJobOpenings(pageNumber, this.itemsPerPage, {
+    this.listSubscription = this.jobOpeningsService.getAllJobOpenings(pageNumber, this.itemsPerPage, {
       search: searchTerm || this.searchTerm || undefined,
       ...filters
-    }).subscribe({
+    }).pipe(finalize(() => { this.loadData = false; })).subscribe({
       next: (response) => {
         if (response.data) {
           // Transform API response to match table format
           this.approvalRequests = response.data.list_items.map((job: any) => ({
-            jobId: job.id,
-            jobName: job.job_title.name,
-            branchId: job.branch.id,
-            branchName: job.branch.name,
-            empType: job.employment_type.name,
-            numApplicant: job.applicants,
-            numApply: job.candidates,
-            numSchadule: job.interviewees,
-            numRejected: job.rejected,
-            numAccepted: job.new_joiners,
-            status: job.status,
-            created_at: job.created_at,
-            updated_at: job.updated_at
+            jobId: job?.id ?? 0,
+            jobName: job?.job_title?.name ?? 'N/A',
+            branchId: job?.branch?.id ?? null,
+            branchName: job?.branch?.name ?? '—',
+            empType: job?.employment_type?.name ?? 'N/A',
+            numApplicant: job?.applicants ?? 0,
+            numApply: job?.candidates ?? 0,
+            numSchadule: job?.interviewees ?? 0,
+            numRejected: job?.rejected ?? 0,
+            numAccepted: job?.new_joiners ?? 0,
+            status: job?.status ?? 'N/A',
+            created_at: job?.created_at ?? '',
+            updated_at: job?.updated_at ?? ''
           }));
           this.totalItems = response.data.total_items || 0;
         }
-        this.loadData = false;
       },
       error: (error) => {
-        this.loadData = false;
         console.error('Error fetching job openings:', error);
       }
     });
@@ -248,6 +251,7 @@ export class AllJobOpeningsComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.toasterSubscription?.unsubscribe();
     this.searchSubject.complete();
+    this.listSubscription?.unsubscribe();
   }
 
 }

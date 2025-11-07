@@ -8,7 +8,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 
 @Component({
@@ -82,43 +82,43 @@ export class CreateWorkScheduleComponent {
   }
 
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
-  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-    search: searchTerm || undefined,
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
-      this.totalpages = response.data.total_pages;
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
 
-      const activeDepartments = response.data.list_items.filter(
-        (item: any) => item.is_active === true
-      );
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
 
-      this.departments = activeDepartments.map((item: any) => {
-        const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+        this.departments = activeDepartments.map((item: any) => {
+          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
-        const sectionsWithSelection = (item.sections || []).map((section: any) => ({
-          ...section,
-          selected: false
-        }));
+          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
+            ...section,
+            selected: false
+          }));
 
-        return {
-          id: item.id,
-          name: item.name,
-          create: item.created_at, 
-          sectionsCount: sectionsWithSelection.length,
-          sections: sectionsWithSelection,
-          selected: isSelected
-        };
-      });
+          return {
+            id: item.id,
+            name: item.name,
+            create: item.created_at,
+            sectionsCount: sectionsWithSelection.length,
+            sections: sectionsWithSelection,
+            selected: isSelected
+          };
+        });
 
-      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+      }
+    });
+  }
 
 
   //checkboxes 
@@ -148,15 +148,15 @@ export class CreateWorkScheduleComponent {
   discardDepartment(): void {
     // Reset search term
     this.searchTerm = '';
-    
+
     // Reset all department selections to match only those already added
     this.departments.forEach(dep => {
       dep.selected = this.addeddepartments.some(added => added.id === dep.id);
     });
-    
+
     // Update selectAll checkbox state
     this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-    
+
     // Close the overlay
     this.departmentsOverlay.closeOverlay();
   }
@@ -214,7 +214,7 @@ export class CreateWorkScheduleComponent {
 
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
- sortBy() {
+  sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.addeddepartments = this.addeddepartments.sort((a, b) => {
       const nameA = a.name.toLowerCase();
@@ -228,8 +228,8 @@ export class CreateWorkScheduleComponent {
     });
   }
   toggleStatus(department: any) {
-  department.status = !department.status;
-}
+    department.status = !department.status;
+  }
 
 
 
@@ -257,60 +257,82 @@ export class CreateWorkScheduleComponent {
     from: new FormControl(''),
     to: new FormControl(''),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
+  }, {
+    validators: [this.shiftRangeValidator.bind(this)]
   });
 
   // Custom validator to check if shift range matches the specified shift hours
-  private validateShiftRange(): void {
-    const shiftHours = this.workSchadule2.get('shift_hours')?.value;
-    const from = this.workSchadule2.get('from')?.value;
-    const to = this.workSchadule2.get('to')?.value;
+  // private validateShiftRange(): void {
+  //   const shiftHours = this.workSchadule2.get('shift_hours')?.value;
+  //   const from = this.workSchadule2.get('from')?.value;
+  //   const to = this.workSchadule2.get('to')?.value;
 
-    // Only validate if shift hours is specified and both time fields are filled
+  //   // Only validate if shift hours is specified and both time fields are filled
+  //   if (shiftHours && from && to) {
+  //     const calculatedHours = this.calculateShiftHours(from, to);
+  //     const expectedHours = Number(shiftHours);
+
+  //     // Allow small tolerance for rounding (0.1 hour = 6 minutes)
+  //     const tolerance = 0.1;
+  //     const difference = calculatedHours - expectedHours;
+  //     // const difference = Math.abs(calculatedHours - expectedHours);
+
+  //     if (difference > tolerance) {
+  //       this.workSchadule2.get('from')?.setErrors({ shiftHoursMismatch: true });
+  //       this.workSchadule2.get('to')?.setErrors({ shiftHoursMismatch: true });
+  //     } else {
+  //       // Clear the custom error if hours match
+  //       const fromControl = this.workSchadule2.get('from');
+  //       const toControl = this.workSchadule2.get('to');
+
+  //       if (fromControl?.hasError('shiftHoursMismatch')) {
+  //         const errors = fromControl.errors;
+  //         delete errors?.['shiftHoursMismatch'];
+  //         fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+  //       }
+
+  //       if (toControl?.hasError('shiftHoursMismatch')) {
+  //         const errors = toControl.errors;
+  //         delete errors?.['shiftHoursMismatch'];
+  //         toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+  //       }
+  //     }
+  //   } else {
+  //     // Clear errors if validation requirements not met
+  //     const fromControl = this.workSchadule2.get('from');
+  //     const toControl = this.workSchadule2.get('to');
+
+  //     if (fromControl?.hasError('shiftHoursMismatch')) {
+  //       const errors = fromControl.errors;
+  //       delete errors?.['shiftHoursMismatch'];
+  //       fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+  //     }
+
+  //     if (toControl?.hasError('shiftHoursMismatch')) {
+  //       const errors = toControl.errors;
+  //       delete errors?.['shiftHoursMismatch'];
+  //       toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+  //     }
+  //   }
+  // }
+
+  private shiftRangeValidator(control: AbstractControl): ValidationErrors | null {
+    const group = control as FormGroup;
+    const shiftHours = group.get('shift_hours')?.value;
+    const from = group.get('from')?.value;
+    const to = group.get('to')?.value;
+
     if (shiftHours && from && to) {
       const calculatedHours = this.calculateShiftHours(from, to);
       const expectedHours = Number(shiftHours);
-      
-      // Allow small tolerance for rounding (0.1 hour = 6 minutes)
       const tolerance = 0.1;
-      const difference = Math.abs(calculatedHours - expectedHours);
-      
-      if (difference > tolerance) {
-        this.workSchadule2.get('from')?.setErrors({ shiftHoursMismatch: true });
-        this.workSchadule2.get('to')?.setErrors({ shiftHoursMismatch: true });
-      } else {
-        // Clear the custom error if hours match
-        const fromControl = this.workSchadule2.get('from');
-        const toControl = this.workSchadule2.get('to');
-        
-        if (fromControl?.hasError('shiftHoursMismatch')) {
-          const errors = fromControl.errors;
-          delete errors?.['shiftHoursMismatch'];
-          fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
-        }
-        
-        if (toControl?.hasError('shiftHoursMismatch')) {
-          const errors = toControl.errors;
-          delete errors?.['shiftHoursMismatch'];
-          toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
-        }
-      }
-    } else {
-      // Clear errors if validation requirements not met
-      const fromControl = this.workSchadule2.get('from');
-      const toControl = this.workSchadule2.get('to');
-      
-      if (fromControl?.hasError('shiftHoursMismatch')) {
-        const errors = fromControl.errors;
-        delete errors?.['shiftHoursMismatch'];
-        fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
-      }
-      
-      if (toControl?.hasError('shiftHoursMismatch')) {
-        const errors = toControl.errors;
-        delete errors?.['shiftHoursMismatch'];
-        toControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
+      const difference = calculatedHours - expectedHours;
+
+      if (difference < -tolerance) {
+        return { shiftHoursMismatch: true };
       }
     }
+    return null;
   }
 
   // Calculate shift hours from time range
@@ -336,17 +358,17 @@ export class CreateWorkScheduleComponent {
 
   onEmploymentTypeChange(event: Event): void {
     const selectedValue = (event.target as HTMLSelectElement).value;
-    
+
     // Reset shift range errors when employment type changes
     const fromControl = this.workSchadule2.get('from');
     const toControl = this.workSchadule2.get('to');
-    
+
     if (fromControl?.hasError('shiftHoursMismatch')) {
       const errors = fromControl.errors;
       delete errors?.['shiftHoursMismatch'];
       fromControl.setErrors(Object.keys(errors || {}).length > 0 ? errors : null);
     }
-    
+
     if (toControl?.hasError('shiftHoursMismatch')) {
       const errors = toControl.errors;
       delete errors?.['shiftHoursMismatch'];
@@ -354,16 +376,16 @@ export class CreateWorkScheduleComponent {
     }
 
     // Validate shift range
-    this.validateShiftRange();
+    // this.validateShiftRange();
   }
 
-  onShiftRangeChange(): void {
-    this.validateShiftRange();
-  }
+  // onShiftRangeChange(): void {
+  //   this.shiftRangeValidator();
+  // }
 
-  onShiftHoursChange(): void {
-    this.validateShiftRange();
-  }
+  // onShiftHoursChange(): void {
+  //   this.shiftRangeValidator();
+  // }
 
 
   onWorkTypeChange(event: Event): void {
@@ -377,10 +399,18 @@ export class CreateWorkScheduleComponent {
       shiftHours?.setValidators([Validators.required]);
       from?.setValidators([Validators.required]);
       to?.setValidators([Validators.required]);
+
+      shiftHours?.reset('');
+      from?.reset('');
+      to?.reset('');
     } else if (selectedValue === '3') {
       shiftHours?.clearValidators();
       from?.clearValidators();
       to?.clearValidators();
+
+      shiftHours?.reset('');
+      from?.reset('');
+      to?.reset('');
     }
 
     shiftHours?.updateValueAndValidity();
@@ -405,29 +435,29 @@ export class CreateWorkScheduleComponent {
       daysObject[day.name.toLowerCase()] = day.selected;
     });
 
-   const request_data = {
-  request_data: {
-    code: this.workSchadule1.get('code')?.value,
-    name: this.workSchadule1.get('name')?.value,
-    departments: this.addeddepartments.map((dep, index) => ({
-      id: dep.id,
-      status: dep.status,
-      record_type: 'add', 
-      index: index + 1
-    })),
-    system: {
-      days: daysObject,
-      employment_type: Number(this.workSchadule2.get('employment_type')?.value),
-      work_schedule_type: Number(this.workSchadule2.get('work_schedule_type')?.value),
-      shift_hours: this.workSchadule2.get('shift_hours')?.value,
-      shift_range: {
-        from: this.workSchadule2.get('from')?.value,
-        to: this.workSchadule2.get('to')?.value
-      },
-      terms_and_rules: this.workSchadule2.get('terms')?.value
-    }
-  }
-};
+    const request_data = {
+      request_data: {
+        code: this.workSchadule1.get('code')?.value,
+        name: this.workSchadule1.get('name')?.value,
+        departments: this.addeddepartments.map((dep, index) => ({
+          id: dep.id,
+          status: dep.status,
+          record_type: 'add',
+          index: index + 1
+        })),
+        system: {
+          days: daysObject,
+          employment_type: Number(this.workSchadule2.get('employment_type')?.value),
+          work_schedule_type: Number(this.workSchadule2.get('work_schedule_type')?.value),
+          shift_hours: this.workSchadule2.get('shift_hours')?.value,
+          shift_range: {
+            from: this.workSchadule2.get('from')?.value,
+            to: this.workSchadule2.get('to')?.value
+          },
+          terms_and_rules: this.workSchadule2.get('terms')?.value
+        }
+      }
+    };
 
 
     // console.log(request_data);
@@ -462,7 +492,7 @@ export class CreateWorkScheduleComponent {
   }
 
 
-  
+
   // next and prev
   currentStep = 1;
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewEncapsulation } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
@@ -18,7 +18,7 @@ interface CheckItem {
 
 @Component({
   selector: 'app-edit-department-checklists',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule,SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule, SkelatonLoadingComponent],
   templateUrl: './edit-department-checklists.component.html',
   styleUrl: './edit-department-checklists.component.css',
   encapsulation: ViewEncapsulation.None
@@ -36,22 +36,27 @@ export class EditDepartmentChecklistsComponent {
     private departmentChecklistService: DepartmentChecklistService
   ) {
     this.checkForm = this.fb.group({
-      checkName: ['', [Validators.required, Validators.maxLength(200)]],
+      checkName: ['', [Validators.required, Validators.maxLength(100),
+      this.noWhitespaceValidator]],
       checkPoint: ['', [
         Validators.required,
-        Validators.pattern(/^[0-9]+$/)
+        Validators.pattern(/^[0-9]+$/),
+        Validators.max(9999)
       ]],
     });
   }
-
+  noWhitespaceValidator(control: FormControl) {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    return !isWhitespace ? null : { whitespace: true };
+  }
   ngOnInit() {
     this.getDepartmetCheck();
   }
 
-  loadData:boolean=false;
+  loadData: boolean = false;
 
   getDepartmetCheck() {
-    this.loadData=true;
+    this.loadData = true;
     this.departmentChecklistService.getDepartmetChecks().subscribe({
       next: (response) => {
         const list = response.data.list_items || [];
@@ -67,11 +72,11 @@ export class EditDepartmentChecklistsComponent {
           completed: false,
           editing: false
         }));
-        this.loadData=false;
+        this.loadData = false;
       },
       error: (err) => {
         console.log(err.error?.details);
-        this.loadData=false;
+        this.loadData = false;
       }
     });
   }
@@ -79,6 +84,8 @@ export class EditDepartmentChecklistsComponent {
 
   // add new check
   addCheck() {
+    this.checkForm.markAllAsTouched();
+
     if (this.checkForm.valid) {
       this.checks.forEach(item => {
         if (item.record_type !== 'delete' && item.record_type !== 'create') {
@@ -99,6 +106,7 @@ export class EditDepartmentChecklistsComponent {
       this.printData();
     }
   }
+
 
 
   showAddInput() {
@@ -172,7 +180,7 @@ export class EditDepartmentChecklistsComponent {
 
     console.log('Raw checklist payload:', raw);
 
-    this.departmentChecklistService.createDeptCheck(raw).subscribe({  // 👈 شيل الـ {} حوالين raw
+    this.departmentChecklistService.createDeptCheck(raw).subscribe({
       next: (response) => {
         console.log('Checklist saved successfully:', response);
         this.checks = response?.data?.list_items || [];

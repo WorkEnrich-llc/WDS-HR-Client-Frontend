@@ -11,10 +11,12 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ApprovalRequestsService } from '../service/approval-requests.service';
 import { ApprovalRequestItem, ApprovalRequestFilters } from '../../../../core/interfaces/approval-request';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 @Component({
   selector: 'app-all-requests',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent,
+    RouterLink, FormsModule, ReactiveFormsModule, NgxDaterangepickerMd],
   providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
@@ -44,6 +46,8 @@ export class AllRequestsComponent {
   totalItems: number = 0;
   currentPage: number = 1;
   itemsPerPage: number = 10;
+
+
 
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
@@ -77,6 +81,8 @@ export class AllRequestsComponent {
       this.currentPage = 1;
       this.loadApprovalRequests(this.currentPage);
     });
+
+
   }
 
   ngOnDestroy(): void {
@@ -87,15 +93,21 @@ export class AllRequestsComponent {
 
   initializeFilterForm(): void {
     this.filterForm = this.fb.group({
-      status: [''],
       employee_id: [''],
       leave_type: [''],
       from_date: [''],
       to_date: [''],
       created_from: [''],
-      created_to: ['']
+      created_to: [''],
+
+      request_type: [''],
+      request_status: [''],
+      requested_at: [''],
+      date_range: ['']
     });
   }
+
+
 
   loadApprovalRequests(pageNumber: number): void {
     this.loading = true;
@@ -119,15 +131,49 @@ export class AllRequestsComponent {
     });
   }
 
+  // applyFilters(): void {
+  //   this.filters = { ...this.filterForm.value };
+  //   console.log('Filters before cleanup:', this.filters)
+  //   // Remove empty values
+  //   Object.keys(this.filters).forEach(key => {
+  //     if (!this.filters[key as keyof ApprovalRequestFilters]) {
+  //       delete this.filters[key as keyof ApprovalRequestFilters];
+  //     }
+  //   });
+
+  //   this.currentPage = 1;
+  //   this.loadApprovalRequests(this.currentPage);
+  //   this.filterBox.closeOverlay();
+  // }
+
   applyFilters(): void {
-    this.filters = { ...this.filterForm.value };
-    // Remove empty values
-    Object.keys(this.filters).forEach(key => {
-      if (!this.filters[key as keyof ApprovalRequestFilters]) {
-        delete this.filters[key as keyof ApprovalRequestFilters];
+    const formValue = this.filterForm.getRawValue();
+    const apiFilters: any = {
+      search: formValue.search,
+      request_type: formValue.request_type,
+      request_status: formValue.request_status
+    };
+
+    if (formValue.requested_at && formValue.requested_at.startDate && formValue.requested_at.endDate) {
+      apiFilters.request_from_range = formValue.requested_at.startDate.format('YYYY-MM-DD');
+      apiFilters.request_to_range = formValue.requested_at.endDate.format('YYYY-MM-DD');
+    }
+
+    if (formValue.date_range && formValue.date_range.startDate && formValue.date_range.endDate) {
+      apiFilters.request_from_date = formValue.date_range.startDate.format('YYYY-MM-DD');
+      apiFilters.request_to_date = formValue.date_range.endDate.format('YYYY-MM-DD');
+    }
+
+    Object.keys(apiFilters).forEach(key => {
+      if (apiFilters[key] === null || apiFilters[key] === undefined || apiFilters[key] === '') {
+        delete apiFilters[key];
       }
     });
 
+    console.log('Final API Filters to be sent:', apiFilters);
+
+
+    this.filters = apiFilters;
     this.currentPage = 1;
     this.loadApprovalRequests(this.currentPage);
     this.filterBox.closeOverlay();
@@ -171,7 +217,7 @@ export class AllRequestsComponent {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('requests/all-requests', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },
@@ -228,9 +274,10 @@ export class AllRequestsComponent {
           return 'Early Leave';
         }
         return 'Permission';
-
+      case 'mission':
+        return request?.mission?.title || 'Mission';
       default:
-        return request.work_type || 'N/A';
+        return request.work_type || '-----';
     }
   }
 
