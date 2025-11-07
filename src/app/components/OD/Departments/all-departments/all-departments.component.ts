@@ -129,6 +129,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
 
   onSearchChange() {
+    this.currentSearchTerm = this.searchTerm;
     this.searchSubject.next(this.searchTerm);
   }
 
@@ -144,10 +145,10 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
         created_to: rawFilters.createdTo || undefined,
       };
 
-      // console.log('Filters submitted:', filters);
       this.currentFilters = filters;
-
+      this.currentSearchTerm = this.searchTerm;
       this.currentPage = 1;
+
       this.filterBox.closeOverlay();
       this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
     }
@@ -213,10 +214,17 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('...', page);
+    this.paginationState.setPage('departments/all-departments', page);
+
+    this.getAllDepartment(this.currentPage, this.currentSearchTerm, this.currentFilters);
+
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { page },
+      queryParams: {
+        page,
+        search: this.currentSearchTerm || null,
+        ...this.currentFilters
+      },
       queryParamsHandling: 'merge'
     });
   }

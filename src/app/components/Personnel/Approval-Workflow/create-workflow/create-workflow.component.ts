@@ -21,6 +21,7 @@ export class CreateWorkflowComponent {
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
+  mandatoryError: string = '';
 
   constructor(
     private router: Router,
@@ -156,10 +157,10 @@ export class CreateWorkflowComponent {
   }
 
   noWhitespaceValidator(control: FormControl) {
-  const isWhitespace = (control.value || '').trim().length === 0;
-  const isValid = !isWhitespace;
-  return isValid ? null : { whitespace: true };
-}
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { whitespace: true };
+  }
 
   addStep() {
     const lastStep = this.steps[this.steps.length - 1];
@@ -202,7 +203,15 @@ export class CreateWorkflowComponent {
   // create workflow
   createWorkflow() {
     this.isLoading = true;
+    this.mandatoryError = '';
 
+    const hasMandatoryStep = this.steps.some(step => step.form.value.mandatory);
+
+    if (!hasMandatoryStep) {
+      this.mandatoryError = 'At least one step must be marked as Mandatory.';
+      this.isLoading = false;
+      return;
+    }
     const request_data: any = {
       request_data: {
         code: this.workflow1.value.code,
