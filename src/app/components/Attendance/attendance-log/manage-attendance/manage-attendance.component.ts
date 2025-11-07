@@ -41,9 +41,9 @@ export class ManageAttendanceComponent {
   isSubmitting = false;
   maxDate: string = '';
 
-  /**
-   * Custom validator to prevent future dates
-   */
+employeesList: any[] = [];
+
+   
   private noFutureDateValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {
       return null;
@@ -80,6 +80,8 @@ export class ManageAttendanceComponent {
         this.employeeList = res?.data?.list_items ?? [];
         this.filteredEmployeeList = this.employeeList;
         this.employeesLoading = false;
+        console.log('Employee sample:', this.employeeList[0]);
+
         this.newLogForm.get('employee_id')?.enable();
         this.updateSelectedEmployee();
       },
