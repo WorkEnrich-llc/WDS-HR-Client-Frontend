@@ -151,13 +151,13 @@
                   Deduction value for {{ getOccurrenceLabel(i) }}
                 </label>
                 <input type="number" [id]="'lateness-value-' + i" [(ngModel)]="entry.value"
-                  class="form-control table-input" [class.is-invalid]="latenessValidationErrors[i]?.value"
+                  class="form-control table-input" [class.is-invalid]="latenessValidationErrors[i].value"
                   (input)="clearLatenessValidationError(i, 'value')" (keydown)="handleRowKeydown($event, i, 'value')"
-                  [attr.aria-invalid]="latenessValidationErrors[i]?.value"
-                  [attr.aria-describedby]="latenessValidationErrors[i]?.value ? 'lateness-value-error-' + i : null"
+                  [attr.aria-invalid]="latenessValidationErrors[i].value"
+                  [attr.aria-describedby]="latenessValidationErrors[i].value ? 'lateness-value-error-' + i : null"
                   [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel(i)"
                   placeholder="Enter Value in days" />
-                @if (latenessValidationErrors[i]?.value) {
+                @if (latenessValidationErrors[i].value) {
                 <div class="invalid-feedback d-block" [id]="'lateness-value-error-' + i" role="alert">
                   Deduction value is required
                 </div>
@@ -170,11 +170,11 @@
                   Salary portion for {{ getOccurrenceLabel(i) }}
                 </label>
                 <select [id]="'lateness-salary-' + i" [(ngModel)]="entry.salaryPortionIndex"
-                  class="form-select table-input" [class.is-invalid]="latenessValidationErrors[i]?.salaryPortion"
+                  class="form-select table-input" [class.is-invalid]="latenessValidationErrors[i].salaryPortion"
                   (change)="clearLatenessValidationError(i, 'salaryPortion')"
                   (keydown)="handleRowKeydown($event, i, 'salaryPortion')"
-                  [attr.aria-invalid]="latenessValidationErrors[i]?.salaryPortion"
-                  [attr.aria-describedby]="latenessValidationErrors[i]?.salaryPortion ? 'lateness-salary-error-' + i : null"
+                  [attr.aria-invalid]="latenessValidationErrors[i].salaryPortion"
+                  [attr.aria-describedby]="latenessValidationErrors[i].salaryPortion ? 'lateness-salary-error-' + i : null"
                   [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel(i)" [attr.aria-required]="true"
                   [disabled]="entry.value == null || entry.value === 0" [ngModelOptions]="{ standalone: true }">
                   <option [value]="null" [disabled]="entry.value != null && entry.value !== 0">Select Salary Portion
@@ -185,7 +185,7 @@
                   </option>
                   }
                 </select>
-                @if (latenessValidationErrors[i]?.salaryPortion) {
+                @if (latenessValidationErrors[i].salaryPortion) {
                 <div class="invalid-feedback d-block" [id]="'lateness-salary-error-' + i" role="alert">
                   Salary portion is required
                 </div>
@@ -281,13 +281,13 @@
                   Deduction value for {{ getOccurrenceLabel(i) }}
                 </label>
                 <input type="number" [id]="'earlyleave-value-' + i" class="form-control table-input"
-                  [(ngModel)]="row.deduction" [class.is-invalid]="earlyLeaveValidationErrors[i]?.value"
+                  [(ngModel)]="row.deduction" [class.is-invalid]="earlyLeaveValidationErrors[i].value"
                   (input)="clearEarlyLeaveValidationError(i, 'value')"
-                  [attr.aria-invalid]="earlyLeaveValidationErrors[i]?.value"
-                  [attr.aria-describedby]="earlyLeaveValidationErrors[i]?.value ? 'earlyleave-value-error-' + i : null"
+                  [attr.aria-invalid]="earlyLeaveValidationErrors[i].value"
+                  [attr.aria-describedby]="earlyLeaveValidationErrors[i].value ? 'earlyleave-value-error-' + i : null"
                   placeholder="Enter Value in days" [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel(i)"
                   [disabled]="sameAsLateness" />
-                @if (earlyLeaveValidationErrors[i]?.value) {
+                @if (earlyLeaveValidationErrors[i].value) {
                 <div class="invalid-feedback d-block" [id]="'earlyleave-value-error-' + i" role="alert">
                   Deduction value is required
                 </div>
@@ -300,10 +300,10 @@
                   Salary portion for {{ getOccurrenceLabel(i) }}
                 </label>
                 <select [id]="'earlyleave-salary-' + i" [(ngModel)]="row.salaryPortionIndex"
-                  class="form-select table-input" [class.is-invalid]="earlyLeaveValidationErrors[i]?.salaryPortion"
+                  class="form-select table-input" [class.is-invalid]="earlyLeaveValidationErrors[i].salaryPortion"
                   (change)="clearEarlyLeaveValidationError(i, 'salaryPortion')"
-                  [attr.aria-invalid]="earlyLeaveValidationErrors[i]?.salaryPortion"
-                  [attr.aria-describedby]="earlyLeaveValidationErrors[i]?.salaryPortion ? 'earlyleave-salary-error-' + i : null"
+                  [attr.aria-invalid]="earlyLeaveValidationErrors[i].salaryPortion"
+                  [attr.aria-describedby]="earlyLeaveValidationErrors[i].salaryPortion ? 'earlyleave-salary-error-' + i : null"
                   [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel(i)" [attr.aria-required]="true"
                   [disabled]="sameAsLateness || row.deduction == null || row.deduction === 0"
                   [ngModelOptions]="{ standalone: true }">
@@ -315,7 +315,7 @@
                   </option>
                   }
                 </select>
-                @if (earlyLeaveValidationErrors[i]?.salaryPortion) {
+                @if (earlyLeaveValidationErrors[i].salaryPortion) {
                 <div class="invalid-feedback d-block" [id]="'earlyleave-salary-error-' + i" role="alert">
                   Salary portion is required
                 </div>
@@ -402,13 +402,13 @@
                   Deduction value for {{ getOccurrenceLabel(i) }}
                 </label>
                 <input type="number" [id]="'absence-value-' + i" [(ngModel)]="entry.value"
-                  class="form-control table-input" [class.is-invalid]="absenceValidationErrors[i]?.value"
+                  class="form-control table-input" [class.is-invalid]="absenceValidationErrors[i].value"
                   (input)="clearAbsenceValidationError(i, 'value')"
-                  [attr.aria-invalid]="absenceValidationErrors[i]?.value"
-                  [attr.aria-describedby]="absenceValidationErrors[i]?.value ? 'absence-value-error-' + i : null"
+                  [attr.aria-invalid]="absenceValidationErrors[i].value"
+                  [attr.aria-describedby]="absenceValidationErrors[i].value ? 'absence-value-error-' + i : null"
                   placeholder="Enter Value in days"
                   [attr.aria-label]="'Deduction value for ' + getOccurrenceLabel(i)" />
-                @if (absenceValidationErrors[i]?.value) {
+                @if (absenceValidationErrors[i].value) {
                 <div class="invalid-feedback d-block" [id]="'absence-value-error-' + i" role="alert">
                   Deduction value is required
                 </div>
@@ -421,10 +421,10 @@
                   Salary portion for {{ getOccurrenceLabel(i) }}
                 </label>
                 <select [id]="'absence-salary-' + i" [(ngModel)]="entry.salaryPortionIndex"
-                  class="form-select table-input" [class.is-invalid]="absenceValidationErrors[i]?.salaryPortion"
+                  class="form-select table-input" [class.is-invalid]="absenceValidationErrors[i].salaryPortion"
                   (change)="clearAbsenceValidationError(i, 'salaryPortion')"
-                  [attr.aria-invalid]="absenceValidationErrors[i]?.salaryPortion"
-                  [attr.aria-describedby]="absenceValidationErrors[i]?.salaryPortion ? 'absence-salary-error-' + i : null"
+                  [attr.aria-invalid]="absenceValidationErrors[i].salaryPortion"
+                  [attr.aria-describedby]="absenceValidationErrors[i].salaryPortion ? 'absence-salary-error-' + i : null"
                   [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel(i)" [attr.aria-required]="true"
                   [disabled]="!entry.value && entry.value !== 0" [ngModelOptions]="{ standalone: true }">
                   <option [value]="null" [disabled]="entry.value != null && entry.value !== 0">Select Salary Portion
@@ -435,7 +435,7 @@
                   </option>
                   }
                 </select>
-                @if (absenceValidationErrors[i]?.salaryPortion) {
+                @if (absenceValidationErrors[i].salaryPortion) {
                 <div class="invalid-feedback d-block" [id]="'absence-salary-error-' + i" role="alert">
                   Salary portion is required
                 </div>
