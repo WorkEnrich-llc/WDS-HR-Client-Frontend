@@ -1,5 +1,7 @@
-import { Component, OnInit, Inject, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
 import { CommonModule } from '@angular/common';
@@ -15,12 +17,13 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
   templateUrl: './edit-part-time.component.html',
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-part-time.component.css'],
 })
-export class EditPartTimeComponent implements OnInit {
+export class EditPartTimeComponent implements OnInit, OnDestroy {
 
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   error: string | null = null;
   originalData: any;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -35,7 +38,9 @@ export class EditPartTimeComponent implements OnInit {
 
   loadSalaryPortions(): void {
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().subscribe({
+    this.salaryPortionsService.single().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
@@ -65,7 +70,9 @@ export class EditPartTimeComponent implements OnInit {
 
   loadAttendanceRules(): void {
     this.loading = true;
-    this.attendanceRulesService.getAttendanceRules().subscribe({
+    this.attendanceRulesService.getAttendanceRules().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
         this.mapDataToForm();
@@ -702,7 +709,9 @@ export class EditPartTimeComponent implements OnInit {
     console.log('Save Data:', requestData);
 
     // Send data to API
-    this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
+    this.attendanceRulesService.updateAttendanceRules(requestData).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         console.log('Rules saved successfully:', response);
         this.isSaving = false;
@@ -714,5 +723,10 @@ export class EditPartTimeComponent implements OnInit {
         this.isSaving = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

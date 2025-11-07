@@ -1,6 +1,8 @@
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData, WorkTypeSettings } from '../../models/attendance-rules.interface';
@@ -13,12 +15,13 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
   styleUrls: ['../../../../shared/table/table.component.css', './attendance-rule.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class AttendanceRuleComponent implements OnInit {
+export class AttendanceRuleComponent implements OnInit, OnDestroy {
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   salaryPortionsLoading: boolean = true;
   error: string | null = null;
   salaryPortions: any[] = [];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private attendanceRulesService: AttendanceRulesService,
@@ -31,7 +34,9 @@ export class AttendanceRuleComponent implements OnInit {
 
   loadSalaryPortions(): void {
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().subscribe({
+    this.salaryPortionsService.single().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
@@ -59,7 +64,9 @@ export class AttendanceRuleComponent implements OnInit {
 
   loadAttendanceRules(): void {
     this.loading = true;
-    this.attendanceRulesService.getAttendanceRules().subscribe({
+    this.attendanceRulesService.getAttendanceRules().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
         // console.log(this.attendanceRulesData);
@@ -71,6 +78,11 @@ export class AttendanceRuleComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getFullTimeSettings(): WorkTypeSettings | null {

@@ -1,7 +1,9 @@
-import { Component, ViewEncapsulation, OnInit, HostListener } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
@@ -16,12 +18,13 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-full-time.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class EditFullTimeComponent implements OnInit {
+export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   error: string | null = null;
   originalData: any;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -36,7 +39,9 @@ export class EditFullTimeComponent implements OnInit {
 
   loadSalaryPortions(): void {
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().subscribe({
+    this.salaryPortionsService.single().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
@@ -66,7 +71,9 @@ export class EditFullTimeComponent implements OnInit {
 
   loadAttendanceRules(): void {
     this.loading = true;
-    this.attendanceRulesService.getAttendanceRules().subscribe({
+    this.attendanceRulesService.getAttendanceRules().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
         this.mapDataToForm();
@@ -708,7 +715,9 @@ export class EditFullTimeComponent implements OnInit {
     };
 
     // Send data to API
-    this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
+    this.attendanceRulesService.updateAttendanceRules(requestData).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
@@ -719,6 +728,11 @@ export class EditFullTimeComponent implements OnInit {
         this.isSaving = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
