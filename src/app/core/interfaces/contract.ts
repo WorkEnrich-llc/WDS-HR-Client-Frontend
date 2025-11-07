@@ -10,6 +10,7 @@ export interface Contract {
   status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned' | 'Probation' | 'Resign' | 'Terminate';
   created_at: string;
   created_by: string;
+  noticePeriod?: number;
 
 
   // Mapped properties for compatibility with existing UI

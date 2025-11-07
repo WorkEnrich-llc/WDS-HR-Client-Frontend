@@ -2,10 +2,13 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
-    { label: 'Opening 231123', link: '/job-openings/view-job-openings/1' },
+    { label: ('Opening ' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
     {  label: 'View Applicant'}
-  ]" title="Opening 231123 - Applicants" create="16/07/2025" [isApplied]="true" update="16/07/2025">
-  <button class="btn btn-lg btn-outline-danger" (click)="overlay.openOverlay()">
+  ]" title="Applicant {{ applicantDetails?.name || '...' }}" [isApplied]="true"
+  create="{{ applicantDetails?.created_at | date:'dd/MM/yyyy' }}"
+  update="{{ applicantDetails?.updated_at | date:'dd/MM/yyyy' }}">
+  @if (!isNewJoiner && !isRejected) {
+  <button class="btn btn-lg btn-outline-danger" (click)="openRejectOverlay()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -15,6 +18,7 @@
     </svg>
     <span>Reject</span>
   </button>
+  }
   <button class="btn btn-lg btn-dark">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
@@ -28,36 +32,92 @@
 
 <!-- page content -->
 <div class="content-hug d-flex flex-column gap-4">
+  @if (isLoading) {
+  <!-- Skeletons while applicant details are loading -->
   <div class="row g-4">
     <div class="col-lg-8">
-      <app-cv></app-cv>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+          <div class="info">
+            <h6 class="placeholder col-4"></h6>
+            <span class="placeholder col-8"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-lg-4">
-      <app-interview></app-interview>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4]">
+          <div class="info">
+            <h6 class="placeholder col-5"></h6>
+            <span class="placeholder col-7"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="row g-4">
     <div class="col-lg-4">
-      <app-attachment-and-info></app-attachment-and-info>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4]">
+          <div class="info">
+            <h6 class="placeholder col-6"></h6>
+            <span class="placeholder col-6"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-lg-8">
-      <app-feedback></app-feedback>
+      <div class="content-box d-flex flex-column gap-3">
+        <div class="placeholder-glow" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="info">
+            <h6 class="placeholder col-3"></h6>
+            <span class="placeholder col-9"></span>
+          </div>
+        </div>
     </div>
   </div>
+  </div>
+  } @else {
+  <!-- Actual content once loaded -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <app-cv [applicant]="applicantDetails" [cvUrl]="getCvUrlFromApplication()"></app-cv>
+    </div>
+    <div class="col-lg-4">
+      <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
+        [applicationDetails]="applicationDetails" (applicationRefreshed)="refreshApplication()"></app-interview>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <app-attachment-and-info [applicant]="applicantDetails"
+        [application]="applicationDetails"></app-attachment-and-info>
+    </div>
+    <div class="col-lg-8">
+      <app-feedback [applicant]="applicantDetails" [feedbacks]="feedbacks" [applicationId]="applicationId"
+        [applicationStatus]="applicantDetails?.status" (feedbackAdded)="fetchFeedbacks()"></app-feedback>
+    </div>
+  </div>
+  }
 </div>
 
 
 
 <!-- Reject Applicant form -->
 <app-overlay-filter-box #filterBox title="Reject Applicant">
-  <form class="w-100 d-flex flex-column gap-2">
+  <form class="w-100 d-flex flex-column gap-2" (ngSubmit)="submitReject()">
 
     <div class="input">
       <label for="notes">Rejection Notes (Optional)</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
-          <textarea type="text" id="notes" class="form-control" placeholder="Enter notes for internal use"></textarea>
+          <textarea type="text" id="notes" name="rejectionNotes" class="form-control" 
+            placeholder="Enter notes for internal use" 
+            [(ngModel)]="rejectionNotes"
+            (input)="onRejectFormChange()"></textarea>
         </div>
       </div>
     </div>
@@ -65,13 +125,20 @@
       <label for="mail">Rejection Mail (Mandatory)</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
-          <textarea type="text" id="mail" class="form-control"
-            placeholder="Enter a message to be sent in mail"></textarea>
+          <textarea type="text" id="mail" name="rejectionMailMessage" class="form-control"
+            placeholder="Enter a message to be sent in mail"
+            [(ngModel)]="rejectionMailMessage"
+            (input)="onRejectFormChange()"></textarea>
         </div>
       </div>
+      @if (rejectValidationErrors.rejectionMailMessage) {
+      <small class="text-danger">{{ rejectValidationErrors.rejectionMailMessage }}</small>
+      }
     </div>
-    <div class="d-flex align-items-center gap-3 mt-3">
-      <button type="submit" class="btn btn-lg btn-danger w-100">
+    <div class="d-flex flex-column gap-2 mt-3">
+      <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-lg btn-danger w-100" 
+          [disabled]="isRejectSubmitting || !applicationId">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <path fill="currentColor"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -84,6 +151,7 @@
       <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
         <span>Keep Applicant</span>
       </a>
+      </div>
     </div>
 
   </form>

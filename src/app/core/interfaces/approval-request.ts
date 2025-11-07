@@ -10,10 +10,36 @@ export interface ContactInformation {
   email: string;
 }
 
+export interface JobInfo {
+  branch: string;
+  department: string;
+  direct_manager: string;
+  employment_type: string;
+  job_title: string;
+  section: string;
+}
+
+export interface RequestsInfo {
+  code: string;
+  created_at: string;
+  id: number;
+  name: string;
+  updated_at: string;
+}
+
 export interface LeaveInfo {
   id: number | string;
   code: string;
   name: string;
+}
+
+export interface MissionInfo {
+  id: number | string;
+  description: string;
+  mission_type: string;
+  title: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface PermissionInfo {
@@ -52,18 +78,22 @@ export interface ApprovalRequestItem {
   id: number;
   code: string;
   name: string;
-  work_type: string;
-  current_step: string;
-  permission: PermissionInfo;
-  leave: LeaveInfo;
-  contact_information: ContactInformation;
   employee_info: EmployeeInfo;
   reason: ReasonInfo;
   dates: DateRange;
   document_url: DocumentUrl;
   status: ApprovalRequestStatus;
+  contact_information: ContactInformation;
+  job_info: JobInfo;
+  request_info: RequestsInfo;
   created_at: string;
   updated_at: string;
+
+  mission: MissionInfo
+  work_type?: string;
+  current_step?: string;
+  permission?: PermissionInfo;
+  leave?: LeaveInfo;
 }
 
 export interface AllowedAction {
@@ -126,13 +156,20 @@ export interface ApprovalRequestsResponse {
 
 export interface ApprovalRequestFilters {
   search?: string;
-  status?: string;
   employee_id?: number;
   leave_type?: string;
   from_date?: string;
   to_date?: string;
   created_from?: string;
   created_to?: string;
+  status?: string;
+
+  request_status?: string;
+  request_type?: string;
+  request_from_date?: string;
+  request_to_date?: string;
+  request_from_range?: string;
+  request_to_range?: string;
 }
 // Detailed single approval request response
 export interface ApprovalRequestDetailData {

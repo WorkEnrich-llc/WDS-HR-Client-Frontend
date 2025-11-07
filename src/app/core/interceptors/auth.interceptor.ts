@@ -6,7 +6,7 @@ import {
   HttpInterceptorFn,
   HttpErrorResponse
 } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -18,6 +18,7 @@ export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
+
   const authHelper = inject(AuthHelperService);
   const authService = inject(AuthenticationService);
   const router = inject(Router);
@@ -62,9 +63,7 @@ export const authInterceptor: HttpInterceptorFn = (
     const deviceToken = localStorage.getItem('device_token');
 
     authService.logout().subscribe({
-      next: () => {
-        cleanupAndRedirect(deviceToken);
-      },
+      next: () => cleanupAndRedirect(deviceToken),
       error: (err) => {
         console.error('Logout error:', err);
         cleanupAndRedirect(deviceToken);
@@ -74,6 +73,8 @@ export const authInterceptor: HttpInterceptorFn = (
 
   const cleanupAndRedirect = (deviceToken: string | null) => {
     localStorage.clear();
+    sessionStorage.clear();
+
     if (deviceToken) {
       localStorage.setItem('device_token', deviceToken);
     }
@@ -84,22 +85,32 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(cloned).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        if (!req.url.includes('logout')) {
-          performLogout();
-        }
-      } else if (error.status === 406) {
-        toastr.error('Version 1.0.1 is available but does not support this platform.');
-      } else if (error.status === 410) {
-        toastr.warning('Please update to a newer release.');
-        localStorage.clear();
-        sessionStorage.clear();
-        cookieService.deleteAll('/', window.location.hostname);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else if (error.status === 425) {
-        toastr.info('Coming soon — this feature is not yet available.');
+      switch (error.status) {
+        case 401:
+          if (!req.url.includes('logout')) {
+            performLogout();
+          }
+          break;
+
+        case 406:
+          toastr.error('Version 1.0.1 is available but does not support this platform.');
+          break;
+
+        case 410:
+          toastr.warning('Please update to a newer release.');
+          localStorage.clear();
+          sessionStorage.clear();
+          cookieService.deleteAll('/', window.location.hostname);
+          setTimeout(() => window.location.reload(), 2000);
+          break;
+
+        case 425:
+          toastr.info('Coming soon — this feature is not yet available.');
+          break;
+
+        default:
+          console.error('Unhandled HTTP error:', error);
+          break;
       }
 
       return throwError(() => error);

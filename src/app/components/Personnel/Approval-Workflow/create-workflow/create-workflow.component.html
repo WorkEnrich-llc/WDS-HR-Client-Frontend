@@ -171,12 +171,23 @@
               <input type="text" id="stepName" formControlName="stepName" class="form-control custom-date-input"
                 placeholder="Enter Step Name" />
             </div>
-            @if (steps[selectedStepIndex].form.get('stepName')?.invalid &&
-            (steps[selectedStepIndex].form.get('stepName')?.touched || showErrors)) {
+            @if (
+            steps[selectedStepIndex].form.get('stepName')?.touched ||
+            showErrors
+            ) {
+
+            @if (steps[selectedStepIndex].form.get('stepName')?.errors?.['required']) {
             <p class="error-msg">
               Step Name is required.
             </p>
             }
+            @else if (steps[selectedStepIndex].form.get('stepName')?.errors?.['whitespace']) {
+            <p class="error-msg">
+              Step Name cannot be empty or spaces only.
+            </p>
+            }
+            }
+
           </div>
           <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
             <input class="form-check-input m-0" formControlName="mandatory" type="checkbox" id="mandatory">

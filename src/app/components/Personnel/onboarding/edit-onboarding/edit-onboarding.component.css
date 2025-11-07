@@ -48,3 +48,6 @@
   border: 2px dashed #007bff;
   background: #e9f5ff;
 }
+.nowrap{
+    white-space: nowrap;
+}

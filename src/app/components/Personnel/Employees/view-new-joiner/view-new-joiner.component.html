@@ -73,38 +73,38 @@
             <h2>Contact Info</h2>
             <div class="info">
                 <h6>ID</h6>
-                <span>{{ employee.id || "N/A" }}</span>
+                <span>{{ employee.id || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Full Name(English)</h6>
-                <span>{{ employee.contact_info.name || "N/A" }}</span>
+                <span>{{ employee.contact_info.name || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Full Name(Arabic)</h6>
-                <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
+                <span>{{ employee.contact_info.name_arabic || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Phone Number</h6>
                 <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
-                    }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
+                    }}{{ employee.contact_info.mobile.number || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Personal Email</h6>
-                <span>{{ employee.contact_info.email || "N/A" }}</span>
+                <span>{{ employee.contact_info.email || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Date of Birth</h6>
                 <span>{{
-                    (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
+                    (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "----"
                     }}</span>
             </div>
             <div class="info">
                 <h6>Address</h6>
-                <span>{{ employee.contact_info.address || "N/A" }}</span>
+                <span>{{ employee.contact_info.address || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Marital Status</h6>
-                <span>{{ employee.contact_info.marital_status.name || "N/A" }}</span>
+                <span>{{ employee.contact_info.marital_status.name || "----" }}</span>
             </div>
         </div>
 
@@ -142,51 +142,51 @@
             </div>
             <div class="info">
                 <h6>Job Title</h6>
-                <span>{{ employee.job_info.job_title.name || "N/A" }}</span>
+                <span>{{ employee.job_info.job_title.name || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Employment Type</h6>
-                <span>{{ employee.job_info.employment_type.name || "N/A" }}</span>
+                <span>{{ employee.job_info.employment_type.name || "----" }}</span>
             </div>
-            <!-- <div class="info">
+            <div class="info">
                 <h6>Work Mode</h6>
-                <span>{{ employee.job_info.work_mode.name || 'N/A' }}</span>
-            </div> -->
+                <span>{{ employee.job_info.work_mode.name || '----' }}</span>
+            </div>
             <div class="info">
                 <h6>Section</h6>
-                <span>{{ employee.job_info.section?.name || "N/A" }}</span>
+                <span>{{ employee.job_info.section?.name || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Department</h6>
-                <span>{{ employee.job_info.department.name || "N/A" }}</span>
+                <span>{{ employee.job_info.department.name || "----" }}</span>
             </div>
             <div class="info">
                 <h6>Branch</h6>
-                <span>{{ employee.job_info.branch.name || "N/A" }}</span>
+                <span>{{ employee.job_info.branch.name || "----" }}</span>
             </div>
             <!-- <div class="info">
                 <h6>Work Schedule</h6>
-                <span>{{ employee.job_info.work_schedule.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.work_schedule.name || '----' }}</span>
             </div> -->
             <!-- <div class="info">
                 <h6>Contract Start Date</h6>
-                <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || 'N/A' }}</span>
+                <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || '----' }}</span>
             </div> -->
             @if (employee.job_info.end_contract) {
             <div class="info">
                 <h6>Contract End Date</h6>
                 <span>{{
-                    (employee.job_info.end_contract | date : "dd/MM/yyyy") || "N/A"
+                    (employee.job_info.end_contract | date : "dd/MM/yyyy") || "----"
                     }}</span>
             </div>
             }
             <!-- <div class="info">
                 <h6>Contract Type</h6>
-                <span>{{ employee.job_info.contract_type.name || 'N/A' }}</span>
+                <span>{{ employee.job_info.contract_type.name || '----' }}</span>
             </div> -->
             <!-- <div class="info">
                 <h6>Salary</h6>
-                <span>{{ employee.job_info.salary || 'N/A' }} EGP</span>
+                <span>{{ employee.job_info.salary || '----' }} EGP</span>
             </div> -->
             <!-- <div class="info" *ngIf="employee.job_info.days_on_site">
                 <h6>Days On Site</h6>
@@ -195,7 +195,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="info">
                     <h6>Direct Manager</h6>
-                    <span>Ahmed Hamed</span>
+                    <span>{{ employee.job_info.direct_manager?.name || "--" }}</span>
                 </div>
                 <a class="view-btn h-100 d-flex align-items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -256,7 +256,7 @@
             </div>
             <div class="info">
                 <h6>Company Email</h6>
-                <span>{{ employee.contact_info.email || "N/A" }}</span>
+                <span>{{ employee.contact_info.email || "----" }}</span>
             </div>
             @if (!isEmployeeActive) {
             <div class="info">

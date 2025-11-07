@@ -12,6 +12,7 @@ export class StepperNavigationComponent {
   sharedService = inject(ManageEmployeeSharedService);
 
   stepperConfig: StepperNavigationConfig = {
-    currentStep: () => this.sharedService.currentStep()
+    currentStep: () => this.sharedService.currentStep(),
+    goToStep: (step: number) => this.sharedService.goToStep(step)
   };
 }

@@ -33,7 +33,7 @@
 
                 @if(!getDataLoad){
 
-                <div class="d-flex align-items-center mt-auto gap-4">
+                <div class="d-flex align-items-center mt-auto gap-2">
                     <!-- Doughnut -->
                     <div style="height:200px;">
                         <canvas baseChart [data]="activeEmployeeData" [type]="activeEmployeeType"
@@ -43,7 +43,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of activeEmployeeValues; track $index) {
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="activeEmployeeColors[$index]"></div>
                             <p>{{ activeEmployeeLabels[$index] }}</p>
                         </div>
@@ -51,7 +51,7 @@
                         @if(chartsData['Active Employees']) {
                         <hr>
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ activeEmployeeTotal }}</div>
+                            <div  class="number text-end">{{ activeEmployeeTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -85,7 +85,7 @@
                 }
 
                 @if(!getDataLoad){
-                <div class="d-flex align-items-center mt-auto gap-4">
+                <div class="d-flex align-items-center mt-auto gap-2">
                     <div style="height:200px;">
                         <canvas baseChart [data]="leaveBalanceData" [type]="leaveBalanceType"
                             [options]="leaveBalanceOptions"></canvas>
@@ -94,7 +94,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of leaveBalanceValues; track $index) {
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div  class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="leaveBalanceColors[$index]"></div>
                             <p>{{ leaveBalanceLabels[$index] }}</p>
                         </div>
@@ -102,7 +102,7 @@
                         @if(chartsData['Leave Balance']) {
                         <hr>
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ leaveBalanceTotal }}</div>
+                            <div  class="number text-end">{{ leaveBalanceTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -136,7 +136,7 @@
                 }
 
                 @if(!getDataLoad){
-                <div class="d-flex align-items-center mt-auto gap-4">
+                <div class="d-flex align-items-center mt-auto gap-2">
                     <div style="height:200px;">
                         <canvas baseChart [data]="requestsData" [type]="requestsType"
                             [options]="requestsOptions"></canvas>
@@ -145,7 +145,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of requestsValues; track $index) {
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div  class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="requestsColors[$index]"></div>
                             <p>{{ requestsLabels[$index] }}</p>
                         </div>
@@ -153,7 +153,7 @@
                         @if(chartsData['Requests']) {
                         <hr>
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ requestsTotal }}</div>
+                            <div  class="number text-end">{{ requestsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -176,7 +176,7 @@
                 }
 
                 @if(!getDataLoad){
-                <div class="d-flex align-items-center mt-auto gap-4">
+                <div class="d-flex align-items-center mt-auto gap-2">
                     <div style="height:200px;">
                         <canvas baseChart [data]="goalsData" [type]="goalsType" [options]="goalsOptions"></canvas>
                     </div>
@@ -184,7 +184,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of goalsValues; track $index) {
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div  class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="goalsColors[$index]"></div>
                             <p>{{ goalsLabels[$index] }}</p>
                         </div>
@@ -192,7 +192,7 @@
                         @if(chartsData['Goals']) {
                         <hr>
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ goalsTotal }}</div>
+                            <div  class="number text-end">{{ goalsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -366,7 +366,7 @@
 
                     <div class="d-flex flex-column gap-2">
                         <div *ngFor="let val of deptGuidelinesValues; let i = index" class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div  class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="deptGuidelinesColors[i]"></div>
                             <p>{{ deptGuidelinesLabels[i] }}</p>
                         </div>
@@ -402,7 +402,7 @@
                 }
 
                 @if(!getDataLoad){
-                <div class="d-flex align-items-center mt-auto gap-4">
+                <div class="d-flex align-items-center mt-auto gap-2">
                     <div style="height: 200px;">
                         <canvas baseChart [data]="activeDepartmentsData" [type]="activeDepartmentsType"
                             [options]="activeDepartmentsOptions">
@@ -411,14 +411,14 @@
 
                     <div class="d-flex flex-column gap-2 mt-3">
                         <div *ngFor="let val of activeDepartmentsValues; let i = index" class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ val }}</div>
+                            <div  class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="activeDepartmentsColors[i]"></div>
                             <p>{{ activeDepartmentsLabels[i] }}</p>
                         </div>
                         @if(chartsData['Active Departments']) {
                         <hr>
                         <div class="sticker">
-                            <div style="width: 20px;" class="number text-end">{{ activeDepartmentsTotal }}</div>
+                            <div  class="number text-end">{{ activeDepartmentsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>

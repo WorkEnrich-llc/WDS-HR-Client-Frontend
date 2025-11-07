@@ -191,7 +191,9 @@
     <div class="content-box d-flex flex-column gap-3 w-100">
       <div class="d-flex align-items-center justify-content-between">
         <h2>Direct Manager</h2>
-        <a class="view-btn h-100 d-flex align-items-center gap-1">
+        @if (!loadData && jobTitleData?.assigns?.length > 0) {
+        <a [routerLink]="['/jobs/view-job', jobTitleData.assigns[0].id]"
+          class="view-btn h-100 d-flex align-items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
               <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
@@ -201,40 +203,39 @@
           </svg>
           <span>View</span>
         </a>
-      </div>
-      @if(loadData) {
-      <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
-      </app-skelaton-loading>
-
-      }@else {
-      @if (jobTitleData?.assigns?.length > 0 && jobTitleData.assigns[0].id) {
-      <div class="info">
-        <h6>Job Title ID</h6>
-        @if (jobTitleData?.assigns?.length > 0) {
-        <span>
-          {{ jobTitleData.assigns[0].id.toString().padStart(4, '0') }}
-        </span>
         }
       </div>
-      }
-      @if (jobTitleData?.assigns?.length > 0 && jobTitleData.assigns[0].code) {
+
+      @if (loadData) {
+      <app-skelaton-loading [rows]="4" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
+      </app-skelaton-loading>
+      } @else {
+      @if (jobTitleData?.assigns?.length > 0) {
+      <div class="info">
+        <h6>Job Title ID</h6>
+        <span>{{ jobTitleData.assigns[0].id.toString().padStart(4, '0') }}</span>
+      </div>
+
+      @if (jobTitleData.assigns[0].code) {
       <div class="info">
         <h6>Job Title Code</h6>
-        <span>{{ jobTitleData.assigns[0].code}}</span>
+        <span>{{ jobTitleData.assigns[0].code }}</span>
       </div>
       }
-      @if (jobTitleData?.assigns?.length > 0 && jobTitleData.assigns[0].name) {
+
+      @if (jobTitleData.assigns[0].name) {
       <div class="info">
         <h6>Job Title</h6>
-        <span>{{ jobTitleData.assigns[0].name}}</span>
+        <span>{{ jobTitleData.assigns[0].name }}</span>
       </div>
       }
+
       <div class="d-flex align-items-center justify-content-between">
         <div class="info">
           <h6>Direct Manager</h6>
-          <span>Description</span>
+          <span>{{ jobTitleData.assigns[0].name }}</span>
         </div>
-        <a class="view-btn h-100 d-flex align-items-center gap-1">
+        <a (click)="goToDescriptionFromAssign()" class="view-btn h-100 d-flex align-items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
               <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
@@ -244,17 +245,21 @@
           </svg>
         </a>
       </div>
+      } @else {
+      <div class="info text-center py-3">
+        <h6>No Direct Manager Assigned</h6>
+      </div>
       }
-
-
+      }
     </div>
+
 
   </div>
 
 
 
   <!-- card -->
-  <div class="content-box d-flex flex-column gap-3 w-100">
+  <div class="content-box d-flex flex-column gap-3 w-100" id="description">
     @if(loadData) {
     <app-skelaton-loading [rows]="2" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
     </app-skelaton-loading>

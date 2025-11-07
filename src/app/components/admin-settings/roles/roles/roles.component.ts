@@ -333,7 +333,7 @@ export class RolesComponent {
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('roles/all-roles', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

@@ -11,6 +11,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -48,6 +49,8 @@ export class CreateNewJobTitleComponent {
   loadData: boolean = false; // used for table skeleton/loading state
   departments: any[] = [];
   sections: any[] = [];
+  departmentsLoading: boolean = false;
+  sectionsLoading: boolean = false;
   filterForm!: FormGroup;
   private searchSubject = new Subject<string>();
 
@@ -84,6 +87,22 @@ export class CreateNewJobTitleComponent {
       this.ManageCurrentPage = 1; // Reset to page 1 when searching
       this.getAllJobTitles(1, value);
     });
+
+
+    // see changes in salary range inputs to update status
+    this.jobStep2.get('partTime_minimum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('partTime_minimum', 'partTime_maximum', 'partTime_status');
+    });
+    this.jobStep2.get('partTime_maximum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('partTime_minimum', 'partTime_maximum', 'partTime_status');
+    });
+
+    this.jobStep2.get('hourly_minimum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('hourly_minimum', 'hourly_maximum', 'hourly_status');
+    });
+    this.jobStep2.get('hourly_maximum')?.valueChanges.subscribe(value => {
+      this.updateStatusBasedOnInput('hourly_minimum', 'hourly_maximum', 'hourly_status');
+    });
   }
 
   jobStep1: FormGroup = new FormGroup({
@@ -117,6 +136,7 @@ export class CreateNewJobTitleComponent {
     sectionControl?.reset('');
 
     this.sections = [];
+    this.sectionsLoading = false;
 
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
@@ -158,65 +178,76 @@ export class CreateNewJobTitleComponent {
   totalItems: number = 0;
   itemsPerPage: number = 10000;
 
-getAllDepartment(
-  pageNumber: number,
-  searchTerm: string = '',
-  filters?: {
-    status?: string;
-    updated_from?: string;
-    updated_to?: string;
-    created_from?: string;
-    created_to?: string;
+  getAllDepartment(
+    pageNumber: number,
+    searchTerm: string = '',
+    filters?: {
+      status?: string;
+      updated_from?: string;
+      updated_to?: string;
+      created_from?: string;
+      created_to?: string;
+    }
+  ) {
+    this.departmentsLoading = true;
+    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+
+        const activeDepartments = response.data.list_items.filter(
+          (item: any) => item.is_active === true
+        );
+
+        this.departments = activeDepartments.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+        }));
+
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+        this.departmentsLoading = false;
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.departmentsLoading = false;
+      }
+    });
   }
-) {
-  this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
-    search: searchTerm || undefined,
-    ...filters
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
 
-      const activeDepartments = response.data.list_items.filter(
-        (item: any) => item.is_active === true
-      );
-
-      this.departments = activeDepartments.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-      }));
-
-      this.sortDirection = 'desc';
-      this.currentSortColumn = 'id';
-      this.sortBy();
-    },
-    error: (err) => {
-      console.log(err.error?.details);
+  getsections(deptid: number) {
+    if (!deptid) {
+      this.sections = [];
+      this.sectionsLoading = false;
+      return;
     }
-  });
-}
+    this.sectionsLoading = true;
+    this._DepartmentsService.showDepartment(deptid).subscribe({
+      next: (response) => {
+        const rawSections = response.data.object_info.sections;
 
-getsections(deptid: number) {
-  this._DepartmentsService.showDepartment(deptid).subscribe({
-    next: (response) => {
-      const rawSections = response.data.object_info.sections;
+        const activeSections = rawSections.filter(
+          (section: any) => section.is_active === true
+        );
 
-      const activeSections = rawSections.filter(
-        (section: any) => section.is_active === true
-      );
+        this.sections = activeSections.map((section: any) => ({
+          id: section.id,
+          name: section.name
+        }));
 
-      this.sections = activeSections.map((section: any) => ({
-        id: section.id,
-        name: section.name
-      }));
-
-      // console.log(activeSections);
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+        this.sectionsLoading = false;
+        // console.log(activeSections);
+      },
+      error: (err) => {
+        console.log(err.error?.details);
+        this.sectionsLoading = false;
+      }
+    });
+  }
 
 
   ManageCurrentPage: number = 1;
@@ -228,7 +259,11 @@ getsections(deptid: number) {
   searchNotFound: boolean = false;
   jobTitles: any[] = [];
   noResultsFound: boolean = false;
+  loadJobs: boolean = false;
+  selectJobError: boolean = false;
+
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
+    this.loadJobs = true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
     this.loadData = true;
     this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
@@ -251,10 +286,12 @@ getsections(deptid: number) {
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.loadJobs = false;
       },
       error: (err) => {
         this.loadData = false;
         console.error(err.error?.details);
+        this.loadJobs = false;
       }
     });
   }
@@ -268,11 +305,11 @@ getsections(deptid: number) {
     this.getAllJobTitles(page, this.searchTerm);
   }
 
-onItemsPerPageChange(newItemsPerPage: number): void {
-  this.manageItemsPerPage = newItemsPerPage;
-  this.ManageCurrentPage = 1;
-  this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-}
+  onItemsPerPageChange(newItemsPerPage: number): void {
+    this.manageItemsPerPage = newItemsPerPage;
+    this.ManageCurrentPage = 1;
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  }
 
 
 
@@ -290,18 +327,29 @@ onItemsPerPageChange(newItemsPerPage: number): void {
     fullTime_status: new FormControl(true, [Validators.required]),
     fullTime_restrict: new FormControl(false),
 
-    partTime_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    partTime_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    partTime_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    partTime_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     partTime_currency: new FormControl('EGP', [Validators.required]),
-    partTime_status: new FormControl(true, [Validators.required]),
+    partTime_status: new FormControl(false, [Validators.required]),
     partTime_restrict: new FormControl(false),
 
-    hourly_minimum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
-    hourly_maximum: new FormControl('', [ Validators.pattern(/^\d+$/)]),
+    hourly_minimum: new FormControl('', [Validators.pattern(/^\d+$/)]),
+    hourly_maximum: new FormControl('', [Validators.pattern(/^\d+$/)]),
     hourly_currency: new FormControl('EGP', [Validators.required]),
-    hourly_status: new FormControl(true, [Validators.required]),
+    hourly_status: new FormControl(false, [Validators.required]),
     hourly_restrict: new FormControl(false),
   }, { validators: multipleMinMaxValidator });
+
+  updateStatusBasedOnInput(minField: string, maxField: string, statusField: string) {
+    const minValue = this.jobStep2.get(minField)?.value;
+    const maxValue = this.jobStep2.get(maxField)?.value;
+
+    if (minValue || maxValue) {
+      this.jobStep2.get(statusField)?.setValue(true, { emitEvent: false });
+    } else {
+      this.jobStep2.get(statusField)?.setValue(false, { emitEvent: false });
+    }
+  }
 
 
 
@@ -309,11 +357,78 @@ onItemsPerPageChange(newItemsPerPage: number): void {
   selectAll: boolean = false;
 
   goNext() {
+    if (this.currentStep === 3) {
+      if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+        this.selectJobError = true;
+        return;
+      }
+    }
+
+    this.selectJobError = false;
     this.currentStep++;
   }
 
   goPrev() {
     this.currentStep--;
+  }
+
+  goToStep(step: number) {
+    // Allow navigation to previous steps without validation
+    if (step <= this.currentStep) {
+      this.currentStep = step;
+      this.selectJobError = false;
+      return;
+    }
+
+    // For forward navigation, validate all intermediate steps
+    for (let i = this.currentStep; i < step; i++) {
+      if (!this.isStepValid(i + 1)) {
+        // If validation fails, navigate to the first invalid step
+        this.currentStep = i + 1;
+        if (i + 1 === 3) {
+          if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+            this.selectJobError = true;
+          }
+          // Call API when navigating to step 3
+          this.ManageCurrentPage = 1;
+          this.searchTerm = '';
+          this.getAllJobTitles(1, '');
+        }
+        return;
+      }
+    }
+
+    // All validations passed, navigate to the target step
+    this.currentStep = step;
+    this.selectJobError = false;
+
+    // Call APIs when navigating to step 3 (Direct Manager)
+    if (step === 3) {
+      this.ManageCurrentPage = 1;
+      this.searchTerm = '';
+      this.getAllJobTitles(1, '');
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    switch (step) {
+      case 1:
+        return this.jobStep1.valid;
+      case 2:
+        return this.jobStep1.valid && this.jobStep2.valid;
+      case 3:
+        // Step 3 validation: if there are job titles, at least one must be assigned
+        if (this.jobTitles.length > 0) {
+          return this.jobTitles.some(job => job.assigned);
+        }
+        return true; // No job titles means no validation needed
+      case 4:
+        return this.jobStep1.valid && this.jobStep2.valid &&
+          this.jobStep4.valid && this.requirements.length > 0 &&
+          (this.jobTitles.length === 0 || this.jobTitles.some(job => job.assigned));
+      default:
+        return true;
+    }
   }
 
 
@@ -402,6 +517,12 @@ onItemsPerPageChange(newItemsPerPage: number): void {
   // create job title
   department: any;
   createJobTitle() {
+    if (this.currentStep === 3 && this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+      this.selectJobError = true;
+      return;
+    }
+
+    this.selectJobError = false;
     this.isLoading = true;
     const managementLevel = Number(this.jobStep1.get('managementLevel')?.value);
     const jobLevel = Number(this.jobStep1.get('jobLevel')?.value);

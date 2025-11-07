@@ -415,7 +415,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         start_contract: contractData.startDate,
         end_contract: contractData.endDate || null, // Default far future date if no end date
         salary: contractData.salary,
-        insurance_salary: contractData.insuranceSalary || 0
+        notice_period: contractData.notice_period,
+        // insurance_salary: contractData.insuranceSalary || 0
       };
 
       this.employeeService.createEmployeeContract(payload).pipe(

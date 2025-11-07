@@ -16,33 +16,43 @@
             <label for="checkName">Add a new check</label>
             <div class="d-flex align-items-start gap-3">
                 <div class="input w-100">
-                
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="text" id="checkName" class="form-control custom-date-input"
-                        placeholder="Enter new check" formControlName="checkName" />
+
+                    <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input type="text" id="checkName" class="form-control custom-date-input"
+                            placeholder="Enter new check" formControlName="checkName" />
+                    </div>
+                    @if (checkForm.get('checkName')?.touched) {
+
+                    @if (checkForm.get('checkName')?.errors?.['required']) {
+                    <p class="error-msg">
+                        Checklist Item is required.
+                    </p>
+                    }
+                    @else if (checkForm.get('checkName')?.errors?.['whitespace']) {
+                    <p class="error-msg">
+                        Checklist Item cannot be only spaces.
+                    </p>
+                    }
+                    @else if (checkForm.get('checkName')?.errors?.['maxlength']) {
+                    <p class="error-msg">
+                        Checklist Item maxlength is 100 characters only.
+                    </p>
+                    }
+
+                    }
+
                 </div>
-                @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['required']) {
-                <p class="error-msg">
-                    Checklist Item is required.
-                </p>
-                }
-                @if (checkForm.get('checkName')?.touched && checkForm.get('checkName')?.errors?.['maxlength']) {
-                <p class="error-msg">
-                    Checklist Item maxlength is 100 characters only.
-                </p>
-                }
+                <button type="submit" class="btn btn-lg btn-primary w-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <g fill="none" stroke="#ffffff" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                        </g>
+                    </svg>
+                    <span>Add new</span>
+                </button>
             </div>
-            <button type="submit" class="btn btn-lg btn-primary w-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#ffffff" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                    </g>
-                </svg>
-                <span>Add new</span>
-            </button>
-            </div>
-            
+
         </form>
 
         @if (checks.length > 0) {
@@ -93,8 +103,13 @@
                     @if (!check.editing) {
                     <p class="m-0">{{ check.name }}</p>
                     } @else {
-                    <input type="text" class="form-control" [value]="check.name" (blur)="finishEdit(check, $event)"
-                        autofocus>
+                    <div class="d-flex gap-3 w-100">
+                        <input type="text" class="form-control" 
+                            [value]="check.name" (blur)="finishEdit(check, $event)" autofocus />
+                        @if (check.error) {
+                         <span class="error-msg nowrap">{{ check.error }}</span>
+                        }
+                    </div>
                     }
 
                 </div>

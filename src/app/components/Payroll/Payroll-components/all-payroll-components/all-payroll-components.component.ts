@@ -74,12 +74,17 @@ export class AllPayrollComponentsComponent implements OnInit {
 
 
   ngOnInit(): void {
+    // this.route.queryParams.subscribe(params => {
+    //   const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-components/all-payroll-components') || 1;
+    //   this.currentPage = pageFromUrl;
+    //   this.getAllComponents(pageFromUrl);
+    // });
+
     this.route.queryParams.subscribe(params => {
-      const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-components/all-payroll-components') || 1;
+      const pageFromUrl = +params['page'] || 1;
       this.currentPage = pageFromUrl;
-      this.getAllComponents(pageFromUrl);
-      // this.currentPage = +params['page'] || 1;
-      // this.getAllComponents(this.currentPage);
+      this.paginationState.setPage('payroll-components/all-payroll-components', this.currentPage);
+      this.getAllComponents(this.currentPage);
     });
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
@@ -194,7 +199,7 @@ export class AllPayrollComponentsComponent implements OnInit {
   }
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('payroll-components/all-payroll-components', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

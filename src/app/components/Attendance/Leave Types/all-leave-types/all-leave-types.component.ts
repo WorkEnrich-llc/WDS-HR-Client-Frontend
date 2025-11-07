@@ -161,7 +161,7 @@ export class AllLeaveTypesComponent {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('leave-types/all-leave-types', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

@@ -14,10 +14,11 @@ import { Status, UserStatus } from '@app/enums';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { Roles } from 'app/core/models/roles';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-users',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink, PopupComponent],
   providers: [DatePipe],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
@@ -33,6 +34,14 @@ export class UsersComponent {
   private router = inject(Router);
   filterForm!: FormGroup;
   toasterSubscription: any;
+  selectedEmailForAction: string | null = null;
+  isLoading: boolean = false;
+  isResendModalOpen: boolean = false;
+  isDeleteModalOpen: boolean = false;
+
+
+
+
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder) { }
 
@@ -182,32 +191,64 @@ export class UsersComponent {
     }
   }
 
+  confirmResend(): void {
+    if (!this.selectedEmailForAction) {
+      return;
+    }
 
-  resendInvitation(email: string): void {
-
+    const emailToResend = this.selectedEmailForAction;
     const now = Date.now();
-    const lastSent = this.lastInvitationTimes.get(email);
+    const lastSent = this.lastInvitationTimes.get(emailToResend);
     if (lastSent && now - lastSent < 86400000) {
       const remainingHours = Math.ceil((86400000 - (now - lastSent)) / (1000 * 60 * 60));
       this.toasterService.showWarning(`You can not resend again before ${remainingHours} hour(s).`);
       return;
     }
 
-    this.loadData = true;
-    this.userService.resendInvitation(email).subscribe({
+    this.isLoading = true;
+
+    this.userService.resendInvitation(emailToResend).subscribe({
       next: () => {
-        this.lastInvitationTimes.set(email, now);
+        this.lastInvitationTimes.set(emailToResend, now);
         this.saveInvitationTimes();
         this.toasterService.showSuccess('Invitation resent successfully');
-        this.loadData = false;
+        this.isLoading = false;
+        this.closeResendModal();
         this.getAllUsers(this.currentPage);
       },
       error: () => {
-        this.loadData = false;
+        this.isLoading = false;
         this.toasterService.showError('Error resending invitation');
       }
     });
   }
+
+
+  // resendInvitation(email: string): void {
+
+  //   const now = Date.now();
+  //   const lastSent = this.lastInvitationTimes.get(email);
+  //   if (lastSent && now - lastSent < 86400000) {
+  //     const remainingHours = Math.ceil((86400000 - (now - lastSent)) / (1000 * 60 * 60));
+  //     this.toasterService.showWarning(`You can not resend again before ${remainingHours} hour(s).`);
+  //     return;
+  //   }
+
+  //   this.loadData = true;
+  //   this.userService.resendInvitation(email).subscribe({
+  //     next: () => {
+  //       this.lastInvitationTimes.set(email, now);
+  //       this.saveInvitationTimes();
+  //       this.toasterService.showSuccess('Invitation resent successfully');
+  //       this.loadData = false;
+  //       this.getAllUsers(this.currentPage);
+  //     },
+  //     error: () => {
+  //       this.loadData = false;
+  //       this.toasterService.showError('Error resending invitation');
+  //     }
+  //   });
+  // }
 
   canResend(email: string): boolean {
     const lastSent = this.lastInvitationTimes.get(email);
@@ -242,15 +283,38 @@ export class UsersComponent {
 
   emailToDelete = '';
 
-  remove(email: string): void {
-    if (!email) {
+  // remove(email: string): void {
+  //   if (!email) {
+  //     return;
+  //   }
+  //   this.userService.deleteRole(email).subscribe({
+  //     next: () => {
+  //       this.toasterService.showSuccess('Deleted successfully');
+  //     },
+  //     error: (err) => {
+  //       this.toasterService.showError('Failed to delete');
+  //       console.error(err);
+  //     }
+  //   });
+  // }
+
+  confirmRemove(): void {
+    if (!this.selectedEmailForAction) {
       return;
     }
-    this.userService.deleteRole(email).subscribe({
+
+    this.isLoading = true;
+    const emailToDelete = this.selectedEmailForAction;
+
+    this.userService.deleteRole(emailToDelete).subscribe({
       next: () => {
         this.toasterService.showSuccess('Deleted successfully');
+        this.isLoading = false;
+        this.closeDeleteModal();
+        this.getAllUsers(this.currentPage);
       },
       error: (err) => {
+        this.isLoading = false;
         this.toasterService.showError('Failed to delete');
         console.error(err);
       }
@@ -279,7 +343,7 @@ export class UsersComponent {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('users/all-users', page);
+    this.paginationState.setPage('...', page);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },
@@ -312,5 +376,27 @@ export class UsersComponent {
   navigateToView(userId: number): void {
     this.paginationState.setPage('users/all-users', this.currentPage);
     this.router.navigate(['/users/view-user', userId]);
+  }
+
+  openDeleteModal(email: string): void {
+    this.selectedEmailForAction = email;
+    this.isDeleteModalOpen = true;
+  }
+
+  openResendModal(email: string): void {
+    this.selectedEmailForAction = email;
+    this.isResendModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+    this.selectedEmailForAction = null;
+  }
+
+
+
+  closeResendModal(): void {
+    this.isResendModalOpen = false;
+    this.selectedEmailForAction = null;
   }
 }

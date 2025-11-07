@@ -88,7 +88,7 @@
 <!-- logout popup -->
 <app-popup [title]="'Logout'" [paragraph1]="'Are you Sure you want to logout of your account?'"
     [paragraph2]="'You can log in later with your email and password.'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" [disabled]="isLoading" (click)="confirmAction()">
         @if(isLoading){
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }@else{

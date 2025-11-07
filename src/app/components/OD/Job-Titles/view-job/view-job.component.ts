@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { DatePipe } from '@angular/common';
@@ -16,11 +16,11 @@ import { SubscriptionService } from 'app/core/services/subscription/subscription
 })
 export class ViewJobComponent {
 
-  constructor(private _JobsService: JobsService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
+  constructor(private _JobsService: JobsService, private router: Router, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   jobTitleData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
-  jobId: string | null = null;
+  jobId: string | number | null = null;
 
   jobTitleSub: any;
 
@@ -36,15 +36,55 @@ export class ViewJobComponent {
       // }
     });
 
-    this.jobId = this.route.snapshot.paramMap.get('id');
-    // this.getJobTitle(Number(this.jobId));
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.jobId = Number(id);
+        this.getJobTitle(this.jobId);
+      }
+    });
+  }
+scrollToDescription(): void {
+  const el = document.getElementById('description');
+  if (el) {
+    const yOffset = -175;
+    const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+
+    setTimeout(() => {
+      el.style.transition = 'background-color 0.5s ease';
+      el.style.backgroundColor = '#dde3eb'; 
+
+      setTimeout(() => {
+        el.style.backgroundColor = '';
+      }, 2000); 
+    }, 600); 
+  }
+}
+
+  goToDescriptionFromAssign() {
+    const newId = this.jobTitleData?.assigns?.[0]?.id;
+    if (newId) {
+      this.jobId = newId;
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: false,
+      });
+      this.router.navigate(['/jobs/view-job', newId]);
+      this.reloadAndScroll();
+    }
+  }
+
+
+  reloadAndScroll() {
     if (this.jobId) {
-      this.getJobTitle(Number(this.jobId));
+      this.getJobTitle(Number(this.jobId), true);
     }
   }
 
   loadData: boolean = false;
-  getJobTitle(jobId: number) {
+  getJobTitle(jobId: number, scrollAfterLoad: boolean = false) {
     this.loadData = true;
     this._JobsService.showJobTitle(jobId).subscribe({
       next: (response) => {
@@ -63,6 +103,11 @@ export class ViewJobComponent {
         this.sortDirection = 'desc';
         this.sortBy('id');
         this.loadData = false;
+
+        // go description
+        if (scrollAfterLoad) {
+          setTimeout(() => this.scrollToDescription(), 300);
+        }
       },
       error: (err) => {
         console.log(err.error?.details);
