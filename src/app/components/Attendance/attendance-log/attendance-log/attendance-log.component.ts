@@ -71,6 +71,7 @@ export class AttendanceLogComponent {
 
     return hours * 60 + minutes;
   }
+  
   isLoading: boolean = false;
   todayDayjs = dayjs();
   searchTerm: string = '';
