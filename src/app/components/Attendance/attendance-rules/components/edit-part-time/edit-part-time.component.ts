@@ -163,6 +163,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
+      flatRateSalaryPortionIndex: this.flatRateSalaryPortionIndex,
       overtimeEntries: this.overtimeEntries,
       absenceEntries: this.absenceEntries
     }));
@@ -179,6 +180,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
+      flatRateSalaryPortionIndex: this.flatRateSalaryPortionIndex,
       overtimeEntries: this.overtimeEntries,
       absenceEntries: this.absenceEntries
     };

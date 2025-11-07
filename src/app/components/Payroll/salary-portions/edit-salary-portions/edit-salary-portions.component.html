@@ -7,7 +7,7 @@
     [update]="(salaryPortion?.updated_at | date:'dd/MM/yyyy') ?? ''">
 
 
-    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()" [disabled]="isSaveDisabled || isLoading">
+    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()" [disabled]="isLoading">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -40,7 +40,7 @@
         <form [formGroup]="portionsForm" class="w-lg-50 d-flex flex-column gap-2">
             <div formArrayName="portions">
                 @for(portion of portions.controls; track $index; let i = $index) { <div
-                    class="w-100 d-flex align-items-start gap-2" [formGroupName]="i">
+                    class="w-100 d-flex align-items-start portion-row" [formGroupName]="i">
 
                     <input type="checkbox" class="form-check-input m-0" formControlName="enabled"
                         [style.visibility]="portion.get('name')?.value.toLowerCase() === 'basic' ? 'hidden' : 'visible'" />
@@ -52,6 +52,9 @@
                             <input type="text" [id]="'Portion' + i" class="form-control custom-date-input"
                                 formControlName="name" />
                         </div>
+                        @if(showControlError(i, 'name')) {
+                        <p class="error-msg mt-1">Portion name is required.</p>
+                        }
                     </div>
 
                     <!-- Percentage Input -->
@@ -61,6 +64,9 @@
                             <input type="number" [id]="'Percentage' + i" class="form-control custom-date-input"
                                 formControlName="percentage" />
                         </div>
+                        @if(showControlError(i, 'percentage')) {
+                        <p class="error-msg mt-1">Percentage is required.</p>
+                        }
                     </div>
 
                 </div>
