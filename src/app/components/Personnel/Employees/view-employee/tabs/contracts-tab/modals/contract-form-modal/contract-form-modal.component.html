@@ -46,6 +46,7 @@
               Salary must be greater than 0
               }
             </div>
+            <div *ngIf="contractForm.get('salary')?.errors?.['max']">The value cannot be greater than 1,000,000</div>
             <div *ngIf="contractForm.get('salary')?.errors?.['max']">
               @if (shouldShowSalaryRanges()) {
               Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}

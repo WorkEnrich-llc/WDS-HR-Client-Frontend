@@ -981,7 +981,7 @@ export class ManageEmployeeSharedService {
         this.workSchedules.set([]);
         this.attendanceDetails.get('work_schedule_id')?.reset(null, { emitEvent: false });
 
-        const params: { department?: string, schedules_type?: string } = {};
+        const params: { department?: string, schedules_type?: string, status?: boolean } = {};
 
         if (departmentId) {
           params.department = departmentId.toString();
@@ -991,6 +991,7 @@ export class ManageEmployeeSharedService {
           params.schedules_type = employmentType.toString();
         }
 
+        params.status = true;
 
         return this.workScheduleService.getAllWorkSchadule(1, 100, params).pipe(
           catchError(err => {
@@ -1025,7 +1026,7 @@ export class ManageEmployeeSharedService {
     } else {
       // For 'On site' or 'Remote'
       daysOnSiteControl.disable({ emitEvent: false });
-      daysOnSiteControl.setValue(0, { emitEvent: false }); // Set value to 0 for consistency
+      daysOnSiteControl.setValue(0, { emitEvent: false });
       daysOnSiteControl.clearValidators();
     }
     daysOnSiteControl.updateValueAndValidity({ emitEvent: false });
