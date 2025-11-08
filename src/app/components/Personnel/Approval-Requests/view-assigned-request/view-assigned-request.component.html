@@ -170,14 +170,14 @@
   <div class="d-flex flex-column flex-lg-row align-items-stretch gap-4">
     <div class="content-box d-flex flex-column gap-3 w-50">
       <h2>Documents</h2>
-      @for (doc of leaveRequest.documents; track doc) {
+      <!-- @for (doc of leaveRequest.documents; track doc) { -->
       <div class="d-flex align-items-center justify-content-between">
-        <span>{{ doc.name }}</span>
-        <a [href]="doc.url" download class="text-decoration-none">
-          <img src="assets/images/icons/download.svg" width="20" height="20" alt="Download" />
+        <!-- <span>{{ leaveRequest1?.document_url?.generate_signed_url }}</span> -->
+        <a [href]="leaveRequest1?.document_url?.generate_signed_url" download class="text-decoration-none">
+          <img [src]="leaveRequest1?.document_url?.image_url" width="20" height="20" alt="Download" />
         </a>
       </div>
-      }
+      <!-- } -->
     </div>
 
     <div class="content-box d-flex flex-column gap-3 w-100">
