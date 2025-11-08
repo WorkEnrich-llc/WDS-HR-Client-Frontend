@@ -603,7 +603,7 @@ export const routes: Routes = [
                 path: 'manage-custom-fields/:id',
                 loadComponent: () => import('./components/Personnel/Custom-Fields/manage-fields/manage-fields.component').then(c => c.ManageFieldsComponent),
                 title: 'Manage Custom Field',
-                canActivate: [SubscriptionGuard],
+                // canActivate: [SubscriptionGuard],
                 data: { feature: 'Custom-Field', action: 'update' }
               },
             ]
