@@ -167,7 +167,6 @@ export class EditSalaryPortionsComponent implements OnInit {
     }, 0);
 
     if (total >= 100) {
-      this.toasterService.showError('The total percentages cannot be more than 100%.');
       this.portionsForm.markAllAsTouched();
       return;
     }
