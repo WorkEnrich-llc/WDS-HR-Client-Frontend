@@ -20,7 +20,7 @@ const FIELD_DISPLAY_NAMES: { [key: string]: string } = {
   'name_arabic': 'Name',
   'email': 'Email',
   'mobile': 'Mobile',
-  'personal_email': 'Personal Email',
+  'personal_email': 'Business Email',
   'marital_status': 'Marital Status',
   'date_of_birth': 'Date of Birth',
   'address': 'Address',
