@@ -50,7 +50,7 @@ export class AttendanceLogService {
         httpParams = httpParams.set(key, String(value));
       }
     });
-    const url = `${this.apiBaseUrl}personnel/attendance-log`;
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/log`;
     return this.http.get<any>(url, { params: httpParams });
   }
 

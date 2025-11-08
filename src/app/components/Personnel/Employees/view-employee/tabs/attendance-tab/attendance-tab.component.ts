@@ -1,9 +1,12 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
-import { TableComponent } from '../../../../../shared/table/table.component';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
-import { TimeFormatPipe } from './time-format.pipe';
+import { AttendanceLogService } from 'app/core/services/attendance/attendance-log/attendance-log.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { IAttendanceFilters } from 'app/core/models/attendance-log';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 interface RawAttendanceItem {
   emp_id: number;
@@ -30,45 +33,78 @@ interface AttendanceRecord {
 
 @Component({
   selector: 'app-attendance-tab',
-  imports: [CommonModule, TableComponent, TimeFormatPipe],
+  imports: [CommonModule,PopupComponent],
   providers: [DatePipe],
   templateUrl: './attendance-tab.component.html',
-  styleUrl: './attendance-tab.component.css'
+  styleUrls: ['./../../../../../shared/table/table.component.css','./attendance-tab.component.css']
 })
 export class AttendanceTabComponent implements OnChanges {
   @Input() employee: Employee | null = null;
   @Input() date: string | null = '2025-08-06'
   @Input() isEmployeeActive: boolean = false;
-
+  @ViewChild('tableHeader', { static: false }) tableHeader!: ElementRef;
   attendanceData: AttendanceRecord[] = [];
   loading: boolean = false;
+  isLoading: boolean = false;
   error: string | null = null;
-
+  filterForm!: FormGroup;
   // Date slider properties
   today: Date = new Date();
   selectedDate!: Date;
   baseDate: Date = new Date();
+  skeletonRows = Array.from({ length: 5 });
   days: { label: string, date: Date, isToday: boolean }[] = [];
+  constructor(private fb: FormBuilder, private employeeService: EmployeeService, private _AttendanceLogService: AttendanceLogService, private datePipe: DatePipe) {
 
-  constructor(private employeeService: EmployeeService, private datePipe: DatePipe) {
     // Initialize dates
     this.today.setHours(0, 0, 0, 0);
     this.selectedDate = new Date(this.today);
     this.baseDate = this.getStartOfWeek(this.today);
     this.generateDays(this.baseDate);
   }
+  employees: any[] = [];
+  columnWidths: string[] = [];
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const thElements = this.tableHeader.nativeElement.querySelectorAll('th');
+      this.columnWidths = Array.from(thElements).map((th: any) => `${th.offsetWidth}px`);
+    });
+  }
+
+  private toasterService = inject(ToasterMessageService);
+
+
+  ngOnInit(): void {
+    this.filterForm = this.fb.group({
+      employee: [''],
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
-    // When employee changes, fetch attendance for selected date
     if (changes['employee'] && this.employee) {
-      this.fetchAttendance();
+      const filters: IAttendanceFilters = this.buildFilters();
+      this.getAllAttendanceLog(filters);
     }
-    // If date input changes from parent, update selected date
+
     if (changes['date'] && this.date) {
       this.selectedDate = new Date(this.date);
-      this.fetchAttendance();
+      const filters: IAttendanceFilters = this.buildFilters();
+      this.getAllAttendanceLog(filters);
     }
   }
+  private buildFilters(): IAttendanceFilters {
+  const formattedDate = this.datePipe.transform(this.selectedDate || this.today, 'yyyy-MM-dd')!;
+
+  const filters: IAttendanceFilters = {
+    employee: this.employee ? this.employee.id : undefined,
+    from_date: formattedDate,
+    to_date: formattedDate
+  };
+
+  return filters;
+}
+
+
 
   // Date slider methods
   generateDays(startDate: Date): void {
@@ -117,12 +153,15 @@ export class AttendanceTabComponent implements OnChanges {
     return nextStart <= this.getStartOfWeek(this.today);
   }
 
-  selectDate(date: Date): void {
-    if (date > this.today) return;
+ selectDate(date: Date): void {
+  if (date > this.today) return;
 
-    this.selectedDate = date;
-    this.fetchAttendance();
-  }
+  this.selectedDate = date;
+
+  const filters: IAttendanceFilters = this.buildFilters();
+  this.getAllAttendanceLog(filters);
+}
+
 
   isSelected(date: Date): boolean {
     return this.selectedDate.toDateString() === date.toDateString();
@@ -132,56 +171,145 @@ export class AttendanceTabComponent implements OnChanges {
     return new Date(day.date).getTime();
   }
 
-  private mapRawToRecord(item: RawAttendanceItem): AttendanceRecord {
-    const formatTime = (t: string | null) => {
-      if (!t || t === '-') return '-';
-      // If time is full timestamp, take only time portion
-      if (t.includes('T')) return t.split('T')[1].split('.')[0];
-      if (t.includes('.')) return t.split('.')[0];
-      return t;
-    };
 
-    return {
-      in: formatTime(item.working_check_in || item.actual_check_in),
-      out: formatTime(item.working_check_out || item.actual_check_out),
-      date: item.date || '-',
-      dayType: item.is_working_day ? 'Working Day' : 'Non-working Day',
-      workingHrs: item.is_working_day ? (item.work_hours ? `${item.work_hours}` : '-') : 'NA',
-      missingHrs: item.missing_hrs === null || item.missing_hrs === undefined ? '-' : `${item.missing_hrs} Hr${item.missing_hrs !== 1 ? 's' : ''}`,
-      deduction: item.deduction === null || item.deduction === undefined ? '-' : (item.deduction === 0 ? '-' : `${item.deduction}`)
-    } as AttendanceRecord;
-  }
-
-  fetchAttendance() {
-    if (!this.employee) {
-      this.attendanceData = [];
-      return;
-    }
-
-    const dateToFetch = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd');
-    if (!dateToFetch) {
-      this.attendanceData = [];
-      return;
-    }
-
+  getAllAttendanceLog(filters: IAttendanceFilters): void {
     this.loading = true;
-    this.error = null;
-    this.employeeService.getAttendanceLog(dateToFetch, this.employee.id).subscribe({
-      next: (res) => {
-        try {
-          const list: RawAttendanceItem[] = res?.data?.object_info?.list_items || [];
-          this.attendanceData = list.map(i => this.mapRawToRecord(i));
-        } catch (e) {
-          this.attendanceData = [];
-          this.error = 'Failed to parse attendance data';
-        }
+
+    if (this.employee && this.employee.id) {
+      filters = {
+        ...filters,
+        employee: this.employee.id
+      };
+    }
+
+    this._AttendanceLogService.getAttendanceLog(filters).subscribe({
+      next: (data) => {
+        const info = data.data.object_info;
+        this.employees = info.list_items.map((emp: any) => ({
+          ...emp,
+          collapsed: true
+        }));
+
         this.loading = false;
+        console.log('Formatted Employees:', this.employees);
       },
-      error: (err) => {
+      error: (error) => {
+        console.error('Error fetching attendance logs:', error);
         this.loading = false;
-        this.error = 'Failed to load attendance data';
-        this.attendanceData = [];
       }
     });
   }
+
+
+  formatTimeTo12Hour(time: string): string {
+    if (!time) return '';
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, seconds || 0);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Present':
+        return 'text-primary';
+      case 'Absent':
+      case 'Not Checked In':
+        return 'text-danger';
+      case 'On Leave':
+      case 'Outside Shift Hours':
+      case 'Not Checked Out':
+      case 'Official Mission':
+        return 'text-warning';
+      case 'Holiday':
+      case 'Weekly leave':
+        return 'text-success';
+      default:
+        return '';
+    }
+  }
+  getFirstCheckIn(emp: any): string {
+    const list = emp?.list_items;
+    if (!list || list.length === 0) {
+      return '--';
+    }
+
+    const first = list[0];
+    const checkIn = first?.times_object?.actual_check_in;
+
+    return checkIn && checkIn !== '00:00'
+      ? this.formatTimeTo12Hour(checkIn)
+      : '--';
+  }
+
+  getLastCheckOut(emp: any): string {
+    const list = emp?.list_items;
+    if (!list || list.length === 0) {
+      return '--';
+    }
+
+    const last = list[list.length - 1];
+    const checkOut = last?.times_object?.actual_check_out;
+
+    return checkOut && checkOut !== '00:00'
+      ? this.formatTimeTo12Hour(checkOut)
+      : '--';
+  }
+
+  getMainRecord(list: any[]): any {
+    return list?.find(item => item.main_record === true);
+  }
+
+
+  cancelLog(attendance: any): void {
+    this.isLoading = true;
+    const payload = {
+      record_id: attendance.record_id,
+      employee_id: attendance.employee_id,
+      date: attendance.date
+    };
+    console.log("cancel Data", payload);
+    this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
+      next: () => {
+        attendance.canceled = true;
+        this.isLoading = false;
+        this.toasterService.showSuccess('Attendance log canceled successfully.');
+      },
+      error: (err) => {
+        this.toasterService.showError('Failed to cancel attendance log.');
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
+  }
+
+  isModalOpen = false;
+  attendanceToCancel: any = null;
+
+
+  openModal(attendance: any, emp: any) {
+    this.attendanceToCancel = {
+      record_id: attendance?.record_id,
+      employee_id: emp?.employee?.id,
+      employeeName: emp?.employee?.name,
+      date: emp?.date,
+      status: attendance?.status,
+      times_object: attendance?.times_object
+    };
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
+  }
+
+  confirmAction() {
+    if (this.attendanceToCancel) {
+      this.cancelLog(this.attendanceToCancel);
+    }
+    this.isModalOpen = false;
+    this.attendanceToCancel = null;
+  }
+
 }

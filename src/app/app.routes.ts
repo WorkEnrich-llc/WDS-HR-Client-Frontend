@@ -635,18 +635,18 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Attendance/attendance-log/attendance-log/attendance-log.component').then(m => m.AttendanceLogComponent),
                 title: 'Attendance Log',
               },
-              {
-                path: 'manage-attendance',
-                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
-                title: 'Create Attendance Log',
-              },
-              {
-                path: 'manage-attendance/:id',
-                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
-                title: 'Edit Attendance Log',
-                canActivate: [SubscriptionGuard],
-                data: { feature: 'Attendance_Log', action: 'update' }
-              }
+              // {
+              //   path: 'manage-attendance',
+              //   loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+              //   title: 'Create Attendance Log',
+              // },
+              // {
+              //   path: 'manage-attendance/:id',
+              //   loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+              //   title: 'Edit Attendance Log',
+              //   canActivate: [SubscriptionGuard],
+              //   data: { feature: 'Attendance_Log', action: 'update' }
+              // }
             ]
           },
 

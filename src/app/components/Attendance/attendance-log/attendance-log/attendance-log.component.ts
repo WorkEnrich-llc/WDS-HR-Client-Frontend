@@ -1,4 +1,4 @@
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -8,20 +8,22 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, filter, map, Observable, Subject, Subscription, tap } from 'rxjs';
-import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-attendance-log',
-  imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent,
-    CommonModule, ReactiveFormsModule, FormsModule, RouterLink, NgxDaterangepickerMd, PopupComponent],
+  imports: [PageHeaderComponent, OverlayFilterBoxComponent,
+    CommonModule, ReactiveFormsModule, FormsModule, NgxPaginationModule, NgxDaterangepickerMd, PopupComponent],
   providers: [DatePipe],
   templateUrl: './attendance-log.component.html',
-  styleUrl: './attendance-log.component.css'
+  styleUrls: ['./../../../shared/table/table.component.css', './attendance-log.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class AttendanceLogComponent {
 
@@ -30,6 +32,7 @@ export class AttendanceLogComponent {
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  @ViewChild('tableHeader', { static: false }) tableHeader!: ElementRef;
 
   private departmentService = inject(DepartmentsService);
   private toasterService = inject(ToasterMessageService);
@@ -37,7 +40,7 @@ export class AttendanceLogComponent {
 
   attendanceLogs: any[] = [];
   departmentList$!: Observable<any[]>;
-
+  skeletonRows = Array.from({ length: 5 });
 
 
   // error text 
@@ -48,6 +51,7 @@ export class AttendanceLogComponent {
   leftEarly(actual: string, expected: string): boolean {
     return this.parseTime(actual) < this.parseTime(expected);
   }
+
   isMissingHours(actual: string | number, expected: string | number): boolean {
     const actualHours = Number(actual);
     const expectedHours = Number(expected);
@@ -67,7 +71,9 @@ export class AttendanceLogComponent {
 
     return hours * 60 + minutes;
   }
-
+  
+  isLoading: boolean = false;
+  todayDayjs = dayjs();
   searchTerm: string = '';
   filterForm!: FormGroup;
   sortDirection: string = 'asc';
@@ -85,6 +91,20 @@ export class AttendanceLogComponent {
   private toasterSubscription!: Subscription;
 
 
+  employees: any[] = [];
+  columnWidths: string[] = [];
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const thElements = this.tableHeader.nativeElement.querySelectorAll('th');
+      this.columnWidths = Array.from(thElements).map((th: any) => `${th.offsetWidth}px`);
+    });
+  }
+
+
+  toggleCollapse(emp: any) {
+    emp.collapsed = !emp.collapsed;
+  }
+
   ngOnInit(): void {
     this.filterForm = this.fb.group({
       department_id: [''],
@@ -95,18 +115,34 @@ export class AttendanceLogComponent {
 
     this.filterForm.get('from_date')?.valueChanges.subscribe(val => {
       if (val && val.startDate && val.endDate) {
+        const start = val.startDate.toDate();
+        const end = val.endDate.toDate();
+        const today = new Date();
+
+        if (start > today || end > today) {
+          this.toastr.warning('You cannot select future dates.');
+          this.filterForm.patchValue({ from_date: '' }, { emitEvent: false });
+          this.hasSelectedDateRange = false;
+          return;
+        }
+
         this.selectedRange = {
           startDate: val.startDate.format('YYYY-MM-DD'),
           endDate: val.endDate.format('YYYY-MM-DD')
         };
+
+        this.hasSelectedDateRange = true;
         this.filterForm.patchValue({
           to_date: this.selectedRange.endDate
         }, { emitEvent: false });
+
       } else {
         this.selectedRange = null;
+        this.hasSelectedDateRange = false;
         this.filterForm.patchValue({ to_date: '' }, { emitEvent: false });
       }
     });
+
 
     this.today.setHours(0, 0, 0, 0);
     this.selectedDate = new Date(this.today);
@@ -150,17 +186,21 @@ export class AttendanceLogComponent {
 
   }
 
-
-
   getAllAttendanceLog(filters: IAttendanceFilters): void {
     this.loadData = true;
     this._AttendanceLogService.getAttendanceLog(filters).subscribe({
       next: (data) => {
         const info = data.data.object_info;
-        this.attendanceLogs = info.list_items;
+        this.employees = info.list_items.map((emp: any) => ({
+          ...emp,
+          collapsed: true
+        }));
+
         this.totalItems = info.total_items;
         this.totalPages = info.total_pages;
         this.loadData = false;
+
+        // console.log('Formatted Employees:', this.employees);
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -170,23 +210,85 @@ export class AttendanceLogComponent {
   }
 
 
+  formatTimeTo12Hour(time: string): string {
+    if (!time) return '';
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, seconds || 0);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Present':
+        return 'text-primary';
+      case 'Absent':
+      case 'Not Checked In':
+        return 'text-danger';
+      case 'On Leave':
+      case 'Outside Shift Hours':
+      case 'Not Checked Out':
+      case 'Official Mission':
+        return 'text-warning';
+      case 'Holiday':
+      case 'Weekly leave':
+        return 'text-success';
+      default:
+        return '';
+    }
+  }
+  getFirstCheckIn(emp: any): string {
+    const list = emp?.list_items;
+    if (!list || list.length === 0) {
+      return '--';
+    }
+
+    const first = list[0];
+    const checkIn = first?.times_object?.actual_check_in;
+
+    return checkIn && checkIn !== '00:00'
+      ? this.formatTimeTo12Hour(checkIn)
+      : '--';
+  }
+
+  getLastCheckOut(emp: any): string {
+    const list = emp?.list_items;
+    if (!list || list.length === 0) {
+      return '--';
+    }
+
+    const last = list[list.length - 1];
+    const checkOut = last?.times_object?.actual_check_out;
+
+    return checkOut && checkOut !== '00:00'
+      ? this.formatTimeTo12Hour(checkOut)
+      : '--';
+  }
+
+  getMainRecord(list: any[]): any {
+    return list?.find(item => item.main_record === true);
+  }
+
+
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
   }
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.attendanceLogs = this.attendanceLogs.sort((a, b) => {
-      const nameA = a.name.toLowerCase();
-      const nameB = b.name.toLowerCase();
+    this.employees = this.employees.sort((a, b) => {
+      const nameA = (a.employee?.name || '').toLowerCase();
+      const nameB = (b.employee?.name || '').toLowerCase();
 
       if (this.sortDirection === 'asc') {
-        return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
+        return nameA > nameB ? 1 : nameA < nameB ? -1 : 0;
       } else {
-        return nameA < nameB ? 1 : (nameA > nameB ? -1 : 0);
+        return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
       }
     });
   }
+
+
 
   isInvalidTime(time: string | null | undefined): boolean {
     return !time || time === '00:00';
@@ -229,7 +331,8 @@ export class AttendanceLogComponent {
   generateDays(startDate: Date): void {
     this.days = [];
 
-    for (let i = 0; i < 13; i++) {
+    const totalDays = 14;
+    for (let i = 0; i < totalDays; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
 
@@ -240,16 +343,14 @@ export class AttendanceLogComponent {
     }
   }
 
-
   prevWeek(): void {
-    this.baseDate.setDate(this.baseDate.getDate() - 7);
+    this.baseDate.setDate(this.baseDate.getDate() - 14);
     this.generateDays(this.baseDate);
   }
 
-
   nextWeek(): void {
     const tempDate = new Date(this.baseDate);
-    tempDate.setDate(tempDate.getDate() + 7);
+    tempDate.setDate(tempDate.getDate() + 14);
 
     if (tempDate > this.getStartOfWeek(this.today)) {
       return;
@@ -259,6 +360,12 @@ export class AttendanceLogComponent {
     this.generateDays(this.baseDate);
   }
 
+  canGoNext(): boolean {
+    const nextStart = new Date(this.baseDate);
+    nextStart.setDate(this.baseDate.getDate() + 14);
+    return nextStart <= this.getStartOfWeek(this.today);
+  }
+
   getStartOfWeek(date: Date): Date {
     const dayOfWeek = date.getDay();
     const diff = date.getDate() - dayOfWeek;
@@ -266,13 +373,6 @@ export class AttendanceLogComponent {
     start.setDate(diff);
     start.setHours(0, 0, 0, 0);
     return start;
-  }
-
-
-  canGoNext(): boolean {
-    const nextStart = new Date(this.baseDate);
-    nextStart.setDate(this.baseDate.getDate() + 7);
-    return nextStart <= this.getStartOfWeek(this.today);
   }
 
 
@@ -289,14 +389,17 @@ export class AttendanceLogComponent {
     // highlighted single selected date
     return this.selectedDate && this.selectedDate.toDateString() === date.toDateString();
   }
-
+  hasSelectedDateRange: boolean = false;
   selectDate(date: Date): void {
     if (date > this.today) return;
 
     this.selectedDate = date;
 
+    this.filterForm.patchValue({ from_date: '' });
+    this.selectedRange = null;
+
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    console.log('Selected date:', formattedDate);
+    // console.log('Selected date:', formattedDate);
 
     this.getAllAttendanceLog({
       page: this.currentPage,
@@ -305,6 +408,7 @@ export class AttendanceLogComponent {
       to_date: ''
     });
   }
+
 
   // isSelected(date: Date): boolean {
   //   return this.selectedDate.toDateString() === date.toDateString();
@@ -317,27 +421,40 @@ export class AttendanceLogComponent {
   }
   // end calender
 
-  onItemsPerPageChange(newItemsPerPage: number) {
-    this.itemsPerPage = newItemsPerPage;
-    this.currentPage = 1;
-    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    this.getAllAttendanceLog({
-      page: this.currentPage,
-      per_page: this.itemsPerPage,
-      from_date: formattedDate,
-      to_date: ''
-    });
-  }
-
   onPageChange(page: number): void {
     this.currentPage = page;
-    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    this.getAllAttendanceLog({
+    this.loadFilteredAttendance();
+  }
+
+  onItemsPerPageChange(newItemsPerPage: number): void {
+    this.itemsPerPage = newItemsPerPage;
+    this.currentPage = 1;
+    this.loadFilteredAttendance();
+  }
+
+  private loadFilteredAttendance(): void {
+    const raw = this.filterForm.value;
+
+    let from_date = '';
+    let to_date = '';
+
+    if (raw.from_date) {
+      from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
+      to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+    }
+
+    const filters: IAttendanceFilters = {
       page: this.currentPage,
       per_page: this.itemsPerPage,
-      from_date: formattedDate,
-      to_date: ''
-    });
+      department_id: raw.department_id || undefined,
+      from_date,
+      to_date,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
+      search: this.searchTerm || undefined,
+    };
+
+    this.getAllAttendanceLog(filters);
   }
 
 
@@ -347,18 +464,22 @@ export class AttendanceLogComponent {
   }
 
   cancelLog(attendance: any): void {
+    this.isLoading = true;
     const payload = {
-      record_id: attendance.working_details.record_id,
-      employee_id: attendance.emp_id,
+      record_id: attendance.record_id,
+      employee_id: attendance.employee_id,
       date: attendance.date
     };
+    console.log("cancel Data",payload);
     this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
       next: () => {
-        attendance.working_details.canceled = true;
+        attendance.canceled = true;
+        this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
       },
       error: (err) => {
         this.toasterService.showError('Failed to cancel attendance log.');
+        this.isLoading = false;
         console.error(err);
       }
     });
@@ -416,6 +537,9 @@ export class AttendanceLogComponent {
       offenses: '',
       day_type: ''
     });
+
+    this.selectedRange = null;
+
     const filters: IAttendanceFilters = {
       page: this.currentPage,
       per_page: this.itemsPerPage,
@@ -424,18 +548,28 @@ export class AttendanceLogComponent {
       to_date: '',
       offenses: '',
       day_type: '',
-      search: ''
+      search: this.searchTerm || ''
     };
+
     this.filterBox.closeOverlay();
     this.getAllAttendanceLog(filters);
   }
 
 
+
   isModalOpen = false;
   attendanceToCancel: any = null;
 
-  openModal(attendance: any) {
-    this.attendanceToCancel = attendance;
+
+  openModal(attendance: any, emp: any) {
+    this.attendanceToCancel = {
+      record_id: attendance?.record_id,
+      employee_id: emp?.employee?.id,
+      employeeName: emp?.employee?.name,
+      date: emp?.date,
+      status: attendance?.status,
+      times_object: attendance?.times_object
+    };
     this.isModalOpen = true;
   }
 

@@ -349,4 +349,8 @@ h5 span{
 }
 .nav .nav-item{
     cursor: pointer;
+    
+}
+.nav .nav-item svg{
+    fill:var(--color-secondary-500);
 }

@@ -27,7 +27,7 @@ export class UpdateWorkflowComponent {
   workId: string | null = null;
   isChanges: boolean = false;
   originalSteps: any[] = [];
-
+  mandatoryError: string = '';
 
   constructor(
     private router: Router,
@@ -244,7 +244,7 @@ export class UpdateWorkflowComponent {
     const isValid = !isWhitespace;
     return isValid ? null : { whitespace: true };
   }
-  
+
   addStep() {
     const lastStep = this.steps[this.steps.length - 1];
 
@@ -288,7 +288,15 @@ export class UpdateWorkflowComponent {
   // update workflow
   updateWorkflow() {
     this.isLoading = true;
+    this.mandatoryError = '';
 
+    const hasMandatoryStep = this.steps.some(step => step.form.value.mandatory);
+
+    if (!hasMandatoryStep) {
+      this.mandatoryError = 'At least one step must be marked as Mandatory.';
+      this.isLoading = false;
+      return;
+    }
     const currentSteps = this.steps.map((step, index) => {
       const stepData = {
         index: index + 1,
