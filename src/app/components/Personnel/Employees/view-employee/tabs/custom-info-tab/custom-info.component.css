@@ -1,0 +1,125 @@
+.custom-info-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+}
+
+.custom-info-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.info-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  counter-reset: item-counter;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 200px 1fr 80px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item .label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #555;
+  margin-right: 16px;
+}
+
+.info-item .label::before {
+  content: counter(item-counter);
+  counter-increment: item-counter;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  margin-right: 16px;
+  min-width: 20px;
+}
+
+.value-area {
+  margin: 0 auto;
+
+  width: 100%;
+  max-width: 400px;
+
+  text-align: left;
+
+  font-size: 16px;
+  color: #333;
+  margin-right: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 80px;
+}
+
+.edit-input {
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 1px solid #b0c4de;
+  border-radius: 16px;
+  outline: none;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+.edit-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.display-value {
+  font-size: 16px;
+  color: #333;
+}
+
+.info-item .edit-input {
+  display: none;
+}
+
+.info-item.editing .display-value {
+  display: none;
+}
+
+.info-item.editing .edit-input {
+  display: block;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover {
+  background-color: #f0f0f0;
+}
+.icon-btn:hover svg path {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}

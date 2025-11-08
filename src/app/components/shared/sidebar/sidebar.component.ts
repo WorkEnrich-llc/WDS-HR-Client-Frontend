@@ -26,7 +26,7 @@ export class SidebarComponent implements OnInit {
   // Map route patterns to accordion IDs
   private routeAccordionMap: RouteAccordionMapping = {
     'collapseOne': ['departments', 'branches', 'jobs', 'organizational-Chart', 'goals', 'dept-check'],
-    'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
+    'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation', 'custom-field'],
     'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
