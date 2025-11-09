@@ -1111,6 +1111,9 @@ export class ManageEmployeeSharedService {
   }
 
   updateSalaryValidators(salaryRange: any): void {
+    if (this.isEditMode()) {
+      return;
+    }
     const salaryControl = this.contractDetails.get('salary');
     if (!salaryControl) return;
 
@@ -1505,27 +1508,7 @@ export class ManageEmployeeSharedService {
     this.currentSalaryRange.set(null);
   }
 
-  // resetForm(): void {
-  //   this.initializeForm();
-  //   this.setupFormWatchers();
-  //   this.initializeJobDetailsWatchers();
 
-  //   this.mobileGroup.get('country_id')?.setValue(1);
-  //   this.contractDetails?.get('contract_type')?.setValue(2);
-  //   this.contractDetails?.get('include_probation')?.setValue(false);
-  //   this.contractDetails?.get('notice_period')?.setValue(null);
-  //   this.contractDetails?.get('insurance_salary')?.setValue('');
-  //   this.insuranceDetails?.get('include_insurance_salary')?.setValue(false);
-  //   this.insuranceDetails?.get('insurance_salary')?.setValue('');
-  //   this.insuranceDetails?.get('include_gross_insurance_salary')?.setValue(false);
-  //   this.insuranceDetails?.get('gross_insurance_salary')?.setValue('');
-
-  //   this.currentStep.set(1);
-  //   this.errMsg.set('');
-  //   this.selectedJobTitle.set(null);
-  //   this.currentSalaryRange.set(null);
-  //   this.isEditMode.set(false);
-  // }
 
   // Debug method to help identify validation issues
   debugFormState(): void {
