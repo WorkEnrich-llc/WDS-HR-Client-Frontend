@@ -296,6 +296,100 @@
           }}
         </span>
       </div>
+      @if (employee.device) {
+      <div class="device-card">
+        <div class="device-card__header">
+          <div>
+            <h3>Last Known Device</h3>
+            <p class="device-card__subtitle">
+              Last seen {{ formatDeviceDate(employee.device.last_seen) }}
+            </p>
+          </div>
+          <span class="device-chip" [ngClass]="employee.device.is_main ? 'device-chip--primary' : 'device-chip--muted'">
+            {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
+          </span>
+        </div>
+        <div class="device-card__grid">
+          <div>
+            <p class="device-section__title">Device</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">Type</span>
+                <span class="device-card__value text-capitalize">{{ employee.device.device_type || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Brand</span>
+                <span class="device-card__value">{{ employee.device.device_family || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Model</span>
+                <span class="device-card__value">{{ employee.device.device_model || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Language</span>
+                <span class="device-card__value text-uppercase">{{ employee.device.device_ln || "—" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="device-section__title">Platform</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">OS</span>
+                <span class="device-card__value">{{ employee.device.os_device || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">OS Version</span>
+                <span class="device-card__value">{{ employee.device.os_version || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Browser</span>
+                <span class="device-card__value">{{ employee.device.browser || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Browser Version</span>
+                <span class="device-card__value">{{ employee.device.browser_version || "—" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="device-section__title">Network & Activity</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">IP Address</span>
+                <span class="device-card__value">{{ employee.device.ip_address || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Registered</span>
+                <span class="device-card__value">{{ formatDeviceDate(employee.device.created_at) }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Last Update</span>
+                <span class="device-card__value">{{ formatDeviceDate(employee.device.updated_at) }}</span>
+              </div>
+              @if (employee.device.fcm_token) {
+              <div class="device-card__item device-card__item--wide">
+                <span class="device-card__label">Push Token</span>
+                <span class="device-card__value text-break">{{ employee.device.fcm_token }}</span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      <button class="btn btn-lg btn-outline-primary w-100" (click)="clearSession()" [disabled]="clearSessionLoading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 12h8m-4-4l4 4l-4 4" />
+            <path d="M12 6v-.5C12 3.015 9.985 1 7.5 1H7a6 6 0 0 0-6 6v4a6 6 0 0 0 6 6h.5" />
+            <path d="M12 18v.5c0 2.485 2.015 4.5 4.5 4.5h.5a6 6 0 0 0 6-6v-4a6 6 0 0 0-6-6h-.5" />
+          </g>
+        </svg>
+        <span>Clear Session</span>
+      </button>
       @if (!isEmployeeActive) {
       <!-- <div class="info">
         <h6>Password</h6>
