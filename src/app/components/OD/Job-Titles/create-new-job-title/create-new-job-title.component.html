@@ -428,14 +428,13 @@
               <td>
                 <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                   <a type="button" class="d-flex align-items-center gap-1"
-                    [ngClass]="jobStep2.get('fullTime_status')?.value ? 'view-btn' : 'remove-btn'"
+                    [ngClass]="jobStep2.get('fullTime_status')?.value ? 'remove-btn' : 'view-btn'"
                     (click)="toggleStatus('fullTime_status')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                         d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                     </svg>
-                    <span>{{ jobStep2.get('fullTime_status')?.value ? 'Activate' : 'Deactivate'
-                      }}</span>
+                    <span>{{ jobStep2.get('fullTime_status')?.value ? 'Deactivate' : 'Activate' }}</span>
                   </a>
                 </div>
               </td>
@@ -494,14 +493,13 @@
               <td>
                 <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                   <a type="button" class="d-flex align-items-center gap-1"
-                    [ngClass]="jobStep2.get('partTime_status')?.value ? 'view-btn' : 'remove-btn'"
+                    [ngClass]="jobStep2.get('partTime_status')?.value ? 'remove-btn' : 'view-btn'"
                     (click)="toggleStatus('partTime_status')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                         d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                     </svg>
-                    <span>{{ jobStep2.get('partTime_status')?.value ? 'Activate' : 'Deactivate'
-                      }}</span>
+                    <span>{{ jobStep2.get('partTime_status')?.value ? 'Deactivate' : 'Activate' }}</span>
                   </a>
                 </div>
               </td>
@@ -556,13 +554,13 @@
               <td>
                 <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                   <a type="button" class="d-flex align-items-center gap-1"
-                    [ngClass]="jobStep2.get('hourly_status')?.value ? 'view-btn' : 'remove-btn'"
+                    [ngClass]="jobStep2.get('hourly_status')?.value ? 'remove-btn' : 'view-btn'"
                     (click)="toggleStatus('hourly_status')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                         d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                     </svg>
-                    <span>{{ jobStep2.get('hourly_status')?.value ? 'Activate' : 'Deactivate'
+                    <span>{{ jobStep2.get('hourly_status')?.value ? 'Deactivate' : 'Activate'
                       }}</span>
                   </a>
                 </div>

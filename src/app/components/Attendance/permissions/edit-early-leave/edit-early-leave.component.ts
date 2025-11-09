@@ -18,7 +18,7 @@ export class EditEarlyLeaveComponent {
   private toasterService = inject(ToasterMessageService);
   // Maximum allowed minutes for permission inputs. Backend appears to cap values (e.g., 60),
   // so we validate on the frontend to avoid confusing resets where backend returns 0.
-  readonly maxMinutes = 60;
+  readonly maxMinutes = 480;
   constructor(
     private router: Router,
     private _PermissionsService: PermissionsService
