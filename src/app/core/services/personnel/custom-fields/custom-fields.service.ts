@@ -39,7 +39,7 @@ export class CustomFieldsService {
     );
   }
 
-  // delete custom field
+  // update status custom field
   updateCustomFieldStatus(fieldId: number, newStatus: boolean): Observable<CustomFieldDetailResponse> {
     const data: UpdateStatusRequest = {
       request_data: {
@@ -49,6 +49,10 @@ export class CustomFieldsService {
     return this.http.put<CustomFieldDetailResponse>(`${this.url}/${fieldId}/`, data);
   }
 
+  // delete custom field
+  deleteCustomField(fieldId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${fieldId}/`);
+  }
 
 
   // Get all custom fields

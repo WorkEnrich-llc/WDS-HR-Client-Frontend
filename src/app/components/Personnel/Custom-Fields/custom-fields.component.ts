@@ -41,6 +41,7 @@ export class CustomFieldsComponent implements OnInit {
   isDeleteModalOpen: boolean = false;
   isLoading: boolean = false;
   selectedField: number | null = null;
+  fieldIdToDelete: number | null = null;
 
   ngOnInit(): void {
     this.getAllCustomFields(this.currentPage);
@@ -159,6 +160,31 @@ export class CustomFieldsComponent implements OnInit {
         this.toasterService.showSuccess('Deleted successfully');
         this.isLoading = false;
         this.getAllCustomFields(this.currentPage);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.closeDeleteModal();
+        this.toasterService.showError('Failed to delete');
+        console.error(err);
+      }
+    });
+  }
+
+  confirmDelete(): void {
+    if (!this.selectedField) return;
+
+    this.isLoading = true;
+    const idToDelete = this.selectedField;
+
+    this.customFieldService.deleteCustomField(idToDelete).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.closeDeleteModal();
+        // this.toasterService.showSuccess('Deleted successfully');
+
+        this.customFields = this.customFields.filter(field => field.id !== idToDelete);
+
+        this.totalItems--;
       },
       error: (err) => {
         this.isLoading = false;
