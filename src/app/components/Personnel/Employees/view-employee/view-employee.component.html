@@ -96,7 +96,7 @@
           }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
       </div>
       <div class="info">
-        <h6>Personal Email</h6>
+        <h6>Business Email</h6>
         <span>{{ employee.contact_info.email || "N/A" }}</span>
       </div>
       <div class="info">
@@ -148,30 +148,43 @@
         </span>
         }
       </div>
+      @if (employee.job_info.job_title.name) {
       <div class="info">
         <h6>Job Title</h6>
         <span>{{ employee.job_info.job_title.name || "N/A" }}</span>
       </div>
+      }
+      @if(employee.job_info.employment_type.name){
       <div class="info">
         <h6>Employment Type</h6>
         <span>{{ employee.job_info.employment_type.name || "N/A" }}</span>
       </div>
+      }
+      @if(employee.job_info.work_mode.name){
       <div class="info">
         <h6>Work Mode</h6>
         <span>{{ employee.job_info.work_mode.name || "N/A" }}</span>
       </div>
+      }
+      @if(employee.job_info.section?.name){
       <div class="info">
         <h6>Section</h6>
         <span>{{ employee.job_info.section?.name || "Not assigned" }}</span>
       </div>
+      }
+      @if(employee.job_info.department.name){
       <div class="info">
         <h6>Department</h6>
         <span>{{ employee.job_info.department.name || "Not assigned" }}</span>
       </div>
+      }
+      @if(employee.job_info.branch.name){
       <div class="info">
         <h6>Branch</h6>
         <span>{{ employee.job_info.branch.name || "Not assigned" }}</span>
       </div>
+      }
+
       <!-- <div class="info">
     <h6>Work Schedule</h6>
     <span>{{ employee.job_info.work_schedule.name || 'N/A' }}</span>
@@ -180,6 +193,7 @@
     <h6>Contract Start Date</h6>
     <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || 'N/A' }}</span>
     </div> -->
+
       @if (employee.job_info.end_contract) {
       <div class="info">
         <h6>Contract End Date</h6>
@@ -188,6 +202,7 @@
           }}</span>
       </div>
       }
+
       <!-- <div class="info">
     <h6>Contract Type</h6>
     <span>{{ employee.job_info.contract_type.name || 'N/A' }}</span>
@@ -200,6 +215,7 @@
     <h6>Days On Site</h6>
     <span>{{ employee.job_info.days_on_site }} days/week</span>
     </div> -->
+      @if (employee.job_info.direct_manager?.name) {
       <div class="d-flex align-items-center justify-content-between">
         <div class="info">
           <h6>Direct Manager</h6>
@@ -215,6 +231,7 @@
           </svg>
         </a>
       </div>
+      }
     </div>
 
     <div class="content-box d-flex flex-column gap-3 w-100">
@@ -248,7 +265,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
           <span>Deactivated</span>
@@ -324,17 +341,16 @@
         <button class="btn btn-lg btn-outline-danger w-100" (click)="openDeactivate()">
           <!-- SVG and Deactivate -->
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
-            </g>
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+              d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
           </svg>
           <span>Deactivate</span>
         </button>
         <button class="btn btn-lg btn-primary w-100" (click)="resetPassword()" [disabled]="resetLoading">
           <!-- SVG and Reset Password -->
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-width="1.5" d="M12 4v4M12 20v-4M4 12h4M20 12h-4" />
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
           </svg>
           <span>Reset Password</span>
         </button>
@@ -407,14 +423,33 @@
             </svg>
             <span class="nav-link">Contracts</span>
           </li>
+
           <li class="nav-item" [ngClass]="{ active: currentTab === 'leave-balance' }"
             (click)="setCurrentTab('leave-balance')">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 20V8m5 12V4m5 16v-6m5 6V10" />
-              </g>
+              <path
+                d="M12 22c-4.714 0-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22"
+                opacity=".5" />
+              <path
+                d="M12 5.25a.75.75 0 0 1 .75.75v12a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75m-5 3a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-1.5 0V9A.75.75 0 0 1 7 8.25m10 4a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" />
             </svg>
             <span class="nav-link">Leave Balance</span>
+          </li>
+
+          <li class="nav-item" [ngClass]="{
+                            active: currentTab === 'custom-info'
+                          }" (click)="setCurrentTab('custom-info')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path
+                d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z"
+                opacity=".5" />
+              <path
+                d="M16.519 16.501c.175-.136.334-.295.651-.612l3.957-3.958c.096-.095.052-.26-.075-.305a4.3 4.3 0 0 1-1.644-1.034a4.3 4.3 0 0 1-1.034-1.644c-.045-.127-.21-.171-.305-.075L14.11 12.83c-.317.317-.476.476-.612.651q-.243.311-.412.666c-.095.2-.166.414-.308.84l-.184.55l-.292.875l-.273.82a.584.584 0 0 0 .738.738l.82-.273l.875-.292l.55-.184c.426-.142.64-.212.84-.308q.355-.17.666-.412m5.849-5.809a2.163 2.163 0 1 0-3.06-3.059l-.126.128a.52.52 0 0 0-.148.465c.02.107.055.265.12.452c.13.375.376.867.839 1.33s.955.709 1.33.839c.188.065.345.1.452.12a.53.53 0 0 0 .465-.148z" />
+              <path fill-rule="evenodd"
+                d="M7.25 9A.75.75 0 0 1 8 8.25h6.5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 9m0 4a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75m0 4a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H8a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+            </svg>
+            <span class="nav-link">Custom Info</span>
           </li>
         </ul>
 
@@ -435,6 +470,8 @@
           <app-contracts-tab [employee]="employee"> </app-contracts-tab>
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
+          }@if (currentTab === 'custom-info') {
+          <app-custom-info [employee]="employee"></app-custom-info>
           }
         </div>
       </div>
@@ -456,7 +493,7 @@
     [disabled]="deactivateLoading">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-        d="m18.5 5.5l-13 13M5.5 5.5l13 13" />
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
     </svg>
     <span>Deactivate</span>
   </button>

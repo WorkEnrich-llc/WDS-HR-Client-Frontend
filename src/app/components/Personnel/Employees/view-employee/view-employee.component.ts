@@ -14,6 +14,7 @@ import { RequestsTabComponent } from './tabs/requests-tab/requests-tab.component
 import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.component';
 import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
+import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
 
 
 
@@ -28,7 +29,8 @@ import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance
     RequestsTabComponent,
     DocumentsTabComponent,
     ContractsTabComponent,
-    LeaveBalanceTabComponent
+    LeaveBalanceTabComponent,
+    CustomInfoComponent
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
@@ -45,7 +47,7 @@ export class ViewEmployeeComponent implements OnInit {
   isLoading = false;
 
   // Tab management
-  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' = 'attendance';
+  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' = 'attendance';
 
   // Documents checklist
   documentsRequired: Array<{
@@ -197,7 +199,7 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance'): void {
+  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info'): void {
     this.currentTab = tab;
   }
 

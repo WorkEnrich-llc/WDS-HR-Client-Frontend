@@ -236,15 +236,24 @@ export class AllBranchesComponent implements OnInit {
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    this.paginationState.setPage('...', page);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { page },
-      queryParamsHandling: 'merge'
-    });
-  }
+ onPageChange(page: number): void {
+  this.currentPage = page;
+
+  this.paginationState.setPage('branches/all-branches', page);
+
+  this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {
+      page,
+      search: this.currentSearchTerm || null,
+      ...this.currentFilters
+    },
+    queryParamsHandling: 'merge'
+  });
+}
+
 
   navigateToEdit(branchId: number): void {
     this.paginationState.setPage('branches/all-branches', this.currentPage);

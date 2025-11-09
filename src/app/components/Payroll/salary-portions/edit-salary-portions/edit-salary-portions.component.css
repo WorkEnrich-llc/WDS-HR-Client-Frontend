@@ -1,0 +1,18 @@
+:host {
+    display: block;
+}
+
+:host .portion-row {
+    gap: var(--spacing-28);
+    align-items: flex-start;
+}
+
+:host .portion-row .form-check-input {
+    margin-top: var(--spacing-28);
+}
+
+:host .input .error-msg {
+    margin-bottom: 0;
+    color: var(--color-danger-500);
+    font-size: var(--font-size-b4);
+}

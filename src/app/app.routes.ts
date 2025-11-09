@@ -574,6 +574,40 @@ export const routes: Routes = [
               },
             ]
           },
+
+          // custom fields routes
+          {
+            path: 'custom-fields',
+            providers: [PaginationStateService],
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Custom_Field' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-custom-fields',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-custom-fields',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/custom-fields.component').then(c => c.CustomFieldsComponent),
+                title: 'All custom-fields',
+              },
+              {
+                path: 'manage-custom-fields',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/manage-fields/manage-fields.component').then(c => c.ManageFieldsComponent),
+                title: 'Manage Custom Fields',
+                canActivate: [SubscriptionGuard],
+                data: { action: 'create' }
+              },
+              {
+                path: 'manage-custom-fields/:id',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/manage-fields/manage-fields.component').then(c => c.ManageFieldsComponent),
+                title: 'Manage Custom Field',
+                // canActivate: [SubscriptionGuard],
+                data: { feature: 'Custom-Field', action: 'update' }
+              },
+            ]
+          },
         ]
       },
 
