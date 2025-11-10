@@ -73,47 +73,53 @@
   @if (!loading && employee) {
 
   <!-- 3 cards -->
-  <div class="row g-4 responsive-card-grid">
-    <div class="col-12 col-lg-6 col-xl-4">
-      <div class="content-box d-flex flex-column gap-3 h-100">
-        <h2>Contact Info</h2>
-        <div class="info">
-          <h6>ID</h6>
-          <span>{{ employee.id || "N/A" }}</span>
-        </div>
-        <div class="info">
-          <h6>Full Name(English)</h6>
-          <span>{{ employee.contact_info.name || "N/A" }}</span>
-        </div>
-        @if (employee.contact_info.name_arabic) {
-        <div class="info">
-          <h6>Full Name(Arabic)</h6>
-          <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
-        </div>
+  <div class="d-flex align-items-stretch gap-4">
+    <div class="content-box d-flex flex-column gap-3 w-100">
+      <h2>Contact Info</h2>
+      <div class="info">
+        <h6>ID</h6>
+        <span>{{ employee.id || "N/A" }}</span>
+      </div>
+      <div class="info">
+        <h6>Full Name(English)</h6>
+        <span>{{ employee.contact_info.name || "N/A" }}</span>
+      </div>
+      @if (employee.contact_info.name_arabic) {
+      <div class="info">
+        <h6>Full Name(Arabic)</h6>
+        <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
+      </div>
+      }
+      <div class="info">
+        <h6>Phone Number</h6>
+        <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
+          }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
+      </div>
+      <div class="info">
+        <h6>Business Email</h6>
+        <span>{{ employee.contact_info.email || "N/A" }}</span>
+      </div>
+      <div class="info">
+        <h6>Date of Birth</h6>
+        <span>{{
+          (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
+          }}</span>
+      </div>
+      <div class="info">
+        <h6>Address</h6>
+        <span>{{ employee.contact_info.address || "N/A" }}</span>
+      </div>
+      <div class="info">
+        <h6>Marital Status</h6>
+        <span>{{ employee.contact_info.marital_status.name }}</span>
+      </div>
+      <div class="info">
+        @for(item of customFieldValues; track item.id) {
+        @if(item.custom_field.pinned === true || item.value.value) {
+        <h6>{{ item.custom_field.input_option.label }}</h6>
+        <span>{{ item.value.value }}</span>
         }
-        <div class="info">
-          <h6>Phone Number</h6>
-          <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
-            }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
-        </div>
-        <div class="info">
-          <h6>Business Email</h6>
-          <span>{{ employee.contact_info.email || "N/A" }}</span>
-        </div>
-        <div class="info">
-          <h6>Date of Birth</h6>
-          <span>{{
-            (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
-            }}</span>
-        </div>
-        <div class="info">
-          <h6>Address</h6>
-          <span>{{ employee.contact_info.address || "N/A" }}</span>
-        </div>
-        <div class="info">
-          <h6>Marital Status</h6>
-          <span>{{ employee.contact_info.marital_status.name }}</span>
-        </div>
+        }
       </div>
     </div>
 
@@ -588,7 +594,10 @@
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
           }@if (currentTab === 'custom-info') {
-          <app-custom-info [employee]="employee"></app-custom-info>
+          <!-- <app-custom-info [employee]="employee"></app-custom-info> -->
+          <app-custom-info [customFieldValues]="customFieldValues" [isLoading]="isLoading"
+            (valueUpdated)="handleValueUpdate($event)" (fieldDeleted)="handleFieldDelete($event)">
+          </app-custom-info>
           } @if (currentTab === 'devices') {
           <div class="device-tab">
             @if (devicesAttempted) {

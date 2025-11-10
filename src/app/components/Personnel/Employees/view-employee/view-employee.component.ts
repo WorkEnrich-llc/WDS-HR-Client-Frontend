@@ -16,6 +16,8 @@ import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.compon
 import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
 import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
+import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
+import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 
 
 
@@ -41,12 +43,15 @@ export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
+  private customFieldsService = inject(CustomFieldsService);
 
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
   employeeId: number = 0;
   isLoading = false;
+  customFieldValues: CustomFieldValueItem[] = [];
+  readonly app_name = 'personnel';
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
@@ -114,6 +119,7 @@ export class ViewEmployeeComponent implements OnInit {
         this.loadEmployeeData();
       }
     });
+    this.loadCustomValues();
   }
 
   loadEmployeeData(): void {
@@ -140,29 +146,59 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  loadEmployeeDevices(force = false, page: number = this.devicesPage, perPage: number = this.devicesPerPage): void {
-    if (!this.employeeId || this.devicesLoading) {
+  loadCustomValues(): void {
+    this.isLoading = true;
+    const modelName = 'employees';
+    const objectId = this.route.snapshot.paramMap.get('id');
+
+    if (!modelName || !objectId) {
+      console.error('Could not load custom field values');
+      this.isLoading = false;
       return;
     }
-    const isSamePage = page === this.devicesPage && perPage === this.devicesPerPage;
-    if (!force && this.devicesLoaded && isSamePage) {
-      return;
-    }
-    this.devicesAttempted = true;
-    this.devicesLoading = true;
-    this.employeeService.getEmployeeDevices(this.employeeId, page, perPage).subscribe({
+
+    const params: CustomFieldValuesParams = {
+      app_name: this.app_name,
+      model_name: modelName,
+      object_id: objectId
+    };
+
+    this.customFieldsService.getCustomFieldValues(params).subscribe({
       next: (response) => {
-        this.devices = response.data?.list_items || [];
-        this.devicesTotal = response.data?.total_items ?? this.devices.length;
-        this.devicesPage = page;
-        this.devicesPerPage = perPage;
-        this.devicesTotalPages = Math.max(1, Math.ceil(this.devicesTotal / this.devicesPerPage));
-        this.devicesLoaded = true;
-        this.devicesLoading = false;
+        this.customFieldValues = response.data.list_items;
+        this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Error loading employee devices:', error);
-        this.devicesLoading = false;
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  handleValueUpdate(payload: UpdateCustomValueRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.updateCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.toasterMessageService.showSuccess('Value updated successfully!');
+        this.loadCustomValues();
+        this.loadEmployeeData();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toasterMessageService.showError('Update failed');
+      }
+    });
+  }
+
+  handleFieldDelete(payload: UpdateFieldRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.deleteCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.loadCustomValues();
+      },
+      error: () => {
+        this.isLoading = false;
       }
     });
   }
@@ -250,6 +286,41 @@ export class ViewEmployeeComponent implements OnInit {
     this.currentTab = tab;
   }
 
+  loadEmployeeDevices(force = false, page: number = this.devicesPage, perPage: number = this.devicesPerPage): void {
+    if (!this.employeeId) {
+      return;
+    }
+
+    if (this.devicesLoading) {
+      return;
+    }
+
+    const isSameQuery = page === this.devicesPage && perPage === this.devicesPerPage;
+    if (!force && this.devicesLoaded && isSameQuery) {
+      return;
+    }
+
+    this.devicesLoading = true;
+    this.devicesAttempted = true;
+
+    this.employeeService.getEmployeeDevices(this.employeeId, page, perPage).subscribe({
+      next: (response) => {
+        const items = response.data?.list_items ?? [];
+        this.devices = items;
+        this.devicesTotal = response.data?.total_items ?? items.length;
+        this.devicesPage = response.data?.page ?? page;
+        this.devicesPerPage = perPage;
+        this.devicesTotalPages = response.data?.total_pages ?? Math.max(1, Math.ceil(this.devicesTotal / perPage || 1));
+        this.devicesLoaded = true;
+        this.devicesLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading employee devices:', error);
+        this.devicesLoading = false;
+      }
+    });
+  }
+
   onDevicesPageChange(newPage: number): void {
     if (newPage === this.devicesPage && this.devicesLoaded) {
       return;
@@ -265,7 +336,7 @@ export class ViewEmployeeComponent implements OnInit {
     this.devicesPerPage = perPage;
     this.devicesPage = 1;
     this.devicesLoaded = false;
-    this.devicesTotalPages = Math.max(1, Math.ceil(this.devicesTotal / this.devicesPerPage));
+    this.loadEmployeeDevices(true, this.devicesPage, this.devicesPerPage);
   }
 
   // popups
