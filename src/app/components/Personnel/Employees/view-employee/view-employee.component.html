@@ -305,7 +305,7 @@
               Last seen {{ formatDeviceDate(employee.device.last_seen) }}
             </p>
           </div>
-          <span class="device-chip" [ngClass]="employee.device.is_main ? 'device-chip--primary' : 'device-chip--muted'">
+          <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-success' : 'badge-gray'">
             {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
           </span>
         </div>
