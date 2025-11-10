@@ -16,7 +16,7 @@
 
             <input [type]="group.get('htmlType')?.value" [placeholder]="group.get('placeholder')?.value"
                class="edit-input" formControlName="value"
-               [placeholder]="(group.get('value')?.value) ? null : group.get('placeholder')?.value">
+               [placeholder]="(group.get('value')?.value) ? '' : group.get('placeholder')?.value">
             @let valueControl = group.get('value');
             @if(getErrorMessage(valueControl)) {
             <div class="validation-error">
