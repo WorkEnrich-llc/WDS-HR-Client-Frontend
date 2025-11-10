@@ -1,12 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { Employee } from 'app/core/interfaces/employee';
 import { CustomFieldObject, CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
-import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
-import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 interface CustomField {
   label: string;
@@ -16,6 +12,18 @@ interface CustomField {
 interface EditState {
   isEditing: boolean;
   editValue: string;
+}
+
+export function noLeadingSpaceValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+
+    const value = control.value;
+    if (value && typeof value === 'string' && value.startsWith(' ')) {
+      return { 'noLeadingSpace': true };
+    }
+
+    return null;
+  };
 }
 
 @Component({
@@ -87,6 +95,8 @@ export class CustomInfoComponent implements OnChanges {
           fieldOptions.required ? Validators.required : null,
           fieldOptions.min_length ? Validators.minLength(fieldOptions.min_length) : null,
           fieldOptions.max_length ? Validators.maxLength(fieldOptions.max_length) : null,
+          fieldOptions.type === 'email' ? Validators.email : null,
+          noLeadingSpaceValidator(),
         ].filter(v => v !== null) as ValidatorFn[]
       ),
 
@@ -170,14 +180,18 @@ export class CustomInfoComponent implements OnChanges {
       return 'This field is required.';
     }
 
+    if (control.errors['noLeadingSpace']) {
+      return 'This field cannot start with a space.';
+    }
+
     if (control.errors['minlength']) {
       const requiredLength = control.errors['minlength'].requiredLength;
-      return `This field must be at least ${requiredLength} characters long.`;
+      return `This field must be at least ${requiredLength} .`;
     }
 
     if (control.errors['maxlength']) {
       const requiredLength = control.errors['maxlength'].requiredLength;
-      return `This field cannot exceed ${requiredLength} characters.`;
+      return `This field cannot exceed ${requiredLength}.`;
     }
 
     if (control.errors['email']) {
