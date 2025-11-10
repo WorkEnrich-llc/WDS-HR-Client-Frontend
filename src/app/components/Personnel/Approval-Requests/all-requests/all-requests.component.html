@@ -183,7 +183,7 @@
         <ng-template #noRequest>
             <tr>
                 <td colspan="7" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noRequest">
+                    <ng-container *ngIf="searchTerm.trim(); else noRequest">
                         No Requests match your search.
                     </ng-container>
                     <ng-template #noRequest>

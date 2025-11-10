@@ -16,7 +16,7 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 @Component({
   selector: 'app-all-requests',
   imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent,
-    RouterLink, FormsModule, ReactiveFormsModule, NgxDaterangepickerMd],
+     FormsModule, ReactiveFormsModule, NgxDaterangepickerMd],
   providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
