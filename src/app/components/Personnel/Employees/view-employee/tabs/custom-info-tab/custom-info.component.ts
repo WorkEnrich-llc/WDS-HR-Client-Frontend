@@ -147,6 +147,7 @@ export class CustomInfoComponent implements OnChanges {
       }
     };
     this.fieldDeleted.emit(payload);
+    this.closeDeleteModal();
   }
 
 

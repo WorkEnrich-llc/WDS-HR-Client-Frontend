@@ -184,7 +184,7 @@ export class ViewEmployeeComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.toasterMessageService.showError('Delete failed');
+        // this.toasterMessageService.showError('Delete failed');
       }
     });
   }
