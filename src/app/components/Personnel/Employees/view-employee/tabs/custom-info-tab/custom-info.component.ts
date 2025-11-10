@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { Employee } from 'app/core/interfaces/employee';
@@ -20,22 +20,22 @@ interface EditState {
 
 @Component({
   selector: 'app-custom-info',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, PopupComponent],
   templateUrl: './custom-info.component.html',
   styleUrl: './custom-info.component.css'
 })
-export class CustomInfoComponent implements OnInit {
-  @Input() employee: Employee | null = null;
-  @Output() fieldsUpdated = new EventEmitter<CustomField[]>();
-  private route = inject(ActivatedRoute);
-  private customFieldsService = inject(CustomFieldsService);
-  private toasterService = inject(ToasterMessageService);
-  customFieldValues: CustomFieldValueItem[] = [];
+export class CustomInfoComponent implements OnChanges {
+
+  @Output() valueUpdated = new EventEmitter<UpdateCustomValueRequest>();
+  @Output() fieldDeleted = new EventEmitter<UpdateFieldRequest>();
+  @Input() customFieldValues: CustomFieldValueItem[] = [];
+
+  @Input() isLoading: boolean = false;
+
   editStates: EditState[] = [];
   isDeleteModalOpen: boolean = false;
   selectedField!: number;
-  isLoading = false
-  readonly app_name = 'personnel';
 
   customInfoForm: FormGroup = new FormGroup({
     fields: new FormArray([])
@@ -45,19 +45,36 @@ export class CustomInfoComponent implements OnInit {
     return this.customInfoForm.get('fields') as FormArray;
   }
 
-  ngOnInit(): void {
-    const modelName = this.route.snapshot.parent?.data['model_name'];
-    console.log('Model Name:', modelName);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['customFieldValues'] && this.customFieldValues) {
+      this.buildFormFromData(this.customFieldValues);
+    }
+  }
 
-    const objectId = this.route.snapshot.paramMap.get('id');
-    console.log('Object ID:', objectId);
-    this.loadCustomValues();
-
+  buildFormFromData(items: CustomFieldValueItem[]): void {
+    this.fieldsArray.clear();
+    items.forEach(item => {
+      this.fieldsArray.push(this.createFieldGroup(item));
+    });
   }
 
 
   createFieldGroup(item: CustomFieldValueItem): FormGroup {
     const fieldOptions = item.custom_field.input_option;
+
+    let htmlInputType = 'text';
+    switch (fieldOptions.type) {
+      case 'integer':
+      case 'number':
+        htmlInputType = 'number';
+        break;
+      case 'email':
+        htmlInputType = 'email';
+        break;
+      case 'date':
+        htmlInputType = 'date';
+        break;
+    }
 
     return new FormGroup({
       value_id: new FormControl(item.id),
@@ -71,7 +88,10 @@ export class CustomInfoComponent implements OnInit {
           fieldOptions.min_length ? Validators.minLength(fieldOptions.min_length) : null,
           fieldOptions.max_length ? Validators.maxLength(fieldOptions.max_length) : null,
         ].filter(v => v !== null) as ValidatorFn[]
-      )
+      ),
+
+      htmlType: new FormControl({ value: htmlInputType, disabled: true }),
+      placeholder: new FormControl({ value: fieldOptions.placeholder, disabled: true })
     });
   }
 
@@ -90,48 +110,35 @@ export class CustomInfoComponent implements OnInit {
     }
   }
 
-
   onConfirm(index: number): void {
     const group = this.fieldsArray.at(index) as FormGroup;
     const control = group.get('value');
-    if (!group || !control) return;
+
     if (group.invalid) {
       group.markAllAsTouched();
       return;
     }
-    control.disable();
+
+    control?.disable();
     const rawData = group.getRawValue();
+
     const payload: UpdateCustomValueRequest = {
       request_data: {
         id: rawData.value_id,
         value: rawData.value
       }
     };
-    this.isLoading = true;
-    this.customFieldsService.updateCustomFieldValue(payload).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.toasterService.showSuccess('Updated successfully');
-        group.get('originalValue')?.setValue(rawData.value);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        control.enable();
-        this.toasterService.showError('Error updating value');
-        console.error('Update Failed:', err);
-      }
-    });
+
+
+    this.valueUpdated.emit(payload);
+
+    group.get('originalValue')?.setValue(rawData.value);
   }
-
-
 
   onRemove(index: number): void {
     const group = this.fieldsArray.at(index) as FormGroup;
     const customField = group.get('custom_field')?.value as CustomFieldObject;
-    if (!customField) {
-      console.error(" Custom field data not found.");
-      return;
-    }
+
     const payload: UpdateFieldRequest = {
       request_data: {
         id: customField.id,
@@ -139,66 +146,9 @@ export class CustomInfoComponent implements OnInit {
         input_option: customField.input_option
       }
     };
-
-    this.isLoading = true;
-    this.customFieldsService.deleteCustomFieldValue(payload).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.closeDeleteModal();
-        this.toasterService.showSuccess('Deleted successfully');
-        this.fieldsArray.removeAt(index);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.closeDeleteModal();
-
-        console.error('Delete Failed:', err);
-      }
-    });
+    this.fieldDeleted.emit(payload);
   }
 
-
-
-  loadCustomValues(): void {
-    this.isLoading = true;
-
-    // const modelName = this.route.snapshot.parent?.data['model_name'];
-    const modelName = 'employees';
-    console.log('Model Name:', modelName);
-
-    const objectId = this.route.snapshot.paramMap.get('id');
-    console.log('Object ID:', objectId);
-
-    if (!modelName || !objectId) {
-      console.error('Could not load custom field values');
-      this.isLoading = false;
-      return;
-    }
-
-    const params: CustomFieldValuesParams = {
-      app_name: this.app_name,
-      model_name: modelName,
-      object_id: objectId
-    };
-
-
-    this.customFieldsService.getCustomFieldValues(params).subscribe({
-      next: (response) => {
-        this.customFieldValues = response.data.list_items;
-        console.log('Custom Field Values:', this.customFieldValues);
-
-        this.fieldsArray.clear();
-        this.customFieldValues.forEach(item => {
-          this.fieldsArray.push(this.createFieldGroup(item));
-        });
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.error(' Error get data:', err);
-      }
-    });
-  }
 
   openDeleteModal(index: number): void {
     this.selectedField = index;
@@ -209,6 +159,38 @@ export class CustomInfoComponent implements OnInit {
     this.isDeleteModalOpen = false;
     this.selectedField = null!;
   }
+
+  public getErrorMessage(control: AbstractControl | null): string {
+    if (!control || !control.errors || !(control.dirty || control.touched)) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return 'This field is required.';
+    }
+
+    if (control.errors['minlength']) {
+      const requiredLength = control.errors['minlength'].requiredLength;
+      return `This field must be at least ${requiredLength} characters long.`;
+    }
+
+    if (control.errors['maxlength']) {
+      const requiredLength = control.errors['maxlength'].requiredLength;
+      return `This field cannot exceed ${requiredLength} characters.`;
+    }
+
+    if (control.errors['email']) {
+      return 'Please enter a valid email address.';
+    }
+
+    if (control.errors['pattern']) {
+      return 'The value format is invalid.';
+    }
+
+    return 'Invalid value.';
+  }
+
+
 
 
 }

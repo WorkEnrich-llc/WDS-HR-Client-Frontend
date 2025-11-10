@@ -14,20 +14,15 @@
                {{ group.get('value')?.value }}
             </span>
 
-            <input type="text" class="edit-input" formControlName="value">
-
-            @if(group.get('value')?.invalid && (group.get('value')?.touched || group.get('value')?.dirty)){
+            <input [type]="group.get('htmlType')?.value" [placeholder]="group.get('placeholder')?.value"
+               class="edit-input" formControlName="value"
+               [placeholder]="(group.get('value')?.value) ? null : group.get('placeholder')?.value">
+            @let valueControl = group.get('value');
+            @if(getErrorMessage(valueControl)) {
             <div class="validation-error">
-               @if(group.get('value')?.errors?.['required']){
                <p class="error-msg">
-                  This field is required.
+                  {{ getErrorMessage(valueControl) }}
                </p>
-               }
-               @if(group.get('value')?.errors?.['minlength']){
-               <p class="error-msg">
-                  This field is min {{ group.get('value')?.errors?.['minlength']?.requiredLength }} characters long.
-               </p>
-               }
             </div>
             }
 
