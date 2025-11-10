@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
@@ -42,7 +42,49 @@ export class UpdateLeaveTypesComponent implements OnInit {
     this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
 
+    const leaveLimitsControl = this.leaveType2.get('leave_limits');
+    const maximumCarryoverControl = this.leaveType2.get('maximum_carryover_days');
+
+    maximumCarryoverControl?.valueChanges.subscribe(() => {
+      leaveLimitsControl?.updateValueAndValidity({ emitEvent: false });
+      maximumCarryoverControl?.updateValueAndValidity({ emitEvent: false });
+      if (this.errMsg && !maximumCarryoverControl?.hasError('exceedsLeaveLimit')) {
+        this.errMsg = '';
+      }
+    });
+
+    leaveLimitsControl?.valueChanges.subscribe(() => {
+      maximumCarryoverControl?.updateValueAndValidity({ emitEvent: false });
+      if (this.errMsg && !maximumCarryoverControl?.hasError('exceedsLeaveLimit')) {
+        this.errMsg = '';
+      }
+    });
   }
+
+  private validateCarryoverAgainstLimit = (control: AbstractControl): ValidationErrors | null => {
+    if (!control) {
+      return null;
+    }
+
+    const parent = control.parent as FormGroup | null;
+    if (!parent) {
+      return null;
+    }
+
+    if (!this.carryoverAllowed || control.disabled) {
+      return null;
+    }
+
+    const leaveLimitControl = parent.get('leave_limits');
+    const leaveLimitValue = Number(leaveLimitControl?.value);
+    const maximumCarryoverValue = Number(control.value);
+
+    if (isNaN(leaveLimitValue) || isNaN(maximumCarryoverValue)) {
+      return null;
+    }
+
+    return maximumCarryoverValue > leaveLimitValue ? { exceedsLeaveLimit: true } : null;
+  };
   private setupCheckboxControl(checkbox: string, dependentControls: string[]) {
     this.leaveType3.get(checkbox)?.valueChanges.subscribe(checked => {
       dependentControls.forEach(ctrl => {
@@ -96,6 +138,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
         this.toggleCarryoverValidators();
 
         this.monitorFormChanges();
+        this.leaveType2.get('leave_limits')?.updateValueAndValidity({ emitEvent: false });
 
         const created = this.leaveTypeData?.created_at;
         const updated = this.leaveTypeData?.updated_at;
@@ -136,9 +179,18 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
   leaveType2: FormGroup = new FormGroup({
     accrual_rate: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    leave_limits: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    leave_limits: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^\\d+(\\.\\d+)?$')
+    ]),
     max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    maximum_carryover_days: new FormControl({ value: '', disabled: true }, [Validators.pattern('^\\d+(\\.\\d+)?$')])
+    maximum_carryover_days: new FormControl(
+      { value: '', disabled: true },
+      [
+        Validators.pattern('^\\d+(\\.\\d+)?$'),
+        this.validateCarryoverAgainstLimit
+      ]
+    )
   });
 
   leaveType3 = this.fb.group({
@@ -163,16 +215,40 @@ export class UpdateLeaveTypesComponent implements OnInit {
     const control = this.leaveType2.get('maximum_carryover_days');
     if (this.carryoverAllowed) {
       control?.enable();
-      control?.setValidators([Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]);
+      control?.setValidators([
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$'),
+        this.validateCarryoverAgainstLimit
+      ]);
     } else {
       control?.disable();
       control?.clearValidators();
       control?.setValue('');
     }
-    control?.updateValueAndValidity();
+    control?.updateValueAndValidity({ emitEvent: false });
+    this.leaveType2.get('leave_limits')?.updateValueAndValidity({ emitEvent: false });
+    if (this.errMsg && !control?.hasError('exceedsLeaveLimit')) {
+      this.errMsg = '';
+    }
   }
 
   updateleaveType() {
+    if (this.isLoading) {
+      return;
+    }
+
+    if (this.leaveType1.invalid || this.leaveType2.invalid || this.leaveType3.invalid) {
+      this.leaveType1.markAllAsTouched();
+      this.leaveType2.markAllAsTouched();
+      this.leaveType3.markAllAsTouched();
+
+      if (this.leaveType2.get('maximum_carryover_days')?.hasError('exceedsLeaveLimit')) {
+        this.errMsg = 'Maximum Carryover Days cannot be more than Leave Limits.';
+      }
+      return;
+    }
+
+    this.errMsg = '';
     this.isLoading = true;
     const request_data = {
       id: Number(this.leaveTypeData.id),

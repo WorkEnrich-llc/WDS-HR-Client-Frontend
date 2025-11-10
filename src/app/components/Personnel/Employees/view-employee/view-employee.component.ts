@@ -7,6 +7,7 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { HttpEventType } from '@angular/common/http';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
+import { TableComponent } from '../../../shared/table/table.component';
 
 // Import tab components
 import { AttendanceTabComponent } from './tabs/attendance-tab/attendance-tab.component';
@@ -15,6 +16,8 @@ import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.compon
 import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
 import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
+import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
+import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 
 
 
@@ -30,7 +33,8 @@ import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.componen
     DocumentsTabComponent,
     ContractsTabComponent,
     LeaveBalanceTabComponent,
-    CustomInfoComponent
+    CustomInfoComponent,
+    TableComponent
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
@@ -39,15 +43,26 @@ export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
+  private customFieldsService = inject(CustomFieldsService);
 
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
   employeeId: number = 0;
   isLoading = false;
+  customFieldValues: CustomFieldValueItem[] = [];
+  readonly app_name = 'personnel';
 
   // Tab management
-  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' = 'attendance';
+  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
+  devices: any[] = [];
+  devicesLoading = false;
+  devicesLoaded = false;
+  devicesTotal = 0;
+  devicesAttempted = false;
+  devicesPage = 1;
+  devicesPerPage = 10;
+  devicesTotalPages = 1;
 
   // Documents checklist
   documentsRequired: Array<{
@@ -104,10 +119,18 @@ export class ViewEmployeeComponent implements OnInit {
         this.loadEmployeeData();
       }
     });
+    this.loadCustomValues();
   }
 
   loadEmployeeData(): void {
     this.loading = true;
+    this.devicesLoaded = false;
+    this.devicesAttempted = false;
+    this.devicesPage = 1;
+    this.devicesPerPage = 10;
+    this.devicesTotalPages = 1;
+    this.devices = [];
+    this.devicesTotal = 0;
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: (response) => {
         this.employee = response.data.object_info;
@@ -119,6 +142,63 @@ export class ViewEmployeeComponent implements OnInit {
       error: (error) => {
         console.error('Error loading employee:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  loadCustomValues(): void {
+    this.isLoading = true;
+    const modelName = 'employees';
+    const objectId = this.route.snapshot.paramMap.get('id');
+
+    if (!modelName || !objectId) {
+      console.error('Could not load custom field values');
+      this.isLoading = false;
+      return;
+    }
+
+    const params: CustomFieldValuesParams = {
+      app_name: this.app_name,
+      model_name: modelName,
+      object_id: objectId
+    };
+
+    this.customFieldsService.getCustomFieldValues(params).subscribe({
+      next: (response) => {
+        this.customFieldValues = response.data.list_items;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  handleValueUpdate(payload: UpdateCustomValueRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.updateCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.toasterMessageService.showSuccess('Value updated successfully!');
+        this.loadCustomValues();
+        this.loadEmployeeData();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toasterMessageService.showError('Update failed');
+      }
+    });
+  }
+
+  handleFieldDelete(payload: UpdateFieldRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.deleteCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.loadCustomValues();
+      },
+      error: () => {
+        this.isLoading = false;
       }
     });
   }
@@ -199,8 +279,64 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info'): void {
+  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices'): void {
+    if (tab === 'devices') {
+      this.loadEmployeeDevices(!this.devicesAttempted);
+    }
     this.currentTab = tab;
+  }
+
+  loadEmployeeDevices(force = false, page: number = this.devicesPage, perPage: number = this.devicesPerPage): void {
+    if (!this.employeeId) {
+      return;
+    }
+
+    if (this.devicesLoading) {
+      return;
+    }
+
+    const isSameQuery = page === this.devicesPage && perPage === this.devicesPerPage;
+    if (!force && this.devicesLoaded && isSameQuery) {
+      return;
+    }
+
+    this.devicesLoading = true;
+    this.devicesAttempted = true;
+
+    this.employeeService.getEmployeeDevices(this.employeeId, page, perPage).subscribe({
+      next: (response) => {
+        const items = response.data?.list_items ?? [];
+        this.devices = items;
+        this.devicesTotal = response.data?.total_items ?? items.length;
+        this.devicesPage = response.data?.page ?? page;
+        this.devicesPerPage = perPage;
+        this.devicesTotalPages = response.data?.total_pages ?? Math.max(1, Math.ceil(this.devicesTotal / perPage || 1));
+        this.devicesLoaded = true;
+        this.devicesLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading employee devices:', error);
+        this.devicesLoading = false;
+      }
+    });
+  }
+
+  onDevicesPageChange(newPage: number): void {
+    if (newPage === this.devicesPage && this.devicesLoaded) {
+      return;
+    }
+    this.devicesLoaded = false;
+    this.loadEmployeeDevices(true, newPage, this.devicesPerPage);
+  }
+
+  onDevicesPerPageChange(perPage: number): void {
+    if (perPage === this.devicesPerPage) {
+      return;
+    }
+    this.devicesPerPage = perPage;
+    this.devicesPage = 1;
+    this.devicesLoaded = false;
+    this.loadEmployeeDevices(true, this.devicesPage, this.devicesPerPage);
   }
 
   // popups
@@ -219,6 +355,7 @@ export class ViewEmployeeComponent implements OnInit {
   activateLoading = false;
   deactivateLoading = false;
   clearSessionLoading = false;
+  clearSessionOpen = false;
 
   confirmDeactivate() {
     this.deactivateLoading = true;
@@ -362,15 +499,28 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  clearSession(): void {
-    if (!this.employee) {
+  openClearSession(): void {
+    if (!this.employee?.device) {
+      return;
+    }
+    this.clearSessionOpen = true;
+  }
+
+  closeClearSession(): void {
+    this.clearSessionOpen = false;
+  }
+
+  confirmClearSession(): void {
+    if (!this.employee?.device) {
       return;
     }
     this.clearSessionLoading = true;
-    this.employeeService.clearEmployeeSession(this.employee.id).subscribe({
+    this.clearSessionOpen = false;
+    this.employeeService.clearEmployeeSession(this.employee.device.id).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Session cleared successfully');
         this.clearSessionLoading = false;
+        this.loadEmployeeData();
       },
       error: (error) => {
         console.error('Error clearing session', error);

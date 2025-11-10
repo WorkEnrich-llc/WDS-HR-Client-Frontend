@@ -10,6 +10,7 @@ export interface CustomField {
 type FieldValue = string | number | boolean | null;
 export interface CustomFieldObject {
    id: number;
+   pinned: boolean;
    target_model: string;
    input_option: InputOption;
    is_active: boolean;
@@ -94,6 +95,24 @@ export interface UpdateStatusData {
    status: boolean;
 }
 
+// export interface ApiResponse<T> {
+//    details: string;
+//    data: T;
+// }
+
+export interface PaginatedData<T> {
+   list_items: T[];
+   total_items: number;
+   page: number;
+   total_pages: number;
+}
+
+export interface CustomFieldValuesParams {
+   app_name: string;
+   model_name: string;
+   object_id: number | string;
+}
+
 
 export interface UpdateStatusRequest {
    request_data: UpdateStatusData;
@@ -102,4 +121,36 @@ export interface UpdateStatusRequest {
 export interface CustomFieldFilters {
    search?: string;
    is_active?: boolean;
+}
+
+export interface CustomFieldValueData {
+   value: string | number | boolean | null;
+   is_active: boolean;
+   created_at: string;
+   updated_at: string;
+}
+
+
+export interface CustomFieldValueItem {
+   id: number;
+   custom_field: CustomFieldObject;
+   value: CustomFieldValueData;
+}
+
+export interface CustomFieldValuesData extends PaginatedData<CustomFieldValueItem> {
+   subscription: object;
+}
+
+
+
+export type CustomFieldValuesResponse = ApiResponse<CustomFieldValuesData>;
+
+
+export interface UpdateCustomValueData {
+   id: number;
+   value: string | number | boolean | null;
+}
+
+export interface UpdateCustomValueRequest {
+   request_data: UpdateCustomValueData;
 }
