@@ -255,7 +255,8 @@
             <h6>{{folder.name}}</h6>
             <div class="btns d-flex align-items-center justify-content-center gap-3">
               <button class="btn btn-dark w-auto"
-                (click)="openModalrename(folder.id, getCleanName(folder.name), folder.type)">
+                (click)="openModalrename(folder.id, getCleanName(folder.name), folder.type)" data-toggle="tooltip"
+                data-placement="top" title="Rename">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <g fill="none">
                     <path fill="currentColor"
@@ -265,19 +266,22 @@
                   </g>
                 </svg>
               </button>
-              <button class="btn btn-danger w-auto" (click)="openModalDelete(folder.id,folder.name,folder.type)">
+              <button class="btn btn-danger w-auto" (click)="openModalDelete(folder.id,folder.name,folder.type)"
+                data-toggle="tooltip" data-placement="top" title="Delete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                     d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
                 </svg>
               </button>
+
             </div>
           </div>
           }
 
           <!-- file -->
           @if (folder.type==='File') {
-          <div tabindex="0" class="file" draggable="true" (dragstart)="onFileDragStart($event, folder)">
+          <div tabindex="0" class="file" draggable="true" (dblclick)="openFilePopup(folder)"
+            (dragstart)="onFileDragStart($event, folder)">
             <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
               xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 116 116" width="114" height="114"
               xml:space="preserve">
@@ -293,7 +297,8 @@
             </svg>
             <h6>{{ getCleanName(folder.name) }}</h6>
             <div class="btns d-flex align-items-center justify-content-center gap-3">
-              <button class="btn btn-dark w-auto" (click)="openModalrename(folder.id,folder.name,folder.type)">
+              <button class="btn btn-dark w-auto" (click)="openModalrename(folder.id,folder.name,folder.type)"
+                data-toggle="tooltip" data-placement="top" title="Rename">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <g fill="none">
                     <path fill="currentColor"
@@ -303,7 +308,17 @@
                   </g>
                 </svg>
               </button>
-              <button class="btn btn-danger w-auto" (click)="openModalDelete(folder.id,folder.name,folder.type)">
+              <button class="btn btn-primary w-auto" (click)="downloadFile(folder)" data-toggle="tooltip"
+                data-placement="top" title="Download">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M12 3v13m0 0l4-4.375M12 16l-4-4.375M3 15c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15" />
+                </svg>
+              </button>
+
+              <button class="btn btn-danger w-auto" (click)="openModalDelete(folder.id,folder.name,folder.type)"
+                data-toggle="tooltip" data-placement="top" title="Delete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                     d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
@@ -312,6 +327,7 @@
             </div>
           </div>
           }
+
           <!-- system file -->
           @if (folder.type==='System_File') {
           <div tabindex="0" class="file" draggable="true" (dragstart)="onFileDragStart($event, folder)"
@@ -413,6 +429,7 @@
             </div>
           </div>
           }
+
         </div>
         }
         <div class="col-6 col-md-3 col-lg-2">
@@ -467,9 +484,18 @@
           </tr>
           }
           @for (folder of filteredFiles; track folder) {
-          <tr class="table-file cursor-pointer" (dblclick)="openFolder(folder)" draggable="true"
+          <!-- <tr class="table-file cursor-pointer" (dblclick)="openFolder(folder)" draggable="true"
             (dragstart)="onFileDragStart($event, folder)" (dragover)="onFolderDragOver($event)"
-            (dragleave)="onFolderDragLeave($event)" (drop)="onFolderDrop($event, folder)">
+            (dragleave)="onFolderDragLeave($event)" (drop)="onFolderDrop($event, folder)"> -->
+          <tr class="table-file cursor-pointer" [draggable]="folder.type !== 'Folder'" (dblclick)="
+      folder.type === 'Folder' ? openFolder(folder) :
+      folder.type === 'System_File' ? openSystemFile(folder) :
+      folder.type === 'File' ? openFilePopup(folder) : null
+    " (dragstart)="folder.type !== 'Folder' ? onFileDragStart($event, folder) : null"
+            (dragover)="folder.type === 'Folder' ? onFolderDragOver($event) : null"
+            (dragleave)="folder.type === 'Folder' ? onFolderDragLeave($event) : null"
+            (drop)="folder.type === 'Folder' ? onFolderDrop($event, folder) : null">
+
             <td>
               @if (folder.type==='Folder') {
               <svg width="35" height="35" viewBox="0 0 116 106" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -590,7 +616,8 @@
             </td>
             <div class="actions-cell" style="display: none;">
               @if (folder.type==='System_File') {
-              <button class="success-btn" data-toggle="tooltip" data-placement="top" title="Duplicate" (click)="openModalDublicate(folder.id, folder.name)">
+              <button class="success-btn" data-toggle="tooltip" data-placement="top" title="Duplicate"
+                (click)="openModalDublicate(folder.id, folder.name)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <path fill="currentColor"
                     d="M6.6 11.397c0-2.726 0-4.089.843-4.936c.844-.847 2.201-.847 4.917-.847h2.88c2.715 0 4.073 0 4.916.847c.844.847.844 2.21.844 4.936v4.82c0 2.726 0 4.089-.844 4.936c-.843.847-2.201.847-4.916.847h-2.88c-2.716 0-4.073 0-4.917-.847s-.843-2.21-.843-4.936z" />
@@ -612,6 +639,17 @@
                   </g>
                 </svg>
               </button>
+              @if (folder.type==='File') {
+              <button class="view-btn" (click)="downloadFile(folder)" data-toggle="tooltip" data-placement="top"
+                title="Download">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M12 3v13m0 0l4-4.375M12 16l-4-4.375M3 15c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15" />
+                </svg>
+              </button>
+              }
+
               <button class="remove-btn" (click)="openModalDelete(folder.id,folder.name,folder.type)"
                 data-toggle="tooltip" data-placement="top" title="Delete">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -783,8 +821,9 @@
 <!-- duplicate popup  -->
 <app-popup [title]="'Are you sure to Duplicate?'"
   [paragraph1]="'Are you sure you want to Duplicate the &quot;' + getCleanName(folderNameToDublicate) + '&quot; ' + '?'"
-   [isOpen]="dublicatePOP" (close)="closeModalDublicate()">
-  <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="duplicateFile(folderIdToDublicate, folderNameToDublicate)">
+  [isOpen]="dublicatePOP" (close)="closeModalDublicate()">
+  <button modal-btn-left class="btn btn-lg btn-success w-100"
+    (click)="duplicateFile(folderIdToDublicate, folderNameToDublicate)">
     @if (!isLoading) {
     <span>Duplicate</span>
     }
@@ -796,3 +835,42 @@
     Cancel
   </button>
 </app-popup>
+
+
+<!-- view file -->
+<div *ngIf="selectedFileUrl" class="popup-overlay">
+  <div class="popup" [ngStyle]="{'background-color': isImage(selectedFileType) ? '#ffffff' : '#212121'}">
+
+    <div class="popup-header">
+      <button class="close-btn" (click)="closePopup()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+          <g fill="none" [ngStyle]="{'stroke': isImage(selectedFileType) ? '#212121' : '#ffffff'}" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          </g>
+        </svg>
+      </button>
+      <button class="view-btn" (click)="downloadFile({file_url: selectedFileUrl, name: 'file'})">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 15c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15M12 3v13m0 0l4-4.375M12 16l-4-4.375" />
+        </svg>
+      </button>
+    </div>
+
+    <img *ngIf="isImage(selectedFileType)" [src]="selectedFileUrl" alt="Preview Image"
+      style="max-width:100%; max-height:90vh; display:block; margin:auto; border-radius:8px;" />
+
+    <ngx-doc-viewer *ngIf="isDocument(selectedFileType)" [url]="selectedFileUrl" viewer="google"
+      style="height:90vh;width:100%">
+    </ngx-doc-viewer>
+
+    <div *ngIf="!canPreview(selectedFileType)" class="not-supported text-center mt-4">
+      <h3>Cannot preview this file</h3>
+      <button class="btn btn-primary mt-3" (click)="downloadFile({file_url: selectedFileUrl, name: 'file'})">
+        Download File
+      </button>
+    </div>
+
+  </div>
+</div>
