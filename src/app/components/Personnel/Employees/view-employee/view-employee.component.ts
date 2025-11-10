@@ -7,6 +7,7 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { HttpEventType } from '@angular/common/http';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
+import { TableComponent } from '../../../shared/table/table.component';
 
 // Import tab components
 import { AttendanceTabComponent } from './tabs/attendance-tab/attendance-tab.component';
@@ -30,7 +31,8 @@ import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.componen
     DocumentsTabComponent,
     ContractsTabComponent,
     LeaveBalanceTabComponent,
-    CustomInfoComponent
+    CustomInfoComponent,
+    TableComponent
   ],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
@@ -47,7 +49,15 @@ export class ViewEmployeeComponent implements OnInit {
   isLoading = false;
 
   // Tab management
-  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' = 'attendance';
+  currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
+  devices: any[] = [];
+  devicesLoading = false;
+  devicesLoaded = false;
+  devicesTotal = 0;
+  devicesAttempted = false;
+  devicesPage = 1;
+  devicesPerPage = 10;
+  devicesTotalPages = 1;
 
   // Documents checklist
   documentsRequired: Array<{
@@ -108,6 +118,13 @@ export class ViewEmployeeComponent implements OnInit {
 
   loadEmployeeData(): void {
     this.loading = true;
+    this.devicesLoaded = false;
+    this.devicesAttempted = false;
+    this.devicesPage = 1;
+    this.devicesPerPage = 10;
+    this.devicesTotalPages = 1;
+    this.devices = [];
+    this.devicesTotal = 0;
     this.employeeService.getEmployeeById(this.employeeId).subscribe({
       next: (response) => {
         this.employee = response.data.object_info;
@@ -119,6 +136,33 @@ export class ViewEmployeeComponent implements OnInit {
       error: (error) => {
         console.error('Error loading employee:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  loadEmployeeDevices(force = false, page: number = this.devicesPage, perPage: number = this.devicesPerPage): void {
+    if (!this.employeeId || this.devicesLoading) {
+      return;
+    }
+    const isSamePage = page === this.devicesPage && perPage === this.devicesPerPage;
+    if (!force && this.devicesLoaded && isSamePage) {
+      return;
+    }
+    this.devicesAttempted = true;
+    this.devicesLoading = true;
+    this.employeeService.getEmployeeDevices(this.employeeId, page, perPage).subscribe({
+      next: (response) => {
+        this.devices = response.data?.list_items || [];
+        this.devicesTotal = response.data?.total_items ?? this.devices.length;
+        this.devicesPage = page;
+        this.devicesPerPage = perPage;
+        this.devicesTotalPages = Math.max(1, Math.ceil(this.devicesTotal / this.devicesPerPage));
+        this.devicesLoaded = true;
+        this.devicesLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading employee devices:', error);
+        this.devicesLoading = false;
       }
     });
   }
@@ -199,8 +243,29 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   // Tab management method
-  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info'): void {
+  setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices'): void {
+    if (tab === 'devices') {
+      this.loadEmployeeDevices(!this.devicesAttempted);
+    }
     this.currentTab = tab;
+  }
+
+  onDevicesPageChange(newPage: number): void {
+    if (newPage === this.devicesPage && this.devicesLoaded) {
+      return;
+    }
+    this.devicesLoaded = false;
+    this.loadEmployeeDevices(true, newPage, this.devicesPerPage);
+  }
+
+  onDevicesPerPageChange(perPage: number): void {
+    if (perPage === this.devicesPerPage) {
+      return;
+    }
+    this.devicesPerPage = perPage;
+    this.devicesPage = 1;
+    this.devicesLoaded = false;
+    this.devicesTotalPages = Math.max(1, Math.ceil(this.devicesTotal / this.devicesPerPage));
   }
 
   // popups
@@ -375,15 +440,16 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   confirmClearSession(): void {
-    if (!this.employee) {
+    if (!this.employee?.device) {
       return;
     }
     this.clearSessionLoading = true;
     this.clearSessionOpen = false;
-    this.employeeService.clearEmployeeSession(this.employee.id).subscribe({
+    this.employeeService.clearEmployeeSession(this.employee.device.id).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Session cleared successfully');
         this.clearSessionLoading = false;
+        this.loadEmployeeData();
       },
       error: (error) => {
         console.error('Error clearing session', error);

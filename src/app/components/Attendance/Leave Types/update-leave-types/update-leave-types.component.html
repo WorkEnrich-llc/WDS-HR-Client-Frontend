@@ -298,6 +298,12 @@
           Maximum Carryover Days must be number.
         </p>
         }
+        @if ((leaveType2.get('maximum_carryover_days')?.touched || leaveType2.get('leave_limits')?.touched) &&
+        leaveType2.get('maximum_carryover_days')?.errors?.['exceedsLeaveLimit']) {
+        <p class="error-msg">
+          Maximum Carryover Days cannot be more than Leave Limits.
+        </p>
+        }
       </div>
     </form>
     @if (errMsg) {

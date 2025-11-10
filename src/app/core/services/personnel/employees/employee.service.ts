@@ -102,11 +102,21 @@ export class EmployeeService {
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
 
-  clearEmployeeSession(id: number): Observable<EmployeeDetailResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-clear-session`;
-    const formData = new FormData();
-    formData.append('id', id.toString());
-    return this.http.put<EmployeeDetailResponse>(url, formData);
+  clearEmployeeSession(deviceId: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/devices`;
+    const payload = {
+      request_data: {
+        device_id: deviceId
+      }
+    };
+    return this.http.patch<EmployeeDetailResponse>(url, payload);
+  }
+
+  getEmployeeDevices(employeeId: number, page: number = 1, perPage: number = 10): Observable<any> {
+    let params = new HttpParams().set('employee_id', employeeId.toString());
+    params = params.set('page', page.toString()).set('per_page', perPage.toString());
+    const url = `${this.apiBaseUrl}personnel/employees/devices`;
+    return this.http.get<any>(url, { params });
   }
 
   // Update an existing employee record

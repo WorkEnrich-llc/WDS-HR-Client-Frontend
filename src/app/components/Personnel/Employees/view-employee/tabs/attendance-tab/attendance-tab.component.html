@@ -201,9 +201,7 @@
 </div>
 
 <!-- close pop -->
- <app-popup
-  [title]="'Cancel Attendance Log'"
-  [paragraph1]="attendanceToCancel
+<app-popup [title]="'Cancel Attendance Log'" [paragraph1]="attendanceToCancel
     ? 'Are you sure you want to cancel the attendance log for ' 
       + attendanceToCancel.employeeName
       + ' on ' + (attendanceToCancel.date | date:'yyyy-MM-dd')
@@ -212,14 +210,10 @@
       + ' - ' 
       + formatTimeTo12Hour(attendanceToCancel.times_object?.actual_check_out)
       + ')?'
-    : ''"
-  [paragraph2]="'This action can’t be undone!'"
-  [isOpen]="isModalOpen"
-  (close)="closeModal()"
->
+    : ''" [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
   <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
     @if (isLoading) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
     Confirm
   </button>
