@@ -379,8 +379,9 @@
           </div>
         </div>
       </div>
-      }
-      <button class="btn btn-lg btn-outline-primary w-100" (click)="clearSession()" [disabled]="clearSessionLoading">
+      @if (employee.device) {
+      <button class="btn btn-lg btn-outline-primary w-100" (click)="openClearSession()"
+        [disabled]="clearSessionLoading">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 12h8m-4-4l4 4l-4 4" />
@@ -390,6 +391,8 @@
         </svg>
         <span>Clear Session</span>
       </button>
+      }
+      }
       @if (!isEmployeeActive) {
       <!-- <div class="info">
         <h6>Password</h6>
@@ -440,7 +443,7 @@
           </svg>
           <span>Deactivate</span>
         </button>
-        <button class="btn btn-lg btn-primary w-100" (click)="resetPassword()" [disabled]="resetLoading">
+        <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resetPassword()" [disabled]="resetLoading">
           <!-- SVG and Reset Password -->
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -610,6 +613,29 @@
     <span>Activate</span>
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- clear session popup -->
+<app-popup [title]="'Clear Employee Session'" [paragraph1]="
+    'Are you sure you want to clear the active session for &quot;' +
+    (employee?.contact_info?.name || '') +
+    '&quot;?'
+  " [paragraph2]="'This will sign the employee out from all devices immediately.'"
+  [isOpen]="clearSessionOpen && !!employee?.device" (close)="closeClearSession()">
+  <button modal-btn-left class="btn btn-lg btn-outline-primary w-100" (click)="confirmClearSession()"
+    [disabled]="clearSessionLoading">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 12h8m-4-4l4 4l-4 4" />
+        <path d="M12 6v-.5C12 3.015 9.985 1 7.5 1H7a6 6 0 0 0-6 6v4a6 6 0 0 0 6 6h.5" />
+        <path d="M12 18v.5c0 2.485 2.015 4.5 4.5 4.5h.5a6 6 0 0 0 6-6v-4a6 6 0 0 0-6-6h-.5" />
+      </g>
+    </svg>
+    <span>Clear Session</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeClearSession()">
     Cancel
   </button>
 </app-popup>

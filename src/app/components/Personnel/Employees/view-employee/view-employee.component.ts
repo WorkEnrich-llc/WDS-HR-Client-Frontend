@@ -219,6 +219,7 @@ export class ViewEmployeeComponent implements OnInit {
   activateLoading = false;
   deactivateLoading = false;
   clearSessionLoading = false;
+  clearSessionOpen = false;
 
   confirmDeactivate() {
     this.deactivateLoading = true;
@@ -362,11 +363,23 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  clearSession(): void {
+  openClearSession(): void {
+    if (!this.employee?.device) {
+      return;
+    }
+    this.clearSessionOpen = true;
+  }
+
+  closeClearSession(): void {
+    this.clearSessionOpen = false;
+  }
+
+  confirmClearSession(): void {
     if (!this.employee) {
       return;
     }
     this.clearSessionLoading = true;
+    this.clearSessionOpen = false;
     this.employeeService.clearEmployeeSession(this.employee.id).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Session cleared successfully');
