@@ -99,7 +99,7 @@ export class CustomFieldsService {
   // delete custom field
   deleteCustomFieldValue(payload: UpdateFieldRequest): Observable<void> {
     const fieldId = payload.request_data.id;
-    return this.http.delete<void>(`${this.url}/${fieldId}`, { body: payload });
+    return this.http.delete<void>(`${this.url}/${fieldId}/`, { body: payload });
   }
 
 
