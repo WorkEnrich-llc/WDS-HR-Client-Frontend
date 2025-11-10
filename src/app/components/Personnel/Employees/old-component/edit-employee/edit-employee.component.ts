@@ -82,6 +82,10 @@ export class EditEmployeeComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.sharedService.isLoading()) {
+      return;
+    }
+
     if (this.sharedService.employeeForm.invalid) {
       this.sharedService.errMsg.set('Please correct errors in the form.');
       return;

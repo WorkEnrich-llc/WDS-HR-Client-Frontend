@@ -102,6 +102,13 @@ export class EmployeeService {
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
 
+  clearEmployeeSession(id: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees-clear-session`;
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    return this.http.put<EmployeeDetailResponse>(url, formData);
+  }
+
   // Update an existing employee record
   updateEmployee(requestData: any): Observable<CreateEmployeeResponse> {
     const url = `${this.apiBaseUrl}personnel/employees`;

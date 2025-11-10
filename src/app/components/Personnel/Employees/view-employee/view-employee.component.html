@@ -311,48 +311,148 @@
           }}
         </span>
       </div>
-      @if (!isEmployeeActive) {
-      <!-- <div class="info">
+      @if (employee.device) {
+      <div class="device-card">
+        <div class="device-card__header">
+          <div>
+            <h3>Last Known Device</h3>
+            <p class="device-card__subtitle">
+              Last seen {{ formatDeviceDate(employee.device.last_seen) }}
+            </p>
+          </div>
+          <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-success' : 'badge-gray'">
+            {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
+          </span>
+        </div>
+        <div class="device-card__grid">
+          <div>
+            <p class="device-section__title">Device</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">Type</span>
+                <span class="device-card__value text-capitalize">{{ employee.device.device_type || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Brand</span>
+                <span class="device-card__value">{{ employee.device.device_family || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Model</span>
+                <span class="device-card__value">{{ employee.device.device_model || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Language</span>
+                <span class="device-card__value text-uppercase">{{ employee.device.device_ln || "—" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="device-section__title">Platform</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">OS</span>
+                <span class="device-card__value">{{ employee.device.os_device || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">OS Version</span>
+                <span class="device-card__value">{{ employee.device.os_version || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Browser</span>
+                <span class="device-card__value">{{ employee.device.browser || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Browser Version</span>
+                <span class="device-card__value">{{ employee.device.browser_version || "—" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="device-section__title">Network & Activity</p>
+            <div class="device-section__grid">
+              <div class="device-card__item">
+                <span class="device-card__label">IP Address</span>
+                <span class="device-card__value">{{ employee.device.ip_address || "—" }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Registered</span>
+                <span class="device-card__value">{{ formatDeviceDate(employee.device.created_at) }}</span>
+              </div>
+              <div class="device-card__item">
+                <span class="device-card__label">Last Update</span>
+                <span class="device-card__value">{{ formatDeviceDate(employee.device.updated_at) }}</span>
+              </div>
+              @if (employee.device.fcm_token) {
+              <div class="device-card__item device-card__item--wide">
+                <span class="device-card__label">Push Token</span>
+                <span class="device-card__value text-break">{{ employee.device.fcm_token }}</span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <div class="mt-auto d-flex flex-column gap-2">
+        @if (employee.device) {
+        <button class="btn btn-lg btn-outline-primary w-100" (click)="openClearSession()"
+          [disabled]="clearSessionLoading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 12h8m-4-4l4 4l-4 4" />
+              <path d="M12 6v-.5C12 3.015 9.985 1 7.5 1H7a6 6 0 0 0-6 6v4a6 6 0 0 0 6 6h.5" />
+              <path d="M12 18v.5c0 2.485 2.015 4.5 4.5 4.5h.5a6 6 0 0 0 6-6v-4a6 6 0 0 0-6-6h-.5" />
+            </g>
+          </svg>
+          <span>Clear Session</span>
+        </button>
+        }
+
+        @if (!isEmployeeActive) {
+        <!-- <div class="info">
         <h6>Password</h6>
         <span>**********</span>
       </div> -->
-      @if (isEmployeeDisabled) {
-      <button class="btn btn-lg btn-success w-100 mt-auto" (click)="openActivate()">
-        <!-- SVG and Activate -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-            d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
-        </svg>
-        <span>Activate</span>
-      </button>
-      } @else if (isEmployeeInactive) {
-      <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resendActiveLink()" [disabled]="resendLoading">
-        <!-- SVG and Send in Email -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path
-              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
-            <path stroke-linecap="round"
-              d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
-          </g>
-        </svg>
-        <span>Send in Email</span>
-      </button>
-      } @else {
-      <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resendActiveLink()" [disabled]="resendLoading">
-        <!-- SVG and Send Again -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path
-              d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
-            <path stroke-linecap="round"
-              d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
-          </g>
-        </svg>
-        <span>Send Again</span>
-      </button>
-      } } @if (isEmployeeActive) {
-      <div class="mt-auto d-flex flex-column gap-2">
+        @if (isEmployeeDisabled) {
+        <button class="btn btn-lg btn-success w-100 mt-auto" (click)="openActivate()">
+          <!-- SVG and Activate -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+              d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+          </svg>
+          <span>Activate</span>
+        </button>
+        } @else if (isEmployeeInactive) {
+        <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resendActiveLink()" [disabled]="resendLoading">
+          <!-- SVG and Send in Email -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+              <path stroke-linecap="round"
+                d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+            </g>
+          </svg>
+          <span>Send in Email</span>
+        </button>
+        } @else {
+        <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resendActiveLink()" [disabled]="resendLoading">
+          <!-- SVG and Send Again -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12s0 5.657-1.172 6.828S17.771 20 14 20h-4c-3.771 0-5.657 0-6.828-1.172S2 15.771 2 12Z" />
+              <path stroke-linecap="round"
+                d="m6 8l2.159 1.8c1.837 1.53 2.755 2.295 3.841 2.295s2.005-.765 3.841-2.296L18 8" />
+            </g>
+          </svg>
+          <span>Send Again</span>
+        </button>
+        }
+        } @else {
         <button class="btn btn-lg btn-outline-danger w-100" (click)="openDeactivate()">
           <!-- SVG and Deactivate -->
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -361,7 +461,7 @@
           </svg>
           <span>Deactivate</span>
         </button>
-        <button class="btn btn-lg btn-primary w-100" (click)="resetPassword()" [disabled]="resetLoading">
+        <button class="btn btn-lg btn-primary w-100 mt-auto" (click)="resetPassword()" [disabled]="resetLoading">
           <!-- SVG and Reset Password -->
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -369,8 +469,8 @@
           </svg>
           <span>Reset Password</span>
         </button>
+        }
       </div>
-      }
     </div>
   </div>
 
@@ -535,6 +635,29 @@
     <span>Activate</span>
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- clear session popup -->
+<app-popup [title]="'Clear Employee Session'" [paragraph1]="
+    'Are you sure you want to clear the active session for &quot;' +
+    (employee?.contact_info?.name || '') +
+    '&quot;?'
+  " [paragraph2]="'This will sign the employee out from all devices immediately.'"
+  [isOpen]="clearSessionOpen && !!employee?.device" (close)="closeClearSession()">
+  <button modal-btn-left class="btn btn-lg btn-outline-primary w-100" (click)="confirmClearSession()"
+    [disabled]="clearSessionLoading">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 12h8m-4-4l4 4l-4 4" />
+        <path d="M12 6v-.5C12 3.015 9.985 1 7.5 1H7a6 6 0 0 0-6 6v4a6 6 0 0 0 6 6h.5" />
+        <path d="M12 18v.5c0 2.485 2.015 4.5 4.5 4.5h.5a6 6 0 0 0 6-6v-4a6 6 0 0 0-6-6h-.5" />
+      </g>
+    </svg>
+    <span>Clear Session</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeClearSession()">
     Cancel
   </button>
 </app-popup>

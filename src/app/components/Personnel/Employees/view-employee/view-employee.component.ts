@@ -285,6 +285,8 @@ export class ViewEmployeeComponent implements OnInit {
   resetLoading = false;
   activateLoading = false;
   deactivateLoading = false;
+  clearSessionLoading = false;
+  clearSessionOpen = false;
 
   confirmDeactivate() {
     this.deactivateLoading = true;
@@ -408,6 +410,54 @@ export class ViewEmployeeComponent implements OnInit {
 
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.infinity : false;
+  }
+
+  formatDeviceDate(dateString?: string | null): string {
+    if (!dateString) {
+      return 'N/A';
+    }
+    const normalized = dateString.includes('T') ? dateString : dateString.replace(' ', 'T');
+    const parsed = new Date(normalized);
+    if (isNaN(parsed.getTime())) {
+      return 'N/A';
+    }
+    return parsed.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  openClearSession(): void {
+    if (!this.employee?.device) {
+      return;
+    }
+    this.clearSessionOpen = true;
+  }
+
+  closeClearSession(): void {
+    this.clearSessionOpen = false;
+  }
+
+  confirmClearSession(): void {
+    if (!this.employee) {
+      return;
+    }
+    this.clearSessionLoading = true;
+    this.clearSessionOpen = false;
+    this.employeeService.clearEmployeeSession(this.employee.id).subscribe({
+      next: () => {
+        this.toasterMessageService.showSuccess('Session cleared successfully');
+        this.clearSessionLoading = false;
+      },
+      error: (error) => {
+        console.error('Error clearing session', error);
+        this.toasterMessageService.showError('Error clearing session');
+        this.clearSessionLoading = false;
+      }
+    });
   }
 
   // File upload handling for documents
