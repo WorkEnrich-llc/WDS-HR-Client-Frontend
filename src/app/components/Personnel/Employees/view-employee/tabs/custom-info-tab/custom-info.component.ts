@@ -172,12 +172,12 @@ export class CustomInfoComponent implements OnChanges {
 
     if (control.errors['minlength']) {
       const requiredLength = control.errors['minlength'].requiredLength;
-      return `This field must be at least ${requiredLength} characters long.`;
+      return `This field must be at least ${requiredLength} .`;
     }
 
     if (control.errors['maxlength']) {
       const requiredLength = control.errors['maxlength'].requiredLength;
-      return `This field cannot exceed ${requiredLength} characters.`;
+      return `This field cannot exceed ${requiredLength} .`;
     }
 
     if (control.errors['email']) {
