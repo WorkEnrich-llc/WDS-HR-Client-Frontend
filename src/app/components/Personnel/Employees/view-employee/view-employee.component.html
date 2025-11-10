@@ -113,6 +113,21 @@
         <h6>Marital Status</h6>
         <span>{{ employee.contact_info.marital_status.name }}</span>
       </div>
+
+
+      <div class="info">
+        @for(item of customFieldValues; track item.id) {
+
+        @if(item.custom_field.pinned === true || item.value.value) {
+        <h6>{{ item.custom_field.input_option.label }}</h6>
+        <span>{{ item.value.value }}</span>
+        }
+        }
+      </div>
+
+
+
+
     </div>
 
     <div class="content-box d-flex flex-column gap-3 w-100">
@@ -571,7 +586,11 @@
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
           }@if (currentTab === 'custom-info') {
-          <app-custom-info [employee]="employee"></app-custom-info>
+          <!-- <app-custom-info [employee]="employee"></app-custom-info> -->
+
+          <app-custom-info [customFieldValues]="customFieldValues" [isLoading]="isLoading"
+            (valueUpdated)="handleValueUpdate($event)" (fieldDeleted)="handleFieldDelete($event)">
+          </app-custom-info>
           }
         </div>
       </div>
