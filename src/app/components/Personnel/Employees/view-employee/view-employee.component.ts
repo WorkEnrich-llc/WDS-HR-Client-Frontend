@@ -15,6 +15,8 @@ import { DocumentsTabComponent } from './tabs/documents-tab/documents-tab.compon
 import { ContractsTabComponent } from './tabs/contracts-tab/contracts-tab.component';
 import { LeaveBalanceTabComponent } from './tabs/leave-balance-tab/leave-balance-tab.component';
 import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.component';
+import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
+import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 
 
 
@@ -39,12 +41,16 @@ export class ViewEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
+  private customFieldsService = inject(CustomFieldsService);
 
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
   employeeId: number = 0;
   isLoading = false;
+
+  customFieldValues: CustomFieldValueItem[] = [];
+  readonly app_name = 'personnel';
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' = 'attendance';
@@ -104,6 +110,7 @@ export class ViewEmployeeComponent implements OnInit {
         this.loadEmployeeData();
       }
     });
+    this.loadCustomValues();
   }
 
   loadEmployeeData(): void {
@@ -122,6 +129,66 @@ export class ViewEmployeeComponent implements OnInit {
       }
     });
   }
+
+  loadCustomValues(): void {
+    this.isLoading = true;
+    const modelName = 'employees';
+    const objectId = this.route.snapshot.paramMap.get('id');
+
+    if (!modelName || !objectId) {
+      console.error('Could not load custom field values');
+      this.isLoading = false;
+      return;
+    }
+
+    const params: CustomFieldValuesParams = {
+      app_name: this.app_name,
+      model_name: modelName,
+      object_id: objectId
+    };
+
+    this.customFieldsService.getCustomFieldValues(params).subscribe({
+      next: (response) => {
+        this.customFieldValues = response.data.list_items;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  handleValueUpdate(payload: UpdateCustomValueRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.updateCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.toasterMessageService.showSuccess('Value updated successfully!');
+        this.loadCustomValues();
+        this.loadEmployeeData();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.toasterMessageService.showError('Update failed');
+      }
+    });
+  }
+
+  handleFieldDelete(payload: UpdateFieldRequest): void {
+    this.isLoading = true;
+    this.customFieldsService.deleteCustomFieldValue(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        // this.toasterMessageService.showSuccess('Field deleted!');
+        this.loadCustomValues();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.toasterMessageService.showError('Delete failed');
+      }
+    });
+  }
+
 
   // Legacy property for backward compatibility with template
   get employeeData() {
@@ -218,6 +285,8 @@ export class ViewEmployeeComponent implements OnInit {
   resetLoading = false;
   activateLoading = false;
   deactivateLoading = false;
+  clearSessionLoading = false;
+  clearSessionOpen = false;
 
   confirmDeactivate() {
     this.deactivateLoading = true;
@@ -341,6 +410,54 @@ export class ViewEmployeeComponent implements OnInit {
 
     const allowedAction = employeeSub.allowed_actions.find(a => a.name === action);
     return allowedAction ? allowedAction.infinity : false;
+  }
+
+  formatDeviceDate(dateString?: string | null): string {
+    if (!dateString) {
+      return 'N/A';
+    }
+    const normalized = dateString.includes('T') ? dateString : dateString.replace(' ', 'T');
+    const parsed = new Date(normalized);
+    if (isNaN(parsed.getTime())) {
+      return 'N/A';
+    }
+    return parsed.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  openClearSession(): void {
+    if (!this.employee?.device) {
+      return;
+    }
+    this.clearSessionOpen = true;
+  }
+
+  closeClearSession(): void {
+    this.clearSessionOpen = false;
+  }
+
+  confirmClearSession(): void {
+    if (!this.employee) {
+      return;
+    }
+    this.clearSessionLoading = true;
+    this.clearSessionOpen = false;
+    this.employeeService.clearEmployeeSession(this.employee.id).subscribe({
+      next: () => {
+        this.toasterMessageService.showSuccess('Session cleared successfully');
+        this.clearSessionLoading = false;
+      },
+      error: (error) => {
+        console.error('Error clearing session', error);
+        this.toasterMessageService.showError('Error clearing session');
+        this.clearSessionLoading = false;
+      }
+    });
   }
 
   // File upload handling for documents

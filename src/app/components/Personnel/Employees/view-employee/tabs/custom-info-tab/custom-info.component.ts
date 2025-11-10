@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { Employee } from 'app/core/interfaces/employee';
+import { CustomFieldObject, CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
+import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 interface CustomField {
   label: string;
@@ -15,61 +20,177 @@ interface EditState {
 
 @Component({
   selector: 'app-custom-info',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PopupComponent],
   templateUrl: './custom-info.component.html',
   styleUrl: './custom-info.component.css'
 })
-export class CustomInfoComponent implements OnInit {
-  @Input() employee: Employee | null = null;
-  @Output() fieldsUpdated = new EventEmitter<CustomField[]>();
+export class CustomInfoComponent implements OnChanges {
+
+  @Output() valueUpdated = new EventEmitter<UpdateCustomValueRequest>();
+  @Output() fieldDeleted = new EventEmitter<UpdateFieldRequest>();
+  @Input() customFieldValues: CustomFieldValueItem[] = [];
+
+  @Input() isLoading: boolean = false;
+
   editStates: EditState[] = [];
+  isDeleteModalOpen: boolean = false;
+  selectedField!: number;
 
-  fields: CustomField[] = [
-    { label: 'License ID', value: '12345-ABC' },
-    { label: 'License Expiry Date', value: '24/5/2026' },
-    { label: 'Date of Birth', value: '1/8/1992' }
-  ];
+  customInfoForm: FormGroup = new FormGroup({
+    fields: new FormArray([])
+  });
 
-  ngOnInit(): void {
-    this.resetEditStates();
+  get fieldsArray() {
+    return this.customInfoForm.get('fields') as FormArray;
   }
 
-  resetEditStates(): void {
-    this.editStates = this.fields.map(field => ({
-      isEditing: false,
-      editValue: field.value
-    }));
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['customFieldValues'] && this.customFieldValues) {
+      this.buildFormFromData(this.customFieldValues);
+    }
   }
 
-
-  onEdit(i: number) {
-    this.editStates[i].isEditing = true;
-    setTimeout(() => {
-      const input = document.querySelectorAll('.edit-input')[i] as HTMLInputElement;
-      input?.focus();
+  buildFormFromData(items: CustomFieldValueItem[]): void {
+    this.fieldsArray.clear();
+    items.forEach(item => {
+      this.fieldsArray.push(this.createFieldGroup(item));
     });
   }
 
 
-  onRemove(index: number): void {
-    this.fields.splice(index, 1);
-    this.editStates.splice(index, 1);
+  createFieldGroup(item: CustomFieldValueItem): FormGroup {
+    const fieldOptions = item.custom_field.input_option;
 
-    this.fieldsUpdated.emit(this.fields);
+    let htmlInputType = 'text';
+    switch (fieldOptions.type) {
+      case 'integer':
+      case 'number':
+        htmlInputType = 'number';
+        break;
+      case 'email':
+        htmlInputType = 'email';
+        break;
+      case 'date':
+        htmlInputType = 'date';
+        break;
+    }
+
+    return new FormGroup({
+      value_id: new FormControl(item.id),
+      custom_field: new FormControl(item.custom_field),
+      originalValue: new FormControl(item.value.value),
+      label: new FormControl({ value: fieldOptions.label, disabled: true }),
+      value: new FormControl(
+        { value: item.value.value, disabled: true },
+        [
+          fieldOptions.required ? Validators.required : null,
+          fieldOptions.min_length ? Validators.minLength(fieldOptions.min_length) : null,
+          fieldOptions.max_length ? Validators.maxLength(fieldOptions.max_length) : null,
+        ].filter(v => v !== null) as ValidatorFn[]
+      ),
+
+      htmlType: new FormControl({ value: htmlInputType, disabled: true }),
+      placeholder: new FormControl({ value: fieldOptions.placeholder, disabled: true })
+    });
   }
 
-
-  onConfirm(index: number): void {
-    this.fields[index].value = this.editStates[index].editValue;
-    this.editStates[index].isEditing = false;
-
-    this.fieldsUpdated.emit(this.fields);
-
+  onEdit(index: number): void {
+    this.fieldsArray.at(index)?.get('value')?.enable();
   }
-
 
   onCancel(index: number): void {
-    this.editStates[index].isEditing = false;
+    const group = this.fieldsArray.at(index) as FormGroup;
+    const control = group.get('value');
+    const originalValue = group.get('originalValue')?.value;
+
+    if (control) {
+      control.setValue(originalValue);
+      control.disable();
+    }
   }
+
+  onConfirm(index: number): void {
+    const group = this.fieldsArray.at(index) as FormGroup;
+    const control = group.get('value');
+
+    if (group.invalid) {
+      group.markAllAsTouched();
+      return;
+    }
+
+    control?.disable();
+    const rawData = group.getRawValue();
+
+    const payload: UpdateCustomValueRequest = {
+      request_data: {
+        id: rawData.value_id,
+        value: rawData.value
+      }
+    };
+
+
+    this.valueUpdated.emit(payload);
+
+    group.get('originalValue')?.setValue(rawData.value);
+  }
+
+  onRemove(index: number): void {
+    const group = this.fieldsArray.at(index) as FormGroup;
+    const customField = group.get('custom_field')?.value as CustomFieldObject;
+
+    const payload: UpdateFieldRequest = {
+      request_data: {
+        id: customField.id,
+        target_model: customField.target_model,
+        input_option: customField.input_option
+      }
+    };
+    this.fieldDeleted.emit(payload);
+  }
+
+
+  openDeleteModal(index: number): void {
+    this.selectedField = index;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen = false;
+    this.selectedField = null!;
+  }
+
+  public getErrorMessage(control: AbstractControl | null): string {
+    if (!control || !control.errors || !(control.dirty || control.touched)) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return 'This field is required.';
+    }
+
+    if (control.errors['minlength']) {
+      const requiredLength = control.errors['minlength'].requiredLength;
+      return `This field must be at least ${requiredLength} characters long.`;
+    }
+
+    if (control.errors['maxlength']) {
+      const requiredLength = control.errors['maxlength'].requiredLength;
+      return `This field cannot exceed ${requiredLength} characters.`;
+    }
+
+    if (control.errors['email']) {
+      return 'Please enter a valid email address.';
+    }
+
+    if (control.errors['pattern']) {
+      return 'The value format is invalid.';
+    }
+
+    return 'Invalid value.';
+  }
+
+
+
 
 }
