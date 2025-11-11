@@ -1411,6 +1411,9 @@ export class ManageEmployeeSharedService {
     }
 
     if (managementLevel === 5 || managementLevel === 4) {
+      if (formData.job_details.branch_id) {
+        jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+      }
       if (formData.job_details.department_id) {
         jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
       }
