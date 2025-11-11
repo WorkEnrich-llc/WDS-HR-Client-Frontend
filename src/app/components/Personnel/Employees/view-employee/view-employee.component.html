@@ -596,7 +596,6 @@
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
           }@if (currentTab === 'custom-info') {
-          <!-- <app-custom-info [employee]="employee"></app-custom-info> -->
           <app-custom-info [customFieldValues]="customFieldValues" [isLoading]="isLoading"
             (valueUpdated)="handleValueUpdate($event)" (fieldDeleted)="handleFieldDelete($event)">
           </app-custom-info>
