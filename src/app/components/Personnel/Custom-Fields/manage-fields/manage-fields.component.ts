@@ -25,7 +25,7 @@ export class ManageFieldsComponent {
   readonly dataTypes: DataType[] = [
     { name: 'text', value: 'string' },
     { name: 'number', value: 'number' },
-    { name: 'integer', value: 'integer' },
+    // { name: 'integer', value: 'integer' },
     { name: 'email', value: 'email' },
     { name: 'date', value: 'date' },
   ];
@@ -43,7 +43,7 @@ export class ManageFieldsComponent {
 
   isSubmitting = false;
   isEditMode = false;
-  private currentFieldId?: number;
+  currentFieldId?: number;
   id?: number;
   createDate: string = '';
   updatedDate: string = '';
@@ -84,10 +84,11 @@ export class ManageFieldsComponent {
 
   private initFormModel(): void {
     this.customFieldForm = this.fb.group({
-      label: ['', [Validators.required]],
+      label: ['', [Validators.required, Validators.maxLength(80)]],
       target_model: ['', [Validators.required]],
       type: ['', [Validators.required]],
       required: [false, [Validators.required]],
+      pinned: [false, [Validators.required]],
     });
   }
 
@@ -101,6 +102,7 @@ export class ManageFieldsComponent {
         label: fieldData.input_option.label,
         type: fieldData.input_option.type,
         required: fieldData.input_option.required,
+        pinned: fieldData.pinned,
       });
     });
   }
@@ -135,7 +137,8 @@ export class ManageFieldsComponent {
     const requestData: UpdateFieldRequestData = {
       id: this.currentFieldId,
       target_model: formValues.target_model,
-      input_option: inputOptions
+      input_option: inputOptions,
+      pinned: formValues.pinned
     };
 
     const finalRequest: CreateFieldRequest = {

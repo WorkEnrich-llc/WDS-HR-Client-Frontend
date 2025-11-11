@@ -153,6 +153,23 @@ export interface Employee {
   employee_status: string; // "New Employee" | "Employed" | etc.
   created_at: string;
   updated_at: string;
+  device?: {
+    id: number;
+    last_seen: string;
+    is_main: boolean;
+    device_ln: string | null;
+    device_type: string | null;
+    device_family: string | null;
+    device_model: string | null;
+    os_device: string | null;
+    os_version: string | null;
+    browser: string | null;
+    ip_address: string | null;
+    browser_version: string | null;
+    fcm_token?: string | null;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 // Subscription related interfaces

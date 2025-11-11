@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { CreateFieldRequest, CustomField, CustomFieldDetailResponse, CustomFieldFilters, CustomFieldObject, TargetModelItem, TargetModelResponse, UpdateFieldRequest, UpdateStatusRequest } from 'app/core/models/custom-field';
+import { CreateFieldRequest, CustomField, CustomFieldDetailResponse, CustomFieldFilters, CustomFieldObject, CustomFieldValuesParams, CustomFieldValuesResponse, TargetModelItem, TargetModelResponse, UpdateCustomValueRequest, UpdateFieldRequest, UpdateStatusRequest } from 'app/core/models/custom-field';
 import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 
@@ -13,6 +13,7 @@ export class CustomFieldsService {
   private readonly baseUrl = `${environment.apiBaseUrl}`;
   private readonly url = `${this.baseUrl}main/admin-settings/custom-fields`;
   private readonly modalUrl = `${this.baseUrl}main/admin-settings/custom-fields/target-models`;
+  private readonly valuesUrl = `${this.baseUrl}main/admin-settings/custom-field/values`;
 
 
   constructor() { }
@@ -25,7 +26,7 @@ export class CustomFieldsService {
 
   // update component
   updateCustomField(data: UpdateFieldRequest): Observable<CustomFieldDetailResponse> {
-    const fieldId = data.request_data.id;
+    // const fieldId = data.request_data.id;
     return this.http.put<CustomFieldDetailResponse>(`${this.url}`, data);
   }
 
@@ -75,6 +76,33 @@ export class CustomFieldsService {
     }
 
     return this.http.get(this.url, { params });
+  }
+
+
+
+  // Get custom field values
+  getCustomFieldValues(params: CustomFieldValuesParams, pageNumber: number,
+    perPage: number): Observable<CustomFieldValuesResponse> {
+
+    let httpParams = new HttpParams()
+      .set('app_name', params.app_name)
+      .set('model_name', params.model_name)
+      .set('object_id', params.object_id.toString())
+      .set('page', pageNumber.toString())
+      .set('per_page', perPage.toString());
+
+    return this.http.get<CustomFieldValuesResponse>(this.valuesUrl, { params: httpParams });
+  }
+
+  // Update custom field value
+  updateCustomFieldValue(payload: UpdateCustomValueRequest): Observable<CustomFieldValuesResponse> {
+    return this.http.put<CustomFieldValuesResponse>(this.valuesUrl, payload);
+  }
+
+  // delete custom field
+  deleteCustomFieldValue(payload: UpdateFieldRequest): Observable<void> {
+    const fieldId = payload.request_data.id;
+    return this.http.delete<void>(`${this.url}/${fieldId}/`, { body: payload });
   }
 
 

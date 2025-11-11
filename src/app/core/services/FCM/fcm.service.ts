@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Messaging } from '@angular/fire/messaging';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { Observable, from } from 'rxjs';
-import { environment } from './../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { initializeApp } from 'firebase/app';
 
 @Injectable({

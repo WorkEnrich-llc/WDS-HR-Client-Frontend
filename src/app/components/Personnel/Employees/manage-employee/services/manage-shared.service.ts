@@ -228,7 +228,7 @@ export class ManageEmployeeSharedService {
     const params: any = {
       management_level: managementLevel.toString(),
       branch_id: branchId.toString(),
-      // request_in: 'create'
+      request_in: 'create'
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -663,7 +663,13 @@ export class ManageEmployeeSharedService {
     const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
       ? this.jobTitles()[0]
       : null;
-    this.jobsService.getAllJobTitles(1, 100, { management_level: management.toString() }).subscribe({
+
+    const params: any = {
+      management_level: management.toString(),
+      request_in: 'create'
+    };
+
+    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
       next: (res) => {
         if (this.jobDetails.get('management_level')?.value?.toString() === management) {
 
@@ -743,7 +749,12 @@ export class ManageEmployeeSharedService {
     const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
       ? this.jobTitles()[0]
       : null;
-    this.jobsService.getAllJobTitles(1, 100, { department: departmentId.toString() }).subscribe({
+    const params: any = {
+      department: departmentId.toString(),
+      request_in: 'create'
+    };
+
+    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
       next: (res) => {
         // const jobTitles = res.data?.list_items || [];
         // this.jobTitles.set(jobTitles);
@@ -773,7 +784,13 @@ export class ManageEmployeeSharedService {
     const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
       ? this.jobTitles()[0]
       : null;
-    this.jobsService.getAllJobTitles(1, 100, { section: sectionId.toString() }).subscribe({
+
+    const params: any = {
+      section: sectionId.toString(),
+      request_in: 'create'
+    };
+
+    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
       next: (res) => {
         // if (this.jobDetails.get('section_id')?.value === sectionId) {
         // const jobTitles = res.data?.list_items || [];

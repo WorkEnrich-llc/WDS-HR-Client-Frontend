@@ -1,9 +1,9 @@
 import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from './../../../../../environments/environment';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
 import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse, EmployeeLeaveBalance, EmployeeLeaveBalanceResponse } from '../../../interfaces/contract';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -100,6 +100,23 @@ export class EmployeeService {
     const formData = new FormData();
     formData.append('id', id.toString());
     return this.http.put<EmployeeDetailResponse>(url, formData);
+  }
+
+  clearEmployeeSession(deviceId: number, employeeId: number): Observable<EmployeeDetailResponse> {
+    const url = `${this.apiBaseUrl}personnel/employees/devices`;
+
+    const formData = new FormData();
+    formData.append('device_id', deviceId.toString());
+    formData.append('employee_id', employeeId.toString());
+
+    return this.http.patch<EmployeeDetailResponse>(url, formData);
+  }
+
+  getEmployeeDevices(employeeId: number, page: number = 1, perPage: number = 10): Observable<any> {
+    let params = new HttpParams().set('employee_id', employeeId.toString());
+    params = params.set('page', page.toString()).set('per_page', perPage.toString());
+    const url = `${this.apiBaseUrl}personnel/employees/devices`;
+    return this.http.get<any>(url, { params });
   }
 
   // Update an existing employee record

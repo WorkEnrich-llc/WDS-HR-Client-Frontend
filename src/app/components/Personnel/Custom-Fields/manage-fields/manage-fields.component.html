@@ -2,8 +2,8 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Custom Fields', link: '/custom-fields' },
     { label: 'Custom Fields', link: '/custom-fields/all-custom-fields' },
-    { label: isEditMode ? 'Edit Custom Field ' + id : 'Create Custom Field'}
-]" [title]="isEditMode ? 'Edit Custom Field ' + id : 'Create Custom Field'" [create]="createDate"
+    { label: isEditMode ? 'Edit Custom Field ' + currentFieldId : 'Create Custom Field'}
+]" [title]="isEditMode ? 'Edit Custom Field ' + currentFieldId : 'Create Custom Field'" [create]="createDate"
    [update]="updatedDate">
    <button class="btn btn-lg btn-success w-auto" (click)="createCustomField()"
       [disabled]="customFieldForm.invalid || isLoading">
@@ -47,6 +47,12 @@
             customFieldForm.get('label')?.errors?.['required']) {
             <p class="error-msg">
                Field Name is required.
+            </p>
+            }
+            @if(customFieldForm.get('label')?.touched && customFieldForm.get('label')?.dirty &&
+            customFieldForm.get('label')?.errors?.['maxlength']) {
+            <p class="error-msg">
+               Field Name cannot exceed 80 characters.
             </p>
             }
          </div>
@@ -103,6 +109,19 @@
          customFieldForm.get('required')?.errors?.['required']) {
          <p class="error-msg">
             Mandatory field is required.
+         </p>
+         }
+
+         <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <input class="form-check-input m-0" type="checkbox" id="pinned" formControlName="pinned">
+            <label class="form-check-label m-0" for="pinned">
+               Pinned
+            </label>
+         </div>
+         @if (customFieldForm.get('pinned')?.touched &&
+         customFieldForm.get('pinned')?.errors?.['required']) {
+         <p class="error-msg">
+            Pinned field is required.
          </p>
          }
 

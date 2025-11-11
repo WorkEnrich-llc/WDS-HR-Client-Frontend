@@ -16,12 +16,12 @@ export class ApprovalRequestsService {
 
   // Get approval requests with pagination and filters
   getApprovalRequests(
-    page: number = 1, 
-    per_page: number = 10, 
+    page: number = 1,
+    per_page: number = 10,
     filters: ApprovalRequestFilters = {}
   ): Observable<ApprovalRequestsResponse> {
     let url = `${this.apiBaseUrl}personnel/requests?page=${page}&per_page=${per_page}`;
-    
+
     // Add filters to the URL
     if (filters.search) {
       url += `&search=${filters.search}`;
@@ -54,7 +54,7 @@ export class ApprovalRequestsService {
   // Get approval requests for a specific employee
   getEmployeeRequests(
     employeeId: number,
-    page: number = 1, 
+    page: number = 1,
     per_page: number = 10,
     search: string = ''
   ): Observable<ApprovalRequestsResponse> {
@@ -62,7 +62,7 @@ export class ApprovalRequestsService {
       employee_id: employeeId,
       search: search
     };
-    
+
     return this.getApprovalRequests(page, per_page, filters);
   }
 }
