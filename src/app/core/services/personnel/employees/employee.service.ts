@@ -102,7 +102,6 @@ export class EmployeeService {
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
 
-
   clearEmployeeSession(deviceId: number): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees/devices`;
 
