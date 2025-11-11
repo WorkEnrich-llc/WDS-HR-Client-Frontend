@@ -7,6 +7,7 @@ import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-
 import { IUser } from 'app/core/models/users';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { UserStatus } from '@app/enums';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-view-user',
@@ -30,6 +31,8 @@ export class ViewUserComponent implements OnInit {
   updatedDate: string = '';
   deactivateOpen = false;
   activateOpen = false;
+  isStatusUpdating = false;
+  isUserLoading = false;
 
   userStatus = UserStatus;
 
@@ -41,31 +44,36 @@ export class ViewUserComponent implements OnInit {
 
 
   private loadUserData(): void {
-    this.usersService.getUserById(this.userId).subscribe({
-      next: (data) => {
-        this.userInfo = {
-          id: data.id,
-          name: data.user?.name,
-          code: data.user?.code,
-          email: data.user?.email,
-          status: data.status,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-          is_active: data.is_active,
-          roles: (data.permissions ?? []).map((p: any) => ({
-            id: p.role?.id,
-            name: p.role?.name
-          }))
-        };
+    this.isUserLoading = true;
+    this.usersService.getUserById(this.userId)
+      .pipe(finalize(() => {
+        this.isUserLoading = false;
+      }))
+      .subscribe({
+        next: (data) => {
+          this.userInfo = {
+            id: data.id,
+            name: data.user?.name,
+            code: data.user?.code,
+            email: data.user?.email,
+            status: data.status,
+            created_at: data.created_at,
+            updated_at: data.updated_at,
+            is_active: data.is_active,
+            roles: (data.permissions ?? []).map((p: any) => ({
+              id: p.role?.id,
+              name: p.role?.name
+            }))
+          };
 
-        this.createDate = this.userInfo?.created_at
-          ? new Date(this.userInfo.created_at).toLocaleDateString('en-GB')
-          : '';
-        this.updatedDate = this.userInfo?.updated_at
-          ? new Date(this.userInfo.updated_at).toLocaleDateString('en-GB')
-          : '';
-      }
-    });
+          this.createDate = this.userInfo?.created_at
+            ? new Date(this.userInfo.created_at).toLocaleDateString('en-GB')
+            : '';
+          this.updatedDate = this.userInfo?.updated_at
+            ? new Date(this.userInfo.updated_at).toLocaleDateString('en-GB')
+            : '';
+        }
+      });
   }
 
   private mapUserData(data: any) {
@@ -100,6 +108,10 @@ export class ViewUserComponent implements OnInit {
   }
 
   confirmDeactivate() {
+    if (this.isStatusUpdating) {
+      return;
+    }
+    this.isStatusUpdating = true;
     this.deactivateOpen = false;
     const userStatus = {
       request_data: {
@@ -107,16 +119,24 @@ export class ViewUserComponent implements OnInit {
       }
     };
     console.log('userStatus', userStatus);
-    this.usersService.updateUserStatus(this.userId, userStatus).subscribe({
+    this.usersService.updateUserStatus(this.userId, userStatus).pipe(
+      finalize(() => {
+        this.isStatusUpdating = false;
+      })
+    ).subscribe({
       next: () => {
         this.toasterService.showSuccess('User deactivated successfully');
-        this.loadUserData();
+        this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
     });
   }
 
   confirmActivate() {
+    if (this.isStatusUpdating) {
+      return;
+    }
+    this.isStatusUpdating = true;
     this.activateOpen = false;
     const userStatus = {
       request_data: {
@@ -124,10 +144,14 @@ export class ViewUserComponent implements OnInit {
       }
     };
     console.log('userStatus', userStatus);
-    this.usersService.updateUserStatus(this.userId, userStatus).subscribe({
+    this.usersService.updateUserStatus(this.userId, userStatus).pipe(
+      finalize(() => {
+        this.isStatusUpdating = false;
+      })
+    ).subscribe({
       next: () => {
         this.toasterService.showSuccess('User activated successfully');
-        this.loadUserData();
+        this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
     });
@@ -178,4 +202,8 @@ export class ViewUserComponent implements OnInit {
   //     error: err => console.error('Activate failed', err)
   //   });
   // }
+
+  private refreshUserDetails(): void {
+    this.loadUserData();
+  }
 }

@@ -6,7 +6,7 @@
   ]" [title]="isEditMode ? 'Edit Role ' + roleName  : 'Create New Role'" [create]="createDate" [update]="updatedDate">
 
     <button class="btn btn-lg btn-success" (click)="createRole()"
-        [disabled]="createRoleForm.invalid || !hasAnySelectedPermission()">
+        [disabled]="isLoading || createRoleForm.invalid || !hasAnySelectedPermission()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -971,7 +971,8 @@
                             stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                     </svg>
                 </button>
-                <button class="btn btn-lg btn-success" (click)="createRole()">
+                <button class="btn btn-lg btn-success" (click)="createRole()"
+                    [disabled]="isLoading || createRoleForm.invalid || !hasAnySelectedPermission()">
                     @if (isLoading) {
                     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                     }

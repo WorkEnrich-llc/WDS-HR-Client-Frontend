@@ -111,10 +111,16 @@
 <app-overlay-filter-box #filterBox [title]="'Filters'">
   <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
-      <label for="recipients">Recipients</label>
+      <label for="recipientType">Recipient Type</label>
       <div class="form-outline w-100 position-relative custom-date-wrapper">
-        <input id="recipients" type="text" class="form-control custom-date-input" placeholder="Enter recipient name"
-          formControlName="recipients" />
+        <select id="recipientType" class="form-control custom-date-input" formControlName="recipient_type">
+          <option value="">All Types</option>
+          <option value="1">Department</option>
+          <option value="2">Section</option>
+          <option value="3">Employee</option>
+          <option value="4">Branch</option>
+          <option value="5">Company</option>
+        </select>
       </div>
     </div>
     <div class="d-flex align-items-center gap-3">

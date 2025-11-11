@@ -10,9 +10,14 @@ import { Roles } from 'app/core/models/roles';
 import { CloseDropdownDirective } from 'app/core/directives/close-dropdown.directive';
 import { firstValueFrom } from 'rxjs';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-import { IPermission, IUser } from 'app/core/models/users';
+import { IPermission, IUser, IRole } from 'app/core/models/users';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+
+interface SelectedRole {
+  id: number;
+  name: string;
+}
 
 @Component({
   selector: 'app-add-user',
@@ -39,7 +44,7 @@ export class ManageUserComponent implements OnInit {
   updatedDate: string = '';
   isEditMode = false;
   userRoles: Roles[] = [];
-  selectedRoles: Roles[] = [];
+  selectedRoles: SelectedRole[] = [];
   userId!: number;
   isDropdownOpen = false;
   isExistingUser = false;
@@ -79,24 +84,54 @@ export class ManageUserComponent implements OnInit {
     });
   }
 
+  private enableUserControls(): void {
+    this.usersForm.get('code')?.enable({ emitEvent: false });
+    this.usersForm.get('user_name')?.enable({ emitEvent: false });
+    this.usersForm.get('permissions')?.enable({ emitEvent: false });
+  }
+
   private loadDataForEditMode(): void {
     this.userId = Number(this.route.snapshot.paramMap.get('id'));
     this.isEditMode = !!this.userId;
     if (this.isEditMode) {
       this.usersService.getUserById(this.userId).subscribe({
         next: (data) => {
+          if (!data) {
+            return;
+          }
+
+          const permissionsData = (data.permissions ?? []) as IPermission[];
+          const permissions = permissionsData
+            .map((permission: IPermission) => permission.role?.id)
+            .filter((roleId): roleId is number => typeof roleId === 'number');
+
           this.usersForm.patchValue({
-            code: data.user.code,
-            user_name: data.user.name,
-            email: data.user.email,
-            permissions: (data.permissions ?? []).map((p: any) => p.role?.id)
+            code: data.user?.code ?? '',
+            user_name: data.user?.name ?? '',
+            email: data.user?.email ?? '',
+            permissions
           });
-          this.selectedRoles = (data.permissions ?? []).map((p: any) => ({
-            id: p.role?.id,
-            name: p.role?.name
-          }));
-          this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
-          this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
+
+          this.selectedRoles = permissionsData
+            .map((permission: IPermission): SelectedRole | null => {
+              const role: IRole | undefined = permission.role;
+              if (!role || role.id == null || !role.name) {
+                return null;
+              }
+              return { id: role.id, name: role.name };
+            })
+            .filter((role): role is SelectedRole => role !== null);
+
+          this.enableUserControls();
+          this.isExistingUser = false;
+          this.isAdmin = false;
+
+          if (data.created_at) {
+            this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
+          }
+          if (data.updated_at) {
+            this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
+          }
         },
         error: (err) => console.error('Failed to load user information', err)
       });
@@ -124,7 +159,11 @@ export class ManageUserComponent implements OnInit {
     const role = this.userRoles.find(r => r.id === roleId);
 
     if (role && !this.selectedRoles.some(r => r.id === role.id)) {
-      this.selectedRoles.push(role);
+      if (role.id == null) {
+        return;
+      }
+      const selectedRole: SelectedRole = { id: role.id, name: role.name };
+      this.selectedRoles.push(selectedRole);
       this.usersForm.patchValue({
         permissions: this.selectedRoles.map(r => r.id),
       });
@@ -143,7 +182,11 @@ export class ManageUserComponent implements OnInit {
 
   selectRole(role: Roles) {
     if (!this.selectedRoles.some(r => r.id === role.id)) {
-      this.selectedRoles.push(role);
+      if (role.id == null) {
+        return;
+      }
+      const selectedRole: SelectedRole = { id: role.id, name: role.name };
+      this.selectedRoles.push(selectedRole);
     }
     this.usersForm.patchValue({
       permissions: this.selectedRoles.map(r => r.id),
@@ -201,6 +244,9 @@ export class ManageUserComponent implements OnInit {
   }
 
   checkEmailExists(): void {
+    if (this.isEditMode) {
+      return;
+    }
     this.isExistingUser = false;
     this.isAdmin = false;
     const emailControl = this.usersForm.get('email');

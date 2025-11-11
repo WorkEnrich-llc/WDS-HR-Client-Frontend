@@ -8,13 +8,16 @@ export class AnnouncementsService {
     private http = inject(HttpClient);
     private apiBaseUrl = environment.apiBaseUrl;
 
-    getAnnouncements(page: number = 1, perPage: number = 10, search: string = '', recipients: string = ''): Observable<any> {
+    getAnnouncements(page: number = 1, perPage: number = 10, search: string = '', recipient_type: string | number = ''): Observable<any> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('per_page', perPage.toString());
 
         if (search) params = params.set('search', search);
-        if (recipients) params = params.set('recipients', recipients);
+
+        if (recipient_type !== '' && recipient_type !== undefined && recipient_type !== null) {
+            params = params.set('recipient_type', String(recipient_type));
+        }
 
         return this.http.get(`${this.apiBaseUrl}main/admin-settings/announce`, { params });
     }
