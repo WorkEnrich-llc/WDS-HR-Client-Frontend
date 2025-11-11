@@ -1,9 +1,9 @@
 import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment.ts';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
 import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse, EmployeeLeaveBalance, EmployeeLeaveBalanceResponse } from '../../../interfaces/contract';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
