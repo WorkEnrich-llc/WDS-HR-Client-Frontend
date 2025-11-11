@@ -88,44 +88,16 @@ export class CustomInfoComponent implements OnChanges {
       case 'email':
         htmlInputType = 'email';
         validators.push(Validators.email);
-        validators.push(noLeadingSpaceValidator());
+        // validators.push(noLeadingSpaceValidator());
         break;
       case 'date':
         htmlInputType = 'date';
         break;
       default:
         htmlInputType = 'text';
-        validators.push(noLeadingSpaceValidator());
+        // validators.push(noLeadingSpaceValidator());
         break;
     }
-
-    // return new FormGroup({
-    //   value_id: new FormControl(item.id),
-    //   custom_field: new FormControl(item.custom_field),
-    //   originalValue: new FormControl(item.value.value),
-    //   label: new FormControl({ value: fieldOptions.label, disabled: true }),
-    //   value: new FormControl(
-    //     { value: item.value.value, disabled: true },
-
-    //     [
-    //       fieldOptions.required ? Validators.required : null,
-    //       fieldOptions.min_length ? Validators.minLength(fieldOptions.min_length) : null,
-    //       fieldOptions.max_length ? Validators.maxLength(fieldOptions.max_length) : null,
-    //       fieldOptions.type === 'email' ? Validators.email : null,
-
-    //       (fieldOptions.type !== 'email' &&
-    //         fieldOptions.type !== 'number' &&
-    //         fieldOptions.type !== 'integer' &&
-    //         fieldOptions.type !== 'date')
-    //         ? noLeadingSpaceValidator() : null
-    //       // noLeadingSpaceValidator(),
-    //     ].filter(v => v !== null) as ValidatorFn[]
-    //   ),
-
-    //   htmlType: new FormControl({ value: htmlInputType, disabled: true }),
-    //   placeholder: new FormControl({ value: fieldOptions.placeholder, disabled: true })
-    // });
-
     return new FormGroup({
       value_id: new FormControl(item.id),
       custom_field: new FormControl(item.custom_field),
@@ -142,25 +114,25 @@ export class CustomInfoComponent implements OnChanges {
     });
   }
 
-  public onInputTrim(index: number, event: Event): void {
+  public onFilterInput(index: number, event: Event): void {
     const group = this.fieldsArray.at(index);
     const control = group?.get('value');
-
-    const type = group?.get('custom_field')?.value.input_option.type;
-
     if (!control) return;
 
+    const type = group.get('custom_field')?.value.input_option.type;
     const inputElement = (event.target as HTMLInputElement);
-    const currentValue = inputElement.value;
-    let newValue = currentValue;
+    const originalValue = inputElement.value;
+    let newValue = originalValue;
 
     if (type === 'email') {
-      newValue = currentValue.replace(/\s/g, '');
+      newValue = originalValue.replace(/\s/g, '');
     } else {
-      newValue = currentValue.trimStart();
+      newValue = originalValue.trimStart();
     }
 
-    if (currentValue !== newValue) {
+    if (originalValue !== newValue) {
+      inputElement.value = newValue;
+
       control.setValue(newValue, { emitEvent: false });
     }
   }
