@@ -6,17 +6,18 @@
 
       <li class="info-item" [formGroupName]="i" [ngClass]="{'editing': !group.get('value')?.disabled}">
 
-         <span class="label">{{ group.get('label')?.value }}</span>
+         <span [title]="group?.get('label')?.value " class="label">{{ group.get('label')?.value }}</span>
 
          <div class="value-area">
 
-            <span class="display-value">
+            <span [title]="group?.get('value')?.value " class="display-value">
                {{ group.get('value')?.value }}
             </span>
 
             <input [type]="group.get('htmlType')?.value" [placeholder]="group.get('placeholder')?.value"
                class="edit-input" formControlName="value"
-               [placeholder]="(group.get('value')?.value) ? '' : group.get('placeholder')?.value">
+               [placeholder]="(group.get('value')?.value) ? '' : group.get('placeholder')?.value"
+               (input)="onFilterInput(i, $event)">
             @let valueControl = group.get('value');
             @if(getErrorMessage(valueControl)) {
             <div class="validation-error">
@@ -41,7 +42,7 @@
                </button>
 
 
-               <button class="icon-btn delete-btn" title="delete" (click)="openDeleteModal(i)">
+               <!-- <button class="icon-btn delete-btn" title="delete" (click)="openDeleteModal(i)">
                   <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                      <path fill-rule="evenodd" clip-rule="evenodd"
                         d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
@@ -57,7 +58,7 @@
                         fill="#E04F5F" />
                   </svg>
 
-               </button>
+               </button> -->
             </ng-container>
             }
 

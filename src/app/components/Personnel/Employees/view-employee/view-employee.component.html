@@ -113,14 +113,16 @@
         <h6>Marital Status</h6>
         <span>{{ employee.contact_info.marital_status.name }}</span>
       </div>
-      <div class="info">
-        @for(item of customFieldValues; track item.id) {
-        @if(item.custom_field.pinned === true || item.value.value) {
-        <h6>{{ item.custom_field.input_option.label }}</h6>
-        <span>{{ item.value.value }}</span>
-        }
-        }
+      <!-- <div class="info"> -->
+      @for(item of customFieldValues; track item.id) {
+      @if(item.custom_field.pinned === true && item.value.value) {
+      <div class="custom-field">
+        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
+        <span [title]="item.value.value">{{ item.value.value }}</span>
       </div>
+      }
+      }
+      <!-- </div> -->
     </div>
 
     <div class="col-12 col-lg-6 col-xl-4">
@@ -246,6 +248,8 @@
       </div>
     </div>
 
+
+
     <div class="col-12 col-lg-6 col-xl-4">
       <div class="content-box d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
@@ -310,7 +314,7 @@
           </span>
         </div>
         @if (employee.device) {
-        <div class="device-card">
+        <!-- <div class="device-card">
           <div class="device-card__header">
             <div>
               <h3>Last Known Device</h3>
@@ -389,6 +393,40 @@
                 </div>
                 }
               </div>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="device-card">
+          <div class="card-header">
+            <div class="header-info">
+              <h3>Last Known Device</h3>
+              <p>Last seen {{ formatDeviceDate(employee.device.last_seen) }}</p>
+            </div>
+            <div class="header-badge">
+              <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-primary' : 'badge-secondary'">
+                {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
+              </span>
+              <!-- <span class="badge">Primary Device</span> -->
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-label">TYPE</span>
+              <span class="info-value">{{ employee.device.device_type || "—" }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">BRAND</span>
+              <span class="info-value">{{ employee.device.device_family || "—" }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">MODEL</span>
+              <span class="info-value">{{ employee.device.device_model || "—" }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">LANGUAGE</span>
+              <span class="info-value">{{ employee.device.device_ln || "—" }}</span>
             </div>
           </div>
         </div>
@@ -594,7 +632,6 @@
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
           }@if (currentTab === 'custom-info') {
-          <!-- <app-custom-info [employee]="employee"></app-custom-info> -->
           <app-custom-info [customFieldValues]="customFieldValues" [isLoading]="isLoading"
             (valueUpdated)="handleValueUpdate($event)" (fieldDeleted)="handleFieldDelete($event)">
           </app-custom-info>
@@ -626,8 +663,8 @@
               <th>IP Address</th>
               <th>Last Seen</th>
               <th>Registered</th>
-              <th>Updated</th>
-              <th>Push Token</th>
+              <!-- <th>Updated</th> -->
+              <!-- <th>Push Token</th> -->
             </ng-template>
 
             <ng-template #devicesTableRow let-device>
@@ -661,10 +698,10 @@
               <td>{{ device.ip_address || '—' }}</td>
               <td>{{ formatDeviceDate(device.last_seen) }}</td>
               <td>{{ formatDeviceDate(device.created_at) }}</td>
-              <td>{{ formatDeviceDate(device.updated_at) }}</td>
+              <!-- <td>{{ formatDeviceDate(device.updated_at) }}</td>
               <td class="device-token-cell">
                 <span>{{ device.fcm_token || '—' }}</span>
-              </td>
+              </td> -->
             </ng-template>
 
             <ng-template #devicesTableEmpty>

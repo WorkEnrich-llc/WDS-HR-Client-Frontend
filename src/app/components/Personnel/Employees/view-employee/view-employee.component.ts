@@ -160,10 +160,10 @@ export class ViewEmployeeComponent implements OnInit {
     const params: CustomFieldValuesParams = {
       app_name: this.app_name,
       model_name: modelName,
-      object_id: objectId
+      object_id: objectId,
     };
 
-    this.customFieldsService.getCustomFieldValues(params).subscribe({
+    this.customFieldsService.getCustomFieldValues(params, 1, 100).subscribe({
       next: (response) => {
         this.customFieldValues = response.data.list_items;
         this.isLoading = false;
@@ -174,14 +174,21 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
+
+
   handleValueUpdate(payload: UpdateCustomValueRequest): void {
     this.isLoading = true;
     this.customFieldsService.updateCustomFieldValue(payload).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
         this.toasterMessageService.showSuccess('Value updated successfully!');
-        this.loadCustomValues();
-        this.loadEmployeeData();
+        const updatedValueId = payload.request_data.id;
+        const newValue = payload.request_data.value;
+        const itemToUpdate = this.customFieldValues.find(item => item.id === updatedValueId);
+
+        if (itemToUpdate) {
+          itemToUpdate.value.value = newValue;
+        }
       },
       error: () => {
         this.isLoading = false;
@@ -189,6 +196,8 @@ export class ViewEmployeeComponent implements OnInit {
       }
     });
   }
+
+
 
   handleFieldDelete(payload: UpdateFieldRequest): void {
     this.isLoading = true;

@@ -16,12 +16,10 @@ interface EditState {
 
 export function noLeadingSpaceValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-
     const value = control.value;
     if (value && typeof value === 'string' && value.startsWith(' ')) {
       return { 'noLeadingSpace': true };
     }
-
     return null;
   };
 }
@@ -69,6 +67,17 @@ export class CustomInfoComponent implements OnChanges {
 
   createFieldGroup(item: CustomFieldValueItem): FormGroup {
     const fieldOptions = item.custom_field.input_option;
+    const validators: ValidatorFn[] = [];
+
+    if (fieldOptions.required) {
+      validators.push(Validators.required);
+    }
+    if (fieldOptions.min_length) {
+      validators.push(Validators.minLength(fieldOptions.min_length));
+    }
+    if (fieldOptions.max_length) {
+      validators.push(Validators.maxLength(fieldOptions.max_length));
+    }
 
     let htmlInputType = 'text';
     switch (fieldOptions.type) {
@@ -78,31 +87,54 @@ export class CustomInfoComponent implements OnChanges {
         break;
       case 'email':
         htmlInputType = 'email';
+        validators.push(Validators.email);
+        // validators.push(noLeadingSpaceValidator());
         break;
       case 'date':
         htmlInputType = 'date';
         break;
+      default:
+        htmlInputType = 'text';
+        // validators.push(noLeadingSpaceValidator());
+        break;
     }
-
     return new FormGroup({
       value_id: new FormControl(item.id),
       custom_field: new FormControl(item.custom_field),
       originalValue: new FormControl(item.value.value),
       label: new FormControl({ value: fieldOptions.label, disabled: true }),
+
       value: new FormControl(
         { value: item.value.value, disabled: true },
-        [
-          fieldOptions.required ? Validators.required : null,
-          fieldOptions.min_length ? Validators.minLength(fieldOptions.min_length) : null,
-          fieldOptions.max_length ? Validators.maxLength(fieldOptions.max_length) : null,
-          fieldOptions.type === 'email' ? Validators.email : null,
-          noLeadingSpaceValidator(),
-        ].filter(v => v !== null) as ValidatorFn[]
+        validators
       ),
 
       htmlType: new FormControl({ value: htmlInputType, disabled: true }),
       placeholder: new FormControl({ value: fieldOptions.placeholder, disabled: true })
     });
+  }
+
+  public onFilterInput(index: number, event: Event): void {
+    const group = this.fieldsArray.at(index);
+    const control = group?.get('value');
+    if (!control) return;
+
+    const type = group.get('custom_field')?.value.input_option.type;
+    const inputElement = (event.target as HTMLInputElement);
+    const originalValue = inputElement.value;
+    let newValue = originalValue;
+
+    if (type === 'email') {
+      newValue = originalValue.replace(/\s/g, '');
+    } else {
+      newValue = originalValue.trimStart();
+    }
+
+    if (originalValue !== newValue) {
+      inputElement.value = newValue;
+
+      control.setValue(newValue, { emitEvent: false });
+    }
   }
 
   onEdit(index: number): void {
@@ -153,7 +185,8 @@ export class CustomInfoComponent implements OnChanges {
       request_data: {
         id: customField.id,
         target_model: customField.target_model,
-        input_option: customField.input_option
+        input_option: customField.input_option,
+        pinned: customField.pinned
       }
     };
     this.fieldDeleted.emit(payload);
