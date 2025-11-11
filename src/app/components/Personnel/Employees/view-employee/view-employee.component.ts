@@ -516,7 +516,7 @@ export class ViewEmployeeComponent implements OnInit {
     }
     this.clearSessionLoading = true;
     this.clearSessionOpen = false;
-    this.employeeService.clearEmployeeSession(this.employee.device.id).subscribe({
+    this.employeeService.clearEmployeeSession(this.employee.device.id, this.employee.id).subscribe({
       next: () => {
         this.toasterMessageService.showSuccess('Session cleared successfully');
         this.clearSessionLoading = false;

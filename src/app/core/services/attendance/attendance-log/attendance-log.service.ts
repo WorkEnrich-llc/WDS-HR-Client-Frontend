@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../../../environments/environment';
+import { environment } from '../../../../../environments/environment.ts';
 import { map, Observable } from 'rxjs';
 import { AttendanceLog, IAttendanceFilters } from 'app/core/models/attendance-log';
 

@@ -1,7 +1,7 @@
 import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from './../../../../../environments/environment';
+import { environment } from '../../../../../environments/environment.ts';
 import { CreateEmployeeRequest, CreateEmployeeResponse, EmployeesResponse, EmployeeDetailResponse } from '../../../interfaces/employee';
 import { ContractsResponse, ContractAdjustmentsResponse, ContractResignationResponse, EmployeeLeaveBalance, EmployeeLeaveBalanceResponse } from '../../../interfaces/contract';
 
@@ -102,11 +102,12 @@ export class EmployeeService {
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
 
-  clearEmployeeSession(deviceId: number): Observable<EmployeeDetailResponse> {
+  clearEmployeeSession(deviceId: number, employeeId: number): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees/devices`;
 
     const formData = new FormData();
     formData.append('device_id', deviceId.toString());
+    formData.append('employee_id', employeeId.toString());
 
     return this.http.patch<EmployeeDetailResponse>(url, formData);
   }

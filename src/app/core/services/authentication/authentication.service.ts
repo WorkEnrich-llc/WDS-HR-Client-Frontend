@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthHelperService } from './auth-helper.service';
-import { environment } from './../../../../environments/environment';
+import { environment } from '../../../../environments/environment.ts';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class AuthenticationService {
 
   private apiBaseUrl: string;
   private readonly version = '1.0.1';
-  private readonly platform = 'WEBSITE'; 
+  private readonly platform = 'WEBSITE';
 
   constructor(private _HttpClient: HttpClient, private authHelper: AuthHelperService) {
     this.apiBaseUrl = environment.apiBaseUrl;
@@ -97,7 +97,7 @@ export class AuthenticationService {
   // logout
   logout(): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/logout`;
-    const headers = this.buildHeaders(true, true); 
+    const headers = this.buildHeaders(true, true);
     return this._HttpClient.put(url, {}, { headers });
   }
 }
