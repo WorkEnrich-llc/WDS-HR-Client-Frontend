@@ -42,9 +42,17 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     { label: 'Announcements' }
   ];
 
+  private readonly recipientTypeMap: Record<string, number> = {
+    Department: 1,
+    Section: 2,
+    Employee: 3,
+    Branch: 4,
+    Company: 5
+  };
+
   ngOnInit(): void {
     this.filterForm = this.formBuilder.group({
-      recipients: ['']
+      recipient_type: ['']
     });
     this.fetchAnnouncements();
   }
@@ -70,8 +78,15 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    const recipients = this.filterForm.get('recipients')?.value || '';
-    this.announcementsSubscription = this.announcementsService.getAnnouncements(page, this.itemsPerPage, this.searchTerm, recipients)
+    const recipientTypeValue = this.filterForm.get('recipient_type')?.value;
+    const recipient_type = recipientTypeValue ? Number(recipientTypeValue) : '';
+
+    this.announcementsSubscription = this.announcementsService.getAnnouncements(
+      page,
+      this.itemsPerPage,
+      this.searchTerm.trim(),
+      recipient_type
+    )
       .subscribe({
         next: (res) => {
           const data = res?.data;
