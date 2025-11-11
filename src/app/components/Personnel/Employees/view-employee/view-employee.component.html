@@ -115,15 +115,16 @@
       </div>
 
 
-      <div class="info">
-        @for(item of customFieldValues; track item.id) {
-
-        @if(item.custom_field.pinned === true || item.value.value) {
-        <h6>{{ item.custom_field.input_option.label }}</h6>
-        <span>{{ item.value.value }}</span>
-        }
-        }
+      <!-- <div class="info"> -->
+      @for(item of customFieldValues; track item.id) {
+      @if(item.custom_field.pinned === true && item.value.value) {
+      <div class="custom-field">
+        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
+        <span [title]="item.value.value">{{ item.value.value }}</span>
       </div>
+      }
+      }
+      <!-- </div> -->
 
 
 

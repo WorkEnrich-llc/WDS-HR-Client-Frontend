@@ -42,6 +42,7 @@ export interface FileSettings {
 export interface RequestData {
    target_model: string;
    input_option: InputOption;
+   pinned: boolean;
 }
 
 export interface CreateFieldRequest {

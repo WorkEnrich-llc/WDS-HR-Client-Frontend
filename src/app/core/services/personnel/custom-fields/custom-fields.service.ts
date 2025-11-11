@@ -81,12 +81,15 @@ export class CustomFieldsService {
 
 
   // Get custom field values
-  getCustomFieldValues(params: CustomFieldValuesParams): Observable<CustomFieldValuesResponse> {
+  getCustomFieldValues(params: CustomFieldValuesParams, pageNumber: number,
+    perPage: number): Observable<CustomFieldValuesResponse> {
 
     let httpParams = new HttpParams()
       .set('app_name', params.app_name)
       .set('model_name', params.model_name)
-      .set('object_id', params.object_id.toString());
+      .set('object_id', params.object_id.toString())
+      .set('page', pageNumber.toString())
+      .set('per_page', perPage.toString());
 
     return this.http.get<CustomFieldValuesResponse>(this.valuesUrl, { params: httpParams });
   }
