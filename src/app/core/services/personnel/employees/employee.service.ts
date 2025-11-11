@@ -106,7 +106,7 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/employees/devices`;
 
     const formData = new FormData();
-    formData.append('request_data[device_id]', deviceId.toString());
+    formData.append('device_id', deviceId.toString());
 
     return this.http.patch<EmployeeDetailResponse>(url, formData);
   }
