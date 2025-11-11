@@ -14,7 +14,7 @@ import { provideToastr } from 'ngx-toastr';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getMessaging, provideMessaging } from '@angular/fire/messaging';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { environment } from './environments/environment.ts';
+import { environment } from './environments/environment';
 import { subscriptionInterceptor } from 'app/core/interceptors/subscription.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
