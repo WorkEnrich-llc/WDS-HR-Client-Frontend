@@ -236,6 +236,11 @@
   ::ng-deep
   .fc-daygrid-day:has(.fc-highlight)
   .fc-daygrid-day-events
+  .fc-event-title
+  :host
+  ::ng-deep
+  .fc-daygrid-day:has(.fc-highlight)
+  .fc-daygrid-day-events
   .fc-event-title {
   color: var(--color-white) !important;
 }
@@ -249,9 +254,11 @@
   font-size: var(--font-size-b1) !important;
   line-height: var(--line-height-sm);
 }
+
 .event:not(:last-of-type) {
   margin-bottom: var(--spacing-16);
 }
+
 .event {
   position: relative;
   min-height: 50px;
@@ -270,41 +277,52 @@
   -o-border-radius: 5px;
   -webkit-border-radius: 5px;
 }
+
 .event .contain {
   padding-inline-start: var(--spacing-24);
   color: var(--color-neutral-800);
 }
+
 .event h5 {
   font-size: var(--font-size-b2);
   line-height: var(--line-height-xss);
 }
+
 .event h3 {
   font-size: var(--font-size-b1);
   line-height: var(--line-height-xss);
   color: var(--color-neutral-700);
   font-weight: 600;
 }
+
 .holiday .border {
   background-color: var(--color-success-400) !important;
 }
+
 .blackout .border {
   background-color: var(--color-danger-400) !important;
 }
+
 .meeting .border {
   background-color: var(--color-secondary-400) !important;
 }
+
 .reminder .border {
   background-color: var(--color-warning-400) !important;
 }
+
 .holiday h5 {
   color: var(--color-success-600) !important;
 }
+
 .blackout h5 {
   color: var(--color-danger-600) !important;
 }
+
 .meeting h5 {
   color: var(--color-secondary-600) !important;
 }
+
 .reminder h5 {
   color: var(--color-warning-600) !important;
 }
@@ -319,9 +337,11 @@ h5 {
   font-size: var(--font-size-b1);
   line-height: var(--line-height-sm);
 }
+
 h5 span {
   color: var(--color-danger-600);
 }
+
 .opacity-50 {
   opacity: 0.5;
 }
@@ -336,22 +356,28 @@ h5 span {
   background-color: transparent;
   border: 0;
 }
+
 .download-doc {
   color: var(--color-secondary-600) !important;
 }
+
 .delete-doc {
   color: var(--color-danger-600) !important;
 }
+
 .success-upload {
   color: var(--color-success-700) !important;
 }
+
 .success-upload svg {
   color: var(--color-success-500);
 }
+
 .document span {
   font-size: var(--font-size-b2) !important;
   line-height: var(--line-height-xss) !important;
 }
+
 .document:not(:last-of-type) {
   border-bottom: 1px solid var(--color-neutral-300);
 }
@@ -459,6 +485,9 @@ h5 span {
   font-size: var(--font-size-b2);
   color: var(--color-neutral-700);
   word-break: break-word;
+  font-size: var(--font-size-b2);
+  color: var(--color-neutral-700);
+  word-break: break-word;
 }
 
 @media (max-width: 576px) {
@@ -493,6 +522,7 @@ h5 span {
   margin-bottom: 0;
   max-width: 300px;
 }
+
 .custom-field span {
   display: block;
 }

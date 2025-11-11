@@ -10,10 +10,17 @@ export interface ContactInformation {
   email: string;
 }
 
+export interface DirectManagerInfo {
+  id?: number;
+  name: string;
+  email?: string;
+  job_title?: string;
+}
+
 export interface JobInfo {
   branch: string;
   department: string;
-  direct_manager: string;
+  direct_manager: string | DirectManagerInfo;
   employment_type: string;
   job_title: string;
   section: string;
@@ -47,8 +54,11 @@ export interface PermissionInfo {
   early_leave: boolean;
 }
 
-
-
+export interface TimesInfo {
+  minutes_used?: number;
+  hours_used?: number;
+  total_minutes?: number;
+}
 
 
 export interface EmployeeInfo {
@@ -94,6 +104,7 @@ export interface ApprovalRequestItem {
   current_step?: string;
   permission?: PermissionInfo;
   leave?: LeaveInfo;
+  times?: TimesInfo;
 }
 
 export interface AllowedAction {

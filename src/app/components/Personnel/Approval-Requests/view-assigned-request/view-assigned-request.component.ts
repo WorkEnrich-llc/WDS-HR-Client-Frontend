@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, OnInit, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ApprovalRequestsService } from '../service/approval-requests.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ApprovalRequestItem } from '../../../../core/interfaces/approval-request';
 import { ActivatedRoute } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -9,6 +9,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
 @Component({
   selector: 'app-view-assigned-request',
   imports: [PageHeaderComponent, CommonModule, GoogleMapsModule],
+  providers: [DatePipe],
   templateUrl: './view-assigned-request.component.html',
   styleUrl: './view-assigned-request.component.css',
   encapsulation: ViewEncapsulation.None
@@ -17,6 +18,7 @@ export class ViewAssignedRequestComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private approvalService = inject(ApprovalRequestsService);
+  private datePipe = inject(DatePipe);
   leaveRequest1?: ApprovalRequestItem;
   requestId!: number;
 
@@ -95,6 +97,32 @@ export class ViewAssignedRequestComponent implements OnInit {
     });
   }
 
+  get headerTitle(): string {
+    const id = this.leaveRequest1?.request_info?.id;
+    return `Request #${id ?? '----'}`;
+  }
+
+  get headerCreateDate(): string {
+    const created = this.leaveRequest1?.request_info?.created_at;
+    return created ? this.datePipe.transform(created, 'dd/MM/yyyy') ?? '' : '';
+  }
+
+  get headerUpdateDate(): string {
+    const updated = this.leaveRequest1?.request_info?.updated_at;
+    return updated ? this.datePipe.transform(updated, 'dd/MM/yyyy') ?? '' : '';
+  }
+
+  getDirectManagerName(): string {
+    const dm = this.leaveRequest1?.job_info?.direct_manager;
+    if (!dm) {
+      return '----';
+    }
+    if (typeof dm === 'string') {
+      return dm;
+    }
+    return dm.name ?? '----';
+  }
+
   displayLeaveType(): string {
     const workType = this.leaveRequest1?.work_type;
     switch (workType) {
@@ -115,5 +143,45 @@ export class ViewAssignedRequestComponent implements OnInit {
       default:
         return this.leaveRequest1?.work_type || '-----';
     }
+  }
+
+  getReasonNote(): string {
+    if (!this.leaveRequest1?.reason) {
+      return 'No reason provided';
+    }
+    const note = this.leaveRequest1.reason.note?.trim();
+    return note?.length ? note : 'No reason provided';
+  }
+
+  getLeaveBalanceLabel(): string {
+    if (!this.leaveRequest1?.reason) {
+      return 'Optional Reason';
+    }
+    return this.leaveRequest1.reason.mandatory ? 'Mandatory Reason' : 'Optional Reason';
+  }
+
+  getPermissionFlags(): string | null {
+    if (this.leaveRequest1?.work_type !== 'permission') {
+      return null;
+    }
+    const flags: string[] = [];
+    if (this.leaveRequest1.permission?.late_arrive) {
+      flags.push('Late arrive');
+    }
+    if (this.leaveRequest1.permission?.early_leave) {
+      flags.push('Early leave');
+    }
+    return flags.length ? flags.join(' · ') : 'No permission details';
+  }
+
+  getMinutesUsed(): string | null {
+    const minutes = this.leaveRequest1?.times?.minutes_used;
+    if (!minutes && minutes !== 0) {
+      return null;
+    }
+    if (minutes === 1) {
+      return '1 minute used';
+    }
+    return `${minutes} minutes used`;
   }
 }
