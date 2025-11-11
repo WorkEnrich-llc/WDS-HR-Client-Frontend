@@ -102,14 +102,14 @@ export class EmployeeService {
     return this.http.put<EmployeeDetailResponse>(url, formData);
   }
 
+
   clearEmployeeSession(deviceId: number): Observable<EmployeeDetailResponse> {
     const url = `${this.apiBaseUrl}personnel/employees/devices`;
-    const payload = {
-      request_data: {
-        device_id: deviceId
-      }
-    };
-    return this.http.patch<EmployeeDetailResponse>(url, payload);
+
+    const formData = new FormData();
+    formData.append('request_data[device_id]', deviceId.toString());
+
+    return this.http.patch<EmployeeDetailResponse>(url, formData);
   }
 
   getEmployeeDevices(employeeId: number, page: number = 1, perPage: number = 10): Observable<any> {
