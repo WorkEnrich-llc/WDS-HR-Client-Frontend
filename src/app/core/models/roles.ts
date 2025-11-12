@@ -9,6 +9,8 @@ export interface Roles {
    name: string;
    createdAt?: string;
    updatedAt?: string;
+   status?: string;
+   is_active?: boolean;
    permissions: ModulePermission[];
    users?: IUser[];
    total_users?: number;

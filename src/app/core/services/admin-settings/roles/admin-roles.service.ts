@@ -108,7 +108,7 @@ export class AdminRolesService {
 
 
   getRoleById(id: number) {
-    return this.http.get<any>(`${this.url}/${id}`).pipe(
+    return this.http.get<any>(`${this.url}/${id}/`).pipe(
       map((res: any) => {
         const item = res.data?.object_info;
         if (!item) return null;
@@ -118,6 +118,8 @@ export class AdminRolesService {
           name: item.name ?? '',
           createdAt: item.created_at,
           updatedAt: item.updated_at,
+          status: item.is_active ? 'Active' : 'Inactive',
+          is_active: item.is_active ?? null,
           total_users: item.total_users ?? 0,
           users: (item.users || []).map((u: any) => ({
             id: u.id,
@@ -130,9 +132,17 @@ export class AdminRolesService {
           })),
           permissions: (item.permissions || []).map((p: any) => ({
             moduleCode: p.main?.code,
+            moduleName: p.main?.name ?? '',
             subModules: (p.sub_list || []).map((sub: any) => ({
               code: sub.sub?.code,
               subName: sub.sub?.name ?? '',
+              activeActions: (sub.allowed_actions || []).map((a: any) => ({
+                name: a.name as ActionType,
+                status: !!a.status,
+                count: a.count,
+                usage: a.usage,
+                infinity: a.infinity
+              })),
               actions: (sub.allowed_actions || [])
                 .filter((a: any) => a.status)
                 .map((a: any) => a.name as ActionType)

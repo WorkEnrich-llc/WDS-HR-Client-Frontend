@@ -6,7 +6,9 @@ import { TableComponent } from '../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { AnnouncementsService } from '../../../core/services/admin-settings/announcements/announcements.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, tap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-announcements',
@@ -32,9 +34,11 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
   // Search and filter
   searchTerm: string = '';
   filterForm!: FormGroup;
+  private searchSubject = new Subject<string>();
 
   // Subscriptions for cleanup
   private announcementsSubscription?: Subscription;
+  private searchSubscription?: Subscription;
 
   // Breadcrumb
   breadcrumb = [
@@ -54,6 +58,18 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     this.filterForm = this.formBuilder.group({
       recipient_type: ['']
     });
+    
+    // Setup debounced search with automatic request cancellation
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.currentPage = 1;
+        return this.fetchAnnouncementsObservable();
+      })
+    ).subscribe();
+    
     this.fetchAnnouncements();
   }
 
@@ -69,6 +85,10 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
       this.announcementsSubscription.unsubscribe();
       this.announcementsSubscription = undefined;
     }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+      this.searchSubscription = undefined;
+    }
   }
 
   fetchAnnouncements(page: number = this.currentPage): void {
@@ -77,34 +97,41 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
       this.announcementsSubscription.unsubscribe();
     }
 
+    this.announcementsSubscription = this.fetchAnnouncementsObservable(page).subscribe();
+  }
+
+  /**
+   * Returns an observable for fetching announcements (used by switchMap to enable cancellation)
+   */
+  private fetchAnnouncementsObservable(page: number = this.currentPage) {
     this.isLoading = true;
     const recipientTypeValue = this.filterForm.get('recipient_type')?.value;
     const recipient_type = recipientTypeValue ? Number(recipientTypeValue) : '';
 
-    this.announcementsSubscription = this.announcementsService.getAnnouncements(
+    return this.announcementsService.getAnnouncements(
       page,
       this.itemsPerPage,
       this.searchTerm.trim(),
       recipient_type
-    )
-      .subscribe({
-        next: (res) => {
-          const data = res?.data;
-          this.currentPage = Number(data?.page || 1);
-          this.totalItems = Number(data?.total_items || 0);
-          this.totalPages = Number(data?.total_pages || 0);
-          this.announcements = (data?.list_items || []).map((item: any) => ({
-            id: item.id,
-            recipients: item.recipients || [],
-            title: item.title,
-            createdAt: this.formatDate(item.created_at)
-          }));
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        }
-      });
+    ).pipe(
+      tap(res => {
+        const data = res?.data;
+        this.currentPage = Number(data?.page || 1);
+        this.totalItems = Number(data?.total_items || 0);
+        this.totalPages = Number(data?.total_pages || 0);
+        this.announcements = (data?.list_items || []).map((item: any) => ({
+          id: item.id,
+          recipients: item.recipients || [],
+          title: item.title,
+          createdAt: this.formatDate(item.created_at)
+        }));
+        this.isLoading = false;
+      }),
+      catchError(() => {
+        this.isLoading = false;
+        return of(null);
+      })
+    );
   }
 
   formatDate(dateString: string): string {
@@ -137,8 +164,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(): void {
-    this.currentPage = 1;
-    this.fetchAnnouncements();
+    this.searchSubject.next(this.searchTerm);
   }
 
   onItemsPerPageChange(n: number): void {

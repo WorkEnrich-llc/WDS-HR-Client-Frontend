@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnDestroy, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,8 @@ import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { Roles } from 'app/core/models/roles';
 import { CloseDropdownDirective } from 'app/core/directives/close-dropdown.directive';
-import { firstValueFrom } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IPermission, IUser, IRole } from 'app/core/models/users';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
@@ -26,7 +27,7 @@ interface SelectedRole {
   templateUrl: './manage-user.component.html',
   styleUrl: './manage-user.component.css'
 })
-export class ManageUserComponent implements OnInit {
+export class ManageUserComponent implements OnInit, OnDestroy {
 
   public usersForm!: FormGroup;
   private fb = inject(FormBuilder);
@@ -51,7 +52,10 @@ export class ManageUserComponent implements OnInit {
   isAdmin = false;
   suggestedEmails: { email: string }[] = [];
   showSuggestions = false;
-
+  private destroy$ = new Subject<void>();
+  private emailInput$ = new Subject<string>();
+  private lastLookupStatus: 'available' | 'admin' | 'not_found' | null = null;
+  private lastLookupEmail: string | null = null;
 
 
   constructor(
@@ -70,8 +74,14 @@ export class ManageUserComponent implements OnInit {
     this.getAllRoles();
     this.loadDataForEditMode();
     this.initFormModel();
+    this.setupEmailLookup();
     const today = new Date().toLocaleDateString('en-GB');
     this.createDate = today;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
@@ -205,7 +215,7 @@ export class ManageUserComponent implements OnInit {
     if (this.isLoading) {
       return;
     }
-    
+
     if (this.isAdmin) {
       this.openPopup();
       return;
@@ -250,55 +260,15 @@ export class ManageUserComponent implements OnInit {
     this.isExistingUser = false;
     this.isAdmin = false;
     const emailControl = this.usersForm.get('email');
-    const email = emailControl?.value;
+    const email = (emailControl?.value || '').trim();
     if (!email || emailControl?.invalid) return;
 
     this.usersService.searchUser(email).subscribe({
-      next: (res) => {
-        const emailLower = email.toLowerCase();
-        const user = res?.data?.list_items?.find(
-          (u: any) => u.email.toLowerCase() === emailLower
-        );
-        const exists = !!user;
-        if (user && user.employee === true && user.available === false) {
-          this.isAdmin = true;
-          this.usersForm.get('code')?.disable();
-          this.usersForm.get('user_name')?.disable();
-          this.usersForm.get('email')?.enable();
-          this.usersForm.get('permissions')?.disable();
-          this.usersForm.patchValue({
-            email: user?.email || '',
-            code: user?.code || '',
-            user_name: user?.name || '',
-          });
-        }
-        else if (user && user.employee === true && user.available === true) {
-          this.isExistingUser = true;
-          this.isAdmin = false;
-          this.usersForm.get('code')?.disable();
-          this.usersForm.get('user_name')?.disable();
-          this.usersForm.get('email')?.enable();
-          this.usersForm.get('permissions')?.enable();
-          this.usersForm.patchValue({
-            email: user?.email || '',
-            code: user?.code || '',
-            user_name: user?.name || '',
-          });
-        }
-        else {
-          this.isExistingUser = false;
-          this.isAdmin = false;
-          this.usersForm.get('code')?.enable();
-          this.usersForm.get('user_name')?.enable();
-          this.usersForm.get('permissions')?.enable();
-          this.usersForm.patchValue({
-            code: '',
-            user_name: '',
-            permissions: []
-          });
-        }
+      next: (res) => this.applyEmailLookup(email, res),
+      error: (err) => {
+        console.error('searchUser error:', err);
+        this.resetUserState();
       },
-      error: (err) => console.error('searchUser error:', err),
     });
   }
 
@@ -325,13 +295,8 @@ export class ManageUserComponent implements OnInit {
 
 
   onEmailInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.trim();
-    if (value.length > 1) {
-      this.loadAllEmails(value);
-    } else {
-      this.suggestedEmails = [];
-      this.showSuggestions = false;
-    }
+    const value = (event.target as HTMLInputElement).value;
+    this.emailInput$.next(value);
   }
 
 
@@ -377,5 +342,183 @@ export class ManageUserComponent implements OnInit {
     // this.router.navigate(['/users']);
   }
 
+  private setupEmailLookup(): void {
+    const emailControl = this.usersForm.get('email');
+    if (!emailControl) {
+      return;
+    }
 
+    emailControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+        switchMap((value: string) => {
+          const email = (value || '').trim();
+
+          if (!email || emailControl.invalid || this.isEditMode) {
+            this.resetUserState();
+            return of(null);
+          }
+
+          return this.usersService.searchUser(email).pipe(
+            map(res => ({ email, res })),
+            catchError(err => {
+              console.error('searchUser error:', err);
+              this.resetUserState();
+              return of({ email, res: null });
+            })
+          );
+        })
+      )
+      .subscribe(result => {
+        if (!result) {
+          return;
+        }
+        this.applyEmailLookup(result.email, result.res);
+      });
+
+    this.emailInput$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+        switchMap((value: string) => {
+          const searchValue = (value || '').trim();
+          const emailValid = emailControl && !emailControl.invalid;
+          if (searchValue.length <= 1 || !emailValid || this.isEditMode) {
+            return of([]);
+          }
+          return this.employeeService.getAllEmployees().pipe(
+            map(res => {
+              const allEmails =
+                res?.data?.list_items?.map((u: any) => ({
+                  email: u.contact_info?.email || ''
+                })) || [];
+              return allEmails.filter((e: any) =>
+                e.email.toLowerCase().includes(searchValue.toLowerCase())
+              );
+            }),
+            catchError(err => {
+              console.error('GetAllUsers error:', err);
+              return of([]);
+            })
+          );
+        })
+      )
+      .subscribe(suggestions => {
+        this.suggestedEmails = suggestions;
+        this.showSuggestions = suggestions.length > 0;
+      });
+  }
+
+  private applyEmailLookup(email: string, res: any | null): void {
+    if (this.isEditMode) {
+      return;
+    }
+
+    const emailControl = this.usersForm.get('email');
+    const normalizedEmail = (email || '').toLowerCase();
+    if (!normalizedEmail || emailControl?.invalid) {
+      this.resetUserState();
+      return;
+    }
+
+    const user = res?.data?.list_items?.find((u: any) => (u.email || '').toLowerCase() === normalizedEmail);
+
+    if (user && user.employee === true && user.available === false) {
+      this.isAdmin = true;
+      this.isExistingUser = false;
+      this.usersForm.get('email')?.enable({ emitEvent: false });
+      this.usersForm.get('code')?.disable({ emitEvent: false });
+      this.usersForm.get('user_name')?.disable({ emitEvent: false });
+      this.usersForm.get('permissions')?.disable({ emitEvent: false });
+      this.usersForm.patchValue({
+        email: user?.email || '',
+        code: user?.code || '',
+        user_name: user?.name || '',
+      }, { emitEvent: false });
+      this.showLookupToast('admin', normalizedEmail);
+      return;
+    }
+
+    if (user && user.employee === true && user.available === true) {
+      this.isExistingUser = true;
+      this.isAdmin = false;
+      this.usersForm.get('email')?.enable({ emitEvent: false });
+      this.usersForm.get('code')?.disable({ emitEvent: false });
+      this.usersForm.get('user_name')?.disable({ emitEvent: false });
+      this.usersForm.get('permissions')?.enable({ emitEvent: false });
+      this.usersForm.patchValue({
+        email: user?.email || '',
+        code: user?.code || '',
+        user_name: user?.name || '',
+      }, { emitEvent: false });
+      this.showLookupToast('available', normalizedEmail);
+      return;
+    }
+
+    if (res) {
+      this.showLookupToast('not_found', normalizedEmail);
+    }
+    this.resetUserState(true, true);
+  }
+
+  private resetUserState(preserveLookupStatus: boolean = false, enableInputs: boolean = false): void {
+    if (this.isEditMode) {
+      return;
+    }
+    this.isExistingUser = false;
+    this.isAdmin = false;
+
+    const codeControl = this.usersForm.get('code');
+    const userNameControl = this.usersForm.get('user_name');
+    const permissionsControl = this.usersForm.get('permissions');
+
+    if (enableInputs) {
+      codeControl?.enable({ emitEvent: false });
+      userNameControl?.enable({ emitEvent: false });
+      permissionsControl?.enable({ emitEvent: false });
+    } else {
+      codeControl?.disable({ emitEvent: false });
+      userNameControl?.disable({ emitEvent: false });
+      permissionsControl?.disable({ emitEvent: false });
+      this.usersForm.patchValue(
+        {
+          code: '',
+          user_name: '',
+          permissions: []
+        },
+        { emitEvent: false }
+      );
+    }
+
+    this.usersForm.get('email')?.enable({ emitEvent: false });
+
+    if (!preserveLookupStatus) {
+      this.lastLookupEmail = null;
+      this.lastLookupStatus = null;
+    }
+  }
+
+  private showLookupToast(status: 'available' | 'admin' | 'not_found', email: string): void {
+    if (this.lastLookupEmail === email && this.lastLookupStatus === status) {
+      return;
+    }
+
+    this.lastLookupEmail = email;
+    this.lastLookupStatus = status;
+
+    switch (status) {
+      case 'available':
+        this.toasterService.showSuccess('User exists and is available to invite.');
+        break;
+      case 'admin':
+        this.toasterService.showWarning('This user exists but is already assigned as an admin.');
+        break;
+      case 'not_found':
+        this.toasterService.showInfo('No employee found with this email.');
+        break;
+    }
+  }
 }
