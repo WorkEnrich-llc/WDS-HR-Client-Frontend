@@ -369,13 +369,13 @@
                     <div class="w-15 d-flex align-items-center">
                       <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                         <a type="button" class="d-flex align-items-center gap-1"
-                          [ngClass]="sub.get('status')?.value ? 'view-btn' : 'remove-btn'"
+                          [ngClass]="sub.get('status')?.value ?  'remove-btn' : 'view-btn'"
                           (click)="toggleSubSectionStatus(i, j)">
                           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                               d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                           </svg>
-                          <span>{{ sub.get('status')?.value ? 'Activate' : 'Deactivate' }}</span>
+                          <span>{{ sub.get('status')?.value ? 'Deactivate' : 'Activate'}}</span>
                         </a>
                       </div>
                     </div>
@@ -621,7 +621,7 @@
     <ng-template #noGoals>
       <tr>
         <td colspan="3" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim(); else noGoals">
+          <ng-container *ngIf="searchTerm.trim(); else noGoals">
             No Goals match your search.
           </ng-container>
           <ng-template #noGoals>
