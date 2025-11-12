@@ -16,7 +16,7 @@
 
             @if(group.get('htmlType')?.value === 'input'){
             <input [type]="group.get('htmlType')?.value" class="edit-input" formControlName="value"
-               [placeholder]="(group.get('value')?.value) ? '' : group.get('placeholder')?.value"
+               [placeholder]="(group.get('value')?.value) ? (group.get('value')?.value) : group.get('placeholder')?.value"
                (input)="onFilterInput(i, $event)">
             }
 
