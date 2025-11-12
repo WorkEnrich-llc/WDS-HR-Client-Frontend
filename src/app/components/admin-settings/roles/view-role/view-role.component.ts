@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { ModulePermission, Roles } from 'app/core/models/roles';
 import { finalize } from 'rxjs';
 import { TableComponent } from 'app/components/shared/table/table.component';
+import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 
 interface PermissionRow {
   moduleName: string;
@@ -17,7 +18,7 @@ interface PermissionRow {
 @Component({
   selector: 'app-view-role',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, RouterLink, FormsModule, TableComponent],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent],
   templateUrl: './view-role.component.html',
   styleUrl: './view-role.component.css'
 })
@@ -26,6 +27,9 @@ export class ViewRoleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private rolesService = inject(AdminRolesService);
+  private fb = inject(FormBuilder);
+
+  @ViewChild(OverlayFilterBoxComponent) filterBox!: OverlayFilterBoxComponent;
 
   roleId!: number;
   roleDetails: Roles | null = null;
@@ -34,6 +38,14 @@ export class ViewRoleComponent implements OnInit {
   selectedTab: 'permissions' | 'users' = 'permissions';
   permissionsSearch = '';
   usersSearch = '';
+
+  // Filter forms
+  permissionsFilterForm!: FormGroup;
+  usersFilterForm!: FormGroup;
+
+  // Available filter options
+  availableModules: string[] = [];
+  availableActions: string[] = [];
 
   get currentSearch(): string {
     return this.selectedTab === 'permissions' ? this.permissionsSearch : this.usersSearch;
@@ -57,7 +69,20 @@ export class ViewRoleComponent implements OnInit {
     }
 
     this.roleId = parsedId;
+    this.initializeFilterForms();
     this.loadRoleDetails();
+  }
+
+  private initializeFilterForms(): void {
+    this.permissionsFilterForm = this.fb.group({
+      modules: [''],
+      actions: ['']
+    });
+
+    this.usersFilterForm = this.fb.group({
+      status: [''],
+      addedSince: ['']
+    });
   }
 
   private loadRoleDetails(): void {
@@ -74,11 +99,35 @@ export class ViewRoleComponent implements OnInit {
           }
 
           this.roleDetails = role;
+          this.extractFilterOptions();
         },
         error: () => {
           this.router.navigate(['/roles/all-role']);
         }
       });
+  }
+
+  private extractFilterOptions(): void {
+    if (!this.roleDetails?.permissions) {
+      return;
+    }
+
+    // Extract unique module names
+    const modules = new Set<string>();
+    const actions = new Set<string>();
+
+    this.roleDetails.permissions.forEach((module: ModulePermission) => {
+      if (module.moduleName) {
+        modules.add(module.moduleName);
+      }
+      module.subModules.forEach(sub => {
+        const allowedActions = this.getAllowedActions(sub);
+        allowedActions.forEach(action => actions.add(action));
+      });
+    });
+
+    this.availableModules = Array.from(modules).sort();
+    this.availableActions = Array.from(actions).sort();
   }
 
   formatDate(date?: string, includeTime = false): string {
@@ -184,28 +233,69 @@ export class ViewRoleComponent implements OnInit {
   }
 
   get filteredPermissionRows(): PermissionRow[] {
+    let filtered = this.permissionRows;
     const term = this.permissionsSearch.trim().toLowerCase();
-    if (!term) {
-      return this.permissionRows;
+    const moduleFilter = this.permissionsFilterForm?.get('modules')?.value || '';
+    const actionFilter = this.permissionsFilterForm?.get('actions')?.value || '';
+
+    // Apply search term
+    if (term) {
+      filtered = filtered.filter(row =>
+        row.moduleName.toLowerCase().includes(term) ||
+        row.serviceName.toLowerCase().includes(term) ||
+        row.actions.some(action => action.toLowerCase().includes(term))
+      );
     }
-    return this.permissionRows.filter(row =>
-      row.moduleName.toLowerCase().includes(term) ||
-      row.serviceName.toLowerCase().includes(term) ||
-      row.actions.some(action => action.toLowerCase().includes(term))
-    );
+
+    // Apply module filter
+    if (moduleFilter) {
+      filtered = filtered.filter(row => row.moduleName === moduleFilter);
+    }
+
+    // Apply action filter
+    if (actionFilter) {
+      filtered = filtered.filter(row => row.actions.includes(actionFilter));
+    }
+
+    return filtered;
   }
 
   get filteredUsers(): NonNullable<Roles['users']>[number][] {
-    const users = this.roleDetails?.users ?? [];
+    let filtered = this.roleDetails?.users ?? [];
     const term = this.usersSearch.trim().toLowerCase();
-    if (!term) {
-      return users;
+    const statusFilter = this.usersFilterForm?.get('status')?.value || '';
+    const addedSinceFilter = this.usersFilterForm?.get('addedSince')?.value || '';
+
+    // Apply search term
+    if (term) {
+      filtered = filtered.filter(user => {
+        const name = user.name?.toLowerCase() ?? '';
+        const email = user.email?.toLowerCase() ?? '';
+        return name.includes(term) || email.includes(term);
+      });
     }
-    return users.filter(user => {
-      const name = user.name?.toLowerCase() ?? '';
-      const email = user.email?.toLowerCase() ?? '';
-      return name.includes(term) || email.includes(term);
-    });
+
+    // Apply status filter
+    if (statusFilter) {
+      if (statusFilter === '1') {
+        filtered = filtered.filter(user => (user as any)?.is_active === true || (user as any)?.status?.toLowerCase() === 'active');
+      } else if (statusFilter === '0') {
+        filtered = filtered.filter(user => (user as any)?.is_active === false || (user as any)?.status?.toLowerCase() !== 'active');
+      }
+    }
+
+    // Apply added since filter
+    if (addedSinceFilter) {
+      const filterDate = new Date(addedSinceFilter);
+      filtered = filtered.filter(user => {
+        const addedDate = this.getUserAddedDate(user);
+        if (!addedDate) return false;
+        const userDate = new Date(addedDate);
+        return userDate >= filterDate;
+      });
+    }
+
+    return filtered;
   }
 
   formatUserId(user: NonNullable<Roles['users']>[number]): string {
@@ -261,5 +351,45 @@ export class ViewRoleComponent implements OnInit {
       return 'badge-gray';
     }
     return 'badge-danger';
+  }
+
+  openFilter(): void {
+    this.filterBox.openOverlay();
+  }
+
+  applyPermissionsFilter(): void {
+    this.filterBox.closeOverlay();
+    // Filtering is handled by the getter
+  }
+
+  applyUsersFilter(): void {
+    this.filterBox.closeOverlay();
+    // Filtering is handled by the getter
+  }
+
+  resetPermissionsFilter(): void {
+    this.permissionsFilterForm.reset();
+    this.filterBox.closeOverlay();
+  }
+
+  resetUsersFilter(): void {
+    this.usersFilterForm.reset();
+    this.filterBox.closeOverlay();
+  }
+
+  clearModuleFilter(): void {
+    this.permissionsFilterForm.patchValue({ modules: '' });
+  }
+
+  clearActionFilter(): void {
+    this.permissionsFilterForm.patchValue({ actions: '' });
+  }
+
+  clearStatusFilter(): void {
+    this.usersFilterForm.patchValue({ status: '' });
+  }
+
+  clearAddedSinceFilter(): void {
+    this.usersFilterForm.patchValue({ addedSince: '' });
   }
 }
