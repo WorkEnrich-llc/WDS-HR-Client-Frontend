@@ -74,8 +74,14 @@ export class CreateDepartmentsComponent {
       this.getAllGoals(this.currentPage, search);
     });
 
+
     this.deptStep1.get('department_type')?.valueChanges.subscribe(type => {
       if (type) {
+        this.addedGoal = [];
+        this.Goals = [];
+        this.selectAllOverlay = false;
+        this.selectAllAdded = false;
+
         this.currentPage = 1;
         this.getAllGoals(this.currentPage);
       }
@@ -88,7 +94,7 @@ export class CreateDepartmentsComponent {
   deptStep1: FormGroup = new FormGroup({
     // Optional code must include both letters and numbers when provided
     code: new FormControl('', [Validators.maxLength(26)]),
-    name: new FormControl('', [Validators.required,Validators.maxLength(80)]),
+    name: new FormControl('', [Validators.required, Validators.maxLength(80)]),
     department_type: new FormControl('', [Validators.required]),
     objectives: new FormControl('', [Validators.required]),
   });
@@ -103,7 +109,7 @@ export class CreateDepartmentsComponent {
   createSectionGroup(): FormGroup {
     return this.fb.group({
       secCode: ['', Validators.maxLength(26)],
-      secName: ['', [Validators.required,Validators.maxLength(80)]],
+      secName: ['', [Validators.required, Validators.maxLength(80)]],
       status: [true],
       collapsed: [true],
       sub_sections: this.fb.array<FormGroup>([])
@@ -139,8 +145,8 @@ export class CreateDepartmentsComponent {
     const subSections = this.getSubSections(parent);
     subSections.push(
       this.fb.group({
-        secCode: ['',Validators.maxLength(26)],
-        secName: ['', [Validators.required,Validators.maxLength(80)]],
+        secCode: ['', Validators.maxLength(26)],
+        secName: ['', [Validators.required, Validators.maxLength(80)]],
         status: [true]
       })
     );
@@ -226,10 +232,10 @@ export class CreateDepartmentsComponent {
 
   //checkboxes 
   toggleSelectAll() {
-  this.Goals.forEach(goal => {
-    goal.selected = this.selectAllOverlay;
-  });
-}
+    this.Goals.forEach(goal => {
+      goal.selected = this.selectAllOverlay;
+    });
+  }
 
   toggleSelectAllSelected() {
     this.addedGoal.forEach(addedGoal => {
@@ -238,12 +244,12 @@ export class CreateDepartmentsComponent {
   }
 
   toggleGoal(goal: any) {
-  if (!goal.selected) {
-    this.selectAllOverlay = false;
-  } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
-    this.selectAllOverlay = true;
+    if (!goal.selected) {
+      this.selectAllOverlay = false;
+    } else if (this.Goals.length && this.Goals.every(g => g.selected)) {
+      this.selectAllOverlay = true;
+    }
   }
-}
 
 
   onItemsPerPageChange(newItemsPerPage: number) {
