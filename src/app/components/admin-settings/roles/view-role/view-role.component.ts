@@ -8,6 +8,8 @@ import { ModulePermission, Roles } from 'app/core/models/roles';
 import { finalize } from 'rxjs';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 interface PermissionRow {
   moduleName: string;
@@ -18,7 +20,7 @@ interface PermissionRow {
 @Component({
   selector: 'app-view-role',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent],
+  imports: [PageHeaderComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, PopupComponent],
   templateUrl: './view-role.component.html',
   styleUrl: './view-role.component.css'
 })
@@ -28,12 +30,16 @@ export class ViewRoleComponent implements OnInit {
   private router = inject(Router);
   private rolesService = inject(AdminRolesService);
   private fb = inject(FormBuilder);
+  private toasterService = inject(ToasterMessageService);
 
   @ViewChild(OverlayFilterBoxComponent) filterBox!: OverlayFilterBoxComponent;
 
   roleId!: number;
   roleDetails: Roles | null = null;
   isLoading = false;
+  deactivateOpen = false;
+  activateOpen = false;
+  isStatusUpdating = false;
 
   selectedTab: 'permissions' | 'users' = 'permissions';
   permissionsSearch = '';
@@ -391,5 +397,84 @@ export class ViewRoleComponent implements OnInit {
 
   clearAddedSinceFilter(): void {
     this.usersFilterForm.patchValue({ addedSince: '' });
+  }
+
+  // Activate/Deactivate methods
+  openDeactivate(): void {
+    this.deactivateOpen = true;
+  }
+
+  closeDeactivate(): void {
+    this.deactivateOpen = false;
+  }
+
+  openActivate(): void {
+    this.activateOpen = true;
+  }
+
+  closeActivate(): void {
+    this.activateOpen = false;
+  }
+
+  confirmDeactivate(): void {
+    if (this.isStatusUpdating) {
+      return;
+    }
+    this.isStatusUpdating = true;
+    this.deactivateOpen = false;
+
+    const requestBody = {
+      request_data: {
+        status: false
+      }
+    };
+
+    this.rolesService.updateRoleStatus(this.roleId, requestBody).pipe(
+      finalize(() => {
+        this.isStatusUpdating = false;
+      })
+    ).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('Role deactivated successfully');
+        this.loadRoleDetails();
+      },
+      error: (err) => {
+        console.error('Failed to deactivate role', err);
+        this.toasterService.showError('Failed to deactivate role');
+      }
+    });
+  }
+
+  confirmActivate(): void {
+    if (this.isStatusUpdating) {
+      return;
+    }
+    this.isStatusUpdating = true;
+    this.activateOpen = false;
+
+    const requestBody = {
+      request_data: {
+        status: true
+      }
+    };
+
+    this.rolesService.updateRoleStatus(this.roleId, requestBody).pipe(
+      finalize(() => {
+        this.isStatusUpdating = false;
+      })
+    ).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('Role activated successfully');
+        this.loadRoleDetails();
+      },
+      error: (err) => {
+        console.error('Failed to activate role', err);
+        this.toasterService.showError('Failed to activate role');
+      }
+    });
+  }
+
+  get isRoleActive(): boolean {
+    return this.roleDetails?.is_active === true || (this.roleDetails?.status ?? '').toLowerCase() === 'active';
   }
 }
