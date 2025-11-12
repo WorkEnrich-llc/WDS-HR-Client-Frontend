@@ -4,15 +4,7 @@ import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, Reacti
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { CustomFieldObject, CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 
-interface CustomField {
-  label: string;
-  value: string;
-}
 
-interface EditState {
-  isEditing: boolean;
-  editValue: string;
-}
 
 export function noLeadingSpaceValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -39,7 +31,6 @@ export class CustomInfoComponent implements OnChanges {
 
   @Input() isLoading: boolean = false;
 
-  editStates: EditState[] = [];
   isDeleteModalOpen: boolean = false;
   selectedField!: number;
 
@@ -88,14 +79,15 @@ export class CustomInfoComponent implements OnChanges {
       case 'email':
         htmlInputType = 'email';
         validators.push(Validators.email);
-        // validators.push(noLeadingSpaceValidator());
         break;
       case 'date':
         htmlInputType = 'date';
         break;
+      case 'textarea':
+        htmlInputType = 'textarea';
+        break;
       default:
         htmlInputType = 'text';
-        // validators.push(noLeadingSpaceValidator());
         break;
     }
     return new FormGroup({

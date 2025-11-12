@@ -25,6 +25,7 @@ export class ManageFieldsComponent {
   readonly dataTypes: DataType[] = [
     { name: 'text', value: 'string' },
     { name: 'number', value: 'number' },
+    { name: 'textarea', value: 'textarea' },
     // { name: 'integer', value: 'integer' },
     { name: 'email', value: 'email' },
     { name: 'date', value: 'date' },

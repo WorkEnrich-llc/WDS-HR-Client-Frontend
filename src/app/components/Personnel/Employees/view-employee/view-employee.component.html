@@ -122,25 +122,27 @@
       </div>
       }
       } -->
+
+
       @for(item of customFieldValues; track item.id) {
       @if(item.custom_field.pinned === true && item.value.value) {
-
-      <div>
-        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
-        <details class="accordion">
-          <summary>
-            <span class="arrow"></span>
-            <span class="sp" [title]="item.value.value">{{ item.value.value }}</span>
-
-          </summary>
-        </details>
-
+      <div class="info">
+        <h6 [title]="item.custom_field.input_option.label">{{
+          item.custom_field.input_option.label }}</h6>
+        <div class="labeled-accordion">
+          <details class="accordion">
+            <summary>
+              <div class="summary-content">
+                <span class="cursor-pointer " [title]="item.value.value">{{ item.value.value }}</span>
+              </div>
+              <span class="arrow"></span>
+            </summary>
+          </details>
+        </div>
       </div>
+
       }
       }
-
-
-
 
 
 
@@ -668,7 +670,7 @@
             </div>
 
             <app-table [data]="devices" [totalItems]="devicesTotal" [itemsPerPage]="devicesPerPage"
-              [currentPage]="devicesPage" [columnsCount]="12" [isLoading]="devicesLoading"
+              [currentPage]="devicesPage" [columnsCount]="10" [isLoading]="devicesLoading"
               [headerTemplate]="devicesTableHeader" [rowTemplate]="devicesTableRow" [emptyTemplate]="devicesTableEmpty"
               (pageChange)="onDevicesPageChange($event)"
               (itemsPerPageChange)="onDevicesPerPageChange($event)"></app-table>
@@ -730,7 +732,7 @@
 
             <ng-template #devicesTableEmpty>
               <tr>
-                <td colspan="12" class="py-3 text-center text-muted">No device history found for this employee.</td>
+                <td colspan="10" class="py-3 text-center text-muted">No device history found for this employee.</td>
               </tr>
             </ng-template>
           </div>
