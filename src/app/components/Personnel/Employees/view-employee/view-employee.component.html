@@ -114,14 +114,36 @@
         <span>{{ employee.contact_info.marital_status.name }}</span>
       </div>
       <!-- <div class="info"> -->
-      @for(item of customFieldValues; track item.id) {
+      <!-- @for(item of customFieldValues; track item.id) {
       @if(item.custom_field.pinned === true && item.value.value) {
       <div class="custom-field">
         <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
         <span [title]="item.value.value">{{ item.value.value }}</span>
       </div>
       }
+      } -->
+      @for(item of customFieldValues; track item.id) {
+      @if(item.custom_field.pinned === true && item.value.value) {
+
+      <div>
+        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
+        <details class="accordion">
+          <summary>
+            <span class="arrow"></span>
+            <span class="sp" [title]="item.value.value">{{ item.value.value }}</span>
+
+          </summary>
+        </details>
+
+      </div>
       }
+      }
+
+
+
+
+
+
       <!-- </div> -->
     </div>
 
@@ -215,6 +237,8 @@
             }}</span>
         </div>
         }
+
+
 
         <!-- <div class="info">
     <h6>Contract Type</h6>
