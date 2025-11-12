@@ -717,7 +717,8 @@ export class ManageEmployeeSharedService {
     const params: any = {
       management_level: managementLevel.toString(),
       branch_id: branchId.toString(),
-      request_in: 'create-employee'
+      request_in: 'create-employee',
+      status: true
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
