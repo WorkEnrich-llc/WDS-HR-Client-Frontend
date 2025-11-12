@@ -1186,6 +1186,14 @@ export const routes: Routes = [
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Roles', action: 'update' }
               },
+              {
+                path: 'view-role/:id',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/roles/view-role/view-role.component'
+                  ).then(m => m.ViewRoleComponent),
+                title: 'View Role'
+              },
             ]
           }
         ]
