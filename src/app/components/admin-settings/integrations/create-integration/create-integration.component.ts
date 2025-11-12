@@ -6,6 +6,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IntegrationsService } from '../../../../core/services/admin-settings/integrations/integrations.service';
 import { Subscription } from 'rxjs';
 
@@ -18,6 +19,7 @@ import { Subscription } from 'rxjs';
 export class CreateIntegrationComponent implements OnInit, OnDestroy {
     private integrationsService = inject(IntegrationsService);
     private router = inject(Router);
+    private toasterService = inject(ToasterMessageService);
     private formBuilder = inject(FormBuilder);
 
     @ViewChild('serviceFilterBox') serviceFilterBox!: OverlayFilterBoxComponent;
@@ -212,10 +214,12 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
             this.createSubscription = this.integrationsService.createIntegration(requestBody).subscribe({
                 next: () => {
+                    this.toasterService.showSuccess('Integration created successfully.');
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {
                     console.error('Error creating integration:', error);
+                    this.toasterService.showError('Failed to create integration.');
                     this.isSubmitting = false;
                 }
             });
