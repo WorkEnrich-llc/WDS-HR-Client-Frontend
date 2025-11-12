@@ -228,7 +228,7 @@ export class ManageEmployeeSharedService {
     const params: any = {
       management_level: managementLevel.toString(),
       branch_id: branchId.toString(),
-      request_in: 'create'
+      request_in: 'create-employee'
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -666,7 +666,7 @@ export class ManageEmployeeSharedService {
 
     const params: any = {
       management_level: management.toString(),
-      request_in: 'create'
+      request_in: 'create-employee'
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -751,7 +751,7 @@ export class ManageEmployeeSharedService {
       : null;
     const params: any = {
       department: departmentId.toString(),
-      request_in: 'create'
+      request_in: 'create-employee'
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -787,7 +787,7 @@ export class ManageEmployeeSharedService {
 
     const params: any = {
       section: sectionId.toString(),
-      request_in: 'create'
+      request_in: 'create-employee'
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
