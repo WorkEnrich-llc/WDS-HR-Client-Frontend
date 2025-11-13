@@ -154,15 +154,15 @@
             </div>
             <div class="info">
                 <h6>Section</h6>
-                <span>{{ employee.job_info.section?.name || "----" }}</span>
+                <span>{{ employee.job_info.section?.name || 'Not Assigned' }}</span>
             </div>
             <div class="info">
                 <h6>Department</h6>
-                <span>{{ employee.job_info.department.name || "----" }}</span>
+                <span>{{ employee.job_info.department.name || 'Not Assigned' }}</span>
             </div>
             <div class="info">
                 <h6>Branch</h6>
-                <span>{{ employee.job_info.branch.name || "----" }}</span>
+                <span>{{ employee.job_info.branch.name || 'Not Assigned' }}</span>
             </div>
             <!-- <div class="info">
                 <h6>Work Schedule</h6>
@@ -192,10 +192,11 @@
                 <h6>Days On Site</h6>
                 <span>{{ employee.job_info.days_on_site }} days/week</span>
             </div> -->
+            @if (employee.job_info.direct_manager?.name) {
             <div class="d-flex align-items-center justify-content-between">
                 <div class="info">
                     <h6>Direct Manager</h6>
-                    <span>{{ employee.job_info.direct_manager?.name || "--" }}</span>
+                    <span>{{ employee.job_info.direct_manager?.name }}</span>
                 </div>
                 <a class="view-btn h-100 d-flex align-items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -207,6 +208,8 @@
                     </svg>
                 </a>
             </div>
+            }
+
         </div>
 
         <div class="content-box d-flex flex-column gap-3 w-100">
