@@ -65,7 +65,7 @@
          <th>Information Section</th>
          <th>Data Type</th>
          <th>Pinned</th>
-         <th>Mandatory</th>
+         <!-- <th>Mandatory</th> -->
          <th>Actions</th>
       </ng-template>
 
@@ -101,7 +101,7 @@
             </div>
             }
          </td>
-         <td>
+         <!-- <td>
 
             @if(customField.input_option.required){<div class="badge-newjoiner">
                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -130,7 +130,7 @@
                <span>{{'No'}}</span>
             </div>
             }
-         </td>
+         </td> -->
          <td>
             <div class="d-flex justify-content-start gap-4 align-items-center w-100">
                <a class="edit-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
@@ -164,7 +164,7 @@
 
       <ng-template #noCustomField>
          <tr>
-            <td colspan="7" class="no-data py-4">
+            <td colspan="6" class="no-data py-4">
                @if(searchTerm){
                <ng-container>
                   No Custom field match your search.
