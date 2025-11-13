@@ -152,10 +152,10 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                         expiryDate: this.formatDate(item.expires_at),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
-                        key: item.access_key || 'N/A',
+                        key: item.access_key || '--',
                         features: this.formatFeatures(item.features?.features || []),
-                        createdBy: item.created_by || 'N/A',
-                        createdAt: item.created_at || 'N/A',
+                        createdBy: item.created_by || '--',
+                        createdAt: item.created_at || '--',
                         noExpire: item.no_expire || false
                     }));
 
@@ -179,7 +179,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      * Format date to DD/MM/YYYY format
      */
     private formatDate(dateString: string): string {
-        if (!dateString) return 'N/A';
+        if (!dateString) return '--';
         const date = new Date(dateString);
         return date.toLocaleDateString('en-GB');
     }

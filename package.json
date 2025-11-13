@@ -36,6 +36,7 @@
     "ngx-cookie-service": "^20.0.0",
     "ngx-country-picker": "^3.0.0",
     "ngx-daterangepicker-material": "^6.0.4",
+    "ngx-doc-viewer": "^15.0.1",
     "ngx-pagination": "^6.0.3",
     "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",

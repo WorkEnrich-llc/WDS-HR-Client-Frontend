@@ -1,6 +1,8 @@
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData, WorkTypeSettings } from '../../models/attendance-rules.interface';
@@ -13,12 +15,15 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
   styleUrls: ['../../../../shared/table/table.component.css', './attendance-rule.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class AttendanceRuleComponent implements OnInit {
+export class AttendanceRuleComponent implements OnInit, OnDestroy {
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   salaryPortionsLoading: boolean = true;
   error: string | null = null;
   salaryPortions: any[] = [];
+  private destroy$ = new Subject<void>();
+  private salaryPortionsRequestInFlight = false;
+  private attendanceRulesRequestInFlight = false;
 
   constructor(
     private attendanceRulesService: AttendanceRulesService,
@@ -30,8 +35,18 @@ export class AttendanceRuleComponent implements OnInit {
   }
 
   loadSalaryPortions(): void {
+    if (this.salaryPortionsRequestInFlight) {
+      return;
+    }
+    this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().subscribe({
+    this.salaryPortionsService.single().pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.salaryPortionsLoading = false;
+        this.salaryPortionsRequestInFlight = false;
+      })
+    ).subscribe({
       next: (response) => {
         console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
@@ -43,14 +58,12 @@ export class AttendanceRuleComponent implements OnInit {
         } else {
           this.salaryPortions = [];
         }
-        this.salaryPortionsLoading = false;
         // Load attendance rules after salary portions are loaded
         this.loadAttendanceRules();
       },
       error: (error) => {
         console.error('Error loading salary portions:', error);
         this.salaryPortions = [];
-        this.salaryPortionsLoading = false;
         // Still load attendance rules even if salary portions fail
         this.loadAttendanceRules();
       }
@@ -58,19 +71,32 @@ export class AttendanceRuleComponent implements OnInit {
   }
 
   loadAttendanceRules(): void {
+    if (this.attendanceRulesRequestInFlight) {
+      return;
+    }
+    this.attendanceRulesRequestInFlight = true;
     this.loading = true;
-    this.attendanceRulesService.getAttendanceRules().subscribe({
+    this.attendanceRulesService.getAttendanceRules().pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loading = false;
+        this.attendanceRulesRequestInFlight = false;
+      })
+    ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
         // console.log(this.attendanceRulesData);
-        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading attendance rules:', error);
         this.error = 'Failed to load attendance rules';
-        this.loading = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getFullTimeSettings(): WorkTypeSettings | null {

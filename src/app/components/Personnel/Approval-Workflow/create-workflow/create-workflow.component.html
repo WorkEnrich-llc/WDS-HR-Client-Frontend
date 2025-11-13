@@ -134,6 +134,12 @@
           {{errMsg}}
         </div>
         }
+        @if (mandatoryError) {
+        <p class="error-msg">
+          {{ mandatoryError }}
+        </p>
+        }
+
       </form>
     </div>
 

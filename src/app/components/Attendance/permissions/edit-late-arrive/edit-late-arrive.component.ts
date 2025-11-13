@@ -18,7 +18,11 @@ export class EditLateArriveComponent {
   private toasterService = inject(ToasterMessageService);
   // Maximum allowed minutes for permission inputs. Backend appears to cap values (e.g., 60),
   // so we validate on the frontend to avoid confusing resets where backend returns 0.
-  readonly maxMinutes = 60;
+  readonly maxMinutes = 480;
+  readonly maxHours = this.maxMinutes / 60;
+  get maxHoursLabel(): string {
+    return this.formatHours(this.maxMinutes);
+  }
   constructor(
     private router: Router,
     private _PermissionsService: PermissionsService
@@ -99,7 +103,7 @@ export class EditLateArriveComponent {
     // Validation: prevent values greater than allowed max to avoid backend clipping to 0.
     if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes > this.maxMinutes) {
       this.isLoading = false;
-      this.errMsg = `Maximum allowed minutes is ${this.maxMinutes}. Please enter a smaller value.`;
+      this.errMsg = `Maximum allowed time is ${this.formatHours(this.maxMinutes)}. Please enter a smaller value.`;
       this.toasterService.showError(this.errMsg);
       return;
     }
@@ -173,5 +177,11 @@ export class EditLateArriveComponent {
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/permissions']);
+  }
+
+  private formatHours(minutes: number): string {
+    const hours = minutes / 60;
+    const formatted = Number.isInteger(hours) ? hours.toString() : hours.toFixed(2).replace(/\.00$/, '');
+    return `${formatted} hour${formatted === '1' ? '' : 's'}`;
   }
 }

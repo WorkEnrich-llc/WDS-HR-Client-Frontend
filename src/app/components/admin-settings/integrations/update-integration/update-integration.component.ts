@@ -7,6 +7,7 @@ import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skela
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IntegrationsService } from 'app/core/services/admin-settings/integrations/integrations.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,6 +21,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private formBuilder = inject(FormBuilder);
+    private toasterService = inject(ToasterMessageService);
 
     @ViewChild('serviceFilterBox') serviceFilterBox!: OverlayFilterBoxComponent;
 
@@ -184,10 +186,12 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
             this.updateSubscription = this.integrationsService.updateIntegrationEntry(requestBody).subscribe({
                 next: () => {
+                    this.toasterService.showSuccess('Integration updated successfully.');
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {
                     console.error('Error updating integration:', error);
+                    this.toasterService.showError('Failed to update integration.');
                     this.isSubmitting = false;
                 }
             });

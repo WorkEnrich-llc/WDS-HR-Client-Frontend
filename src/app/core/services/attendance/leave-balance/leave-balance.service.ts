@@ -10,7 +10,8 @@ import { Observable } from 'rxjs';
 export class LeaveBalanceService {
 
   http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}personnel/employees/leave-balance`;
+  private readonly baseUrl = `${environment.apiBaseUrl}personnel/employees/all-leave-balance`;
+  private readonly updateLeaveBalanceUrl = `${environment.apiBaseUrl}personnel/employees/leave-balance`;
 
   getAllLeaveBalance(params: ILeaveBalanceFilters = {}): Observable<ILeaveBalanceResponse> {
     let httpParams = new HttpParams();
@@ -26,7 +27,7 @@ export class LeaveBalanceService {
   }
 
   updateLeaveBalance(data: IUpdateLeaveBalance): Observable<any> {
-    const url = this.baseUrl;
+    const url = this.updateLeaveBalanceUrl;
     const body = {
       request_data: data
     };

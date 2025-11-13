@@ -17,4 +17,5 @@ export interface IAttendanceFilters {
    per_page?: number;
    page?: number;
    search?: string;
+   employee?:number;
 }

@@ -574,6 +574,40 @@ export const routes: Routes = [
               },
             ]
           },
+
+          // custom fields routes
+          {
+            path: 'custom-fields',
+            providers: [PaginationStateService],
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Custom_Field' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-custom-fields',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-custom-fields',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/custom-fields.component').then(c => c.CustomFieldsComponent),
+                title: 'All custom-fields',
+              },
+              {
+                path: 'manage-custom-fields',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/manage-fields/manage-fields.component').then(c => c.ManageFieldsComponent),
+                title: 'Manage Custom Fields',
+                canActivate: [SubscriptionGuard],
+                data: { action: 'create' }
+              },
+              {
+                path: 'manage-custom-fields/:id',
+                loadComponent: () => import('./components/Personnel/Custom-Fields/manage-fields/manage-fields.component').then(c => c.ManageFieldsComponent),
+                title: 'Manage Custom Field',
+                // canActivate: [SubscriptionGuard],
+                data: { feature: 'Custom-Field', action: 'update' }
+              },
+            ]
+          },
         ]
       },
 
@@ -1151,6 +1185,14 @@ export const routes: Routes = [
                 title: 'Edit Role',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Roles', action: 'update' }
+              },
+              {
+                path: 'view-role/:id',
+                loadComponent: () =>
+                  import(
+                    './components/admin-settings/roles/view-role/view-role.component'
+                  ).then(m => m.ViewRoleComponent),
+                title: 'View Role'
               },
             ]
           }

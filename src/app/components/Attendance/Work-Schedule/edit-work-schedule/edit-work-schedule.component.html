@@ -83,7 +83,7 @@
             <path
                 d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
         </svg>
-        <span class="nav-link">Departments <small class="ms-2">Optional</small></span>
+        <span class="nav-link">Departments</span>
     </li>
 
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
@@ -241,13 +241,13 @@
                 <td>
                     <div class="d-flex align-items-center justify-content-start w-100 gap-3">
                         <a type="button" class="d-flex align-items-center gap-1"
-                            [ngClass]="department.status ? 'view-btn' : 'remove-btn'"
+                            [ngClass]="department.status ? 'remove-btn' : 'view-btn' "
                             (click)="toggleStatus(department)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                                     d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                             </svg>
-                            <span>{{ department.status ? 'Activate' : 'Deactivate' }}</span>
+                            <span>{{ department.status ?  'Deactivate' : 'Activate'}}</span>
                         </a>
                     </div>
                 </td>
@@ -256,7 +256,7 @@
             <ng-template #departmentTableEmptyRow>
                 <tr>
                     <td colspan="3" class="no-data py-4">
-                        <ng-container *ngIf="searchAddedDepartmentTerm?.trim(); else noDepartments">
+                        <ng-container *ngIf="searchAddedDepartmentTerm.trim(); else noDepartments">
                             No Department match your search.
                         </ng-container>
                         <ng-template #noDepartments>
@@ -367,7 +367,7 @@
         <ng-template #noAllDepartments>
             <tr>
                 <td colspan="3" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                    <ng-container *ngIf="searchTerm.trim(); else noDepartments">
                         No Department match your search.
                     </ng-container>
                     <ng-template #noDepartments>

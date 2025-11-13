@@ -286,7 +286,7 @@ export class EditEmployeeSharedService {
          'gender': 'Gender',
          'mobile': 'Mobile Number',
          'number': 'Phone Number',
-         'personal_email': 'Personal Email',
+         'personal_email': 'Business Email',
          'marital_status': 'Marital Status',
          'date_of_birth': 'Date of Birth',
          'address': 'Address',

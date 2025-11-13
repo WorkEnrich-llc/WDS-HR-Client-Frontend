@@ -389,3 +389,25 @@
     background-size: contain;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
 }
+
+.back-square-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--color-neutral-300, #d1d5db);
+  background: #fff;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.back-square-btn:hover {
+  background: var(--color-neutral-100, #f8f9fa);
+  border-color: var(--color-neutral-400, #9ca3af);
+}
+
+.back-square-btn:active {
+  transform: translateY(1px);
+}

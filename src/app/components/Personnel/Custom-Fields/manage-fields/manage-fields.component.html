@@ -1,0 +1,143 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Custom Fields', link: '/custom-fields' },
+    { label: 'Custom Fields', link: '/custom-fields/all-custom-fields' },
+    { label: isEditMode ? 'Edit Custom Field ' + currentFieldId : 'Create Custom Field'}
+]" [title]="isEditMode ? 'Edit Custom Field ' + currentFieldId : 'Create Custom Field'" [create]="createDate"
+   [update]="updatedDate">
+   <button class="btn btn-lg btn-success w-auto" (click)="createCustomField()"
+      [disabled]="customFieldForm.invalid || isLoading">
+      @if (isLoading) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+      }
+      @else{
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+         <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+         </g>
+      </svg>
+      }
+      <span>{{ isEditMode ? 'Save Changes' : 'Create Field' }}</span>
+   </button>
+
+   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()" [disabled]="isLoading">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+         <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+         </g>
+      </svg>
+      <span>{{ isEditMode ? 'Discard Changes' : 'Discard Field' }}</span>
+   </button>
+</app-page-header>
+
+
+<div class="content-hug">
+   <div class="content-box d-flex flex-column gap-3">
+      <h2>Main Information</h2>
+      <form [formGroup]="customFieldForm" class="w-lg-50 d-flex flex-column gap-2">
+         <div class="input">
+            <label for="label">Field Name <span>*</span></label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+               <input type="text" id="label" class="form-control custom-date-input" placeholder="Enter Field Name"
+                  formControlName="label" />
+            </div>
+            @if (customFieldForm.get('label')?.touched && customFieldForm.get('type')?.dirty &&
+            customFieldForm.get('label')?.errors?.['required']) {
+            <p class="error-msg">
+               Field Name is required.
+            </p>
+            }
+            @if(customFieldForm.get('label')?.touched && customFieldForm.get('label')?.dirty &&
+            customFieldForm.get('label')?.errors?.['maxlength']) {
+            <p class="error-msg">
+               Field Name cannot exceed 80 characters.
+            </p>
+            }
+         </div>
+
+         <div class="input">
+            <label for="target_model">Information Section <span>*</span></label>
+            <div class="d-flex align-items-center gap-4">
+               <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <select name="target_model" id="target_model" class="form-select" formControlName="target_model">
+                     <option value="" disabled hidden>Select Section</option>
+                     @for (s of (modelItems$ | async) ?? [] ; track s.value) {
+                     <option [value]="s.value">{{ s.value }}</option>
+                     }
+                  </select>
+               </div>
+            </div>
+            @if (customFieldForm.get('target_model')?.touched && customFieldForm.get('type')?.dirty &&
+            customFieldForm.get('target_model')?.errors?.['required']) {
+            <p class="error-msg">
+               Information Section is required.
+            </p>
+            }
+         </div>
+
+         <div class="input">
+            <label for="type">Data Type <span>*</span></label>
+            <div class="d-flex align-items-center gap-4">
+               <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <select name="type" id="type" class="form-select" formControlName="type">
+                     <option value="" disabled hidden>Select Data Type</option>
+                     @for (d of (dataTypes)?? [] ; track d.name) {
+                     <option [value]="d.value">{{ d.name }}</option>
+                     }
+                  </select>
+
+               </div>
+            </div>
+            @if (customFieldForm.get('type')?.touched && customFieldForm.get('type')?.dirty &&
+            customFieldForm.get('type')?.errors?.['required']) {
+            <p class="error-msg">
+               Data Type is required.
+            </p>
+            }
+         </div>
+
+
+         <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <input class="form-check-input m-0" type="checkbox" id="required" formControlName="required">
+            <label class="form-check-label m-0" for="required">
+               Mandatory
+            </label>
+         </div>
+         @if (customFieldForm.get('required')?.touched &&
+         customFieldForm.get('required')?.errors?.['required']) {
+         <p class="error-msg">
+            Mandatory field is required.
+         </p>
+         }
+
+         <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <input class="form-check-input m-0" type="checkbox" id="pinned" formControlName="pinned">
+            <label class="form-check-label m-0" for="pinned">
+               Pinned
+            </label>
+         </div>
+         @if (customFieldForm.get('pinned')?.touched &&
+         customFieldForm.get('pinned')?.errors?.['required']) {
+         <p class="error-msg">
+            Pinned field is required.
+         </p>
+         }
+
+      </form>
+   </div>
+</div>
+
+
+
+<!-- Discard popup  -->
+<app-popup [title]="'Discard Custom field '" [paragraph1]="'Are you sure you want to discard creating Custom field?'"
+   [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+   <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+      Discard Custom field
+   </button>
+   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+      Cancel
+   </button>
+</app-popup>

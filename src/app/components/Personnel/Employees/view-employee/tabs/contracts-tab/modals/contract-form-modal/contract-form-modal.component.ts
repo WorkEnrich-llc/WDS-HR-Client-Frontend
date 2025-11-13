@@ -29,7 +29,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   constructor(private fb: FormBuilder) {
     this.contractForm = this.fb.group({
       adjustmentType: [1], // 1- Appraisal, 2- Correction, 3- Raise (only for edit mode)
-      salary: [null, [Validators.required, Validators.min(0)]],
+      salary: [null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
