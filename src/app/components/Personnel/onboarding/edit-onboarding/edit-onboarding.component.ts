@@ -17,19 +17,19 @@ interface CheckItem {
   styleUrl: './edit-onboarding.component.css'
 })
 export class EditOnboardingComponent {
-    checks: CheckItem[] = [];
+  checks: CheckItem[] = [];
   checkForm: FormGroup;
   constructor(private router: Router, private fb: FormBuilder, private onboardingService: OnboardingService) {
     this.checkForm = this.fb.group({
       checkName: ['', [Validators.required, Validators.maxLength(100),
-    this.noWhitespaceValidator]]
+      this.noWhitespaceValidator]]
     });
   }
 
   noWhitespaceValidator(control: FormControl) {
-  const isWhitespace = (control.value || '').trim().length === 0;
-  return !isWhitespace ? null : { whitespace: true };
-}
+    const isWhitespace = (control.value || '').trim().length === 0;
+    return !isWhitespace ? null : { whitespace: true };
+  }
   ngOnInit() {
 
     this.getOnboarding();
@@ -57,10 +57,10 @@ export class EditOnboardingComponent {
 
   // add new check
   addCheck() {
-      if (this.checkForm.invalid) {
-    this.checkForm.markAllAsTouched(); 
-    return;
-  }
+    if (this.checkForm.invalid) {
+      this.checkForm.markAllAsTouched();
+      return;
+    }
     if (this.checkForm.valid) {
       this.checks.push({
         name: this.checkForm.value.checkName,
@@ -71,10 +71,14 @@ export class EditOnboardingComponent {
     }
   }
 
+  get hasSelectedChecks(): boolean {
+    return this.checks.some(c => c.completed);
+  }
+
   // toggle checkbox
   toggleCheck(index: number) {
     this.checks[index].completed = !this.checks[index].completed;
-    this.printData();
+    // this.printData();
   }
 
   // delete selected items
@@ -90,27 +94,27 @@ export class EditOnboardingComponent {
     });
   }
 
-finishEdit(item: CheckItem, event: any) {
-  const value = (event.target.value || '').trim();
+  finishEdit(item: CheckItem, event: any) {
+    const value = (event.target.value || '').trim();
 
-  // Validation
-  if (!value) {
-    item.error = 'Checklist Item is required and cannot be only spaces.';
-    item.editing = true; 
-    return;
-  } else if (value.length > 100) {
-    item.error = 'Checklist Item maxlength is 100 characters only.';
-    item.editing = true;
-    return;
+    // Validation
+    if (!value) {
+      item.error = 'Checklist Item is required and cannot be only spaces.';
+      item.editing = true;
+      return;
+    } else if (value.length > 100) {
+      item.error = 'Checklist Item maxlength is 100 characters only.';
+      item.editing = true;
+      return;
+    }
+
+    // Passed validation
+    item.error = null;
+    item.name = value;
+    item.editing = false;
+    item.completed = false;
+    this.printData();
   }
-
-  // Passed validation
-  item.error = null;
-  item.name = value;
-  item.editing = false;
-  item.completed = false;
-  this.printData();
-}
 
   // drag & drop reorder
   draggedIndex: number | null = null;

@@ -1,5 +1,6 @@
 <!-- page header -->
-<app-page-header [breadcrumbs]="breadcrumb" title="Create Integration" [create]="todayFormatted">
+<app-page-header [breadcrumbs]="breadcrumb" [title]="isUpdate ? 'Update Integration' : 'Create Integration'"
+    [create]="todayFormatted">
     <button class="btn btn-lg btn-success w-auto"
         [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0" (click)="onSubmit()">
         @if (isSubmitting) {
@@ -13,7 +14,7 @@
             </g>
         </svg>
         }
-        <span>Create Entry</span>
+        <span>{{ isUpdate ? 'Update Integration' : 'Create Integration' }}</span>
     </button>
 
     <button class="btn btn-lg btn-outline-dark w-auto" (click)="onCancel()">
@@ -23,7 +24,7 @@
                 <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
             </g>
         </svg>
-        <span>Discard Entry</span>
+        <span>{{ isUpdate ? 'Discard Updates' : 'Discard Integration' }}</span>
     </button>
 </app-page-header>
 
@@ -287,7 +288,7 @@
                     d="M15 5l-6 7l6 7" />
             </svg>
         </button>
-        <!-- Create/Update Entry primary -->
+        <!-- Create/Update Integration primary -->
         <button class="btn btn-lg btn-success" [disabled]="isSubmitting || selectedServices.length === 0"
             (click)="onSubmit()">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -296,7 +297,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
                 </g>
             </svg>
-            <span>{{ isUpdate ? 'Update Entry' : 'Create Entry' }}</span>
+            <span>{{ isUpdate ? 'Update Integration' : 'Create Integration' }}</span>
         </button>
     </div>
 </div>

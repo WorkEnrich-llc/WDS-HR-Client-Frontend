@@ -48,10 +48,54 @@ export class EditDepartmentChecklistsComponent {
     this.operationQueue$
       .pipe(concatMap(() => this.saveChecklist()))
       .subscribe({
-        next: (res) => console.log('Checklist saved successfully', res),
+        next: (response: any) => {
+          console.log('Checklist saved successfully', response);
+
+          const updatedList = response.data?.list_items || response;
+
+          this.checks = this.checks
+            .map(localItem => {
+              const serverItem = updatedList.find((srv: any) => srv.id === localItem.id);
+              return serverItem
+                ? {
+                  ...localItem,
+                  id: serverItem.id,
+                  name: serverItem.name,
+                  points: serverItem.points,
+                  ranking: serverItem.ranking,
+                  record_type: 'update' as 'update',
+                  editing: false
+                }
+                : localItem;
+            })
+            .filter(item => !this.deletedChecks.some(d => d.id === item.id));
+
+          const confirmedDeleted = updatedList
+            .filter((item: any) => item.record_type === 'delete')
+            .map((item: any) => item.id);
+
+          this.deletedChecks = this.deletedChecks.filter(
+            d => !confirmedDeleted.includes(d.id)
+          );
+        },
+
         error: (err) => console.error('Error saving checklist', err)
       });
+
+
   }
+
+  private toCheckItem(item: any): CheckItem {
+    return {
+      id: item.id,
+      name: item.name,
+      points: item.points,
+      ranking: item.ranking,
+      record_type: 'update',
+      editing: false
+    };
+  }
+
 
   noWhitespaceValidator(control: FormControl) {
     const isWhitespace = (control.value || '').trim().length === 0;
@@ -78,7 +122,7 @@ export class EditDepartmentChecklistsComponent {
           points: item.points,
           completed: false,
           editing: false,
-          record_type: 'update', // existing items are updates
+          record_type: 'update',
           ranking: item.ranking
         }));
 
@@ -128,25 +172,25 @@ export class EditDepartmentChecklistsComponent {
   onDragStart(index: number) { this.draggedIndex = index; }
   allowDrop(event: DragEvent, index: number) { event.preventDefault(); this.dragOverIndex = index; }
 
-onDrop(event: DragEvent, dropIndex: number): void {
-  event.preventDefault();
-  if (this.draggedIndex === null) return;
+  onDrop(event: DragEvent, dropIndex: number): void {
+    event.preventDefault();
+    if (this.draggedIndex === null) return;
 
-  const draggedItem = this.checks[this.draggedIndex];
-  this.checks.splice(this.draggedIndex, 1);
-  this.checks.splice(dropIndex, 0, draggedItem);
+    const draggedItem = this.checks[this.draggedIndex];
+    this.checks.splice(this.draggedIndex, 1);
+    this.checks.splice(dropIndex, 0, draggedItem);
 
-  this.checks.forEach(item => {
-  if (item.id && item.record_type !== 'delete') {
-    item.record_type = 'update';
+    this.checks.forEach(item => {
+      if (item.id && item.record_type !== 'delete') {
+        item.record_type = 'update';
+      }
+    });
+
+    this.draggedIndex = null;
+    this.dragOverIndex = null;
+
+    this.queueSave();
   }
-});
-
-  this.draggedIndex = null;
-  this.dragOverIndex = null;
-
-  this.queueSave();
-}
 
 
   onDragEnd() { this.draggedIndex = null; this.dragOverIndex = null; }
@@ -154,48 +198,67 @@ onDrop(event: DragEvent, dropIndex: number): void {
   // Remove checklist item
   removeCheck(index: number) {
     const removed = this.checks[index];
-    removed.record_type = 'delete';
-    this.deletedChecks.push(removed);
+
     this.checks.splice(index, 1);
 
-    // Update only existing items
+    if (removed.id) {
+      removed.record_type = 'delete';
+      this.deletedChecks.push(removed);
+    }
+
     this.checks.forEach(item => {
-      if (item.record_type !== 'create' && item.record_type !== 'delete') {
+      if (item.record_type !== 'create') {
         item.record_type = 'update';
       }
     });
-
     this.queueSave();
   }
+
+
 
   // Queue a save operation
   private queueSave() {
     this.operationQueue$.next();
   }
 
+
   // Save checklist to backend
   private saveChecklist() {
     const allItems = [...this.checks, ...this.deletedChecks];
 
- const raw = {
-  request_data: {
-    list_items: allItems.map((item, index) => {
-      item.ranking = index + 1;
+    const raw = {
+      request_data: {
+        list_items: allItems.map((item, index) => {
+          item.ranking = index + 1;
+          const payload: any = {
+            record_type: item.record_type,
+            name: item.name,
+            ranking: item.ranking,
+            points: item.points
+          };
+          if (item.record_type !== 'create') payload.id = item.id;
+          return payload;
+        })
+      }
+    };
 
-      const payload: any = {
-        record_type: item.record_type,
-        name: item.name,
-        ranking: item.ranking,
-        points: item.points
-      };
+    return this.departmentChecklistService.createDeptCheck(raw).pipe(
+      concatMap((response: any) => {
+        const updatedList = response.data?.list_items || response;
 
-      if (item.record_type !== 'create') payload.id = item.id;
+        updatedList.forEach((item: any) => {
+          const local = this.checks.find(c => c.record_type === 'create' && !c.id && c.name === item.name);
+          if (local) {
+            local.id = item.id;
+            local.record_type = 'update';
+          }
+        });
 
-      return payload;
-    })
+        return [response];
+      })
+    );
   }
-};
-    return this.departmentChecklistService.createDeptCheck(raw);
-  }
+
+
 
 }

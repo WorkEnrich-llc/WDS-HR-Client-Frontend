@@ -600,3 +600,67 @@ h5 span {
   color: #111827;
   font-weight: 500;
 }
+
+/* ************ simulate accordion *********** */
+.accordion {
+  overflow: hidden;
+  width: 300px;
+}
+
+.accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.labeled-accordion {
+  margin-bottom: 16px;
+}
+
+.accordion-label {
+  padding: 12px 0px;
+  padding-left: 4px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.accordion summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.arrow {
+  display: inline-block;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  padding: 3px;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.accordion:not([open]) summary .summary-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.accordion[open] summary .summary-content {
+  white-space: normal;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.accordion:not([open]) .arrow {
+  transform: rotate(-45deg);
+}
+.accordion[open] .arrow {
+  transform: rotate(45deg);
+}

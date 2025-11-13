@@ -62,7 +62,11 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
+      const existingDeviceToken = localStorage.getItem('device_token');
+
+  if (!existingDeviceToken) {
     await this.registerDeviceAlways();
+  }
     this.startTokenCheck();
   }
 

@@ -215,40 +215,7 @@ export class ManageEmployeeSharedService {
     });
   }
 
-  private fetchJobTitlesForBranch(branchId: number, managementLevel: number): void {
-    const jobDetails = this.jobDetails;
 
-    jobDetails.get('job_title_id')?.reset(null, { emitEvent: false });
-    this.jobTitles.set([]);
-
-    if (!branchId || !managementLevel) {
-      jobDetails.get('job_title_id')?.disable({ emitEvent: false });
-      return;
-    }
-    const params: any = {
-      management_level: managementLevel.toString(),
-      branch_id: branchId.toString(),
-      request_in: 'create'
-    };
-
-    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
-      next: (res) => {
-        const jobTitles = res.data?.list_items || [];
-        this.jobTitles.set(jobTitles);
-
-        if (jobTitles.length > 0) {
-          jobDetails.get('job_title_id')?.enable({ emitEvent: false });
-        } else {
-          jobDetails.get('job_title_id')?.disable({ emitEvent: false });
-        }
-      },
-      error: (err) => {
-        console.error('Error loading job titles for branch/level', err);
-        this.jobTitles.set([]);
-        jobDetails.get('job_title_id')?.disable({ emitEvent: false });
-      }
-    });
-  }
 
   private initializeJobDetailsWatchers(): void {
     const jobDetails = this.jobDetails;
@@ -295,12 +262,17 @@ export class ManageEmployeeSharedService {
       pairwise()
     ).subscribe(([prevLevel, currentLevel]) => {
       if (this.suppressWatchers) return;
-      if (prevLevel !== null) {
-        jobTitleCtrl?.reset(null, { emitEvent: false });
-        branchCtrl?.reset(null, { emitEvent: false });
-        deptCtrl?.reset(null, { emitEvent: false });
-        sectionCtrl?.reset(null, { emitEvent: false });
-      }
+      // if (prevLevel !== null) {
+      jobTitleCtrl?.reset(null, { emitEvent: false });
+      branchCtrl?.reset(null, { emitEvent: false });
+      deptCtrl?.reset(null, { emitEvent: false });
+      sectionCtrl?.reset(null, { emitEvent: false });
+
+      this.jobTitles.set([]);
+      this.departments.set([]);
+      this.sections.set([]);
+      this.branches.set([]);
+      // }
 
       jobTitleCtrl?.disable({ emitEvent: false });
       branchCtrl?.disable({ emitEvent: false });
@@ -609,8 +581,6 @@ export class ManageEmployeeSharedService {
     }
   }
 
-
-
   private enableFieldsOnLoad(jobInfo: any): void {
     const level = jobInfo.management_level;
     const jobDetails = this.jobDetails;
@@ -619,7 +589,6 @@ export class ManageEmployeeSharedService {
 
     if (level === 1) {
       jobDetails.get('job_title_id')?.enable();
-
     }
     else if (level === 2) {
       jobDetails.get('branch_id')?.enable();
@@ -666,7 +635,8 @@ export class ManageEmployeeSharedService {
 
     const params: any = {
       management_level: management.toString(),
-      request_in: 'create'
+      request_in: 'create-employee',
+      status: true
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -734,6 +704,42 @@ export class ManageEmployeeSharedService {
     });
   }
 
+  private fetchJobTitlesForBranch(branchId: number, managementLevel: number): void {
+    const jobDetails = this.jobDetails;
+
+    jobDetails.get('job_title_id')?.reset(null, { emitEvent: false });
+    this.jobTitles.set([]);
+
+    if (!branchId || !managementLevel) {
+      jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+      return;
+    }
+    const params: any = {
+      management_level: managementLevel.toString(),
+      branch_id: branchId.toString(),
+      request_in: 'create-employee',
+      status: true
+    };
+
+    this.jobsService.getAllJobTitles(1, 100, params).subscribe({
+      next: (res) => {
+        const jobTitles = res.data?.list_items || [];
+        this.jobTitles.set(jobTitles);
+
+        if (jobTitles.length > 0) {
+          jobDetails.get('job_title_id')?.enable({ emitEvent: false });
+        } else {
+          jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+        }
+      },
+      error: (err) => {
+        console.error('Error loading job titles for branch/level', err);
+        this.jobTitles.set([]);
+        jobDetails.get('job_title_id')?.disable({ emitEvent: false });
+      }
+    });
+  }
+
   private fetchJobTitlesForDepartment(departmentId: number): void {
     const jobDetails = this.jobDetails;
 
@@ -751,7 +757,8 @@ export class ManageEmployeeSharedService {
       : null;
     const params: any = {
       department: departmentId.toString(),
-      request_in: 'create'
+      request_in: 'create-employee',
+      status: true
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -787,7 +794,8 @@ export class ManageEmployeeSharedService {
 
     const params: any = {
       section: sectionId.toString(),
-      request_in: 'create'
+      request_in: 'create-employee',
+      status: true
     };
 
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
@@ -1411,6 +1419,9 @@ export class ManageEmployeeSharedService {
     }
 
     if (managementLevel === 5 || managementLevel === 4) {
+      if (formData.job_details.branch_id) {
+        jobDetailsPayload.branch_id = parseInt(formData.job_details.branch_id, 10);
+      }
       if (formData.job_details.department_id) {
         jobDetailsPayload.department_id = parseInt(formData.job_details.department_id, 10);
       }

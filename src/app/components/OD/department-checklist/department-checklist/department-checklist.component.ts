@@ -59,7 +59,7 @@ export class DepartmentChecklistComponent {
 
         // console.log(sortedList);
 
-        this.checks = sortedList.map((item: any) => ({
+        this.checks = sortedList.map((item: any) => ({  
           name: item.name,
           completed: false,
           editing: false

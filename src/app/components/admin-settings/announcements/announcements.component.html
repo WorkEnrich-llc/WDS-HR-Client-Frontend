@@ -5,10 +5,10 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <!-- toolbar above table -->
-    <div class="d-flex align-items-center justify-content-between gap-4 w-100">
-      <div class="d-flex align-items-center gap-3">
+    <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 w-50">
         <!-- Search input -->
-        <div class="form-outline search-input">
+        <div data-mdb-input-init class="form-outline w-75">
           <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
             (ngModelChange)="onSearchChange()" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -111,10 +111,16 @@
 <app-overlay-filter-box #filterBox [title]="'Filters'">
   <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
-      <label for="recipients">Recipients</label>
+      <label for="recipientType">Recipient Type</label>
       <div class="form-outline w-100 position-relative custom-date-wrapper">
-        <input id="recipients" type="text" class="form-control custom-date-input" placeholder="Enter recipient name"
-          formControlName="recipients" />
+        <select id="recipientType" class="form-control custom-date-input" formControlName="recipient_type">
+          <option value="">All Types</option>
+          <option value="1">Department</option>
+          <option value="2">Section</option>
+          <option value="3">Employee</option>
+          <option value="4">Branch</option>
+          <option value="5">Company</option>
+        </select>
       </div>
     </div>
     <div class="d-flex align-items-center gap-3">

@@ -658,6 +658,9 @@ export class ManageRoleComponent implements OnInit {
 
   // create Role
   createRole(): void {
+    if (this.isLoading) {
+      return;
+    }
     if (this.createRoleForm.invalid) {
       this.errMsg = "Please fill required fields";
       return;
