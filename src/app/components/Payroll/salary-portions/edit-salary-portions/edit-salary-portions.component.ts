@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-import { atLeastOnePortionFilled, totalPercentageValidator } from './validator';
+import { atLeastOnePortionFilled, nonWhitespaceValidator, totalPercentageValidator } from './validator';
 import { SalaryPortion } from 'app/core/models/salary-portions';
 
 @Component({
@@ -22,6 +22,7 @@ export class EditSalaryPortionsComponent implements OnInit {
   private toasterService = inject(ToasterMessageService);
   salaryPortions: SalaryPortion[] = [];
   salaryPortion?: SalaryPortion;
+  attemptedSubmit = false;
 
   constructor(
     private router: Router,
@@ -48,22 +49,38 @@ export class EditSalaryPortionsComponent implements OnInit {
   private createPortion(p: any = null, isDefault = false): FormGroup {
     const hasValue = !!(p?.name || p?.percentage);
     const enabled = isDefault ? false : hasValue;
+    const initialName = typeof p?.name === 'string' ? p.name.trim() : (p?.name || '');
+    const initialPercentage = p?.percentage ?? '';
 
     const portionGroup = this.fb.group({
       enabled: new FormControl({ value: enabled, disabled: isDefault }),
-      name: new FormControl({ value: p?.name || '', disabled: !enabled || isDefault }),
-      percentage: new FormControl({ value: p?.percentage || '', disabled: !enabled || isDefault })
+      name: new FormControl(
+        { value: initialName, disabled: !enabled || isDefault },
+        [Validators.required, nonWhitespaceValidator]
+      ),
+      percentage: new FormControl(
+        { value: initialPercentage, disabled: !enabled || isDefault },
+        [Validators.required]
+      )
     });
 
     if (!isDefault) {
       portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
         if (enabled) {
+          const currentName = portionGroup.get('name')?.value;
           portionGroup.get('name')?.enable();
           portionGroup.get('percentage')?.enable();
+          if (typeof currentName === 'string') {
+            portionGroup.get('name')?.setValue(currentName.trim());
+          }
         } else {
           portionGroup.get('name')?.disable();
           portionGroup.get('percentage')?.disable();
+          portionGroup.get('name')?.reset('');
+          portionGroup.get('percentage')?.reset('');
         }
+        portionGroup.get('name')?.updateValueAndValidity({ emitEvent: false });
+        portionGroup.get('percentage')?.updateValueAndValidity({ emitEvent: false });
       });
     }
 
@@ -129,33 +146,17 @@ export class EditSalaryPortionsComponent implements OnInit {
 
 
 
-  get isSaveDisabled(): boolean {
-    if (this.isLoading) return true;
-    if (this.portionsForm.invalid) return true;
-    return this.portions.controls.some(portion => {
-      const enabled = portion.get('enabled')?.value;
-      const name = portion.get('name')?.value;
-      const percentage = portion.get('percentage')?.value;
-      return enabled && (!name || !percentage);
-    });
-  }
-
   get portions(): FormArray<FormGroup> {
     return this.portionsForm.get('portions') as FormArray<FormGroup>;
   }
 
   updateSalaryPortion(): void {
+    this.attemptedSubmit = true;
     const formValue = this.portionsForm.getRawValue();
-    const invalidPortion = this.portions.controls.some(portion => {
-      const enabled = portion.get('enabled')?.value;
-      const name = portion.get('name')?.value;
-      const percentage = portion.get('percentage')?.value;
-      return enabled && (!name || !percentage);
-    });
+    const invalidPortion = this.hasInvalidEnabledPortion();
 
     if (invalidPortion) {
       this.portionsForm.markAllAsTouched();
-      this.toasterService.showError('Please fill in all enabled portions before saving.');
       return;
     }
     const total = this.portions.controls.reduce((sum, group) => {
@@ -165,13 +166,21 @@ export class EditSalaryPortionsComponent implements OnInit {
       return sum + num;
     }, 0);
 
-    if (total > 100) {
-      this.toasterService.showError('The total percentages cannot be more than 100%.');
+    if (total >= 100) {
+      this.portionsForm.markAllAsTouched();
       return;
     }
 
+    const cleanedValue = {
+      ...formValue,
+      portions: formValue.portions.map((portion: any) => ({
+        ...portion,
+        name: typeof portion.name === 'string' ? portion.name.trim() : portion.name
+      }))
+    };
+
     this.isLoading = true;
-    this.salaryPortionService.updateSalaryPortion(formValue).subscribe({
+    this.salaryPortionService.updateSalaryPortion(cleanedValue).subscribe({
       next: () => {
         this.toasterService.showSuccess('Salary portion updated successfully');
         this.router.navigate(['/salary-portions']);
@@ -182,6 +191,25 @@ export class EditSalaryPortionsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private hasInvalidEnabledPortion(): boolean {
+    return this.portions.controls.some(portion => {
+      const enabled = portion.get('enabled')?.value;
+      if (!enabled) return false;
+      const nameControl = portion.get('name');
+      const percentageControl = portion.get('percentage');
+      return (nameControl?.invalid ?? false) || (percentageControl?.invalid ?? false);
+    });
+  }
+
+  showControlError(index: number, controlName: 'name' | 'percentage'): boolean {
+    const portion = this.portions.at(index) as FormGroup;
+    const control = portion.get(controlName);
+    if (!control || control.disabled) {
+      return false;
+    }
+    return control.invalid && (control.touched || this.attemptedSubmit);
   }
 
 

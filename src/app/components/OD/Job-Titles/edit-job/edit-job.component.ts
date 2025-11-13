@@ -172,10 +172,10 @@ export class EditJobComponent {
     if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
 
     // --- Step 1 ---
+    this.jobStep1.get('managementLevel')?.setValue(this.jobTitleData.management_level || '', { emitEvent: false });
     this.jobStep1.patchValue({
       code: this.jobTitleData.code || '',
       jobName: this.jobTitleData.name || '',
-      managementLevel: this.jobTitleData.management_level || '',
       jobLevel: this.jobTitleData.job_level || '',
       department: this.jobTitleData.department?.id || '',
       section: this.jobTitleData.section?.id || ''
@@ -205,14 +205,12 @@ export class EditJobComponent {
       });
     }
 
-    // --- Step 4 (Requirements + Analysis + Description) ---
+    // --- Step 4 ---
     this.requirements = this.jobTitleData.requirements || [];
-
     this.jobStep4.patchValue({
       jobDescription: this.jobTitleData.description || '',
       jobAnalysis: this.jobTitleData.analysis || ''
     });
-
 
     this.setFieldsBasedOnLevel(this.jobTitleData.management_level);
 
@@ -225,7 +223,13 @@ export class EditJobComponent {
       assignedId: this.currentManager?.id || null
     };
 
+    const currentLevel = this.jobStep1.get('managementLevel')?.value;
+    if (currentLevel) {
+      this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+    }
   }
+
+
 
 
   setFieldsBasedOnLevel(level: number) {
@@ -295,38 +299,34 @@ export class EditJobComponent {
   showJobLevel: boolean = true;
 
   onLevelChange() {
-    const level = this.jobStep1.get('managementLevel')?.value;
+    const level = Number(this.jobStep1.get('managementLevel')?.value);
 
     const jobLevelControl = this.jobStep1.get('jobLevel');
     const departmentControl = this.jobStep1.get('department');
     const sectionControl = this.jobStep1.get('section');
 
+    // --- reset dependent controls
     departmentControl?.reset('');
     sectionControl?.reset('');
-
     this.sections = [];
     this.sectionsLoading = false;
 
     jobLevelControl?.clearValidators();
     departmentControl?.clearValidators();
     sectionControl?.clearValidators();
-
     departmentControl?.disable();
     sectionControl?.disable();
-
     this.isDepartmentSelected = false;
     this.isSectionSelected = false;
 
-    this.showJobLevel = true;
     jobLevelControl?.enable();
     jobLevelControl?.setValidators([Validators.required]);
 
-    if (level === '3') {
+    if (level === 3) {
       departmentControl?.enable();
       departmentControl?.setValidators([Validators.required]);
       this.isDepartmentSelected = true;
-    } else if (level === '4' || level === '5') {
-
+    } else if (level === 4 || level === 5) {
       departmentControl?.enable();
       sectionControl?.enable();
       departmentControl?.setValidators([Validators.required]);
@@ -339,11 +339,27 @@ export class EditJobComponent {
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
 
-    if (this.allDepartments.length > 0) {
-      this.departments = this.allDepartments.filter(d => d.isActive);
-      this.sections = this.sections.filter(s => !s.name.includes('(Not active)'));
-    }
+    this.jobTitles = this.jobTitles.map(job => ({ ...job, assigned: false, assigns: [] }));
+    this.jobTitleData.assigns = [];
+    this.removedManagerId = null;
+    this.removedManager = null;
+    this.newManagerSelected = false;
+    this.managerRemoved = false;
+
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
+
+
+  get filteredJobTitles() {
+    const currentId = this.numericJobId;
+    if (!this.jobTitles?.length) return [];
+
+    return this.jobTitles.map(job => {
+      const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+      return { ...job, assigned: isAssigned };
+    }).filter(job => job.id !== currentId);
+  }
+
 
 
 
@@ -503,12 +519,8 @@ export class EditJobComponent {
       }
     });
   }
-  get filteredJobTitles() {
-    if (this.numericJobId === null) {
-      return this.jobTitles;
-    }
-    return this.jobTitles.filter(job => job.id !== this.numericJobId);
-  }
+
+
   onSearchChange(event: any) {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
@@ -555,7 +567,7 @@ export class EditJobComponent {
   selectAll: boolean = false;
 
   goNext() {
-     if (this.currentStep === 3) {
+    if (this.currentStep === 3) {
       if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
         this.selectJobError = true;
         return;
@@ -618,9 +630,9 @@ export class EditJobComponent {
         }
         return true; // No job titles means no validation needed
       case 4:
-        return this.jobStep1.valid && this.jobStep2.valid && 
-               this.jobStep4.valid && this.requirements.length > 0 &&
-               (this.jobTitles.length === 0 || this.jobTitles.some(job => job.assigned));
+        return this.jobStep1.valid && this.jobStep2.valid &&
+          this.jobStep4.valid && this.requirements.length > 0 &&
+          (this.jobTitles.length === 0 || this.jobTitles.some(job => job.assigned));
       default:
         return true;
     }
@@ -679,13 +691,13 @@ export class EditJobComponent {
   }
 
   toggleAssignStatus(selectedJob: any) {
-    this.jobTitles.forEach(job => {
-      job.assigned = false;
-      job.assigns = [];
+    this.jobTitles = this.jobTitles.map(job => {
+      if (job.id === selectedJob.id) {
+        return { ...job, assigned: true, assigns: [selectedJob] };
+      } else {
+        return { ...job, assigned: false, assigns: [] };
+      }
     });
-
-    selectedJob.assigned = true;
-    selectedJob.assigns = [selectedJob];
 
     this.removedManagerId = null;
     this.removedManager = null;
@@ -769,7 +781,7 @@ export class EditJobComponent {
   // create job title
   department: any;
   updateJobTitle() {
-     if (this.currentStep === 3 && this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+    if (this.currentStep === 3 && this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
       this.selectJobError = true;
       return;
     }

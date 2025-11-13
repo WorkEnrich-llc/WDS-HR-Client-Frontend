@@ -1,0 +1,450 @@
+<app-page-header [breadcrumbs]="[
+    { label: 'Admin Settings', link: '/cloud' },
+    { label: 'Roles', link: '/roles/all-role' },
+    { label: 'Role ' + roleId }
+  ]" [title]="'Role ' + roleId" [create]="formatDate(roleDetails?.createdAt, false)"
+  [update]="formatDate(roleDetails?.updatedAt, false)">
+  <div class="header-actions d-flex justify-content-end gap-2">
+    @if (isRoleActive) {
+    <button class="btn btn-lg btn-outline-danger" (click)="openDeactivate()" [disabled]="isLoading || isStatusUpdating">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" d="M12 2v4" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </g>
+      </svg>
+      <span>Deactivate</span>
+    </button>
+    } @else {
+    <button class="btn btn-lg btn-success" (click)="openActivate()" [disabled]="isLoading || isStatusUpdating">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" d="M12 2v4" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+        </g>
+      </svg>
+      <span>Activate</span>
+    </button>
+    }
+    <button class="btn btn-lg btn-primary" (click)="onEditRole()" [disabled]="isLoading">
+      <svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M8.70697 0.9375L9.875 0.9375C10.1857 0.9375 10.4375 1.18934 10.4375 1.5C10.4375 1.81066 10.1857 2.0625 9.875 2.0625H8.75C6.96633 2.0625 5.68517 2.06369 4.71018 2.19478C3.75138 2.32369 3.17334 2.56886 2.7461 2.9961C2.31886 3.42334 2.07369 4.00138 1.94478 4.96018C1.81369 5.93517 1.8125 7.21633 1.8125 9C1.8125 10.7837 1.81369 12.0648 1.94478 13.0398C2.07369 13.9986 2.31886 14.5767 2.7461 15.0039C3.17334 15.4311 3.75138 15.6763 4.71018 15.8052C5.68517 15.9363 6.96633 15.9375 8.75 15.9375C10.5337 15.9375 11.8148 15.9363 12.7898 15.8052C13.7486 15.6763 14.3267 15.4311 14.7539 15.0039C15.1811 14.5767 15.4263 13.9986 15.5552 13.0398C15.6863 12.0648 15.6875 10.7837 15.6875 9V7.875C15.6875 7.56434 15.9393 7.3125 16.25 7.3125C16.5607 7.3125 16.8125 7.56434 16.8125 7.875V9.04303C16.8125 10.7743 16.8125 12.1311 16.6702 13.1897C16.5245 14.2733 16.2205 15.1283 15.5494 15.7994C14.8783 16.4705 14.0233 16.7745 12.9397 16.9202C11.8811 17.0625 10.5243 17.0625 8.79303 17.0625H8.70697C6.97567 17.0625 5.6189 17.0625 4.56028 16.9202C3.47673 16.7745 2.62171 16.4705 1.9506 15.7994C1.2795 15.1283 0.97549 14.2733 0.82981 13.1897C0.687483 12.1311 0.687491 10.7743 0.6875 9.04303V8.95697C0.687491 7.22567 0.687483 5.86889 0.82981 4.81028C0.97549 3.72673 1.2795 2.87171 1.9506 2.2006C2.62171 1.5295 3.47673 1.22549 4.56028 1.07981C5.61889 0.937483 6.97567 0.937491 8.70697 0.9375ZM12.3279 1.70694C13.3538 0.681022 15.0171 0.681022 16.0431 1.70694C17.069 2.73285 17.069 4.39619 16.0431 5.4221L11.057 10.4082C10.7785 10.6867 10.6041 10.8611 10.4094 11.013C10.1802 11.1918 9.93209 11.3451 9.66961 11.4702C9.44676 11.5764 9.21271 11.6544 8.83909 11.7789L6.6607 12.505C6.25851 12.6391 5.8151 12.5344 5.51533 12.2347C5.21556 11.9349 5.11089 11.4915 5.24495 11.0893L5.97108 8.91092C6.09559 8.53729 6.17359 8.30324 6.2798 8.08039C6.40489 7.81791 6.55821 7.56984 6.73703 7.34056C6.88887 7.1459 7.06333 6.97147 7.34183 6.693L12.3279 1.70694ZM15.2476 2.50243C14.661 1.91586 13.71 1.91586 13.1234 2.50243L12.8409 2.7849C12.858 2.85679 12.8818 2.94245 12.9149 3.038C13.0224 3.34779 13.2258 3.75579 13.61 4.14C13.9942 4.5242 14.4022 4.7276 14.712 4.83508C14.8075 4.86823 14.8932 4.89205 14.9651 4.90907L15.2476 4.62661C15.8341 4.04003 15.8341 3.08901 15.2476 2.50243ZM14.0789 5.79532C13.6919 5.6289 13.2411 5.36209 12.8145 4.93549C12.3879 4.50889 12.1211 4.05812 11.9547 3.67114L8.16313 7.46269C7.85075 7.77508 7.72823 7.89897 7.62411 8.03246C7.49553 8.19731 7.3853 8.37567 7.29536 8.56439C7.22252 8.71722 7.16651 8.8822 7.0268 9.30131L6.70288 10.2731L7.47693 11.0471L8.44869 10.7232C8.8678 10.5835 9.03278 10.5275 9.18561 10.4546C9.37433 10.3647 9.55269 10.2545 9.71754 10.1259C9.85103 10.0218 9.97492 9.89926 10.2873 9.58687L14.0789 5.79532Z"
+          fill="#E0EBFF" />
+      </svg>
+      <span>Edit</span>
+    </button>
+  </div>
+</app-page-header>
+
+@if (isLoading) {
+<div class="content-hug">
+  <div class="content-box skeleton-card">
+    <div class="skeleton-line skeleton-title"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line"></div>
+  </div>
+</div>
+} @else {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-2">
+    <div class="d-flex align-items-center justify-content-between">
+      <h2>Role Information</h2>
+      <div>
+        @if ((roleDetails?.status ?? '').toLowerCase() === 'active') {
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>Active</span>
+        </span>
+        } @else {
+        <span class="badge-gray">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+          </svg>
+          <span>{{ roleDetails?.status || 'Inactive' }}</span>
+        </span>
+        }
+      </div>
+    </div>
+
+    @for (item of mainInformation; track item.label) {
+    <div class="info tight">
+      <h6>{{ item.label }}</h6>
+      <span>{{ item.value }}</span>
+    </div>
+    }
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="content-box d-flex flex-column gap-3 w-100">
+        <ul class="nav d-flex align-items-center nav-tabs bg-white">
+          <li class="nav-item" [ngClass]="{ active: selectedTab === 'permissions' }"
+            (click)="onSelectTab('permissions')">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path opacity="0.3" fill-rule="evenodd" clip-rule="evenodd"
+                d="M10.5 16.5H7.5C4.67157 16.5 3.25736 16.5 2.37868 15.6213C1.5 14.7426 1.5 13.3284 1.5 10.5V7.5C1.5 4.67157 1.5 3.25736 2.37868 2.37868C3.25736 1.5 4.67902 1.5 7.52234 1.5C7.97685 1.5 8.34105 1.5 8.64751 1.5125C8.63742 1.57244 8.63213 1.6336 8.63192 1.69542L8.625 3.82123C8.62493 4.64405 8.62487 5.37123 8.70368 5.95737C8.7891 6.59271 8.98523 7.22795 9.50368 7.7464C10.0221 8.26485 10.6574 8.46098 11.2927 8.5464C11.8789 8.62521 12.606 8.62515 13.4289 8.62508L13.5 8.62508H16.4681C16.5 9.02578 16.5 9.51757 16.5 10.1722V10.5C16.5 13.3284 16.5 14.7426 15.6213 15.6213C14.7426 16.5 13.3284 16.5 10.5 16.5Z"
+                fill="currentColor" />
+              <path
+                d="M4.5 10.3125C4.18934 10.3125 3.9375 10.5643 3.9375 10.875C3.9375 11.1857 4.18934 11.4375 4.5 11.4375H10.5C10.8107 11.4375 11.0625 11.1857 11.0625 10.875C11.0625 10.5643 10.8107 10.3125 10.5 10.3125H4.5Z"
+                fill="currentColor" />
+              <path
+                d="M4.5 12.9375C4.18934 12.9375 3.9375 13.1893 3.9375 13.5C3.9375 13.8107 4.18934 14.0625 4.5 14.0625H8.625C8.93566 14.0625 9.1875 13.8107 9.1875 13.5C9.1875 13.1893 8.93566 12.9375 8.625 12.9375H4.5Z"
+                fill="currentColor" />
+              <path
+                d="M8.63193 1.69507L8.625 3.82087C8.62494 4.6437 8.62488 5.37088 8.70369 5.95702C8.78911 6.59236 8.98523 7.2276 9.50369 7.74605C10.0221 8.2645 10.6574 8.46063 11.2927 8.54605C11.8789 8.62485 12.606 8.6248 13.4288 8.62473L16.4681 8.62473C16.4774 8.74139 16.484 8.86577 16.4886 8.99965H16.5C16.5 8.79903 16.5 8.69872 16.4925 8.58062C16.4502 7.9097 16.1713 7.14093 15.7736 6.59889C15.7036 6.50348 15.6558 6.4462 15.56 6.33164C14.9656 5.62019 14.1833 4.73394 13.5 4.12465C12.8919 3.58234 12.059 2.98902 11.3326 2.50387C10.7085 2.08706 10.3965 1.87865 9.96866 1.72376C9.85522 1.68269 9.70561 1.63733 9.58847 1.60849C9.30047 1.5376 9.0201 1.51294 8.625 1.50439L8.63193 1.69507Z"
+                fill="currentColor" />
+            </svg>
+
+            <span class="nav-link">Permissions</span>
+          </li>
+          <li class="nav-item" [ngClass]="{ active: selectedTab === 'users' }" (click)="onSelectTab('users')">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_698_32515)">
+                <path
+                  d="M11.625 5.625C11.625 7.07475 10.4497 8.25 9 8.25C7.55025 8.25 6.375 7.07475 6.375 5.625C6.375 4.17525 7.55025 3 9 3C10.4497 3 11.625 4.17525 11.625 5.625Z"
+                  fill="currentColor" />
+                <path opacity="0.4"
+                  d="M14.625 5.625C14.625 6.66053 13.7855 7.5 12.75 7.5C11.7145 7.5 10.875 6.66053 10.875 5.625C10.875 4.58947 11.7145 3.75 12.75 3.75C13.7855 3.75 14.625 4.58947 14.625 5.625Z"
+                  fill="currentColor" />
+                <path opacity="0.4"
+                  d="M3.375 5.625C3.375 6.66053 4.21447 7.5 5.25 7.5C6.28553 7.5 7.125 6.66053 7.125 5.625C7.125 4.58947 6.28553 3.75 5.25 3.75C4.21447 3.75 3.375 4.58947 3.375 5.625Z"
+                  fill="currentColor" />
+                <path
+                  d="M13.5 12.375C13.5 13.8247 11.4853 15 9 15C6.51472 15 4.5 13.8247 4.5 12.375C4.5 10.9253 6.51472 9.75 9 9.75C11.4853 9.75 13.5 10.9253 13.5 12.375Z"
+                  fill="currentColor" />
+                <path opacity="0.4"
+                  d="M16.5 12.375C16.5 13.4105 15.1569 14.25 13.5 14.25C11.8431 14.25 10.5 13.4105 10.5 12.375C10.5 11.3395 11.8431 10.5 13.5 10.5C15.1569 10.5 16.5 11.3395 16.5 12.375Z"
+                  fill="currentColor" />
+                <path opacity="0.4"
+                  d="M1.5 12.375C1.5 13.4105 2.84315 14.25 4.5 14.25C6.15685 14.25 7.5 13.4105 7.5 12.375C7.5 11.3395 6.15685 10.5 4.5 10.5C2.84315 10.5 1.5 11.3395 1.5 12.375Z"
+                  fill="currentColor" />
+              </g>
+              <defs>
+                <clipPath id="clip0_698_32515">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span class="nav-link">Users</span>
+          </li>
+        </ul>
+
+        <div class="tabs-toolbar d-flex flex-column flex-lg-row align-items-lg-center gap-2">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+              </g>
+            </svg>
+            <input type="text" [placeholder]="selectedTab === 'permissions' ? 'Search permissions' : 'Search users'"
+              [(ngModel)]="currentSearch" />
+          </div>
+          <button class="btn btn-outline-primary" (click)="openFilter()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-width="1.5"
+                d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+            </svg>
+            <span>Filter</span>
+          </button>
+        </div>
+
+        <div class="tab-content pt-0">
+          @if (selectedTab === 'permissions') {
+          <app-table [data]="filteredPermissionRows" [totalItems]="filteredPermissionRows.length"
+            [itemsPerPage]="filteredPermissionRows.length || 1" [currentPage]="1" [columnsCount]="3"
+            [disablePagination]="true" [headerTemplate]="permissionsTableHeader" [rowTemplate]="permissionsTableRow"
+            [emptyTemplate]="permissionsEmpty"></app-table>
+          }
+
+          @if (selectedTab === 'users') {
+          <app-table [data]="filteredUsers" [totalItems]="filteredUsers.length"
+            [itemsPerPage]="filteredUsers.length || 1" [currentPage]="1" [columnsCount]="5" [disablePagination]="true"
+            [headerTemplate]="usersTableHeader" [rowTemplate]="usersTableRow" [emptyTemplate]="usersEmpty"></app-table>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<ng-template #permissionsTableHeader>
+  <th>Module Name</th>
+  <th>Service Name</th>
+  <th>Available Actions</th>
+</ng-template>
+
+<ng-template #permissionsTableRow let-row>
+  <td>{{ row.moduleName }}</td>
+  <td>{{ row.serviceName }}</td>
+  <td>{{ row.actions.length ? row.actions.join(', ') : 'No active actions' }}</td>
+</ng-template>
+
+<ng-template #permissionsEmpty>
+  <div class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="m8 12l2.5 2.5L16 9" />
+    </svg>
+    <p>No permissions match your search criteria.</p>
+  </div>
+</ng-template>
+
+<ng-template #usersTableHeader>
+  <th>ID</th>
+  <th>Full Name</th>
+  <th>Email</th>
+  <th>Added Date</th>
+  <th>Status</th>
+  <th></th>
+</ng-template>
+
+<ng-template #usersTableRow let-user>
+  <td>{{ formatUserId(user) }}</td>
+  <td>{{ user.name || 'Unnamed User' }}</td>
+  <td>{{ getUserEmail(user) }}</td>
+  <td>{{ formatDate(getUserAddedDate(user) ?? undefined, false) || '—' }}</td>
+  <td>
+    <span [ngClass]="getUserBadgeClass(user)">{{ getUserStatusLabel(user) }}</span>
+  </td>
+  <td>
+    <a class="table-link" [routerLink]="['/users/view-user', user.id]">View Profile</a>
+  </td>
+</ng-template>
+
+<ng-template #usersEmpty>
+  <div class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M12 22v-4m8-6h-4M2 12h4m11.5-6.5l-2.5 2.5m-7 7l-2.5 2.5m12 0l-2.5-2.5m-7-7l-2.5-2.5" />
+    </svg>
+    <p>No users found for this role.</p>
+  </div>
+</ng-template>
+
+<!-- Filter Overlay -->
+<app-overlay-filter-box #filterBox [title]="'Filters'">
+  @if (selectedTab === 'permissions') {
+  <!-- Permissions Filters -->
+  <form [formGroup]="permissionsFilterForm" (ngSubmit)="applyPermissionsFilter()" class="w-100 d-flex flex-column gap-3">
+    <div class="input">
+      <label for="modules">Modules</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select formControlName="modules" id="modules" class="form-select">
+            <option value="" selected>All</option>
+            @for (module of availableModules; track module) {
+            <option [value]="module">{{ module }}</option>
+            }
+          </select>
+        </div>
+        @if (permissionsFilterForm.get('modules')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" (click)="clearModuleFilter()"
+          style="cursor: pointer;">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="actions">Actions</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select formControlName="actions" id="actions" class="form-select">
+            <option value="" selected>All</option>
+            @for (action of availableActions; track action) {
+            <option [value]="action">{{ action }}</option>
+            }
+          </select>
+        </div>
+        @if (permissionsFilterForm.get('actions')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" (click)="clearActionFilter()"
+          style="cursor: pointer;">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Apply Filters</span>
+      </button>
+      <a (click)="resetPermissionsFilter()" class="text-danger-dark fw-bold w-100 text-center cursor-pointer">
+        <span>Clear Filters</span>
+      </a>
+    </div>
+  </form>
+  }
+
+  @if (selectedTab === 'users') {
+  <!-- Users Filters -->
+  <form [formGroup]="usersFilterForm" (ngSubmit)="applyUsersFilter()" class="w-100 d-flex flex-column gap-3">
+    <div class="input">
+      <label for="status">Status</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select formControlName="status" id="status" class="form-select">
+            <option value="" selected>All</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
+        @if (usersFilterForm.get('status')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" (click)="clearStatusFilter()"
+          style="cursor: pointer;">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+    <div class="input">
+      <label for="addedSince">Added Since</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" formControlName="addedSince" id="addedSince" class="form-control custom-date-input"
+            placeholder="Select Date" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+        </div>
+        @if (usersFilterForm.get('addedSince')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" (click)="clearAddedSinceFilter()"
+          style="cursor: pointer;">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Apply Filters</span>
+      </button>
+      <a (click)="resetUsersFilter()" class="text-danger-dark fw-bold w-100 text-center cursor-pointer">
+        <span>Clear Filters</span>
+      </a>
+    </div>
+  </form>
+  }
+</app-overlay-filter-box>
+
+<!-- Deactivate Role Popup -->
+<app-popup [title]="'Deactivate Role'"
+  [paragraph1]="'Are you sure you want to deactivate the Role &quot;' + (roleDetails?.name || '') + '&quot;?'"
+  [paragraph2]="'This will only hold any access this role has to the system. You can activate it at any time later.'"
+  [isOpen]="deactivateOpen" (close)="closeDeactivate()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeactivate()"
+    [disabled]="isStatusUpdating">
+    @if (isStatusUpdating) {
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    }
+    <span>Deactivate</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeactivate()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Activate Role Popup -->
+<app-popup [title]="'Activate Role'"
+  [paragraph1]="'Are you sure you want to activate the Role &quot;' + (roleDetails?.name || '') + '&quot;?'"
+  [paragraph2]="'You can deactivate it at any time later.'" [isOpen]="activateOpen" (close)="closeActivate()">
+  <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmActivate()"
+    [disabled]="isStatusUpdating">
+    @if (isStatusUpdating) {
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+        d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
+    </svg>
+    }
+    <span>Activate</span>
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeActivate()">
+    Cancel
+  </button>
+</app-popup>

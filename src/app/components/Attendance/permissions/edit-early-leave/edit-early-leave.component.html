@@ -70,7 +70,7 @@
     <!-- Validation message for exceeding maximum allowed minutes -->
     @if (allowPermission && minutes !== null && minutes !== undefined && minutes > maxMinutes) {
     <div class="text-danger mt-1">
-        Maximum allowed minutes is {{maxMinutes}}. Please enter a smaller value.
+        Maximum allowed minutes is {{maxMinutes / 60}} hours. Please enter a smaller value.
     </div>
     }
 

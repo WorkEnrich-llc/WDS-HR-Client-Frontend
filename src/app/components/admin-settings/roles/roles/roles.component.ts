@@ -347,4 +347,9 @@ export class RolesComponent {
     this.paginationState.setPage('roles/all-role', this.currentPage);
     this.router.navigate(['/roles/edit-role', roleId]);
   }
+
+  navigateToView(roleId: number): void {
+    this.paginationState.setPage('roles/all-role', this.currentPage);
+    this.router.navigate(['/roles/view-role', roleId]);
+  }
 }

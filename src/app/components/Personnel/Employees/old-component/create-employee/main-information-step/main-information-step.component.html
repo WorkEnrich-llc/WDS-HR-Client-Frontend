@@ -137,9 +137,9 @@
                 <div class="input">
                   <label for="personal_email">Personal Email <span>*</span></label>
                   <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="email" id="personal_email" formControlName="personal_email"
+                    <input type="email" id="personal_email" inputmode="email" formControlName="personal_email"
                       class="form-control custom-date-input"
-                      placeholder="Enter personal email" />
+                      placeholder="Enter Personal Email" />
                     </div>
                     @if (sharedService.isFieldInvalid('personal_email', sharedService.mainInformation)) {
                       <p class="error-msg">

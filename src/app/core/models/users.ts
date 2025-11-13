@@ -7,6 +7,8 @@ export interface IUser {
    name: string;
    created_at?: string;
    updated_at?: string;
+   added_date?: string;
+   is_active?: boolean;
    status?: UserStatus;
    isSelected?: boolean;
    permissions: { id: number; name: string }[];

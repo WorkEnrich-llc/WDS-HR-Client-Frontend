@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from './../../../../../environments/environment';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +29,7 @@ export class WorkSchaualeService {
       department?: string;
       schedules_type?: string;
       work_schedule_type?: string;
+      status?: boolean;
     }
   ): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/work-schedule`;
@@ -42,6 +43,7 @@ export class WorkSchaualeService {
       if (filters.department) params = params.set('department', filters.department);
       if (filters.schedules_type) params = params.set('schedules_type', filters.schedules_type);
       if (filters.work_schedule_type) params = params.set('work_schedule_type', filters.work_schedule_type);
+      if (filters.status) params = params.set('status', filters.status);
     }
 
     return this._HttpClient.get(url, { params });

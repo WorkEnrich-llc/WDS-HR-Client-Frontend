@@ -1,7 +1,9 @@
-import { Component, ViewEncapsulation, OnInit, HostListener } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
@@ -16,12 +18,15 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-full-time.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class EditFullTimeComponent implements OnInit {
+export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   attendanceRulesData: AttendanceRulesData | null = null;
   loading: boolean = true;
   error: string | null = null;
   originalData: any;
+  private destroy$ = new Subject<void>();
+  private salaryPortionsRequestInFlight = false;
+  private attendanceRulesRequestInFlight = false;
 
   constructor(
     private router: Router,
@@ -35,8 +40,18 @@ export class EditFullTimeComponent implements OnInit {
   }
 
   loadSalaryPortions(): void {
+    if (this.salaryPortionsRequestInFlight) {
+      return;
+    }
+    this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().subscribe({
+    this.salaryPortionsService.single().pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.salaryPortionsLoading = false;
+        this.salaryPortionsRequestInFlight = false;
+      })
+    ).subscribe({
       next: (response) => {
         console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
@@ -50,14 +65,12 @@ export class EditFullTimeComponent implements OnInit {
         } else {
           this.salaryPortions = [];
         }
-        this.salaryPortionsLoading = false;
         // Load attendance rules after salary portions are loaded
         this.loadAttendanceRules();
       },
       error: (error) => {
         console.error('Error loading salary portions:', error);
         this.salaryPortions = [];
-        this.salaryPortionsLoading = false;
         // Still load attendance rules even if salary portions fail
         this.loadAttendanceRules();
       }
@@ -65,18 +78,26 @@ export class EditFullTimeComponent implements OnInit {
   }
 
   loadAttendanceRules(): void {
+    if (this.attendanceRulesRequestInFlight) {
+      return;
+    }
+    this.attendanceRulesRequestInFlight = true;
     this.loading = true;
-    this.attendanceRulesService.getAttendanceRules().subscribe({
+    this.attendanceRulesService.getAttendanceRules().pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.loading = false;
+        this.attendanceRulesRequestInFlight = false;
+      })
+    ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
         this.mapDataToForm();
-        this.loading = false;
 
       },
       error: (error) => {
         console.error('Error loading attendance rules:', error);
         this.error = 'Failed to load attendance rules';
-        this.loading = false;
       }
     });
   }
@@ -92,36 +113,63 @@ export class EditFullTimeComponent implements OnInit {
 
     // Map Lateness entries
     if (fullTimeSettings.lateness && fullTimeSettings.lateness.length > 0) {
-      this.latenessEntries = fullTimeSettings.lateness.map((item: any) => {
-        // Store the index directly from the API response, convert to number
-        return {
-          value: item.value,
+      this.latenessEntries = [...fullTimeSettings.lateness]
+        .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+        .map((item: any) => ({
+          value: item.value !== null && item.value !== undefined
+            ? Number(item.value)
+            : null,
           salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
             ? Number(item.salary_portion_index)
             : null
-        };
-      });
+        }));
+    } else {
+      this.latenessEntries = [{ value: null, salaryPortionIndex: null }];
     }
+    this.latenessValidationErrors = {};
+    this.latenessEntries.forEach((_, index) => {
+      this.latenessValidationErrors[index] = { value: false, salaryPortion: false };
+    });
 
     // Map Early Leave entries
     if (fullTimeSettings.early_leave && fullTimeSettings.early_leave.length > 0) {
-      this.earlyLeaveRows = fullTimeSettings.early_leave.map((item: any) => ({
-        deduction: item.value,
-        salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-          ? Number(item.salary_portion_index)
-          : null
-      }));
+      this.earlyLeaveRows = [...fullTimeSettings.early_leave]
+        .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+        .map((item: any) => ({
+          deduction: item.value !== null && item.value !== undefined
+            ? Number(item.value)
+            : null,
+          salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+            ? Number(item.salary_portion_index)
+            : null
+        }));
+    } else {
+      this.earlyLeaveRows = [{ deduction: null, salaryPortionIndex: null }];
     }
+    this.earlyLeaveValidationErrors = {};
+    this.earlyLeaveRows.forEach((_, index) => {
+      this.earlyLeaveValidationErrors[index] = { value: false, salaryPortion: false };
+    });
 
     // Map Absence entries
     if (fullTimeSettings.absence && fullTimeSettings.absence.length > 0) {
-      this.absenceEntries = fullTimeSettings.absence.map((item: any) => ({
-        value: item.value,
-        salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-          ? Number(item.salary_portion_index)
-          : null
-      }));
+      this.absenceEntries = [...fullTimeSettings.absence]
+        .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+        .map((item: any) => ({
+          value: item.value !== null && item.value !== undefined
+            ? Number(item.value)
+            : null,
+          salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+            ? Number(item.salary_portion_index)
+            : null
+        }));
+    } else {
+      this.absenceEntries = [{ value: null, salaryPortionIndex: null }];
     }
+    this.absenceValidationErrors = {};
+    this.absenceEntries.forEach((_, index) => {
+      this.absenceValidationErrors[index] = { value: false, salaryPortion: false };
+    });
 
     // Map Overtime settings
     const overtimeSettings = (fullTimeSettings as any).overtime;
@@ -137,14 +185,19 @@ export class EditFullTimeComponent implements OnInit {
       } else if (overtimeSettings.custom_hours?.status) {
         this.overtimeType = 'customHours';
         if (overtimeSettings.custom_hours.value && overtimeSettings.custom_hours.value.length > 0) {
-          this.overtimeEntries = overtimeSettings.custom_hours.value.map((item: any) => ({
-            from: item.from_time || '',
-            to: item.to_time || '',
-            rate: item.rate || null,
-            salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-              ? Number(item.salary_portion_index)
-              : null
-          }));
+          this.overtimeEntries = [...overtimeSettings.custom_hours.value]
+            .map((item: any) => ({
+              from: item.from_time || '',
+              to: item.to_time || '',
+              rate: item.rate !== null && item.rate !== undefined
+                ? Number(item.rate)
+                : null,
+              salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+                ? Number(item.salary_portion_index)
+                : null
+            }));
+        } else {
+          this.overtimeEntries = [{ from: '', to: '', rate: null, salaryPortionIndex: null }];
         }
       }
     }
@@ -157,6 +210,7 @@ export class EditFullTimeComponent implements OnInit {
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
+      flatRateSalaryPortionIndex: this.flatRateSalaryPortionIndex,
       overtimeEntries: this.overtimeEntries,
       absenceEntries: this.absenceEntries
     }));
@@ -173,6 +227,7 @@ export class EditFullTimeComponent implements OnInit {
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
       flatRateValue: this.flatRateValue,
+      flatRateSalaryPortionIndex: this.flatRateSalaryPortionIndex,
       overtimeEntries: this.overtimeEntries,
       absenceEntries: this.absenceEntries
     };
@@ -708,7 +763,9 @@ export class EditFullTimeComponent implements OnInit {
     };
 
     // Send data to API
-    this.attendanceRulesService.updateAttendanceRules(requestData).subscribe({
+    this.attendanceRulesService.updateAttendanceRules(requestData).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
@@ -719,6 +776,11 @@ export class EditFullTimeComponent implements OnInit {
         this.isSaving = false;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 

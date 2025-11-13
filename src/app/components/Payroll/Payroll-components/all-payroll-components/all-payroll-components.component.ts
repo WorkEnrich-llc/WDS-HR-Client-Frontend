@@ -66,9 +66,6 @@ export class AllPayrollComponentsComponent implements OnInit {
 
   totalPages: number = 0;
 
-
-
-
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
@@ -96,7 +93,7 @@ export class AllPayrollComponentsComponent implements OnInit {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
       this.getAllComponents(this.currentPage, value);
     });
 
@@ -208,8 +205,6 @@ export class AllPayrollComponentsComponent implements OnInit {
     // this.currentPage = page;
     // this.getAllComponents(this.currentPage);
   }
-
-
 
   navigateToEdit(componentId: number): void {
     this.paginationState.setPage('payroll-components/all-payroll-components', this.currentPage);

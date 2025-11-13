@@ -8,6 +8,8 @@ import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/comm
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
+import { NgxDocViewerModule } from 'ngx-doc-viewer';
+
 interface FileItem {
   id: string;
   name: string;
@@ -23,7 +25,7 @@ interface storageInfo {
 };
 @Component({
   selector: 'app-system-cloud',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, NgxDocViewerModule],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
@@ -139,7 +141,7 @@ export class SystemCloudComponent implements OnInit {
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
-        // console.log(this.allFiles);
+        console.log(this.allFiles);
         this.dataLoaded = true;
         this.storageInfo = response?.data?.storage_size_info;
         // console.log(this.storageInfo);
@@ -246,6 +248,30 @@ export class SystemCloudComponent implements OnInit {
 
     this.router.navigate(['/cloud/system-file', folder.id]);
   }
+
+  // open file Image or PDF or Word
+  selectedFileUrl: string | null = null;
+  selectedFileType: string = '';
+
+  openFilePopup(folder: any) {
+    this.selectedFileUrl = folder.file_url;
+    this.selectedFileType = folder.file_type.toLowerCase();
+  }
+
+  closePopup() {
+    this.selectedFileUrl = null;
+  }
+  isImage(type: string): boolean {
+    return ['png', 'jpg', 'jpeg', 'webp'].includes(type);
+  }
+
+  isDocument(type: string): boolean {
+    return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'].includes(type);
+  }
+  canPreview(type: string): boolean {
+    return this.isImage(type) || this.isDocument(type);
+  }
+
 
   // go to folder from 
   goToFolder(folderId: string | null): void {
@@ -614,11 +640,11 @@ export class SystemCloudComponent implements OnInit {
     this.newName = folderName;
   }
 
-  renameAction:boolean=false;
+  renameAction: boolean = false;
   // rename folder
   renameFolder() {
     // this.isLoading = true;
-    this.renameAction=true;
+    this.renameAction = true;
     this.errMsg = '';
 
     if (!this.newName || !this.newName.trim()) {
@@ -635,7 +661,7 @@ export class SystemCloudComponent implements OnInit {
         this.isLoading = false;
         this.errMsg = '';
         this.closeModalrename();
-        
+
         const updatedName = this.newName;
         this.newName = '';
 
@@ -658,7 +684,7 @@ export class SystemCloudComponent implements OnInit {
             sensitivity: 'base'
           });
         });
-        this.renameAction=false;
+        this.renameAction = false;
       },
       error: (err) => {
         if (err?.error?.data?.error_handling?.length > 0) {
@@ -667,7 +693,7 @@ export class SystemCloudComponent implements OnInit {
           this.errMsg = 'An unexpected error occurred.';
         }
         this.isLoading = false;
-        this.renameAction=false;
+        this.renameAction = false;
       }
     });
   }
@@ -677,6 +703,7 @@ export class SystemCloudComponent implements OnInit {
   closeModalrename() {
     this.renameFolderPop = false;
   }
+
 
   // delete Popup
   deletePOP = false;
@@ -724,6 +751,26 @@ export class SystemCloudComponent implements OnInit {
     });
 
   }
+
+
+  // download file
+  downloadFile(folder: any): void {
+    fetch(folder.file_url)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = folder.name || 'file';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        alert('An error occurred while downloading the file.');
+        console.error('Download error:', error);
+      });
+  }
+
 
 
   // duplicate file
@@ -802,33 +849,33 @@ export class SystemCloudComponent implements OnInit {
   }
 
   onFolderDrop(event: DragEvent, targetFolder: any) {
-  event.preventDefault();
-  (event.currentTarget as HTMLElement).classList.remove('folder-hover');
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).classList.remove('folder-hover');
 
-  const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
-  if (!fileId || targetFolder.type !== 'Folder') return;
+    const fileId = this.draggedFileIdForMove || event.dataTransfer?.getData('text/plain');
+    if (!fileId || targetFolder.type !== 'Folder') return;
 
-  const formData = new FormData();
-  formData.append('parent', targetFolder.id);
+    const formData = new FormData();
+    formData.append('parent', targetFolder.id);
 
-  this._systemCloudService.renameFile(fileId, formData).subscribe({
-    next: (response) => {
-      const updatedFile = { ...response.data.object_info };
+    this._systemCloudService.renameFile(fileId, formData).subscribe({
+      next: (response) => {
+        const updatedFile = { ...response.data.object_info };
 
-      const indexAll = this.allFiles.findIndex(f => f.id === fileId);
-      if (indexAll !== -1) {
-        this.allFiles[indexAll] = updatedFile;
+        const indexAll = this.allFiles.findIndex(f => f.id === fileId);
+        if (indexAll !== -1) {
+          this.allFiles[indexAll] = updatedFile;
+        }
+
+        this.updateCurrentFilesView(this.openedFolderId);
+      },
+      error: (err) => {
+        console.error(err);
       }
+    });
 
-      this.updateCurrentFilesView(this.openedFolderId);
-    },
-    error: (err) => {
-      console.error(err);
-    }
-  });
-
-  this.draggedFileIdForMove = null;
-}
+    this.draggedFileIdForMove = null;
+  }
 
 
 

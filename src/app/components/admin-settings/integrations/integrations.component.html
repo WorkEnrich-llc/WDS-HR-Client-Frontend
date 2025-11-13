@@ -36,9 +36,9 @@
 
     <!-- start search and filter -->
     <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
-      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+      <div class="d-flex align-items-center gap-2 w-50">
         <!-- Search input -->
-        <div class="form-outline w-25">
+        <div data-mdb-input-init class="form-outline w-75">
           <input type="text" class="form-control" placeholder="Search" (ngModelChange)="onSearchChange()"
             [(ngModel)]="searchTerm" />
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -222,7 +222,8 @@
 
           <!-- Deactivate button (only for Pending and Active status) -->
           @if (integration.status === userStatus.Pending || integration.status === userStatus.Active) {
-          <button class="btn btn-sm btn-outline-danger" (click)="toggleIntegrationStatus(integration)" title="Deactivate">
+          <button class="btn btn-sm btn-outline-danger" (click)="toggleIntegrationStatus(integration)"
+            title="Deactivate">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
@@ -234,7 +235,8 @@
 
           <!-- Activate button (only for Inactive and Expired status) -->
           @if (integration.status === userStatus.Inactive || integration.status === userStatus.Expired) {
-          <button class="btn btn-sm btn-outline-success" (click)="toggleIntegrationStatus(integration)" title="Activate">
+          <button class="btn btn-sm btn-outline-success" (click)="toggleIntegrationStatus(integration)"
+            title="Activate">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>

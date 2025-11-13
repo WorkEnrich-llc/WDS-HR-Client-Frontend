@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from './../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +59,7 @@ export class GoogleMapsService {
   }
 
   // Utility methods for common Google Maps operations
-  
+
   geocodeAddress(address: string): Promise<google.maps.GeocoderResult[]> {
     return new Promise((resolve, reject) => {
       if (!this.mapLoaded) {
@@ -87,7 +87,7 @@ export class GoogleMapsService {
 
       const geocoder = new google.maps.Geocoder();
       const latLng = new google.maps.LatLng(lat, lng);
-      
+
       geocoder.geocode({ location: latLng }, (results, status) => {
         if (status === 'OK' && results) {
           resolve(results);
@@ -108,7 +108,7 @@ export class GoogleMapsService {
 
     const originLatLng = new google.maps.LatLng(origin.lat, origin.lng);
     const destLatLng = new google.maps.LatLng(destination.lat, destination.lng);
-    
+
     return google.maps.geometry.spherical.computeDistanceBetween(originLatLng, destLatLng);
   }
 
@@ -125,7 +125,7 @@ export class GoogleMapsService {
       }
 
       const directionsService = new google.maps.DirectionsService();
-      
+
       directionsService.route({
         origin,
         destination,
