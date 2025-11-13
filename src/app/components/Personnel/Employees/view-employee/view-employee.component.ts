@@ -52,6 +52,24 @@ export class ViewEmployeeComponent implements OnInit {
   isLoading = false;
   customFieldValues: CustomFieldValueItem[] = [];
   readonly app_name = 'personnel';
+  
+  // Contact Info collapse state
+  contactInfoExpanded = false;
+
+  toggleContactInfo(): void {
+    this.contactInfoExpanded = !this.contactInfoExpanded;
+  }
+
+  hasAdditionalContactInfo(): boolean {
+    if (!this.employee) return false;
+    
+    // Check if there are custom fields beyond the always-visible ones
+    const hasCustomFields = this.customFieldValues.some(
+      item => item.custom_field.pinned === true && item.value.value
+    );
+    
+    return hasCustomFields;
+  }
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';

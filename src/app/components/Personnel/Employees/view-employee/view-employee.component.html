@@ -74,19 +74,35 @@
 
   <!-- 3 cards -->
   <div class="d-flex align-items-stretch gap-4">
-    <div class="content-box d-flex flex-column gap-3 w-100">
-      <h2>Contact Info</h2>
+    <div class="content-box contact-info-card d-flex flex-column gap-3 w-100">
+      <div class="d-flex align-items-center justify-content-between">
+        <h2>Contact Info</h2>
+        @if (hasAdditionalContactInfo()) {
+        <button type="button" class="btn-toggle-expand" (click)="toggleContactInfo()"
+          [attr.aria-expanded]="contactInfoExpanded"
+          [attr.aria-label]="contactInfoExpanded ? 'Show less contact information' : 'Show more contact information'">
+          <span>{{ contactInfoExpanded ? 'Show Less' : 'Show More' }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            [class.rotated]="contactInfoExpanded">
+            <path d="M7 10l5 5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        }
+      </div>
+
+      <!-- Always visible fields -->
       <div class="info">
         <h6>ID</h6>
         <span>{{ employee.id || "N/A" }}</span>
       </div>
       <div class="info">
-        <h6>Full Name(English)</h6>
+        <h6>Full Name (English)</h6>
         <span>{{ employee.contact_info.name || "N/A" }}</span>
       </div>
       @if (employee.contact_info.name_arabic) {
       <div class="info">
-        <h6>Full Name(Arabic)</h6>
+        <h6>Full Name (Arabic)</h6>
         <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
       </div>
       }
@@ -113,40 +129,19 @@
         <h6>Marital Status</h6>
         <span>{{ employee.contact_info.marital_status.name }}</span>
       </div>
-      <!-- <div class="info"> -->
-      <!-- @for(item of customFieldValues; track item.id) {
-      @if(item.custom_field.pinned === true && item.value.value) {
-      <div class="custom-field">
-        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
-        <span [title]="item.value.value">{{ item.value.value }}</span>
-      </div>
-      }
-      } -->
 
-
-      @for(item of customFieldValues; track item.id) {
-      @if(item.custom_field.pinned === true && item.value.value) {
-      <div class="info">
-        <h6 [title]="item.custom_field.input_option.label">{{
-          item.custom_field.input_option.label }}</h6>
-        <div class="labeled-accordion">
-          <details class="accordion">
-            <summary>
-              <div class="summary-content">
-                <span class="cursor-pointer " [title]="item.value.value">{{ item.value.value }}</span>
-              </div>
-              <span class="arrow"></span>
-            </summary>
-          </details>
+      <!-- Collapsible fields (Custom Fields only) -->
+      <div class="contact-info-collapsible" [class.expanded]="contactInfoExpanded">
+        @for(item of customFieldValues; track item.id) {
+        @if(item.custom_field.pinned === true && item.value.value) {
+        <div class="info">
+          <h6 [title]="item.custom_field.input_option.label">{{
+            item.custom_field.input_option.label }}</h6>
+          <span [title]="item.value.value">{{ item.value.value }}</span>
         </div>
+        }
+        }
       </div>
-
-      }
-      }
-
-
-
-      <!-- </div> -->
     </div>
 
     <div class="col-12 col-lg-6 col-xl-4">
