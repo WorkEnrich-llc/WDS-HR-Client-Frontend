@@ -71,6 +71,14 @@ export class ViewEmployeeComponent implements OnInit {
     return hasCustomFields;
   }
 
+  // Device Info collapse state
+  deviceInfoExpanded = false;
+
+  toggleDeviceInfo(): void {
+    this.deviceInfoExpanded = !this.deviceInfoExpanded;
+  }
+
+
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
   devices: any[] = [];
