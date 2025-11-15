@@ -538,6 +538,18 @@ export class ManageEmployeeSharedService {
     }
   }
 
+  public onWorkScheduleFocus(): void {
+    if (this.workSchedules().length <= 1) {
+
+      const departmentId = this.jobDetails.get('department_id')?.value;
+      const employmentType = this.attendanceDetails.get('employment_type')?.value;
+      this.fetchWorkSchedules(departmentId, employmentType)
+        .subscribe(schedulesList => {
+          this.workSchedules.set(schedulesList);
+        });
+    }
+  }
+
   public onSectionFocus(): void {
     if (this.sections().length <= 1) {
       const deptId = this.jobDetails.get('department_id')?.value;
@@ -793,6 +805,42 @@ export class ManageEmployeeSharedService {
     })
   }
 
+
+
+  private fetchWorkSchedules(departmentId: number | null, employmentType: number | null): Observable<any[]> {
+
+    const currentItem = (this.isEditMode() && this.workSchedules().length === 1)
+      ? this.workSchedules()[0]
+      : null;
+
+    if (!employmentType) {
+      return of(currentItem ? [currentItem] : []);
+    }
+
+    const params: { department?: string, schedules_type?: string, status?: boolean } = {};
+
+    if (departmentId) {
+      params.department = departmentId.toString();
+    }
+
+    if (employmentType) {
+      params.schedules_type = employmentType.toString();
+    }
+
+    params.status = true;
+
+    return this.workScheduleService.getAllWorkSchadule(1, 100, params).pipe(
+      map(res => {
+        const schedules = res?.data?.list_items || [];
+        return this.mergeItemIntoList(schedules, currentItem);
+      }),
+      catchError(err => {
+        console.error('Error loading work schedules', err);
+        return of(currentItem ? [currentItem] : []);
+      })
+    );
+  }
+
   private patchEmployeeForm(data: Employee): void {
     const options = { emitEvent: false };
 
@@ -940,33 +988,6 @@ export class ManageEmployeeSharedService {
     });
 
     // Watch for department changes to load relevant work schedules
-    // this.jobDetails.get('department_id')?.valueChanges.pipe(
-    //   startWith(this.jobDetails.get('department_id')?.value),
-
-    //   debounceTime(0),
-
-    //   map(value => value || null),
-
-    //   distinctUntilChanged(),
-
-    //   switchMap(departmentId => {
-    //     const params: { department?: string } = {};
-    //     if (departmentId && departmentId != null) {
-    //       params.department = departmentId.toString();
-    //     }
-    //     return this.workScheduleService.getAllWorkSchadule(1, 100, params);
-    //   }),
-    //   catchError(err => {
-    //     console.error('Error loading work schedules', err);
-    //     this.workSchedules.set([]);
-    //     return of(null);
-    //   })
-    // ).subscribe(res => {
-    //   if (res) {
-    //     this.workSchedules.set(res.data?.list_items || []);
-    //   }
-    // });
-
     const department$ = this.jobDetails.get('department_id')!.valueChanges.pipe(
       startWith(this.jobDetails.get('department_id')?.value)
     );
@@ -977,42 +998,17 @@ export class ManageEmployeeSharedService {
 
     combineLatest([department$, employmentType$]).pipe(
       filter(() => !this.suppressWatchers),
-      filter(([departmentId, employmentType]) => !!employmentType),
       debounceTime(50),
 
       switchMap(([departmentId, employmentType]) => {
 
-        this.workSchedules.set([]);
         this.attendanceDetails.get('work_schedule_id')?.reset(null, { emitEvent: false });
 
-        const params: { department?: string, schedules_type?: string, status?: boolean } = {};
-
-        if (departmentId) {
-          params.department = departmentId.toString();
-        }
-
-        if (employmentType) {
-          params.schedules_type = employmentType.toString();
-        }
-
-        params.status = true;
-
-        return this.workScheduleService.getAllWorkSchadule(1, 100, params).pipe(
-          catchError(err => {
-            console.error('Error loading work schedules', err);
-            this.workSchedules.set([]);
-            return of(null);
-          })
-        );
+        return this.fetchWorkSchedules(departmentId, employmentType);
       })
-    ).subscribe(res => {
-      if (res && res.data) {
-        this.workSchedules.set(res.data.list_items || []);
-      } else {
-        this.workSchedules.set([]);
-      }
+    ).subscribe(schedulesList => {
+      this.workSchedules.set(schedulesList);
     });
-
 
   }
 
