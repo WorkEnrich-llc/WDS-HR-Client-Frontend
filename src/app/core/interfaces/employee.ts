@@ -151,6 +151,10 @@ export interface Employee {
   };
   employee_active: string; // "Active" | "Inactive" | "Pending" | "Disabled"
   employee_status: string; // "New Employee" | "Employed" | etc.
+  onboarding_list?: Array<{
+    title: string;
+    status: boolean;
+  }>;
   created_at: string;
   updated_at: string;
   device?: {

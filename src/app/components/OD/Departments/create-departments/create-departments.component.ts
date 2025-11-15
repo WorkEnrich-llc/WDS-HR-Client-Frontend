@@ -11,10 +11,12 @@ import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
+import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
 
 @Component({
   selector: 'app-create-departments',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent],
 
   providers: [DatePipe],
   templateUrl: './create-departments.component.html',
@@ -38,6 +40,7 @@ export class CreateDepartmentsComponent {
     private toasterMessageService: ToasterMessageService,
     private subService: SubscriptionService,
     private goalsService: GoalsService,
+    private departmentChecklistService: DepartmentChecklistService,
   ) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -63,6 +66,9 @@ export class CreateDepartmentsComponent {
       //   console.log("delete:", this.departmentsSub.delete);
       // }
     });
+
+    // Load department checklist on component initialization
+    this.loadDepartmentChecklist();
 
 
 
@@ -357,6 +363,11 @@ export class CreateDepartmentsComponent {
       };
     });
 
+    // Transform checklist items to API format - send IDs of selected items
+    const checklistData = this.departmentChecklistItemsWithIds
+      .filter(item => item.status === true)
+      .map(item => item.id);
+
     const finalData = {
       request_data: {
         code: form1Data.code,
@@ -365,7 +376,7 @@ export class CreateDepartmentsComponent {
         objectives: form1Data.objectives,
         goals: this.addedGoal.map(goal => goal.id),
         sections: sections,
-        checklist: []
+        checklist: checklistData
       }
     };
 
@@ -437,5 +448,67 @@ export class CreateDepartmentsComponent {
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/departments']);
+  }
+
+  // Department checklist properties
+  departmentChecklistItems: OnboardingListItem[] = [];
+  departmentChecklistItemsWithIds: Array<{ id: number; name: string; title: string; status: boolean }> = [];
+  isChecklistModalOpen: boolean = false;
+  loadingChecklistItemTitle: string | null = null;
+
+  // Load department checklist
+  loadDepartmentChecklist(): void {
+    this.departmentChecklistService.getDepartmetChecks(1, 10000).subscribe({
+      next: (response) => {
+        // Transform API response to match OnboardingListItem format and store with IDs
+        const listItems = response?.data?.list_items || [];
+        this.departmentChecklistItemsWithIds = listItems.map((item: any) => ({
+          id: item.id,
+          name: item.name || '',
+          title: item.name || '',
+          status: false // Initially all items are unchecked in create mode
+        }));
+        
+        // Map to OnboardingListItem format for the component
+        this.departmentChecklistItems = this.departmentChecklistItemsWithIds.map(item => ({
+          title: item.title,
+          status: item.status
+        }));
+        
+        console.log('Department checklist loaded:', this.departmentChecklistItemsWithIds);
+      },
+      error: (error) => {
+        console.error('Error loading department checklist:', error);
+        this.toasterMessageService.showError('Failed to load department checklist');
+      }
+    });
+  }
+
+  // Onboarding checklist modal methods
+  openChecklistModal(): void {
+    this.isChecklistModalOpen = true;
+  }
+
+  closeChecklistModal(): void {
+    this.isChecklistModalOpen = false;
+  }
+
+  onChecklistItemClick(item: OnboardingListItem): void {
+    // Toggle item status when clicked - update both arrays
+    const checklistItem = this.departmentChecklistItems.find(i => i.title === item.title);
+    const checklistItemWithId = this.departmentChecklistItemsWithIds.find(i => i.title === item.title);
+    
+    if (checklistItem && checklistItemWithId) {
+      checklistItem.status = !checklistItem.status;
+      checklistItemWithId.status = !checklistItemWithId.status;
+    }
+  }
+
+  get checklistCompleted(): number {
+    return this.departmentChecklistItems.filter(item => item.status === true).length;
+  }
+
+  get checklistTotal(): number {
+    return this.departmentChecklistItems.length;
   }
 }

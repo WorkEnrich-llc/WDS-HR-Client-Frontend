@@ -64,14 +64,17 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   constructor(private employeeService: EmployeeService) { }
 
   ngOnInit(): void {
-    if (this.employee?.id) {
-      this.loadEmployeeContracts();
-    }
+    // Don't load here - let ngOnChanges handle it when employee input is set
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['employee'] && changes['employee'].currentValue?.id) {
-      this.loadEmployeeContracts();
+      // Only load if employee ID actually changed to prevent duplicate calls
+      const previousId = changes['employee'].previousValue?.id;
+      const currentId = changes['employee'].currentValue?.id;
+      if (previousId !== currentId) {
+        this.loadEmployeeContracts();
+      }
     }
   }
 

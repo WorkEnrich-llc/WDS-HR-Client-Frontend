@@ -317,6 +317,15 @@
     }
 </div>
 
+<!-- Onboarding Checklist Component with Badge -->
+@if (employee && employee.onboarding_list) {
+<app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
+    [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal"
+    [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
+    (itemClick)="onChecklistItemClick($event)" (badgeClick)="openOnboardingModal()">
+</app-onboarding-checklist>
+}
+
 <!-- Cancel Contract Modal -->
 <app-popup [title]="'Cancel Contract'" [paragraph1]="
     'Are you sure you want to cancel the contract for &quot;' +

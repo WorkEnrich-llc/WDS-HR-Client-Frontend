@@ -104,6 +104,7 @@ export class ManageEmployeeSharedService {
   ]);
   readonly countries = signal<Country[]>(COUNTRIES);
   readonly employeeData = signal<Employee | null>(null);
+  readonly onboardingList = signal<Array<{ title: string; status: boolean }>>([]);
   readonly createdAt = signal<string>('');
   readonly updatedAt = signal<string>('');
   isLoadingData = signal(false);
@@ -503,6 +504,13 @@ export class ManageEmployeeSharedService {
         this.patchEmployeeForm(data);
         this.createdAt.set(data.created_at || '');
         this.updatedAt.set(data.updated_at || '');
+        
+        // Save onboarding_list from response
+        if (data.onboarding_list) {
+          this.onboardingList.set(data.onboarding_list);
+        } else {
+          this.onboardingList.set([]);
+        }
 
         this.enableFieldsOnLoad(data.job_info);
 
@@ -1510,12 +1518,21 @@ export class ManageEmployeeSharedService {
     const originalData = this.employeeData();
     if (!originalData) return null;
 
-    return {
+    // Include onboarding_list in update payload (send as-is from the response)
+    const updatePayload: any = {
       request_data: {
         id: originalData.id,
         ...requestData
       }
     };
+
+    // Add onboarding_list if it was saved from the response (even if empty)
+    const onboardingList = this.onboardingList();
+    if (originalData.onboarding_list !== undefined) {
+      updatePayload.request_data.onboarding_list = onboardingList;
+    }
+
+    return updatePayload;
   }
 
 
@@ -1534,6 +1551,7 @@ export class ManageEmployeeSharedService {
     this.errMsg.set('');
     this.selectedJobTitle.set(null);
     this.currentSalaryRange.set(null);
+    this.onboardingList.set([]);
   }
 
 

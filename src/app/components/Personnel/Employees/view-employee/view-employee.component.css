@@ -968,3 +968,20 @@ h5 span {
     height: 16px;
   }
 }
+
+/* Prevent horizontal overflow while keeping cards side by side */
+.content-hug {
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+}
+
+.content-hug>.d-flex.align-items-stretch {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.content-hug>.d-flex.align-items-stretch>[class*="col-"] {
+  min-width: 0;
+  flex-shrink: 1;
+}
