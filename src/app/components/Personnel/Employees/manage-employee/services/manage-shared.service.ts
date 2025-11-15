@@ -110,6 +110,7 @@ export class ManageEmployeeSharedService {
   isLoadingData = signal(false);
   currentDate = new Date().toISOString().split('T')[0];
   readonly isEditMode = signal<boolean>(false);
+  readonly isContractExpiring = signal<boolean>(false);
   suppressWatchers = false;
 
   constructor() {
@@ -849,6 +850,8 @@ export class ManageEmployeeSharedService {
     }, options);
     this.updateDaysOnSiteStatus(data.job_info.work_mode?.id);
   }
+
+
 
   // private formatDateForInput(dateStr: string): string {
   //   if (!dateStr) return '';

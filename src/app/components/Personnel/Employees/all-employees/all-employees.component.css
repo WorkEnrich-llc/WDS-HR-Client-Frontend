@@ -1,8 +1,14 @@
-@media (min-width:991px) {
-    .width-fix{
-        width: 300px !important;
-    }    
-    .w-lg-50{
-        width: 50% !important;
-    }
+@media (min-width: 991px) {
+  .width-fix {
+    width: 300px !important;
+  }
+  .w-lg-50 {
+    width: 50% !important;
+  }
+}
+
+.contract-expiring,
+.contract-expiring span {
+  color: var(--color-warning-700) !important;
+  font-weight: 600 !important;
 }
