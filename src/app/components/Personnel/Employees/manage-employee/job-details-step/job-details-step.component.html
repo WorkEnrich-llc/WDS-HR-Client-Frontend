@@ -53,7 +53,7 @@
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
-                            <option [value]="branch.id">{{ branch.name }}</option>
+                            <option [ngValue]="branch.id">{{ branch.name }}</option>
                             }
                         </select>
                     </div>
@@ -78,7 +78,7 @@
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
-                            <option [value]="branch.id">{{ branch.name }}</option>
+                            <option [ngValue]="branch.id">{{ branch.name }}</option>
                             }
                         </select>
                     </div>
@@ -105,7 +105,7 @@
                             </option>
                             @for (dept of sharedService.getActiveDepartments(); track dept.id)
                             {
-                            <option [value]="dept.id">{{ dept.name }}</option>
+                            <option [ngValue]="dept.id">{{ dept.name }}</option>
                             }
                         </select>
                     </div>
@@ -134,7 +134,7 @@
                             <option [value]="null" disabled hidden>Select Branch</option>
                             @for (branch of sharedService.getActiveBranches(); track
                             branch.id) {
-                            <option [value]="branch.id">{{ branch.name }}</option>
+                            <option [ngValue]="branch.id">{{ branch.name }}</option>
                             }
                         </select>
                     </div>
@@ -161,7 +161,7 @@
                             </option>
                             @for (dept of sharedService.getActiveDepartments(); track dept.id)
                             {
-                            <option [value]="dept.id">{{ dept.name }}</option>
+                            <option [ngValue]="dept.id">{{ dept.name }}</option>
                             }
                         </select>
                     </div>
@@ -193,7 +193,7 @@
                                 }}
                             </option>
                             @for (section of sharedService.getSections(); track section.id) {
-                            <option [value]="section.id">{{ section.name }}</option>
+                            <option [ngValue]="section.id">{{ section.name }}</option>
                             }
                         </select>
                     </div>
@@ -213,7 +213,7 @@
                                 ? 'Select Job Title' : 'No job title available'}}
                             </option>
                             @for (job of sharedService.jobTitles(); track job.id) {
-                            <option [value]="job.id">{{ job.name }}</option>
+                            <option [ngValue]="job.id">{{ job.name }}</option>
                             }
                         </select>
                     </div>

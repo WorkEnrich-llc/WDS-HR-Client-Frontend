@@ -38,8 +38,8 @@
   vertical-align: middle;
   display: inline-block;
   text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  /* overflow: hidden; */
+  white-space: wrap;
 }
 
 .info-item .label {
@@ -104,13 +104,20 @@
 }
 
 .display-value {
-  font-size: 16px;
+  /* font-size: 16px;
   color: #333;
   vertical-align: middle;
   display: inline-block;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: nowrap; */
+
+  font-size: 16px;
+  color: #333;
+  vertical-align: middle;
+  display: inline-block;
+  white-space: normal;
+  overflow: visible;
 }
 
 .info-item .edit-input {
