@@ -169,6 +169,10 @@ export class CreateNewJobTitleComponent {
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
+      
+    
+    this.jobTitles = this.jobTitles.map(job => ({ ...job, assigned: false, assigns: [] }));
+    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
 
 
