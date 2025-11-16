@@ -161,7 +161,7 @@ export class EmployeeService {
 
   // Get employee contracts
   getEmployeeContracts(employeeId: number): Observable<ContractsResponse> {
-    const url = `${this.apiBaseUrl}personnel/employees-contracts/${employeeId}/`;
+    const url = `${this.apiBaseUrl}personnel/contract/all?employee_id=${employeeId}`;
     return this.http.get<ContractsResponse>(url);
   }
 
