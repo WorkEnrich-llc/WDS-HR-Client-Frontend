@@ -215,6 +215,25 @@
 
     </form>
 
+    <!-- Department Checklist Component with Badge -->
+    @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
+    <div class="checklist-wrapper">
+      <app-onboarding-checklist 
+        [isOpen]="isChecklistModalOpen" 
+        [checklistItems]="departmentChecklistItems"
+        [showBadge]="true"
+        [completed]="checklistCompleted"
+        [total]="checklistTotal"
+        [allowToggle]="true"
+        [disabledItemTitles]="disabledChecklistTitles"
+        [loadingItemTitle]="loadingChecklistItemTitle"
+        (close)="closeChecklistModal()" 
+        (itemClick)="onChecklistItemClick($event)"
+        (badgeClick)="openChecklistModal()">
+      </app-onboarding-checklist>
+    </div>
+    }
+
     <!-- next button -->
     <div class="btn-fixed">
       <button class="btn btn-lg btn-primary" [disabled]="isLoading || !deptStep1.valid" (click)="goNext()">
@@ -425,6 +444,26 @@
       </div>
       }
     </form>
+    
+    <!-- Department Checklist Component with Badge -->
+    @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
+    <div class="checklist-wrapper">
+      <app-onboarding-checklist 
+        [isOpen]="isChecklistModalOpen" 
+        [checklistItems]="departmentChecklistItems"
+        [showBadge]="true"
+        [completed]="checklistCompleted"
+        [total]="checklistTotal"
+        [allowToggle]="true"
+        [disabledItemTitles]="disabledChecklistTitles"
+        [loadingItemTitle]="loadingChecklistItemTitle"
+        (close)="closeChecklistModal()" 
+        (itemClick)="onChecklistItemClick($event)"
+        (badgeClick)="openChecklistModal()">
+      </app-onboarding-checklist>
+    </div>
+    }
+    
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
       <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
@@ -536,6 +575,25 @@
     <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
       {{errMsg}}
     </div>
+    
+    <!-- Department Checklist Component with Badge -->
+    @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
+    <div class="checklist-wrapper">
+      <app-onboarding-checklist 
+        [isOpen]="isChecklistModalOpen" 
+        [checklistItems]="departmentChecklistItems"
+        [showBadge]="true"
+        [completed]="checklistCompleted"
+        [total]="checklistTotal"
+        [allowToggle]="true"
+        [disabledItemTitles]="disabledChecklistTitles"
+        [loadingItemTitle]="loadingChecklistItemTitle"
+        (close)="closeChecklistModal()" 
+        (itemClick)="onChecklistItemClick($event)"
+        (badgeClick)="openChecklistModal()">
+      </app-onboarding-checklist>
+    </div>
+    }
     
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">

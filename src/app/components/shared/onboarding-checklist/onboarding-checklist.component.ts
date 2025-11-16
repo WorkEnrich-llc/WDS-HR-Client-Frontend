@@ -57,13 +57,19 @@ export class OnboardingChecklistComponent {
     }, 300);
   }
 
-  onItemClick(item: OnboardingListItem): void {
+  onItemClick(item: OnboardingListItem, event: Event): void {
     // Don't emit if item is disabled
     if (this.disabledItemTitles.includes(item.title)) {
       return;
     }
     // If allowToggle is true, allow clicking any item; otherwise only pending items
     if (this.allowToggle || !item.status) {
+      // Remove focus from the clicked element
+      const target = event.target as HTMLElement;
+      const itemElement = target.closest('.onboarding-checklist-item') as HTMLElement;
+      if (itemElement) {
+        itemElement.blur();
+      }
       this.itemClick.emit(item);
     }
   }

@@ -3,3 +3,20 @@
     align-items: center;
     gap: 20px;
 }
+
+/* Adjust checklist badge and modal position within edit-departments to appear above Next button */
+/* Since component uses ViewEncapsulation.None, we can target these directly */
+.onboarding-badge {
+    bottom: 80px !important;
+    z-index: 1050 !important;
+}
+
+.onboarding-checklist-floating {
+    bottom: 80px !important;
+    z-index: 1050 !important;
+}
+
+/* Ensure button stays below checklist */
+.btn-fixed {
+    z-index: 100 !important;
+}

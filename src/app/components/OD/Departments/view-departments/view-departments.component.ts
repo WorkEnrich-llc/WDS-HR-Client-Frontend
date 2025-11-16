@@ -7,6 +7,7 @@ import { DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { DepartmentChecklistService } from '../../../../core/services/od/departmentChecklist/department-checklist.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 
@@ -24,6 +25,7 @@ export class ViewDepartmentsComponent implements OnInit {
     private subService: SubscriptionService, 
     private route: ActivatedRoute, 
     private datePipe: DatePipe,
+    private departmentChecklistService: DepartmentChecklistService,
     private toasterMessageService: ToasterMessageService
   ) { }
   departmentData: any = { sections: [] };
@@ -84,9 +86,9 @@ export class ViewDepartmentsComponent implements OnInit {
         this.sortDirection = 'desc';
         this.sortBy('id');
         this.loadData = false;
-
-        // Initialize checklist items from department assigned_checklist
-        this.initializeChecklistFromDepartmentData(this.departmentData);
+        
+        // Load checklist after department data is loaded
+        this.loadDepartmentChecklist();
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -207,17 +209,32 @@ export class ViewDepartmentsComponent implements OnInit {
   // Track which checklist item is currently being updated
   loadingChecklistItemTitle: string | null = null;
 
-  // Initialize checklist items from department assigned_checklist
-  private initializeChecklistFromDepartmentData(departmentData: any): void {
-    const assignedChecklist = departmentData?.assigned_checklist || [];
-    this.titleToIdMap.clear();
-    this.departmentChecklistItems = assignedChecklist.map((item: any) => {
-      // Store mapping of title to ID
-      this.titleToIdMap.set(item.name || '', item.id);
-      return {
-        title: item.name || '',
-        status: true // All assigned checklist items start as checked
-      };
+  // Load department checklist from API and mark assigned ones as active
+  loadDepartmentChecklist(): void {
+    this.departmentChecklistService.getDepartmetChecks(1, 10000).subscribe({
+      next: (response) => {
+        // Get assigned checklist IDs from department response
+        const assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
+        
+        // Transform API response to match OnboardingListItem format and build title-to-ID mapping
+        const listItems = response?.data?.list_items || [];
+        this.titleToIdMap.clear(); // Clear previous mapping
+        this.departmentChecklistItems = listItems.map((item: any) => {
+          // Store mapping of title to ID
+          this.titleToIdMap.set(item.name || '', item.id);
+          return {
+            title: item.name || '',
+            status: assignedChecklistIds.includes(item.id) // Mark as checked if in assigned_checklist
+          };
+        });
+        
+        console.log('Department checklist loaded:', this.departmentChecklistItems);
+        console.log('Assigned checklist IDs:', assignedChecklistIds);
+      },
+      error: (error) => {
+        console.error('Error loading department checklist:', error);
+        this.toasterMessageService.showError('Failed to load department checklist');
+      }
     });
   }
 
@@ -300,7 +317,8 @@ export class ViewDepartmentsComponent implements OnInit {
              const updatedDept = deptResponse.data.object_info;
              // Update only departmentData and checklist-related state
              this.departmentData = updatedDept;
-             this.initializeChecklistFromDepartmentData(updatedDept);
+             // Reload checklist to reflect updated assigned_checklist
+             this.loadDepartmentChecklist();
            },
            error: (deptError) => {
              console.error('Error refreshing department after checklist update:', deptError);

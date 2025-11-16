@@ -20,6 +20,7 @@ import { AttendanceDetailsStepComponent } from './attendance-details-step/attend
 import { InsuranceDetailsStepComponent } from './insurance-details/insurance-details-step.component';
 import { ManageEmployeeSharedService } from './services/manage-shared.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
 
 
 @Component({
@@ -35,7 +36,8 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
     JobDetailsStepComponent,
     ContractDetailsStepComponent,
     AttendanceDetailsStepComponent,
-    InsuranceDetailsStepComponent
+    InsuranceDetailsStepComponent,
+    OnboardingChecklistComponent
   ],
   providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
@@ -55,6 +57,10 @@ export class ManageEmployeeComponent implements OnInit {
   // public isEditMode = false;
   isModalOpen = false;
   public employeeId!: number;
+
+  // Onboarding checklist state
+  isOnboardingModalOpen = false;
+  loadingChecklistItemTitle: string | null = null;
 
 
 
@@ -126,6 +132,81 @@ export class ManageEmployeeComponent implements OnInit {
   createAnother() {
     this.closeSuccessModal();
     this.sharedService.resetForm();
+  }
+
+  // Onboarding checklist methods
+  get onboardingCompleted(): number {
+    const list = this.sharedService.onboardingList();
+    if (!list || list.length === 0) return 0;
+    return list.filter(item => item.status === true).length;
+  }
+
+  get onboardingTotal(): number {
+    const list = this.sharedService.onboardingList();
+    if (!list || list.length === 0) return 0;
+    return list.length;
+  }
+
+  openOnboardingModal(): void {
+    this.isOnboardingModalOpen = true;
+  }
+
+  closeOnboardingModal(): void {
+    this.isOnboardingModalOpen = false;
+  }
+
+  onChecklistItemClick(item: OnboardingListItem): void {
+    this.updateChecklistItem(item);
+  }
+
+  updateChecklistItem(item: { title: string; status: boolean }): void {
+    if (!this.sharedService.isEditMode() || !this.sharedService.employeeData() || this.loadingChecklistItemTitle) {
+      return; // Only allow updates in edit mode when employee data is loaded
+    }
+
+    // Set loading state for the clicked item
+    this.loadingChecklistItemTitle = item.title;
+
+    // Toggle the clicked item status, keep all others as they were
+    const newStatus = !item.status;
+    const currentList = this.sharedService.onboardingList();
+    const updatedOnboardingList = currentList.map(listItem => {
+      if (listItem.title === item.title) {
+        return { ...listItem, status: newStatus };
+      }
+      return listItem; // Keep all other items as they were (true or false)
+    });
+
+    // Update the shared service's onboarding list
+    this.sharedService.onboardingList.set(updatedOnboardingList);
+
+    // Build the complete employee update payload
+    const employeeData = this.sharedService.getFormData();
+    if (!employeeData) {
+      // Revert the change if form data is invalid
+      this.sharedService.onboardingList.set(currentList);
+      this.loadingChecklistItemTitle = null;
+      return;
+    }
+
+    // Update the payload with the new onboarding list
+    employeeData.request_data.onboarding_list = updatedOnboardingList;
+
+    this.employeeService.updateEmployee(employeeData).subscribe({
+      next: (response: any) => {
+        this.toasterMessageService.showSuccess('Checklist item updated successfully');
+        // Clear loading state
+        this.loadingChecklistItemTitle = null;
+      },
+      error: (error: any) => {
+        console.error('Error updating checklist item:', error);
+        this.toasterMessageService.showError('Failed to update checklist item');
+        // Revert the local change on error
+        this.sharedService.onboardingList.set(currentList);
+        // Clear loading state on error
+        this.loadingChecklistItemTitle = null;
+      }
+    });
   }
 
 

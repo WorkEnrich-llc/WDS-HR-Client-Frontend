@@ -71,3 +71,19 @@
     Cancel
   </button>
 </app-popup>
+
+<!-- Onboarding Checklist Component with Badge -->
+@if (sharedService.isEditMode() && sharedService.onboardingList().length > 0) {
+<app-onboarding-checklist 
+  [isOpen]="isOnboardingModalOpen" 
+  [checklistItems]="sharedService.onboardingList()"
+  [showBadge]="true" 
+  [completed]="onboardingCompleted" 
+  [total]="onboardingTotal"
+  [allowToggle]="true" 
+  [loadingItemTitle]="loadingChecklistItemTitle" 
+  (close)="closeOnboardingModal()"
+  (itemClick)="onChecklistItemClick($event)" 
+  (badgeClick)="openOnboardingModal()">
+</app-onboarding-checklist>
+}

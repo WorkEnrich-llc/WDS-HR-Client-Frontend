@@ -40,7 +40,8 @@
            [class.clickable]="(allowToggle || !item.status) && !isItemDisabled(item)"
            [class.loading]="isItemLoading(item.title)"
            [class.disabled]="isItemLoading(item.title) || isItemDisabled(item)"
-           (click)="onItemClick(item)">
+           tabindex="-1"
+           (click)="onItemClick(item, $event)">
         <!-- Status Indicator -->
         <div class="onboarding-item-status-icon">
           @if (isItemLoading(item.title)) {

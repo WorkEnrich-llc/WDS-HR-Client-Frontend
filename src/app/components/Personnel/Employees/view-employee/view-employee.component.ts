@@ -182,17 +182,18 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   updateChecklistItem(item: { title: string; status: boolean }): void {
-    if (!this.employee || item.status || this.loadingChecklistItemTitle) {
-      return; // Don't update if already completed or currently loading
+    if (!this.employee || this.loadingChecklistItemTitle) {
+      return; // Don't update if no employee or currently loading
     }
 
     // Set loading state for the clicked item
     this.loadingChecklistItemTitle = item.title;
 
-    // Update the clicked item status to true, keep all others as they were
+    // Toggle the clicked item status, keep all others as they were
+    const newStatus = !item.status;
     const updatedOnboardingList = (this.employee.onboarding_list || []).map(listItem => {
       if (listItem.title === item.title) {
-        return { ...listItem, status: true };
+        return { ...listItem, status: newStatus };
       }
       return listItem; // Keep all other items as they were (true or false)
     });
@@ -294,6 +295,16 @@ export class ViewEmployeeComponent implements OnInit {
       error: (error: any) => {
         console.error('Error updating checklist item:', error);
         this.toasterMessageService.showError('Failed to update checklist item');
+        // Revert the local change on error
+        if (this.employee) {
+          const revertedList = (this.employee.onboarding_list || []).map(listItem => {
+            if (listItem.title === item.title) {
+              return { ...listItem, status: item.status }; // Revert to original status
+            }
+            return listItem;
+          });
+          this.employee.onboarding_list = revertedList;
+        }
         // Clear loading state on error
         this.loadingChecklistItemTitle = null;
       }

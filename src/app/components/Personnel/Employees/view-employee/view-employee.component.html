@@ -816,7 +816,7 @@
 <!-- Onboarding Checklist Component with Badge -->
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
-  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal"
+  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="true"
   [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
   (itemClick)="onChecklistItemClick($event)" (badgeClick)="openOnboardingModal()">
 </app-onboarding-checklist>

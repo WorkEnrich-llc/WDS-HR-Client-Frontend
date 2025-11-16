@@ -93,7 +93,7 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 1000;
+  z-index: 1050;
   animation: checklistSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: bottom right;
 }
@@ -216,10 +216,30 @@
 }
 
 .onboarding-checklist-item.clickable:hover {
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary-300);
   transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(55, 122, 253, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Darken completed items on hover */
+.onboarding-checklist-item.completed.clickable:hover {
+  background-color: var(--color-success-200);
+  border-color: var(--color-success-400);
+}
+
+/* Darken pending items on hover */
+.onboarding-checklist-item.pending.clickable:hover {
+  background-color: var(--color-neutral-50);
+  border-color: var(--color-neutral-300);
+}
+
+.onboarding-checklist-item:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.onboarding-checklist-item:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .onboarding-item-status-icon {
