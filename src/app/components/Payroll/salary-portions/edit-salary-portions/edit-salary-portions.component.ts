@@ -35,6 +35,11 @@ export class EditSalaryPortionsComponent implements OnInit {
     });
 
     this.loadSalaryPortions();
+
+    // Subscribe to form changes to update basic percentage
+    this.portionsForm.valueChanges.subscribe(() => {
+      this.updateBasicPercentage();
+    });
   }
 
 
@@ -85,6 +90,13 @@ export class EditSalaryPortionsComponent implements OnInit {
         }
         portionGroup.get('name')?.updateValueAndValidity({ emitEvent: false });
         portionGroup.get('percentage')?.updateValueAndValidity({ emitEvent: false });
+        // Trigger basic percentage update when portion is enabled/disabled
+        this.updateBasicPercentage();
+      });
+
+      // Subscribe to percentage changes for non-basic portions
+      portionGroup.get('percentage')?.valueChanges.subscribe(() => {
+        this.updateBasicPercentage();
       });
     }
 
@@ -119,8 +131,9 @@ export class EditSalaryPortionsComponent implements OnInit {
           const returnedFormArray: FormGroup[] = [];
 
           // Always add basic first (default/basic portion with locked percentage)
+          // Always set basic percentage to 100 initially
           if (basicPortion) {
-            returnedFormArray.push(this.createPortion(basicPortion, true));
+            returnedFormArray.push(this.createPortion({ name: basicPortion.name, percentage: 100 }, true));
           } else {
             returnedFormArray.push(this.createPortion({ name: 'basic', percentage: 100 }, true));
           }
@@ -142,6 +155,9 @@ export class EditSalaryPortionsComponent implements OnInit {
               [atLeastOnePortionFilled, totalPercentageValidator()]
             )
           );
+
+          // Calculate initial basic percentage after form is set up
+          setTimeout(() => this.updateBasicPercentage(), 0);
         } else {
           // Default case for first time: basic + 2 open inputs
           this.portionsForm.setControl(
@@ -155,6 +171,9 @@ export class EditSalaryPortionsComponent implements OnInit {
               [atLeastOnePortionFilled, totalPercentageValidator()]
             )
           );
+
+          // Calculate initial basic percentage after form is set up
+          setTimeout(() => this.updateBasicPercentage(), 0);
         }
       },
       error: (err) => {
@@ -171,6 +190,9 @@ export class EditSalaryPortionsComponent implements OnInit {
             [atLeastOnePortionFilled, totalPercentageValidator()]
           )
         );
+
+        // Calculate initial basic percentage after form is set up
+        setTimeout(() => this.updateBasicPercentage(), 0);
       }
     });
   }
@@ -249,6 +271,32 @@ export class EditSalaryPortionsComponent implements OnInit {
     return control.invalid && (control.touched || this.attemptedSubmit);
   }
 
+  // Update basic percentage: 100 - sum of other enabled portions
+  private updateBasicPercentage(): void {
+    if (!this.portions || this.portions.length === 0) return;
+
+    // Basic is always the first portion (index 0)
+    const basicPortion = this.portions.at(0) as FormGroup;
+    if (!basicPortion) return;
+
+    // Calculate sum of other enabled portions (indices 1 and 2)
+    let sumOfOthers = 0;
+    for (let i = 1; i < this.portions.length; i++) {
+      const portion = this.portions.at(i) as FormGroup;
+      const enabled = portion.get('enabled')?.value;
+      if (enabled) {
+        const percentageValue = portion.get('percentage')?.value;
+        const num = percentageValue === '' || percentageValue === null ? 0 : Number(percentageValue);
+        if (!isNaN(num)) {
+          sumOfOthers += num;
+        }
+      }
+    }
+
+    // Set basic = 100 - sum of others (minimum 0)
+    const newBasicValue = Math.max(0, 100 - sumOfOthers);
+    basicPortion.get('percentage')?.setValue(newBasicValue, { emitEvent: false });
+  }
 
   // discard popup
   isModalOpen = false;
