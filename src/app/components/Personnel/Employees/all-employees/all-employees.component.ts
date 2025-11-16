@@ -100,7 +100,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.loadData = true;
 
     // Pass all state properties to the service method
-    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters)
+    this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters, 'asc')
       .subscribe({
         next: (response) => {
           this.employees = response.data.list_items;
@@ -257,24 +257,45 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   }
 
 
-  isContractExpiring(endDateString: string | null | undefined): boolean {
+  getContractStatus(endDateString: string | null | undefined): string {
     if (!endDateString) {
-      return false;
+      return '';
     }
 
     const today = new Date();
-    const contractEnd = new Date(endDateString);
-
     today.setHours(0, 0, 0, 0);
+    const contractEnd = new Date(endDateString);
+    contractEnd.setHours(0, 0, 0, 0);
 
     if (contractEnd < today) {
-      return false;
+      return 'expired';
     }
 
-    const threeMonthsFromNow = new Date();
-    threeMonthsFromNow.setMonth(today.getMonth() + 3);
+    const minutesPerDay = 1000 * 60 * 60 * 24;
+    const remainingMonths = contractEnd.getTime() - today.getTime();
+    const remainingDays = Math.ceil(remainingMonths / minutesPerDay);
 
-    return contractEnd >= today && contractEnd <= threeMonthsFromNow;
+    if (remainingDays <= 30) {
+      return 'nearly-expired';
+    }
+
+    if (remainingDays <= 60) {
+      return 'warning';
+    }
+    return '';
+  }
+
+  public getEmployeeClass = (employee: any): string => {
+    const status = this.getContractStatus(employee.end_contract);
+    if (status === 'nearly-expired') {
+      return 'contract-expiring-red';
+    }
+
+    if (status === 'warning') {
+      return 'contract-expiring-yellow';
+    }
+
+    return '';
   }
 
 }

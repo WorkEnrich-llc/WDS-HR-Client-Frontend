@@ -85,7 +85,7 @@
             <th>Actions</th>
         </ng-template>
         <ng-template #employeesTableRow let-employee let-i="index">
-            <td class="width-fix" [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+            <td>
                 <span class="d-block text-gray-sm">{{ employee?.code}}</span>
                 <!-- <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span> -->
                 <span [title]="employee.name" class="d-block text-truncate cursor-pointer" style="max-width: 300px;">
@@ -93,7 +93,7 @@
                     {{ employee.name }}
                 </span>
             </td>
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+            <td>
                 <span class="badge-newjoiner" *ngIf="employee.employeeStatus ==='New Joiner'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -133,7 +133,7 @@
                     <span>Employed</span>
                 </span>
             </td>
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+            <td>
                 <span class="badge-success" *ngIf="employee.accountStatus ==='active'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -171,17 +171,57 @@
                     <span>Inactive</span>
                 </span>
             </td>
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.jobTitle}}</td>
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+            <td>{{employee.jobTitle}}</td>
+            <td>
                 {{employee.branch ?? 'Not assigned'}}
             </td>
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.joinDate |
+            <td>{{employee.joinDate |
                 date:'dd/MM/yyyy'}}</td>
 
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.end_contract |
-                date:'dd/MM/yyyy'}}</td>
+            <td class="text-start">
+                @switch (getContractStatus(employee.end_contract)) {
+                @case ('expired') {
+                <span class="badge-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+                        </g>
+                    </svg>
+                    <span>
+                        {{ employee.end_contract | date:'dd/MM/yyyy' }}
+                    </span>
+                </span>
 
-            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+                <!-- <span class="text-expiring-nearly-expired">
+                    {{ employee.end_contract | date:'dd/MM/yyyy' }}
+                </span> -->
+                }
+
+                @case ('nearly-expired') {
+                <span class="text-expiring-nearly-expired">
+                    {{ employee.end_contract | date:'dd/MM/yyyy' }}
+                </span>
+                }
+
+                @case ('warning') {
+                <span class="text-expiring-warning">
+                    {{ employee.end_contract | date:'dd/MM/yyyy' }}
+                </span>
+                }
+
+                @default {
+                @if (employee.end_contract) {
+                <span>{{ employee.end_contract | date:'dd/MM/yyyy' }}</span>
+                } @else {
+                <span>--</span>
+                }
+                }
+
+                }
+            </td>
+
+            <td>
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <a (click)="navigateToView(employee)"
                         class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
