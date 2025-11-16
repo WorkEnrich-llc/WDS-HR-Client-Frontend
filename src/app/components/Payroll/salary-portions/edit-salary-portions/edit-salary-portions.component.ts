@@ -34,10 +34,6 @@ export class EditSalaryPortionsComponent implements OnInit {
       portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
     });
 
-    this.portionsForm.valueChanges.subscribe(() => {
-      this.updateBasicPercentage();
-    });
-
     this.loadSalaryPortions();
   }
 
@@ -45,25 +41,36 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   private createPortion(p: any = null, isDefault = false): FormGroup {
     const hasValue = !!(p?.name || p?.percentage);
-    const enabled = isDefault ? false : hasValue;
+    const enabled = isDefault ? true : hasValue;
     const initialName = typeof p?.name === 'string' ? p.name.trim() : (p?.name || '');
     const initialPercentage = p?.percentage ?? '';
 
     const portionGroup = this.fb.group({
-      enabled: new FormControl({ value: enabled, disabled: isDefault }),
+      // For default (basic) row, checkbox stays enabled so user can toggle it visually
+      enabled: new FormControl({ value: enabled, disabled: false }),
       name: new FormControl(
-        { value: initialName, disabled: !enabled || isDefault },
+        { value: initialName, disabled: !enabled || false },
         [Validators.required, nonWhitespaceValidator]
       ),
+      // For default/basic row, percentage is always disabled; for others it follows "enabled"
       percentage: new FormControl(
-        { value: initialPercentage, disabled: !enabled || isDefault },
+        { value: initialPercentage, disabled: isDefault ? true : !enabled },
         [Validators.required]
       )
     });
 
-    if (!isDefault) {
-      portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
-        if (enabled) {
+    if (isDefault) {
+      // For the basic portion:
+      // - checkbox can be toggled, but it doesn't affect enable/disable logic
+      // - name input is always enabled
+      // - percentage input is always disabled
+      portionGroup.get('name')?.enable({ emitEvent: false });
+      portionGroup.get('percentage')?.disable({ emitEvent: false });
+      // No subscription on "enabled" – we treat it as a visual toggle only
+    } else {
+      // For other portions: toggle both name and percentage based on the checkbox
+      portionGroup.get('enabled')?.valueChanges.subscribe(enabledValue => {
+        if (enabledValue) {
           const currentName = portionGroup.get('name')?.value;
           portionGroup.get('name')?.enable();
           portionGroup.get('percentage')?.enable();
@@ -111,7 +118,7 @@ export class EditSalaryPortionsComponent implements OnInit {
 
           const returnedFormArray: FormGroup[] = [];
 
-          // Always add basic first
+          // Always add basic first (default/basic portion with locked percentage)
           if (basicPortion) {
             returnedFormArray.push(this.createPortion(basicPortion, true));
           } else {
@@ -242,33 +249,6 @@ export class EditSalaryPortionsComponent implements OnInit {
     return control.invalid && (control.touched || this.attemptedSubmit);
   }
 
-
-  // Update the basic portion percentage in runtime
-  private updateBasicPercentage(): void {
-    if (!this.portions || !this.portions.length) return;
-    let total = 0;
-    let basicPortion: FormGroup | undefined;
-
-    this.portions.controls.forEach(group => {
-      const fGroup = group as FormGroup;
-      const name = String(fGroup.get('name')?.value || '').toLowerCase();
-      const enabled = fGroup.get('enabled')?.value;
-      const percentage = Number(fGroup.get('percentage')?.value) || 0;
-
-      if (name === 'basic') {
-        basicPortion = fGroup;
-      } else if (enabled) {
-        total += percentage;
-      }
-    });
-    if (basicPortion) {
-      const newValue = 100 - total;
-      basicPortion.get('percentage')?.setValue(
-        newValue < 0 ? 0 : newValue,
-        { emitEvent: false }
-      );
-    }
-  }
 
   // discard popup
   isModalOpen = false;
