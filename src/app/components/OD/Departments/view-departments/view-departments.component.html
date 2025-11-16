@@ -64,12 +64,16 @@
     <div class="info">
       <h6>Department Objectives</h6>
       @if (departmentData?.objectives) {
-      <ul>
+      <!-- <ul>
         @for (item of departmentData.objectives.split('\n'); track $index) {
         <li class="fs-6 lh-base">{{ item }}</li>
         }
 
-      </ul>
+      </ul> -->
+      @for (item of departmentData.objectives.split('\n'); track $index) {
+      <p class="m-0 fs-6 lh-base">{{ item }}</p>
+      }
+
       }
     </div>
     }
@@ -254,6 +258,22 @@
 
   </div>
 
+  <!-- Department Checklist Component with Badge -->
+  @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
+  <app-onboarding-checklist 
+    [isOpen]="isChecklistModalOpen" 
+    [checklistItems]="departmentChecklistItems"
+    [showBadge]="true"
+    [completed]="checklistCompleted"
+    [total]="checklistTotal"
+    [allowToggle]="true"
+    [disabledItemTitles]="disabledChecklistTitles"
+    [loadingItemTitle]="loadingChecklistItemTitle"
+    (close)="closeChecklistModal()" 
+    (itemClick)="onChecklistItemClick($event)"
+    (badgeClick)="openChecklistModal()">
+  </app-onboarding-checklist>
+  }
 
 </div>
 

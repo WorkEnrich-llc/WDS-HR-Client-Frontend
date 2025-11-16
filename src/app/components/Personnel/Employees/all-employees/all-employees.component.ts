@@ -70,6 +70,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.filterForm = this.fb.group({
       created_from: [''],
       status: [''],
+      contract_end_date: [''],
     });
   }
 
@@ -122,7 +123,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       const rawFilters = this.filterForm.value;
       this.activeFilters = {
         status: rawFilters.status === 'all' ? null : rawFilters.status,
-        created_from: rawFilters.created_from || null
+        created_from: rawFilters.created_from || null,
+        contract_end_date: rawFilters.contract_end_date || null
       };
       this.currentPage = 1;
       this.loadEmployees();
@@ -142,7 +144,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       accountStatus: this.getAccountStatus(employee.employee_active),
       jobTitle: employee.job_info.job_title.name,
       branch: employee.job_info.branch.name,
-      joinDate: this.formatDate(employee.job_info.start_contract)
+      joinDate: this.formatDate(employee.job_info.start_contract),
+      end_contract: employee.job_info.end_contract
     }));
   }
 
@@ -251,6 +254,27 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.currentPage = 1;
     this.loadEmployees();
     this.filterBox.closeOverlay();
+  }
+
+
+  isContractExpiring(endDateString: string | null | undefined): boolean {
+    if (!endDateString) {
+      return false;
+    }
+
+    const today = new Date();
+    const contractEnd = new Date(endDateString);
+
+    today.setHours(0, 0, 0, 0);
+
+    if (contractEnd < today) {
+      return false;
+    }
+
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(today.getMonth() + 3);
+
+    return contractEnd >= today && contractEnd <= threeMonthsFromNow;
   }
 
 }

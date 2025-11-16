@@ -52,7 +52,7 @@
 
         <!-- start Table -->
 
-        <app-table [isLoading]="loadData" [columnsCount]="7" [data]="filteredEmployees" [totalItems]="totalItems"
+        <app-table [isLoading]="loadData" [columnsCount]="8" [data]="filteredEmployees" [totalItems]="totalItems"
             [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="employeesTableHeader"
             [rowTemplate]="employeesTableRow" [emptyTemplate]="noEmployees"></app-table>
@@ -76,25 +76,24 @@
                     </svg>
                 </div>
             </th>
-
-
             <th>Employee Status</th>
             <th>Account Status</th>
             <th>Job Title</th>
             <th>Branch</th>
             <th>Join Date</th>
+            <th>End Contract</th>
             <th>Actions</th>
         </ng-template>
         <ng-template #employeesTableRow let-employee let-i="index">
-            <td class="width-fix">
+            <td class="width-fix" [class.contract-expiring]="isContractExpiring(employee.end_contract)">
                 <span class="d-block text-gray-sm">{{ employee?.code}}</span>
                 <!-- <span class="d-block text-gray-sm">{{ employee.id.toString().padStart(4, '0') }}</span> -->
-                <span class="d-block text-truncate" style="max-width: 300px;">
+                <span [title]="employee.name" class="d-block text-truncate cursor-pointer" style="max-width: 300px;">
 
                     {{ employee.name }}
                 </span>
             </td>
-            <td>
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
                 <span class="badge-newjoiner" *ngIf="employee.employeeStatus ==='New Joiner'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -134,7 +133,7 @@
                     <span>Employed</span>
                 </span>
             </td>
-            <td>
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
                 <span class="badge-success" *ngIf="employee.accountStatus ==='active'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -172,10 +171,17 @@
                     <span>Inactive</span>
                 </span>
             </td>
-            <td>{{employee.jobTitle}}</td>
-            <td>{{employee.branch ?? 'Not assigned'}}</td>
-            <td>{{employee.joinDate | date:'dd/MM/yyyy'}}</td>
-            <td>
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.jobTitle}}</td>
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
+                {{employee.branch ?? 'Not assigned'}}
+            </td>
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.joinDate |
+                date:'dd/MM/yyyy'}}</td>
+
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">{{employee.end_contract |
+                date:'dd/MM/yyyy'}}</td>
+
+            <td [class.contract-expiring]="isContractExpiring(employee.end_contract)">
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <a (click)="navigateToView(employee)"
                         class="view-btn h-100 d-flex align-items-center gap-1 w-50 me-2">
@@ -208,7 +214,7 @@
 
         <ng-template #noEmployees>
             <tr>
-                <td colspan="7" class="no-data py-4">
+                <td colspan="8" class="no-data py-4">
                     <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noEmployees">
                         No Employees match your search.
                     </ng-container>
@@ -275,6 +281,42 @@
                     </svg>
                 </div>
                 @if(!filterForm.get('created_from')?.value){
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#e04f5f"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                    <path fill="#e04f5f" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                </svg>
+                }
+                @else{
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                </svg>
+                }
+            </div>
+        </div>
+
+
+        <div class="input">
+            <label for="contractEndDate">Contract End Date</label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="contract_end_date" type="date" id="contractEndDate"
+                        class="form-control custom-date-input" placeholder="Min-Max" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <path stroke-linecap="round"
+                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                            <circle cx="18" cy="18" r="3" />
+                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                        </g>
+                    </svg>
+                </div>
+                @if(!filterForm.get('contract_end_date')?.value){
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />

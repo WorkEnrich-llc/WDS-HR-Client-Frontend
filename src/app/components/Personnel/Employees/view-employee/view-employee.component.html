@@ -74,79 +74,76 @@
 
   <!-- 3 cards -->
   <div class="d-flex align-items-stretch gap-4">
-    <div class="content-box d-flex flex-column gap-3 w-100">
-      <h2>Contact Info</h2>
-      <div class="info">
-        <h6>ID</h6>
-        <span>{{ employee.id || "N/A" }}</span>
-      </div>
-      <div class="info">
-        <h6>Full Name(English)</h6>
-        <span>{{ employee.contact_info.name || "N/A" }}</span>
-      </div>
-      @if (employee.contact_info.name_arabic) {
-      <div class="info">
-        <h6>Full Name(Arabic)</h6>
-        <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
-      </div>
-      }
-      <div class="info">
-        <h6>Phone Number</h6>
-        <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
-          }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
-      </div>
-      <div class="info">
-        <h6>Business Email</h6>
-        <span>{{ employee.contact_info.email || "N/A" }}</span>
-      </div>
-      <div class="info">
-        <h6>Date of Birth</h6>
-        <span>{{
-          (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
-          }}</span>
-      </div>
-      <div class="info">
-        <h6>Address</h6>
-        <span>{{ employee.contact_info.address || "N/A" }}</span>
-      </div>
-      <div class="info">
-        <h6>Marital Status</h6>
-        <span>{{ employee.contact_info.marital_status.name }}</span>
-      </div>
-      <!-- <div class="info"> -->
-      <!-- @for(item of customFieldValues; track item.id) {
-      @if(item.custom_field.pinned === true && item.value.value) {
-      <div class="custom-field">
-        <h6 [title]="item.custom_field.input_option.label">{{ item.custom_field.input_option.label }}</h6>
-        <span [title]="item.value.value">{{ item.value.value }}</span>
-      </div>
-      }
-      } -->
+    <div class="col-12 col-lg-6 col-xl-4">
+      <div class="content-box contact-info-card d-flex flex-column gap-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <h2>Contact Info</h2>
+          @if (hasAdditionalContactInfo()) {
+          <button type="button" class="btn-toggle-expand" (click)="toggleContactInfo()"
+            [attr.aria-expanded]="contactInfoExpanded"
+            [attr.aria-label]="contactInfoExpanded ? 'Show less contact information' : 'Show more contact information'">
+            <span>{{ contactInfoExpanded ? 'Show Less' : 'Show More' }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              [class.rotated]="contactInfoExpanded">
+              <path d="M7 10l5 5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          }
+        </div>
 
+        <!-- Always visible fields -->
+        <div class="info">
+          <h6>ID</h6>
+          <span>{{ employee.id || "N/A" }}</span>
+        </div>
+        <div class="info">
+          <h6>Full Name (English)</h6>
+          <span>{{ employee.contact_info.name || "N/A" }}</span>
+        </div>
+        @if (employee.contact_info.name_arabic) {
+        <div class="info">
+          <h6>Full Name (Arabic)</h6>
+          <span>{{ employee.contact_info.name_arabic || "N/A" }}</span>
+        </div>
+        }
+        <div class="info">
+          <h6>Phone Number</h6>
+          <span>{{ employee.contact_info.mobile.country.phone_prefix || ""
+            }}{{ employee.contact_info.mobile.number || "N/A" }}</span>
+        </div>
+        <div class="info">
+          <h6>Business Email</h6>
+          <span>{{ employee.contact_info.email || "N/A" }}</span>
+        </div>
+        <div class="info">
+          <h6>Date of Birth</h6>
+          <span>{{
+            (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
+            }}</span>
+        </div>
+        <div class="info">
+          <h6>Address</h6>
+          <span>{{ employee.contact_info.address || "N/A" }}</span>
+        </div>
+        <div class="info">
+          <h6>Marital Status</h6>
+          <span>{{ employee.contact_info.marital_status.name }}</span>
+        </div>
 
-      @for(item of customFieldValues; track item.id) {
-      @if(item.custom_field.pinned === true && item.value.value) {
-      <div class="info">
-        <h6 [title]="item.custom_field.input_option.label">{{
-          item.custom_field.input_option.label }}</h6>
-        <div class="labeled-accordion">
-          <details class="accordion">
-            <summary>
-              <div class="summary-content">
-                <span class="cursor-pointer " [title]="item.value.value">{{ item.value.value }}</span>
-              </div>
-              <span class="arrow"></span>
-            </summary>
-          </details>
+        <!-- Collapsible fields (Custom Fields only) -->
+        <div class="contact-info-collapsible" [class.expanded]="contactInfoExpanded">
+          @for(item of customFieldValues; track item.id) {
+          @if(item.custom_field.pinned === true && item.value.value) {
+          <div class="info">
+            <h6 [title]="item.custom_field.input_option.label">{{
+              item.custom_field.input_option.label }}</h6>
+            <span [title]="item.value.value">{{ item.value.value }}</span>
+          </div>
+          }
+          }
         </div>
       </div>
-
-      }
-      }
-
-
-
-      <!-- </div> -->
     </div>
 
     <div class="col-12 col-lg-6 col-xl-4">
@@ -423,42 +420,51 @@
           </div>
         </div> -->
 
-        <div class="device-card">
-          <div class="card-header">
-            <div class="header-info">
-              <h3>Last Known Device</h3>
-              <p>Last seen {{ formatDeviceDate(employee.device.last_seen) }}</p>
+        <div class="device-card device-info-card d-flex flex-column gap-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h2>Last Known Device</h2>
+              <p class="mb-0 small text-muted">Last seen {{ formatDeviceDate(employee.device.last_seen) }}</p>
             </div>
-            <div class="header-badge">
+            <div class="d-flex align-items-center gap-2">
               <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-primary' : 'badge-secondary'">
                 {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
               </span>
-              <!-- <span class="badge">Primary Device</span> -->
+              <button type="button" class="btn-toggle-expand-arrow" (click)="toggleDeviceInfo()"
+                [attr.aria-expanded]="deviceInfoExpanded"
+                [attr.aria-label]="deviceInfoExpanded ? 'Hide device information' : 'Show device information'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  [class.rotated]="deviceInfoExpanded">
+                  <path d="M7 10l5 5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg>
+              </button>
             </div>
           </div>
 
-          <div class="card-body">
-            <div class="info-row">
-              <span class="info-label">TYPE</span>
-              <span class="info-value">{{ employee.device.device_type || "—" }}</span>
+          <!-- All fields collapsible - hidden by default -->
+          <div class="device-info-collapsible" [class.expanded]="deviceInfoExpanded">
+            <div class="info">
+              <h6>TYPE</h6>
+              <span class="text-capitalize">{{ employee.device.device_type || "—" }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">BRAND</span>
-              <span class="info-value">{{ employee.device.device_family || "—" }}</span>
+            <div class="info">
+              <h6>BRAND</h6>
+              <span>{{ employee.device.device_family || "—" }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">MODEL</span>
-              <span class="info-value">{{ employee.device.device_model || "—" }}</span>
+            <div class="info">
+              <h6>MODEL</h6>
+              <span>{{ employee.device.device_model || "—" }}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">LANGUAGE</span>
-              <span class="info-value">{{ employee.device.device_ln || "—" }}</span>
+            <div class="info">
+              <h6>LANGUAGE</h6>
+              <span class="text-uppercase">{{ employee.device.device_ln || "—" }}</span>
             </div>
           </div>
         </div>
         }
 
-        <div class="mt-auto d-flex flex-column gap-2">
+        <div class="mt-2 d-flex flex-column gap-2">
           @if (employee.device) {
           <button class="btn btn-lg btn-outline-primary w-100" (click)="openClearSession()"
             [disabled]="clearSessionLoading">
@@ -806,3 +812,12 @@
     Cancel
   </button>
 </app-popup>
+
+<!-- Onboarding Checklist Component with Badge -->
+@if (employee && employee.onboarding_list) {
+<app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
+  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal"
+  [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
+  (itemClick)="onChecklistItemClick($event)" (badgeClick)="openOnboardingModal()">
+</app-onboarding-checklist>
+}

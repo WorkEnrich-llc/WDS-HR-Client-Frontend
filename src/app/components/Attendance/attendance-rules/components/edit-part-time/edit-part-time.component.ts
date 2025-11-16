@@ -245,7 +245,10 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   latenessValidationErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
 
   addLatenessRow() {
+    const newIndex = this.latenessEntries.length;
     this.latenessEntries.push({ value: null, salaryPortionIndex: null });
+    // Initialize validation errors for the new row
+    this.latenessValidationErrors[newIndex] = { value: false, salaryPortion: false };
   }
 
   removeLatenessRow(index: number) {

@@ -153,7 +153,7 @@ export class EditOnboardingComponent {
     const request_data = {
       onboarding_list: this.checks.map(c => ({
         title: c.name,
-        status: true
+        status: false
       }))
     };
     // console.log(JSON.stringify({ request_data }, null, 2));

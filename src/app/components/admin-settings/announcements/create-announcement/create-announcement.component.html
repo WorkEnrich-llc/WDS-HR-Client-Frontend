@@ -542,7 +542,7 @@
         <div class="department-only-header-inner">
             <input type="checkbox" class="department-square-checkbox" [checked]="isAllCurrentPageSelected()"
                 (change)="selectAllDepartments()">
-            <span>Department</span>
+            <span>{{ getRecipientLabelWithS() }}</span>
         </div>
     </th>
 </ng-template>
