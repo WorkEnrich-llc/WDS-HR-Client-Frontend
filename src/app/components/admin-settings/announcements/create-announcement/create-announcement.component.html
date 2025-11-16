@@ -404,7 +404,10 @@
         <div class="form-outline position-relative">
             <select class="form-control custom-date-input" [(ngModel)]="selectedDepartmentId"
                 (change)="onDepartmentSelected($any($event.target).value)" [disabled]="isLoadingItems">
-                <option value="">Select Department</option>
+                <!-- Placeholder option is bound to null so it shows when no department is selected -->
+                <option [ngValue]="null" disabled>
+                    Select a department to load its sections
+                </option>
                 @for (dept of availableDepartments; track dept.id) {
                 <option [value]="dept.id">{{ dept.name }}</option>
                 }
@@ -446,6 +449,7 @@
         }
 
         <!-- Entities Table with Skeleton Loader -->
+        @if (!(selectedRecipientType === 'section' && !selectedDepartmentId)) {
         <div class="departments-list-table">
             @if (selectedRecipientType === 'section' && selectedDepartmentId) {
             <!-- Show sections when department is selected -->
@@ -453,11 +457,6 @@
                 [columnsCount]="1" [headerTemplate]="modalHeaderTemplate" [rowTemplate]="modalRowTemplate"
                 [emptyTemplate]="modalEmptyTemplate" [disablePagination]="true">
             </app-table>
-            } @else if (selectedRecipientType === 'section' && !selectedDepartmentId) {
-            <!-- Show message to select department -->
-            <div class="text-center py-4 text-muted">
-                <p>Please select a department to view its sections</p>
-            </div>
             } @else if (selectedRecipientType !== 'company') {
             <!-- Show entities for other types -->
             <app-table [data]="availableItems" [currentPage]="currentPage" [isLoading]="isLoadingItems"
@@ -470,6 +469,7 @@
             </div>
             }
         </div>
+        }
 
         <!-- Pagination -->
         @if (selectedRecipientType !== 'section' && selectedRecipientType !== 'company') {

@@ -7,7 +7,6 @@ import { DatePipe } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
-import { DepartmentChecklistService } from '../../../../core/services/od/departmentChecklist/department-checklist.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 
@@ -25,7 +24,6 @@ export class ViewDepartmentsComponent implements OnInit {
     private subService: SubscriptionService, 
     private route: ActivatedRoute, 
     private datePipe: DatePipe,
-    private departmentChecklistService: DepartmentChecklistService,
     private toasterMessageService: ToasterMessageService
   ) { }
   departmentData: any = { sections: [] };
@@ -86,9 +84,9 @@ export class ViewDepartmentsComponent implements OnInit {
         this.sortDirection = 'desc';
         this.sortBy('id');
         this.loadData = false;
-        
-        // Load checklist after department data is loaded
-        this.loadDepartmentChecklist();
+
+        // Initialize checklist items from department assigned_checklist
+        this.initializeChecklistFromDepartmentData(this.departmentData);
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -204,37 +202,22 @@ export class ViewDepartmentsComponent implements OnInit {
   // Department checklist properties
   departmentChecklistItems: OnboardingListItem[] = [];
   isChecklistModalOpen: boolean = false;
-  lockedChecklistIds: Set<number> = new Set(); // IDs from assigned_checklist that cannot be unchecked
-  titleToIdMap: Map<string, number> = new Map(); // Mapping of title to ID for efficient lookup
-  loadingChecklistItemTitle: string | null = null; // Track which checklist item is currently being updated
+  // Mapping of title to ID for efficient lookup
+  titleToIdMap: Map<string, number> = new Map();
+  // Track which checklist item is currently being updated
+  loadingChecklistItemTitle: string | null = null;
 
-  // Load department checklist
-  loadDepartmentChecklist(): void {
-    this.departmentChecklistService.getDepartmetChecks(1, 10000).subscribe({
-      next: (response) => {
-        // Get assigned checklist IDs from department response
-        const assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
-        this.lockedChecklistIds = new Set(assignedChecklistIds);
-        
-        // Transform API response to match OnboardingListItem format and build title-to-ID mapping
-        const listItems = response?.data?.list_items || [];
-        this.titleToIdMap.clear(); // Clear previous mapping
-        this.departmentChecklistItems = listItems.map((item: any) => {
-          // Store mapping of title to ID
-          this.titleToIdMap.set(item.name || '', item.id);
-          return {
-            title: item.name || '',
-            status: assignedChecklistIds.includes(item.id) // Mark as checked if in assigned_checklist
-          };
-        });
-        
-        console.log('Department checklist loaded:', this.departmentChecklistItems);
-        console.log('Locked checklist IDs:', Array.from(this.lockedChecklistIds));
-      },
-      error: (error) => {
-        console.error('Error loading department checklist:', error);
-        this.toasterMessageService.showError('Failed to load department checklist');
-      }
+  // Initialize checklist items from department assigned_checklist
+  private initializeChecklistFromDepartmentData(departmentData: any): void {
+    const assignedChecklist = departmentData?.assigned_checklist || [];
+    this.titleToIdMap.clear();
+    this.departmentChecklistItems = assignedChecklist.map((item: any) => {
+      // Store mapping of title to ID
+      this.titleToIdMap.set(item.name || '', item.id);
+      return {
+        title: item.name || '',
+        status: true // All assigned checklist items start as checked
+      };
     });
   }
 
@@ -255,12 +238,6 @@ export class ViewDepartmentsComponent implements OnInit {
       return;
     }
 
-    // Prevent unchecking if item is locked (in assigned_checklist)
-    if (this.lockedChecklistIds.has(itemId) && item.status) {
-      // Item is locked and checked - don't allow unchecking
-      return;
-    }
-
     // Prevent multiple clicks while loading
     if (this.loadingChecklistItemTitle) {
       return;
@@ -273,8 +250,7 @@ export class ViewDepartmentsComponent implements OnInit {
     const newStatus = !item.status;
     item.status = newStatus;
 
-    // Build checklist array: locked items (from assigned_checklist) + all checked items
-    const lockedIds = Array.from(this.lockedChecklistIds);
+    // Build checklist array: include IDs of all currently checked items (exclude unchecked)
     const checkedIds = this.departmentChecklistItems
       .filter(listItem => {
         const listItemId = this.titleToIdMap.get(listItem.title);
@@ -282,9 +258,6 @@ export class ViewDepartmentsComponent implements OnInit {
       })
       .map(listItem => this.titleToIdMap.get(listItem.title))
       .filter(id => id !== undefined) as number[];
-
-    // Combine locked and checked IDs, remove duplicates
-    const allChecklistIds = [...new Set([...lockedIds, ...checkedIds])];
 
     // Build update payload matching edit-departments structure
     const updatePayload = {
@@ -311,7 +284,7 @@ export class ViewDepartmentsComponent implements OnInit {
             status: sub.is_active.toString()
           }))
         })),
-        checklist: allChecklistIds
+        checklist: checkedIds
       }
     };
 
@@ -320,10 +293,19 @@ export class ViewDepartmentsComponent implements OnInit {
       next: (response) => {
         this.loadingChecklistItemTitle = null;
         this.toasterMessageService.showSuccess('Checklist updated successfully');
-        // Refresh department data
-        if (this.deptId) {
-          this.getDepartment(Number(this.deptId));
-        }
+
+         // Refresh department checklist from latest server response without reloading the whole page
+         this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({
+           next: (deptResponse) => {
+             const updatedDept = deptResponse.data.object_info;
+             // Update only departmentData and checklist-related state
+             this.departmentData = updatedDept;
+             this.initializeChecklistFromDepartmentData(updatedDept);
+           },
+           error: (deptError) => {
+             console.error('Error refreshing department after checklist update:', deptError);
+           }
+         });
       },
       error: (error) => {
         this.loadingChecklistItemTitle = null;
@@ -344,14 +326,8 @@ export class ViewDepartmentsComponent implements OnInit {
   }
 
   get disabledChecklistTitles(): string[] {
-    // Return titles of items that are locked (in assigned_checklist) and checked
-    // These items cannot be unchecked
-    return this.departmentChecklistItems
-      .filter(item => {
-        const itemId = this.titleToIdMap.get(item.title);
-        return itemId !== undefined && this.lockedChecklistIds.has(itemId) && item.status;
-      })
-      .map(item => item.title);
+    // In view mode, allow all items to be toggled (no disabled items)
+    return [];
   }
 
 }
