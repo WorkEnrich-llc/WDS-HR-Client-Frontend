@@ -38,9 +38,6 @@ export class EditSalaryPortionsComponent implements OnInit {
       this.updateBasicPercentage();
     });
 
-    for (let i = 0; i < 3; i++) {
-      this.createPortion();
-    }
     this.loadSalaryPortions();
   }
 
@@ -96,11 +93,37 @@ export class EditSalaryPortionsComponent implements OnInit {
         this.portions.clear();
 
         if (this.salaryPortions.length > 0) {
-          const returnedFormArray = this.salaryPortions.map((p: any) =>
-            this.createPortion(p, p.default)
-          );
+          // Filter out 'gross' and separate basic from others
+          const filteredPortions = this.salaryPortions.filter((p: any) => {
+            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
+            return name !== 'gross';
+          });
 
-          // If returned data less than 3 inputs, add empty inputs
+          const basicPortion = filteredPortions.find((p: any) => {
+            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
+            return name === 'basic';
+          });
+
+          const otherPortions = filteredPortions.filter((p: any) => {
+            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
+            return name !== 'basic';
+          });
+
+          const returnedFormArray: FormGroup[] = [];
+
+          // Always add basic first
+          if (basicPortion) {
+            returnedFormArray.push(this.createPortion(basicPortion, true));
+          } else {
+            returnedFormArray.push(this.createPortion({ name: 'basic', percentage: 100 }, true));
+          }
+
+          // Add other portions (max 2)
+          otherPortions.slice(0, 2).forEach((p: any) => {
+            returnedFormArray.push(this.createPortion(p, p.default));
+          });
+
+          // Fill remaining slots to have exactly 2 open inputs (plus basic = 3 total)
           while (returnedFormArray.length < 3) {
             returnedFormArray.push(this.createPortion());
           }
@@ -113,7 +136,7 @@ export class EditSalaryPortionsComponent implements OnInit {
             )
           );
         } else {
-          // Default case for first time
+          // Default case for first time: basic + 2 open inputs
           this.portionsForm.setControl(
             'portions',
             this.fb.array(
@@ -129,6 +152,7 @@ export class EditSalaryPortionsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load single salary portion', err);
+        // Default case: basic + 2 open inputs
         this.portionsForm.setControl(
           'portions',
           this.fb.array(
@@ -173,10 +197,16 @@ export class EditSalaryPortionsComponent implements OnInit {
 
     const cleanedValue = {
       ...formValue,
-      portions: formValue.portions.map((portion: any) => ({
-        ...portion,
-        name: typeof portion.name === 'string' ? portion.name.trim() : portion.name
-      }))
+      portions: formValue.portions
+        .filter((portion: any) => {
+          // Filter out gross and empty portions
+          const name = typeof portion.name === 'string' ? portion.name.toLowerCase().trim() : '';
+          return name !== 'gross' && (portion.enabled || name === 'basic');
+        })
+        .map((portion: any) => ({
+          ...portion,
+          name: typeof portion.name === 'string' ? portion.name.trim() : portion.name
+        }))
     };
 
     this.isLoading = true;
