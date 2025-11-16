@@ -22,7 +22,10 @@ import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading
   encapsulation: ViewEncapsulation.None
 })
 export class EditDepartmentsComponent implements OnInit {
-  constructor(private _DepartmentsService: DepartmentsService, private route: ActivatedRoute, private fb: FormBuilder,
+  constructor(
+    private _DepartmentsService: DepartmentsService, 
+    private route: ActivatedRoute, 
+    private fb: FormBuilder,
     private router: Router,
     private subService: SubscriptionService,
     private datePipe: DatePipe,
@@ -135,6 +138,9 @@ export class EditDepartmentsComponent implements OnInit {
           sections: this.sectionsFormArray.value
         };
         this.loadData = false;
+        
+        // Save assigned_checklist IDs from department response
+        this.saveAssignedChecklistIds();
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -636,6 +642,9 @@ export class EditDepartmentsComponent implements OnInit {
 
   const allSections = [...currentSections, ...deletedSections];
 
+  // Get assigned_checklist IDs to send in payload
+  const checklistIds = this.assignedChecklistIds;
+
   const finalData = {
     request_data: {
       id: this.departmentData.id,
@@ -645,7 +654,7 @@ export class EditDepartmentsComponent implements OnInit {
       objectives: form1Data.objectives,
       goals: this.addedGoal.map((g: any) => g.id),
       sections: allSections,
-      checklist: []
+      checklist: checklistIds
     }
   };
     // console.log(finalData);
@@ -709,6 +718,15 @@ export class EditDepartmentsComponent implements OnInit {
 
   goPrev() {
     this.currentStep--;
+  }
+
+  // Store assigned_checklist IDs from department response
+  assignedChecklistIds: number[] = [];
+
+  // Save assigned_checklist IDs from department response
+  saveAssignedChecklistIds(): void {
+    this.assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
+    console.log('Assigned checklist IDs saved:', this.assignedChecklistIds);
   }
 
 }

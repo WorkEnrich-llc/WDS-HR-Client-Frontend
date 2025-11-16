@@ -149,6 +149,7 @@ export class EditJobComponent {
         // console.log('Job Title Data:', this.jobTitleData);
         this.originalAssignedIds = this.jobTitleData.assigns?.map((a: any) => a.id) || [];
 
+
         forkJoin([dept$, section$]).subscribe({
           next: ([departments, sections]) => {
             this.departments = departments;
@@ -176,7 +177,9 @@ export class EditJobComponent {
     this.jobStep1.patchValue({
       code: this.jobTitleData.code || '',
       jobName: this.jobTitleData.name || '',
-      jobLevel: this.jobTitleData.job_level || '',
+      jobLevel: this.jobTitleData.job_level !== null && this.jobTitleData.job_level !== undefined
+  ? this.jobTitleData.job_level
+  : '',
       department: this.jobTitleData.department?.id || '',
       section: this.jobTitleData.section?.id || ''
     });
@@ -349,16 +352,21 @@ export class EditJobComponent {
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
 
+get filteredJobTitles() {
+  const currentId = this.numericJobId;
+  if (!this.jobTitles?.length) return [];
 
-  get filteredJobTitles() {
-    const currentId = this.numericJobId;
-    if (!this.jobTitles?.length) return [];
+  return this.jobTitles.map(job => {
+    const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
 
-    return this.jobTitles.map(job => {
-      const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
-      return { ...job, assigned: isAssigned };
-    }).filter(job => job.id !== currentId);
-  }
+    return { 
+      ...job, 
+      assigned: isAssigned,
+      isCurrent: job.id === currentId  
+    };
+  });
+}
+
 
 
 
@@ -536,10 +544,10 @@ export class EditJobComponent {
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
 
-  nextGetJobs(): void {
-    this.goNext();
-    this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-  }
+  // nextGetJobs(): void {
+  //   this.goNext();
+  //   this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
+  // }
   // step 2 salary ranges
   jobStep2: FormGroup = new FormGroup({
     fullTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),

@@ -4,3 +4,15 @@
     align-items: center;
     gap: 20px;
 }
+
+/* Add bottom offset to fixed buttons when checklist badge is visible */
+.btn-fixed {
+    bottom: calc(var(--spacing-24) + 100px) !important;
+    transition: bottom 0.3s ease;
+}
+
+/* When checklist modal is open, push buttons just above the modal */
+/* Modal is at bottom: 24px, with typical height, button positioned just above with small gap */
+.btn-fixed.checklist-open {
+    bottom: calc(var(--spacing-24) + 280px) !important;
+}

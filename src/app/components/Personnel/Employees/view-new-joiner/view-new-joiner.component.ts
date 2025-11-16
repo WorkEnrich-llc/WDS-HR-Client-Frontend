@@ -12,11 +12,12 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { Employee, Subscription } from '../../../../core/interfaces/employee';
 import { WorkSchedule } from '../../../../core/interfaces/work-schedule';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
+import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
 
 @Component({
   selector: 'app-view-new-joiner',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent, OnboardingChecklistComponent],
   providers: [DatePipe],
   templateUrl: './view-new-joiner.component.html',
   styleUrl: './view-new-joiner.component.css'
@@ -376,5 +377,148 @@ export class ViewNewJoinerComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Onboarding checklist properties and methods
+  isOnboardingModalOpen: boolean = false;
+  loadingChecklistItemTitle: string | null = null;
+
+  get onboardingCompleted(): number {
+    if (!this.employee?.onboarding_list) return 0;
+    return this.employee.onboarding_list.filter(item => item.status === true).length;
+  }
+
+  get onboardingTotal(): number {
+    if (!this.employee?.onboarding_list) return 0;
+    return this.employee.onboarding_list.length;
+  }
+
+  openOnboardingModal(): void {
+    this.isOnboardingModalOpen = true;
+  }
+
+  closeOnboardingModal(): void {
+    this.isOnboardingModalOpen = false;
+  }
+
+  onChecklistItemClick(item: OnboardingListItem): void {
+    this.updateChecklistItem(item);
+  }
+
+  updateChecklistItem(item: { title: string; status: boolean }): void {
+    if (!this.employee || item.status || this.loadingChecklistItemTitle) {
+      return; // Don't update if already completed or currently loading
+    }
+
+    // Set loading state for the clicked item
+    this.loadingChecklistItemTitle = item.title;
+
+    // Update the clicked item status to true, keep all others as they were
+    const updatedOnboardingList = (this.employee.onboarding_list || []).map(listItem => {
+      if (listItem.title === item.title) {
+        return { ...listItem, status: true };
+      }
+      return listItem; // Keep all other items as they were (true or false)
+    });
+
+    // Build job_details payload matching manage-employee structure
+    const managementLevelId = this.employee.job_info.management_level?.id;
+    const jobDetailsPayload: any = {
+      years_of_experience: this.employee.job_info.years_of_experience || 0,
+      management_level: managementLevelId ? parseInt(String(managementLevelId), 10) : null,
+      work_schedule_id: this.employee.job_info.work_schedule?.id ? parseInt(String(this.employee.job_info.work_schedule.id), 10) : null,
+      activate_attendance_rules: this.employee.job_info.activate_attendance_rules ?? false
+    };
+
+    // Add job_title_id if exists
+    if (this.employee.job_info.job_title?.id) {
+      jobDetailsPayload.job_title_id = parseInt(String(this.employee.job_info.job_title.id), 10);
+    }
+
+    // Add branch/department/section based on management level (matching manage-employee logic)
+    if (managementLevelId === 2) {
+      if (this.employee.job_info.branch?.id) {
+        jobDetailsPayload.branch_id = parseInt(String(this.employee.job_info.branch.id), 10);
+      }
+    }
+    if (managementLevelId === 3) {
+      if (this.employee.job_info.branch?.id) {
+        jobDetailsPayload.branch_id = parseInt(String(this.employee.job_info.branch.id), 10);
+      }
+      if (this.employee.job_info.department?.id) {
+        jobDetailsPayload.department_id = parseInt(String(this.employee.job_info.department.id), 10);
+      }
+    }
+    if (managementLevelId === 5 || managementLevelId === 4) {
+      if (this.employee.job_info.branch?.id) {
+        jobDetailsPayload.branch_id = parseInt(String(this.employee.job_info.branch.id), 10);
+      }
+      if (this.employee.job_info.department?.id) {
+        jobDetailsPayload.department_id = parseInt(String(this.employee.job_info.department.id), 10);
+      }
+      if (this.employee.job_info.section?.id) {
+        jobDetailsPayload.section_id = parseInt(String(this.employee.job_info.section.id), 10);
+      }
+    }
+
+    // Format date for API (YYYY-M-D format)
+    const formatDateForAPI = (dateStr: string): string => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    };
+
+    // Build contract_details payload matching manage-employee structure
+    const contractDetailsPayload: any = {
+      employment_type: this.employee.job_info.employment_type.id,
+      work_mode: this.employee.job_info.work_mode.id,
+      days_on_site: this.employee.job_info.days_on_site ? parseInt(String(this.employee.job_info.days_on_site), 10) : 0,
+      insurance_salary: this.employee.job_info.insurance_salary ? parseFloat(String(this.employee.job_info.insurance_salary)) : 0,
+      gross_insurance: this.employee.job_info.gross_insurance ? parseFloat(String(this.employee.job_info.gross_insurance)) : 0
+    };
+
+    // Build the complete employee update payload matching manage-employee structure
+    const requestData: any = {
+      main_information: {
+        code: this.employee.code,
+        name_english: this.employee.contact_info.name,
+        name_arabic: this.employee.contact_info.name_arabic || '',
+        gender: this.employee.contact_info.gender.id,
+        mobile: {
+          country_id: this.employee.contact_info.mobile.country.id,
+          number: parseInt(String(this.employee.contact_info.mobile.number), 10)
+        },
+        personal_email: this.employee.contact_info.email,
+        marital_status: this.employee.contact_info.marital_status.id,
+        date_of_birth: formatDateForAPI(this.employee.contact_info.date_of_birth),
+        address: this.employee.contact_info.address || ''
+      },
+      job_details: jobDetailsPayload,
+      contract_details: contractDetailsPayload,
+      onboarding_list: updatedOnboardingList
+    };
+
+    const payload = {
+      request_data: {
+        id: this.employee.id,
+        ...requestData
+      }
+    };
+
+    this.employeeService.updateEmployee(payload).subscribe({
+      next: (response: any) => {
+        this.toasterMessageService.showSuccess('Checklist item updated successfully');
+        // Clear loading state
+        this.loadingChecklistItemTitle = null;
+        // Refresh employee data to get updated onboarding list
+        this.loadEmployeeData();
+      },
+      error: (error: any) => {
+        console.error('Error updating checklist item:', error);
+        this.toasterMessageService.showError('Failed to update checklist item');
+        // Clear loading state on error
+        this.loadingChecklistItemTitle = null;
+      }
+    });
   }
 }
