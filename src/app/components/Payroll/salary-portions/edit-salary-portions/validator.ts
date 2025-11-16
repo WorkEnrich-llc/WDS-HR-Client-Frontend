@@ -31,7 +31,7 @@ export function totalPercentageValidator() {
       const num = raw === '' || raw === null ? 0 : Number(raw);
       return sum + (isNaN(num) ? 0 : num);
     }, 0);
-    return total < 100 ? null : { totalIs100: true };
+    return total <= 100 ? null : { totalIs100: true };
   };
 }
 

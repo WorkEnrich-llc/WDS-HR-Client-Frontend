@@ -219,7 +219,7 @@ export class EditSalaryPortionsComponent implements OnInit {
       return sum + num;
     }, 0);
 
-    if (total >= 100) {
+    if (total > 100) {
       this.portionsForm.markAllAsTouched();
       return;
     }
