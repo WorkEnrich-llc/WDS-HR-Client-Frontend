@@ -101,7 +101,7 @@ export class CreateWorkflowComponent {
         this.leaveTypes = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -121,7 +121,7 @@ export class CreateWorkflowComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -142,7 +142,7 @@ export class CreateWorkflowComponent {
         this.jobTitles = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

@@ -252,7 +252,6 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     if (!this.employee?.job_info?.job_title?.salary_ranges || !this.employee?.job_info?.employment_type) {
       return null;
     }
-    console.log('Employee Data in Contract Modal:', this.employee);
 
     const employmentTypeName = this.employee.job_info.employment_type.name.toLowerCase();
     const salaryRanges = this.employee.job_info.job_title.salary_ranges;

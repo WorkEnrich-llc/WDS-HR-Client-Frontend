@@ -1,3 +1,4 @@
+import { environment } from './../../../../../environments/environment';
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -92,7 +93,6 @@ export class UpdateWorkflowComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.workflowData);
         let workflowType: string | null = null;
         let leaveId: number | null = null;
 
@@ -146,7 +146,7 @@ export class UpdateWorkflowComponent {
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -184,7 +184,7 @@ export class UpdateWorkflowComponent {
         this.leaveTypes = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -204,7 +204,7 @@ export class UpdateWorkflowComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -225,7 +225,7 @@ export class UpdateWorkflowComponent {
         this.jobTitles = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -351,7 +351,6 @@ export class UpdateWorkflowComponent {
     };
 
 
-    // console.log({ request_data });
     this._WorkflowService.updateWorkflow(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;

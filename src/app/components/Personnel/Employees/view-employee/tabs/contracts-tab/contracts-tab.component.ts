@@ -459,7 +459,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.employeeService.getEmployeeContractAdjustments(contractId).subscribe({
       next: response => {
         const adjustments = response.data.list_items;
-        console.log('Loaded contract adjustments:', response.data.list_items);
         this.contractHistory = adjustments.map(adj => ({
           id: adj.id,
           contractId: contractId,
@@ -535,7 +534,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Terminate contract actions
   openTerminateModal(contract: Contract): void {
-    console.log('CONTRACT RECEIVED FROM HTML:', contract);
     this.selectedContract = contract;
     this.isTerminateModalOpen = true;
   }
@@ -568,7 +566,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
     this.toasterService.showSuccess('contract terminated successfully');
-    console.log('Contract terminated successfully');
     // TODO: Add toast notification
   }
 

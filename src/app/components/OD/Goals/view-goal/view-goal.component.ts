@@ -9,7 +9,7 @@ import { SubscriptionService } from 'app/core/services/subscription/subscription
 
 @Component({
   selector: 'app-view-goal',
-  imports: [PageHeaderComponent, RouterLink, CommonModule, PopupComponent,SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, RouterLink, CommonModule, PopupComponent, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-goal.component.html',
   styleUrl: './view-goal.component.css'
@@ -28,9 +28,9 @@ export class ViewGoalComponent {
   goalId: string | null = null;
   loadData: boolean = false;
 
-GoalsSub: any;
+  GoalsSub: any;
   ngOnInit(): void {
-          // subscription data
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.GoalsSub = sub?.Goals;
       // if (this.GoalsSub) {
@@ -40,7 +40,7 @@ GoalsSub: any;
       //   console.log("delete:", this.GoalsSub.delete);
       // }
     });
-  
+
 
     this.goalId = this.route.snapshot.paramMap.get('id');
     // this.getGoal(Number(this.goalId));
@@ -63,12 +63,10 @@ GoalsSub: any;
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.goalData);
-
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -96,11 +94,10 @@ GoalsSub: any;
     this.goalsService.updateGoalStatus(this.goalData.id, goalStatus).subscribe({
       next: (response) => {
         this.goalData = response.data.object_info;
-        // console.log(this.departmentData);
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -123,10 +120,9 @@ GoalsSub: any;
     this.goalsService.updateGoalStatus(this.goalData.id, goalStatus).subscribe({
       next: (response) => {
         this.goalData = response.data.object_info;
-        // console.log(this.departmentData);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

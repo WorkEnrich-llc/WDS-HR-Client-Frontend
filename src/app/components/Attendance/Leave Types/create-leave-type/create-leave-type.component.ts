@@ -256,7 +256,6 @@ export class CreateLeaveTypeComponent implements OnInit {
       }
     };
     const finalData = { request_data };
-    // console.log(finalData);
     this._LeaveTypeService.createLeavetype(finalData).subscribe({
       next: (response) => {
         this.isLoading = false;

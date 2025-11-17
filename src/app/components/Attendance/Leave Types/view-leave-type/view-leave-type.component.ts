@@ -15,7 +15,7 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
 export class ViewLeaveTypeComponent {
   constructor(private _LeaveTypeService: LeaveTypeService, private route: ActivatedRoute, private datePipe: DatePipe) { }
 
-  leaveTypeData: any =[];
+  leaveTypeData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   leaveId: string | null = null;
@@ -41,11 +41,10 @@ export class ViewLeaveTypeComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.leaveTypeData);
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -81,10 +80,9 @@ export class ViewLeaveTypeComponent {
     this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
       next: (response) => {
         this.leaveTypeData = response.data.object_info;
-        // console.log(this.departmentData);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -107,10 +105,9 @@ export class ViewLeaveTypeComponent {
     this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
       next: (response) => {
         this.leaveTypeData = response.data.object_info;
-        // console.log(this.departmentData);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

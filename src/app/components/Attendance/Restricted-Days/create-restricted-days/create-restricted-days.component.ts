@@ -55,7 +55,7 @@ export class CreateRestrictedDaysComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -106,7 +106,6 @@ export class CreateRestrictedDaysComponent {
       }
     };
 
-    // console.log(finalData);
     this._RestrictedService.createRestrictedDay(finalData).subscribe({
       next: (response) => {
         this.isLoading = false;

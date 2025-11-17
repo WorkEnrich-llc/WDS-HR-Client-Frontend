@@ -74,13 +74,13 @@ export class FcmService {
 
       this.fcmUpdate(formData).subscribe({
         next: (res) => {
-          console.log('FCM token updated successfully:', res);
+          // console.log('FCM token updated successfully:', res);
 
           const changeStatusData = new FormData();
           changeStatusData.append('status', '1');
           this.fcmChangeStatus(changeStatusData).subscribe({
             next: (statusRes) => {
-              console.log('FCM status updated successfully:', statusRes);
+              // console.log('FCM status updated successfully:', statusRes);
             },
             error: (statusErr) => {
               console.error('Error updating FCM status:', statusErr);

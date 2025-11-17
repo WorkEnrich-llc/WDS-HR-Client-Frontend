@@ -7,20 +7,20 @@ import { RestrictedService } from '../../../../core/services/attendance/restrict
 
 @Component({
   selector: 'app-view-restricted-days',
-  imports: [PageHeaderComponent,RouterLink,PopupComponent,CommonModule],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent, CommonModule],
   providers: [DatePipe],
   templateUrl: './view-restricted-days.component.html',
   styleUrl: './view-restricted-days.component.css'
 })
 export class ViewRestrictedDaysComponent {
 
- constructor(private _RestrictedService: RestrictedService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _RestrictedService: RestrictedService, private route: ActivatedRoute, private datePipe: DatePipe) { }
 
-resterictedDayData: any = [];
+  resterictedDayData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   dayId: string | null = null;
-ngOnInit(): void {
+  ngOnInit(): void {
     this.dayId = this.route.snapshot.paramMap.get('id');
     if (this.dayId) {
       this.getRestrictedDay(Number(this.dayId));
@@ -39,11 +39,10 @@ ngOnInit(): void {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        // console.log(this.resterictedDayData);
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -73,7 +72,7 @@ ngOnInit(): void {
         this.resterictedDayData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -98,7 +97,7 @@ ngOnInit(): void {
         this.resterictedDayData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

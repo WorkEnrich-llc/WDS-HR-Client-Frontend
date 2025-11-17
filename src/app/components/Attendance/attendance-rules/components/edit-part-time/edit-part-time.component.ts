@@ -52,7 +52,6 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (response) => {
-        console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
           // Map settings to include index from the response
           this.salaryPortions = response.settings.map((setting: any, arrayIndex: number) => ({
@@ -60,7 +59,6 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             percentage: setting.percentage,
             index: setting.index !== undefined ? setting.index : (arrayIndex + 1) // Use index from API or fallback to array index + 1
           }));
-          console.log('Mapped salary portions with indices:', this.salaryPortions);
         } else {
           this.salaryPortions = [];
         }
@@ -216,7 +214,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
 
   }
 
-    hasChanges(): boolean {
+  hasChanges(): boolean {
     if (!this.originalData) return false;
     const current = {
       allowGrace: this.allowGrace,
@@ -233,7 +231,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     return JSON.stringify(current) !== JSON.stringify(this.originalData);
   }
 
-  
+
   // step 1 - Grace Period
   allowGrace: boolean = false;
   graceMinutes: number = 0;
@@ -332,7 +330,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     if (this.loading || this.salaryPortionsLoading) {
       return;
     }
-    
+
     // Always validate current step before proceeding
     if (this.currentStep === 1) {
       this.validateLatenessStep();
@@ -350,7 +348,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         return; // Don't proceed if validation fails
       }
     }
-    
+
     // Only proceed if current step is valid
     if (this.isStepValid(this.currentStep)) {
       this.currentStep++;
@@ -454,7 +452,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   handleRowKeydown(event: KeyboardEvent, rowIndex: number, field: 'value' | 'salaryPortion'): void {
     const target = event.target as HTMLElement;
     const rows = Array.from(document.querySelectorAll('tbody tr')) as HTMLElement[];
-    
+
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
@@ -538,7 +536,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             entry.value !== null && entry.value !== undefined &&
             entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
           );
-      
+
       case 2: // Early Leave
         if (this.sameAsLateness) {
           return true; // If same as lateness, no validation needed
@@ -555,7 +553,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             entry.value !== null && entry.value !== undefined &&
             entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
           );
-      
+
       case 4: // Overtime
         if (!this.allowOvertime) {
           return true; // If overtime is not allowed, step is valid
@@ -563,19 +561,19 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         if (this.overtimeType === 'flatRate') {
           return this.flatRateValue !== null && this.flatRateValue !== undefined && this.flatRateValue !== '';
         } else if (this.overtimeType === 'customHours') {
-          return this.overtimeEntries.length > 0 && 
-                 this.overtimeEntries.every(entry => 
-                   entry.from !== '' && entry.to !== '' && entry.rate !== null && entry.rate !== undefined
-                 );
+          return this.overtimeEntries.length > 0 &&
+            this.overtimeEntries.every(entry =>
+              entry.from !== '' && entry.to !== '' && entry.rate !== null && entry.rate !== undefined
+            );
         }
         return false;
-      
+
       case 5: // Grace Period
         if (!this.allowGrace) {
           return true; // If grace period is not allowed, step is valid
         }
         return this.graceMinutes !== null && this.graceMinutes !== undefined;
-      
+
       default:
         return true;
     }
@@ -700,17 +698,17 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
           },
           part_time: {
             lateness: this.latenessEntries.map((entry, index) => {
-              console.log('Mapping lateness entry:', {
-                entryIndex: index + 1,
-                value: entry.value,
-                salaryPortionIndex: entry.salaryPortionIndex,
-                availablePortions: this.salaryPortions
-              });
+              // console.log('Mapping lateness entry:', {
+              //   entryIndex: index + 1,
+              //   value: entry.value,
+              //   salaryPortionIndex: entry.salaryPortionIndex,
+              //   availablePortions: this.salaryPortions
+              // });
               return {
                 index: index + 1,
                 value: entry.value || 0,
-                salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined 
-                  ? Number(entry.salaryPortionIndex) 
+                salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
+                  ? Number(entry.salaryPortionIndex)
                   : 1  // Default to 1 if not selected
               };
             }),
@@ -757,14 +755,12 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
       }
     };
 
-    console.log('Save Data:', requestData);
 
     // Send data to API
     this.attendanceRulesService.updateAttendanceRules(requestData).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response) => {
-        console.log('Rules saved successfully:', response);
         this.isSaving = false;
         this.toasterMessageService.showSuccess('Part-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);

@@ -71,7 +71,7 @@ export class AttendanceLogComponent {
 
     return hours * 60 + minutes;
   }
-  
+
   isLoading: boolean = false;
   todayDayjs = dayjs();
   searchTerm: string = '';
@@ -200,7 +200,6 @@ export class AttendanceLogComponent {
         this.totalPages = info.total_pages;
         this.loadData = false;
 
-        // console.log('Formatted Employees:', this.employees);
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -399,7 +398,6 @@ export class AttendanceLogComponent {
     this.selectedRange = null;
 
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    // console.log('Selected date:', formattedDate);
 
     this.getAllAttendanceLog({
       page: this.currentPage,
@@ -470,7 +468,6 @@ export class AttendanceLogComponent {
       employee_id: attendance.employee_id,
       date: attendance.date
     };
-    console.log("cancel Data",payload);
     this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
       next: () => {
         attendance.canceled = true;
@@ -511,9 +508,7 @@ export class AttendanceLogComponent {
 
 
   applyFilter(): void {
-    console.log('filterForm', this.filterForm.value);
     if (this.filterForm.valid) {
-      console.log('filterForm', this.filterForm.value);
       const rawFilters = this.filterForm.value;
       const filters: IAttendanceFilters = {
         page: this.currentPage,

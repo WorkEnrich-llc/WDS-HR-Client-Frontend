@@ -112,7 +112,6 @@ export class SidebarComponent implements OnInit {
     this.subService.allFeatures$.subscribe(features => {
       if (features && Object.keys(features).length > 0) {
         this.features = features;
-        console.log(this.features);
       }
     });
 

@@ -48,7 +48,7 @@ export class EditOnboardingComponent {
         }));
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -156,7 +156,6 @@ export class EditOnboardingComponent {
         status: false
       }))
     };
-    // console.log(JSON.stringify({ request_data }, null, 2));
     this.onboardingService.createOnboarding({ request_data }).subscribe({
       next: (response) => {
         // console.log('Onboarding data saved successfully:', response);

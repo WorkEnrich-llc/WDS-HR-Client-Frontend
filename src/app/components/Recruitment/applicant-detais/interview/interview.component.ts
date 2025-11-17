@@ -32,19 +32,19 @@ export class InterviewComponent implements OnChanges {
   private branchesService = inject(BranchesService);
   private employeeService = inject(EmployeeService);
   submitting = false;
-  
+
   // Departments data
   departments: Array<{ id: number; name: string; code: string }> = [];
   departmentsLoading = false;
-  
+
   // Sections data
   sections: Array<{ id: number; name: string; code: string }> = [];
   sectionsLoading = false;
-  
+
   // Branches data
   branches: Array<{ id: number; name: string; code: string }> = [];
   branchesLoading = false;
-  
+
   // Employees data
   employees: Array<{ id: number; name: string }> = [];
   employeesLoading = false;
@@ -108,7 +108,7 @@ export class InterviewComponent implements OnChanges {
   offerDetails: string = '';
   isEditingJobOffer: boolean = false;
   jobOfferDetailsLoading: boolean = false;
-  
+
   // Original job offer values for change tracking (edit mode)
   private originalJobOfferValues: {
     salary?: number | null;
@@ -145,10 +145,10 @@ export class InterviewComponent implements OnChanges {
     }
     if (changes['applicationDetails']) {
       // Extract interview ID from application details
-      this.interviewId = this.applicationDetails?.interview?.id ?? 
-                         this.applicationDetails?.application?.interview?.id ?? 
-                         this.applicationDetails?.interview_id ?? 
-                         undefined;
+      this.interviewId = this.applicationDetails?.interview?.id ??
+        this.applicationDetails?.application?.interview?.id ??
+        this.applicationDetails?.interview_id ??
+        undefined;
     }
   }
 
@@ -161,27 +161,27 @@ export class InterviewComponent implements OnChanges {
     if (this.overlayTitle !== 'Reschedule Interview') {
       return false;
     }
-    
+
     // Check if interview details are loading
     if (this.interviewDetailsLoading) {
       return true;
     }
-    
+
     // Check if departments or branches are loading
     if (this.departmentsLoading || this.branchesLoading) {
       return true;
     }
-    
+
     // If department is set, check if sections are loading
     if (this.department && this.sectionsLoading) {
       return true;
     }
-    
+
     // If section is set, check if employees are loading
     if (this.section && this.employeesLoading) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -240,20 +240,19 @@ export class InterviewComponent implements OnChanges {
 
   openRescheduleOverlay(): void {
     this.resetInterviewForm(); // Reset form first
-    
+
     // Open overlay immediately
     this.openOverlay('Reschedule Interview', 'filter');
-    
+
     // Set loading state
     this.interviewDetailsLoading = true;
-    
+
     // Load departments and branches first (needed for the form)
     this.loadDepartments();
     this.loadBranches();
-    
+
     // Use applicationId to fetch interview details
     if (this.applicationId) {
-      console.log('Fetching interview details for application ID:', this.applicationId);
       // Fetch interview details from API using application ID
       this.svc.getInterviewDetails(this.applicationId).subscribe({
         next: (res) => {
@@ -262,7 +261,7 @@ export class InterviewComponent implements OnChanges {
           const interviewSection = interview.section?.id ?? interview.section ?? null;
           const interviewInterviewer = interview.interviewer?.id ?? interview.interviewer ?? null;
           const interviewType = interview.interview_type?.id ?? interview.interview_type ?? 1;
-          
+
           // Store expected values to populate fields as APIs load
           this.expectedInterviewValues = {
             department: interviewDept,
@@ -270,24 +269,24 @@ export class InterviewComponent implements OnChanges {
             interviewer: interviewInterviewer,
             location: interview.location?.id ?? interview.location ?? null
           };
-          
+
           // Populate form fields immediately from response (these don't depend on other APIs)
           this.interviewTitle = interview.title || '';
           this.date = interview.date || '';
           this.time_from = interview.time_from ? interview.time_from.substring(0, 5) : ''; // Extract HH:mm from HH:mm:ss
           this.time_to = interview.time_to ? interview.time_to.substring(0, 5) : ''; // Extract HH:mm from HH:mm:ss
           this.interview_type = interviewType;
-          
+
           // Set location if available (branches API will populate dropdown, but we can set value if branches already loaded)
           if (this.expectedInterviewValues.location && this.branches.length > 0) {
             this.location = this.expectedInterviewValues.location;
           }
-          
+
           // Set department if available and departments already loaded
           if (interviewDept && this.departments.length > 0) {
             this.department = interviewDept;
           }
-          
+
           // Store original values for change tracking (store all values we have now)
           this.originalInterviewValues = {
             title: this.interviewTitle,
@@ -300,10 +299,10 @@ export class InterviewComponent implements OnChanges {
             interview_type: interviewType,
             location: this.expectedInterviewValues.location
           };
-          
+
           // Mark interview details as loaded (don't wait for sections/employees)
           this.interviewDetailsLoading = false;
-          
+
           // Load sections if department is available (will set values as they load)
           // Note: If departments API already loaded, loadSectionsForDepartment will be called from loadDepartments
           if (interviewDept && this.departments.length > 0) {
@@ -334,13 +333,13 @@ export class InterviewComponent implements OnChanges {
         const items = res?.data?.list_items ?? res?.list_items ?? [];
         this.departments = Array.isArray(items)
           ? items.map((dept: any) => ({
-              id: dept?.id ?? 0,
-              name: dept?.name ?? '—',
-              code: dept?.code ?? ''
-            }))
+            id: dept?.id ?? 0,
+            name: dept?.name ?? '—',
+            code: dept?.code ?? ''
+          }))
           : [];
         this.departmentsLoading = false;
-        
+
         // Set department value immediately if we have an expected value
         if (this.expectedInterviewValues.department && this.departments.length > 0) {
           this.department = this.expectedInterviewValues.department;
@@ -362,7 +361,7 @@ export class InterviewComponent implements OnChanges {
     if (!this.expectedInterviewValues.section && this.overlayTitle !== 'Reschedule Interview') {
       return;
     }
-    
+
     this.sectionsLoading = true;
     this.departmentsService.showDepartment(deptId).subscribe({
       next: (deptRes) => {
@@ -370,18 +369,18 @@ export class InterviewComponent implements OnChanges {
         const sectionsList = deptInfo?.sections ?? [];
         this.sections = Array.isArray(sectionsList)
           ? sectionsList.map((sec: any) => ({
-              id: sec?.id ?? 0,
-              name: sec?.name ?? '—',
-              code: sec?.code ?? ''
-            }))
+            id: sec?.id ?? 0,
+            name: sec?.name ?? '—',
+            code: sec?.code ?? ''
+          }))
           : [];
         this.sectionsLoading = false;
-        
+
         // Set section immediately after sections are loaded
         if (this.expectedInterviewValues.section && this.sections.length > 0) {
           this.section = this.expectedInterviewValues.section;
           this.originalInterviewValues.section = this.expectedInterviewValues.section;
-          
+
           // Load employees for this section if we have an expected interviewer
           if (this.expectedInterviewValues.interviewer) {
             this.loadEmployeesForSection(this.expectedInterviewValues.section);
@@ -402,12 +401,12 @@ export class InterviewComponent implements OnChanges {
         const items = empRes?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
           ? items.map((emp: any) => ({
-              id: emp?.id ?? 0,
-              name: emp?.contact_info?.name ?? '—'
-            }))
+            id: emp?.id ?? 0,
+            name: emp?.contact_info?.name ?? '—'
+          }))
           : [];
         this.employeesLoading = false;
-        
+
         // Set interviewer immediately after employees are loaded
         if (this.expectedInterviewValues.interviewer && this.employees.length > 0) {
           this.interviewer = this.expectedInterviewValues.interviewer;
@@ -427,11 +426,11 @@ export class InterviewComponent implements OnChanges {
     this.sections = [];
     this.interviewer = null;
     this.employees = [];
-    
+
     if (!this.department) {
       return;
     }
-    
+
     this.sectionsLoading = true;
     this.departmentsService.showDepartment(this.department).subscribe({
       next: (res) => {
@@ -439,10 +438,10 @@ export class InterviewComponent implements OnChanges {
         const sectionsList = deptInfo?.sections ?? [];
         this.sections = Array.isArray(sectionsList)
           ? sectionsList.map((sec: any) => ({
-              id: sec?.id ?? 0,
-              name: sec?.name ?? '—',
-              code: sec?.code ?? ''
-            }))
+            id: sec?.id ?? 0,
+            name: sec?.name ?? '—',
+            code: sec?.code ?? ''
+          }))
           : [];
         this.sectionsLoading = false;
       },
@@ -457,20 +456,20 @@ export class InterviewComponent implements OnChanges {
     // Clear interviewer when section changes
     this.interviewer = null;
     this.employees = [];
-    
+
     if (!this.section) {
       return;
     }
-    
+
     this.employeesLoading = true;
     this.employeeService.getEmployees(1, 10000, '', { section: this.section }).subscribe({
       next: (res) => {
         const items = res?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
           ? items.map((emp: any) => ({
-              id: emp?.id ?? 0,
-              name: emp?.contact_info?.name ?? '—'
-            }))
+            id: emp?.id ?? 0,
+            name: emp?.contact_info?.name ?? '—'
+          }))
           : [];
         this.employeesLoading = false;
       },
@@ -488,13 +487,13 @@ export class InterviewComponent implements OnChanges {
         const items = res?.data?.list_items ?? res?.list_items ?? [];
         this.branches = Array.isArray(items)
           ? items.map((branch: any) => ({
-              id: branch?.id ?? 0,
-              name: branch?.name ?? '—',
-              code: branch?.code ?? ''
-            }))
+            id: branch?.id ?? 0,
+            name: branch?.name ?? '—',
+            code: branch?.code ?? ''
+          }))
           : [];
         this.branchesLoading = false;
-        
+
         // Set location value immediately if we have an expected value
         if (this.expectedInterviewValues.location && this.branches.length > 0) {
           this.location = this.expectedInterviewValues.location;
@@ -510,7 +509,7 @@ export class InterviewComponent implements OnChanges {
   submitInterview(): void {
     // Reset validation errors
     this.validationErrors = {};
-    
+
     // Validate required fields
     let hasErrors = false;
 
@@ -564,7 +563,7 @@ export class InterviewComponent implements OnChanges {
     }
 
     this.submitting = true;
-    
+
     const payload = {
       title: this.interviewTitle || 'Interview',
       interviewer: this.interviewer!,
@@ -609,44 +608,44 @@ export class InterviewComponent implements OnChanges {
 
   private hasInterviewFormChanges(): boolean {
     const original = this.originalInterviewValues;
-    
+
     // Compare all fields
     if ((this.interviewTitle || '') !== (original.title || '')) {
       return true;
     }
-    
+
     if (this.interviewer !== original.interviewer) {
       return true;
     }
-    
+
     if (this.department !== original.department) {
       return true;
     }
-    
+
     if (this.section !== original.section) {
       return true;
     }
-    
+
     if ((this.date || '') !== (original.date || '')) {
       return true;
     }
-    
+
     if ((this.time_from || '') !== (original.time_from || '')) {
       return true;
     }
-    
+
     if ((this.time_to || '') !== (original.time_to || '')) {
       return true;
     }
-    
+
     if (this.interview_type !== original.interview_type) {
       return true;
     }
-    
+
     if (this.location !== original.location) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -692,7 +691,7 @@ export class InterviewComponent implements OnChanges {
   submitJobOffer(): void {
     // Reset validation errors
     this.jobOfferValidationErrors = {};
-    
+
     // Validate required fields
     let hasErrors = false;
 
@@ -724,7 +723,7 @@ export class InterviewComponent implements OnChanges {
     }
 
     this.submitting = true;
-    
+
     // Check if we're editing or creating
     if (this.overlayTitle === 'Update Job Offer') {
       // Update existing job offer
@@ -772,20 +771,20 @@ export class InterviewComponent implements OnChanges {
 
   private checkJobOfferFormChanges(): boolean {
     const original = this.originalJobOfferValues;
-    
+
     // Compare all fields
     if (this.offerSalary !== original.salary) {
       return true;
     }
-    
+
     if ((this.offerJoinDate || '') !== (original.join_date || '')) {
       return true;
     }
-    
+
     if ((this.offerDetails || '') !== (original.offer_details || '')) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -830,10 +829,10 @@ export class InterviewComponent implements OnChanges {
 
     // Set editing mode
     this.isEditingJobOffer = true;
-    
+
     // Open overlay immediately with "Update Job Offer" title
     this.openOverlay('Update Job Offer', 'job');
-    
+
     // Set loading state
     this.jobOfferDetailsLoading = true;
 
@@ -845,14 +844,14 @@ export class InterviewComponent implements OnChanges {
         this.offerSalary = jobOffer.salary ?? null;
         this.offerJoinDate = jobOffer.join_date ? jobOffer.join_date.substring(0, 10) : ''; // Extract YYYY-MM-DD from datetime
         this.offerDetails = jobOffer.offer_details || '';
-        
+
         // Store original values for change tracking
         this.originalJobOfferValues = {
           salary: this.offerSalary,
           join_date: this.offerJoinDate,
           offer_details: this.offerDetails
         };
-        
+
         // Mark as loaded
         this.jobOfferDetailsLoading = false;
       },

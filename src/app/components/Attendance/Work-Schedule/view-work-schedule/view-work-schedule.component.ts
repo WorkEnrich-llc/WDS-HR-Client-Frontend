@@ -85,11 +85,10 @@ export class ViewWorkScheduleComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.workScduleData);
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -128,7 +127,7 @@ export class ViewWorkScheduleComponent {
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -154,7 +153,7 @@ export class ViewWorkScheduleComponent {
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

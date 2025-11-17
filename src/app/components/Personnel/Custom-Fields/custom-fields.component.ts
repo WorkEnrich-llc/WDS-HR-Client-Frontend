@@ -94,7 +94,7 @@ export class CustomFieldsComponent implements OnInit {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -145,11 +145,9 @@ export class CustomFieldsComponent implements OnInit {
   }
 
   confirmRemove(): void {
-    console.log('Deleting :', this.selectedField);
     if (!this.selectedField) {
       return;
     }
-    console.log('Deleting field with ID:', this.selectedField);
 
     this.isLoading = true;
     const fieldIdToDelete = this.selectedField;
