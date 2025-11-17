@@ -15,16 +15,15 @@ export class SalaryPortionsService {
 
 
   updateSalaryPortion(
-    data: { portions: { enabled: boolean; name: string; percentage: number }[] }
+    data: { default_name: string; settings: { name: string; percentage: number }[] }
   ): Observable<any> {
     const requestData = {
       request_data: {
-        settings: data.portions
-          .filter((p: any) => p.enabled)
-          .map((p: any) => ({
-            name: p.name,
-            percentage: Number(p.percentage)
-          }))
+        default_name: data.default_name,
+        settings: data.settings.map((p: any) => ({
+          name: p.name,
+          percentage: Number(p.percentage)
+        }))
       }
     };
     return this.http.put<any>(`${this.url}`, requestData);
