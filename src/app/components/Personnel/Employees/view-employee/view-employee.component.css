@@ -640,32 +640,22 @@ h5 span {
 .device-info-card>.info,
 .device-info-card>.device-info-collapsible {
   margin: 0 !important;
-  padding: 0 !important;
+  /* padding: 0 !important; */
+  
 }
-
+.device-info-collapsible.expanded{
+  padding-top:1.2rem !important;
+}
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.badge-primary {
-  background-color: #e0f8e9;
-  color: var(--color-primary-700);
-  padding: 6px 12px;
-  border-radius: 50px;
+.badge-success {
   font-size: 0.8rem;
-  font-weight: 500;
 }
 
-.badge-secondary {
-  background-color: #e0f8e9;
-  color: var(--color-secondary-700);
-  padding: 6px 12px;
-  border-radius: 50px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
 
 /* .card-body {
 } */

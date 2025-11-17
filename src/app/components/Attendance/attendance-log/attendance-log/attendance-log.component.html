@@ -117,7 +117,7 @@
                 </svg>
             </button>
         </div>
-        
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead #tableHeader>
@@ -166,11 +166,11 @@
 
                     @if(!loadData){
                     <ng-container *ngFor="let emp of employees | paginate: { 
-      id: 'attendance-pagination', 
-      itemsPerPage: itemsPerPage, 
-      currentPage: currentPage, 
-      totalItems: totalItems 
-    }; let i = index">
+            id: 'attendance-pagination', 
+            itemsPerPage: itemsPerPage, 
+            currentPage: currentPage, 
+            totalItems: totalItems 
+            }; let i = index">
                         <tr [ngClass]="{ 'expanded-row': !emp.collapsed }">
                             <td colspan="9" class="px-0 td">
                                 <div class="d-flex align-items-center main-row">
@@ -265,12 +265,13 @@
                                         <div [ngStyle]="{ width: columnWidths[1] }"></div>
                                         <div [ngStyle]="{ width: columnWidths[2] }"></div>
                                         <div class="text-nowrap" [ngStyle]="{ width: columnWidths[3] }">
-                                            {{ formatTimeTo12Hour(log?.times_object?.actual_check_in) }}
+                                            {{ getFormattedCheckIn(log) }}
                                         </div>
 
                                         <div class="text-nowrap" [ngStyle]="{ width: columnWidths[4] }">
-                                            {{ formatTimeTo12Hour(log?.times_object?.actual_check_out) }}
+                                            {{ getFormattedCheckOut(log) }}
                                         </div>
+
                                         <div [ngStyle]="{ width: columnWidths[5] }"
                                             class="d-flex align-items-center justify-content-between gap-4">
                                             <span>{{ log?.hours_object?.work_hours }}</span>
@@ -319,7 +320,7 @@
                                                         </g>
                                                     </svg>
                                                 </a> -->
-                                                <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top"
+                                                <!-- <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Cancel" (click)="openModal(log, emp)">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24">
@@ -328,7 +329,7 @@
                                                             <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
                                                         </g>
                                                     </svg>
-                                                </a>
+                                                </a> -->
                                             </div>
                                             }
 
@@ -481,7 +482,7 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input ngxDaterangepickerMd formControlName="from_date" class="form-control"
                         placeholder="Select date range" [showDropdowns]="true" [autoApply]="true"
-                        [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" [maxDate]="todayDayjs"/>
+                        [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" [maxDate]="todayDayjs" />
 
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <g fill="none" stroke-width="1.5">
@@ -492,16 +493,16 @@
                         </g>
                     </svg>
                 </div>
-                <svg *ngIf="!hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
+                <svg *ngIf="!hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <path fill="#e04f5f"
                         d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
                     <path fill="#e04f5f" fill-rule="evenodd"
                         d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
                         clip-rule="evenodd" />
                 </svg>
-                <svg *ngIf="hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
+                <svg *ngIf="hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="#3f9870" stroke-width="1.5">
                         <circle cx="12" cy="12" r="10" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
@@ -565,9 +566,7 @@
 
 
 <!-- Discard popup  -->
-<app-popup
-  [title]="'Cancel Attendance Log'"
-  [paragraph1]="attendanceToCancel
+<app-popup [title]="'Cancel Attendance Log'" [paragraph1]="attendanceToCancel
     ? 'Are you sure you want to cancel the attendance log for ' 
       + attendanceToCancel.employeeName
       + ' on ' + (attendanceToCancel.date | date:'yyyy-MM-dd')
@@ -576,19 +575,15 @@
       + ' - ' 
       + formatTimeTo12Hour(attendanceToCancel.times_object?.actual_check_out)
       + ')?'
-    : ''"
-  [paragraph2]="'This action can’t be undone!'"
-  [isOpen]="isModalOpen"
-  (close)="closeModal()"
->
-  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
-    @if (isLoading) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-    }
-    Confirm
-  </button>
+    : ''" [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+        @if (isLoading) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        Confirm
+    </button>
 
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-    Cancel
-  </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Cancel
+    </button>
 </app-popup>

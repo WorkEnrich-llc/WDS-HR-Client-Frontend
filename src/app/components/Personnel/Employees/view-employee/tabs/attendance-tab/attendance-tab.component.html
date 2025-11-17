@@ -46,7 +46,7 @@
           <th>Day Type</th>
           <th>In</th>
           <th>Out</th>
-          <th style="width: 200px;">Working</th>
+          <th style="width: 150px;">Working</th>
           <th>Status</th>
           <th>Deduction</th>
           <th class="text-end">Actions</th>
@@ -54,23 +54,14 @@
       </thead>
 
       <tbody>
-        @if(loading){
-        <ng-container>
-          <tr *ngFor="let i of skeletonRows">
-            <td *ngFor="let col of columnWidths" class="px-2 py-2">
-              <div class="skeleton-cell w-100" [ngStyle]="{ width: col, height: '30px' }"></div>
-            </td>
-          </tr>
-        </ng-container>
 
-        }
-
-        @if(!loading){
-        <ng-container *ngFor="let emp of employees; let i = index">
+        <ng-container *ngFor="let emp of employees , let i = index">
           <tr [ngClass]="{ 'expanded-row': !emp.collapsed }">
-            <td colspan="8" class="px-0 td">
+            <td colspan="9" class="px-0 td">
               <div class="d-flex align-items-center main-row">
-                <div [ngStyle]="{ width: columnWidths[0] }">{{ emp.date | date:'dd/MM/yyyy' }}</div>
+
+                <!-- Main Employee Info -->
+                <div [ngStyle]="{ width: columnWidths[0] }" class="date-cell">{{ emp.date | date:'dd/MM/yyyy' }}</div>
                 <div [ngStyle]="{ width: columnWidths[1] }">
                   @if (emp.is_working_day) {
                   <span>Working Day</span>
@@ -79,7 +70,7 @@
                   }
                 </div>
                 <div [ngStyle]="{ width: columnWidths[2] }">
-                  <div class="d-flex flex-column p-0">
+                  <div class="d-flex flex-column">
                     <small class="d-block text-sm text-nowrap">{{
                       formatTimeTo12Hour(emp?.scheduled?.check_id)}}</small>
                     <span class="d-block text-nowrap">
@@ -88,7 +79,7 @@
                   </div>
                 </div>
                 <div [ngStyle]="{ width: columnWidths[3] }">
-                  <div class="d-flex flex-column p-0">
+                  <div class="d-flex flex-column">
                     <small class="d-block text-sm text-nowrap">{{
                       formatTimeTo12Hour(emp?.scheduled?.check_out)}}</small>
                     <span class="d-block text-nowrap">
@@ -100,7 +91,7 @@
                   class="d-flex align-items-center justify-content-between gap-4">
                   <span>{{ emp?.work_hours }}</span>
                   @if(emp?.missing_hrs) {
-                  <div class="d-flex flex-column p-0">
+                  <div class="d-flex flex-column">
                     <small class="d-block text-sm text-danger text-nowrap">Missing</small>
                     <span class="d-block text-nowrap text-danger">
                       {{ emp?.missing_hrs }}
@@ -125,12 +116,13 @@
                   <div [ngStyle]="{ width: columnWidths[0] }"></div>
                   <div [ngStyle]="{ width: columnWidths[1] }"></div>
                   <div class="text-nowrap" [ngStyle]="{ width: columnWidths[2] }">
-                    {{ formatTimeTo12Hour(log?.times_object?.actual_check_in) }}
+                    {{ getFormattedCheckIn(log) }}
                   </div>
 
                   <div class="text-nowrap" [ngStyle]="{ width: columnWidths[3] }">
-                    {{ formatTimeTo12Hour(log?.times_object?.actual_check_out) }}
+                    {{ getFormattedCheckOut(log) }}
                   </div>
+
                   <div [ngStyle]="{ width: columnWidths[4] }"
                     class="d-flex align-items-center justify-content-between gap-4">
                     <span>{{ log?.hours_object?.work_hours }}</span>
@@ -151,7 +143,7 @@
                   <div class="text-danger" [ngStyle]="{ width: columnWidths[6] }">{{
                     log?.hours_object?.deduction }}
                   </div>
-                  <div [ngStyle]="{ width: columnWidths[7] }" class="d-flex justify-content-end">
+                  <div [ngStyle]="{ width: columnWidths[7] }" class="text-end">
                     @if(log.canceled){
                     <span class="badge-danger">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
@@ -165,15 +157,29 @@
                     }@else{
                     <div *ngIf="!log.working_details?.canceled"
                       class="d-flex justify-content-end gap-4 align-items-center w-100">
-                      <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel"
-                        (click)="openModal(log, emp)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                          <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                          </g>
-                        </svg>
-                      </a>
+                      <!-- <a class="view-btn" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Edit" [routerLink]="['/attendance/manage-attendance']"
+                                                    [state]="{ attendance: log }">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24">
+                                                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path stroke-linecap="round"
+                                                          d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                                                            <path
+                                                                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+                                                        </g>
+                                                    </svg>
+                                                </a> -->
+                      <!-- <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Cancel" (click)="openModal(log, emp)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24">
+                                                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <circle cx="12" cy="12" r="10" />
+                                                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                                        </g>
+                                                    </svg>
+                                                </a> -->
                     </div>
                     }
 
@@ -185,19 +191,19 @@
         </ng-container>
 
         <tr *ngIf="employees.length === 0">
-          <td colspan="8" class="py-4">
-            No attendance records found
+          <td colspan="9" class="py-4">
+            No Attendance Log to disblay.
+
           </td>
         </tr>
-        }
+
 
 
       </tbody>
 
     </table>
-
-
   </div>
+
 </div>
 
 <!-- close pop -->

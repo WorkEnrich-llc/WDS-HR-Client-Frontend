@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
@@ -105,13 +105,55 @@ export class CreateLeaveTypeComponent implements OnInit {
 
 
 
-  leaveType2: FormGroup = new FormGroup({
-    accrual_rate: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+leaveLimitGreaterOrEqualValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
+  const group = form as FormGroup;
+  const accrualCtrl = group.get('accrual_rate');
+  const limitCtrl = group.get('leave_limits');
+
+  if (!accrualCtrl || !limitCtrl) return null;
+
+  const accrual = accrualCtrl.value;
+  const limit = limitCtrl.value;
+  if (accrual === null || accrual === '' || limit === null || limit === '') {
+    if (limitCtrl.errors?.['limitTooSmall']) {
+      const { limitTooSmall, ...others } = limitCtrl.errors;
+      limitCtrl.setErrors(Object.keys(others).length ? others : null);
+    }
+    return null;
+  }
+
+  const accrualNum = Number(accrual);
+  const limitNum = Number(limit);
+
+  if (limitNum < accrualNum) {
+    limitCtrl.setErrors({ ...(limitCtrl.errors || {}), limitTooSmall: true });
+  } else {
+    if (limitCtrl.errors) {
+      delete limitCtrl.errors['limitTooSmall'];
+      if (!Object.keys(limitCtrl.errors).length) {
+        limitCtrl.setErrors(null);
+      }
+    }
+  }
+
+  return null;
+};
+
+
+leaveType2: FormGroup = new FormGroup(
+  {
+    accrual_rate: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^\\d+(\\.\\d+)?$')
+    ]),
     leave_limits: new FormControl('', [
       Validators.required,
       Validators.pattern('^\\d+(\\.\\d+)?$')
     ]),
-    max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
+    max_review_days: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^\\d+(\\.\\d+)?$')
+    ]),
     maximum_carryover_days: new FormControl(
       { value: '', disabled: true },
       [
@@ -119,7 +161,10 @@ export class CreateLeaveTypeComponent implements OnInit {
         this.validateCarryoverAgainstLimit
       ]
     )
-  });
+  },
+  { validators: this.leaveLimitGreaterOrEqualValidator }
+);
+
 
   // private setupAccrualValidation() {
   //   const accrualRate = this.leaveType2.get('accrual_rate');
@@ -158,6 +203,7 @@ export class CreateLeaveTypeComponent implements OnInit {
 
   //   return null;
   // }
+
 
 
   leaveType3 = this.fb.group({
