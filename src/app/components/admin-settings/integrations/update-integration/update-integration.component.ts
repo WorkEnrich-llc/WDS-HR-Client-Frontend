@@ -243,14 +243,15 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.isLoadingServices = true;
         this.featuresSubscription = this.integrationsService.getIntegrationFeatures().subscribe({
             next: (response) => {
-                // Get features from object_info.features (simple array of strings)
-                const features = (response?.data?.object_info?.features ?? []) as string[];
+                // Get features from object_info.features
+                const features = (response?.data?.object_info?.features ?? []) as any[];
 
                 // Map features to service objects for display
+                // Each feature has name property
                 this.availableServices = features.map((feature, index) => ({
                     id: index + 1,
-                    service: this.formatFeatureName(feature),
-                    featureKey: feature, // Keep original key for request
+                    service: feature?.name || 'Unknown Feature',
+                    featureKey: feature?.name || '', // Use name as key
                     selected: false
                 }));
 
