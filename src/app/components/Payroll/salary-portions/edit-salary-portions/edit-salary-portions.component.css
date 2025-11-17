@@ -5,6 +5,11 @@
 :host .portion-row {
     gap: var(--spacing-28);
     align-items: flex-start;
+    margin-bottom: var(--spacing-8);
+}
+
+:host .portion-row:last-child {
+    margin-bottom: 0;
 }
 
 :host .portion-row .form-check-input {

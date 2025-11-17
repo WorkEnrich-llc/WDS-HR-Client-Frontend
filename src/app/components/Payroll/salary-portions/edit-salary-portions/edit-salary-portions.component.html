@@ -42,10 +42,14 @@
                 @for(portion of portions.controls; track $index; let i = $index) { <div
                     class="w-100 d-flex align-items-start portion-row" [formGroupName]="i">
 
+                    @if(i !== 0) {
                     <input type="checkbox" class="form-check-input m-0" formControlName="enabled" />
+                    } @else {
+                    <div class="form-check-input m-0" style="width: 18px; height: 18px; visibility: hidden; pointer-events: none;"></div>
+                    }
 
                     <!-- Portion Input -->
-                    <div class="input w-100" [class.opacity-50]="!portion.get('enabled')?.value">
+                    <div class="input w-100" [class.opacity-50]="i !== 0 && !portion.get('enabled')?.value">
                         <label [for]="'Portion' + i">Portion {{ i + 1 }}</label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="text" [id]="'Portion' + i" class="form-control custom-date-input"
@@ -57,7 +61,7 @@
                     </div>
 
                     <!-- Percentage Input -->
-                    <div class="input w-100" [class.opacity-50]="!portion.get('enabled')?.value">
+                    <div class="input w-100" [class.opacity-50]="i !== 0 && !portion.get('enabled')?.value">
                         <label [for]="'Percentage' + i">Percentage</label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
                             <input type="number" [id]="'Percentage' + i" class="form-control custom-date-input"
