@@ -44,7 +44,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     }
     this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().pipe(
+    this.salaryPortionsService.single({ request_in: 'attendance-rules' }).pipe(
       takeUntil(this.destroy$),
       finalize(() => {
         this.salaryPortionsLoading = false;
@@ -216,7 +216,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
 
   }
 
-    hasChanges(): boolean {
+  hasChanges(): boolean {
     if (!this.originalData) return false;
     const current = {
       allowGrace: this.allowGrace,
@@ -233,14 +233,14 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     return JSON.stringify(current) !== JSON.stringify(this.originalData);
   }
 
-  
+
   // step 1 - Grace Period
   allowGrace: boolean = false;
   graceMinutes: number = 0;
 
   // step 2 - Lateness
   latenessEntries = [{ value: null as number | null, salaryPortionIndex: null as number | null }];
-  salaryPortions: { name: string; percentage: number; index: number }[] = [];
+  salaryPortions: { name: string; percentage: number | string; index: number }[] = [];
   salaryPortionsLoading: boolean = false;
   latenessValidationErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
 
@@ -332,7 +332,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     if (this.loading || this.salaryPortionsLoading) {
       return;
     }
-    
+
     // Always validate current step before proceeding
     if (this.currentStep === 1) {
       this.validateLatenessStep();
@@ -350,7 +350,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         return; // Don't proceed if validation fails
       }
     }
-    
+
     // Only proceed if current step is valid
     if (this.isStepValid(this.currentStep)) {
       this.currentStep++;
@@ -454,7 +454,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   handleRowKeydown(event: KeyboardEvent, rowIndex: number, field: 'value' | 'salaryPortion'): void {
     const target = event.target as HTMLElement;
     const rows = Array.from(document.querySelectorAll('tbody tr')) as HTMLElement[];
-    
+
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
@@ -538,7 +538,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             entry.value !== null && entry.value !== undefined &&
             entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
           );
-      
+
       case 2: // Early Leave
         if (this.sameAsLateness) {
           return true; // If same as lateness, no validation needed
@@ -555,7 +555,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             entry.value !== null && entry.value !== undefined &&
             entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
           );
-      
+
       case 4: // Overtime
         if (!this.allowOvertime) {
           return true; // If overtime is not allowed, step is valid
@@ -563,19 +563,19 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         if (this.overtimeType === 'flatRate') {
           return this.flatRateValue !== null && this.flatRateValue !== undefined && this.flatRateValue !== '';
         } else if (this.overtimeType === 'customHours') {
-          return this.overtimeEntries.length > 0 && 
-                 this.overtimeEntries.every(entry => 
-                   entry.from !== '' && entry.to !== '' && entry.rate !== null && entry.rate !== undefined
-                 );
+          return this.overtimeEntries.length > 0 &&
+            this.overtimeEntries.every(entry =>
+              entry.from !== '' && entry.to !== '' && entry.rate !== null && entry.rate !== undefined
+            );
         }
         return false;
-      
+
       case 5: // Grace Period
         if (!this.allowGrace) {
           return true; // If grace period is not allowed, step is valid
         }
         return this.graceMinutes !== null && this.graceMinutes !== undefined;
-      
+
       default:
         return true;
     }
@@ -709,8 +709,8 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
               return {
                 index: index + 1,
                 value: entry.value || 0,
-                salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined 
-                  ? Number(entry.salaryPortionIndex) 
+                salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
+                  ? Number(entry.salaryPortionIndex)
                   : 1  // Default to 1 if not selected
               };
             }),
@@ -779,5 +779,14 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Check if percentage should be displayed
+   */
+  shouldShowPercentage(percentage: number | string | null | undefined): boolean {
+    if (percentage == null) return false;
+    const str = String(percentage).trim();
+    return str !== '';
   }
 }

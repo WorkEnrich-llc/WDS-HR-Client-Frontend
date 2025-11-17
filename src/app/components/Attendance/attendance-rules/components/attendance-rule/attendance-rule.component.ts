@@ -20,7 +20,7 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   salaryPortionsLoading: boolean = true;
   error: string | null = null;
-  salaryPortions: any[] = [];
+  salaryPortions: { name: string; percentage: number | string; index: number | null }[] = [];
   private destroy$ = new Subject<void>();
   private salaryPortionsRequestInFlight = false;
   private attendanceRulesRequestInFlight = false;
@@ -40,7 +40,7 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
     }
     this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().pipe(
+    this.salaryPortionsService.single({ request_in: 'attendance-rules' }).pipe(
       takeUntil(this.destroy$),
       finalize(() => {
         this.salaryPortionsLoading = false;
@@ -154,6 +154,20 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
 
   getSalaryPortionDisplayText(salaryPortion: any): string {
     if (!salaryPortion) return '';
-    return `${salaryPortion.name} (${salaryPortion.percentage}%)`;
+    const percentage = salaryPortion.percentage;
+    // If percentage is empty string, null, undefined, or 0, don't show it
+    if (percentage === '' || percentage === null || percentage === undefined) {
+      return salaryPortion.name;
+    }
+    return `${salaryPortion.name} (${percentage}%)`;
+  }
+
+  /**
+   * Check if percentage should be displayed
+   */
+  shouldShowPercentage(percentage: number | string | null | undefined): boolean {
+    if (percentage == null) return false;
+    const str = String(percentage).trim();
+    return str !== '';
   }
 }

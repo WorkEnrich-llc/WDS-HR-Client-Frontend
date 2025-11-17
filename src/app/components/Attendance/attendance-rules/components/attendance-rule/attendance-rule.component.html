@@ -144,9 +144,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
@@ -165,9 +173,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
@@ -186,9 +202,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
@@ -242,9 +266,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
@@ -263,9 +295,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
@@ -284,9 +324,17 @@
                 <span class="text-muted small mt-1 salary-portion-text"
                   [attr.data-tooltip]="penaltyData.salaryPortion && penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6 ? getSalaryPortionDisplayText(penaltyData.salaryPortion) : null">
                   @if (penaltyData.salaryPortion.name && penaltyData.salaryPortion.name.length > 6) {
-                  {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ truncateName(penaltyData.salaryPortion.name) }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ truncateName(penaltyData.salaryPortion.name) }}
+                    }
                   } @else {
-                  {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    @if (shouldShowPercentage(penaltyData.salaryPortion.percentage)) {
+                      {{ penaltyData.salaryPortion.name }} ({{ penaltyData.salaryPortion.percentage }}%)
+                    } @else {
+                      {{ penaltyData.salaryPortion.name }}
+                    }
                   }
                 </span>
                 }
