@@ -302,7 +302,6 @@ leaveType2: FormGroup = new FormGroup(
       }
     };
     const finalData = { request_data };
-    // console.log(finalData);
     this._LeaveTypeService.createLeavetype(finalData).subscribe({
       next: (response) => {
         this.isLoading = false;

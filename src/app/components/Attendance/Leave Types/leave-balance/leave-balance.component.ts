@@ -167,11 +167,13 @@ export class LeaveBalanceComponent {
 
     // Edit modal support
     selectedBalance: any = null;
+    originalTotal: number | null = null;
     editTotal: number = 0;
 
     openEditModal(balance: any): void {
         this.selectedBalance = { ...balance };
         this.editTotal = this.selectedBalance.total;
+        this.originalTotal = balance.total;
         this.editBox.openOverlay();
     }
 
@@ -203,4 +205,5 @@ export class LeaveBalanceComponent {
         this.selectedBalance = null;
         this.editBox.closeOverlay();
     }
+
 }

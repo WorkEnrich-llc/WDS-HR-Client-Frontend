@@ -33,10 +33,10 @@ interface AttendanceRecord {
 
 @Component({
   selector: 'app-attendance-tab',
-  imports: [CommonModule,PopupComponent],
+  imports: [CommonModule, PopupComponent],
   providers: [DatePipe],
   templateUrl: './attendance-tab.component.html',
-  styleUrls: ['./../../../../../shared/table/table.component.css','./attendance-tab.component.css']
+  styleUrls: ['./../../../../../shared/table/table.component.css', './attendance-tab.component.css']
 })
 export class AttendanceTabComponent implements OnChanges {
   @Input() employee: Employee | null = null;
@@ -93,16 +93,16 @@ export class AttendanceTabComponent implements OnChanges {
     }
   }
   private buildFilters(): IAttendanceFilters {
-  const formattedDate = this.datePipe.transform(this.selectedDate || this.today, 'yyyy-MM-dd')!;
+    const formattedDate = this.datePipe.transform(this.selectedDate || this.today, 'yyyy-MM-dd')!;
 
-  const filters: IAttendanceFilters = {
-    employee: this.employee ? this.employee.id : undefined,
-    from_date: formattedDate,
-    to_date: formattedDate
-  };
+    const filters: IAttendanceFilters = {
+      employee: this.employee ? this.employee.id : undefined,
+      from_date: formattedDate,
+      to_date: formattedDate
+    };
 
-  return filters;
-}
+    return filters;
+  }
 
 
 
@@ -153,14 +153,14 @@ export class AttendanceTabComponent implements OnChanges {
     return nextStart <= this.getStartOfWeek(this.today);
   }
 
- selectDate(date: Date): void {
-  if (date > this.today) return;
+  selectDate(date: Date): void {
+    if (date > this.today) return;
 
-  this.selectedDate = date;
+    this.selectedDate = date;
 
-  const filters: IAttendanceFilters = this.buildFilters();
-  this.getAllAttendanceLog(filters);
-}
+    const filters: IAttendanceFilters = this.buildFilters();
+    this.getAllAttendanceLog(filters);
+  }
 
 
   isSelected(date: Date): boolean {
@@ -191,7 +191,6 @@ export class AttendanceTabComponent implements OnChanges {
         }));
 
         this.loading = false;
-        console.log('Formatted Employees:', this.employees);
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -294,7 +293,6 @@ export class AttendanceTabComponent implements OnChanges {
       employee_id: attendance.employee_id,
       date: attendance.date
     };
-    console.log("cancel Data", payload);
     this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
       next: () => {
         attendance.canceled = true;

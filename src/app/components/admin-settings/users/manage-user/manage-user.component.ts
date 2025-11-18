@@ -156,7 +156,6 @@ export class ManageUserComponent implements OnInit, OnDestroy {
   private getAllRoles(): void {
     this.rolesService.getAllRoles(1, 50).subscribe({
       next: (data) => {
-        console.log('All roles data:', data);
         this.userRoles = data.roles;
       },
       error: (err) => console.error('Failed to load all roles', err)
@@ -177,7 +176,6 @@ export class ManageUserComponent implements OnInit, OnDestroy {
       this.usersForm.patchValue({
         permissions: this.selectedRoles.map(r => r.id),
       });
-      console.log('Selected role:', this.selectedRoles);
     }
     selectEl.value = '';
   }

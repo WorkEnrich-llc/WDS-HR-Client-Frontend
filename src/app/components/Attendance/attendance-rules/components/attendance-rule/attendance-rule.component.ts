@@ -48,7 +48,6 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (response) => {
-        console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
           this.salaryPortions = response.settings.map((setting: any) => ({
             name: setting.name,
@@ -85,7 +84,6 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response) => {
         this.attendanceRulesData = response?.data;
-        // console.log(this.attendanceRulesData);
       },
       error: (error) => {
         console.error('Error loading attendance rules:', error);

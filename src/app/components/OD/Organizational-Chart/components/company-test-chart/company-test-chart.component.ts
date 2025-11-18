@@ -24,12 +24,9 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
     this.chartsService.companyChart().subscribe({
       next: (res) => {
         // Correct path: res.data.list_items
-        console.log(res.data?.list_items);
         if (res.data?.list_items && res.data.list_items.length > 0) {
           this.chartData = this.transformToChartFormat(res.data.list_items[0]);
-          console.log('Transformed chartData:', this.chartData);
         } else {
-          console.warn('No list_items found in response');
         }
         // If iframe already loaded, send immediately
         if (this.orgChartFrame?.nativeElement?.contentWindow && this.chartData) {
@@ -49,7 +46,6 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
     } else {
       // Otherwise wait for load
       iframe.onload = () => {
-        console.log('Iframe loaded. Ready to receive messages via postMessage');
         this.sendDataToIframe();
       };
     }
@@ -76,26 +72,43 @@ export class CompanyTestChartComponent implements OnInit, AfterViewInit {
   }
 
 
-private transformToChartFormat(item: any): any {
-  const paddedId = item.id.toString().padStart(4, '0');
-  const typeLabel = item.type
-    ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
-    : '';
+  private transformToChartFormat(item: any): any {
+    const paddedId = item.id.toString().padStart(4, '0');
+    const typeLabel = item.type
+      ? item.type.charAt(0).toUpperCase() + item.type.slice(1)
+      : '';
 
-  const typeColors: Record<string, string> = {
-    company: '#377afd',
-    branch: '#4ca883',
-    department: '#f28c38',
-    section: '#b83d4a',
-    job_title: '#4a4a4a'
-  };
-  const nodeColor = typeColors[item.type] || '#3b587a';
+    const typeColors: Record<string, string> = {
+      company: '#377afd',
+      branch: '#4ca883',
+      department: '#f28c38',
+      section: '#b83d4a',
+      job_title: '#4a4a4a'
+    };
+    const nodeColor = typeColors[item.type] || '#3b587a';
 
-  if (item.type === 'company') {
+    if (item.type === 'company') {
+      return {
+        name: item.name,
+        color: nodeColor,
+        backgroundColor: nodeColor,
+        expanded: item.expanded ?? false,
+        firstNode: item.firstNode ?? false,
+        children: item.children?.map((child: any) =>
+          this.transformToChartFormat(child)
+        ) || []
+      };
+    }
+
     return {
       name: item.name,
+
+      code: `${paddedId}`,
+      position: typeLabel,
+
       color: nodeColor,
       backgroundColor: nodeColor,
+
       expanded: item.expanded ?? false,
       firstNode: item.firstNode ?? false,
       children: item.children?.map((child: any) =>
@@ -103,23 +116,6 @@ private transformToChartFormat(item: any): any {
       ) || []
     };
   }
-
-  return {
-    name: item.name,
-
-    code: `${paddedId}`,
-    position: typeLabel,
-
-    color: nodeColor,
-    backgroundColor: nodeColor,
-
-    expanded: item.expanded ?? false,
-    firstNode: item.firstNode ?? false,
-    children: item.children?.map((child: any) =>
-      this.transformToChartFormat(child)
-    ) || []
-  };
-}
 
 
   toggleFullScreen() {

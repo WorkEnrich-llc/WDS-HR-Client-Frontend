@@ -118,7 +118,6 @@ export class ViewUserComponent implements OnInit {
         status: false
       }
     };
-    console.log('userStatus', userStatus);
     this.usersService.updateUserStatus(this.userId, userStatus).pipe(
       finalize(() => {
         this.isStatusUpdating = false;
@@ -143,7 +142,6 @@ export class ViewUserComponent implements OnInit {
         status: true
       }
     };
-    console.log('userStatus', userStatus);
     this.usersService.updateUserStatus(this.userId, userStatus).pipe(
       finalize(() => {
         this.isStatusUpdating = false;
@@ -161,7 +159,6 @@ export class ViewUserComponent implements OnInit {
   resendInvitation(): void {
     this.usersService.searchUser(this.userInfo?.email).subscribe({
       next: (res) => {
-        console.log('Search result:', res);
         this.toasterService.showSuccess('Invitation resent successfully (search done)');
       },
       error: (err) => {
@@ -172,7 +169,6 @@ export class ViewUserComponent implements OnInit {
   }
 
   removeUser(): void {
-    console.log('Remove user clicked');
     // waiting for backend api
     // this.usersService.removeUser(this.userId).subscribe({
     //   next: () => {

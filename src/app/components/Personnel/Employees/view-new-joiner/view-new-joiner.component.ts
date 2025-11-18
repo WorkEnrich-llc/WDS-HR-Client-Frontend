@@ -63,7 +63,6 @@ export class ViewNewJoinerComponent implements OnInit {
         this.employee = response.data.object_info;
         this.subscription = response.data.subscription;
         this.loading = false;
-        console.log('New joiner data loaded:', response);
 
         // Load work schedule data if employee has a work schedule
         if (this.employee?.job_info?.work_schedule?.id) {
@@ -81,7 +80,6 @@ export class ViewNewJoinerComponent implements OnInit {
     this.workScheduleService.showWorkSchedule(workScheduleId).subscribe({
       next: (response) => {
         this.workScheduleData = response.data.object_info;
-        console.log('Work schedule data loaded:', this.workScheduleData);
       },
       error: (error) => {
         console.error('Error loading work schedule:', error);
@@ -290,7 +288,6 @@ export class ViewNewJoinerComponent implements OnInit {
     if (this.employee) {
       this.employeeService.updateEmployeeStatus(this.employee.id, true).subscribe({
         next: (response: any) => {
-          console.log('Employee activated successfully:', response);
           // Update local employee status
           if (this.employee) {
             this.employee.employee_active = 'Active';
@@ -368,9 +365,8 @@ export class ViewNewJoinerComponent implements OnInit {
   resendActiveLink(): void {
     if (this.employee) {
       this.employeeService.resendActiveLink(this.employee.id).subscribe({
-        next: (response) => {
+        next: () => {
           this.toasterMessageService.sendMessage('Activation link resent successfully');
-          console.log('Resend active link successfully:', response);
         },
         error: (error) => {
           console.error('Error resending active link:', error);

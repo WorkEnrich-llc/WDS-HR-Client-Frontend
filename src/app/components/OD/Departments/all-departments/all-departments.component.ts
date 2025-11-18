@@ -193,7 +193,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

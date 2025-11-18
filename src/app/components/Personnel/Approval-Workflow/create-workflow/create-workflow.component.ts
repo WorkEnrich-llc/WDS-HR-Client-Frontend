@@ -101,7 +101,7 @@ getAllLeaveTypes(
       this.leaveTypes = response.data.list_items.filter((item: { is_active: boolean; }) => item.is_active === true);
     },
     error: (err) => {
-      console.log(err.error?.details);
+        console.error(err.error?.details);
       this.loadData = false;
     }
   });
@@ -121,7 +121,7 @@ getAllLeaveTypes(
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -142,7 +142,7 @@ getAllLeaveTypes(
         this.jobTitles = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

@@ -270,7 +270,8 @@
         </div>
       </div>
       <div class="d-flex align-items-center mt-3 gap-3">
-        <button type="submit" class="btn btn-lg btn-success w-100" [disabled]="isLoading">
+        <button type="submit" class="btn btn-lg btn-success w-100"
+          [disabled]="editTotal === originalTotal || isLoading">
           @if(isLoading){
           <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
           }@else {

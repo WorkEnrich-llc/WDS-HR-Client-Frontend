@@ -53,7 +53,6 @@ export class CreateNewBranchComponent implements OnInit {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
-    // console.log(this.todayFormatted); 
   }
 
 
@@ -129,13 +128,11 @@ export class CreateNewBranchComponent implements OnInit {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
 
-        // console.log('Departments List (before filter):', response.data.list_items);
 
         const activeDepartments = response.data.list_items.filter(
           (item: any) => item.is_active === true
         );
 
-        // console.log('Active Departments Only:', activeDepartments);
 
         this.departments = activeDepartments.map((item: any) => {
           const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
@@ -157,7 +154,7 @@ export class CreateNewBranchComponent implements OnInit {
         this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

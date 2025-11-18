@@ -118,8 +118,6 @@ export class AttachmentsComponent implements OnInit {
       }
     };
 
-    console.log('Job opening payload:', JSON.stringify(jobData, null, 2));
-
     // Call create or update based on mode
     if (this.isUpdateMode && this.jobId) {
       this.jobOpeningsService.updateJobOpening(this.jobId, jobData).subscribe({

@@ -50,7 +50,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
   groupedJobs: { name: string, jobs: any[] }[] = [];
 
   constructor(
-    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService,private subService: SubscriptionService
+    private _AuthenticationService: AuthenticationService, private _Router: Router, private cookieService: CookieService, private subService: SubscriptionService
   ) { }
 
   ngOnInit(): void {
@@ -63,7 +63,6 @@ export class RegisterComponent implements OnDestroy, OnInit {
     this._AuthenticationService.getJobTitles().subscribe({
       next: (response) => {
         this.jobTitleData = response.data.list_items;
-        // console.log("Job Titles Data:", this.jobTitleData);
         let currentGroup: any = null;
         this.groupedJobs = [];
         for (const item of this.jobTitleData) {
@@ -91,7 +90,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
     email: new FormControl('', [Validators.required, Validators.email]),
     jobTitle: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required, this.passwordComplexityValidator]),
-    rePassword: new FormControl('',[Validators.required]),
+    rePassword: new FormControl('', [Validators.required]),
   }, { validators: [this.confirmPassword] } as FormControlOptions);
 
 
@@ -324,71 +323,71 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
   // step 3 form
-createAccount(): void {
-  this.isLoading = true;
-  this.errMsg = '';
+  createAccount(): void {
+    this.isLoading = true;
+    this.errMsg = '';
 
-  const device_token = localStorage.getItem('device_token');
-  const formData = new FormData();
-  formData.append('name', this.registerForm1.get('name')?.value);
-  formData.append('email', this.registerForm1.get('email')?.value);
-  formData.append('job_title', this.registerForm1.get('jobTitle')?.value);
-  formData.append('password', this.registerForm1.get('password')?.value);
-  formData.append('re_password', this.registerForm1.get('rePassword')?.value);
-  formData.append('company_name', this.registerForm2.get('companyName')?.value);
-  formData.append('company_domain', this.registerForm2.get('domain')?.value);
-  formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
-  formData.append('company_logo', this.registerForm2.get('logo')?.value);
-  formData.append('verification_code', this.otpForm.get('otp')?.value);
-  formData.append('device_token', device_token!);
+    const device_token = localStorage.getItem('device_token');
+    const formData = new FormData();
+    formData.append('name', this.registerForm1.get('name')?.value);
+    formData.append('email', this.registerForm1.get('email')?.value);
+    formData.append('job_title', this.registerForm1.get('jobTitle')?.value);
+    formData.append('password', this.registerForm1.get('password')?.value);
+    formData.append('re_password', this.registerForm1.get('rePassword')?.value);
+    formData.append('company_name', this.registerForm2.get('companyName')?.value);
+    formData.append('company_domain', this.registerForm2.get('domain')?.value);
+    formData.append('company_emp_number', this.registerForm2.get('numOfEmployee')?.value);
+    formData.append('company_logo', this.registerForm2.get('logo')?.value);
+    formData.append('verification_code', this.otpForm.get('otp')?.value);
+    formData.append('device_token', device_token!);
 
-  this._AuthenticationService.createAcount(formData).subscribe({
-    next: (response) => {
-      this.isLoading = false;
+    this._AuthenticationService.createAcount(formData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
 
-      const authToken = response.data?.session?.auth_token;
-      const session_token = response.data?.session?.session_token;
-      const domain = response.data?.company_info?.domain;
+        const authToken = response.data?.session?.auth_token;
+        const session_token = response.data?.session?.session_token;
+        const domain = response.data?.company_info?.domain;
 
-      if (authToken && domain) {
-        this.cookieService.set('token', authToken);
-        localStorage.setItem('token', JSON.stringify(authToken));
-        localStorage.setItem('session_token', JSON.stringify(session_token));
+        if (authToken && domain) {
+          this.cookieService.set('token', authToken);
+          localStorage.setItem('token', JSON.stringify(authToken));
+          localStorage.setItem('session_token', JSON.stringify(session_token));
 
-        const userInfo = response.data?.user_info;
-        const companyInfo = response.data?.company_info;
+          const userInfo = response.data?.user_info;
+          const companyInfo = response.data?.company_info;
 
-        if (userInfo) {
-          localStorage.setItem('user_info', JSON.stringify(userInfo));
+          if (userInfo) {
+            localStorage.setItem('user_info', JSON.stringify(userInfo));
+          }
+
+          if (companyInfo) {
+            localStorage.setItem('company_info', JSON.stringify(companyInfo));
+          }
+
+          // this.subService.getSubscription().subscribe({
+          //   next: (sub) => {
+          //     if (sub) {
+          //       this.subService.setSubscription(sub);
+          //     }
+          //   },
+          //   error: (err) => {
+          //     console.error('Subscription load error:', err);
+          //   }
+          // });
+
+          this._Router.navigate(['/dashboard']);
+        } else {
+          this.errMsg = 'Invalid response from server.';
         }
-
-        if (companyInfo) {
-          localStorage.setItem('company_info', JSON.stringify(companyInfo));
-        }
-
-        // this.subService.getSubscription().subscribe({
-        //   next: (sub) => {
-        //     if (sub) {
-        //       this.subService.setSubscription(sub);
-        //     }
-        //   },
-        //   error: (err) => {
-        //     console.error('Subscription load error:', err);
-        //   }
-        // });
-
-        this._Router.navigate(['/dashboard']);
-      } else {
-        this.errMsg = 'Invalid response from server.';
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isLoading = false;
+        console.error('Account creation error:', err);
+        this.errMsg = err.error?.details || 'An error occurred while creating account.';
       }
-    },
-    error: (err: HttpErrorResponse) => {
-      this.isLoading = false;
-      console.error('Account creation error:', err);
-      this.errMsg = err.error?.details || 'An error occurred while creating account.';
-    }
-  });
-}
+    });
+  }
 
   otpCode: string = '';
   otpForm: FormGroup = new FormGroup({

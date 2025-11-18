@@ -53,7 +53,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (response) => {
-        console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
           // Map settings to include index from the response
           this.salaryPortions = response.settings.map((setting: any, arrayIndex: number) => ({
@@ -61,7 +60,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
             percentage: setting.percentage,
             index: setting.index !== undefined ? setting.index : (arrayIndex + 1) // Use index from API or fallback to array index + 1
           }));
-          console.log('Mapped salary portions with indices:', this.salaryPortions);
         } else {
           this.salaryPortions = [];
         }
@@ -651,12 +649,12 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
         settings: {
           full_time: {
             lateness: this.latenessEntries.map((entry, index) => {
-              console.log('Mapping lateness entry:', {
-                entryIndex: index + 1,
-                value: entry.value,
-                salaryPortionIndex: entry.salaryPortionIndex,
-                availablePortions: this.salaryPortions
-              });
+              // console.log('Mapping lateness entry:', {
+              //   entryIndex: index + 1,
+              //   value: entry.value,
+              //   salaryPortionIndex: entry.salaryPortionIndex,
+              //   availablePortions: this.salaryPortions
+              // });
               return {
                 index: index + 1,
                 value: entry.value || 0,
@@ -772,7 +770,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
-        console.log('Rules saved successfully:', response);
       },
       error: (error) => {
         console.error('Error saving rules:', error);

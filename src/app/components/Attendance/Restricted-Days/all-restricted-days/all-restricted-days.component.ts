@@ -87,34 +87,33 @@ export class AllRestrictedDaysComponent {
             item.latest_date = null;
           }
         });
-        // console.log(this.restrictedDays);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
   }
 
 
-sortBy() {
-  this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  sortBy() {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
 
-  this.restrictedDays = this.restrictedDays.sort((a, b) => {
-    const dateA = new Date(a.earliest_date).getTime();
-    const dateB = new Date(b.earliest_date).getTime();
+    this.restrictedDays = this.restrictedDays.sort((a, b) => {
+      const dateA = new Date(a.earliest_date).getTime();
+      const dateB = new Date(b.earliest_date).getTime();
 
-    if (this.sortDirection === 'asc') {
-      return dateA - dateB;
-    } else {
-      return dateB - dateA;
-    }
-  });
-}
+      if (this.sortDirection === 'asc') {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
+  }
 
 
   resetFilterForm(): void {
@@ -133,7 +132,6 @@ sortBy() {
         restriction_type: rawFilters.restriction_type || undefined
       };
 
-      // console.log('Filters submitted:', filters);
       this.filterBox.closeOverlay();
       this.getAllResterictedDays(this.currentPage, '', filters);
     }

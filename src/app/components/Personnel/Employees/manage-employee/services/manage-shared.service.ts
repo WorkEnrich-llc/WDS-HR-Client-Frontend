@@ -172,7 +172,6 @@ export class ManageEmployeeSharedService {
   public skipFormGroup(groupName: 'contract_details' | 'job_details' | 'attendance_details' | 'insurance_details'): void {
     if (this.employeeForm.get(groupName)) {
       this.employeeForm.removeControl(groupName);
-      console.log(`Form group [${groupName}] has been removed for update mode.`);
     }
   }
 

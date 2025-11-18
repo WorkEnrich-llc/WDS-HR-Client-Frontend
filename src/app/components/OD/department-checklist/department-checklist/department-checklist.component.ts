@@ -59,7 +59,7 @@ export class DepartmentChecklistComponent {
 
         // console.log(sortedList);
 
-        this.checks = sortedList.map((item: any) => ({  
+        this.checks = sortedList.map((item: any) => ({
           name: item.name,
           completed: false,
           editing: false
@@ -67,7 +67,7 @@ export class DepartmentChecklistComponent {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

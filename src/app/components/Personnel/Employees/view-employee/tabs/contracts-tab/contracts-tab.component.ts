@@ -459,7 +459,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.employeeService.getEmployeeContractAdjustments(contractId).subscribe({
       next: response => {
         const adjustments = response.data.list_items;
-        console.log('Loaded contract adjustments:', response.data.list_items);
         this.contractHistory = adjustments.map(adj => ({
           id: adj.id,
           contractId: contractId,
@@ -475,32 +474,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
           reason: ''
         }));
-
-
-        adjustment_type
-        :
-        "Appraisal"
-        created_at
-        :
-        "2025-10-20T16:24:22.318164"
-        created_by
-        :
-        "Assem"
-        end_contract
-        :
-        "2025-09-11"
-        id
-        :
-        6
-        notice_period
-        :
-        20
-        salary
-        :
-        50000
-        start_contract
-        :
-        "2025-09-11"
       },
       error: error => {
         console.error('Error loading contract history:', error);
@@ -535,7 +508,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Terminate contract actions
   openTerminateModal(contract: Contract): void {
-    console.log('CONTRACT RECEIVED FROM HTML:', contract);
     this.selectedContract = contract;
     this.isTerminateModalOpen = true;
   }
@@ -568,7 +540,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
     this.toasterService.showSuccess('contract terminated successfully');
-    console.log('Contract terminated successfully');
     // TODO: Add toast notification
   }
 

@@ -21,9 +21,9 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 })
 export class ViewDepartmentsComponent implements OnInit {
   constructor(
-    private _DepartmentsService: DepartmentsService, 
-    private subService: SubscriptionService, 
-    private route: ActivatedRoute, 
+    private _DepartmentsService: DepartmentsService,
+    private subService: SubscriptionService,
+    private route: ActivatedRoute,
     private datePipe: DatePipe,
     private departmentChecklistService: DepartmentChecklistService,
     private toasterMessageService: ToasterMessageService
@@ -81,17 +81,17 @@ export class ViewDepartmentsComponent implements OnInit {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.departmentData);
+        console.error(this.departmentData);
 
         this.sortDirection = 'desc';
         this.sortBy('id');
         this.loadData = false;
-        
+
         // Load checklist after department data is loaded
         this.loadDepartmentChecklist();
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -151,13 +151,11 @@ export class ViewDepartmentsComponent implements OnInit {
     this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-        // console.log(this.departmentData);
-
         this.sortDirection = 'desc';
         this.sortBy('id');
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -180,13 +178,11 @@ export class ViewDepartmentsComponent implements OnInit {
     this._DepartmentsService.updateDeptStatus(this.departmentData.id, deptStatus).subscribe({
       next: (response) => {
         this.departmentData = response.data.object_info;
-        // console.log(this.departmentData);
-
         this.sortDirection = 'desc';
         this.sortBy('id');
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -215,7 +211,7 @@ export class ViewDepartmentsComponent implements OnInit {
       next: (response) => {
         // Get assigned checklist IDs from department response
         const assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
-        
+
         // Transform API response to match OnboardingListItem format and build title-to-ID mapping
         const listItems = response?.data?.list_items || [];
         this.titleToIdMap.clear(); // Clear previous mapping
@@ -227,9 +223,6 @@ export class ViewDepartmentsComponent implements OnInit {
             status: assignedChecklistIds.includes(item.id) // Mark as checked if in assigned_checklist
           };
         });
-        
-        console.log('Department checklist loaded:', this.departmentChecklistItems);
-        console.log('Assigned checklist IDs:', assignedChecklistIds);
       },
       error: (error) => {
         console.error('Error loading department checklist:', error);
@@ -250,7 +243,7 @@ export class ViewDepartmentsComponent implements OnInit {
   onChecklistItemClick(item: OnboardingListItem): void {
     // Get the ID from the title-to-ID mapping
     const itemId = this.titleToIdMap.get(item.title);
-    
+
     if (itemId === undefined) {
       return;
     }
@@ -311,19 +304,19 @@ export class ViewDepartmentsComponent implements OnInit {
         this.loadingChecklistItemTitle = null;
         this.toasterMessageService.showSuccess('Checklist updated successfully');
 
-         // Refresh department checklist from latest server response without reloading the whole page
-         this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({
-           next: (deptResponse) => {
-             const updatedDept = deptResponse.data.object_info;
-             // Update only departmentData and checklist-related state
-             this.departmentData = updatedDept;
-             // Reload checklist to reflect updated assigned_checklist
-             this.loadDepartmentChecklist();
-           },
-           error: (deptError) => {
-             console.error('Error refreshing department after checklist update:', deptError);
-           }
-         });
+        // Refresh department checklist from latest server response without reloading the whole page
+        this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({
+          next: (deptResponse) => {
+            const updatedDept = deptResponse.data.object_info;
+            // Update only departmentData and checklist-related state
+            this.departmentData = updatedDept;
+            // Reload checklist to reflect updated assigned_checklist
+            this.loadDepartmentChecklist();
+          },
+          error: (deptError) => {
+            console.error('Error refreshing department after checklist update:', deptError);
+          }
+        });
       },
       error: (error) => {
         this.loadingChecklistItemTitle = null;

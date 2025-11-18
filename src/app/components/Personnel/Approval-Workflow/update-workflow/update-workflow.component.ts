@@ -150,7 +150,7 @@ export class UpdateWorkflowComponent {
 
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -201,7 +201,7 @@ export class UpdateWorkflowComponent {
         this.leaveTypes = leaveTypes;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -221,7 +221,7 @@ export class UpdateWorkflowComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -242,7 +242,7 @@ export class UpdateWorkflowComponent {
         this.jobTitles = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -368,7 +368,6 @@ export class UpdateWorkflowComponent {
     };
 
 
-    // console.log({ request_data });
     this._WorkflowService.updateWorkflow(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;

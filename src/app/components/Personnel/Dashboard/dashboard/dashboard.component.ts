@@ -79,14 +79,13 @@ export class DashboardComponent {
 
     this.eventsDay = this.events.filter(e => e.date === clickedDate);
 
-    if (this.eventsDay.length) {
-      // console.log(`Events on ${this.selectedDateFormatted}:`);
-      this.eventsDay.forEach(event =>
-        console.log(`- ${event.title} (${event.type})`)
-      );
-    } else {
-      // console.log(`No events on ${this.selectedDateFormatted}.`);
-    }
+    // if (this.eventsDay.length) {
+    //   this.eventsDay.forEach(event =>
+    //     console.log(`- ${event.title} (${event.type})`)
+    //   );
+    // } else {
+    //   // console.log(`No events on ${this.selectedDateFormatted}.`);
+    // }
   }
 
 
