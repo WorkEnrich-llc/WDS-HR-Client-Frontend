@@ -23,7 +23,27 @@
        (click)="$event.stopPropagation()">
     <!-- Modal Header -->
     <div class="onboarding-modal-header">
-      <h2 class="onboarding-modal-title">Onboarding Checklist</h2>
+      <div class="onboarding-modal-title-wrapper">
+        <h2 class="onboarding-modal-title">Onboarding Checklist</h2>
+        @if (allowToggle && showAutoSaveHint) {
+        <div class="auto-save-hint">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          <span>Auto-saved</span>
+        </div>
+        }
+        @if (!allowToggle && showAutoSaveHint) {
+        <div class="view-only-hint">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>View only</span>
+        </div>
+        }
+      </div>
       <button class="onboarding-modal-close" (click)="closeModal()" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 6L6 18M6 6l12 12" />

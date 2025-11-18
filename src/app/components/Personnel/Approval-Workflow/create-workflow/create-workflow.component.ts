@@ -87,25 +87,25 @@ export class CreateWorkflowComponent {
   jobTitles: any[] = [];
   loadData: boolean = true;
 
-  getAllLeaveTypes(
-    searchTerm: string = '',
-    filters?: {
-      employment_type?: string;
-    }
-  ) {
-    this._LeaveTypeService.getAllLeavetypes(1, 10000, {
-      search: searchTerm || undefined,
-      ...filters
-    }).subscribe({
-      next: (response) => {
-        this.leaveTypes = response.data.list_items;
-      },
-      error: (err) => {
-        console.error(err.error?.details);
-        this.loadData = false;
-      }
-    });
+getAllLeaveTypes(
+  searchTerm: string = '',
+  filters?: {
+    employment_type?: string;
   }
+) {
+  this._LeaveTypeService.getAllLeavetypes(1, 10000, {
+    search: searchTerm || undefined,
+    ...filters
+  }).subscribe({
+    next: (response) => {
+      this.leaveTypes = response.data.list_items.filter((item: { is_active: boolean; }) => item.is_active === true);
+    },
+    error: (err) => {
+        console.error(err.error?.details);
+      this.loadData = false;
+    }
+  });
+}
 
   getAllDepartments(
     searchTerm: string = '',

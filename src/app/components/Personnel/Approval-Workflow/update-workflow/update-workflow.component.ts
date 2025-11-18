@@ -93,6 +93,7 @@ export class UpdateWorkflowComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
+        // console.log(this.workflowData);
         let workflowType: string | null = null;
         let leaveId: number | null = null;
 
@@ -106,7 +107,11 @@ export class UpdateWorkflowComponent {
           workflowType = 'leave';
           leaveId = this.workflowData.leave.id;
         }
-
+        if (this.workflowData.leave) {
+          this.getAllLeaveTypes('', undefined, this.workflowData.leave.id);
+        } else {
+          this.getAllLeaveTypes();
+        }
         this.workflow1.patchValue({
           code: this.workflowData.code,
           name: this.workflowData.name,
@@ -174,14 +179,27 @@ export class UpdateWorkflowComponent {
     searchTerm: string = '',
     filters?: {
       employment_type?: string;
-    }
+    },
+    selectedLeaveId?: number
   ) {
     this._LeaveTypeService.getAllLeavetypes(1, 10000, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
       next: (response) => {
-        this.leaveTypes = response.data.list_items;
+        let leaveTypes = response.data.list_items.filter((item: { is_active: any; }) => item.is_active);
+
+        if (selectedLeaveId) {
+          const selectedLeave = response.data.list_items.find((item: { id: number; is_active: any; }) => item.id === selectedLeaveId && !item.is_active);
+          if (selectedLeave) {
+            leaveTypes.unshift({
+              ...selectedLeave,
+              name: selectedLeave.name + ' (Not active)'
+            });
+          }
+        }
+
+        this.leaveTypes = leaveTypes;
       },
       error: (err) => {
         console.error(err.error?.details);

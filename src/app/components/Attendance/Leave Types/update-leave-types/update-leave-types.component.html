@@ -253,6 +253,11 @@
           Leave Limits must be number.
         </p>
         }
+         @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['limitTooSmall']) {
+        <p class="error-msg">
+          Leave Limits must be greater than or equal to Accrual Rate.
+        </p>
+        }
       </div>
       <div class="input">
         <label for="maxReview">Max Review Days<span>*</span></label>

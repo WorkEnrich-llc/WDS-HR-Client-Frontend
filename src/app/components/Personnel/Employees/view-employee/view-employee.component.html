@@ -420,14 +420,14 @@
           </div>
         </div> -->
 
-        <div class="device-card device-info-card d-flex flex-column gap-3">
+        <div class="device-card device-info-card d-flex flex-column gap-0">
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <h2>Last Known Device</h2>
-              <p class="mb-0 small text-muted">Last seen {{ formatDeviceDate(employee.device.last_seen) }}</p>
+              <small class="mb-0 text-muted">Seen: {{ formatDeviceDate(employee.device.last_seen) }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-primary' : 'badge-secondary'">
+              <span class="badge-success" [ngClass]="employee.device.is_main ? 'badge-newjoiner' : 'badge-gray'">
                 {{ employee.device.is_main ? 'Primary Device' : 'Secondary Device' }}
               </span>
               <button type="button" class="btn-toggle-expand-arrow" (click)="toggleDeviceInfo()"
@@ -464,7 +464,7 @@
         </div>
         }
 
-        <div class="mt-2 d-flex flex-column gap-2">
+        <div class="mt-auto d-flex flex-column gap-2">
           @if (employee.device) {
           <button class="btn btn-lg btn-outline-primary w-100" (click)="openClearSession()"
             [disabled]="clearSessionLoading">
@@ -816,8 +816,8 @@
 <!-- Onboarding Checklist Component with Badge -->
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
-  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="true"
+  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false"
   [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
-  (itemClick)="onChecklistItemClick($event)" (badgeClick)="openOnboardingModal()">
+  (badgeClick)="openOnboardingModal()">
 </app-onboarding-checklist>
 }

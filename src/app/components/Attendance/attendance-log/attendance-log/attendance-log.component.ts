@@ -236,6 +236,7 @@ export class AttendanceLogComponent {
         return '';
     }
   }
+  // get times
   getFirstCheckIn(emp: any): string {
     const list = emp?.list_items;
     if (!list || list.length === 0) {
@@ -263,7 +264,32 @@ export class AttendanceLogComponent {
       ? this.formatTimeTo12Hour(checkOut)
       : '--';
   }
+  // but time or -- in absent and leave 
+  getSafeTime(status: string | undefined, time: string | undefined): string {
+    if (!status || !time) return '--';
 
+    const normalizedStatus = status.trim();
+    const normalizedTime = time.trim();
+
+    if (
+      (normalizedStatus === 'Absent' || normalizedStatus === 'On Leave'|| normalizedStatus ==='Holiday' || normalizedStatus === 'Weekly leave') &&
+      normalizedTime === '00:00'
+    ) {
+      return '--';
+    }
+
+    return this.formatTimeTo12Hour(normalizedTime);
+  }
+
+  getFormattedCheckIn(log: any): string {
+    return this.getSafeTime(log?.status, log?.times_object?.actual_check_in);
+  }
+
+  getFormattedCheckOut(log: any): string {
+    return this.getSafeTime(log?.status, log?.times_object?.actual_check_out);
+  }
+
+  // git status of first main record in list
   getMainRecord(list: any[]): any {
     return list?.find(item => item.main_record === true);
   }

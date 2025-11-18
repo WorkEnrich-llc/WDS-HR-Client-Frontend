@@ -112,35 +112,35 @@ export class EditSalaryPortionsComponent implements OnInit {
         this.portions.clear();
 
         if (this.salaryPortions.length > 0) {
-          // Filter out 'gross' and separate basic from others
+          // Filter out 'gross' and separate default from others based on default flag
           const filteredPortions = this.salaryPortions.filter((p: any) => {
             const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
             return name !== 'gross';
           });
 
-          const basicPortion = filteredPortions.find((p: any) => {
-            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
-            return name === 'basic';
-          });
+          // Find the portion with default === true
+          const defaultPortion = filteredPortions.find((p: any) => p.default === true);
 
-          const otherPortions = filteredPortions.filter((p: any) => {
-            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
-            return name !== 'basic';
-          });
+          // Get other portions (default === false or undefined)
+          const otherPortions = filteredPortions.filter((p: any) => p.default !== true);
 
           const returnedFormArray: FormGroup[] = [];
 
-          // Always add basic first (default/basic portion with locked percentage)
-          // Always set basic percentage to 100 initially
-          if (basicPortion) {
-            returnedFormArray.push(this.createPortion({ name: basicPortion.name, percentage: 100 }, true));
+          // Always add default portion first (with locked percentage)
+          // Use the actual percentage from response initially, but it will be recalculated
+          if (defaultPortion) {
+            returnedFormArray.push(this.createPortion({
+              name: defaultPortion.name,
+              percentage: defaultPortion.percentage || 100
+            }, true));
           } else {
+            // Fallback: if no default portion found, create one
             returnedFormArray.push(this.createPortion({ name: 'basic', percentage: 100 }, true));
           }
 
           // Add other portions (max 2)
           otherPortions.slice(0, 2).forEach((p: any) => {
-            returnedFormArray.push(this.createPortion(p, p.default));
+            returnedFormArray.push(this.createPortion(p, false));
           });
 
           // Fill remaining slots to have exactly 2 open inputs (plus basic = 3 total)
@@ -224,22 +224,31 @@ export class EditSalaryPortionsComponent implements OnInit {
       return;
     }
 
-    const cleanedValue = {
-      ...formValue,
-      portions: formValue.portions
-        .filter((portion: any) => {
-          // Filter out gross and empty portions
-          const name = typeof portion.name === 'string' ? portion.name.toLowerCase().trim() : '';
-          return name !== 'gross' && (portion.enabled || name === 'basic');
-        })
-        .map((portion: any) => ({
-          ...portion,
-          name: typeof portion.name === 'string' ? portion.name.trim() : portion.name
-        }))
+    // Get default_name from first row (index 0)
+    const defaultPortion = this.portions.at(0) as FormGroup;
+    const defaultName = defaultPortion?.get('name')?.value?.trim() || 'Basic';
+
+    // Get settings from other rows (indices 1 and 2) that are enabled
+    const settings: { name: string; percentage: number }[] = [];
+    for (let i = 1; i < this.portions.length; i++) {
+      const portion = this.portions.at(i) as FormGroup;
+      const enabled = portion?.get('enabled')?.value;
+      if (enabled) {
+        const name = portion?.get('name')?.value?.trim() || '';
+        const percentage = Number(portion?.get('percentage')?.value) || 0;
+        if (name) {
+          settings.push({ name, percentage });
+        }
+      }
+    }
+
+    const requestPayload = {
+      default_name: defaultName,
+      settings: settings
     };
 
     this.isLoading = true;
-    this.salaryPortionService.updateSalaryPortion(cleanedValue).subscribe({
+    this.salaryPortionService.updateSalaryPortion(requestPayload).subscribe({
       next: () => {
         this.toasterService.showSuccess('Salary portion updated successfully');
         this.router.navigate(['/salary-portions']);

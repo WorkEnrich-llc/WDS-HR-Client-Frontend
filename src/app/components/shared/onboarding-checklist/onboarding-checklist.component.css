@@ -144,10 +144,17 @@
 .onboarding-modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: var(--spacing-24);
   padding-bottom: var(--spacing-16);
   border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.onboarding-modal-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  flex: 1;
 }
 
 .onboarding-modal-title {
@@ -157,6 +164,64 @@
   color: var(--color-neutral-800);
   margin: 0;
   line-height: var(--line-height-md);
+}
+
+/* Auto-save hint badge */
+.auto-save-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: var(--color-success-50);
+  border: 1px solid var(--color-success-200);
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-b3);
+  font-weight: 500;
+  color: var(--color-success-700);
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.auto-save-hint svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+.auto-save-hint span {
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* View-only hint badge */
+.view-only-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-b3);
+  font-weight: 500;
+  color: var(--color-neutral-600);
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.view-only-hint svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+  flex-shrink: 0;
+}
+
+.view-only-hint span {
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .onboarding-modal-close {
@@ -230,6 +295,54 @@
 .onboarding-checklist-item.pending.clickable:hover {
   background-color: var(--color-neutral-50);
   border-color: var(--color-neutral-300);
+}
+
+/* Non-clickable items (read-only mode) */
+.onboarding-checklist-item:not(.clickable) {
+  cursor: default;
+  position: relative;
+  user-select: none;
+}
+
+.onboarding-checklist-item:not(.clickable):hover {
+  transform: none;
+  box-shadow: none;
+  background-color: inherit;
+  border-color: inherit;
+}
+
+.onboarding-checklist-item:not(.clickable).completed {
+  background-color: var(--color-success-100);
+  border-color: var(--color-success-300);
+}
+
+.onboarding-checklist-item:not(.clickable).completed:hover {
+  background-color: var(--color-success-100);
+  border-color: var(--color-success-300);
+}
+
+.onboarding-checklist-item:not(.clickable).pending {
+  background-color: var(--color-neutral-50);
+  border-color: var(--color-neutral-200);
+}
+
+.onboarding-checklist-item:not(.clickable).pending:hover {
+  background-color: var(--color-neutral-50);
+  border-color: var(--color-neutral-200);
+}
+
+/* Add a subtle visual indicator for read-only items */
+.onboarding-checklist-item:not(.clickable)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 0.4;
 }
 
 .onboarding-checklist-item:focus {

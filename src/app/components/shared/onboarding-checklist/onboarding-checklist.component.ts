@@ -22,6 +22,7 @@ export class OnboardingChecklistComponent {
   @Input() loadingItemTitle: string | null = null;
   @Input() allowToggle: boolean = false; // Allow toggling completed items (default: false for backward compatibility)
   @Input() disabledItemTitles: string[] = []; // Titles of items that should not be clickable
+  @Input() showAutoSaveHint: boolean = true; // Show auto-save hint when allowToggle is true
   @Output() close = new EventEmitter<void>();
   @Output() itemClick = new EventEmitter<OnboardingListItem>();
   @Output() badgeClick = new EventEmitter<void>();

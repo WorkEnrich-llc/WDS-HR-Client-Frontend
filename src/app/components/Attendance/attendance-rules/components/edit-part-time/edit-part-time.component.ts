@@ -44,7 +44,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
     }
     this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().pipe(
+    this.salaryPortionsService.single({ request_in: 'attendance-rules' }).pipe(
       takeUntil(this.destroy$),
       finalize(() => {
         this.salaryPortionsLoading = false;
@@ -238,7 +238,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
 
   // step 2 - Lateness
   latenessEntries = [{ value: null as number | null, salaryPortionIndex: null as number | null }];
-  salaryPortions: { name: string; percentage: number; index: number }[] = [];
+  salaryPortions: { name: string; percentage: number | string; index: number }[] = [];
   salaryPortionsLoading: boolean = false;
   latenessValidationErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
 
@@ -775,5 +775,14 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Check if percentage should be displayed
+   */
+  shouldShowPercentage(percentage: number | string | null | undefined): boolean {
+    if (percentage == null) return false;
+    const str = String(percentage).trim();
+    return str !== '';
   }
 }
