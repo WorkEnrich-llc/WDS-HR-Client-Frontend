@@ -4,9 +4,7 @@
     { label: 'Leave Types', link: '/leave-types' },
     { label: 'Edit Leave Type - '+leaveTypeData.name }
   ]" [title]="'Edit Leave Type - '+leaveTypeData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success w-auto"
-    [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || !leaveType3.valid || isLoading"
-    (click)="updateleaveType()">
+  <button class="btn btn-lg btn-success w-auto" [disabled]="isSaveDisabled" (click)="updateLeaveType()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
@@ -465,9 +463,7 @@
         </svg>
       </button>
 
-      <button class="btn btn-lg btn-success w-auto"
-        [disabled]="!leaveType1.valid || !leaveType2.valid || !leaveType3.valid || isLoading"
-        (click)="updateleaveType()">
+      <button class="btn btn-lg btn-success w-auto" [disabled]="isSaveDisabled" (click)="updateLeaveType()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }

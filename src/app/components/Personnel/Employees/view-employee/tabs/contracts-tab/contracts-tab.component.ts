@@ -474,32 +474,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
           reason: ''
         }));
-
-
-        adjustment_type
-        :
-        "Appraisal"
-        created_at
-        :
-        "2025-10-20T16:24:22.318164"
-        created_by
-        :
-        "Assem"
-        end_contract
-        :
-        "2025-09-11"
-        id
-        :
-        6
-        notice_period
-        :
-        20
-        salary
-        :
-        50000
-        start_contract
-        :
-        "2025-09-11"
       },
       error: error => {
         console.error('Error loading contract history:', error);

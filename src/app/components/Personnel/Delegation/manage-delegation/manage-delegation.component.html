@@ -6,7 +6,7 @@
   ]" [title]="isEditMode ? 'Edit Delegation' : 'Create New Delegation'">
 
   <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()"
-    [disabled]="delegationForm.invalid || isSubmitting">
+    [disabled]="delegationForm.invalid || isSubmitting || !delegationForm.dirty">
     @if (isSubmitting) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }

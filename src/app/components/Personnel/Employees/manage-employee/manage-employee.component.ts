@@ -264,6 +264,12 @@ export class ManageEmployeeComponent implements OnInit {
     }
   }
 
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.sharedService.employeeForm.invalid;
+    const isUnchanged = this.sharedService.employeeForm.pristine;
+    return isInvalid || isUnchanged || this.sharedService.isLoading();
+  }
+
   // onSubmit() {
   //   if (this.sharedService.employeeForm.invalid) {
   //     this.sharedService.employeeForm.markAllAsTouched();
