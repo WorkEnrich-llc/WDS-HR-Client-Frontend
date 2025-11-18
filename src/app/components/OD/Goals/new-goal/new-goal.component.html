@@ -83,11 +83,11 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <select id="Priority" formControlName="Priority" class="form-select">
                         <option value="" selected disabled hidden>Select Priority</option>
-                        <option value=1>1</option>
-                        <option value=2>2</option>
-                        <option value=3>3</option>
-                        <option value=4>4</option>
-                        <option value=5>5</option>
+                        <option value=1>Highest</option>
+                        <option value=2>High</option>
+                        <option value=3>Medium</option>
+                        <option value=4>Low</option>
+                        <option value=5>Lowest</option>
                     </select>
                 </div>
                 @if (goalForm.get('Priority')?.touched && goalForm.get('Priority')?.errors?.['required']) {
