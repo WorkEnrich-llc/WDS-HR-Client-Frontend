@@ -38,10 +38,16 @@ export class CustomFieldsComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   isModalOpen = false;
-  isDeleteModalOpen: boolean = false;
+  isActivateModalOpen: boolean = false;
   isLoading: boolean = false;
   selectedField: number | null = null;
-  fieldIdToDelete: number | null = null;
+  // fieldIdToDelete: number | null = null;
+  modalTitle: string = '';
+  modalMessage: string = '';
+  modalMessage2: string = '';
+  modalButtonText: string = '';
+  targetStatus: boolean = false;
+  // selectedFieldId: number | null = null;
 
   ngOnInit(): void {
     this.getAllCustomFields(this.currentPage);
@@ -134,60 +140,59 @@ export class CustomFieldsComponent implements OnInit {
     this.isModalOpen = false;
   }
 
-  openDeleteModal(id: number): void {
+  openActivateModal(id: number): void {
     this.selectedField = id;
-    this.isDeleteModalOpen = true;
+    this.isActivateModalOpen = true;
   }
 
-  closeDeleteModal(): void {
-    this.isDeleteModalOpen = false;
+  closeActivateModal(): void {
+    this.isActivateModalOpen = false;
     this.selectedField = null;
   }
 
-  confirmRemove(): void {
-    if (!this.selectedField) {
-      return;
+
+  openToggleModal(id: number, currentStatus: boolean): void {
+    this.selectedField = id;
+    this.targetStatus = !currentStatus;
+    this.isActivateModalOpen = true;
+    if (this.targetStatus) {
+      this.modalTitle = 'Activate Field';
+      this.modalMessage = 'Are you sure you want to Activate this field?';
+      this.modalMessage2 = 'You will be able to use this field after activation';
+      this.modalButtonText = 'Activate';
+    } else {
+      this.modalTitle = 'Deactivate Field';
+      this.modalMessage = 'Are you sure you want to Deactivate this field?';
+      this.modalMessage2 = 'This field will become inactive and unusable';
+      this.modalButtonText = 'Deactivate';
     }
-
-    this.isLoading = true;
-    const fieldIdToDelete = this.selectedField;
-
-    this.customFieldService.updateCustomFieldStatus(fieldIdToDelete, false).subscribe({
-      next: () => {
-        this.closeDeleteModal();
-        this.toasterService.showSuccess('Deleted successfully');
-        this.isLoading = false;
-        this.getAllCustomFields(this.currentPage);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.closeDeleteModal();
-        this.toasterService.showError('Failed to delete');
-        console.error(err);
-      }
-    });
   }
 
-  confirmDelete(): void {
+
+  confirmToggleStatus(): void {
     if (!this.selectedField) return;
 
     this.isLoading = true;
-    const idToDelete = this.selectedField;
+    const idField = this.selectedField;
+    const newStatus = this.targetStatus;
 
-    this.customFieldService.deleteCustomField(idToDelete).subscribe({
+    this.customFieldService.updateCustomFieldStatus(idField, newStatus).subscribe({
       next: () => {
         this.isLoading = false;
-        this.closeDeleteModal();
-        // this.toasterService.showSuccess('Deleted successfully');
+        this.closeActivateModal();
+        this.customFields = this.customFields.map(field => {
+          if (field.id === idField) {
+            return { ...field, status: newStatus };
+          }
+          return field;
+        });
 
-        this.customFields = this.customFields.filter(field => field.id !== idToDelete);
-
-        this.totalItems--;
+        // this.toasterService.showSuccess(`Field ${newStatus ? 'Activated' : 'Deactivated'} Successfully`);
       },
       error: (err) => {
         this.isLoading = false;
-        this.closeDeleteModal();
-        this.toasterService.showError('Failed to delete');
+        this.closeActivateModal();
+        this.toasterService.showError('Failed to update status');
         console.error(err);
       }
     });
