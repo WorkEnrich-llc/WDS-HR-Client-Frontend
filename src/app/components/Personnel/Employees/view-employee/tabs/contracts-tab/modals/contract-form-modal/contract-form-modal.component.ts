@@ -97,10 +97,10 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     if (!this.contract) return;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
     const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
-    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
+    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
     this.contractForm.patchValue({
       adjustmentType: 1,
-      withEndDate: this.contract.endDate ? true : false,
+      withEndDate: this.contract.end_contract ? true : false,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
