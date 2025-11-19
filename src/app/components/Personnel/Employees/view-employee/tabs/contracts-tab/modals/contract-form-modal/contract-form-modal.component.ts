@@ -96,15 +96,15 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   private populateForm(): void {
     if (!this.contract) return;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
-    const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
-    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : '';
+    const formattedStartDate = this.contract.start_contract ? this.convertDisplayDateToFormDate(this.contract.start_contract) : '';
+    const formattedEndDate = this.contract.end_contract ? this.convertDisplayDateToFormDate(this.contract.end_contract) : '';
     this.contractForm.patchValue({
-      adjustmentType: 1,
+      adjustmentType: this.contract.adjustmentType || 1,
       withEndDate: this.contract.end_contract ? true : false,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      noticePeriod: this.contract.noticePeriod
+      noticePeriod: this.contract.notice_period
     });
 
     // Set up salary validation after populating
@@ -117,11 +117,11 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
       this.contractForm.patchValue({
         adjustmentType: 1,
-        withEndDate: this.contract.endDate ? true : false,
+        withEndDate: this.contract.end_contract ? true : false,
         salary: this.contract.salary,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        noticePeriod: this.contract.noticePeriod
+        noticePeriod: this.contract.notice_period
       });
 
     } else {

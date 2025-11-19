@@ -99,7 +99,7 @@
       </div>
 
       <!-- End Date Field - only show if checkbox is checked -->
-      @if (contractForm.get('withEndDate')?.value) {
+      @if (contractForm.get('withEndDate')?.value === true) {
       <div class="input mb-3">
         <label for="endDate">End Date Date</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
