@@ -11,6 +11,8 @@ export interface Contract {
   created_at: string;
   created_by: string;
   noticePeriod?: number;
+  notice_period?: number;
+  adjustmentType?: number;
 
 
   // Mapped properties for compatibility with existing UI

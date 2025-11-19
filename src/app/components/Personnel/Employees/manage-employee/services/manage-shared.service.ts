@@ -381,15 +381,13 @@ export class ManageEmployeeSharedService {
       }
       const currentLevel = this.jobDetails?.get('management_level')?.value;
       if (current) {
-
-
         if (currentLevel === 3) {
           this.sections.set([]);
           sectionCtrl?.clearValidators();
           sectionCtrl?.disable();
           sectionCtrl?.updateValueAndValidity();
 
-          this.fetchJobTitlesForDepartment(current);
+          this.fetchJobTitlesForDepartment(current, currentLevel);
           jobTitleCtrl?.setValidators(Validators.required);
           jobTitleCtrl?.enable();
           jobTitleCtrl?.updateValueAndValidity();
@@ -441,9 +439,9 @@ export class ManageEmployeeSharedService {
         // jobTitleCtrl?.setValue(null);
         jobTitleCtrl?.reset(null, { emitEvent: false });
       }
-
+      const currentLevel = this.jobDetails?.get('management_level')?.value;
       if (current) {
-        this.fetchJobTitlesForSection(current);
+        this.fetchJobTitlesForSection(current, currentLevel);
         jobTitleCtrl?.setValidators(Validators.required);
         jobTitleCtrl?.enable();
         jobTitleCtrl?.updateValueAndValidity();
@@ -580,9 +578,9 @@ export class ManageEmployeeSharedService {
       } else if (level === 2 && branchId) {
         this.fetchJobTitlesForBranch(branchId, level);
       } else if (level === 3 && deptId) {
-        this.fetchJobTitlesForDepartment(deptId);
+        this.fetchJobTitlesForDepartment(deptId, level);
       } else if ((level === 4 || level === 5) && sectionId) {
-        this.fetchJobTitlesForSection(sectionId);
+        this.fetchJobTitlesForSection(sectionId, level);
       }
     }
   }
@@ -734,7 +732,7 @@ export class ManageEmployeeSharedService {
     });
   }
 
-  private fetchJobTitlesForDepartment(departmentId: number): void {
+  private fetchJobTitlesForDepartment(departmentId: number, managementLevel: number): void {
     const jobDetails = this.jobDetails;
     const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
       ? this.jobTitles()[0]
@@ -750,6 +748,7 @@ export class ManageEmployeeSharedService {
 
 
     const params: any = {
+      management_level: managementLevel.toString(),
       department: departmentId.toString(),
       request_in: 'create-employee',
       status: true
@@ -769,7 +768,7 @@ export class ManageEmployeeSharedService {
     })
   }
 
-  private fetchJobTitlesForSection(sectionId: number): void {
+  private fetchJobTitlesForSection(sectionId: number, managementLevel: number): void {
     const jobDetails = this.jobDetails;
 
     const currentItem = (this.isEditMode() && this.jobTitles().length === 1)
@@ -785,6 +784,7 @@ export class ManageEmployeeSharedService {
     jobDetails.get('job_title_id')?.enable({ emitEvent: false });
 
     const params: any = {
+      management_level: managementLevel.toString(),
       section: sectionId.toString(),
       request_in: 'create-employee',
       status: true
