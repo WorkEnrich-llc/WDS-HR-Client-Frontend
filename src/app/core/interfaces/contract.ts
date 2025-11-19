@@ -1,3 +1,13 @@
+
+export enum AdjustmentType {
+  NotSelected = 0,
+  Appraisal = 1,
+  Correction = 2,
+  Raise = 3
+}
+
+
+
 export interface Contract {
   id: number;
   contractId: number;
@@ -7,12 +17,27 @@ export interface Contract {
   end_contract: string;
   salary: number;
   insurance_salary: number;
+  insurance?: {
+    gross: {
+      amount: number;
+      status: boolean
+    },
+    insurance: {
+      amount: number;
+      status: boolean
+    }
+  };
   status: 'Upcoming' | 'Active' | 'Cancelled' | 'Expired' | 'Terminated' | 'Resigned' | 'Probation' | 'Resign' | 'Terminate';
   created_at: string;
   created_by: string;
   noticePeriod?: number;
   notice_period?: number;
   adjustmentType?: number;
+  // adjustment?: AdjustmentType;
+  adjustment?: {
+    id: number;
+    name: string;
+  };
 
 
   // Mapped properties for compatibility with existing UI

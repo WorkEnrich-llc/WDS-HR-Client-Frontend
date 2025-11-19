@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
+import { DateRangeValidators } from 'app/core/validators/date-range-validators';
 
 @Component({
   selector: 'app-update-restricted-days',
@@ -69,49 +70,49 @@ export class UpdateRestrictedDaysComponent {
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     restriction_type: new FormControl('', [Validators.required]),
     departments: new FormControl(''),
-    dates: new FormControl('', [Validators.required]),
+    dates: new FormControl('', [Validators.required, DateRangeValidators.futureDateRange()]),
   });
 
- getRestrictedDay(dayId: number) {
-  this._RestrictedService.showRestrictedDay(dayId).subscribe({
-    next: (response) => {
-      this.resterictedDayData = response.data.object_info;
+  getRestrictedDay(dayId: number) {
+    this._RestrictedService.showRestrictedDay(dayId).subscribe({
+      next: (response) => {
+        this.resterictedDayData = response.data.object_info;
 
-      const created = this.resterictedDayData?.created_at;
-      const updated = this.resterictedDayData?.updated_at;
+        const created = this.resterictedDayData?.created_at;
+        const updated = this.resterictedDayData?.updated_at;
 
-      if (created) {
-        this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        if (created) {
+          this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
+        }
+        if (updated) {
+          this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+        }
+
+        // console.log(this.resterictedDayData);
+
+        let start: Date | null = null;
+        let end: Date | null = null;
+
+        if (this.resterictedDayData?.all_dates && this.resterictedDayData.all_dates.length > 0) {
+          start = new Date(this.resterictedDayData.all_dates[0]);
+          end = new Date(this.resterictedDayData.all_dates[this.resterictedDayData.all_dates.length - 1]);
+        }
+
+        this.restrictedDayForm.patchValue({
+          code: this.resterictedDayData.code,
+          name: this.resterictedDayData.name,
+          restriction_type: this.resterictedDayData.restriction_type,
+          departments: this.resterictedDayData.all_departments.map((dep: { id: number }) => dep.id),
+          dates: start && end ? { startDate: start, endDate: end } : null
+        });
+
+        this.originalFormValue = this.restrictedDayForm.getRawValue();
+      },
+      error: (err) => {
+        console.log(err.error?.details);
       }
-      if (updated) {
-        this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
-      }
-
-      // console.log(this.resterictedDayData);
-
-      let start: Date | null = null;
-      let end: Date | null = null;
-
-      if (this.resterictedDayData?.all_dates && this.resterictedDayData.all_dates.length > 0) {
-        start = new Date(this.resterictedDayData.all_dates[0]);
-        end = new Date(this.resterictedDayData.all_dates[this.resterictedDayData.all_dates.length - 1]);
-      }
-
-      this.restrictedDayForm.patchValue({
-        code: this.resterictedDayData.code,
-        name: this.resterictedDayData.name,
-        restriction_type: this.resterictedDayData.restriction_type,
-        departments: this.resterictedDayData.all_departments.map((dep: { id: number }) => dep.id),
-        dates: start && end ? { startDate: start, endDate: end } : null
-      });
-
-      this.originalFormValue = this.restrictedDayForm.getRawValue();
-    },
-    error: (err) => {
-      console.log(err.error?.details);
-    }
-  });
-}
+    });
+  }
 
 
   formChanged(): boolean {
@@ -147,7 +148,7 @@ export class UpdateRestrictedDaysComponent {
 
     const finalData = {
       request_data: {
-        id:this.resterictedDayData.id,
+        id: this.resterictedDayData.id,
         code: formValue.code,
         name: formValue.name,
         restriction_type: formValue.restriction_type,
