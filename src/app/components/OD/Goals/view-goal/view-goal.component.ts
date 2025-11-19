@@ -14,7 +14,17 @@ import { SubscriptionService } from 'app/core/services/subscription/subscription
   templateUrl: './view-goal.component.html',
   styleUrl: './view-goal.component.css'
 })
+
+
 export class ViewGoalComponent {
+
+  readonly priority: { [key: number]: string } = {
+    1: 'Highest',
+    2: 'High',
+    3: 'Medium',
+    4: 'Low',
+    5: 'Lowest'
+  };
 
   constructor(
     private goalsService: GoalsService,
