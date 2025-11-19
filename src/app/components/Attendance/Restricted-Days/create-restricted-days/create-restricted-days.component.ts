@@ -9,6 +9,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { formatDate } from '@angular/common';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
+import { DateRangeValidators } from 'app/core/validators/date-range-validators';
 
 @Component({
   selector: 'app-create-restricted-days',
@@ -66,7 +67,7 @@ export class CreateRestrictedDaysComponent {
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     restriction_type: new FormControl('', [Validators.required]),
     departments: new FormControl(''),
-    dates: new FormControl('', [Validators.required]),
+    dates: new FormControl('', [Validators.required, DateRangeValidators.futureDateRange()]),
   });
 
 
