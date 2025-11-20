@@ -16,6 +16,14 @@ export function noLeadingSpaceValidator(): ValidatorFn {
   };
 }
 
+export function noWhitespaceValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { 'whitespace': true };
+  };
+}
+
 @Component({
   selector: 'app-custom-info',
   standalone: true,
@@ -58,7 +66,8 @@ export class CustomInfoComponent implements OnChanges {
 
   createFieldGroup(item: CustomFieldValueItem): FormGroup {
     const fieldOptions = item.custom_field.input_option;
-    const validators: ValidatorFn[] = [];
+    // const validators: ValidatorFn[] = [];
+    const validators: ValidatorFn[] = [noWhitespaceValidator()];
 
     if (fieldOptions.required) {
       validators.push(Validators.required);
@@ -69,6 +78,7 @@ export class CustomInfoComponent implements OnChanges {
     if (fieldOptions.max_length) {
       validators.push(Validators.maxLength(fieldOptions.max_length));
     }
+    validators.push(noLeadingSpaceValidator());
 
     let htmlInputType = 'text';
     switch (fieldOptions.type) {
@@ -203,6 +213,10 @@ export class CustomInfoComponent implements OnChanges {
 
     if (control.errors['required']) {
       return 'This field is required.';
+    }
+
+    if (control.errors['whitespace']) {
+      return 'This field cannot contain only spaces.';
     }
 
     if (control.errors['noLeadingSpace']) {

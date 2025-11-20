@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DatePipe, formatDate } from '@angular/common';
@@ -8,8 +8,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
-import { DateRangeValidators } from 'app/core/validators/date-range-validators';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import { fromEvent } from 'rxjs';
+dayjs.extend(utc);
 
 @Component({
   selector: 'app-update-restricted-days',
@@ -18,7 +20,8 @@ import dayjs from 'dayjs';
   templateUrl: './update-restricted-days.component.html',
   styleUrl: './update-restricted-days.component.css'
 })
-export class UpdateRestrictedDaysComponent {
+export class UpdateRestrictedDaysComponent implements OnInit, AfterViewInit {
+  @ViewChild('dateInput', { static: true }) dateInput!: ElementRef;
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
@@ -28,7 +31,7 @@ export class UpdateRestrictedDaysComponent {
   formattedUpdatedAt: string = '';
   dayId: string | null = null;
   originalFormValue: any;
-  minDate = dayjs().startOf('day');
+  minDate = dayjs().utc().startOf('day');
 
   constructor(
     private _DepartmentsService: DepartmentsService,
@@ -47,6 +50,14 @@ export class UpdateRestrictedDaysComponent {
     if (this.dayId) {
       this.getRestrictedDay(Number(this.dayId));
     }
+  }
+  ngAfterViewInit() {
+    fromEvent(this.dateInput.nativeElement, 'input').subscribe(() => {
+      const rawValue = this.dateInput.nativeElement.value;
+
+      this.restrictedDayForm.get('dates')?.setValue(rawValue, { emitEvent: true });
+      this.restrictedDayForm.get('dates')?.updateValueAndValidity();
+    });
   }
   getAllDepartments(
     searchTerm: string = '',
@@ -73,7 +84,7 @@ export class UpdateRestrictedDaysComponent {
     name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
     restriction_type: new FormControl('', [Validators.required]),
     departments: new FormControl(''),
-    dates: new FormControl('', [Validators.required, DateRangeValidators.futureDateRange()]),
+    dates: new FormControl('', [Validators.required]),
   });
 
   getRestrictedDay(dayId: number) {
@@ -116,6 +127,8 @@ export class UpdateRestrictedDaysComponent {
       }
     });
   }
+
+
 
 
   formChanged(): boolean {

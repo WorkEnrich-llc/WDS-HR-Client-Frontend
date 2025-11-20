@@ -150,17 +150,18 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
       const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
       this.contractForm.patchValue({
-        adjustmentType: 1,
+        adjustmentType: this.contract.adjustment?.id || 0,
         withEndDate: this.contract.end_contract ? true : false,
         salary: this.contract.salary,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         noticePeriod: this.contract.notice_period
       });
+      this.contractForm.markAsPristine();
 
     } else {
       this.contractForm.reset({
-        adjustmentType: 1,
+        adjustmentType: 0,
         salary: null,
         startDate: null,
         withEndDate: false,
@@ -223,6 +224,12 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
     }
     return displayDate;
+  }
+
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.contractForm.invalid;
+    const isUnchanged = this.contractForm.pristine;
+    return isInvalid || isUnchanged || this.isLoading;
   }
 
   // Helper method to convert form date (YYYY-MM-DD) to display date (DD/MM/YYYY)
