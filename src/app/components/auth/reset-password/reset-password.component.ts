@@ -62,7 +62,6 @@ export class ResetPasswordComponent {
     this.errMsg = '';
     this.isLoading = true;
     const emailControl = this.emailForm.get('email');
-    // console.log('emailControl', emailControl);
     if (!emailControl?.value) return;
 
     this._AuthenticationService.forgetPassSendCode(emailControl.value).subscribe({

@@ -278,7 +278,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     }
   }
 
-  updateleaveType() {
+  updateLeaveType() {
     if (this.isLoading) {
       return;
     }
@@ -358,6 +358,13 @@ export class UpdateLeaveTypesComponent implements OnInit {
     this.currentStep--;
   }
 
+
+
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.leaveType1.invalid || this.leaveType2.invalid || this.leaveType3.invalid;
+    const isUnchanged = this.leaveType1.pristine && this.leaveType2.pristine && this.leaveType3.pristine;
+    return isInvalid || isUnchanged || this.isLoading;
+  }
 
 
 

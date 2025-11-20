@@ -30,7 +30,7 @@ export class CompanyChartComponent {
         this.initChart();
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

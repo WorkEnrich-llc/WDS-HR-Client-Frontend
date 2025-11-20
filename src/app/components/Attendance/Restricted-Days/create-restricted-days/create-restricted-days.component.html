@@ -107,9 +107,9 @@
           <label for="dateRange">Date Range <span>*</span></label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input ngxDaterangepickerMd formControlName="dates" class="form-control"
+              <input #dateInput ngxDaterangepickerMd formControlName="dates" class="form-control"
                 placeholder="Select date or range" [showDropdowns]="true" [autoApply]="true" [linkedCalendars]="false"
-                [locale]="{ format: 'YYYY-MM-DD' }" />
+                [locale]="{ format: 'YYYY-MM-DD' }" [minDate]="minDate" />
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <g fill="none" stroke-width="1.5">
                   <path stroke-linecap="round"
@@ -120,11 +120,24 @@
               </svg>
             </div>
           </div>
-          @if (restrictedDayForm.get('dates')?.touched && restrictedDayForm.get('dates')?.errors?.['required']) {
+          <!-- @if (restrictedDayForm.get('dates')?.touched && restrictedDayForm.get('dates')?.errors?.['required']) {
           <p class="error-msg">
             Date Range is required.
           </p>
-          }
+          } -->
+
+          <div class="input">
+            @if (restrictedDayForm.get('dates')?.touched && restrictedDayForm.get('dates')?.errors) {
+            <p class="error-msg">
+              @if (restrictedDayForm.get('dates')?.errors?.['required']) {
+              Date Range is required.
+              }
+              @else if (restrictedDayForm.get('dates')?.errors?.['pastDateRange']) {
+              The start date of the range must be today or a future date.
+              }
+            </p>
+            }
+          </div>
         </div>
         @if (errMsg) {
         <div class="alert alert-danger mb-0 mt-3" role="alert">

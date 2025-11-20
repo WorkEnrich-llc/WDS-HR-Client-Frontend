@@ -47,7 +47,7 @@ export class CustomFieldsService {
         status: newStatus
       }
     };
-    return this.http.put<CustomFieldDetailResponse>(`${this.url}/${fieldId}/`, data);
+    return this.http.patch<CustomFieldDetailResponse>(`${this.url}/${fieldId}/`, data);
   }
 
   // delete custom field

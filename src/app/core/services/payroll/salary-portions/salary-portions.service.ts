@@ -31,8 +31,12 @@ export class SalaryPortionsService {
 
 
 
-  single() {
-    return this.http.get<SalaryPortion>(`${this.url}`).pipe(
+  single(params?: { request_in?: string }) {
+    let url = `${this.url}`;
+    if (params?.request_in) {
+      url += `?request_in=${params.request_in}`;
+    }
+    return this.http.get<SalaryPortion>(url).pipe(
       map((res: any) => res.data?.object_info ?? null)
     );
   }

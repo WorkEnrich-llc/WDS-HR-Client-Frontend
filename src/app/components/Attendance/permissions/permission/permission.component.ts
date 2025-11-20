@@ -28,7 +28,6 @@ export class PermissionComponent implements OnInit {
     this._PermissionsService.getPermissions().subscribe({
       next: (data) => {
         this.permissions = data.data.object_info;
-        // console.log(this.permissions);
       },
       error: (error) => {
         console.error('Error fetching permissions:', error);

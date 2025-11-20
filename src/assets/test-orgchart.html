@@ -14,7 +14,7 @@
       window.addEventListener("message", (event) => {
          if (event.origin !== "http://localhost:4200") return;
 
-         console.log("Data received from Angular:", event.data);
+         // console.log("Data received from Angular:", event.data);
 
          document.querySelector("h2").innerText = "OrgChart Data Received!";
          document.getElementById("chart").innerText = JSON.stringify(event.data, null, 2);

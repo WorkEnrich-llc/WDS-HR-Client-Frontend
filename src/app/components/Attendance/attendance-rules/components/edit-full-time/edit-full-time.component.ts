@@ -45,7 +45,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     }
     this.salaryPortionsRequestInFlight = true;
     this.salaryPortionsLoading = true;
-    this.salaryPortionsService.single().pipe(
+    this.salaryPortionsService.single({ request_in: 'attendance-rules' }).pipe(
       takeUntil(this.destroy$),
       finalize(() => {
         this.salaryPortionsLoading = false;
@@ -53,7 +53,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (response) => {
-        console.log('Salary portions loaded:', response);
         if (response && response.settings && Array.isArray(response.settings)) {
           // Map settings to include index from the response
           this.salaryPortions = response.settings.map((setting: any, arrayIndex: number) => ({
@@ -61,7 +60,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
             percentage: setting.percentage,
             index: setting.index !== undefined ? setting.index : (arrayIndex + 1) // Use index from API or fallback to array index + 1
           }));
-          console.log('Mapped salary portions with indices:', this.salaryPortions);
         } else {
           this.salaryPortions = [];
         }
@@ -241,7 +239,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   // step 2 - Lateness
   latenessEntries = [{ value: null as number | null, salaryPortionIndex: null as number | null }];
-  salaryPortions: { name: string; percentage: number; index: number }[] = [];
+  salaryPortions: { name: string; percentage: number | string; index: number }[] = [];
   salaryPortionsLoading: boolean = false;
   latenessValidationErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
 
@@ -651,12 +649,12 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
         settings: {
           full_time: {
             lateness: this.latenessEntries.map((entry, index) => {
-              console.log('Mapping lateness entry:', {
-                entryIndex: index + 1,
-                value: entry.value,
-                salaryPortionIndex: entry.salaryPortionIndex,
-                availablePortions: this.salaryPortions
-              });
+              // console.log('Mapping lateness entry:', {
+              //   entryIndex: index + 1,
+              //   value: entry.value,
+              //   salaryPortionIndex: entry.salaryPortionIndex,
+              //   availablePortions: this.salaryPortions
+              // });
               return {
                 index: index + 1,
                 value: entry.value || 0,
@@ -772,7 +770,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
-        console.log('Rules saved successfully:', response);
       },
       error: (error) => {
         console.error('Error saving rules:', error);
@@ -784,6 +781,15 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Check if percentage should be displayed
+   */
+  shouldShowPercentage(percentage: number | string | null | undefined): boolean {
+    if (percentage == null) return false;
+    const str = String(percentage).trim();
+    return str !== '';
   }
 
 

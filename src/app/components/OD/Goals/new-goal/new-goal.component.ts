@@ -10,7 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-new-goal',
-  imports: [PageHeaderComponent,PopupComponent,ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './new-goal.component.html',
   styleUrl: './new-goal.component.css'
@@ -23,7 +23,7 @@ export class NewGoalComponent {
   constructor(
     private router: Router,
     private datePipe: DatePipe,
-    private goalsService:GoalsService,
+    private goalsService: GoalsService,
     private toasterMessageService: ToasterMessageService,
     private subService: SubscriptionService
   ) {
@@ -31,12 +31,11 @@ export class NewGoalComponent {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
-    // console.log(this.todayFormatted); 
   }
 
   GoalsSub: any;
   ngOnInit(): void {
-      // subscription data
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.GoalsSub = sub?.Goals;
       // if (this.GoalsSub) {
@@ -48,32 +47,29 @@ export class NewGoalComponent {
     });
   }
 
-  
+
   goalForm: FormGroup = new FormGroup({
     code: new FormControl('', []),
     name: new FormControl('', [Validators.required]),
     department_type: new FormControl('', [Validators.required]),
     Priority: new FormControl('', [Validators.required]),
   });
-  
-  
-createGoal() {
-  this.isLoading = true;
 
-  const formValue = this.goalForm.value;
 
-  const requestData = {
-    request_data: {
-      code: formValue.code || "",
-      name: formValue.name,
-      goal_type: Number(formValue.department_type), 
-      priority: Number(formValue.Priority)
-    }
-  };
+  createGoal() {
+    this.isLoading = true;
 
-  console.log("📦 Raw Request Data:", requestData);
+    const formValue = this.goalForm.value;
 
-  this.goalsService.createGoal(requestData).subscribe({
+    const requestData = {
+      request_data: {
+        code: formValue.code || "",
+        name: formValue.name,
+        goal_type: Number(formValue.department_type),
+        priority: Number(formValue.Priority)
+      }
+    };
+    this.goalsService.createGoal(requestData).subscribe({
 
       next: (response) => {
         this.isLoading = false;
@@ -102,8 +98,8 @@ createGoal() {
       }
 
     });
-}
-    // discard popup
+  }
+  // discard popup
   isModalOpen = false;
 
   openModal() {

@@ -112,7 +112,6 @@ export class AllLeaveTypesComponent {
 };
 
 
-      // console.log('Filters submitted:', filters);
       this.filterBox.closeOverlay();
       this.getAllJobTitles(this.currentPage, '', filters);
     }
@@ -141,14 +140,13 @@ export class AllLeaveTypesComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.leaveTypes = response.data.list_items;
-        // console.log(this.leaveTypes);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

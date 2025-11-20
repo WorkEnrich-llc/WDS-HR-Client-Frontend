@@ -156,7 +156,6 @@ export class LeaveBalanceTabComponent implements OnChanges {
       .subscribe({
         next: (response) => {
           // this.toasterService.showSuccess('Leave balance updated successfully.');
-          console.log('Update successful', response.data);
           this.loadLeaveBalances();
         },
         error: (err) => {

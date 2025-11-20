@@ -29,7 +29,7 @@ interface Department {
 export class ViewBranchesComponent {
 
 
-  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe,private subService: SubscriptionService) { }
+  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   departments: Department[] = [];
   branchData: any = { sections: [] };
   formattedCreatedAt: string = '';
@@ -38,10 +38,10 @@ export class ViewBranchesComponent {
   latitude: number = 0;
   longitude: number = 0;
   loadData: boolean = false;
-branchSub: any;
+  branchSub: any;
   ngOnInit(): void {
 
-     // subscription data
+    // subscription data
     this.subService.subscription$.subscribe(sub => {
       this.branchSub = sub?.Branches;
       // if (this.branchSub) {
@@ -64,9 +64,7 @@ branchSub: any;
     this.loadData = true;
     this._BranchesService.showBranch(branchId).subscribe({
       next: (response) => {
-        // console.log(response);
         this.branchData = response.data.object_info;
-        // console.log(this.branchData);
         this.latitude = this.branchData?.latitude;
         this.longitude = this.branchData?.longitude;
         const created = this.branchData?.created_at;
@@ -80,7 +78,7 @@ branchSub: any;
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -139,7 +137,7 @@ branchSub: any;
         this.branchData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -164,7 +162,7 @@ branchSub: any;
         this.branchData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

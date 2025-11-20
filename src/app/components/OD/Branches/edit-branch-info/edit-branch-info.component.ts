@@ -152,7 +152,6 @@ export class EditBranchInfoComponent implements OnInit {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
 
-        // console.log('Departments (before filter):', response.data.list_items);
 
         const activeDepartments = response.data.list_items.filter(
           (item: any) => item.is_active === true
@@ -199,12 +198,11 @@ export class EditBranchInfoComponent implements OnInit {
           };
         });
 
-        // console.log('Filtered Active Departments:', this.departments);
 
         this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -270,7 +268,6 @@ export class EditBranchInfoComponent implements OnInit {
 
     this.departmentsOverlay.closeOverlay();
 
-    // console.log(this.addeddepartments);
   }
 
   // branch data
@@ -331,7 +328,7 @@ export class EditBranchInfoComponent implements OnInit {
         this.loadData = false;
       }),
       catchError((err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
         return of(null);
       })
@@ -615,97 +612,96 @@ export class EditBranchInfoComponent implements OnInit {
       }
     };
 
-    // console.log('Request Payload:', requestPayload);
     this._BranchesService.updateBranch(requestPayload).subscribe({
 
-        next: (response) => {
-          this.isLoading = false;
-          this.errMsg = '';
-          // create success
-          this.router.navigate(['/branches/all-branches']);
-          this.toasterMessageService.sendMessage("Branch Updated successfully");
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        // create success
+        this.router.navigate(['/branches/all-branches']);
+        this.toasterMessageService.sendMessage("Branch Updated successfully");
 
-        },
-        error: (err) => {
-          this.isLoading = false;
-          const statusCode = err?.status;
-          const errorHandling = err?.error?.data?.error_handling;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const statusCode = err?.status;
+        const errorHandling = err?.error?.data?.error_handling;
 
-          if (statusCode === 400) {
-            if (Array.isArray(errorHandling) && errorHandling.length > 0) {
-              this.currentStep = errorHandling[0].tap;
-              this.errMsg = errorHandling[0].error;
-            } else if (err?.error?.details) {
-              this.errMsg = err.error.details;
-            } else {
-              this.errMsg = "An unexpected error occurred. Please try again later.";
-            }
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.currentStep = errorHandling[0].tap;
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
           } else {
             this.errMsg = "An unexpected error occurred. Please try again later.";
           }
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
         }
+      }
 
-      });
-    }
+    });
+  }
 
 
 
   // steps
   currentStep = 1;
 
-    goNext() {
-      this.currentStep++;
-
-    }
-
-    goPrev() {
-      this.currentStep--;
-
-    }
-
-
-    // added departmets table search
-    searchAddedDepartmentTerm: string = '';
-
-  get filteredDepartments() {
-      return this.addeddepartments.filter(dept =>
-        dept.name?.toLowerCase().includes(this.searchAddedDepartmentTerm.toLowerCase())
-      );
-    }
-
-
-    searchDeptSectionsTerm: string = '';
-
-  get filteredSections() {
-      return this.selectedDepartmentSections.filter(dept =>
-        dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
-      );
-    }
-
-    // Handle location changes from Google Maps component
-    // Handle location changes (marker moved, search, etc.)
-    onLocationChanged(locationData: LocationData): void {
-      this.locationData = { ...locationData };
-      // Reset confirmation flag until user confirms the location
-      this.isLocationReady = false;
-      // Clear any previous errors
-      this.errMsg = '';
-    }
-
-    // Handle location confirmation (user pressed "Confirm")
-    onLocationConfirmed(event: LocationData): void {
-
-      this.ngZone.run(() => {
-        this.locationData = { ...event };
-
-        this.isLocationReady = !!(
-          this.locationData.map_country &&
-          this.locationData.map_city &&
-          this.locationData.map_address &&
-          this.locationData.latitude &&
-          this.locationData.longitude
-        );
-      });
-    }
+  goNext() {
+    this.currentStep++;
 
   }
+
+  goPrev() {
+    this.currentStep--;
+
+  }
+
+
+  // added departmets table search
+  searchAddedDepartmentTerm: string = '';
+
+  get filteredDepartments() {
+    return this.addeddepartments.filter(dept =>
+      dept.name?.toLowerCase().includes(this.searchAddedDepartmentTerm.toLowerCase())
+    );
+  }
+
+
+  searchDeptSectionsTerm: string = '';
+
+  get filteredSections() {
+    return this.selectedDepartmentSections.filter(dept =>
+      dept.name?.toLowerCase().includes(this.searchDeptSectionsTerm.toLowerCase())
+    );
+  }
+
+  // Handle location changes from Google Maps component
+  // Handle location changes (marker moved, search, etc.)
+  onLocationChanged(locationData: LocationData): void {
+    this.locationData = { ...locationData };
+    // Reset confirmation flag until user confirms the location
+    this.isLocationReady = false;
+    // Clear any previous errors
+    this.errMsg = '';
+  }
+
+  // Handle location confirmation (user pressed "Confirm")
+  onLocationConfirmed(event: LocationData): void {
+
+    this.ngZone.run(() => {
+      this.locationData = { ...event };
+
+      this.isLocationReady = !!(
+        this.locationData.map_country &&
+        this.locationData.map_city &&
+        this.locationData.map_address &&
+        this.locationData.latitude &&
+        this.locationData.longitude
+      );
+    });
+  }
+
+}

@@ -221,8 +221,6 @@ export class ManageEmployeeComponent implements OnInit {
     }
     this.sharedService.isLoading.set(true);
     this.sharedService.errMsg.set('');
-    console.log('Form Status:', this.sharedService.employeeForm.status);
-    console.log('Form Value:', this.sharedService.employeeForm.value);
     const employeeData = this.sharedService.getFormData();
 
     if (this.sharedService.isEditMode() && !this.sharedService.employeeData()) {
@@ -234,7 +232,6 @@ export class ManageEmployeeComponent implements OnInit {
     if (!employeeData) {
       this.toasterMessageService.showError('Invalid form data');
       this.sharedService.isLoading.set(false);
-      console.log('Invalid form data:', employeeData);
       return;
     }
 
@@ -267,6 +264,12 @@ export class ManageEmployeeComponent implements OnInit {
     }
   }
 
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.sharedService.employeeForm.invalid;
+    const isUnchanged = this.sharedService.employeeForm.pristine;
+    return isInvalid || isUnchanged || this.sharedService.isLoading();
+  }
+
   // onSubmit() {
   //   if (this.sharedService.employeeForm.invalid) {
   //     this.sharedService.employeeForm.markAllAsTouched();
@@ -276,8 +279,7 @@ export class ManageEmployeeComponent implements OnInit {
   //   }
   //   this.sharedService.isLoading.set(true);
   //   this.sharedService.errMsg.set('');
-  //   console.log('Form Status:', this.sharedService.employeeForm.status);
-  //   console.log('Form Value:', this.sharedService.employeeForm.value);
+
 
 
   //   if (this.sharedService.isEditMode()) {
@@ -292,7 +294,6 @@ export class ManageEmployeeComponent implements OnInit {
   //     if (!employeeData) {
   //       this.toasterMessageService.showError('Invalid form data');
   //       this.sharedService.isLoading.set(false);
-  //       console.log('Invalid form data:', employeeData);
   //       return;
   //     }
 
@@ -315,7 +316,6 @@ export class ManageEmployeeComponent implements OnInit {
   //     if (!employeeData) {
   //       this.toasterMessageService.showError('Invalid form data');
   //       this.sharedService.isLoading.set(false);
-  //       console.log('Invalid form data:', employeeData);
   //       return;
   //     }
 

@@ -140,12 +140,9 @@ export class EditWorkScheduleComponent {
           this.checkForChanges();
         }, 0);
 
-
-
-        console.log(this.workScduleData);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -243,7 +240,7 @@ export class EditWorkScheduleComponent {
         this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -313,7 +310,6 @@ export class EditWorkScheduleComponent {
 
     this.departmentsOverlay.closeOverlay();
     this.checkForChanges();
-    // console.log(this.addeddepartments);
   }
 
 
@@ -635,7 +631,6 @@ export class EditWorkScheduleComponent {
     };
 
 
-    // console.log(request_data);
     this._WorkSchaualeService.updateWorkSchedule(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;

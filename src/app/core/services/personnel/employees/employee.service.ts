@@ -37,16 +37,16 @@ export class EmployeeService {
   //   }
   //   return this.http.get<EmployeesResponse>(url);
   // }
-  getEmployees(page: number = 1, per_page: number = 10, search: string = '', filters: any = {}, end_contract_sort?: string): Observable<EmployeesResponse> {
+  getEmployees(page: number = 1, per_page: number = 10, search: string = '', filters: any = {}): Observable<EmployeesResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('per_page', per_page.toString());
     if (search) {
       params = params.append('search', search);
     }
-    if (end_contract_sort) {
-      params = params.append('end_contract_sort', end_contract_sort);
-    }
+    // if (end_contract_sort) {
+    //   params = params.append('end_contract_sort', end_contract_sort);
+    // }
     for (const key in filters) {
       const value = filters[key];
       if (value) {
@@ -164,6 +164,10 @@ export class EmployeeService {
     const url = `${this.apiBaseUrl}personnel/contract/all?employee_id=${employeeId}`;
     return this.http.get<ContractsResponse>(url);
   }
+  // getEmployeeContracts(employeeId: number): Observable<ContractsResponse> {
+  //   const url = `${this.apiBaseUrl}personnel/employees-contracts/${employeeId}`;
+  //   return this.http.get<ContractsResponse>(url);
+  // }
 
 
 
@@ -288,6 +292,16 @@ export class EmployeeService {
     contract_id: number;
   }): Observable<ContractsResponse> {
     const url = `${this.apiBaseUrl}personnel/contract/cancel`;
+    const formData = new FormData();
+    formData.append('contract_id', requestData.contract_id.toString());
+    return this.http.put<ContractsResponse>(url, formData);
+  }
+
+  // Joining employee contract
+  joiningEmployeeContract(requestData: {
+    contract_id: number;
+  }): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/joined`;
     const formData = new FormData();
     formData.append('contract_id', requestData.contract_id.toString());
     return this.http.put<ContractsResponse>(url, formData);

@@ -26,11 +26,11 @@ export class VersionService {
   constructor() {
     // Display version info in console
     this.displayVersionInfo();
-    
+
     // Make version available globally
     if (typeof window !== 'undefined') {
-  // Cast to any because generated `versionInfo` has a stricter type in the env file
-  (window as any).APP_VERSION = this.version as any;
+      // Cast to any because generated `versionInfo` has a stricter type in the env file
+      (window as any).APP_VERSION = this.version as any;
     }
   }
 
@@ -39,7 +39,7 @@ export class VersionService {
   }
 
   getVersion(): string {
-  return this.version.version ?? '0.0.0';
+    return this.version.version ?? '0.0.0';
   }
 
   // Return branch if available, otherwise an empty string
@@ -64,39 +64,39 @@ export class VersionService {
       value: 'color: #FF9800; font-size: 12px; font-weight: bold;'
     };
 
-    console.group('%c🚀 WDS HR Client - Version Info', styles.title);
-    console.log('%c📦 Version:', styles.info, '%c' + (this.version.version ?? 'unknown'), styles.value);
+    // console.group('%c🚀 WDS HR Client - Version Info', styles.title);
+    // console.log('%c📦 Version:', styles.info, '%c' + (this.version.version ?? 'unknown'), styles.value);
 
     if (this.version.branch) {
-      console.log('%c🌿 Branch:', styles.info, '%c' + this.version.branch, styles.value);
+      // console.log('%c🌿 Branch:', styles.info, '%c' + this.version.branch, styles.value);
     } else {
-      console.log('%c🌿 Branch:', styles.info, '%cunknown', styles.value);
+      // console.log('%c🌿 Branch:', styles.info, '%cunknown', styles.value);
     }
 
     if (this.version.commit) {
-      console.log('%c📝 Commit:', styles.info, '%c' + this.version.commit, styles.value);
+      // console.log('%c📝 Commit:', styles.info, '%c' + this.version.commit, styles.value);
     }
 
     if (this.version.buildDate) {
       try {
         const d = new Date(this.version.buildDate);
-        console.log('📅 Build Date:', styles.info, '%c' + d.toLocaleString(), styles.value);
+        // console.log('📅 Build Date:', styles.info, '%c' + d.toLocaleString(), styles.value);
       } catch (e) {
-        console.log('📅 Build Date:', styles.info, '%c' + this.version.buildDate, styles.value);
+        // console.log('📅 Build Date:', styles.info, '%c' + this.version.buildDate, styles.value);
       }
     } else if (this.version.buildTimestamp) {
       const d = new Date(Number(this.version.buildTimestamp));
-      console.log('📅 Build Timestamp:', styles.info, '%c' + (isNaN(d.getTime()) ? String(this.version.buildTimestamp) : d.toLocaleString()), styles.value);
+      // console.log('📅 Build Timestamp:', styles.info, '%c' + (isNaN(d.getTime()) ? String(this.version.buildTimestamp) : d.toLocaleString()), styles.value);
     } else {
-      console.log('� Build Date:', styles.info, '%cunknown', styles.value);
+      // console.log('� Build Date:', styles.info, '%cunknown', styles.value);
     }
 
     const envLabel = this.version.branch ? (this.version.branch === 'main' ? 'Production' : this.version.branch) : 'unknown';
-    console.log('💻 Environment:', styles.info, '%c' + envLabel, styles.value);
+    // console.log('💻 Environment:', styles.info, '%c' + envLabel, styles.value);
     console.groupEnd();
 
     // Also log a simple version for easy access
-    console.log(`Version: ${this.version.version ?? 'unknown'}`, 'color: #2196F3; font-weight: bold;');
+    // console.log(`Version: ${this.version.version ?? 'unknown'}`, 'color: #2196F3; font-weight: bold;');
   }
 
   // Method to display version in UI

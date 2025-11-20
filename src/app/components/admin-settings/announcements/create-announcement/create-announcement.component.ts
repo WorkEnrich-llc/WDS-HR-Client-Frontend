@@ -113,7 +113,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      * Perform search based on current recipient type
      */
     private performSearch(): void {
-        console.log('performSearch called for:', this.selectedRecipientType, 'searchTerm:', this.modalSearchTerm);
+        // console.log('performSearch called for:', this.selectedRecipientType, 'searchTerm:', this.modalSearchTerm);
         this.currentPage = 1;
         if (this.selectedRecipientType === 'section') {
             this.loadDepartmentsForSections();
@@ -219,7 +219,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      * Open department selection overlay
      */
     openDepartmentSelection(): void {
-        console.log('openDepartmentSelection called for:', this.selectedRecipientType);
+        // console.log('openDepartmentSelection called for:', this.selectedRecipientType);
         // Clear any previous selections when opening the modal
         this.clearModalSelections();
         this.departmentFilterBox.openOverlay();
@@ -228,10 +228,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         // Load data based on selected recipient type
         if (this.selectedRecipientType === 'section') {
             // For sections, load departments for dropdown selection
-            console.log('Loading departments for sections');
+            // console.log('Loading departments for sections');
             this.loadDepartmentsForSections();
         } else {
-            console.log('Loading entities for:', this.selectedRecipientType);
+            // console.log('Loading entities for:', this.selectedRecipientType);
             this.loadEntities();
         }
     }

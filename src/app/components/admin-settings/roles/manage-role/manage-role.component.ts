@@ -666,7 +666,7 @@ export class ManageRoleComponent implements OnInit {
       return;
     }
     const roleModel = this.buildRoleModel();
-    console.log('Role model:', roleModel);
+    // console.log('Role model:', roleModel);
     this.isLoading = true;
     if (this.isEditMode) {
       roleModel.id = this.roleId;
