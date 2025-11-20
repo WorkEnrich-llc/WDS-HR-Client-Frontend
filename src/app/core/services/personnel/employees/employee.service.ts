@@ -297,6 +297,16 @@ export class EmployeeService {
     return this.http.put<ContractsResponse>(url, formData);
   }
 
+  // Joining employee contract
+  joiningEmployeeContract(requestData: {
+    contract_id: number;
+  }): Observable<ContractsResponse> {
+    const url = `${this.apiBaseUrl}personnel/contract/joined`;
+    const formData = new FormData();
+    formData.append('contract_id', requestData.contract_id.toString());
+    return this.http.put<ContractsResponse>(url, formData);
+  }
+
   // Get contract adjustments history for a specific contract
   getEmployeeContractAdjustments(contractId: number): Observable<ContractAdjustmentsResponse> {
     const url = `${this.apiBaseUrl}personnel/contract/history?contract_id=${contractId}`;
