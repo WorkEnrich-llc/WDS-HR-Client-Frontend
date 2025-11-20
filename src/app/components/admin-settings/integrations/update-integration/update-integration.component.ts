@@ -239,18 +239,18 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      * Confirm service selection and close overlay (first overlay)
      */
     confirmServiceSelection(): void {
-        // Add selected services to selectedServices (without items yet)
+        // Add selected services to selectedServices (without items yet - default to all)
         for (const feature of this.selectedServicesForFirstOverlay) {
             // Check if service already exists
             const existingIndex = this.selectedServices.findIndex(s => s.feature.name === feature.name);
             if (existingIndex === -1) {
-                // Add new service without items
+                // Add new service without items - default to all selected
                 this.selectedServices.push({
                     feature: feature,
                     items: [],
                     sections: [],
                     department: undefined,
-                    isAllSelected: false
+                    isAllSelected: true  // Default to all if no items selected
                 });
             }
         }
@@ -326,18 +326,28 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 this.editingService.department = this.selectedDepartment;
                 this.editingService.isAllSelected = this.isAllSectionsSelected();
             } else {
+                // If no items selected, default to all
                 this.editingService.sections = [];
                 this.editingService.department = undefined;
-                this.editingService.isAllSelected = false;
+                this.editingService.isAllSelected = true;
             }
         } else {
             if (this.selectedItems.length > 0) {
                 this.editingService.items = [...this.selectedItems];
                 this.editingService.isAllSelected = this.isAllItemsSelected();
             } else {
+                // If no items selected, default to all
                 this.editingService.items = [];
-                this.editingService.isAllSelected = false;
+                this.editingService.isAllSelected = true;
             }
+        }
+        
+        // Update selectedServices with the editing service
+        const existingIndex = this.selectedServices.findIndex(s => s.feature.name === this.editingService.feature.name);
+        if (existingIndex >= 0) {
+            this.selectedServices[existingIndex] = { ...this.editingService };
+        } else {
+            this.selectedServices.push({ ...this.editingService });
         }
         
         this.closeItemsFilter();
@@ -596,10 +606,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     }
                 }
                 
-                // Save updated selections
-                if (this.currentViewingFeature) {
-                    this.saveCurrentSelections();
-                }
+                // Don't save in real-time - only update on confirm
             },
             error: (error) => {
                 console.error('Error loading feature items (including fallback):', error);
@@ -670,10 +677,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     this.selectedSections = this.selectedSections.filter(section => validSectionIds.has(section.id));
                 }
                 
-                // Save updated selections
-                if (this.currentViewingFeature) {
-                    this.saveCurrentSelections();
-                }
+                // Don't save in real-time - only update on confirm
             },
             error: (error) => {
                 console.error('Error loading sections:', error);
@@ -693,8 +697,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedItems.push(item);
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -707,8 +710,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedSections.push(section);
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -722,8 +724,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             // Select all
             this.selectedItems = [...this.featureItems];
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -737,8 +738,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             // Select all
             this.selectedSections = [...this.sections];
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -809,7 +809,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     /**
      * Get list of selected services for table display
      */
-    getSelectedServicesForTable(): Array<{ serviceName: string; count: number; service: any }> {
+    getSelectedServicesForTable(): Array<{ serviceName: string; count: number; service: any; isAllSelected: boolean }> {
         return this.selectedServices.map(service => {
             let count = 0;
             if (service.feature.name === 'Sections') {
@@ -820,7 +820,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             return {
                 serviceName: service.feature.name,
                 count: count,
-                service: service
+                service: service,
+                isAllSelected: service.isAllSelected || false
             };
         });
     }

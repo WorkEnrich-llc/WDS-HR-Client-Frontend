@@ -282,10 +282,18 @@
             <td>
                 <div class="service-row">
                     <div class="service-name-text">
-                        @if (service.serviceName === 'Sections') {
-                        {{ service.count }} section{{ service.count !== 1 ? 's' : '' }}
+                        @if (service.isAllSelected && service.count === 0) {
+                            @if (service.serviceName === 'Sections') {
+                                all sections
+                            } @else {
+                                all {{ service.serviceName.toLowerCase() }}s
+                            }
                         } @else {
-                        {{ service.count }} {{ service.serviceName.toLowerCase() }}{{ service.count !== 1 ? 's' : '' }}
+                            @if (service.serviceName === 'Sections') {
+                                {{ service.count }} section{{ service.count !== 1 ? 's' : '' }}
+                            } @else {
+                                {{ service.count }} {{ service.serviceName.toLowerCase() }}{{ service.count !== 1 ? 's' : '' }}
+                            }
                         }
                     </div>
                 </div>
