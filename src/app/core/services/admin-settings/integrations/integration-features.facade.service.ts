@@ -124,19 +124,10 @@ export class IntegrationFeaturesFacadeService {
      * Load employees
      */
     private loadEmployees(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.employeeService.getAllEmployees().pipe(
+        return this.employeeService.getEmployees(1, 10000, searchTerm || '', {}).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                let filtered = items;
-                if (searchTerm) {
-                    const search = searchTerm.toLowerCase();
-                    filtered = items.filter((item: any) =>
-                        item.contact_info?.name?.toLowerCase().includes(search) ||
-                        item.code?.toLowerCase().includes(search) ||
-                        item.contact_info?.email?.toLowerCase().includes(search)
-                    );
-                }
-                return filtered.map((item: any) => ({
+                return items.map((item: any) => ({
                     id: item.id,
                     name: item.contact_info?.name || 'Unknown',
                     code: item.code,

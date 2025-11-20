@@ -290,7 +290,18 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 this.loadDepartmentsForSections();
             }
         } else {
-            this.selectedItems = [...(service.items || [])];
+            // Save the selected item IDs (might be stored as IDs only from prefill)
+            const selectedItemIds = (service.items || []).map((item: any) => 
+                typeof item === 'object' && item !== null ? item.id : item
+            ).filter((id: any) => id !== null && id !== undefined);
+            
+            // Store IDs for restoration after loading
+            this.selectedItems = [];
+            if (selectedItemIds.length > 0) {
+                // Create temporary items with just IDs - will be replaced after loading
+                this.selectedItems = selectedItemIds.map((id: number) => ({ id } as FeatureItem));
+            }
+            
             this.loadFeatureItems(service.feature.name);
         }
         
@@ -322,21 +333,23 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         // Save current selections to the editing service
         if (this.editingService.feature.name === 'Sections') {
             if (this.selectedSections.length > 0 && this.selectedDepartment) {
+                // User has manually selected sections - set is_all to false and send selected sections
                 this.editingService.sections = [...this.selectedSections];
                 this.editingService.department = this.selectedDepartment;
-                this.editingService.isAllSelected = this.isAllSectionsSelected();
+                this.editingService.isAllSelected = false;
             } else {
-                // If no items selected, default to all
+                // If no items selected, default to all (is_all = true)
                 this.editingService.sections = [];
                 this.editingService.department = undefined;
                 this.editingService.isAllSelected = true;
             }
         } else {
             if (this.selectedItems.length > 0) {
+                // User has manually selected items - set is_all to false and send selected items
                 this.editingService.items = [...this.selectedItems];
-                this.editingService.isAllSelected = this.isAllItemsSelected();
+                this.editingService.isAllSelected = false;
             } else {
-                // If no items selected, default to all
+                // If no items selected, default to all (is_all = true)
                 this.editingService.items = [];
                 this.editingService.isAllSelected = true;
             }
@@ -583,26 +596,35 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 this.itemsTotalItems = items.length;
                 this.isLoadingItems = false;
                 
-                // Check if this feature has isAllSelected set to true
+                // If isAllSelected is true, don't pre-select any items (keep them unmarked)
+                // User will manually select items if needed, which will set is_all to false
                 const existingService = this.selectedServices.find(s => 
                     s.feature.name === featureName && s.isAllSelected === true
                 );
                 
                 if (existingService && existingService.isAllSelected) {
-                    // If isAllSelected is true, select all items
-                    this.selectedItems = [...items];
+                    // If isAllSelected is true, don't pre-select items - keep them unmarked
+                    this.selectedItems = [];
                 } else {
-                    // After loading, restore selected items from the service if they exist
-                    // First check if we have pre-selected items from the service
+                    // After loading, restore selected items from IDs (might be stored as IDs only from prefill)
                     if (this.editingService && this.editingService.items && this.editingService.items.length > 0) {
-                        // Restore from editingService (which was set in openItemsSelection)
+                        // Extract IDs from stored items (could be full objects or just IDs)
+                        const selectedItemIds = this.editingService.items.map((item: any) => 
+                            typeof item === 'object' && item !== null ? item.id : item
+                        ).filter((id: any) => id !== null && id !== undefined);
+                        
+                        // Match IDs with loaded items
                         const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
-                        this.selectedItems = this.editingService.items.filter((item: FeatureItem) => validItemIds.has(item.id));
+                        this.selectedItems = items.filter((item: FeatureItem) => selectedItemIds.includes(item.id));
                     } else if (this.selectedItems.length > 0) {
-                        // After loading, ensure selectedItems only contains items that exist in the loaded list
-                        // This prevents issues when restoring selections
+                        // Restore from selectedItems (which might have been set as IDs in openItemsSelection)
+                        const selectedItemIds = this.selectedItems.map((item: any) => 
+                            typeof item === 'object' && item !== null ? item.id : item
+                        ).filter((id: any) => id !== null && id !== undefined);
+                        
+                        // Match IDs with loaded items
                         const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
-                        this.selectedItems = this.selectedItems.filter(item => validItemIds.has(item.id));
+                        this.selectedItems = items.filter((item: FeatureItem) => selectedItemIds.includes(item.id));
                     }
                 }
                 
@@ -842,24 +864,13 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get dynamic error message for service selection
+     * Get error message for service selection
      */
     getServiceErrorMessage(): string {
         if (this.selectedServices.length === 0) {
-            return 'Please select a service and at least one item to continue.';
+            return 'Please select at least one service to continue.';
         }
-
-        const servicesWithNoItems = this.getServicesWithNoItems();
-        if (servicesWithNoItems.length === 0) {
-            return 'Please select a service and at least one item to continue.';
-        }
-
-        if (servicesWithNoItems.length === 1) {
-            return `Please select at least one ${servicesWithNoItems[0]} to continue.`;
-        } else {
-            const servicesList = servicesWithNoItems.join(', ');
-            return `Please select at least one ${servicesList} to continue.`;
-        }
+        return '';
     }
 
     /**
@@ -867,19 +878,19 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      */
     buildFeaturesPayload(): any[] {
         return this.selectedServices.map(service => {
-            const isAllSelected = service.isAllSelected || false;
-            
+            // If isAllSelected is true, send is_all: true with empty values
+            // If isAllSelected is false (user manually selected items), send is_all: false with selected item IDs
             if (service.feature.name === 'Sections') {
                 return {
                     name: service.feature.name,
-                    is_all: isAllSelected,
-                    values: isAllSelected ? [] : (service.sections?.map(s => s.id) || [])
+                    is_all: service.isAllSelected === true,
+                    values: service.isAllSelected === true ? [] : (service.sections?.map(s => s.id) || [])
                 };
             } else {
                 return {
                     name: service.feature.name,
-                    is_all: isAllSelected,
-                    values: isAllSelected ? [] : (service.items?.map(item => item.id) || [])
+                    is_all: service.isAllSelected === true,
+                    values: service.isAllSelected === true ? [] : (service.items?.map(item => item.id) || [])
                 };
             }
         });
@@ -889,7 +900,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      * Handle form submission
      */
     onSubmit(): void {
-        // Check if at least one service with items is selected
+        // Check if at least one service is selected
         if (this.selectedServices.length === 0) {
             this.showServiceError = true;
             if (this.currentTab !== 'access-apis') {
@@ -898,22 +909,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Validate each selected service has items
-        const hasInvalidService = this.selectedServices.some(service => {
-            if (service.feature.name === 'Sections') {
-                return !service.sections || service.sections.length === 0;
-            } else {
-                return !service.items || service.items.length === 0;
-            }
-        });
-
-        if (hasInvalidService) {
-            this.showServiceError = true;
-            if (this.currentTab !== 'access-apis') {
-                this.setCurrentTab('access-apis');
-            }
-            return;
-        }
+        // Clear service error if at least one service is selected
+        this.showServiceError = false;
 
         if (this.integrationForm.valid && !this.isSubmitting) {
             this.isSubmitting = true;
@@ -1093,35 +1090,35 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
     /**
      * Prefill a regular feature (not Sections)
+     * Note: We don't load items here to avoid unnecessary API calls on component start
+     * Items will be loaded when the user opens the items overlay
      */
     private prefillRegularFeature(feature: any, isAll: boolean, values: number[]): any {
-        return this.featuresFacade.loadFeatureItems(feature.name).pipe(
-            map((items) => {
-                let selectedItems: FeatureItem[] = [];
-                let isAllSelected = false;
+        // Don't load items during initialization - just save the IDs
+        // Items will be loaded when user opens the items overlay
+        let selectedItems: FeatureItem[] = [];
+        let isAllSelected = false;
 
-                if (isAll) {
-                    // If is_all is true, select all items
-                    selectedItems = [...items];
-                    isAllSelected = true;
-                } else {
-                    // If is_all is false, select only items with IDs in values array
-                    selectedItems = items.filter(item => values.includes(item.id));
-                    isAllSelected = false;
-                }
+        if (isAll) {
+            // If is_all is true, don't load items now - mark as all selected
+            selectedItems = [];
+            isAllSelected = true;
+        } else {
+            // If is_all is false, save the IDs only (items will be loaded when overlay opens)
+            // Create placeholder items with just IDs
+            selectedItems = values.map((id: number) => ({ id } as FeatureItem));
+            isAllSelected = false;
+        }
 
-                // Add to selectedServices
-                if (selectedItems.length > 0 || isAll) {
-                    this.selectedServices.push({
-                        feature: feature,
-                        items: selectedItems,
-                        isAllSelected: isAllSelected
-                    });
-                }
+        // Add to selectedServices without loading actual items
+        this.selectedServices.push({
+            feature: feature,
+            items: selectedItems,
+            isAllSelected: isAllSelected
+        });
 
-                return { feature: feature.name, success: true };
-            })
-        );
+        // Return immediately without making API call
+        return of({ feature: feature.name, success: true });
     }
 
     /**
