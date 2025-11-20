@@ -82,12 +82,12 @@ export class CustomFieldsComponent implements OnInit {
 
   private getAllCustomFields(pageNumber: number, searchTerm: string = ''): void {
     this.loadData = false;
-    const filters: CustomFieldFilters = {
-      is_active: true
-    };
+    // const filters: CustomFieldFilters = {
+    //   is_active: true
+    // };
     this.customFieldService.getAllCustomFields(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
-      ...filters
+      // ...filters
     }).subscribe({
       next: (response) => {
         this.currentPage = Number(response.data.page);
@@ -186,8 +186,8 @@ export class CustomFieldsComponent implements OnInit {
           }
           return field;
         });
-
-        // this.toasterService.showSuccess(`Field ${newStatus ? 'Activated' : 'Deactivated'} Successfully`);
+        this.toasterService.showSuccess(`Field ${newStatus ? 'Activated' : 'Deactivated'} Successfully`);
+        this.getAllCustomFields(this.currentPage);
       },
       error: (err) => {
         this.isLoading = false;
