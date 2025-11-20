@@ -38,7 +38,7 @@
     <td class="text-start">{{ contract.endDate ? contract.endDate : 'Indefinite term contract' }}</td>
     <!-- <td class="text-start">{{ contract.endDate || contract.end_contract }}</td> -->
     <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency || 'EGP') }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.insurance_salary ?? 0,
+    <td class="text-start">{{ getFormattedSalary(contract.insurance.insurance.amount ?? 0,
       contract.currency || 'EGP') }}</td>
 
     <td class="text-start">

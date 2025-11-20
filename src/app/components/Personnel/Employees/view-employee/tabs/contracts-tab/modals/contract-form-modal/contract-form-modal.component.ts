@@ -22,13 +22,14 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<any>();
+  currentContractSalary: number | null = null;
 
 
   contractForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
     this.contractForm = this.fb.group({
-      adjustmentType: [1], // 1- Appraisal, 2- Correction, 3- Raise (only for edit mode)
+      adjustmentType: [0], // 1- Appraisal, 2- Correction, 3- Raise (only for edit mode)
       salary: [null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
@@ -75,41 +76,74 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     }
   }
 
+  private setupSalaryTypeSubscription(): void {
+    const adjustmentTypeControl = this.contractForm.get('adjustmentType');
+    if (adjustmentTypeControl) {
+      adjustmentTypeControl.valueChanges.subscribe(() => {
+        this.setupSalaryValidation();
+      });
+    }
+  }
+
   private setupSalaryValidation(): void {
     const salaryControl = this.contractForm.get('salary');
-    if (salaryControl && this.shouldShowSalaryRanges()) {
-      const ranges = this.getSalaryRanges();
-      if (ranges) {
-        const minSalary = parseFloat(ranges.minimum);
-        const maxSalary = parseFloat(ranges.maximum);
+    const adjustmentTypeControl = this.contractForm.get('adjustmentType');
 
-        salaryControl.setValidators([
+    if (!salaryControl || !adjustmentTypeControl) return;
+    let minSalaryValue = 1;
+    const isRaise = this.isEditMode && adjustmentTypeControl.value === 3;
+    if (isRaise && this.currentContractSalary !== null) {
+      minSalaryValue = this.currentContractSalary;
+    }
+
+    let validators = [
+      Validators.required,
+      Validators.min(minSalaryValue),
+      Validators.max(1000000)
+    ];
+
+
+
+    if (this.shouldShowSalaryRanges()) {
+      const ranges = this.getSalaryRanges();
+      if (ranges && parseFloat(ranges.minimum) && parseFloat(ranges.maximum)) {
+        const minRange = parseFloat(ranges.minimum);
+        const maxRange = parseFloat(ranges.maximum);
+        const finalMin = Math.max(minRange, isRaise ? minSalaryValue : minRange);
+
+        validators = [
           Validators.required,
-          Validators.min(minSalary),
-          Validators.max(maxSalary)
-        ]);
-        salaryControl.updateValueAndValidity();
+          Validators.min(finalMin),
+          Validators.max(maxRange)
+        ];
       }
     }
+
+    salaryControl.setValidators(validators);
+    salaryControl.updateValueAndValidity();
   }
 
   private populateForm(): void {
     if (!this.contract) return;
+    this.currentContractSalary = this.contract.salary || 0;
     // Convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
-    const formattedStartDate = this.contract.startDate ? this.convertDisplayDateToFormDate(this.contract.startDate) : '';
-    const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
+    const formattedStartDate = this.contract.start_contract ? this.convertDisplayDateToFormDate(this.contract.start_contract) : '';
+    const formattedEndDate = this.contract.end_contract ? this.convertDisplayDateToFormDate(this.contract.end_contract) : '';
     this.contractForm.patchValue({
-      adjustmentType: 1,
-      withEndDate: this.contract.endDate ? true : false,
+      adjustmentType: this.contract.adjustment?.id || 0,
+      withEndDate: this.contract.end_contract ? true : false,
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      noticePeriod: this.contract.noticePeriod
+      noticePeriod: this.contract.notice_period
     });
 
     // Set up salary validation after populating
     this.setupSalaryValidation();
+    this.setupSalaryTypeSubscription();
   }
+
+
 
   resetForm(): void {
     if (this.contract) {
@@ -117,11 +151,11 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       const formattedEndDate = this.contract.endDate ? this.convertDisplayDateToFormDate(this.contract.endDate) : null;
       this.contractForm.patchValue({
         adjustmentType: 1,
-        withEndDate: this.contract.endDate ? true : false,
+        withEndDate: this.contract.end_contract ? true : false,
         salary: this.contract.salary,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
-        noticePeriod: this.contract.noticePeriod
+        noticePeriod: this.contract.notice_period
       });
 
     } else {
