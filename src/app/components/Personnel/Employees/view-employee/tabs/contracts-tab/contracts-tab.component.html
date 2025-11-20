@@ -125,7 +125,7 @@
     </td>
 
     <td class="text-start">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-1">
         <!-- History Action - Available for all -->
         <a (click)="viewHistory(contract)" class="view-btn" title="Contract History">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -149,7 +149,7 @@
         <!-- menu actions -->
         @if (contract.status === 'Active' || contract.status === 'Upcoming' || contract.status === 'Probation') {
         <!-- Custom dropdown for Active contracts -->
-        <div class="d-flex align-items-center gap-3" [class.open]="selectedContract?.id === contract.id">
+        <div class="d-flex align-items-center gap-1" [class.open]="selectedContract?.id === contract.id">
           <div class="custom-dropdown">
             <!-- class="dropdown-toggle action-btn" type="button" -->
             <a (click)="toggleDropdown(contract)" title="Menu" class="menu-btn">

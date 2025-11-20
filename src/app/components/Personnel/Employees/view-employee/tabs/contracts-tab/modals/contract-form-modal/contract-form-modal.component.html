@@ -146,7 +146,7 @@
     </form>
   </div>
   <div class="d-flex align-items-center gap-4 mt-4">
-    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100">
+    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100" [disabled]="isSaveDisabled">
       @if (isLoading) {
       <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
       } @else {
