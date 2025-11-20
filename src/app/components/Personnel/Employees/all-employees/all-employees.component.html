@@ -255,7 +255,7 @@
         <ng-template #noEmployees>
             <tr>
                 <td colspan="8" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim()|| filterForm.dirty; else noEmployees">
+                    <ng-container *ngIf="searchTerm.trim()|| filterForm.dirty; else noEmployees">
                         No Employees match your search.
                     </ng-container>
                     <ng-template #noEmployees>

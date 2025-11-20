@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -84,6 +84,31 @@ export class ViewEmployeeComponent implements OnInit {
     this.deviceInfoExpanded = !this.deviceInfoExpanded;
   }
 
+
+  // profile picture
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  profileImage: string = './images/profile-defult.jpg';
+
+  triggerUpload() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Only JPG, PNG, WEBP images are allowed!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profileImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';

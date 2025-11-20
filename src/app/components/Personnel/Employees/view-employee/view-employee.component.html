@@ -78,7 +78,7 @@
       <div class="content-box contact-info-card d-flex flex-column gap-3 h-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Contact Info</h2>
-          @if (hasAdditionalContactInfo()) {
+
           <button type="button" class="btn-toggle-expand" (click)="toggleContactInfo()"
             [attr.aria-expanded]="contactInfoExpanded"
             [attr.aria-label]="contactInfoExpanded ? 'Show less contact information' : 'Show more contact information'">
@@ -89,10 +89,25 @@
                 stroke-linejoin="round" />
             </svg>
           </button>
-          }
+
         </div>
 
         <!-- Always visible fields -->
+        <div class="m-auto">
+          <div class="profile-hug" (click)="triggerUpload()">
+            <img [src]="profileImage" alt="">
+
+            <div class="overlay">
+              <i class="fa-solid fa-upload"></i>
+              <span>Upload Image</span>
+            </div>
+
+            <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" hidden
+              (change)="onImageSelected($event)">
+          </div>
+        </div>
+
+
         <div class="info">
           <h6>ID</h6>
           <span>{{ employee.id || "N/A" }}</span>
@@ -116,20 +131,23 @@
           <h6>Business Email</h6>
           <span>{{ employee.contact_info.email || "N/A" }}</span>
         </div>
-        <div class="info">
-          <h6>Date of Birth</h6>
-          <span>{{
-            (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
-            }}</span>
+        <div class="contact-info-collapsible" [class.expanded]="contactInfoExpanded">
+          <div class="info">
+            <h6>Date of Birth</h6>
+            <span>{{
+              (employee.contact_info.date_of_birth | date : "dd/MM/yyyy") || "N/A"
+              }}</span>
+          </div>
+          <div class="info">
+            <h6>Address</h6>
+            <span>{{ employee.contact_info.address || "N/A" }}</span>
+          </div>
+          <div class="info">
+            <h6>Marital Status</h6>
+            <span>{{ employee.contact_info.marital_status.name }}</span>
+          </div>
         </div>
-        <div class="info">
-          <h6>Address</h6>
-          <span>{{ employee.contact_info.address || "N/A" }}</span>
-        </div>
-        <div class="info">
-          <h6>Marital Status</h6>
-          <span>{{ employee.contact_info.marital_status.name }}</span>
-        </div>
+
 
         <!-- Collapsible fields (Custom Fields only) -->
         <div class="contact-info-collapsible" [class.expanded]="contactInfoExpanded">
@@ -817,7 +835,6 @@
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
   [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false"
-  [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
-  (badgeClick)="openOnboardingModal()">
+  [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()" (badgeClick)="openOnboardingModal()">
 </app-onboarding-checklist>
 }

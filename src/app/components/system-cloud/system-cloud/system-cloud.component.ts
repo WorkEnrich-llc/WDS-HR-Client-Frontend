@@ -278,39 +278,57 @@ export class SystemCloudComponent implements OnInit {
     }
   }
 
-
   closePopup() {
     this.selectedFileUrl = null;
   }
+
   isImage(type: string): boolean {
-    return ['png', 'jpg', 'jpeg', 'webp'].includes(type);
+    return ['png', 'jpg', 'jpeg', 'webp', 'heic', 'heif'].includes(type);
   }
+
   isVideo(type: string): boolean {
-    return ['mp4', 'webm', 'ogg'].includes(type);
+    return ['mp4', 'webm', 'ogg', 'mov'].includes(type);
   }
+
   isAudio(type: string): boolean {
     return ['mp3', 'wav', 'ogg', 'm4a'].includes(type);
   }
 
-
   isDocument(type: string): boolean {
     return ['pdf', 'doc', 'docx', 'txt'].includes(type);
   }
+
   isExcel(type: string): boolean {
     return ['xls', 'xlsx'].includes(type);
   }
 
   canPreview(type: string): boolean {
-    return this.isImage(type) || this.isDocument(type) || this.isVideo(type) || this.isAudio(type) || this.isExcel(type);
+    return (
+      this.isImage(type) ||
+      this.isDocument(type) ||
+      this.isVideo(type) ||
+      this.isAudio(type) ||
+      this.isExcel(type)
+    );
   }
-  
+
   allowedFileTypes = [
-    'png', 'jpg', 'jpeg', 'webp',
-    'mp4', 'webm',
+    // Images
+    'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif',
+
+    // Videos
+    'mp4', 'webm', 'ogg', 'mov',
+
+    // Audio
     'mp3', 'wav', 'ogg', 'm4a',
+
+    // Documents
     'pdf', 'doc', 'docx', 'txt',
+
+    // Excel
     'xls', 'xlsx'
   ];
+  acceptedFormats = this.allowedFileTypes.map(ext => '.' + ext).join(',');
 
 
   // go to folder from 
@@ -529,20 +547,24 @@ export class SystemCloudComponent implements OnInit {
     this.isDragOver = false;
 
     const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileNameWithoutExtension = file.name.split('.').slice(0, -1).join('.') || file.name;
 
-        const formData = new FormData();
-        formData.append('name', fileNameWithoutExtension);
-        formData.append('type', 'File');
-        formData.append('parent', this.openedFolderId ?? '');
-        formData.append('file', file);
+    if (!files || files.length === 0) return;
 
-        this.fileUpload(formData);
-      }
+    if (files.length > 1) {
+      this.toasterService.error('Please upload one file');
+      return;
     }
+
+    const file = files[0];
+    const fileNameWithoutExtension = file.name.split('.').slice(0, -1).join('.') || file.name;
+
+    const formData = new FormData();
+    formData.append('name', fileNameWithoutExtension);
+    formData.append('type', 'File');
+    formData.append('parent', this.openedFolderId ?? '');
+    formData.append('file', file);
+
+    this.fileUpload(formData);
   }
 
 

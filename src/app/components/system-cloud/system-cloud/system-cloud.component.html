@@ -690,7 +690,8 @@
           <span>Upload</span>
         </button>
 
-        <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+        <input #fileInput type="file" hidden (change)="onFileSelected($event)" [accept]="acceptedFormats" />
+
 
         <button class="btn btn-lg btn-outline-primary w-auto" (click)="openModalNewFolder()">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -839,10 +840,11 @@
 
 <!-- view file -->
 <div *ngIf="selectedFileUrl" class="popup-overlay">
-  <div class="popup" [ngStyle]="{'background-color': isImage(selectedFileType) || isVideo(selectedFileType) || isAudio(selectedFileType) || isExcel(selectedFileType)? '#ffffff' : '#212121'}">
+  <div class="popup"
+    [ngStyle]="{'background-color': isImage(selectedFileType) || isVideo(selectedFileType) || isAudio(selectedFileType) || isExcel(selectedFileType)? '#ffffff' : '#212121'}">
 
     <div class="popup-header">
-        <button class="btn btn-primary" (click)="downloadFile({file_url: selectedFileUrl, name: 'file'})">
+      <button class="btn btn-primary" (click)="downloadFile({file_url: selectedFileUrl, name: 'file'})">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M3 15c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15M12 3v13m0 0l4-4.375M12 16l-4-4.375" />
@@ -859,28 +861,28 @@
     </div>
 
     <div class="popup-content">
-       <div *ngIf="!canPreview(selectedFileType)" class="not-supported text-center mt-4">
-      <h4 class="text-light">Cannot preview this file</h4>
+      <div *ngIf="!canPreview(selectedFileType)" class="not-supported text-center mt-4">
+        <h4 class="text-light">Cannot preview this file</h4>
+      </div>
+
+      <video *ngIf="isVideo(selectedFileType)" [src]="selectedFileUrl" controls
+        style="max-width:100%; max-height:90vh; display:block; margin:auto; border-radius:8px;">
+      </video>
+
+      <audio *ngIf="isAudio(selectedFileType)" [src]="audioSafeUrl" controls style="width: 100%; margin-top: 10px;">
+      </audio>
+
+      <iframe *ngIf="isExcel(selectedFileType)" [src]="excelSafeUrl" style="width:100%; height:90vh; border:none;">
+      </iframe>
+
+      <img *ngIf="isImage(selectedFileType)" [src]="selectedFileUrl" alt="Preview Image"
+        style="max-width:100%; max-height:90vh; display:block; margin:auto; border-radius:8px;" />
+
+      <ngx-doc-viewer *ngIf="isDocument(selectedFileType)" [url]="selectedFileUrl" viewer="google"
+        style="height:90vh;width:100%">
+      </ngx-doc-viewer>
+
     </div>
 
-    <video *ngIf="isVideo(selectedFileType)" [src]="selectedFileUrl" controls
-      style="max-width:100%; max-height:90vh; display:block; margin:auto; border-radius:8px;">
-    </video>
-
-    <audio *ngIf="isAudio(selectedFileType)" [src]="audioSafeUrl" controls style="width: 100%; margin-top: 10px;">
-    </audio>
-
-    <iframe *ngIf="isExcel(selectedFileType)" [src]="excelSafeUrl" style="width:100%; height:90vh; border:none;">
-    </iframe>
-
-    <img *ngIf="isImage(selectedFileType)" [src]="selectedFileUrl" alt="Preview Image"
-      style="max-width:100%; max-height:90vh; display:block; margin:auto; border-radius:8px;" />
-
-    <ngx-doc-viewer *ngIf="isDocument(selectedFileType)" [url]="selectedFileUrl" viewer="google"
-      style="height:90vh;width:100%">
-    </ngx-doc-viewer>
-
-    </div>
-   
   </div>
 </div>
