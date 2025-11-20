@@ -54,11 +54,12 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   isTerminatedViewModalOpen = false;
   isResignedViewModalOpen = false;
   selectedContract: Contract | null = null;
+  selectedForDropdown: Contract | null = null;
   contractHistory: ContractHistory[] = [];
   contractTerminationData: any = null;
   contractResignationData: any = null;
   isAddModalOpen = false;
-  isOpen = false;
+  // isOpen = false;
   isEditMode = false;
 
   constructor(private employeeService: EmployeeService) { }
@@ -97,111 +98,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     });
   }
 
-  // Sample contracts for demonstration - Remove in production
-  // private addSampleContracts(): void {
-  //   const sampleContracts: Contract[] = [
-  //     {
-  //       id: 1001,
-  //       expired: false,
-  //       trial: false,
-  //       start_contract: '2024-01-01',
-  //       end_contract: '2025-12-31',
-  //       salary: 15000,
-  //       insurance_salary: 12000,
-  //       status: 'Active',
-  //       created_at: '2024-01-01T00:00:00Z',
-  //       created_by: 'Admin',
-  //       contractNumber: '001',
-  //       startDate: '01/01/2024',
-  //       endDate: '31/12/2025',
-  //       currency: 'EGP',
-  //       employmentType: { id: 1, name: 'Full Time' },
-  //       contractType: { id: 1, name: 'Permanent' },
-  //       workMode: { id: 1, name: 'On Site' },
-  //       branch: { id: 1, name: 'Main Branch' },
-  //       department: { id: 1, name: 'HR' },
-  //       jobTitle: { id: 1, name: 'HR Manager' }
-  //     },
-  //     {
-  //       id: 1002,
-  //       expired: false,
-  //       trial: false,
-  //       start_contract: '2025-01-01',
-  //       end_contract: '2026-12-31',
-  //       salary: 18000,
-  //       insurance_salary: 15000,
-  //       status: 'Upcoming',
-  //       created_at: '2024-12-01T00:00:00Z',
-  //       created_by: 'Admin',
-  //       contractNumber: '002',
-  //       startDate: '01/01/2025',
-  //       endDate: '31/12/2026',
-  //       currency: 'EGP',
-  //       employmentType: { id: 1, name: 'Full Time' },
-  //       contractType: { id: 1, name: 'Permanent' },
-  //       workMode: { id: 2, name: 'Remote' },
-  //       branch: { id: 1, name: 'Main Branch' },
-  //       department: { id: 2, name: 'IT' },
-  //       jobTitle: { id: 2, name: 'Developer' }
-  //     },
-  //     {
-  //       id: 1003,
-  //       expired: false,
-  //       trial: false,
-  //       start_contract: '2023-01-01',
-  //       end_contract: '2024-01-01',
-  //       salary: 12000,
-  //       insurance_salary: 10000,
-  //       status: 'Terminated',
-  //       created_at: '2023-01-01T00:00:00Z',
-  //       created_by: 'Admin',
-  //       contractNumber: '003',
-  //       startDate: '01/01/2023',
-  //       endDate: '01/01/2024',
-  //       currency: 'EGP',
-  //       employmentType: { id: 1, name: 'Full Time' },
-  //       contractType: { id: 1, name: 'Permanent' },
-  //       workMode: { id: 1, name: 'On Site' },
-  //       branch: { id: 1, name: 'Main Branch' },
-  //       department: { id: 3, name: 'Finance' },
-  //       jobTitle: { id: 3, name: 'Accountant' },
-  //       terminationData: {
-  //         lastDay: '2024-01-01',
-  //         reason: 'Performance issues and failure to meet targets consistently.'
-  //       }
-  //     },
-  //     {
-  //       id: 1004,
-  //       expired: false,
-  //       trial: false,
-  //       start_contract: '2022-06-01',
-  //       end_contract: '2024-03-15',
-  //       salary: 14000,
-  //       insurance_salary: 11000,
-  //       status: 'Resigned',
-  //       created_at: '2022-06-01T00:00:00Z',
-  //       created_by: 'Admin',
-  //       contractNumber: '004',
-  //       startDate: '01/06/2022',
-  //       endDate: '15/03/2024',
-  //       currency: 'EGP',
-  //       employmentType: { id: 1, name: 'Full Time' },
-  //       contractType: { id: 1, name: 'Permanent' },
-  //       workMode: { id: 1, name: 'On Site' },
-  //       branch: { id: 2, name: 'Branch 2' },
-  //       department: { id: 4, name: 'Marketing' },
-  //       jobTitle: { id: 4, name: 'Marketing Specialist' },
-  //       resignationData: {
-  //         resignDate: '2024-01-15',
-  //         noticePeriod: 60,
-  //         lastDay: '2024-03-15',
-  //         reason: 'Found a better opportunity with higher compensation and growth prospects.'
-  //       }
-  //     }
-  //   ];
 
-  //   this.contractsData = sampleContracts;
-  // }
 
   // Map API response to UI format
   private mapApiContractsToUI(apiContracts: Contract[]): Contract[] {
@@ -350,22 +247,24 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Edit contract
   editContract(contract: Contract): void {
-    this.editedContract = contract;
-    this.isOpen = true;
+    // this.editedContract = contract;
+    this.selectedContract = contract;
+    this.isAddModalOpen = true;
     this.isEditMode = true;
   }
 
   // Add new contract
   addContract(): void {
     this.isEditMode = false;
-    this.editedContract = null;
+    // this.editedContract = null;
+    this.selectedContract = null;
     this.isAddModalOpen = true;
   }
 
   // Close add/edit contract overlay
   closeAddModal(): void {
     this.isAddModalOpen = false;
-    this.isOpen = false;
+    this.isAddModalOpen = false;
     this.isEditMode = false;
 
   }
@@ -375,7 +274,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     if (this.isLoading) return;
     this.isLoading = true;
     if (this.isEditMode && contractData) {
-      const contractId = contractData.contractId || this.editedContract?.id;
+      // const contractId = contractData.contractId || this.editedContract?.id;
+      const contractId = contractData.contractId || this.selectedContract?.id;
       // Adjust existing contract via API
       const payload = {
         contract_id: contractId,
@@ -388,7 +288,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
         finalize(() => {
           this.isLoading = false;
-          this.isOpen = false;
+          this.isAddModalOpen = false;
         })
       ).subscribe({
         next: () => {
@@ -552,7 +452,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   closeResignModal(): void {
     this.isResignModalOpen = false;
-    this.selectedContract = null;
+    this.selectedForDropdown = null;
   }
 
   onContractResign(data: { contract: Contract, resignationData: any }): void {
@@ -625,15 +525,15 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   // Dropdown toggle methods
   toggleDropdown(contract: Contract): void {
-    if (this.selectedContract?.id === contract.id) {
-      this.selectedContract = null;
+    if (this.selectedForDropdown?.id === contract.id) {
+      this.selectedForDropdown = null;
     } else {
-      this.selectedContract = contract;
+      this.selectedForDropdown = contract;
     }
   }
 
   closeDropdown(): void {
-    this.selectedContract = null;
+    this.selectedForDropdown = null;
   }
 
   // Close dropdown when clicking outside
@@ -647,7 +547,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.isOpen || this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
+    if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
       return;
     }
     const target = event.target as HTMLElement;

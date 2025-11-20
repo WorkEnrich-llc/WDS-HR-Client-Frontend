@@ -111,7 +111,7 @@
         <div class="content-box d-flex flex-column gap-3 w-100">
             <div class="d-flex align-items-center justify-content-between">
                 <h2>Job Info</h2>
-                @if (employeeData.employeeStatus === 'New Joiner') {
+                @if (employee.employee_status === 'New Joiner') {
                 <span class="badge-newjoiner">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -124,7 +124,7 @@
                     </svg>
                     <span>New Joiner</span>
                 </span>
-                } @if (employeeData.employeeStatus === 'Joining Today') {
+                } @if (employee.employee_status === 'Joining Today') {
                 <span class="badge-newemployee">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">

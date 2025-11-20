@@ -88,29 +88,29 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   // Legacy property for backward compatibility with template
-  get employeeData() {
-    if (!this.employee) {
-      return {
-        id: 0,
-        name: "",
-        employeeStatus: "New Joiner",
-        accountStatus: "inactive" as 'active' | 'inactive' | 'pending' | 'disabled',
-        jobTitle: "",
-        branch: "",
-        joinDate: ""
-      };
-    }
+  // get employeeData() {
+  //   if (!this.employee) {
+  //     return {
+  //       id: 0,
+  //       name: "",
+  //       employeeStatus: "New Joiner",
+  //       accountStatus: "inactive" as 'active' | 'inactive' | 'pending' | 'disabled',
+  //       jobTitle: "",
+  //       branch: "",
+  //       joinDate: ""
+  //     };
+  //   }
 
-    return {
-      id: this.employee.id,
-      name: this.employee.contact_info.name,
-      employeeStatus: this.getEmployeeStatus(this.employee),
-      accountStatus: this.getAccountStatus(this.employee.employee_active),
-      jobTitle: this.employee.job_info.job_title.name,
-      branch: this.employee.job_info.branch.name,
-      joinDate: this.employee.job_info.start_contract
-    };
-  }
+  //   return {
+  //     id: this.employee.id,
+  //     name: this.employee.contact_info.name,
+  //     employeeStatus: this.getEmployeeStatus(this.employee),
+  //     accountStatus: this.getAccountStatus(this.employee.employee_active),
+  //     jobTitle: this.employee.job_info.job_title.name,
+  //     branch: this.employee.job_info.branch.name,
+  //     joinDate: this.employee.job_info.start_contract
+  //   };
+  // }
 
   // Helper method to convert string employee_active to account status
   private getAccountStatus(employeeActive: string): 'active' | 'inactive' | 'pending' | 'disabled' {
@@ -338,10 +338,40 @@ export class ViewNewJoinerComponent implements OnInit {
     }
   }
 
+
+  // confirmCancel(): void {
+  //   if (this.selectedContract) {
+  //     this.isLoading = true;
+  //     // Call API to cancel contract
+  //     this.employeeService.cancelEmployeeContract({
+  //       contract_id: this.selectedContract.id,
+  //     }).subscribe({
+  //       next: (response) => {
+  //         this.isLoading = false;
+  //         // Update local data with the response
+  //         this.contractsData = this.mapApiContractsToUI(response.data.list_items);
+  //         this.totalItems = this.contractsData.length;
+  //         this.closeCancelModal();
+  //         this.toasterService.showSuccess('Contract cancelled successfully');
+  //         // Show success message
+  //       },
+  //       error: (error) => {
+  //         console.error('Error cancelling contract:', error);
+  //         // Show error message
+  //       }
+  //     });
+  //   }
+  // }
+
+
+
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/employees/all-employees']);
   }
+
+
+
 
   openSuccessModal() {
     this.isSuccessModalOpen = true;
