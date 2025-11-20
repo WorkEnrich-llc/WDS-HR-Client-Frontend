@@ -1310,6 +1310,22 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./components/admin-settings/announcements/create-announcement/create-announcement.component').then(m => m.CreateAnnouncementComponent),
             title: 'Create Announcement'
+          },
+          {
+            path: 'company-policy',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Policy' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-policy/company-policy.component').then(m => m.CompanyPolicyComponent),
+            title: 'Company Policy'
+          },
+          {
+            path: 'company-policy/manage',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Policy' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-policy/manage-company-policy/manage-company-policy.component').then(m => m.ManageCompanyPolicyComponent),
+            title: 'Manage Company Policy'
           }
         ]
       },
