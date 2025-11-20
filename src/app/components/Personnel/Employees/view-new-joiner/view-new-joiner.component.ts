@@ -26,6 +26,7 @@ export class ViewNewJoinerComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private workScheduleService = inject(WorkSchaualeService);
   private route = inject(ActivatedRoute);
+  private toasterService = inject(ToasterMessageService);
 
   employee: Employee | null = null;
   subscription: Subscription | null = null;
@@ -37,6 +38,17 @@ export class ViewNewJoinerComponent implements OnInit {
   @ViewChild('rescheduleBox') rescheduleBox!: OverlayFilterBoxComponent;
   // Model for new join date
   newJoinDate: string = '';
+
+  upcomingContractId: number | null = null;
+
+  // popups
+  isModalOpen = false;
+  isJoinModalOpen = false;
+
+  isWarningModalOpen: boolean = false;
+  modalTitle: string = '';
+  modalMessage: string = '';
+  modalMessage2: string = '';
 
   constructor(
     private router: Router,
@@ -54,6 +66,10 @@ export class ViewNewJoinerComponent implements OnInit {
         this.loadEmployeeData();
       }
     });
+  }
+
+  setUpcomingContractId(contractId: number | null): void {
+    this.upcomingContractId = contractId;
   }
 
   loadEmployeeData(): void {
@@ -167,6 +183,22 @@ export class ViewNewJoinerComponent implements OnInit {
     }
   }
 
+  // Check if join date is today
+  isJoiningToday(): boolean {
+    if (!this.employee) return false;
+    const today = new Date();
+    const joinDate = new Date(this.employee.job_info.start_contract);
+    return joinDate.toDateString() === today.toDateString();
+  }
+
+  // Check if join date is in the future
+  isJoiningFuture(): boolean {
+    if (!this.employee) return false;
+    const today = new Date();
+    const joinDate = new Date(this.employee.job_info.start_contract);
+    return joinDate > today;
+  }
+
   // Helper method to check subscription permissions
   hasEmployeePermission(action: string): boolean {
     if (!this.subscription) return false;
@@ -209,21 +241,7 @@ export class ViewNewJoinerComponent implements OnInit {
     return allowedAction ? allowedAction.infinity : false;
   }
 
-  // Check if join date is today
-  isJoiningToday(): boolean {
-    if (!this.employee) return false;
-    const today = new Date();
-    const joinDate = new Date(this.employee.job_info.start_contract);
-    return joinDate.toDateString() === today.toDateString();
-  }
 
-  // Check if join date is in the future
-  isJoiningFuture(): boolean {
-    if (!this.employee) return false;
-    const today = new Date();
-    const joinDate = new Date(this.employee.job_info.start_contract);
-    return joinDate > today;
-  }
 
   // Get formatted join date
   getFormattedJoinDate(): string {
@@ -284,32 +302,37 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   // Activate employee (mark as joined)
-  activateEmployee(): void {
-    if (this.employee) {
-      this.employeeService.updateEmployeeStatus(this.employee.id, true).subscribe({
-        next: (response: any) => {
-          // Update local employee status
-          if (this.employee) {
-            this.employee.employee_active = 'Active';
-          }
-          this.openSuccessModal();
-        },
-        error: (error: any) => {
-          console.error('Error activating employee:', error);
-          this.toasterMessageService.sendMessage('Failed to activate employee');
-        }
-      });
-    }
-  }
+  // activateEmployee(): void {
+  //   if (this.employee) {
+  //     this.employeeService.updateEmployeeStatus(this.employee.id, true).subscribe({
+  //       next: (response: any) => {
+  //         // Update local employee status
+  //         if (this.employee) {
+  //           this.employee.employee_active = 'Active';
+  //         }
+  //         this.openJoinModal();
+  //       },
+  //       error: (error: any) => {
+  //         console.error('Error activating employee:', error);
+  //         this.toasterMessageService.sendMessage('Failed to activate employee');
+  //       }
+  //     });
+  //   }
+  // }
 
 
 
 
-  // popups
-  isModalOpen = false;
-  isSuccessModalOpen = false;
+
 
   openModal() {
+    if (!this.upcomingContractId) {
+      this.openWarningModal(
+        'Contract Cancellation Failed',
+        'No upcoming contract was found for: ' + this.employee?.contact_info?.name,
+      );
+      return;
+    }
     this.isModalOpen = true;
   }
 
@@ -365,31 +388,121 @@ export class ViewNewJoinerComponent implements OnInit {
 
 
 
-  confirmAction() {
-    this.isModalOpen = false;
-    this.router.navigate(['/employees/all-employees']);
+  // confirmAction() {
+  //   this.isModalOpen = false;
+  //   this.router.navigate(['/employees/all-employees']);
+  // }
+
+
+  cancelContract(): void {
+
+    if (this.loading) return;
+    this.loading = true;
+    const contractIdToCancel = this.upcomingContractId;
+    const employeeId = this.employee?.id;
+
+    if (!contractIdToCancel || !employeeId) {
+      console.error('Missing Employee ID or Active Contract ID.');
+      return;
+    }
+    this.employeeService.cancelEmployeeContract({
+      contract_id: contractIdToCancel,
+    }).subscribe({
+      next: (response) => {
+        const listItems =
+          response?.data?.list_items ??
+          response?.data?.list_items ??
+          [];
+        // Update local data with the response
+        this.loading = false;
+        this.closeModal();
+        this.toasterService.showSuccess('Contract cancelled successfully');
+      },
+      error: (error) => {
+        this.loading = false;
+        this.closeModal();
+        console.error('Error cancelling contract:', error);
+        // Show error message
+      }
+
+    });
+  }
+
+
+  activateEmployee(): void {
+    if (this.loading) return;
+    this.loading = true;
+    const contractIdToCancel = this.upcomingContractId;
+    const employeeId = this.employee?.id;
+
+    if (!contractIdToCancel || !employeeId) {
+      console.error('Missing Employee ID or Active Contract ID.');
+      return;
+    }
+    this.employeeService.joiningEmployeeContract({
+      contract_id: contractIdToCancel,
+    }).subscribe({
+      next: (response) => {
+        const listItems =
+          response?.data?.list_items ??
+          response?.data?.list_items ??
+          [];
+        this.loading = false;
+        this.toasterService.showSuccess('Contract joined successfully');
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error joining contract:', error);
+      }
+
+    });
+    this.closeJoinModal();
   }
 
 
 
 
-  openSuccessModal() {
-    this.isSuccessModalOpen = true;
+
+  openJoinModal() {
+    if (!this.upcomingContractId) {
+      this.openWarningModal(
+        'Activate Employee Failed',
+        'No upcoming contract was found for: ' + this.employee?.contact_info?.name,
+      );
+      return;
+    }
+    this.isJoinModalOpen = true;
   }
 
-  closeSuccessModal() {
-    this.isSuccessModalOpen = false;
+  closeJoinModal() {
+    this.isJoinModalOpen = false;
   }
 
-  viewEmployees() {
-    this.closeSuccessModal();
-    this.router.navigate(['/employees/all-employees']);
+
+
+  closeWarningModal(): void {
+    this.isWarningModalOpen = false;
+    this.modalTitle = '';
+    this.modalMessage = '';
+    this.modalMessage2 = '';
   }
 
-  createAnother() {
-    this.closeSuccessModal();
-    // Reset form or navigate to create again
+  openWarningModal(title: string, message1: string, message2: string = ''): void {
+    this.modalTitle = title;
+    this.modalMessage = message1;
+    this.modalMessage2 = message2;
+    this.isWarningModalOpen = true;
   }
+
+  // viewEmployees() {
+  //   this.closeSuccessModal();
+  //   this.router.navigate(['/employees/all-employees']);
+  // }
+
+  // createAnother() {
+  //   this.closeJoinModal();
+  //   // Reset form or navigate to create again
+  // }
 
   // Resend activation link to employee email
   resendActiveLink(): void {

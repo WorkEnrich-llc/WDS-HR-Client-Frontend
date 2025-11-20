@@ -20,7 +20,7 @@
     [create]="(employee.created_at | date : 'dd/MM/yyyy') || ''"
     [update]="(employee.updated_at | date : 'dd/MM/yyyy') || ''">
     @if (hasEmployeePermission('update')) {
-    <button class="btn btn-lg btn-primary" (click)="openSuccessModal()">
+    <button class="btn btn-lg btn-primary" (click)="openJoinModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
@@ -273,7 +273,7 @@
     <!-- Join Status Section -->
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
         <!-- Future join date -->
-        @if (isJoiningFuture()) {
+        @if (isJoiningFuture() && !isJoiningToday()) {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} will join on
             <span>{{ getFormattedJoinDate() }}</span>
@@ -310,7 +310,8 @@
     </div>
 
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
-        <app-contracts-tab [employee]="employee"></app-contracts-tab>
+        <app-contracts-tab [employee]="employee"
+            (upcomingContractIdChange)="setUpcomingContractId($event)"></app-contracts-tab>
     </div>
     <!-- Contracts Section -->
 
@@ -334,7 +335,7 @@
   " [paragraph2]="
     'This action cannot be undone. The employee will be removed from the system.'
   " [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="cancelContract()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
@@ -349,28 +350,39 @@
     </button>
 </app-popup>
 
-<!-- Success Modal -->
-<app-popup [title]="'Employee Joined Successfully'" [paragraph1]="
+<!-- Join Modal -->
+<app-popup [title]="'Activate Employee Confirmation'" [paragraph1]="
     '&quot;' +
     (employee?.contact_info?.name || '') +
-    '&quot; has been successfully marked as joined.'
+    '&quot; will be marked as Active.'
   " [paragraph2]="
-    'The employee is now active in the system and can access their account.'
-  " [isOpen]="isSuccessModalOpen" (close)="closeSuccessModal()">
-    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="viewEmployees()">
+    'The employee will be active in the system and can access their account.'
+  " [isOpen]="isJoinModalOpen" (close)="closeJoinModal()">
+    <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="activateEmployee()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
         </svg>
-        <span>View All Employees</span>
+        <span>Confirm</span>
     </button>
 
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="createAnother()">
-        Create Another
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeJoinModal()">
+        Cancel
     </button>
 </app-popup>
+
+
+<!-- Warning Modal -->
+<app-popup [title]="modalTitle" [paragraph1]="modalMessage" [paragraph2]="modalMessage2" [isOpen]="isWarningModalOpen"
+    (close)="closeWarningModal()">
+
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-1 w-100" (click)="closeWarningModal()">
+        Close
+    </button>
+</app-popup>
+
 
 <!-- Reschedule Join Date Overlay -->
 <app-overlay-filter-box #rescheduleBox [title]="'Reschedule Join Date'">

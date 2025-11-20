@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
@@ -34,6 +34,11 @@ import { finalize } from 'rxjs';
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
+
+  @Output() upcomingContractIdChange = new EventEmitter<number | null>();
+  private upcomingContractId: number | null = null;
+
+
   private toasterService = inject(ToasterMessageService);
   historyContract: Contract | null = null;
   editedContract: Contract | null = null;
@@ -89,10 +94,15 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.contractsData = this.mapApiContractsToUI(response.data.list_items);
         this.totalItems = this.contractsData.length;
         this.isLoading = false;
+
+        const activeContract = this.contractsData.find(contract => contract.status === 'Upcoming');
+        this.upcomingContractId = activeContract ? activeContract.id : null;
+        this.upcomingContractIdChange.emit(this.upcomingContractId);
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
         this.isLoading = false;
+        this.upcomingContractIdChange.emit(null);
         // Show error message to user
       }
     });
@@ -185,6 +195,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   openCancelModal(contract: Contract): void {
     this.selectedContract = contract;
     this.isCancelModalOpen = true;
+    this.closeDropdown();
   }
 
   closeCancelModal(): void {
@@ -192,29 +203,29 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     this.selectedContract = null;
   }
 
-  confirmCancel(): void {
-    if (this.selectedContract) {
-      this.isLoading = true;
-      // Call API to cancel contract
-      this.employeeService.cancelEmployeeContract({
-        contract_id: this.selectedContract.id,
-      }).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          // Update local data with the response
-          this.contractsData = this.mapApiContractsToUI(response.data.list_items);
-          this.totalItems = this.contractsData.length;
-          this.closeCancelModal();
-          this.toasterService.showSuccess('Contract cancelled successfully');
-          // Show success message
-        },
-        error: (error) => {
-          console.error('Error cancelling contract:', error);
-          // Show error message
-        }
-      });
-    }
-  }
+  // confirmCancel(): void {
+  //   if (this.selectedContract) {
+  //     this.isLoading = true;
+  //     // Call API to cancel contract
+  //     this.employeeService.cancelEmployeeContract({
+  //       contract_id: this.selectedContract.id,
+  //     }).subscribe({
+  //       next: (response) => {
+  //         this.isLoading = false;
+  //         // Update local data with the response
+  //         this.contractsData = this.mapApiContractsToUI(response.data.list_items);
+  //         this.totalItems = this.contractsData.length;
+  //         this.closeCancelModal();
+  //         this.toasterService.showSuccess('Contract cancelled successfully');
+  //         // Show success message
+  //       },
+  //       error: (error) => {
+  //         console.error('Error cancelling contract:', error);
+  //         // Show error message
+  //       }
+  //     });
+  //   }
+  // }
 
   // Handle cancel from modal
   onContractCancel(contract: Contract): void {
@@ -235,14 +246,18 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.toasterService.showSuccess('Contract cancelled successfully');
         this.contractsData = this.mapApiContractsToUI(listItems);
         this.totalItems = this.contractsData.length;
-        this.loadEmployeeContracts();
+        // this.loadEmployeeContracts();
         // Show success message
       },
       error: (error) => {
+        this.isLoading = false;
+        this.closeCancelModal();
         console.error('Error cancelling contract:', error);
         // Show error message
       }
+
     });
+    this.loadEmployeeContracts();
   }
 
   // Edit contract
@@ -440,6 +455,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
     this.toasterService.showSuccess('contract terminated successfully');
+    this.loadEmployeeContracts();
     // TODO: Add toast notification
   }
 
@@ -550,9 +566,11 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     if (this.isAddModalOpen || this.isHistoryModalOpen || this.isCancelModalOpen || this.isTerminateModalOpen || this.isResignModalOpen || this.isTerminatedViewModalOpen || this.isResignedViewModalOpen) {
       return;
     }
+
     const target = event.target as HTMLElement;
     if (!target.closest('.custom-dropdown')) {
-      this.selectedContract = null;
+      this.selectedForDropdown = null;
+      this.closeDropdown();
     }
   }
 }
