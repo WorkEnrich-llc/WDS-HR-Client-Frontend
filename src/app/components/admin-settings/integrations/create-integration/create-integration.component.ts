@@ -814,24 +814,13 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get dynamic error message for service selection
+     * Get error message for service selection
      */
     getServiceErrorMessage(): string {
         if (this.selectedServices.length === 0) {
-            return 'Please select a service and at least one item to continue.';
+            return 'Please select at least one service to continue.';
         }
-
-        const servicesWithNoItems = this.getServicesWithNoItems();
-        if (servicesWithNoItems.length === 0) {
-            return 'Please select a service and at least one item to continue.';
-        }
-
-        if (servicesWithNoItems.length === 1) {
-            return `Please select at least one ${servicesWithNoItems[0]} to continue.`;
-        } else {
-            const servicesList = servicesWithNoItems.join(', ');
-            return `Please select at least one ${servicesList} to continue.`;
-        }
+        return '';
     }
 
     /**
@@ -839,7 +828,16 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
      */
     buildFeaturesPayload(): any[] {
         return this.selectedServices.map(service => {
-            const isAllSelected = service.isAllSelected || false;
+            // Check if service has no items selected
+            let hasNoItems = false;
+            if (service.feature.name === 'Sections') {
+                hasNoItems = !service.sections || service.sections.length === 0;
+            } else {
+                hasNoItems = !service.items || service.items.length === 0;
+            }
+            
+            // Set is_all to true if no items selected or if explicitly marked as all selected
+            const isAllSelected = service.isAllSelected || hasNoItems;
             
             if (service.feature.name === 'Sections') {
                 return {
@@ -861,7 +859,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
      * Handle form submission
      */
     onSubmit(): void {
-        // Check if at least one service with items is selected
+        // Check if at least one service is selected
         if (this.selectedServices.length === 0) {
             this.showServiceError = true;
             if (this.currentTab !== 'access-apis') {
@@ -870,22 +868,8 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Validate each selected service has items
-        const hasInvalidService = this.selectedServices.some(service => {
-            if (service.feature.name === 'Sections') {
-                return !service.sections || service.sections.length === 0;
-            } else {
-                return !service.items || service.items.length === 0;
-            }
-        });
-
-        if (hasInvalidService) {
-            this.showServiceError = true;
-            if (this.currentTab !== 'access-apis') {
-                this.setCurrentTab('access-apis');
-            }
-            return;
-        }
+        // Clear service error if at least one service is selected
+        this.showServiceError = false;
 
         if (this.integrationForm.valid && !this.isSubmitting) {
             this.isSubmitting = true;
