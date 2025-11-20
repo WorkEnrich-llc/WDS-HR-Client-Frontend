@@ -10,7 +10,7 @@ import { IntegrationsService } from 'app/core/services/admin-settings/integratio
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IntegrationFeaturesFacadeService, FeatureItem } from '../../../../core/services/admin-settings/integrations/integration-features.facade.service';
 import { Subscription, forkJoin, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'app-update-integration',
@@ -27,6 +27,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     private featuresFacade = inject(IntegrationFeaturesFacadeService);
 
     @ViewChild('serviceFilterBox') serviceFilterBox!: OverlayFilterBoxComponent;
+    @ViewChild('itemsFilterBox') itemsFilterBox!: OverlayFilterBoxComponent;
 
     // Form
     integrationForm!: FormGroup;
@@ -44,10 +45,14 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
     // Feature selection (first table)
     availableFeatures: any[] = [];
+    selectedServicesForFirstOverlay: any[] = []; // Services selected in first overlay (before items)
     currentViewingFeature: any = null; // Feature currently being viewed/edited in overlay
     lastViewedFeature: any = null; // Track last viewed feature for better UX when reopening
     isLoadingFeatures: boolean = false;
     featureSearchTerm: string = '';
+
+    // Service being edited in items overlay
+    editingService: any = null;
 
     // Items table (second table) - for currently viewing feature
     featureItems: FeatureItem[] = [];
@@ -101,12 +106,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.initializeForm();
         this.setTodayFormatted();
         this.integrationId = Number(this.route.snapshot.paramMap.get('id')) || 1;
-        // Load features first, then prefill
-        this.loadIntegrationFeatures();
-        // Wait for features to load before prefilling
-        setTimeout(() => {
-            this.prefillFromDetails();
-        }, 300);
+        // Prefill integration details
+        this.prefillFromDetails();
     }
 
     ngOnDestroy(): void {
@@ -193,41 +194,17 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Open service filter overlay
+     * Open service filter overlay (first overlay - only services)
      */
     openServiceFilter(): void {
         // Reset search terms
         this.featureSearchTerm = '';
-        this.itemsSearchTerm = '';
-        this.departmentsSearchTerm = '';
-        this.sectionsSearchTerm = '';
+        
+        // Initialize selectedServicesForFirstOverlay with currently selected services
+        this.selectedServicesForFirstOverlay = this.selectedServices.map(s => s.feature);
         
         this.serviceFilterBox.openOverlay();
         this.loadIntegrationFeatures();
-        
-        // Smart UX: Auto-restore view if there are existing selections
-        if (this.selectedServices.length > 0) {
-            // Try to restore the last viewed feature, or default to first selected service
-            const featureToRestore = this.lastViewedFeature || 
-                this.availableFeatures.find(f => this.isFeatureInSelectedServices(f.name)) ||
-                (this.selectedServices.length > 0 ? this.selectedServices[0].feature : null);
-            
-            if (featureToRestore) {
-                // Small delay to ensure overlay is fully open and features are loaded
-                setTimeout(() => {
-                    this.selectFeature(featureToRestore);
-                }, 100);
-            }
-        } else {
-            // No selections yet, clear viewing state
-            this.currentViewingFeature = null;
-            this.selectedItems = [];
-            this.selectedSections = [];
-            this.selectedDepartment = null;
-            this.featureItems = [];
-            this.departments = [];
-            this.sections = [];
-        }
     }
 
     /**
@@ -237,24 +214,143 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.serviceFilterBox.closeOverlay();
         // Reset search terms when closing
         this.featureSearchTerm = '';
+    }
+
+    /**
+     * Toggle service selection in first overlay
+     */
+    toggleServiceSelection(feature: any): void {
+        const index = this.selectedServicesForFirstOverlay.findIndex(f => f.name === feature.name);
+        if (index > -1) {
+            this.selectedServicesForFirstOverlay.splice(index, 1);
+        } else {
+            this.selectedServicesForFirstOverlay.push(feature);
+        }
+    }
+
+    /**
+     * Check if service is selected in first overlay
+     */
+    isServiceSelected(featureName: string): boolean {
+        return this.selectedServicesForFirstOverlay.some(f => f.name === featureName);
+    }
+
+    /**
+     * Confirm service selection and close overlay (first overlay)
+     */
+    confirmServiceSelection(): void {
+        // Add selected services to selectedServices (without items yet - default to all)
+        for (const feature of this.selectedServicesForFirstOverlay) {
+            // Check if service already exists
+            const existingIndex = this.selectedServices.findIndex(s => s.feature.name === feature.name);
+            if (existingIndex === -1) {
+                // Add new service without items - default to all selected
+                this.selectedServices.push({
+                    feature: feature,
+                    items: [],
+                    sections: [],
+                    department: undefined,
+                    isAllSelected: true  // Default to all if no items selected
+                });
+            }
+        }
+
+        // Remove services that were deselected
+        this.selectedServices = this.selectedServices.filter(s => 
+            this.selectedServicesForFirstOverlay.some(f => f.name === s.feature.name)
+        );
+
+        // Clear error if we have any selected services
+        if (this.selectedServices.length > 0) {
+            this.showServiceError = false;
+        }
+        
+        this.serviceFilterBox.closeOverlay();
+    }
+
+    /**
+     * Open items selection overlay for a specific service
+     */
+    openItemsSelection(service: any): void {
+        this.editingService = service;
+        this.currentViewingFeature = service.feature;
+        
+        // Reset search terms
+        this.itemsSearchTerm = '';
+        this.departmentsSearchTerm = '';
+        this.sectionsSearchTerm = '';
+        
+        // Restore existing selections
+        if (service.feature.name === 'Sections') {
+            this.selectedDepartment = service.department || null;
+            this.selectedSections = [...(service.sections || [])];
+            if (this.selectedDepartment) {
+                this.loadSectionsForDepartment(this.selectedDepartment.id);
+            } else {
+                this.loadDepartmentsForSections();
+            }
+        } else {
+            this.selectedItems = [...(service.items || [])];
+            this.loadFeatureItems(service.feature.name);
+        }
+        
+        this.itemsFilterBox.openOverlay();
+    }
+
+    /**
+     * Close items filter overlay
+     */
+    closeItemsFilter(): void {
+        this.itemsFilterBox.closeOverlay();
+        // Reset state
+        this.editingService = null;
+        this.currentViewingFeature = null;
+        this.selectedItems = [];
+        this.selectedSections = [];
+        this.selectedDepartment = null;
         this.itemsSearchTerm = '';
         this.departmentsSearchTerm = '';
         this.sectionsSearchTerm = '';
     }
 
     /**
-     * Confirm service selection and close overlay
+     * Confirm items selection and close items overlay
      */
-    confirmServiceSelection(): void {
-        // Save current selections before closing
-        if (this.currentViewingFeature) {
-            this.saveCurrentSelections();
+    confirmItemsSelection(): void {
+        if (!this.editingService) return;
+        
+        // Save current selections to the editing service
+        if (this.editingService.feature.name === 'Sections') {
+            if (this.selectedSections.length > 0 && this.selectedDepartment) {
+                this.editingService.sections = [...this.selectedSections];
+                this.editingService.department = this.selectedDepartment;
+                this.editingService.isAllSelected = this.isAllSectionsSelected();
+            } else {
+                // If no items selected, default to all
+                this.editingService.sections = [];
+                this.editingService.department = undefined;
+                this.editingService.isAllSelected = true;
+            }
+        } else {
+            if (this.selectedItems.length > 0) {
+                this.editingService.items = [...this.selectedItems];
+                this.editingService.isAllSelected = this.isAllItemsSelected();
+            } else {
+                // If no items selected, default to all
+                this.editingService.items = [];
+                this.editingService.isAllSelected = true;
+            }
         }
-        // Clear error if we have any selected services
-        if (this.selectedServices.length > 0) {
-            this.showServiceError = false;
+        
+        // Update selectedServices with the editing service
+        const existingIndex = this.selectedServices.findIndex(s => s.feature.name === this.editingService.feature.name);
+        if (existingIndex >= 0) {
+            this.selectedServices[existingIndex] = { ...this.editingService };
+        } else {
+            this.selectedServices.push({ ...this.editingService });
         }
-        this.serviceFilterBox.closeOverlay();
+        
+        this.closeItemsFilter();
     }
 
     /**
@@ -468,7 +564,20 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingItems = true;
-        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm).subscribe({
+        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm).pipe(
+            switchMap((items) => {
+                // If no items returned, fallback to employees
+                if (!items || items.length === 0) {
+                    return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+                }
+                return of(items);
+            }),
+            catchError((error) => {
+                console.error('Error loading feature items, falling back to employees:', error);
+                // On error, fallback to employees
+                return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+            })
+        ).subscribe({
             next: (items) => {
                 this.featureItems = items;
                 this.itemsTotalItems = items.length;
@@ -482,20 +591,25 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 if (existingService && existingService.isAllSelected) {
                     // If isAllSelected is true, select all items
                     this.selectedItems = [...items];
-                } else if (this.selectedItems.length > 0) {
-                    // After loading, ensure selectedItems only contains items that exist in the loaded list
-                    // This prevents issues when restoring selections
-                    const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
-                    this.selectedItems = this.selectedItems.filter(item => validItemIds.has(item.id));
+                } else {
+                    // After loading, restore selected items from the service if they exist
+                    // First check if we have pre-selected items from the service
+                    if (this.editingService && this.editingService.items && this.editingService.items.length > 0) {
+                        // Restore from editingService (which was set in openItemsSelection)
+                        const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
+                        this.selectedItems = this.editingService.items.filter((item: FeatureItem) => validItemIds.has(item.id));
+                    } else if (this.selectedItems.length > 0) {
+                        // After loading, ensure selectedItems only contains items that exist in the loaded list
+                        // This prevents issues when restoring selections
+                        const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
+                        this.selectedItems = this.selectedItems.filter(item => validItemIds.has(item.id));
+                    }
                 }
                 
-                // Save updated selections
-                if (this.currentViewingFeature) {
-                    this.saveCurrentSelections();
-                }
+                // Don't save in real-time - only update on confirm
             },
             error: (error) => {
-                console.error('Error loading feature items:', error);
+                console.error('Error loading feature items (including fallback):', error);
                 this.isLoadingItems = false;
                 this.featureItems = [];
             }
@@ -563,10 +677,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     this.selectedSections = this.selectedSections.filter(section => validSectionIds.has(section.id));
                 }
                 
-                // Save updated selections
-                if (this.currentViewingFeature) {
-                    this.saveCurrentSelections();
-                }
+                // Don't save in real-time - only update on confirm
             },
             error: (error) => {
                 console.error('Error loading sections:', error);
@@ -586,8 +697,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedItems.push(item);
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -600,8 +710,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedSections.push(section);
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -615,8 +724,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             // Select all
             this.selectedItems = [...this.featureItems];
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -630,8 +738,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             // Select all
             this.selectedSections = [...this.sections];
         }
-        // Save in real-time
-        this.saveCurrentSelections();
+        // Don't save in real-time - only update on confirm
     }
 
     /**
@@ -700,36 +807,59 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get flattened list of selected items for table display
+     * Get list of selected services for table display
      */
-    getSelectedItemsForTable(): Array<{ serviceName: string; itemName: string; serviceFeature: any; item: FeatureItem }> {
-        const items: Array<{ serviceName: string; itemName: string; serviceFeature: any; item: FeatureItem }> = [];
-        
-        for (const service of this.selectedServices) {
+    getSelectedServicesForTable(): Array<{ serviceName: string; count: number; service: any; isAllSelected: boolean }> {
+        return this.selectedServices.map(service => {
+            let count = 0;
             if (service.feature.name === 'Sections') {
-                // For sections, add each section
-                for (const section of (service.sections || [])) {
-                    items.push({
-                        serviceName: service.feature.name,
-                        itemName: section.name,
-                        serviceFeature: service.feature,
-                        item: section
-                    });
-                }
+                count = (service.sections || []).length;
             } else {
-                // For other features, add each item
-                for (const item of (service.items || [])) {
-                    items.push({
-                        serviceName: service.feature.name,
-                        itemName: item.name,
-                        serviceFeature: service.feature,
-                        item: item
-                    });
-                }
+                count = (service.items || []).length;
             }
+            return {
+                serviceName: service.feature.name,
+                count: count,
+                service: service,
+                isAllSelected: service.isAllSelected || false
+            };
+        });
+    }
+
+    /**
+     * Get services with no items selected
+     */
+    getServicesWithNoItems(): string[] {
+        return this.selectedServices
+            .filter(service => {
+                if (service.feature.name === 'Sections') {
+                    return !service.sections || service.sections.length === 0;
+                } else {
+                    return !service.items || service.items.length === 0;
+                }
+            })
+            .map(service => service.feature.name.toLowerCase());
+    }
+
+    /**
+     * Get dynamic error message for service selection
+     */
+    getServiceErrorMessage(): string {
+        if (this.selectedServices.length === 0) {
+            return 'Please select a service and at least one item to continue.';
         }
-        
-        return items;
+
+        const servicesWithNoItems = this.getServicesWithNoItems();
+        if (servicesWithNoItems.length === 0) {
+            return 'Please select a service and at least one item to continue.';
+        }
+
+        if (servicesWithNoItems.length === 1) {
+            return `Please select at least one ${servicesWithNoItems[0]} to continue.`;
+        } else {
+            const servicesList = servicesWithNoItems.join(', ');
+            return `Please select at least one ${servicesList} to continue.`;
+        }
     }
 
     /**
@@ -928,18 +1058,24 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             const isAll = featureData?.is_all === true;
             const values = featureData?.values || [];
 
-            // Find the feature in available features
-            const feature = this.availableFeatures.find(f => f.name === featureName);
-            if (!feature) {
-                return of(null);
-            }
+            // Extract IDs from values array (values can be objects with id property or just numbers)
+            const valueIds: number[] = values.map((val: any) => {
+                return typeof val === 'object' && val !== null ? val.id : val;
+            }).filter((id: any) => typeof id === 'number');
+
+            // Create feature object from response data (don't rely on availableFeatures)
+            const feature = {
+                name: featureName,
+                is_all: isAll,
+                values: valueIds
+            };
 
             if (featureName === 'Sections') {
                 // For sections, handle departments and sections
-                return this.prefillSectionsFeature(feature, isAll, values);
+                return this.prefillSectionsFeature(feature, isAll, valueIds);
             } else {
                 // For other features, load items
-                return this.prefillRegularFeature(feature, isAll, values);
+                return this.prefillRegularFeature(feature, isAll, valueIds);
             }
         });
 
