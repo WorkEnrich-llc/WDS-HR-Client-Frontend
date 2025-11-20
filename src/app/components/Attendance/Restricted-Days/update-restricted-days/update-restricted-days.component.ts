@@ -9,6 +9,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
 import { DateRangeValidators } from 'app/core/validators/date-range-validators';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-update-restricted-days',
@@ -27,6 +28,8 @@ export class UpdateRestrictedDaysComponent {
   formattedUpdatedAt: string = '';
   dayId: string | null = null;
   originalFormValue: any;
+  minDate = dayjs().startOf('day');
+
   constructor(
     private _DepartmentsService: DepartmentsService,
     private _RestrictedService: RestrictedService,
