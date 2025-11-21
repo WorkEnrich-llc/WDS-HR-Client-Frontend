@@ -38,11 +38,23 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contract'] && this.contract && this.isEditMode) {
       this.populateForm();
+    }
+
+    if (this.isEditMode && this.contract?.status === 'Active') {
+      this.contractForm.get('startDate')?.disable({ emitEvent: false });
+      this.contractForm.get('withEndDate')?.disable({ emitEvent: false });
+      this.contractForm.get('noticePeriod')?.disable({ emitEvent: false });
+    } else {
+      this.contractForm.get('startDate')?.enable({ emitEvent: false });
+      this.contractForm.get('withEndDate')?.enable({ emitEvent: false });
+      this.contractForm.get('noticePeriod')?.enable({ emitEvent: false });
     }
     // if (changes['contract'] && this.contract && this.isEditMode) {
     //   this.populateForm();
