@@ -321,10 +321,6 @@ export class ViewNewJoinerComponent implements OnInit {
   // }
 
 
-
-
-
-
   openModal() {
     if (!this.upcomingContractId) {
       this.openWarningModal(
@@ -460,9 +456,6 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
 
-
-
-
   openJoinModal() {
     if (!this.upcomingContractId) {
       this.openWarningModal(
@@ -477,8 +470,6 @@ export class ViewNewJoinerComponent implements OnInit {
   closeJoinModal() {
     this.isJoinModalOpen = false;
   }
-
-
 
   closeWarningModal(): void {
     this.isWarningModalOpen = false;
