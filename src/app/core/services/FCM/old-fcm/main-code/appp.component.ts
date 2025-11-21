@@ -23,7 +23,7 @@
 // })
 // export class AppComponent {
 
-//    title = 'WorkEnrich System';
+//    title = 'Talent.HR System';
 
 //    constructor(
 //       private translate: TranslateService,

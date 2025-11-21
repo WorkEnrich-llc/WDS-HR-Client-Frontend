@@ -13,10 +13,10 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-onboarding',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule,RouterLink],
+  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.css',
-  encapsulation:ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 export class OnboardingComponent {
   checks: CheckItem[] = [];
@@ -44,7 +44,7 @@ export class OnboardingComponent {
         }));
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

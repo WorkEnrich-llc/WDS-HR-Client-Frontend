@@ -208,7 +208,6 @@ export class AllBranchesComponent implements OnInit {
           updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
           status: item.is_active ? 'Active' : 'Inactive',
         }));
-        console.log(this.branches)
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
 
@@ -216,7 +215,7 @@ export class AllBranchesComponent implements OnInit {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
 
       }
@@ -236,23 +235,23 @@ export class AllBranchesComponent implements OnInit {
     this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
   }
 
- onPageChange(page: number): void {
-  this.currentPage = page;
+  onPageChange(page: number): void {
+    this.currentPage = page;
 
-  this.paginationState.setPage('branches/all-branches', page);
+    this.paginationState.setPage('branches/all-branches', page);
 
-  this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
 
-  this.router.navigate([], {
-    relativeTo: this.route,
-    queryParams: {
-      page,
-      search: this.currentSearchTerm || null,
-      ...this.currentFilters
-    },
-    queryParamsHandling: 'merge'
-  });
-}
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        page,
+        search: this.currentSearchTerm || null,
+        ...this.currentFilters
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
 
 
   navigateToEdit(branchId: number): void {

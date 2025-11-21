@@ -42,7 +42,7 @@
                     </tr>
                     }
                     @else{
-                    @for (p of salaryPortions; track p.index){<tr>
+                    @for (p of salaryPortions; track $index){<tr>
                         <td>{{ p.name }}</td>
                         <td>{{ p.percentage }}%</td>
                     </tr>

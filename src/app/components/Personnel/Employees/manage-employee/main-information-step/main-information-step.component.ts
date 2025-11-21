@@ -41,7 +41,10 @@ export class MainInformationStepComponent {
   @ViewChild('dropdownContainer') dropdownRef!: ElementRef;
 
   @HostListener('document:click', ['$event.target'])
-  onClickOutside(target: HTMLElement) {
+  onClickOutside(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
     if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(target)) {
       this.sharedService.dropdownOpen.set(false);
     }

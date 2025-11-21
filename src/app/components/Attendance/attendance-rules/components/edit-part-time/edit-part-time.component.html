@@ -181,7 +181,11 @@
                   </option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
-                    {{ portion.name }} ({{ portion.percentage }}%)
+                    @if (shouldShowPercentage(portion.percentage)) {
+                      {{ portion.name }} ({{ portion.percentage }}%)
+                    } @else {
+                      {{ portion.name }}
+                    }
                   </option>
                   }
                 </select>
@@ -311,7 +315,11 @@
                     Portion</option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
-                    {{ portion.name }} ({{ portion.percentage }}%)
+                    @if (shouldShowPercentage(portion.percentage)) {
+                      {{ portion.name }} ({{ portion.percentage }}%)
+                    } @else {
+                      {{ portion.name }}
+                    }
                   </option>
                   }
                 </select>
@@ -431,7 +439,11 @@
                   </option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
-                    {{ portion.name }} ({{ portion.percentage }}%)
+                    @if (shouldShowPercentage(portion.percentage)) {
+                      {{ portion.name }} ({{ portion.percentage }}%)
+                    } @else {
+                      {{ portion.name }}
+                    }
                   </option>
                   }
                 </select>
@@ -586,7 +598,11 @@
                   </option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
-                    {{ portion.name }} ({{ portion.percentage }}%)
+                    @if (shouldShowPercentage(portion.percentage)) {
+                      {{ portion.name }} ({{ portion.percentage }}%)
+                    } @else {
+                      {{ portion.name }}
+                    }
                   </option>
                   }
                 </select>

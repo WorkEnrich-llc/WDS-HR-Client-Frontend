@@ -157,6 +157,7 @@ export interface Employee {
   }>;
   created_at: string;
   updated_at: string;
+  end_contract_sort: string;
   device?: {
     id: number;
     last_seen: string;

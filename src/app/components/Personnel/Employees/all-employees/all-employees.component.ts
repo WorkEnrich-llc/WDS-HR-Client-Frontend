@@ -69,8 +69,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     this.filterForm = this.fb.group({
       created_from: [''],
+      created_to: [''],
       status: [''],
       contract_end_date: [''],
+      contract_start_date: [''],
     });
   }
 
@@ -108,6 +110,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.transformEmployeesForDisplay();
           this.loading = false;
           this.loadData = false;
+          this.sortDirection = 'desc';
+          this.sortBy();
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -124,7 +128,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       this.activeFilters = {
         status: rawFilters.status === 'all' ? null : rawFilters.status,
         created_from: rawFilters.created_from || null,
-        contract_end_date: rawFilters.contract_end_date || null
+        created_to: rawFilters.created_to || null,
+        contract_end_date: rawFilters.contract_end_date || null,
+        contract_start_date: rawFilters.contract_start_date || null
       };
       this.currentPage = 1;
       this.loadEmployees();
@@ -185,17 +191,55 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     return this.datePipe.transform(date, 'yyyy-MM-dd') || dateString;
   }
 
+  // sortBy() {
+  //   this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  //   this.filteredEmployees.sort((a, b) => {
+  //     const nameA = a.name?.toLowerCase() || '';
+  //     const nameB = b.name?.toLowerCase() || '';
+  //     if (this.sortDirection === 'asc') {
+  //       return nameA.localeCompare(nameB);
+  //     } else {
+  //       return nameB.localeCompare(nameA);
+  //     }
+  //   });
+  // }
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.filteredEmployees = this.filteredEmployees.sort((a, b) => {
-      if (this.sortDirection === 'asc') {
-        return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
-      } else {
-        return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+    const directionMultiplier = this.sortDirection === 'asc' ? 1 : -1;
+
+    this.filteredEmployees.sort((a, b) => {
+      const nameA = a.name?.toLowerCase() || '';
+      const nameB = b.name?.toLowerCase() || '';
+      const nameComparison = nameA.localeCompare(nameB);
+      if (nameComparison !== 0) {
+        return nameComparison * directionMultiplier;
       }
+
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+
+      if (dateA < dateB) {
+        return -1 * directionMultiplier;
+      }
+      if (dateA > dateB) {
+        return 1 * directionMultiplier;
+      }
+      return 0;
     });
   }
+
+
+  // sortBy() {
+  //   this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  //   this.filteredEmployees = this.filteredEmployees.sort((a, b) => {
+  //     if (this.sortDirection === 'asc') {
+  //       return a.id > b.id ? 1 : (a.id < b.id ? -1 : 0);
+  //     } else {
+  //       return a.id < b.id ? 1 : (a.id > b.id ? -1 : 0);
+  //     }
+  //   });
+  // }
 
   // resetFilterForm(): void {
   //   this.filterBox.closeOverlay();
@@ -257,24 +301,45 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   }
 
 
-  isContractExpiring(endDateString: string | null | undefined): boolean {
+  getContractStatus(endDateString: string | null | undefined): string {
     if (!endDateString) {
-      return false;
+      return '';
     }
 
     const today = new Date();
-    const contractEnd = new Date(endDateString);
-
     today.setHours(0, 0, 0, 0);
+    const contractEnd = new Date(endDateString);
+    contractEnd.setHours(0, 0, 0, 0);
 
     if (contractEnd < today) {
-      return false;
+      return 'expired';
     }
 
-    const threeMonthsFromNow = new Date();
-    threeMonthsFromNow.setMonth(today.getMonth() + 3);
+    const minutesPerDay = 1000 * 60 * 60 * 24;
+    const remainingMonths = contractEnd.getTime() - today.getTime();
+    const remainingDays = Math.ceil(remainingMonths / minutesPerDay);
 
-    return contractEnd >= today && contractEnd <= threeMonthsFromNow;
+    if (remainingDays <= 30) {
+      return 'nearly-expired';
+    }
+
+    if (remainingDays <= 60) {
+      return 'warning';
+    }
+    return '';
+  }
+
+  public getEmployeeClass = (employee: any): string => {
+    const status = this.getContractStatus(employee.end_contract);
+    if (status === 'nearly-expired') {
+      return 'contract-expiring-red';
+    }
+
+    if (status === 'warning') {
+      return 'contract-expiring-yellow';
+    }
+
+    return '';
   }
 
 }

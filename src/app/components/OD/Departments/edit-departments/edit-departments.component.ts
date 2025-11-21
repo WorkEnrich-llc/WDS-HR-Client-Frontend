@@ -12,10 +12,12 @@ import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
+import { DepartmentChecklistService } from '../../../../core/services/od/departmentChecklist/department-checklist.service';
+import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
 
 @Component({
   selector: 'app-edit-departments',
-  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent],
+  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent],
   providers: [DatePipe],
   templateUrl: './edit-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-departments.component.css'],
@@ -23,14 +25,15 @@ import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading
 })
 export class EditDepartmentsComponent implements OnInit {
   constructor(
-    private _DepartmentsService: DepartmentsService, 
-    private route: ActivatedRoute, 
+    private _DepartmentsService: DepartmentsService,
+    private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
     private subService: SubscriptionService,
     private datePipe: DatePipe,
     private toasterMessageService: ToasterMessageService,
     private goalsService: GoalsService,
+    private departmentChecklistService: DepartmentChecklistService,
   ) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -138,9 +141,12 @@ export class EditDepartmentsComponent implements OnInit {
           sections: this.sectionsFormArray.value
         };
         this.loadData = false;
-        
+
         // Save assigned_checklist IDs from department response
         this.saveAssignedChecklistIds();
+
+        // Load checklist after department data is loaded
+        this.loadDepartmentChecklist();
       },
       error: (err) => {
         console.log(err.error?.details);
@@ -542,121 +548,127 @@ export class EditDepartmentsComponent implements OnInit {
     //   }
     // };
     if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
-    this.errMsg = 'Please complete both steps with valid data and at least one section.';
-    return;
-  }
+      this.errMsg = 'Please complete both steps with valid data and at least one section.';
+      return;
+    }
 
-  const form1Data = this.deptStep1.value;
-  const originalSections = this.departmentData.sections || [];
+    const form1Data = this.deptStep1.value;
+    const originalSections = this.departmentData.sections || [];
 
-  const currentSections = this.sectionsFormArray.controls.map((control: AbstractControl, index: number) => {
-    const group = control as FormGroup;
-    const subSections = this.getSubSections(group).controls.map((subControl: AbstractControl, subIndex: number) => {
-      const subGroup = subControl as FormGroup;
-      const id = subGroup.get('id')?.value || 0;
+    const currentSections = this.sectionsFormArray.controls.map((control: AbstractControl, index: number) => {
+      const group = control as FormGroup;
+      const subSections = this.getSubSections(group).controls.map((subControl: AbstractControl, subIndex: number) => {
+        const subGroup = subControl as FormGroup;
+        const id = subGroup.get('id')?.value || 0;
 
-      const matchedOriginalSub = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
-        .find((s: any) => s.id === id);
+        const matchedOriginalSub = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
+          .find((s: any) => s.id === id);
 
-      let record_type = subGroup.get('record_type')?.value || 'create'; // Default to 'create' for new subsections
-      if (matchedOriginalSub) {
+        let record_type = subGroup.get('record_type')?.value || 'create'; // Default to 'create' for new subsections
+        if (matchedOriginalSub) {
+          const changed =
+            subGroup.get('secCode')?.value !== matchedOriginalSub.code ||
+            subGroup.get('secName')?.value !== matchedOriginalSub.name ||
+            subGroup.get('status')?.value !== matchedOriginalSub.is_active;
+
+          record_type = changed ? 'update' : 'nothing';
+        }
+
+        return {
+          id,
+          index: subIndex + 1,
+          record_type,
+          code: subGroup.get('secCode')?.value,
+          name: subGroup.get('secName')?.value,
+          status: subGroup.get('status')?.value.toString()
+        };
+      });
+
+      const deletedSubSections = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
+        .filter((origSub: any) => !subSections.some(currSub => currSub.id === origSub.id))
+        .map((sub: any, idx: number) => ({
+          id: sub.id,
+          index: subSections.length + idx + 1,
+          record_type: 'delete',
+          code: sub.code,
+          name: sub.name,
+          status: sub.is_active.toString()
+        }));
+
+      const allSubSections = [...subSections, ...deletedSubSections];
+
+      const id = group.get('id')?.value || 0;
+      const matchedOriginal = originalSections.find((s: any) => s.id === id);
+
+      let record_type = 'create'; // Default to 'create' for new sections
+      if (matchedOriginal) {
         const changed =
-          subGroup.get('secCode')?.value !== matchedOriginalSub.code ||
-          subGroup.get('secName')?.value !== matchedOriginalSub.name ||
-          subGroup.get('status')?.value !== matchedOriginalSub.is_active;
+          group.get('secCode')?.value !== matchedOriginal.code ||
+          group.get('secName')?.value !== matchedOriginal.name ||
+          group.get('status')?.value !== matchedOriginal.is_active;
 
         record_type = changed ? 'update' : 'nothing';
+
+        // If any subsection has create/update/delete, the parent section must be 'update'
+        const subChanged = allSubSections.some(sub => sub.record_type === 'update' || sub.record_type === 'delete' || sub.record_type === 'create');
+        if (subChanged) {
+          record_type = 'update';
+        }
       }
 
       return {
         id,
-        index: subIndex + 1,
+        index: index + 1,
         record_type,
-        code: subGroup.get('secCode')?.value,
-        name: subGroup.get('secName')?.value,
-        status: subGroup.get('status')?.value.toString()
+        code: group.get('secCode')?.value,
+        name: group.get('secName')?.value,
+        status: group.get('status')?.value.toString(),
+        sub_sections: allSubSections
       };
     });
 
-    const deletedSubSections = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
-      .filter((origSub: any) => !subSections.some(currSub => currSub.id === origSub.id))
-      .map((sub: any, idx: number) => ({
-        id: sub.id,
-        index: subSections.length + idx + 1,
+    const deletedSections = originalSections
+      .filter((orig: any) => !currentSections.some((curr: any) => curr.id === orig.id))
+      .map((section: any, index: number) => ({
+        id: section.id,
+        index: currentSections.length + index + 1,
+        code: section.code,
+        name: section.name,
+        status: section.is_active.toString(),
         record_type: 'delete',
-        code: sub.code,
-        name: sub.name,
-        status: sub.is_active.toString()
+        sub_sections: (section.sub_sections || []).map((sub: any, idx: number) => ({
+          id: sub.id,
+          index: idx + 1,
+          code: sub.code,
+          name: sub.name,
+          status: sub.is_active.toString(),
+          record_type: 'delete'
+        }))
       }));
 
-    const allSubSections = [...subSections, ...deletedSubSections];
+    const allSections = [...currentSections, ...deletedSections];
 
-    const id = group.get('id')?.value || 0;
-    const matchedOriginal = originalSections.find((s: any) => s.id === id);
+    // Get checklist IDs from currently checked items (same logic as onChecklistItemClick)
+    const checklistIds = this.departmentChecklistItems
+      .filter(listItem => {
+        const listItemId = this.titleToIdMap.get(listItem.title);
+        return listItemId !== undefined && listItem.status === true;
+      })
+      .map(listItem => this.titleToIdMap.get(listItem.title))
+      .filter(id => id !== undefined) as number[];
 
-    let record_type = 'create'; // Default to 'create' for new sections
-    if (matchedOriginal) {
-      const changed =
-        group.get('secCode')?.value !== matchedOriginal.code ||
-        group.get('secName')?.value !== matchedOriginal.name ||
-        group.get('status')?.value !== matchedOriginal.is_active;
-
-      record_type = changed ? 'update' : 'nothing';
-
-      // If any subsection has create/update/delete, the parent section must be 'update'
-      const subChanged = allSubSections.some(sub => sub.record_type === 'update' || sub.record_type === 'delete' || sub.record_type === 'create');
-      if (subChanged) {
-        record_type = 'update';
+    const finalData = {
+      request_data: {
+        id: this.departmentData.id,
+        code: form1Data.code,
+        name: form1Data.name,
+        department_type: Number(form1Data.department_type),
+        objectives: form1Data.objectives,
+        goals: this.addedGoal.map((g: any) => g.id),
+        sections: allSections,
+        checklist: checklistIds
       }
-    }
-
-    return {
-      id,
-      index: index + 1,
-      record_type,
-      code: group.get('secCode')?.value,
-      name: group.get('secName')?.value,
-      status: group.get('status')?.value.toString(),
-      sub_sections: allSubSections
     };
-  });
-
-  const deletedSections = originalSections
-    .filter((orig: any) => !currentSections.some((curr: any) => curr.id === orig.id))
-    .map((section: any, index: number) => ({
-      id: section.id,
-      index: currentSections.length + index + 1,
-      code: section.code,
-      name: section.name,
-      status: section.is_active.toString(),
-      record_type: 'delete',
-      sub_sections: (section.sub_sections || []).map((sub: any, idx: number) => ({
-        id: sub.id,
-        index: idx + 1,
-        code: sub.code,
-        name: sub.name,
-        status: sub.is_active.toString(),
-        record_type: 'delete'
-      }))
-    }));
-
-  const allSections = [...currentSections, ...deletedSections];
-
-  // Get assigned_checklist IDs to send in payload
-  const checklistIds = this.assignedChecklistIds;
-
-  const finalData = {
-    request_data: {
-      id: this.departmentData.id,
-      code: form1Data.code,
-      name: form1Data.name,
-      department_type: Number(form1Data.department_type),
-      objectives: form1Data.objectives,
-      goals: this.addedGoal.map((g: any) => g.id),
-      sections: allSections,
-      checklist: checklistIds
-    }
-  };
     // console.log(finalData);
 
 
@@ -726,7 +738,232 @@ export class EditDepartmentsComponent implements OnInit {
   // Save assigned_checklist IDs from department response
   saveAssignedChecklistIds(): void {
     this.assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
-    console.log('Assigned checklist IDs saved:', this.assignedChecklistIds);
+  }
+
+  // Department checklist properties
+  departmentChecklistItems: OnboardingListItem[] = [];
+  isChecklistModalOpen: boolean = false;
+  // Mapping of title to ID for efficient lookup
+  titleToIdMap: Map<string, number> = new Map();
+  // Track which checklist item is currently being updated
+  loadingChecklistItemTitle: string | null = null;
+
+  // Load department checklist from API and mark assigned ones as active
+  loadDepartmentChecklist(): void {
+    this.departmentChecklistService.getDepartmetChecks(1, 10000).subscribe({
+      next: (response) => {
+        // Get assigned checklist IDs from department response
+        const assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
+
+        // Transform API response to match OnboardingListItem format and build title-to-ID mapping
+        const listItems = response?.data?.list_items || [];
+        this.titleToIdMap.clear(); // Clear previous mapping
+        this.departmentChecklistItems = listItems.map((item: any) => {
+          // Store mapping of title to ID
+          this.titleToIdMap.set(item.name || '', item.id);
+          return {
+            title: item.name || '',
+            status: assignedChecklistIds.includes(item.id) // Mark as checked if in assigned_checklist
+          };
+        });
+
+      },
+      error: (error) => {
+        console.error('Error loading department checklist:', error);
+        this.toasterMessageService.showError('Failed to load department checklist');
+      }
+    });
+  }
+
+  // Onboarding checklist modal methods
+  openChecklistModal(): void {
+    this.isChecklistModalOpen = true;
+  }
+
+  closeChecklistModal(): void {
+    this.isChecklistModalOpen = false;
+  }
+
+  onChecklistItemClick(item: OnboardingListItem): void {
+    // Get the ID from the title-to-ID mapping
+    const itemId = this.titleToIdMap.get(item.title);
+
+    if (itemId === undefined) {
+      return;
+    }
+
+    // Prevent multiple clicks while loading
+    if (this.loadingChecklistItemTitle) {
+      return;
+    }
+
+    // Set loading state
+    this.loadingChecklistItemTitle = item.title;
+
+    // Toggle item status locally (will be updated after API call)
+    const newStatus = !item.status;
+    item.status = newStatus;
+
+    // Build checklist array: include IDs of all currently checked items (exclude unchecked)
+    const checkedIds = this.departmentChecklistItems
+      .filter(listItem => {
+        const listItemId = this.titleToIdMap.get(listItem.title);
+        return listItemId !== undefined && listItem.status === true;
+      })
+      .map(listItem => this.titleToIdMap.get(listItem.title))
+      .filter(id => id !== undefined) as number[];
+
+    // Get form data for sections
+    const form1Data = this.deptStep1.value;
+    const originalSections = this.departmentData.sections || [];
+
+    const currentSections = this.sectionsFormArray.controls.map((control: AbstractControl, index: number) => {
+      const group = control as FormGroup;
+      const subSections = this.getSubSections(group).controls.map((subControl: AbstractControl, subIndex: number) => {
+        const subGroup = subControl as FormGroup;
+        const id = subGroup.get('id')?.value || 0;
+
+        const matchedOriginalSub = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
+          .find((s: any) => s.id === id);
+
+        let record_type = subGroup.get('record_type')?.value || 'create';
+        if (matchedOriginalSub) {
+          const changed =
+            subGroup.get('secCode')?.value !== matchedOriginalSub.code ||
+            subGroup.get('secName')?.value !== matchedOriginalSub.name ||
+            subGroup.get('status')?.value !== matchedOriginalSub.is_active;
+
+          record_type = changed ? 'update' : 'nothing';
+        }
+
+        return {
+          id,
+          index: subIndex + 1,
+          record_type,
+          code: subGroup.get('secCode')?.value,
+          name: subGroup.get('secName')?.value,
+          status: subGroup.get('status')?.value.toString()
+        };
+      });
+
+      const deletedSubSections = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
+        .filter((origSub: any) => !subSections.some(currSub => currSub.id === origSub.id))
+        .map((sub: any, idx: number) => ({
+          id: sub.id,
+          index: subSections.length + idx + 1,
+          record_type: 'delete',
+          code: sub.code,
+          name: sub.name,
+          status: sub.is_active.toString()
+        }));
+
+      const allSubSections = [...subSections, ...deletedSubSections];
+
+      const id = group.get('id')?.value || 0;
+      const matchedOriginal = originalSections.find((s: any) => s.id === id);
+
+      let record_type = 'create';
+      if (matchedOriginal) {
+        const changed =
+          group.get('secCode')?.value !== matchedOriginal.code ||
+          group.get('secName')?.value !== matchedOriginal.name ||
+          group.get('status')?.value !== matchedOriginal.is_active;
+
+        record_type = changed ? 'update' : 'nothing';
+
+        const subChanged = allSubSections.some(sub => sub.record_type === 'update' || sub.record_type === 'delete' || sub.record_type === 'create');
+        if (subChanged) {
+          record_type = 'update';
+        }
+      }
+
+      return {
+        id,
+        index: index + 1,
+        record_type,
+        code: group.get('secCode')?.value,
+        name: group.get('secName')?.value,
+        status: group.get('status')?.value.toString(),
+        sub_sections: allSubSections
+      };
+    });
+
+    const deletedSections = originalSections
+      .filter((orig: any) => !currentSections.some((curr: any) => curr.id === orig.id))
+      .map((section: any, index: number) => ({
+        id: section.id,
+        index: currentSections.length + index + 1,
+        code: section.code,
+        name: section.name,
+        status: section.is_active.toString(),
+        record_type: 'delete',
+        sub_sections: (section.sub_sections || []).map((sub: any, idx: number) => ({
+          id: sub.id,
+          index: idx + 1,
+          code: sub.code,
+          name: sub.name,
+          status: sub.is_active.toString(),
+          record_type: 'delete'
+        }))
+      }));
+
+    const allSections = [...currentSections, ...deletedSections];
+
+    // Build update payload matching edit-departments structure
+    const updatePayload = {
+      request_data: {
+        id: this.departmentData.id,
+        code: form1Data.code,
+        name: form1Data.name,
+        department_type: Number(form1Data.department_type),
+        objectives: form1Data.objectives,
+        goals: this.addedGoal.map((g: any) => g.id),
+        sections: allSections,
+        checklist: checkedIds
+      }
+    };
+
+    // Call update endpoint
+    this._DepartmentsService.updateDepartment(updatePayload).subscribe({
+      next: (response) => {
+        this.loadingChecklistItemTitle = null;
+        this.toasterMessageService.showSuccess('Checklist updated successfully');
+
+        // Refresh department checklist from latest server response without reloading the whole page
+        this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({
+          next: (deptResponse) => {
+            const updatedDept = deptResponse.data.object_info;
+            // Update only departmentData and checklist-related state
+            this.departmentData = updatedDept;
+            // Reload checklist to reflect updated assigned_checklist
+            this.loadDepartmentChecklist();
+          },
+          error: (deptError) => {
+            console.error('Error refreshing department after checklist update:', deptError);
+          }
+        });
+      },
+      error: (error) => {
+        this.loadingChecklistItemTitle = null;
+        // Revert the local change on error
+        item.status = !newStatus;
+        console.error('Error updating checklist:', error);
+        this.toasterMessageService.showError('Failed to update checklist');
+      }
+    });
+  }
+
+  get checklistCompleted(): number {
+    return this.departmentChecklistItems.filter(item => item.status === true).length;
+  }
+
+  get checklistTotal(): number {
+    return this.departmentChecklistItems.length;
+  }
+
+  get disabledChecklistTitles(): string[] {
+    // In edit mode, allow all items to be toggled (no disabled items)
+    return [];
   }
 
 }

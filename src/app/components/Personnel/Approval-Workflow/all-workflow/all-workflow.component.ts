@@ -92,14 +92,13 @@ export class AllWorkflowComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.workflows = response.data.list_items;
-        // console.log(this.workflows);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -117,7 +116,7 @@ export class AllWorkflowComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -155,7 +154,6 @@ export class AllWorkflowComponent {
         department: rawFilters.department || undefined
       };
 
-      // console.log('Filters submitted:', filters);
       this.filterBox.closeOverlay();
       this.getAllWorkflows(this.currentPage, '', filters);
     }

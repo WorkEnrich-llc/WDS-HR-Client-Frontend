@@ -26,9 +26,7 @@ export class OrganizationTestChartComponent implements OnInit, AfterViewInit {
       next: (res) => {
         if (res.data?.list_items && res.data.list_items.length > 0) {
           this.chartData = this.transformJobsChartFormat(res.data.list_items[0]);
-          console.log('Transformed jobs chartData:', this.chartData);
         } else {
-          console.warn('No list_items found in jobsChart response');
         }
         if (this.orgChart?.nativeElement?.contentWindow && this.chartData) {
           this.sendDataToIframe();
@@ -44,7 +42,6 @@ export class OrganizationTestChartComponent implements OnInit, AfterViewInit {
       this.sendDataToIframe();
     } else {
       iframe.onload = () => {
-        console.log('Iframe loaded (jobs chart). Ready to send data.');
         this.sendDataToIframe();
       };
     }

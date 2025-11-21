@@ -82,7 +82,7 @@
 
         <div class="info">
           <h6>Priority</h6>
-          <span>{{goalData?.priority || 'N/A'}}</span>
+          <span>{{priority[goalData?.priority] || 'N/A'}}</span>
         </div>
         }
         }
@@ -124,12 +124,12 @@
         }
         }
 
-         @if(loadData) {
+        @if(loadData) {
         <app-skelaton-loading [rows]="1" [hasLabel]="true" [labelHeight]="16" [valueHeight]="20">
         </app-skelaton-loading>
 
         }@else {
-           @for (item of goalData?.assigned_department ?? []; track $index){
+        @for (item of goalData?.assigned_department ?? []; track $index){
         <div class="d-flex align-items-center justify-content-between">
           <div class="info">
             <h6>Assigned Department #{{ $index + 1 }}</h6>
@@ -147,7 +147,7 @@
         </div>
         }
         }
-       
+
 
 
 

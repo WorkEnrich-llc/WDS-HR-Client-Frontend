@@ -22,7 +22,7 @@ export class AdminDashboardComponent {
     private _BranchesService: BranchesService,
     private leaveBalanceService: LeaveBalanceService
   ) { }
-  getDataLoad:boolean=true;
+  getDataLoad: boolean = true;
 
   months: { value: number, label: string }[] = [];
 
@@ -108,7 +108,7 @@ export class AdminDashboardComponent {
             colors: valuesArray.map((v: any) => v?.color_code ?? '#e5e7eb50')
           };
         });
-        this.getDataLoad=false;
+        this.getDataLoad = false;
         // console.log("Charts Data:", this.chartsData);
 
         // -----------------------------
@@ -432,7 +432,7 @@ export class AdminDashboardComponent {
       },
       error: (error) => {
         console.error('Error fetching dashboard data:', error);
-        this.getDataLoad=false;
+        this.getDataLoad = false;
 
       }
     });
@@ -479,7 +479,7 @@ export class AdminDashboardComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

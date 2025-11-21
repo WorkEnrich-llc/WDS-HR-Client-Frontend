@@ -87,14 +87,13 @@ export class WorkScheduleComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.workschaduale = response.data.list_items;
-        // console.log(this.workschaduale);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -112,7 +111,7 @@ export class WorkScheduleComponent {
         this.departments = response.data.list_items;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -162,7 +161,6 @@ export class WorkScheduleComponent {
       };
 
 
-      console.log('Filters submitted:', filters);
       this.filterBox.closeOverlay();
       this.getAllWorkSchedule(this.currentPage, '', filters);
     }

@@ -67,7 +67,7 @@
             d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button type="button" class="btn btn-lg btn-success" (click)="onSubmit()" [disabled]="sharedService.isLoading()">
+      <button type="button" class="btn btn-lg btn-success" (click)="onSubmit()" [disabled]="isSaveDisabled">
         @if (sharedService.isLoading()) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }

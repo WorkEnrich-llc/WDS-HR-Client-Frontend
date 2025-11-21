@@ -71,7 +71,7 @@ export class AttendanceLogComponent {
 
     return hours * 60 + minutes;
   }
-  
+
   isLoading: boolean = false;
   todayDayjs = dayjs();
   searchTerm: string = '';
@@ -200,7 +200,6 @@ export class AttendanceLogComponent {
         this.totalPages = info.total_pages;
         this.loadData = false;
 
-        // console.log('Formatted Employees:', this.employees);
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
@@ -237,6 +236,7 @@ export class AttendanceLogComponent {
         return '';
     }
   }
+  // get times
   getFirstCheckIn(emp: any): string {
     const list = emp?.list_items;
     if (!list || list.length === 0) {
@@ -264,7 +264,32 @@ export class AttendanceLogComponent {
       ? this.formatTimeTo12Hour(checkOut)
       : '--';
   }
+  // but time or -- in absent and leave 
+  getSafeTime(status: string | undefined, time: string | undefined): string {
+    if (!status || !time) return '--';
 
+    const normalizedStatus = status.trim();
+    const normalizedTime = time.trim();
+
+    if (
+      (normalizedStatus === 'Absent' || normalizedStatus === 'On Leave'|| normalizedStatus ==='Holiday' || normalizedStatus === 'Weekly leave') &&
+      normalizedTime === '00:00'
+    ) {
+      return '--';
+    }
+
+    return this.formatTimeTo12Hour(normalizedTime);
+  }
+
+  getFormattedCheckIn(log: any): string {
+    return this.getSafeTime(log?.status, log?.times_object?.actual_check_in);
+  }
+
+  getFormattedCheckOut(log: any): string {
+    return this.getSafeTime(log?.status, log?.times_object?.actual_check_out);
+  }
+
+  // git status of first main record in list
   getMainRecord(list: any[]): any {
     return list?.find(item => item.main_record === true);
   }
@@ -399,7 +424,6 @@ export class AttendanceLogComponent {
     this.selectedRange = null;
 
     const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-    // console.log('Selected date:', formattedDate);
 
     this.getAllAttendanceLog({
       page: this.currentPage,
@@ -470,7 +494,6 @@ export class AttendanceLogComponent {
       employee_id: attendance.employee_id,
       date: attendance.date
     };
-    console.log("cancel Data",payload);
     this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
       next: () => {
         attendance.canceled = true;
@@ -511,9 +534,7 @@ export class AttendanceLogComponent {
 
 
   applyFilter(): void {
-    console.log('filterForm', this.filterForm.value);
     if (this.filterForm.valid) {
-      console.log('filterForm', this.filterForm.value);
       const rawFilters = this.filterForm.value;
       const filters: IAttendanceFilters = {
         page: this.currentPage,

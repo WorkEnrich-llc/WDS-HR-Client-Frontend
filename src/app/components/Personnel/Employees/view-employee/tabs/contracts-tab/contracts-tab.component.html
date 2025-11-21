@@ -2,6 +2,11 @@
 <app-contract-form-modal [isOpen]="isAddModalOpen" [isLoading]="isLoading" [isEditMode]="isEditMode"
   [contract]="selectedContract" [employee]="employee" (onClose)="closeAddModal()" (onSave)="onContractSave($event)">
 </app-contract-form-modal>
+
+<!-- <app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
+  [isEditMode]="isEditMode" [isLoading]="isLoading" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
+</app-contract-form-modal> -->
+
 <div class="contracts-content">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Work Contracts</h2>
@@ -38,7 +43,7 @@
     <td class="text-start">{{ contract.endDate ? contract.endDate : 'Indefinite term contract' }}</td>
     <!-- <td class="text-start">{{ contract.endDate || contract.end_contract }}</td> -->
     <td class="text-start">{{ getFormattedSalary(contract.salary, contract.currency || 'EGP') }}</td>
-    <td class="text-start">{{ getFormattedSalary(contract.insuranceSalary || contract.insurance_salary,
+    <td class="text-start">{{ getFormattedSalary(contract.insurance.insurance.amount ?? 0,
       contract.currency || 'EGP') }}</td>
 
     <td class="text-start">
@@ -125,7 +130,7 @@
     </td>
 
     <td class="text-start">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-1">
         <!-- History Action - Available for all -->
         <a (click)="viewHistory(contract)" class="view-btn" title="Contract History">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -149,7 +154,7 @@
         <!-- menu actions -->
         @if (contract.status === 'Active' || contract.status === 'Upcoming' || contract.status === 'Probation') {
         <!-- Custom dropdown for Active contracts -->
-        <div class="d-flex align-items-center gap-3" [class.open]="selectedContract?.id === contract.id">
+        <div class="d-flex align-items-center gap-1" [class.open]="selectedForDropdown?.id === contract.id">
           <div class="custom-dropdown">
             <!-- class="dropdown-toggle action-btn" type="button" -->
             <a (click)="toggleDropdown(contract)" title="Menu" class="menu-btn">
@@ -171,7 +176,7 @@
               </svg>
 
             </a>
-            <ul class="dropdown-menu" [class.show]="selectedContract?.id === contract.id">
+            <ul class="dropdown-menu" [class.show]="selectedForDropdown?.id === contract.id">
               <!-- Terminate Action -->
               @if (contract.status === 'Active' || contract.status === 'Probation') {<li>
                 <a class="dropdown-item terminate-item" (click)="openTerminateModal(contract); closeDropdown()">
@@ -337,6 +342,6 @@
   [resignationData]="contractResignationData" (onClose)="closeResignedViewModal()">
 </app-contract-resigned-view-modal>
 
-<app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
+<!-- <app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
   [isEditMode]="isEditMode" [isLoading]="isLoading" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
-</app-contract-form-modal>
+</app-contract-form-modal> -->

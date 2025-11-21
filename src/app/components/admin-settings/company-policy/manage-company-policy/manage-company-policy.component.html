@@ -1,0 +1,124 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="Company Policy" [create]="createdDate" [update]="updatedDate">
+  <button class="btn btn-lg btn-success" [disabled]="!isChanged || isSubmitting || policyForm.invalid"
+    (click)="saveChanges()">
+    @if (isSubmitting) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
+    }
+    <span>Save Changes</span>
+  </button>
+
+  <button class="btn btn-lg btn-danger w-auto" (click)="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Changes</span>
+  </button>
+</app-page-header>
+<!-- end page header -->
+
+<!-- content -->
+<div class="content-hug">
+  @if (isLoading) {
+  <div class="content-box d-flex flex-column gap-3">
+    <div class="skeleton-loader">
+      <div class="skeleton-line" style="height: 32px; width: 60%; margin-bottom: 16px;"></div>
+      <div class="skeleton-line" style="height: 20px; width: 40%; margin-bottom: 24px;"></div>
+    </div>
+  </div>
+  } @else {
+  <form [formGroup]="policyForm" class="d-flex flex-column gap-4">
+    <div formArrayName="policies">
+      @for (policy of policiesArray.controls; track $index; let i = $index) {
+      <div [formGroupName]="i" class="content-box policy-section">
+        <div class="d-flex align-items-start gap-3 w-100">
+          <div class="flex-grow-1 d-flex flex-column gap-3" style="min-width: 0;">
+            <!-- Title input -->
+            <div class="input">
+              <label for="title-{{i}}">Title <span class="text-danger">*</span></label>
+              <div class="form-outline w-100 position-relative">
+                <input type="text" id="title-{{i}}" formControlName="title" class="form-control"
+                  placeholder="Enter policy title"
+                  [class.is-invalid]="policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)" />
+              </div>
+              @if (policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)) {
+              <div class="text-danger mt-1">
+                Title is required.
+              </div>
+              }
+            </div>
+
+            <!-- Body textarea -->
+            <div class="input">
+              <label for="body-{{i}}">Body <span class="text-danger">*</span></label>
+              <div class="form-outline w-100 position-relative">
+                <textarea id="body-{{i}}" formControlName="body" class="form-control" placeholder="Enter policy body"
+                  rows="4"
+                  [class.is-invalid]="policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)"></textarea>
+              </div>
+              @if (policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)) {
+              <div class="text-danger mt-1">
+                Body is required.
+              </div>
+              }
+            </div>
+          </div>
+
+        </div>
+        <!-- Remove Policy button -->
+        <button type="button" class="btn btn-outline-danger remove-policy-btn mt-3" (click)="removePolicySection(i)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
+            <path fill="currentColor"
+              d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
+          </svg>
+          <span>Remove Policy</span>
+        </button>
+      </div>
+      }
+    </div>
+
+    <!-- Add Section button -->
+    <div class="d-flex justify-content-center">
+      <button type="button" class="btn btn-lg btn-outline-primary w-100" (click)="addPolicySection()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>Add Section</span>
+      </button>
+    </div>
+
+    @if (errMsg) {
+    <div class="alert alert-danger mb-0 mt-3" role="alert">
+      {{errMsg}}
+    </div>
+    }
+  </form>
+  }
+</div>
+
+<!-- Discard popup -->
+<app-popup [title]="'Discard Changes'"
+  [paragraph1]="'Are you sure you want to discard all changes done to the Company Policy?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+    Discard Changes
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+    Keep Editing
+  </button>
+</app-popup>

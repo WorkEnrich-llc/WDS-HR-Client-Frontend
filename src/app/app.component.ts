@@ -20,7 +20,7 @@ import { SubscriptionService } from './core/services/subscription/subscription.s
 })
 export class AppComponent {
 
-  title = 'WorkEnrich System';
+  title = 'Talent.HR';
   private checkTokenSub?: Subscription;
 
   constructor(
@@ -62,11 +62,11 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
-      const existingDeviceToken = localStorage.getItem('device_token');
+    const existingDeviceToken = localStorage.getItem('device_token');
 
-  if (!existingDeviceToken) {
-    await this.registerDeviceAlways();
-  }
+    if (!existingDeviceToken) {
+      await this.registerDeviceAlways();
+    }
     this.startTokenCheck();
   }
 
