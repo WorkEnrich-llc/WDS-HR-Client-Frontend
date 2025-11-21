@@ -395,7 +395,7 @@ export class EditWorkScheduleComponent {
   workSchadule2: FormGroup = new FormGroup({
     employment_type: new FormControl('', [Validators.required]),
     work_schedule_type: new FormControl('', [Validators.required]),
-    shift_hours: new FormControl(''),
+    shift_hours: new FormControl('', [Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
     from: new FormControl(''),
     to: new FormControl(''),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),

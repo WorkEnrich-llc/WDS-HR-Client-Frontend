@@ -13,6 +13,7 @@ import { Employee, Subscription } from '../../../../core/interfaces/employee';
 import { WorkSchedule } from '../../../../core/interfaces/work-schedule';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
+import { EventSharedService } from '../view-employee/event-shared.service';
 
 @Component({
   selector: 'app-view-new-joiner',
@@ -27,6 +28,7 @@ export class ViewNewJoinerComponent implements OnInit {
   private workScheduleService = inject(WorkSchaualeService);
   private route = inject(ActivatedRoute);
   private toasterService = inject(ToasterMessageService);
+  private events = inject(EventSharedService);
 
   employee: Employee | null = null;
   subscription: Subscription | null = null;
@@ -65,6 +67,12 @@ export class ViewNewJoinerComponent implements OnInit {
       if (this.employeeId) {
         this.loadEmployeeData();
       }
+    });
+
+    this.events.contractsUpdated$.subscribe(() => {
+      setTimeout(() => {
+        // this.loadEmployeeData();
+      }, 0);
     });
   }
 

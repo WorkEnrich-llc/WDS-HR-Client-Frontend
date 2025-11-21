@@ -19,6 +19,7 @@ import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.componen
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
+import { EventSharedService } from './event-shared.service';
 
 
 
@@ -46,7 +47,7 @@ export class ViewEmployeeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
   private customFieldsService = inject(CustomFieldsService);
-
+  private events = inject(EventSharedService);
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
