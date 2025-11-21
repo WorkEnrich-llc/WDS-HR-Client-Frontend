@@ -24,25 +24,25 @@ export class IntegrationFeaturesFacadeService {
     private workScheduleService = inject(WorkSchaualeService);
 
     /**
-     * Load items for a specific feature
+     * Load items for a specific feature with pagination
      */
-    loadFeatureItems(featureName: string, searchTerm?: string): Observable<FeatureItem[]> {
+    loadFeatureItems(featureName: string, searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
         switch (featureName) {
             case 'Branches':
-                return this.loadBranches(searchTerm);
+                return this.loadBranches(searchTerm, page, perPage);
             case 'JobTitles':
-                return this.loadJobTitles(searchTerm);
+                return this.loadJobTitles(searchTerm, page, perPage);
             case 'Departments':
-                return this.loadDepartments(searchTerm);
+                return this.loadDepartments(searchTerm, page, perPage);
             case 'Sections':
-                return this.loadDepartments(searchTerm); // For sections, first load departments
+                return this.loadDepartments(searchTerm, page, perPage); // For sections, first load departments
             case 'Employees':
-                return this.loadEmployees(searchTerm);
+                return this.loadEmployees(searchTerm, page, perPage);
             case 'WorkSchedules':
-                return this.loadWorkSchedules(searchTerm);
+                return this.loadWorkSchedules(searchTerm, page, perPage);
             default:
                 return new Observable(observer => {
-                    observer.next([]);
+                    observer.next({ items: [], totalItems: 0, totalPages: 0, currentPage: 1 });
                     observer.complete();
                 });
         }
@@ -66,91 +66,131 @@ export class IntegrationFeaturesFacadeService {
     }
 
     /**
-     * Load branches
+     * Load branches with pagination
      */
-    private loadBranches(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.branchesService.getAllBranches(1, 10000, {
+    private loadBranches(searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
+        return this.branchesService.getAllBranches(page, perPage, {
             search: searchTerm || undefined
         }).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                return items.map((item: any) => ({
-                    id: item.id,
-                    name: item.name,
-                    code: item.code,
-                    location: item.location
-                }));
+                const totalItems = response?.data?.total_items || 0;
+                const totalPages = response?.data?.total_pages || 1;
+                const currentPage = response?.data?.page || page;
+                return {
+                    items: items.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        code: item.code,
+                        location: item.location
+                    })),
+                    totalItems,
+                    totalPages,
+                    currentPage
+                };
             })
         );
     }
 
     /**
-     * Load job titles
+     * Load job titles with pagination
      */
-    private loadJobTitles(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.jobsService.getAllJobTitles(1, 10000, {
+    private loadJobTitles(searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
+        return this.jobsService.getAllJobTitles(page, perPage, {
             search: searchTerm || undefined
         }).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                return items.map((item: any) => ({
-                    id: item.id,
-                    name: item.name,
-                    code: item.code
-                }));
+                const totalItems = response?.data?.total_items || 0;
+                const totalPages = response?.data?.total_pages || 1;
+                const currentPage = response?.data?.page || page;
+                return {
+                    items: items.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        code: item.code
+                    })),
+                    totalItems,
+                    totalPages,
+                    currentPage
+                };
             })
         );
     }
 
     /**
-     * Load departments
+     * Load departments with pagination
      */
-    private loadDepartments(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.departmentsService.getAllDepartment(1, 10000, {
+    private loadDepartments(searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
+        return this.departmentsService.getAllDepartment(page, perPage, {
             search: searchTerm || undefined
         }).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                return items.map((item: any) => ({
-                    id: item.id,
-                    name: item.name,
-                    code: item.code
-                }));
+                const totalItems = response?.data?.total_items || 0;
+                const totalPages = response?.data?.total_pages || 1;
+                const currentPage = response?.data?.page || page;
+                return {
+                    items: items.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        code: item.code
+                    })),
+                    totalItems,
+                    totalPages,
+                    currentPage
+                };
             })
         );
     }
 
     /**
-     * Load employees
+     * Load employees with pagination
      */
-    private loadEmployees(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.employeeService.getEmployees(1, 10000, searchTerm || '', {}).pipe(
+    private loadEmployees(searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
+        return this.employeeService.getEmployees(page, perPage, searchTerm || '', {}).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                return items.map((item: any) => ({
-                    id: item.id,
-                    name: item.contact_info?.name || 'Unknown',
-                    code: item.code,
-                    email: item.contact_info?.email
-                }));
+                const totalItems = response?.data?.total_items || 0;
+                const totalPages = response?.data?.total_pages || 1;
+                const currentPage = response?.data?.page || page;
+                return {
+                    items: items.map((item: any) => ({
+                        id: item.id,
+                        name: item.contact_info?.name || 'Unknown',
+                        code: item.code,
+                        email: item.contact_info?.email
+                    })),
+                    totalItems,
+                    totalPages,
+                    currentPage
+                };
             })
         );
     }
 
     /**
-     * Load work schedules
+     * Load work schedules with pagination
      */
-    private loadWorkSchedules(searchTerm?: string): Observable<FeatureItem[]> {
-        return this.workScheduleService.getAllWorkSchadule(1, 10000, {
+    private loadWorkSchedules(searchTerm?: string, page: number = 1, perPage: number = 10): Observable<{ items: FeatureItem[]; totalItems: number; totalPages: number; currentPage: number }> {
+        return this.workScheduleService.getAllWorkSchadule(page, perPage, {
             search: searchTerm || undefined
         }).pipe(
             map((response: any) => {
                 const items = response?.data?.list_items || [];
-                return items.map((item: any) => ({
-                    id: item.id,
-                    name: item.name,
-                    code: item.code
-                }));
+                const totalItems = response?.data?.total_items || 0;
+                const totalPages = response?.data?.total_pages || 1;
+                const currentPage = response?.data?.page || page;
+                return {
+                    items: items.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        code: item.code
+                    })),
+                    totalItems,
+                    totalPages,
+                    currentPage
+                };
             })
         );
     }

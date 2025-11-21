@@ -789,14 +789,14 @@
 
 
       <!-- Admin Settings -->
-      @if(features.Files || features.Roles || features.Users || features.Custom_Field || features.Company_Policy){
+      @if(features.Files || features.Roles || features.Users || features.Custom_Field || features.Company_Policy || features.Email_Settings){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSix">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
             @if (currentRoute.includes('cloud') || currentRoute.includes('roles') || currentRoute.includes('users') ||
             currentRoute.includes('integrations') || currentRoute.includes('announcements') ||
-            currentRoute.includes('company-policy')) {
+            currentRoute.includes('company-policy') || currentRoute.includes('email-settings')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
               class="svg-active-accordion">
               <path
@@ -946,6 +946,24 @@
                   </svg>
                   @if (collapsed) {
                   <span>Company Policy</span>
+                  }
+                </a>
+              </li>
+              }
+
+              <!-- Email Settings link -->
+              @if(features.Email_Settings){
+              <li class="sidenav-nav-item" routerLink="/email-settings" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Email Settings' : null">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                      d="M1.75 6a.75.75 0 0 0-.75.75v10.5c0 .414.336.75.75.75h20.5a.75.75 0 0 0 .75-.75V6.75a.75.75 0 0 0-.75-.75H1.75ZM0 6.75C0 5.784.784 5 1.75 5h20.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 22.25 19H1.75A1.75 1.75 0 0 1 0 17.25V6.75Zm3.784 2.528a.75.75 0 0 0-1.056 1.061L6.536 12L2.728 15.661a.75.75 0 1 0 1.056 1.06l4.25-4.25a.75.75 0 0 0 0-1.06l-4.25-4.25ZM9.25 15.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H10a.75.75 0 0 1-.75-.75Z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Email Settings</span>
                   }
                 </a>
               </li>

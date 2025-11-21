@@ -1326,6 +1326,22 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./components/admin-settings/company-policy/manage-company-policy/manage-company-policy.component').then(m => m.ManageCompanyPolicyComponent),
             title: 'Manage Company Policy'
+          },
+          {
+            path: 'email-settings',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Email_Settings' },
+            loadComponent: () =>
+              import('./components/admin-settings/email-settings/email-settings.component').then(m => m.EmailSettingsComponent),
+            title: 'Email Settings'
+          },
+          {
+            path: 'email-settings/manage',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Email_Settings' },
+            loadComponent: () =>
+              import('./components/admin-settings/email-settings/manage-email-settings/manage-email-settings.component').then(m => m.ManageEmailSettingsComponent),
+            title: 'Manage Email Settings'
           }
         ]
       },

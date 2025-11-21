@@ -283,17 +283,17 @@
                 <div class="service-row">
                     <div class="service-name-text">
                         @if (service.isAllSelected && service.count === 0) {
-                            @if (service.serviceName === 'Sections') {
-                                all sections
-                            } @else {
-                                all {{ service.serviceName.toLowerCase() }}s
-                            }
+                        @if (service.serviceName === 'Sections') {
+                        all sections
                         } @else {
-                            @if (service.serviceName === 'Sections') {
-                                {{ service.count }} section{{ service.count !== 1 ? 's' : '' }}
-                            } @else {
-                                {{ service.count }} {{ service.serviceName.toLowerCase() }}{{ service.count !== 1 ? 's' : '' }}
-                            }
+                        all {{ service.serviceName.toLowerCase() }}s
+                        }
+                        } @else {
+                        @if (service.serviceName === 'Sections') {
+                        {{ service.count }} section{{ service.count !== 1 ? 's' : '' }}
+                        } @else {
+                        {{ service.count }} {{ service.serviceName.toLowerCase() }}{{ service.count !== 1 ? 's' : '' }}
+                        }
                         }
                     </div>
                 </div>
@@ -437,7 +437,7 @@
 </app-overlay-filter-box>
 
 <!-- Second Overlay: Items Selection for a Specific Service -->
-<app-overlay-filter-box #itemsFilterBox [title]="'Select Items for ' + (editingService?.feature?.name || 'Service')">
+<app-overlay-filter-box #itemsFilterBox [title]="'Select ' + (editingService?.feature?.name || 'Service')">
     <div class="w-100 d-flex flex-column gap-3" style="max-height: 80vh; overflow-y: auto;">
         @if (editingService) {
         @if (editingService.feature.name === 'Sections') {
@@ -533,14 +533,7 @@
                     <thead class="service-only-header">
                         <tr>
                             <th colspan="2">
-                                <div class="service-only-header-inner">
-                                    <input type="checkbox" class="service-square-checkbox"
-                                        [checked]="isAllSectionsSelected()" (click)="toggleSelectAllSections()">
-                                    <span>Select All {{ editingService?.feature?.name || 'Sections' }}</span>
-                                    @if (selectedSections.length > 0) {
-                                    <span class="badge bg-info ms-2">{{ selectedSections.length }} selected</span>
-                                    }
-                                </div>
+                                <span class="header-feature-name">{{ editingService?.feature?.name || 'Sections' }}</span>
                             </th>
                         </tr>
                     </thead>
@@ -554,7 +547,6 @@
                                             [checked]="isSectionSelected(section)"
                                             (click)="$event.stopPropagation(); toggleSectionSelection(section)">
                                         <div>
-                                            <div class="service-module-label">Section</div>
                                             <div class="service-name-text">{{ section.name }}</div>
                                         </div>
                                     </div>
@@ -599,19 +591,12 @@
                 <thead class="service-only-header">
                     <tr>
                         <th colspan="2">
-                            <div class="service-only-header-inner">
-                                <input type="checkbox" class="service-square-checkbox" [checked]="isAllItemsSelected()"
-                                    (click)="toggleSelectAllItems()">
-                                <span>Select All {{ editingService?.feature?.name || 'Items' }}</span>
-                                @if (selectedItems.length > 0) {
-                                <span class="badge bg-info ms-2">{{ selectedItems.length }} selected</span>
-                                }
-                            </div>
+                            <span class="header-feature-name">{{ editingService?.feature?.name || 'Items' }}</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (item of getItemsPage(); track $index) {
+                    @for (item of featureItems; track item.id) {
                     <tr (click)="toggleItemSelection(item)">
                         <td colspan="2">
                             <div class="service-row">
@@ -620,8 +605,6 @@
                                         [checked]="isItemSelected(item)"
                                         (click)="$event.stopPropagation(); toggleItemSelection(item)">
                                     <div>
-                                        <div class="service-module-label">{{ editingService?.feature?.name || 'Item' }}
-                                        </div>
                                         <div class="service-name-text">{{ item.name }}</div>
                                     </div>
                                 </div>
@@ -629,11 +612,103 @@
                         </td>
                     </tr>
                     }
+                    @if (featureItems.length === 0) {
+                    <tr>
+                        <td colspan="2" class="text-center py-4">
+                            <div class="empty-state">
+                                <p class="text-muted mb-0">No {{ (editingService?.feature?.name ||
+                                    'items').toLowerCase() }} found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        @if (itemsTotalItems > 0) {
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mt-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="text-gray-sm pe-3">
+                    Showing {{ (itemsCurrentPage - 1) * itemsPerPage + 1 }}–
+                    {{ (itemsCurrentPage * itemsPerPage) > itemsTotalItems ? itemsTotalItems : (itemsCurrentPage *
+                    itemsPerPage) }}
+                    from {{ itemsTotalItems }}
+                </div>
+                <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
+                    View
+                    <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage"
+                        (ngModelChange)="onItemsItemsPerPageChange(itemsPerPage)">
+                        @for (option of [5, 10, 25, 50]; track option) {
+                        <option [value]="option">{{ option }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-2">
+                <button class="prev p-0 btn border-0" [disabled]="itemsCurrentPage === 1 || isLoadingItems"
+                    (click)="onItemsPageChange(+itemsCurrentPage - 1)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="m15 5l-6 7l6 7" />
+                    </svg>
+                </button>
+                <button class="next p-0 btn border-0" [disabled]="itemsCurrentPage >= itemsTotalPages || isLoadingItems"
+                    (click)="onItemsPageChange(+itemsCurrentPage + 1)" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5" d="m9 5l6 7l-6 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
         }
         }
+        }
+
+        <!-- Table Templates (unused - keeping for reference) -->
+        <ng-template #itemsTableHeader>
+            <th colspan="2">
+                <div class="service-only-header-inner">
+                    <input type="checkbox" class="service-square-checkbox" [checked]="isAllItemsSelected()"
+                        (click)="toggleSelectAllItems()">
+                    <span>Select All {{ editingService?.feature?.name || 'Items' }}</span>
+                    @if (selectedItems.length > 0) {
+                    <span class="badge bg-info ms-2">{{ selectedItems.length }} selected</span>
+                    }
+                </div>
+            </th>
+        </ng-template>
+
+        <ng-template #itemsTableRow let-item>
+            <tr (click)="toggleItemSelection(item)">
+                <td colspan="2">
+                    <div class="service-row">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="service-square-checkbox" [checked]="isItemSelected(item)"
+                                (click)="$event.stopPropagation(); toggleItemSelection(item)">
+                            <div>
+                                <div class="service-module-label">{{ editingService?.feature?.name || 'Item' }}
+                                </div>
+                                <div class="service-name-text">{{ item.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template #itemsTableEmpty>
+            <tr>
+                <td colspan="2" class="text-center py-4">
+                    <div class="empty-state">
+                        <p class="text-muted mb-0">No {{ (editingService?.feature?.name || 'items').toLowerCase() }}
+                            found.</p>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
         }
 
         <!-- Action Buttons -->
