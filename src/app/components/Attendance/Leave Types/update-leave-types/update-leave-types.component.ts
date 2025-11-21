@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
@@ -177,21 +177,67 @@ export class UpdateLeaveTypesComponent implements OnInit {
     employmentType: new FormControl('', [Validators.required]),
   });
 
-  leaveType2: FormGroup = new FormGroup({
-    accrual_rate: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    leave_limits: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^\\d+(\\.\\d+)?$')
-    ]),
-    max_review_days: new FormControl('', [Validators.required, Validators.pattern('^\\d+(\\.\\d+)?$')]),
-    maximum_carryover_days: new FormControl(
-      { value: '', disabled: true },
-      [
-        Validators.pattern('^\\d+(\\.\\d+)?$'),
-        this.validateCarryoverAgainstLimit
-      ]
-    )
-  });
+
+  leaveLimitGreaterOrEqualValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
+    const group = form as FormGroup;
+    const accrualCtrl = group.get('accrual_rate');
+    const limitCtrl = group.get('leave_limits');
+
+    if (!accrualCtrl || !limitCtrl) return null;
+
+    const accrual = accrualCtrl.value;
+    const limit = limitCtrl.value;
+    if (accrual === null || accrual === '' || limit === null || limit === '') {
+      if (limitCtrl.errors?.['limitTooSmall']) {
+        const { limitTooSmall, ...others } = limitCtrl.errors;
+        limitCtrl.setErrors(Object.keys(others).length ? others : null);
+      }
+      return null;
+    }
+
+    const accrualNum = Number(accrual);
+    const limitNum = Number(limit);
+
+    if (limitNum < accrualNum) {
+      limitCtrl.setErrors({ ...(limitCtrl.errors || {}), limitTooSmall: true });
+    } else {
+      if (limitCtrl.errors) {
+        delete limitCtrl.errors['limitTooSmall'];
+        if (!Object.keys(limitCtrl.errors).length) {
+          limitCtrl.setErrors(null);
+        }
+      }
+    }
+
+    return null;
+  };
+
+
+  leaveType2: FormGroup = new FormGroup(
+    {
+      accrual_rate: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      leave_limits: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      max_review_days: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      maximum_carryover_days: new FormControl(
+        { value: '', disabled: true },
+        [
+          Validators.pattern('^\\d+(\\.\\d+)?$'),
+          this.validateCarryoverAgainstLimit
+        ]
+      )
+    },
+    { validators: this.leaveLimitGreaterOrEqualValidator }
+  );
+
 
   leaveType3 = this.fb.group({
     // checkboxes
@@ -232,7 +278,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     }
   }
 
-  updateleaveType() {
+  updateLeaveType() {
     if (this.isLoading) {
       return;
     }
@@ -312,6 +358,13 @@ export class UpdateLeaveTypesComponent implements OnInit {
     this.currentStep--;
   }
 
+
+
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.leaveType1.invalid || this.leaveType2.invalid || this.leaveType3.invalid;
+    const isUnchanged = this.leaveType1.pristine && this.leaveType2.pristine && this.leaveType3.pristine;
+    return isInvalid || isUnchanged || this.isLoading;
+  }
 
 
 

@@ -44,23 +44,23 @@ export class ViewJobComponent {
       }
     });
   }
-scrollToDescription(): void {
-  const el = document.getElementById('description');
-  if (el) {
-    const yOffset = -175;
-    const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-
-    setTimeout(() => {
-      el.style.transition = 'background-color 0.5s ease';
-      el.style.backgroundColor = '#dde3eb'; 
+  scrollToDescription(): void {
+    const el = document.getElementById('description');
+    if (el) {
+      const yOffset = -175;
+      const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
 
       setTimeout(() => {
-        el.style.backgroundColor = '';
-      }, 2000); 
-    }, 600); 
+        el.style.transition = 'background-color 0.5s ease';
+        el.style.backgroundColor = '#dde3eb';
+
+        setTimeout(() => {
+          el.style.backgroundColor = '';
+        }, 2000);
+      }, 600);
+    }
   }
-}
 
   goToDescriptionFromAssign() {
     const newId = this.jobTitleData?.assigns?.[0]?.id;
@@ -98,8 +98,6 @@ scrollToDescription(): void {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
 
-        // console.log(this.jobTitleData);
-
         this.sortDirection = 'desc';
         this.sortBy('id');
         this.loadData = false;
@@ -110,7 +108,7 @@ scrollToDescription(): void {
         }
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
@@ -162,13 +160,11 @@ scrollToDescription(): void {
     this._JobsService.updateJobStatus(this.jobTitleData.id, deptStatus).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
-        // console.log(this.departmentData);
-
         this.sortDirection = 'desc';
         this.sortBy('id');
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -191,13 +187,11 @@ scrollToDescription(): void {
     this._JobsService.updateJobStatus(this.jobTitleData.id, deptStatus).subscribe({
       next: (response) => {
         this.jobTitleData = response.data.object_info;
-        // console.log(this.departmentData);
-
         this.sortDirection = 'desc';
         this.sortBy('id');
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

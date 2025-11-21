@@ -169,8 +169,8 @@ export class CreateNewJobTitleComponent {
     jobLevelControl?.updateValueAndValidity();
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
-      
-    
+
+
     this.jobTitles = this.jobTitles.map(job => ({ ...job, assigned: false, assigns: [] }));
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
@@ -217,7 +217,7 @@ export class CreateNewJobTitleComponent {
         this.departmentsLoading = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.departmentsLoading = false;
       }
     });
@@ -244,10 +244,9 @@ export class CreateNewJobTitleComponent {
         }));
 
         this.sectionsLoading = false;
-        // console.log(activeSections);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.sectionsLoading = false;
       }
     });
@@ -286,7 +285,6 @@ export class CreateNewJobTitleComponent {
           name: item.name,
           assigned: false
         }));
-        // console.log(this.jobTitles);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -491,7 +489,6 @@ export class CreateNewJobTitleComponent {
     this.confirmRequirement();
   }
   confirmRequirement() {
-    // console.log('New requirement:', this.newRequirement);
     if (this.newRequirement.trim()) {
       this.requirements.push(this.newRequirement.trim());
     }
@@ -580,9 +577,6 @@ export class CreateNewJobTitleComponent {
         section_id: sectionId
       };
     }
-    // console.log('management', managementLevel);
-    // console.log('departmentId', departmentId);
-    // console.log('sectionId', sectionId);
     const assignedJob = this.jobTitles.find(j => j.assigned);
 
     requestData.request_data.assigns = {
@@ -624,8 +618,6 @@ export class CreateNewJobTitleComponent {
       }
 
     });
-
-    // console.log('row', requestData);
   }
 
 

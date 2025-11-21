@@ -146,7 +146,6 @@ export class EditJobComponent {
         if (jobDept?.id && (this.jobTitleData.management_level === 4 || this.jobTitleData.management_level === 5)) {
           section$ = this.getsections(jobDept.id, jobSection);
         }
-        // console.log('Job Title Data:', this.jobTitleData);
         this.originalAssignedIds = this.jobTitleData.assigns?.map((a: any) => a.id) || [];
 
 
@@ -178,8 +177,8 @@ export class EditJobComponent {
       code: this.jobTitleData.code || '',
       jobName: this.jobTitleData.name || '',
       jobLevel: this.jobTitleData.job_level !== null && this.jobTitleData.job_level !== undefined
-  ? this.jobTitleData.job_level
-  : '',
+        ? this.jobTitleData.job_level
+        : '',
       department: this.jobTitleData.department?.id || '',
       section: this.jobTitleData.section?.id || ''
     });
@@ -352,20 +351,20 @@ export class EditJobComponent {
     this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
   }
 
-get filteredJobTitles() {
-  const currentId = this.numericJobId;
-  if (!this.jobTitles?.length) return [];
+  get filteredJobTitles() {
+    const currentId = this.numericJobId;
+    if (!this.jobTitles?.length) return [];
 
-  return this.jobTitles.map(job => {
-    const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
+    return this.jobTitles.map(job => {
+      const isAssigned = job.assigned || this.jobTitleData?.assigns?.some((a: any) => a.id === job.id);
 
-    return { 
-      ...job, 
-      assigned: isAssigned,
-      isCurrent: job.id === currentId  
-    };
-  });
-}
+      return {
+        ...job,
+        assigned: isAssigned,
+        isCurrent: job.id === currentId
+      };
+    });
+  }
 
 
 
@@ -514,8 +513,6 @@ get filteredJobTitles() {
             assigned: isAssigned || false
           };
         });
-        // console.log(this.jobTitles);
-
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -757,7 +754,6 @@ get filteredJobTitles() {
     this.confirmRequirement();
   }
   confirmRequirement() {
-    // console.log('New requirement:', this.newRequirement);
     if (this.newRequirement.trim()) {
       this.requirements.push(this.newRequirement.trim());
       this.checkForChanges();
@@ -866,9 +862,6 @@ get filteredJobTitles() {
       set: setArray,
       remove: removeArray
     };
-
-
-    // console.log('row', requestData);
 
     this._JobsService.updateJobTitle(requestData).subscribe({
 

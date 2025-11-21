@@ -256,7 +256,7 @@
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" formControlName="leave_limits" id="leaveLimits" class="form-control custom-date-input"
             placeholder="Per Year" />
-        </div>
+        </div> 
         @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['required']) {
         <p class="error-msg">
           Leave Limits is required.
@@ -265,6 +265,11 @@
         @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['pattern']) {
         <p class="error-msg">
           Leave Limits must be number.
+        </p>
+        }
+        @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['limitTooSmall']) {
+        <p class="error-msg">
+          Leave Limits must be greater than or equal to Accrual Rate.
         </p>
         }
         <!-- @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['accrualMismatch']) {

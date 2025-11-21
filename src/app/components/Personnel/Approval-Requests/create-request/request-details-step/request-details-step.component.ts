@@ -11,7 +11,7 @@ import { CreateRequestSharedService } from '../services/create-request-shared.se
 })
 export class RequestDetailsStepComponent {
   @Output() submitForm = new EventEmitter<void>();
-  
+
   sharedService = inject(CreateRequestSharedService);
 
   // Helpers to determine which form to show
@@ -103,7 +103,7 @@ export class RequestDetailsStepComponent {
     this.sharedService.requestDetails.markAllAsTouched();
 
     // Log for debugging
-    console.log('RequestForm value on submit:', this.sharedService.requestForm?.getRawValue ? this.sharedService.requestForm.getRawValue() : this.sharedService.requestForm.value);
+    // console.log('RequestForm value on submit:', this.sharedService.requestForm?.getRawValue ? this.sharedService.requestForm.getRawValue() : this.sharedService.requestForm.value);
 
     // If the form is invalid, set an error message and prevent submission
     if (!this.sharedService.requestForm.valid) {

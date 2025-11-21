@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -84,6 +84,31 @@ export class ViewEmployeeComponent implements OnInit {
     this.deviceInfoExpanded = !this.deviceInfoExpanded;
   }
 
+
+  // profile picture
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  profileImage: string = './images/profile-defult.jpg';
+
+  triggerUpload() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Only JPG, PNG, WEBP images are allowed!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profileImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';
@@ -182,17 +207,18 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   updateChecklistItem(item: { title: string; status: boolean }): void {
-    if (!this.employee || item.status || this.loadingChecklistItemTitle) {
-      return; // Don't update if already completed or currently loading
+    if (!this.employee || this.loadingChecklistItemTitle) {
+      return; // Don't update if no employee or currently loading
     }
 
     // Set loading state for the clicked item
     this.loadingChecklistItemTitle = item.title;
 
-    // Update the clicked item status to true, keep all others as they were
+    // Toggle the clicked item status, keep all others as they were
+    const newStatus = !item.status;
     const updatedOnboardingList = (this.employee.onboarding_list || []).map(listItem => {
       if (listItem.title === item.title) {
-        return { ...listItem, status: true };
+        return { ...listItem, status: newStatus };
       }
       return listItem; // Keep all other items as they were (true or false)
     });
@@ -284,14 +310,26 @@ export class ViewEmployeeComponent implements OnInit {
     this.employeeService.updateEmployee(payload).subscribe({
       next: (response: any) => {
         this.toasterMessageService.showSuccess('Checklist item updated successfully');
+        // Update local onboarding list so the view reflects the change without reloading the whole page
+        if (this.employee) {
+          this.employee.onboarding_list = updatedOnboardingList;
+        }
         // Clear loading state
         this.loadingChecklistItemTitle = null;
-        // Refresh employee data to get updated onboarding list
-        this.loadEmployeeData();
       },
       error: (error: any) => {
         console.error('Error updating checklist item:', error);
         this.toasterMessageService.showError('Failed to update checklist item');
+        // Revert the local change on error
+        if (this.employee) {
+          const revertedList = (this.employee.onboarding_list || []).map(listItem => {
+            if (listItem.title === item.title) {
+              return { ...listItem, status: item.status }; // Revert to original status
+            }
+            return listItem;
+          });
+          this.employee.onboarding_list = revertedList;
+        }
         // Clear loading state on error
         this.loadingChecklistItemTitle = null;
       }

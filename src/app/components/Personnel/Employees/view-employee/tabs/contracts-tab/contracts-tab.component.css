@@ -58,7 +58,7 @@
 
 /* Dropdown styles for active contract actions */
 .custom-dropdown {
-  position: absolute;
+  /* position: absolute; */
   display: inline-block;
   /* ensure dropdown is above other content */
   /* z-index: 9; */
@@ -90,8 +90,9 @@
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
-  left: -4.5rem;
+  /* top: 100%; */
+  /* left: -4.5rem; */
+  right: 2.5rem;
   /* increase stacking context so menu is not hidden behind parent containers */
   z-index: 10;
   display: none;

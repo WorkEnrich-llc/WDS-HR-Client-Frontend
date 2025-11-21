@@ -150,7 +150,6 @@ export class AllJobTitlesComponent {
         section: rawFilters.section || undefined
       };
 
-      // console.log('Filters submitted:', filters);
       this.currentPage = 1;
       this.filterBox.closeOverlay();
       this.currentFilters = filters;
@@ -196,7 +195,7 @@ export class AllJobTitlesComponent {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
 
       }
@@ -232,7 +231,7 @@ export class AllJobTitlesComponent {
         this.sortBy();
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

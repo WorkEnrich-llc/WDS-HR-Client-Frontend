@@ -11,7 +11,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-goal',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule,SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './edit-goal.component.html',
   styleUrl: './edit-goal.component.css'
@@ -38,11 +38,10 @@ export class EditGoalComponent {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
-    // console.log(this.todayFormatted); 
   }
 
 
- GoalsSub: any;
+  GoalsSub: any;
   ngOnInit(): void {
     // subscription data
     this.subService.subscription$.subscribe(sub => {
@@ -85,12 +84,10 @@ export class EditGoalComponent {
 
         this.goalForm.markAsPristine();
 
-        // console.log("Goal Data:", this.goalData);
-
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

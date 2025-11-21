@@ -16,7 +16,7 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 @Component({
   selector: 'app-all-requests',
   imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent,
-     FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink],
+    FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink],
   providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
@@ -169,8 +169,6 @@ export class AllRequestsComponent {
         delete apiFilters[key];
       }
     });
-
-    console.log('Final API Filters to be sent:', apiFilters);
 
 
     this.filters = apiFilters;

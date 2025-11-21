@@ -1,0 +1,42 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="Company Policy"
+    [create]="policies.length > 0 ? formatDate(policies[0].created_at) : undefined"
+    [update]="policies.length > 0 ? formatDate(policies[0].updated_at) : undefined">
+    <button class="btn btn-lg btn-primary px-5" routerLink="/company-policy/manage">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <path fill="currentColor" fill-rule="evenodd"
+                d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+        </svg>
+        <span>Edit</span>
+    </button>
+</app-page-header>
+
+<!-- content -->
+<div class="content-hug">
+    @if (isLoading) {
+    <div class="content-box d-flex flex-column gap-3">
+        <div class="skeleton-loader">
+            <div class="skeleton-line" style="height: 32px; width: 60%; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="height: 20px; width: 40%; margin-bottom: 24px;"></div>
+        </div>
+    </div>
+    } @else {
+    @if (policies.length === 0) {
+    <div class="content-box d-flex flex-column gap-3">
+        <div class="info">
+            <span class="d-block">No policies found</span>
+        </div>
+    </div>
+    }
+
+    @for (policy of policies; track policy.id) {
+    <div class="content-box d-flex flex-column gap-3 mt-4">
+        <h2>{{ policy.title }}</h2>
+        <div class="info">
+            <p>{{ policy.body }}</p>
+        </div>
+    </div>
+    }
+    }
+</div>

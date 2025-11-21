@@ -8,17 +8,12 @@
       <div class="input mb-3">
         <label for="adjustmentType">Adjustment Type</label>
         <select id="adjustmentType" class="form-select" formControlName="adjustmentType">
-          <option [value]="1">Appraisal</option>
-          <option [value]="2">Correction</option>
-          <option [value]="3">Raise</option>
+          <option [ngValue]="0">Not Selected</option>
+          <option [ngValue]="1">Appraisal</option>
+          <option [ngValue]="2">Correction</option>
+          <option [ngValue]="3">Raise</option>
         </select>
       </div>
-      <!-- @if (shouldShowSalaryRanges()) {
-      <div class="d-flex justify-content-between mb-2">
-        <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
-        <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
-      </div>
-      } -->
       }
 
       <!-- Salary range display for new contract mode -->
@@ -36,23 +31,40 @@
           <input id="newSalary" type="number" class="form-control custom-date-input"
             [class.is-invalid]="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
             placeholder="In EGP" formControlName="salary" />
-          <div *ngIf="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
-            class="invalid-feedback">
-            <div *ngIf="contractForm.get('salary')?.errors?.['required']">Salary is required</div>
-            <div *ngIf="contractForm.get('salary')?.errors?.['min']">
-              @if (shouldShowSalaryRanges()) {
+
+          @if(contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched){
+          <div class="invalid-feedback">
+
+            @if(contractForm.get('salary')?.errors?.['required']){
+            <div>Salary is required</div>
+            }
+
+            @if(contractForm.get('salary')?.errors?.['min']){
+            <div>
+              @if (isEditMode && contractForm.get('adjustmentType')?.value === 3) {
+              Salary must be greater than the current salary ({{ currentContractSalary | number:'1.0-0' }}
+              EGP)
+              }
+              @else if (shouldShowSalaryRanges()) {
               Salary must be at least {{ getSalaryRanges()!.minimum }} {{ getSalaryRanges()!.currency }}
-              } @else {
+              }
+              @else {
               Salary must be greater than 0
               }
             </div>
-            <div *ngIf="contractForm.get('salary')?.errors?.['max']">The value cannot be greater than 1,000,000</div>
-            <div *ngIf="contractForm.get('salary')?.errors?.['max']">
+            }
+
+            @if(contractForm.get('salary')?.errors?.['max']){
+            <div>
               @if (shouldShowSalaryRanges()) {
               Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}
+              } @else {
+              The value cannot be greater than 1,000,000
               }
             </div>
+            }
           </div>
+          }
         </div>
       </div>
 
@@ -99,7 +111,7 @@
       </div>
 
       <!-- End Date Field - only show if checkbox is checked -->
-      @if (contractForm.get('withEndDate')?.value) {
+      @if (contractForm.get('withEndDate')?.value === true) {
       <div class="input mb-3">
         <label for="endDate">End Date Date</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -134,7 +146,7 @@
     </form>
   </div>
   <div class="d-flex align-items-center gap-4 mt-4">
-    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100">
+    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100" [disabled]="isSaveDisabled">
       @if (isLoading) {
       <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
       } @else {

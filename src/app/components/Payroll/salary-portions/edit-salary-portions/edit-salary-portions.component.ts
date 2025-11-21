@@ -34,36 +34,48 @@ export class EditSalaryPortionsComponent implements OnInit {
       portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
     });
 
+    this.loadSalaryPortions();
+
+    // Subscribe to form changes to update basic percentage
     this.portionsForm.valueChanges.subscribe(() => {
       this.updateBasicPercentage();
     });
-
-    this.loadSalaryPortions();
   }
 
 
 
   private createPortion(p: any = null, isDefault = false): FormGroup {
     const hasValue = !!(p?.name || p?.percentage);
-    const enabled = isDefault ? false : hasValue;
+    const enabled = isDefault ? true : hasValue;
     const initialName = typeof p?.name === 'string' ? p.name.trim() : (p?.name || '');
     const initialPercentage = p?.percentage ?? '';
 
     const portionGroup = this.fb.group({
-      enabled: new FormControl({ value: enabled, disabled: isDefault }),
+      // For default (basic) row, checkbox stays enabled so user can toggle it visually
+      enabled: new FormControl({ value: enabled, disabled: false }),
       name: new FormControl(
-        { value: initialName, disabled: !enabled || isDefault },
+        { value: initialName, disabled: !enabled || false },
         [Validators.required, nonWhitespaceValidator]
       ),
+      // For default/basic row, percentage is always disabled; for others it follows "enabled"
       percentage: new FormControl(
-        { value: initialPercentage, disabled: !enabled || isDefault },
+        { value: initialPercentage, disabled: isDefault ? true : !enabled },
         [Validators.required]
       )
     });
 
-    if (!isDefault) {
-      portionGroup.get('enabled')?.valueChanges.subscribe(enabled => {
-        if (enabled) {
+    if (isDefault) {
+      // For the basic portion:
+      // - checkbox can be toggled, but it doesn't affect enable/disable logic
+      // - name input is always enabled
+      // - percentage input is always disabled
+      portionGroup.get('name')?.enable({ emitEvent: false });
+      portionGroup.get('percentage')?.disable({ emitEvent: false });
+      // No subscription on "enabled" – we treat it as a visual toggle only
+    } else {
+      // For other portions: toggle both name and percentage based on the checkbox
+      portionGroup.get('enabled')?.valueChanges.subscribe(enabledValue => {
+        if (enabledValue) {
           const currentName = portionGroup.get('name')?.value;
           portionGroup.get('name')?.enable();
           portionGroup.get('percentage')?.enable();
@@ -78,6 +90,13 @@ export class EditSalaryPortionsComponent implements OnInit {
         }
         portionGroup.get('name')?.updateValueAndValidity({ emitEvent: false });
         portionGroup.get('percentage')?.updateValueAndValidity({ emitEvent: false });
+        // Trigger basic percentage update when portion is enabled/disabled
+        this.updateBasicPercentage();
+      });
+
+      // Subscribe to percentage changes for non-basic portions
+      portionGroup.get('percentage')?.valueChanges.subscribe(() => {
+        this.updateBasicPercentage();
       });
     }
 
@@ -93,34 +112,35 @@ export class EditSalaryPortionsComponent implements OnInit {
         this.portions.clear();
 
         if (this.salaryPortions.length > 0) {
-          // Filter out 'gross' and separate basic from others
+          // Filter out 'gross' and separate default from others based on default flag
           const filteredPortions = this.salaryPortions.filter((p: any) => {
             const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
             return name !== 'gross';
           });
 
-          const basicPortion = filteredPortions.find((p: any) => {
-            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
-            return name === 'basic';
-          });
+          // Find the portion with default === true
+          const defaultPortion = filteredPortions.find((p: any) => p.default === true);
 
-          const otherPortions = filteredPortions.filter((p: any) => {
-            const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
-            return name !== 'basic';
-          });
+          // Get other portions (default === false or undefined)
+          const otherPortions = filteredPortions.filter((p: any) => p.default !== true);
 
           const returnedFormArray: FormGroup[] = [];
 
-          // Always add basic first
-          if (basicPortion) {
-            returnedFormArray.push(this.createPortion(basicPortion, true));
+          // Always add default portion first (with locked percentage)
+          // Use the actual percentage from response initially, but it will be recalculated
+          if (defaultPortion) {
+            returnedFormArray.push(this.createPortion({
+              name: defaultPortion.name,
+              percentage: defaultPortion.percentage || 100
+            }, true));
           } else {
+            // Fallback: if no default portion found, create one
             returnedFormArray.push(this.createPortion({ name: 'basic', percentage: 100 }, true));
           }
 
           // Add other portions (max 2)
           otherPortions.slice(0, 2).forEach((p: any) => {
-            returnedFormArray.push(this.createPortion(p, p.default));
+            returnedFormArray.push(this.createPortion(p, false));
           });
 
           // Fill remaining slots to have exactly 2 open inputs (plus basic = 3 total)
@@ -135,6 +155,9 @@ export class EditSalaryPortionsComponent implements OnInit {
               [atLeastOnePortionFilled, totalPercentageValidator()]
             )
           );
+
+          // Calculate initial basic percentage after form is set up
+          setTimeout(() => this.updateBasicPercentage(), 0);
         } else {
           // Default case for first time: basic + 2 open inputs
           this.portionsForm.setControl(
@@ -148,6 +171,9 @@ export class EditSalaryPortionsComponent implements OnInit {
               [atLeastOnePortionFilled, totalPercentageValidator()]
             )
           );
+
+          // Calculate initial basic percentage after form is set up
+          setTimeout(() => this.updateBasicPercentage(), 0);
         }
       },
       error: (err) => {
@@ -164,6 +190,9 @@ export class EditSalaryPortionsComponent implements OnInit {
             [atLeastOnePortionFilled, totalPercentageValidator()]
           )
         );
+
+        // Calculate initial basic percentage after form is set up
+        setTimeout(() => this.updateBasicPercentage(), 0);
       }
     });
   }
@@ -190,27 +219,36 @@ export class EditSalaryPortionsComponent implements OnInit {
       return sum + num;
     }, 0);
 
-    if (total >= 100) {
+    if (total > 100) {
       this.portionsForm.markAllAsTouched();
       return;
     }
 
-    const cleanedValue = {
-      ...formValue,
-      portions: formValue.portions
-        .filter((portion: any) => {
-          // Filter out gross and empty portions
-          const name = typeof portion.name === 'string' ? portion.name.toLowerCase().trim() : '';
-          return name !== 'gross' && (portion.enabled || name === 'basic');
-        })
-        .map((portion: any) => ({
-          ...portion,
-          name: typeof portion.name === 'string' ? portion.name.trim() : portion.name
-        }))
+    // Get default_name from first row (index 0)
+    const defaultPortion = this.portions.at(0) as FormGroup;
+    const defaultName = defaultPortion?.get('name')?.value?.trim() || 'Basic';
+
+    // Get settings from other rows (indices 1 and 2) that are enabled
+    const settings: { name: string; percentage: number }[] = [];
+    for (let i = 1; i < this.portions.length; i++) {
+      const portion = this.portions.at(i) as FormGroup;
+      const enabled = portion?.get('enabled')?.value;
+      if (enabled) {
+        const name = portion?.get('name')?.value?.trim() || '';
+        const percentage = Number(portion?.get('percentage')?.value) || 0;
+        if (name) {
+          settings.push({ name, percentage });
+        }
+      }
+    }
+
+    const requestPayload = {
+      default_name: defaultName,
+      settings: settings
     };
 
     this.isLoading = true;
-    this.salaryPortionService.updateSalaryPortion(cleanedValue).subscribe({
+    this.salaryPortionService.updateSalaryPortion(requestPayload).subscribe({
       next: () => {
         this.toasterService.showSuccess('Salary portion updated successfully');
         this.router.navigate(['/salary-portions']);
@@ -242,32 +280,31 @@ export class EditSalaryPortionsComponent implements OnInit {
     return control.invalid && (control.touched || this.attemptedSubmit);
   }
 
-
-  // Update the basic portion percentage in runtime
+  // Update basic percentage: 100 - sum of other enabled portions
   private updateBasicPercentage(): void {
-    if (!this.portions || !this.portions.length) return;
-    let total = 0;
-    let basicPortion: FormGroup | undefined;
+    if (!this.portions || this.portions.length === 0) return;
 
-    this.portions.controls.forEach(group => {
-      const fGroup = group as FormGroup;
-      const name = String(fGroup.get('name')?.value || '').toLowerCase();
-      const enabled = fGroup.get('enabled')?.value;
-      const percentage = Number(fGroup.get('percentage')?.value) || 0;
+    // Basic is always the first portion (index 0)
+    const basicPortion = this.portions.at(0) as FormGroup;
+    if (!basicPortion) return;
 
-      if (name === 'basic') {
-        basicPortion = fGroup;
-      } else if (enabled) {
-        total += percentage;
+    // Calculate sum of other enabled portions (indices 1 and 2)
+    let sumOfOthers = 0;
+    for (let i = 1; i < this.portions.length; i++) {
+      const portion = this.portions.at(i) as FormGroup;
+      const enabled = portion.get('enabled')?.value;
+      if (enabled) {
+        const percentageValue = portion.get('percentage')?.value;
+        const num = percentageValue === '' || percentageValue === null ? 0 : Number(percentageValue);
+        if (!isNaN(num)) {
+          sumOfOthers += num;
+        }
       }
-    });
-    if (basicPortion) {
-      const newValue = 100 - total;
-      basicPortion.get('percentage')?.setValue(
-        newValue < 0 ? 0 : newValue,
-        { emitEvent: false }
-      );
     }
+
+    // Set basic = 100 - sum of others (minimum 0)
+    const newBasicValue = Math.max(0, 100 - sumOfOthers);
+    basicPortion.get('percentage')?.setValue(newBasicValue, { emitEvent: false });
   }
 
   // discard popup

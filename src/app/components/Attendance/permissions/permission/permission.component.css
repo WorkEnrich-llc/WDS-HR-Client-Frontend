@@ -1,0 +1,23 @@
+app-page-header .btn-outline-dark{
+    padding-inline-start: 80px !important;
+    padding-inline-end: 80px !important;
+}
+app-page-header .parag {
+    margin-top: calc(-1 * var(--spacing-48)) !important;
+}
+.card-white{
+    background-color: var(--color-white);
+    padding: var(--spacing-16);
+    border-radius: var(--border-radius-16);
+    -webkit-border-radius: var(--border-radius-16);
+    -moz-border-radius: var(--border-radius-16);
+    -ms-border-radius: var(--border-radius-16);
+    -o-border-radius: var(--border-radius-16);
+}
+.card-white p{
+    color: var(--color-secondary-500);
+    font-size:var(--font-size-b3);
+}
+.card-white label{
+    cursor: pointer;
+}
