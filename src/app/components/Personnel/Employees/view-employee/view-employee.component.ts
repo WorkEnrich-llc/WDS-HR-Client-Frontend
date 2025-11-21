@@ -776,18 +776,18 @@ export class ViewEmployeeComponent implements OnInit {
           this.uploadProgress[docKey] = percentDone;
         } else if (event.type === HttpEventType.Response) {
           // upload complete
+          this.loadEmployeeDocuments();
           const doc = this.documentsRequired.find(d => d.key === docKey);
           if (doc) {
             doc.uploaded = true;
             doc.isLoading = true;
           }
-          const spinnerHideDelay = 700;
+          const spinnerHideDelay = 900;
           setTimeout(() => {
             delete this.uploadProgress[docKey];
           }, spinnerHideDelay);
-          this.loadEmployeeDocuments();
           // delete this.uploadProgress[docKey];
-          // this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+          this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
           input.value = '';
           this.selectedDocumentKey = null;
 
