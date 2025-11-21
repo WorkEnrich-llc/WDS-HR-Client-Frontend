@@ -137,8 +137,11 @@ export class ViewEmployeeComponent implements OnInit {
     isDeleteModalOpen?: boolean;
   }> = [
       { name: 'CV', key: 'cv', uploaded: false },
-      { name: 'ID Front', key: 'id_front', uploaded: false },
-      { name: 'ID Back', key: 'id_back', uploaded: false },
+      { name: 'ID', key: 'id', uploaded: false },
+      { name: 'Access Contracts', key: 'access_contracts', uploaded: false },
+      { name: 'Policies', key: 'policies', uploaded: false },
+      { name: 'Official Forms', key: 'official_forms', uploaded: false },
+      // { name: 'ID Back', key: 'id_back', uploaded: false },
       { name: 'Driver License', key: 'driver_license', uploaded: false },
       { name: '101 Medical File', key: '101_medical_file', uploaded: false },
       { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
