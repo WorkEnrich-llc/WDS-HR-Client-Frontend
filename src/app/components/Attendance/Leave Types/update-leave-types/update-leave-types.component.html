@@ -4,9 +4,7 @@
     { label: 'Leave Types', link: '/leave-types' },
     { label: 'Edit Leave Type - '+leaveTypeData.name }
   ]" [title]="'Edit Leave Type - '+leaveTypeData.name" [create]="formattedCreatedAt" [update]="formattedUpdatedAt">
-  <button class="btn btn-lg btn-success w-auto"
-    [disabled]="!isFormChanged || !leaveType1.valid || !leaveType2.valid || !leaveType3.valid || isLoading"
-    (click)="updateleaveType()">
+  <button class="btn btn-lg btn-success w-auto" [disabled]="isSaveDisabled" (click)="updateLeaveType()">
     @if (isLoading) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
@@ -255,6 +253,11 @@
           Leave Limits must be number.
         </p>
         }
+         @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['limitTooSmall']) {
+        <p class="error-msg">
+          Leave Limits must be greater than or equal to Accrual Rate.
+        </p>
+        }
       </div>
       <div class="input">
         <label for="maxReview">Max Review Days<span>*</span></label>
@@ -465,9 +468,7 @@
         </svg>
       </button>
 
-      <button class="btn btn-lg btn-success w-auto"
-        [disabled]="!leaveType1.valid || !leaveType2.valid || !leaveType3.valid || isLoading"
-        (click)="updateleaveType()">
+      <button class="btn btn-lg btn-success w-auto" [disabled]="isSaveDisabled" (click)="updateLeaveType()">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -479,7 +480,7 @@
           </g>
         </svg>
         }
-        <span>Create Leave Type</span>
+        <span>Save Changes</span>
       </button>
     </div>
   </div>

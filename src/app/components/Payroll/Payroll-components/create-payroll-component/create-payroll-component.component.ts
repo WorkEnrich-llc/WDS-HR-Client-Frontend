@@ -125,7 +125,6 @@ export class CreatePayrollComponentComponent implements OnInit {
   private loadSalaryPortions(): void {
     this.salaryPortionService.single().subscribe({
       next: (data) => {
-        console.log('Single salary portion data:', data);
         this.salaryPortions = data.settings
       },
       error: (err) => console.error('Failed to load single salary portion', err)
@@ -146,7 +145,6 @@ export class CreatePayrollComponentComponent implements OnInit {
       portion: +formValues.portion,
       calculation: +formValues.calculation
     };
-    console.log('Form Submitted', formData);
     if (this.isEditMode && this.id) {
       formData.id = String(this.id);
     }

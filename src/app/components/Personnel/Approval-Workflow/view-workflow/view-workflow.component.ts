@@ -40,11 +40,9 @@ export class ViewWorkflowComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.log(this.workflowData);
-
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -74,7 +72,7 @@ export class ViewWorkflowComponent {
         this.workflowData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -99,7 +97,7 @@ export class ViewWorkflowComponent {
         this.workflowData = response.data.object_info;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }

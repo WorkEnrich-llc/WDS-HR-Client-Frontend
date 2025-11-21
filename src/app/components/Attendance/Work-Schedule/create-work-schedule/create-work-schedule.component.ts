@@ -115,7 +115,7 @@ export class CreateWorkScheduleComponent {
         this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
       }
     });
   }
@@ -184,7 +184,6 @@ export class CreateWorkScheduleComponent {
     );
 
     this.departmentsOverlay.closeOverlay();
-    // console.log(this.addeddepartments);
   }
 
 
@@ -460,7 +459,6 @@ export class CreateWorkScheduleComponent {
     };
 
 
-    // console.log(request_data);
     this._WorkSchaualeService.createWorkScaduale(request_data).subscribe({
       next: (response) => {
         this.isLoading = false;

@@ -7,8 +7,12 @@
   }
 }
 
-.contract-expiring,
-.contract-expiring span {
-  color: var(--color-warning-700) !important;
-  font-weight: 600 !important;
+.text-expiring-nearly-expired {
+  color: var(--color-danger-500) !important;
+  font-weight: 600;
+}
+
+.text-expiring-warning {
+  color: var(--color-warning-500) !important;
+  font-weight: 600;
 }

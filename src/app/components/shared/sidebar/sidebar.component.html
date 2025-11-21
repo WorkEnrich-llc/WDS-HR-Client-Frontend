@@ -789,13 +789,14 @@
 
 
       <!-- Admin Settings -->
-      @if(features.Files || features.Roles || features.Users || features.Custom_Field){
+      @if(features.Files || features.Roles || features.Users || features.Custom_Field || features.Company_Policy){
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSix">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
             @if (currentRoute.includes('cloud') || currentRoute.includes('roles') || currentRoute.includes('users') ||
-            currentRoute.includes('integrations') || currentRoute.includes('announcements')) {
+            currentRoute.includes('integrations') || currentRoute.includes('announcements') ||
+            currentRoute.includes('company-policy')) {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
               class="svg-active-accordion">
               <path
@@ -932,6 +933,23 @@
               </li>
               }
 
+              <!-- Company Policy link -->
+              @if(features.Company_Policy){
+              <li class="sidenav-nav-item" routerLink="/company-policy" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: false }" data-bs-toggle="tooltip" data-bs-placement="right"
+                [attr.title]="!collapsed ? 'Company Policy' : null">
+                <a class="sidenav-nav-link d-flex align-items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                      d="M4.5 2.25a.75.75 0 0 0 0 1.5h15a.75.75 0 0 0 0-1.5h-15ZM3.75 5.25a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.75.75h-15a.75.75 0 0 1-.75-.75V5.25Zm1.5 3.75a.75.75 0 0 0 0 1.5H9a.75.75 0 0 0 0-1.5H5.25Zm11.25 0a.75.75 0 0 0 0 1.5h2.25a.75.75 0 0 0 0-1.5H16.5ZM3 12a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 12v8.25a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 20.25V12Zm2.25-.75a.75.75 0 0 0-.75.75v8.25c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75V12a.75.75 0 0 0-.75-.75H5.25Z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  @if (collapsed) {
+                  <span>Company Policy</span>
+                  }
+                </a>
+              </li>
+              }
 
               <!-- Custom fields link -->
               @if(features.Custom_Field){

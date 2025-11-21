@@ -743,7 +743,7 @@ export class SystemFileComponent implements OnInit {
 
     this._systemCloudService.cancelUpload(formData).subscribe({
       next: (res) => {
-        console.log('Upload canceled:', res);
+        // console.log('Upload canceled:', res);
         this.stopUploadTracking();
         this.showUploadPopup = false;
       },

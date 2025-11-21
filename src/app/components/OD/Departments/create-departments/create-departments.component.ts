@@ -51,7 +51,6 @@ export class CreateDepartmentsComponent {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
-    // console.log(this.todayFormatted); 
   }
 
 
@@ -296,7 +295,6 @@ export class CreateDepartmentsComponent {
     );
 
     this.goalsOverlay.closeOverlay();
-    // console.log(this.addedGoal);
   }
 
 
@@ -468,14 +466,13 @@ export class CreateDepartmentsComponent {
           title: item.name || '',
           status: false // Initially all items are unchecked in create mode
         }));
-        
+
         // Map to OnboardingListItem format for the component
         this.departmentChecklistItems = this.departmentChecklistItemsWithIds.map(item => ({
           title: item.title,
           status: item.status
         }));
-        
-        console.log('Department checklist loaded:', this.departmentChecklistItemsWithIds);
+
       },
       error: (error) => {
         console.error('Error loading department checklist:', error);
@@ -497,7 +494,7 @@ export class CreateDepartmentsComponent {
     // Toggle item status when clicked - update both arrays
     const checklistItem = this.departmentChecklistItems.find(i => i.title === item.title);
     const checklistItemWithId = this.departmentChecklistItemsWithIds.find(i => i.title === item.title);
-    
+
     if (checklistItem && checklistItemWithId) {
       checklistItem.status = !checklistItem.status;
       checklistItemWithId.status = !checklistItemWithId.status;

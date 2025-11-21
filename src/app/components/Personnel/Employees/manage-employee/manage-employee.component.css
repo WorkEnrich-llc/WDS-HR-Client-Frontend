@@ -17,3 +17,19 @@
 .dropdown-menu::-webkit-scrollbar {
   display: none;
 }
+
+/* Adjust checklist badge and modal position within manage-employee to appear above Next button */
+::ng-deep .onboarding-badge {
+    bottom: 80px !important;
+    z-index: 1050 !important;
+}
+
+::ng-deep .onboarding-checklist-floating {
+    bottom: 80px !important;
+    z-index: 1050 !important;
+}
+
+/* Ensure buttons stay below checklist */
+::ng-deep .btn-fixed {
+    z-index: 100 !important;
+}

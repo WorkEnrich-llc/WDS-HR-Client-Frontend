@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface FileItem {
   id: string;
@@ -36,7 +37,8 @@ export class SystemCloudComponent implements OnInit {
     private http: HttpClient,
     private toasterService: ToastrService,
     private router: Router,
-    private breadcrumbService: BreadcrumbService
+    private breadcrumbService: BreadcrumbService,
+    private sanitizer: DomSanitizer
   ) { }
   // load data and spinner show
   dataLoaded: boolean = false;
@@ -141,7 +143,7 @@ export class SystemCloudComponent implements OnInit {
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
-        console.log(this.allFiles);
+        // console.log(this.allFiles);
         this.dataLoaded = true;
         this.storageInfo = response?.data?.storage_size_info;
         // console.log(this.storageInfo);
@@ -252,25 +254,81 @@ export class SystemCloudComponent implements OnInit {
   // open file Image or PDF or Word
   selectedFileUrl: string | null = null;
   selectedFileType: string = '';
+  excelSafeUrl: SafeResourceUrl | null = null;
+  audioSafeUrl: SafeResourceUrl | null = null;
 
   openFilePopup(folder: any) {
     this.selectedFileUrl = folder.file_url;
     this.selectedFileType = folder.file_type.toLowerCase();
+
+    this.excelSafeUrl = null;
+    this.audioSafeUrl = null;
+
+    if (this.isExcel(this.selectedFileType) && this.selectedFileUrl) {
+      const encoded = encodeURIComponent(this.selectedFileUrl);
+      this.excelSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        'https://view.officeapps.live.com/op/embed.aspx?src=' + encoded
+      );
+    }
+
+    if (this.isAudio(this.selectedFileType) && this.selectedFileUrl) {
+      this.audioSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        this.selectedFileUrl
+      );
+    }
   }
 
   closePopup() {
     this.selectedFileUrl = null;
   }
+
   isImage(type: string): boolean {
-    return ['png', 'jpg', 'jpeg', 'webp'].includes(type);
+    return ['png', 'jpg', 'jpeg', 'webp', 'heic', 'heif'].includes(type);
+  }
+
+  isVideo(type: string): boolean {
+    return ['mp4', 'webm', 'ogg', 'mov'].includes(type);
+  }
+
+  isAudio(type: string): boolean {
+    return ['mp3', 'wav', 'ogg', 'm4a'].includes(type);
   }
 
   isDocument(type: string): boolean {
-    return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'].includes(type);
+    return ['pdf', 'doc', 'docx', 'txt'].includes(type);
   }
+
+  isExcel(type: string): boolean {
+    return ['xls', 'xlsx'].includes(type);
+  }
+
   canPreview(type: string): boolean {
-    return this.isImage(type) || this.isDocument(type);
+    return (
+      this.isImage(type) ||
+      this.isDocument(type) ||
+      this.isVideo(type) ||
+      this.isAudio(type) ||
+      this.isExcel(type)
+    );
   }
+
+  allowedFileTypes = [
+    // Images
+    'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif',
+
+    // Videos
+    'mp4', 'webm', 'ogg', 'mov',
+
+    // Audio
+    'mp3', 'wav', 'ogg', 'm4a',
+
+    // Documents
+    'pdf', 'doc', 'docx', 'txt',
+
+    // Excel
+    'xls', 'xlsx'
+  ];
+  acceptedFormats = this.allowedFileTypes.map(ext => '.' + ext).join(',');
 
 
   // go to folder from 
@@ -380,7 +438,7 @@ export class SystemCloudComponent implements OnInit {
       formData.append('file', file);
       this.fileUpload(formData);
     } else {
-      console.log('No file selected');
+      // console.log('No file selected');
     }
   }
 
@@ -389,7 +447,19 @@ export class SystemCloudComponent implements OnInit {
     this.isLoading = true;
     this.errMsg = '';
     this.uploadProgress = 0;
+    const file = formData.get('file') as File;
+    if (!file) {
+      this.toasterService.error('No file selected.');
+      this.isLoading = false;
+      return;
+    }
 
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (!fileExtension || !this.allowedFileTypes.includes(fileExtension)) {
+      this.toasterService.error('This file type is not allowed for security reasons.');
+      this.isLoading = false;
+      return;
+    }
     this._systemCloudService.createUploadFile(formData).subscribe({
       next: (event: HttpEvent<any>) => {
         if (event.type === HttpEventType.UploadProgress) {
@@ -477,20 +547,24 @@ export class SystemCloudComponent implements OnInit {
     this.isDragOver = false;
 
     const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileNameWithoutExtension = file.name.split('.').slice(0, -1).join('.') || file.name;
 
-        const formData = new FormData();
-        formData.append('name', fileNameWithoutExtension);
-        formData.append('type', 'File');
-        formData.append('parent', this.openedFolderId ?? '');
-        formData.append('file', file);
+    if (!files || files.length === 0) return;
 
-        this.fileUpload(formData);
-      }
+    if (files.length > 1) {
+      this.toasterService.error('Please upload one file');
+      return;
     }
+
+    const file = files[0];
+    const fileNameWithoutExtension = file.name.split('.').slice(0, -1).join('.') || file.name;
+
+    const formData = new FormData();
+    formData.append('name', fileNameWithoutExtension);
+    formData.append('type', 'File');
+    formData.append('parent', this.openedFolderId ?? '');
+    formData.append('file', file);
+
+    this.fileUpload(formData);
   }
 
 

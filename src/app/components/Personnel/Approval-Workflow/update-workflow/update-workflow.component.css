@@ -1,38 +1,64 @@
-.steps{
-    border-right: 1px solid var(--color-neutral-300);
-    padding: 0;
+.steps {
+  border-right: 1px solid var(--color-neutral-300);
+  padding: 0;
 }
-.steps h4{
-    padding: var(--spacing-24) var(--spacing-24) 0 var(--spacing-24);
-    margin-bottom: var(--spacing-16);
-    font-size: var(--font-size-b1);
-    color: var(--color-secondary-800);
-    line-height: var(--line-height-sm);
+.steps h4 {
+  padding: var(--spacing-24) var(--spacing-24) 0 var(--spacing-24);
+  margin-bottom: var(--spacing-16);
+  font-size: var(--font-size-b1);
+  color: var(--color-secondary-800);
+  line-height: var(--line-height-sm);
 }
-.steps-links{
-    list-style: none;
-    padding: 0;
+.steps-links {
+  list-style: none;
+  padding: 0;
 }
-.steps-links .link{
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-8);
-    padding: var(--spacing-16) var(--spacing-24) var(--spacing-16) var(--spacing-16); 
-    margin-bottom: var(--spacing-16);
-    color: var(--color-secondary-700);
-    fill: var(--color-secondary-700);
-    font-size: var(--font-size-b2);
-    line-height: var(--line-height-xss);
+.steps-links .link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16) var(--spacing-24) var(--spacing-16)
+    var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+  color: var(--color-secondary-700);
+  fill: var(--color-secondary-700);
+  font-size: var(--font-size-b2);
+  line-height: var(--line-height-xss);
 }
-.steps-links .link.active{
-    color: var(--color-primary-600);
-    fill: var(--color-primary-600);
-    background-color: var(--color-primary-50);
-    font-weight: 600;
+.steps-links .link.active {
+  color: var(--color-primary-600);
+  fill: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+  font-weight: 600;
 }
-.view-btn{
-    font-size: var(--font-size-b2) !important;
+.view-btn {
+  font-size: var(--font-size-b2) !important;
 }
-.step-form{
-    padding: var(--spacing-16);
+.step-form {
+  padding: var(--spacing-16);
+}
+
+.steps-links .step-content-after-edit {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column-reverse;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+.steps-links .step-content-after-edit small {
+  margin-bottom: 0.5rem;
+}
+
+.steps-links .step-content-before-edit {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.steps-links .step-content-before-edit small {
+  margin-left: 1rem;
 }

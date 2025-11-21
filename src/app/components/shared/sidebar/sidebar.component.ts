@@ -30,7 +30,7 @@ export class SidebarComponent implements OnInit {
     'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
-    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'custom-field']
+    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'custom-field']
   };
 
   constructor(
@@ -112,7 +112,6 @@ export class SidebarComponent implements OnInit {
     this.subService.allFeatures$.subscribe(features => {
       if (features && Object.keys(features).length > 0) {
         this.features = features;
-        console.log(this.features);
       }
     });
 

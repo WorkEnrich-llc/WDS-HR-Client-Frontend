@@ -73,8 +73,6 @@ export class UpdateJobOpenComponent implements OnInit {
           if (jobData.recruiter_dynamic_fields) {
             this.jobCreationDataService.updateDynamicFields(jobData.recruiter_dynamic_fields);
           }
-
-          console.log('Job data loaded:', jobData);
         }
         this.isLoading = false;
       },

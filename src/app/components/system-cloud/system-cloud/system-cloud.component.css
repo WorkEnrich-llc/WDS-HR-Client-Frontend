@@ -429,7 +429,7 @@ table tbody tr td {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 99999999;
 }
 
 .popup {
@@ -445,7 +445,22 @@ table tbody tr td {
   -o-border-radius: 16px;
   display: flex;
     flex-direction: column;
-    justify-content: end;
+    justify-content: center;
+}
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 9999;
+  margin-bottom: 12px;
+}
+
+.popup-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
 }
 
 .preview-frame {
@@ -455,9 +470,6 @@ table tbody tr td {
 }
 
 .close-btn {
-  position: absolute;
-  top: 15px;
-  right: 10px;
   border: none;
   background: transparent;
   font-size: 30px;

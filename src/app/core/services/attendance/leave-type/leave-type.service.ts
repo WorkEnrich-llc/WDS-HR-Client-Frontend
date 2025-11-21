@@ -33,27 +33,36 @@ export class LeaveTypeService {
   }
 
   // get all Leave Types with pagination and filters
-  getAllLeavetypes(
-    pageNumber: number,
-    perPage: number,
-    filters?: {
-      search?: string;
-      employment_type?: string;
-    }
-  ): Observable<any> {
-    const url = `${this.apiBaseUrl}personnel/leave-type`;
-
-    let params = new HttpParams()
-      .set('page', pageNumber)
-      .set('per_page', perPage);
-
-    if (filters) {
-      if (filters.search) params = params.set('search', filters.search);
-      if (filters.employment_type) params = params.set('employment_type', filters.employment_type);
-    }
-
-    return this._HttpClient.get(url, { params });
+ getAllLeavetypes(
+  pageNumber: number,
+  perPage: number,
+  filters?: {
+    search?: string;
+    employment_type?: string;
+    status?: string;   
   }
+): Observable<any> {
+  const url = `${this.apiBaseUrl}personnel/leave-type`;
+
+  let params = new HttpParams()
+    .set('page', pageNumber)
+    .set('per_page', perPage);
+
+  if (filters) {
+    if (filters.search) {
+      params = params.set('search', filters.search);
+    }
+    if (filters.employment_type) {
+      params = params.set('employment_type', filters.employment_type);
+    }
+    if (filters.status) {  
+      params = params.set('status', filters.status);
+    }
+  }
+
+  return this._HttpClient.get(url, { params });
+}
+
 
   // show Leave Type by ID
   showLeaveType(id: number): Observable<any> {

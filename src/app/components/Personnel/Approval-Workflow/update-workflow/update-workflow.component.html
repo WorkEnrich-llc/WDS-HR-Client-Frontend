@@ -134,7 +134,7 @@
           {{errMsg}}
         </div>
         }
-         @if (mandatoryError) {
+        @if (mandatoryError) {
         <p class="error-msg">
           {{ mandatoryError }}
         </p>
@@ -149,10 +149,19 @@
         <ul class="steps-links">
           @for (step of steps; track step; let i = $index) {
           <li class="link" [class.active]="i === selectedStepIndex" (click)="selectedStepIndex = i">
-            {{ step.form.value.stepName || 'Step ' + (i + 1) }}
+            <!-- {{ step.form.value.stepName || 'Step ' + (i + 1) }}
             @if (!step.form.value.mandatory) {
             <small class="ms-2 fw-light">Optional</small>
-            }
+            } -->
+
+            <div [class]="step.form.get('stepName')?.value? 'step-content-after-edit': 'step-content-before-edit'">
+              <span class="step-name">
+                {{ step.form.value.stepName || 'Step ' + (i + 1) }}
+              </span>
+              @if (!step.form.value.mandatory) {
+              <small class="fw-light">Optional</small>
+              }
+            </div>
           </li>
           }
         </ul>
@@ -176,7 +185,7 @@
               <input type="text" id="stepName" formControlName="stepName" class="form-control custom-date-input"
                 placeholder="Enter Step Name" />
             </div>
-              @if (
+            @if (
             steps[selectedStepIndex].form.get('stepName')?.touched ||
             showErrors
             ) {

@@ -36,4 +36,10 @@ export class InsuranceDetailsStepComponent {
   onSubmit() {
     this.submitForm.emit();
   }
+
+  get isSaveDisabled(): boolean {
+    const isInvalid = this.sharedService.employeeForm.invalid;
+    const isUnchanged = this.sharedService.employeeForm.pristine;
+    return isInvalid || isUnchanged || this.sharedService.isLoading();
+  }
 }

@@ -49,7 +49,6 @@ export class EditDepartmentChecklistsComponent {
       .pipe(concatMap(() => this.saveChecklist()))
       .subscribe({
         next: (response: any) => {
-          console.log('Checklist saved successfully', response);
 
           const updatedList = response.data?.list_items || response;
 
@@ -129,7 +128,7 @@ export class EditDepartmentChecklistsComponent {
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });

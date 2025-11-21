@@ -10,11 +10,11 @@ import { GoogleMapsModule } from '@angular/google-maps';
   styleUrls: ['./google-maps-demo.component.css']
 })
 export class GoogleMapsDemoComponent implements OnInit {
-  
+
   // Map configuration
   center: google.maps.LatLngLiteral = { lat: 25.2048, lng: 55.2708 }; // Dubai coordinates
   zoom = 10;
-  
+
   // Map options
   mapOptions: google.maps.MapOptions = {
     mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -55,8 +55,7 @@ export class GoogleMapsDemoComponent implements OnInit {
   onMapClick(event: google.maps.MapMouseEvent) {
     if (event.latLng) {
       const clickedLocation = event.latLng.toJSON();
-      console.log('Map clicked at:', clickedLocation);
-      
+
       // Add new marker at clicked location
       this.markers.push(clickedLocation);
     }
@@ -64,7 +63,7 @@ export class GoogleMapsDemoComponent implements OnInit {
 
   // Handle marker click event
   onMarkerClick(marker: google.maps.LatLngLiteral, index: number) {
-    console.log('Marker clicked:', marker, 'Index:', index);
+    // console.log('Marker clicked:', marker, 'Index:', index);
   }
 
   // Remove marker
@@ -89,7 +88,7 @@ export class GoogleMapsDemoComponent implements OnInit {
           };
           this.center = currentLocation;
           this.zoom = 15;
-          
+
           // Add marker for current location
           this.markers.push(currentLocation);
         },
@@ -107,7 +106,7 @@ export class GoogleMapsDemoComponent implements OnInit {
     // This is a basic implementation
     // For production, you would use Google Places API
     const geocoder = new google.maps.Geocoder();
-    
+
     geocoder.geocode({ address: query }, (results, status) => {
       if (status === 'OK' && results && results[0]) {
         const location = results[0].geometry.location.toJSON();

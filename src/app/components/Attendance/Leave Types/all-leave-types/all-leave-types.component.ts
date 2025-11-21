@@ -60,8 +60,10 @@ export class AllLeaveTypesComponent {
     });
 
     this.filterForm = this.fb.group({
-      employment_type: ['']
+      employment_type: [''],
+      status: ['']
     });
+
   }
 
   ngOnDestroy(): void {
@@ -91,8 +93,9 @@ export class AllLeaveTypesComponent {
 
   resetFilterForm(): void {
     this.filterForm.reset({
-      employment_type: ''
-    });
+  employment_type: '',
+  status: ''   
+});
     this.filterBox.closeOverlay();
     this.getAllJobTitles(this.currentPage);
   }
@@ -103,11 +106,12 @@ export class AllLeaveTypesComponent {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
 
-      const filters = {
-        employment_type: rawFilters.employment_type || undefined
-      };
+  const filters = {
+  employment_type: rawFilters.employment_type || undefined,
+  status: rawFilters.status || undefined   
+};
 
-      // console.log('Filters submitted:', filters);
+
       this.filterBox.closeOverlay();
       this.getAllJobTitles(this.currentPage, '', filters);
     }
@@ -121,9 +125,10 @@ export class AllLeaveTypesComponent {
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
-    filters?: {
-      employment_type?: string;
-    }
+   filters?: {
+  employment_type?: string;
+  status?: string;   
+}
   ) {
     this.loadData = true;
     this._LeaveTypeService.getAllLeavetypes(pageNumber, this.itemsPerPage, {
@@ -135,14 +140,13 @@ export class AllLeaveTypesComponent {
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
         this.leaveTypes = response.data.list_items;
-        // console.log(this.leaveTypes);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
-        console.log(err.error?.details);
+        console.error(err.error?.details);
         this.loadData = false;
       }
     });
