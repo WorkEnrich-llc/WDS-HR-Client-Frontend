@@ -1,0 +1,183 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="Email Settings" [create]="createdDate" [update]="updatedDate">
+    <button class="btn btn-lg btn-success" [disabled]="!isChanged || isSubmitting || emailSettingsForm.invalid"
+        (click)="saveChanges()">
+        @if (isSubmitting) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Save Changes</span>
+    </button>
+
+    <button class="btn btn-lg btn-danger w-auto" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Changes</span>
+    </button>
+</app-page-header>
+<!-- end page header -->
+
+<!-- content -->
+<div class="content-hug">
+    @if (isLoading) {
+    <div class="content-box d-flex flex-column gap-3">
+        <div class="skeleton-loader">
+            <div class="skeleton-line" style="height: 32px; width: 60%; margin-bottom: 16px;"></div>
+            <div class="skeleton-line" style="height: 20px; width: 40%; margin-bottom: 24px;"></div>
+        </div>
+    </div>
+    } @else {
+    <form [formGroup]="emailSettingsForm" class="d-flex flex-column gap-4">
+        <!-- Credentials Section -->
+        <div class="content-box d-flex flex-column gap-3">
+            <h2 class="section-title">Credentials</h2>
+
+            <!-- Email Field -->
+            <div class="input">
+                <label for="host_user">Email <span class="text-danger">*</span></label>
+                <div class="form-outline w-100 position-relative">
+                    <input type="email" id="host_user" formControlName="host_user" class="form-control"
+                        placeholder="Enter User" inputmode="email" autocomplete="email"
+                        [class.is-invalid]="emailSettingsForm.get('host_user')?.invalid && (emailSettingsForm.get('host_user')?.touched || emailSettingsForm.get('host_user')?.dirty)" />
+                </div>
+                @if (emailSettingsForm.get('host_user')?.invalid && (emailSettingsForm.get('host_user')?.touched ||
+                emailSettingsForm.get('host_user')?.dirty)) {
+                <div class="text-danger mt-1">
+                    @if (emailSettingsForm.get('host_user')?.errors?.['required']) {
+                    Email is required.
+                    } @else if (emailSettingsForm.get('host_user')?.errors?.['email']) {
+                    Please enter a valid email address.
+                    }
+                </div>
+                }
+            </div>
+
+            <!-- Password Field -->
+            <div class="input">
+                <label for="host_password">Password <span class="text-danger">*</span></label>
+                <div class="form-outline w-100 position-relative">
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" id="host_password"
+                        formControlName="host_password" class="form-control" placeholder="Enter Password"
+                        autocomplete="current-password"
+                        [class.is-invalid]="emailSettingsForm.get('host_password')?.invalid && (emailSettingsForm.get('host_password')?.touched || emailSettingsForm.get('host_password')?.dirty)" />
+                    <button type="button"
+                        class="btn p-0 border-0 shadow-none position-absolute end-0 top-50 translate-middle-y toggle-password"
+                        (click)="togglePasswordVisibility()">
+                        @if (!isPasswordVisible) {
+                        <svg width="18" height="9" viewBox="0 0 18 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M16.7216 0.732973C17.0071 0.855347 17.1394 1.18603 17.017 1.47157L16.5 1.24999C17.017 1.47157 17.0171 1.47144 17.017 1.47157L17.0165 1.47283L17.0157 1.47469L17.0133 1.48021L17.0053 1.49827C16.9985 1.51337 16.9889 1.53453 16.9765 1.5613C16.9515 1.61481 16.915 1.6908 16.8666 1.78561C16.77 1.97509 16.6257 2.2405 16.4314 2.55234C16.1122 3.06462 15.6543 3.70823 15.0465 4.34763L15.7727 5.07387C15.9924 5.29354 15.9924 5.6497 15.7727 5.86937C15.5531 6.08904 15.1969 6.08904 14.9773 5.86937L14.2268 5.11893C13.7321 5.53345 13.1647 5.92252 12.5213 6.24216L13.2215 7.31821C13.3909 7.5786 13.3172 7.92704 13.0568 8.09647C12.7964 8.2659 12.448 8.19216 12.2785 7.93177L11.4617 6.67635C10.8771 6.86723 10.2443 6.99695 9.5625 7.04346V8.37499C9.5625 8.68565 9.31066 8.93749 9 8.93749C8.68934 8.93749 8.4375 8.68565 8.4375 8.37499V7.04346C7.77673 6.99839 7.16188 6.87515 6.59243 6.69379L5.78687 7.93182C5.61744 8.19221 5.269 8.26595 5.00861 8.09652C4.74822 7.92709 4.67448 7.57865 4.84391 7.31826L5.52822 6.26657C4.87994 5.94998 4.30792 5.56262 3.80887 5.14868L3.08814 5.86942C2.86847 6.08909 2.51231 6.08909 2.29264 5.86942C2.07297 5.64975 2.07297 5.29359 2.29264 5.07392L2.98547 4.3811C2.36705 3.73633 1.9015 3.08491 1.57713 2.56599C1.37994 2.25052 1.2335 1.98173 1.13547 1.78976C1.08642 1.69371 1.04938 1.6167 1.02408 1.56247C1.01143 1.53535 1.0017 1.5139 0.994868 1.4986L0.986773 1.48031L0.984341 1.47473L0.983527 1.47284L0.983221 1.47213C0.983164 1.472 0.982981 1.47157 1.5 1.24999L0.983221 1.47213C0.860846 1.18659 0.992879 0.855348 1.27842 0.732973C1.56373 0.610698 1.8941 0.742653 2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771L2.01743 1.02935L2.02199 1.03964C2.02641 1.04953 2.0336 1.06542 2.0436 1.08685C2.0636 1.12972 2.09478 1.19468 2.13738 1.2781C2.22265 1.44506 2.35327 1.6852 2.5311 1.96969C2.8878 2.54035 3.42873 3.28031 4.16676 3.96619C4.81619 4.56972 5.612 5.12566 6.56379 5.49185C7.27966 5.76726 8.08909 5.93749 9 5.93749C9.93128 5.93749 10.7566 5.75956 11.4844 5.4731C12.4304 5.10074 13.2208 4.54118 13.865 3.93648C14.5922 3.25397 15.1252 2.52136 15.4766 1.95739C15.6518 1.67622 15.7805 1.43919 15.8645 1.27449C15.9064 1.19221 15.9371 1.12817 15.9568 1.08593C15.9667 1.06481 15.9738 1.04916 15.9781 1.03942L15.9826 1.02931L15.983 1.02841C15.9829 1.02849 15.983 1.02834 15.983 1.02841M16.7216 0.732973C16.4361 0.610629 16.1054 0.743023 15.983 1.02841L16.7216 0.732973ZM2.01672 1.02771C2.01667 1.02761 2.01676 1.02781 2.01672 1.02771V1.02771Z"
+                                fill="#4A6D97" />
+                        </svg>
+                        } @else {
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M9 0C4.03 0 0 4.03 0 9C0 13.97 4.03 18 9 18C13.97 18 18 13.97 18 9C18 4.03 13.97 0 9 0ZM9 16C5.13 16 2 12.87 2 9C2 5.13 5.13 2 9 2C12.87 2 16 5.13 16 9C16 12.87 12.87 16 9 16ZM9 4C6.24 4 4 6.24 4 9C4 11.76 6.24 14 9 14C11.76 14 14 11.76 14 9C14 6.24 11.76 4 9 4ZM9 12C7.35 12 6 10.65 6 9C6 7.35 7.35 6 9 6C10.65 6 12 7.35 12 9C12 10.65 10.65 12 9 12Z"
+                                fill="#4A6D97" />
+                        </svg>
+                        }
+                    </button>
+                </div>
+                @if (emailSettingsForm.get('host_password')?.invalid && (emailSettingsForm.get('host_password')?.touched
+                || emailSettingsForm.get('host_password')?.dirty)) {
+                <div class="text-danger mt-1">
+                    Password is required.
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Technical Details Section -->
+        <div class="content-box d-flex flex-column gap-3">
+            <h2 class="section-title">Technical Details</h2>
+
+            <!-- SMTP Server Field -->
+            <div class="input">
+                <label for="host">SMTP Server <span class="text-danger">*</span></label>
+                <div class="form-outline w-100 position-relative">
+                    <input type="text" id="host" formControlName="host" class="form-control"
+                        placeholder="Enter SMTP Email" inputmode="email" autocomplete="off"
+                        [class.is-invalid]="emailSettingsForm.get('host')?.invalid && (emailSettingsForm.get('host')?.touched || emailSettingsForm.get('host')?.dirty)" />
+                </div>
+                @if (emailSettingsForm.get('host')?.invalid && (emailSettingsForm.get('host')?.touched ||
+                emailSettingsForm.get('host')?.dirty)) {
+                <div class="text-danger mt-1">
+                    SMTP Server is required.
+                </div>
+                }
+            </div>
+
+            <!-- SMTP Port Field -->
+            <div class="input">
+                <label for="port">SMTP Port <span class="text-danger">*</span></label>
+                <div class="form-outline w-100 position-relative">
+                    <input type="text" id="port" formControlName="port" class="form-control"
+                        placeholder="Enter SMTP Port" inputmode="numeric" autocomplete="off"
+                        [class.is-invalid]="emailSettingsForm.get('port')?.invalid && (emailSettingsForm.get('port')?.touched || emailSettingsForm.get('port')?.dirty)" />
+                </div>
+                @if (emailSettingsForm.get('port')?.invalid && (emailSettingsForm.get('port')?.touched ||
+                emailSettingsForm.get('port')?.dirty)) {
+                <div class="text-danger mt-1">
+                    @if (emailSettingsForm.get('port')?.errors?.['required']) {
+                    SMTP Port is required.
+                    } @else if (emailSettingsForm.get('port')?.errors?.['pattern']) {
+                    Please enter a valid port number.
+                    }
+                </div>
+                }
+            </div>
+
+            <!-- From Email Field (Optional) -->
+            <div class="input">
+                <label for="from_email">From Email</label>
+                <div class="form-outline w-100 position-relative">
+                    <input type="email" id="from_email" formControlName="from_email" class="form-control"
+                        placeholder="Enter From Email" inputmode="email" autocomplete="email"
+                        [class.is-invalid]="emailSettingsForm.get('from_email')?.invalid && (emailSettingsForm.get('from_email')?.touched || emailSettingsForm.get('from_email')?.dirty)" />
+                </div>
+                @if (emailSettingsForm.get('from_email')?.invalid && (emailSettingsForm.get('from_email')?.touched ||
+                emailSettingsForm.get('from_email')?.dirty)) {
+                <div class="text-danger mt-1">
+                    Please enter a valid email address.
+                </div>
+                }
+            </div>
+
+
+            <!-- Use TLS Checkbox -->
+            <div class="input">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="useTLS"
+                        [checked]="emailSettingsForm.get('use')?.value === 1"
+                        (change)="emailSettingsForm.patchValue({ use: ($any($event.target).checked ? 1 : 2) })" />
+                    <label class="form-check-label" for="useTLS">
+                        Use TLS
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+    }
+</div>
+
+<!-- Discard popup -->
+<app-popup [title]="'Discard Changes'"
+    [paragraph1]="'Are you sure you want to discard all changes done to the Email Settings?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+        Discard Changes
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+        Keep Editing
+    </button>
+</app-popup>

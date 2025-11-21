@@ -29,7 +29,7 @@ messaging.onBackgroundMessage(function (payload) {
 });
 
 self.addEventListener("notificationclick", function (event) {
-  const baseURL = "https://client.workenrich.com/";
+  const baseURL = "https://client.talentdot.org/";
   // console.log('Notification data:', event.notification.data);
   const urlToOpen = baseURL + (event.notification.data?.url || "");
   // console.log('Notification click received:', urlToOpen);

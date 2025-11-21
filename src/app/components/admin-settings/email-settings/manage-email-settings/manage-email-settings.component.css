@@ -1,0 +1,70 @@
+.section-title {
+  font-size: var(--font-size-h4);
+  font-weight: 600;
+  color: var(--color-secondary-800);
+  margin-bottom: var(--spacing-16);
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: 50%;
+}
+
+.input label {
+  font-size: var(--font-size-b3);
+  color: var(--color-secondary-700);
+  font-weight: 500;
+}
+
+.toggle-password {
+  right: 12px !important;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.toggle-password:hover {
+  opacity: 0.7;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.form-check-input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  font-size: var(--font-size-b3);
+  color: var(--color-secondary-700);
+  font-weight: 400;
+  cursor: pointer;
+  margin: 0;
+}
+
+.skeleton-loader {
+  width: 100%;
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
