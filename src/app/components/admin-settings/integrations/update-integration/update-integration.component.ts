@@ -4,8 +4,9 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IntegrationsService } from 'app/core/services/admin-settings/integrations/integrations.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -15,7 +16,7 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'app-update-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
+    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
     templateUrl: '../create-integration/create-integration.component.html',
     styleUrls: ['../create-integration/create-integration.component.css']
 })
@@ -87,6 +88,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     // Service selection validation
     showServiceError: boolean = false;
 
+    // Discard modal state
+    isDiscardModalOpen: boolean = false;
+
     // Subscriptions for cleanup
     private featuresSubscription?: Subscription;
     private itemsSubscription?: Subscription;
@@ -151,9 +155,22 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.todayFormatted = today.toLocaleDateString('en-GB');
     }
 
+    /**
+     * Custom validator to check if name is not empty after trimming
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+        }
+        return null;
+    }
+
     private initializeForm(): void {
         this.integrationForm = this.formBuilder.group({
-            name: ['', [Validators.required]],
+            name: ['', [Validators.required, this.noWhitespaceValidator.bind(this)]],
             startDate: ['', [Validators.required]],
             hasExpiryDate: [false],
             expiryDate: ['']
@@ -174,7 +191,12 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
 
-        if (!nameControl?.value || nameControl?.errors) return false;
+        // Name is required and must not be only whitespace
+        const nameValue = nameControl?.value;
+        if (!nameValue || typeof nameValue !== 'string' || nameValue.trim().length === 0 || nameControl?.errors) {
+            return false;
+        }
+
         if (!startDateControl?.value || startDateControl?.errors) return false;
         if (hasExpiryDate && (!expiryDateControl?.value || expiryDateControl?.errors)) return false;
         return true;
@@ -946,7 +968,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             const requestBody: any = {
                 request_data: {
                     integration_id: this.integrationId,
-                    name: formData.name,
+                    name: formData.name?.trim() || formData.name,
                     features: features,
                     start_at: formData.startDate,
                     no_expire: noExpire
@@ -973,7 +995,25 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Handle cancel action - open discard modal
+     */
     onCancel(): void {
+        this.isDiscardModalOpen = true;
+    }
+
+    /**
+     * Close discard modal
+     */
+    closeDiscardModal(): void {
+        this.isDiscardModalOpen = false;
+    }
+
+    /**
+     * Confirm discard action
+     */
+    confirmDiscard(): void {
+        this.isDiscardModalOpen = false;
         this.router.navigate(['/integrations']);
     }
 
@@ -987,6 +1027,48 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             expiryDateControl?.setValue('');
         }
         expiryDateControl?.updateValueAndValidity();
+    }
+
+    /**
+     * Handle start date change
+     */
+    onStartDateChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If expiry date is set and is before start date, clear it
+        if (startDate && expiryDate && expiryDate < startDate) {
+            this.integrationForm.get('expiryDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Handle expiry date input change
+     */
+    onExpiryDateInputChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If start date is set and is after expiry date, clear it
+        if (expiryDate && startDate && startDate > expiryDate) {
+            this.integrationForm.get('startDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Get minimum date for expiry date (start date)
+     */
+    getMinExpiryDate(): string {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        return startDate || '';
+    }
+
+    /**
+     * Get maximum date for start date (expiry date)
+     */
+    getMaxStartDate(): string {
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        return expiryDate || '';
     }
 
     /**

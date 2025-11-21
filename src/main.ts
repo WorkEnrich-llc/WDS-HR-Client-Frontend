@@ -4,7 +4,7 @@ import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { toastInterceptor } from './app/core/interceptors/toast.interceptor';
 import { errorHandlingInterceptor } from './app/core/interceptors/error-handling.interceptor';
-import { importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, ErrorHandler } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 import { routes } from './app/app.routes';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -17,6 +17,7 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { environment } from './environments/environment';
 import { subscriptionInterceptor } from 'app/core/interceptors/subscription.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { GlobalErrorHandlerService } from './app/core/services/global-error-handler/global-error-handler.service';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -61,7 +62,9 @@ bootstrapApplication(AppComponent, {
       }),
 
     ),
-    provideCharts(withDefaultRegisterables())
+    provideCharts(withDefaultRegisterables()),
+    // Global error handler for unhandled errors
+    { provide: ErrorHandler, useClass: GlobalErrorHandlerService }
   ]
 }).catch(err => console.error(err));
 
@@ -78,6 +81,39 @@ if ('serviceWorker' in navigator) {
       // console.log('SW registered', registration);
     }).catch(err => console.error('SW registration failed', err));
 }
+
+// Global error handlers for unhandled errors and promise rejections
+window.addEventListener('error', (event) => {
+  // Suppress dynamic import errors and chunk loading errors
+  if (event.message?.includes('Failed to fetch dynamically imported module') ||
+      event.message?.includes('chunk') ||
+      event.filename?.includes('chunk')) {
+    event.preventDefault();
+    console.warn('Suppressed dynamic import error:', event.message);
+    return false;
+  }
+  
+  // Suppress Google Maps loading warnings
+  if (event.message?.includes('Google Maps JavaScript API') && 
+      event.message?.includes('loading=async')) {
+    event.preventDefault();
+    return false;
+  }
+  
+  return true;
+});
+
+// Handle unhandled promise rejections (for dynamic imports)
+window.addEventListener('unhandledrejection', (event) => {
+  // Suppress dynamic import failures
+  if (event.reason?.message?.includes('Failed to fetch dynamically imported module') ||
+      event.reason?.message?.includes('chunk') ||
+      event.reason?.name === 'ChunkLoadError') {
+    event.preventDefault();
+    console.warn('Suppressed unhandled promise rejection (dynamic import):', event.reason);
+    return;
+  }
+});
 
 
 // function withScrollPositionRestoration(arg0: string): import("@angular/router").RouterFeatures {

@@ -127,7 +127,9 @@
                 <label for="startDate">Start Date <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="startDate" type="date" id="startDate"
-                        class="form-control custom-date-input" />
+                        class="form-control custom-date-input"
+                        [max]="getMaxStartDate()"
+                        (change)="onStartDateChange()" />
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_588_3981)">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -165,13 +167,20 @@
                 <label for="expiryDate">Expiry Date <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="expiryDate" type="date" id="expiryDate"
-                        class="form-control custom-date-input" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        class="form-control custom-date-input"
+                        [min]="getMinExpiryDate()"
+                        (change)="onExpiryDateInputChange()" />
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_expiry_date)">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M5.25 1.3125C5.56066 1.3125 5.8125 1.56434 5.8125 1.875V2.44704C6.30902 2.43749 6.85605 2.43749 7.45769 2.4375H10.5423C11.1439 2.43749 11.691 2.43749 12.1875 2.44704V1.875C12.1875 1.56434 12.4393 1.3125 12.75 1.3125C13.0607 1.3125 13.3125 1.56434 13.3125 1.875V2.49532C13.5075 2.51018 13.6921 2.52886 13.8668 2.55235C14.7461 2.67057 15.4578 2.91966 16.0191 3.48093C16.5803 4.0422 16.8294 4.75392 16.9476 5.63323C16.9854 5.91425 17.0108 6.22094 17.0278 6.55505C17.0502 6.61579 17.0625 6.68146 17.0625 6.75C17.0625 6.80199 17.0554 6.85233 17.0422 6.90012C17.0625 7.50161 17.0625 8.18456 17.0625 8.95769V10.5C17.0625 10.8107 16.8107 11.0625 16.5 11.0625C16.1893 11.0625 15.9375 10.8107 15.9375 10.5V9C15.9375 8.35949 15.9373 7.80205 15.9277 7.3125H2.07231C2.06274 7.80205 2.0625 8.35949 2.0625 9V10.5C2.0625 11.9301 2.0637 12.9461 2.16732 13.7169C2.26877 14.4714 2.45902 14.9062 2.77643 15.2236C3.09384 15.541 3.52857 15.7312 4.28314 15.8327C5.05388 15.9363 6.06988 15.9375 7.5 15.9375H10.5C10.8107 15.9375 11.0625 16.1893 11.0625 16.5C11.0625 16.8107 10.8107 17.0625 10.5 17.0625H7.45769C6.07937 17.0625 4.98764 17.0625 4.13323 16.9476C3.25392 16.8294 2.5422 16.5803 1.98093 16.0191C1.41966 15.4578 1.17057 14.7461 1.05235 13.8668C0.937479 13.0124 0.937488 11.9206 0.9375 10.5423V8.95769C0.937494 8.18456 0.937488 7.50161 0.957757 6.90013C0.944554 6.85233 0.937501 6.80199 0.937501 6.75C0.937501 6.68146 0.949758 6.61579 0.972202 6.55505C0.989216 6.22094 1.01457 5.91425 1.05235 5.63323C1.17057 4.75392 1.41966 4.0422 1.98093 3.48093C2.54221 2.91966 3.25392 2.67057 4.13323 2.55235C4.30793 2.52886 4.49254 2.51018 4.6875 2.49532V1.875C4.6875 1.56434 4.93934 1.3125 5.25 1.3125ZM2.12376 6.1875H15.8762C15.8642 6.04546 15.8499 5.91093 15.8327 5.78314C15.7312 5.02857 15.541 4.59383 15.2236 4.27643C14.9062 3.95902 14.4714 3.76877 13.7169 3.66732C12.9461 3.56369 11.9301 3.5625 10.5 3.5625H7.5C6.06989 3.5625 5.05388 3.56369 4.28314 3.66732C3.52857 3.76877 3.09384 3.95902 2.77643 4.27643C2.45902 4.59383 2.26877 5.02857 2.16732 5.78314C2.15014 5.91093 2.13577 6.04546 2.12376 6.1875ZM13.5 11.8125C12.568 11.8125 11.8125 12.568 11.8125 13.5C11.8125 14.432 12.568 15.1875 13.5 15.1875C14.432 15.1875 15.1875 14.432 15.1875 13.5C15.1875 12.568 14.432 11.8125 13.5 11.8125ZM10.6875 13.5C10.6875 11.9467 11.9467 10.6875 13.5 10.6875C15.0533 10.6875 16.3125 11.9467 16.3125 13.5C16.3125 14.0732 16.141 14.6064 15.8465 15.051L16.8977 16.1023C17.1174 16.3219 17.1174 16.6781 16.8977 16.8977C16.6781 17.1174 16.3219 17.1174 16.1023 16.8977L15.051 15.8465C14.6064 16.141 14.0732 16.3125 13.5 16.3125C11.9467 16.3125 10.6875 15.0533 10.6875 13.5Z"
+                                fill="#4A6D97" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_expiry_date">
+                                <rect width="18" height="18" fill="white" />
+                            </clipPath>
+                        </defs>
                     </svg>
                 </div>
                 @if (integrationForm.get('expiryDate')?.touched &&
@@ -891,5 +900,17 @@
         </td>
     </tr>
 </ng-template>
+
+<!-- Discard Confirmation Popup -->
+<app-popup [title]="isUpdate ? 'Discard Updates' : 'Discard Integration'"
+    [paragraph1]="isUpdate ? 'Are you sure you want to discard all updates to this integration?' : 'Are you sure you want to discard creating this integration?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isDiscardModalOpen" (close)="closeDiscardModal()">
+    <button modal-btn-left class="btn btn-lg btn-outline-dark w-100" (click)="confirmDiscard()">
+        {{ isUpdate ? 'Discard Updates' : 'Discard Integration' }}
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDiscardModal()">
+        Keep Editing
+    </button>
+</app-popup>
 
 <!-- end page content -->
