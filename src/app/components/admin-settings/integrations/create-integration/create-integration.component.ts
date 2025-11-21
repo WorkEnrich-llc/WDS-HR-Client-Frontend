@@ -5,7 +5,7 @@ import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skela
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IntegrationsService } from '../../../../core/services/admin-settings/integrations/integrations.service';
@@ -144,11 +144,24 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Custom validator to check if name is not empty after trimming
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+        }
+        return null;
+    }
+
+    /**
      * Initialize the form
      */
     private initializeForm(): void {
         this.integrationForm = this.formBuilder.group({
-            name: ['', [Validators.required]],
+            name: ['', [Validators.required, this.noWhitespaceValidator.bind(this)]],
             startDate: ['', [Validators.required]],
             hasExpiryDate: [false],
             expiryDate: ['']
@@ -178,8 +191,9 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
 
-        // Name is required
-        if (!nameControl?.value || nameControl?.errors) {
+        // Name is required and must not be only whitespace
+        const nameValue = nameControl?.value;
+        if (!nameValue || typeof nameValue !== 'string' || nameValue.trim().length === 0 || nameControl?.errors) {
             return false;
         }
 
@@ -911,7 +925,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
             const requestBody: any = {
                 request_data: {
-                    name: formData.name,
+                    name: formData.name?.trim() || formData.name,
                     features: features,
                     start_at: formData.startDate,
                     no_expire: noExpire
