@@ -127,7 +127,9 @@
                 <label for="startDate">Start Date <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="startDate" type="date" id="startDate"
-                        class="form-control custom-date-input" />
+                        class="form-control custom-date-input"
+                        [max]="getMaxStartDate()"
+                        (change)="onStartDateChange()" />
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_588_3981)">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -165,7 +167,9 @@
                 <label for="expiryDate">Expiry Date <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input formControlName="expiryDate" type="date" id="expiryDate"
-                        class="form-control custom-date-input" />
+                        class="form-control custom-date-input"
+                        [min]="getMinExpiryDate()"
+                        (change)="onExpiryDateInputChange()" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>

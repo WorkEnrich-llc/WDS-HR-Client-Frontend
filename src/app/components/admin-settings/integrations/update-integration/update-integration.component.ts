@@ -990,6 +990,48 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Handle start date change
+     */
+    onStartDateChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If expiry date is set and is before start date, clear it
+        if (startDate && expiryDate && expiryDate < startDate) {
+            this.integrationForm.get('expiryDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Handle expiry date input change
+     */
+    onExpiryDateInputChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If start date is set and is after expiry date, clear it
+        if (expiryDate && startDate && startDate > expiryDate) {
+            this.integrationForm.get('startDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Get minimum date for expiry date (start date)
+     */
+    getMinExpiryDate(): string {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        return startDate || '';
+    }
+
+    /**
+     * Get maximum date for start date (expiry date)
+     */
+    getMaxStartDate(): string {
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        return expiryDate || '';
+    }
+
+    /**
      * Search items
      */
     /**
