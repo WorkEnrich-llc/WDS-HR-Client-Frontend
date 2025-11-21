@@ -4,6 +4,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +16,7 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'app-update-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
+    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
     templateUrl: '../create-integration/create-integration.component.html',
     styleUrls: ['../create-integration/create-integration.component.css']
 })
@@ -86,6 +87,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
     // Service selection validation
     showServiceError: boolean = false;
+
+    // Discard modal state
+    isDiscardModalOpen: boolean = false;
 
     // Subscriptions for cleanup
     private featuresSubscription?: Subscription;
@@ -991,7 +995,25 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Handle cancel action - open discard modal
+     */
     onCancel(): void {
+        this.isDiscardModalOpen = true;
+    }
+
+    /**
+     * Close discard modal
+     */
+    closeDiscardModal(): void {
+        this.isDiscardModalOpen = false;
+    }
+
+    /**
+     * Confirm discard action
+     */
+    confirmDiscard(): void {
+        this.isDiscardModalOpen = false;
         this.router.navigate(['/integrations']);
     }
 

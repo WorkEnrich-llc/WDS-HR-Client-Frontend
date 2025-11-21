@@ -901,4 +901,16 @@
     </tr>
 </ng-template>
 
+<!-- Discard Confirmation Popup -->
+<app-popup [title]="isUpdate ? 'Discard Updates' : 'Discard Integration'"
+    [paragraph1]="isUpdate ? 'Are you sure you want to discard all updates to this integration?' : 'Are you sure you want to discard creating this integration?'"
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isDiscardModalOpen" (close)="closeDiscardModal()">
+    <button modal-btn-left class="btn btn-lg btn-outline-dark w-100" (click)="confirmDiscard()">
+        {{ isUpdate ? 'Discard Updates' : 'Discard Integration' }}
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDiscardModal()">
+        Keep Editing
+    </button>
+</app-popup>
+
 <!-- end page content -->
