@@ -31,6 +31,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
     // Table data
     integrations: any[] = [];
     searchTerm: string = '';
+    trimmedSearchTerm: string = ''; // Store the trimmed search term to compare
     sortDirection: string = 'asc';
     currentSortColumn: string = '';
     totalItems: number = 0;
@@ -137,7 +138,8 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
 
         this.loadData = true;
 
-        this.integrationsSubscription = this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.searchTerm, this.currentFilters)
+        // Use trimmed search term for API call
+        this.integrationsSubscription = this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.trimmedSearchTerm, this.currentFilters)
             .subscribe({
                 next: (response: any) => {
                     this.currentPage = Number(response.data.page);
@@ -267,7 +269,25 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      * Handle search input change
      */
     onSearchChange(): void {
-        this.searchSubject.next(this.searchTerm);
+        // Trim the search term
+        const trimmedSearch = this.searchTerm.trim();
+        
+        // Only send search request if the trimmed value is different from the previous trimmed value
+        // This prevents sending requests when only leading/trailing spaces are added/removed
+        if (trimmedSearch !== this.trimmedSearchTerm) {
+            this.trimmedSearchTerm = trimmedSearch;
+            // Update the input value to remove leading/trailing spaces
+            if (this.searchTerm !== trimmedSearch) {
+                this.searchTerm = trimmedSearch;
+            }
+            // Send the trimmed search term
+            this.searchSubject.next(trimmedSearch);
+        } else {
+            // If only whitespace was added/removed, update the input value but don't send request
+            if (this.searchTerm !== trimmedSearch) {
+                this.searchTerm = trimmedSearch;
+            }
+        }
     }
 
     /**
