@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
@@ -32,6 +32,8 @@ export class DocumentsTabComponent {
   @Output() uploadDocument = new EventEmitter<{ key: string; fileInput: HTMLInputElement }>();
   @Output() deleteDocument = new EventEmitter<string>();
 
+
+
   // Table properties
   currentPage = 1;
   itemsPerPage = 10;
@@ -53,9 +55,10 @@ export class DocumentsTabComponent {
   }
 
   onViewDocument(url?: string): void {
-    if (url) {
+    if (!url) return;
+    setTimeout(() => {
       window.open(url, '_blank');
-    }
+    }, 200);
   }
 
   getUploadedCount(): number {
