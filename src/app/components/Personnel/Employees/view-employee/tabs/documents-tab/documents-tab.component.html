@@ -43,10 +43,11 @@
       <span class="text-warning">Not Uploaded</span>
       }
     </td>
-    <td>
+    <!-- <td>
       @if (document.uploaded) {
       <div class="d-flex align-items-center gap-2">
-        <button class="view-btn" (click)="onViewDocument(document.url)" title="View">
+        <button class="view-btn" (click)="onViewDocument(document.url)" title="View"
+          [disabled]="!document.url || uploadProgress[document.key] !== undefined">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -69,7 +70,8 @@
           Upload
         </button>
         }
-        <button class="remove-btn" (click)="openDeleteModal(document)" title="Delete ">
+        <button class="remove-btn" (click)="openDeleteModal(document)" title="Delete "
+          [disabled]="uploadProgress[document.key] !== undefined">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3,6 5,6 21,6" />
@@ -111,7 +113,102 @@
       </app-popup>
 
 
+      }
+      @else {
+      @if (uploadProgress[document.key] !== undefined) {
+      <button class="view-btn d-flex align-items-center" disabled title="Uploading">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <small>{{ uploadProgress[document.key] }}%</small>
+      </button>
       } @else {
+      <button class="view-btn" (click)="onUpload(document.key, fileInput)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17,8 12,3 7,8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        Upload
+      </button>
+      }
+      }
+    </td> -->
+
+    <td>
+      @if (document.uploaded) {
+      <div class="d-flex align-items-center gap-2">
+
+        @if (uploadProgress[document.key] !== undefined) {
+        <button class="view-btn" disabled title="Uploading">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <small>{{ uploadProgress[document.key] }}%</small>
+        </button>
+        } @else {
+        <button class="view-btn" (click)="onViewDocument(document.url)" title="View"
+          [disabled]="!document.url || uploadProgress[document.key] !== undefined">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
+
+        <button class="view-btn" (click)="onUpload(document.key, fileInput)" title="Upload">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17,8 12,3 7,8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Upload
+        </button>
+        <button class="remove-btn" (click)="openDeleteModal(document)" title="Delete "
+          [disabled]="!document.url || uploadProgress[document.key] !== undefined">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3,6 5,6 21,6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>
+          Delete
+        </button>
+        }
+      </div>
+
+
+      <app-popup [title]="'Delete'" [paragraph1]="'Are you Sure you want to delete this document: ' + document.name"
+        [paragraph2]="'This action can’t be undone!'" [isOpen]="document.isDeleteModalOpen"
+        (close)="closeDeleteModal(document)">
+        <button modal-btn-left class="btn btn-lg btn-danger w-100"
+          [disabled]="!document.url || uploadProgress[document.key] !== undefined" (click)="onDelete(document.key)">
+
+          @if(document.isLoading){ <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+          }@else{
+          <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M5.9819 0.687514H8.51798C8.68028 0.687411 8.82167 0.687321 8.95518 0.708641C9.48266 0.79287 9.93911 1.12186 10.1858 1.59563C10.2483 1.71555 10.2929 1.84971 10.3441 2.00371L10.4278 2.25488C10.442 2.2974 10.446 2.30943 10.4495 2.31891C10.5808 2.682 10.9213 2.92745 11.3073 2.93723C11.3175 2.93748 11.3299 2.93753 11.3749 2.93753H13.6249C13.9356 2.93753 14.1874 3.18937 14.1874 3.50003C14.1874 3.81069 13.9356 4.06253 13.6249 4.06253H0.874878C0.564218 4.06253 0.312378 3.81069 0.312378 3.50003C0.312378 3.18937 0.564218 2.93753 0.874878 2.93753H3.12494C3.16997 2.93753 3.1824 2.93749 3.19255 2.93723C3.57854 2.92745 3.91906 2.68202 4.0504 2.31893C4.05385 2.30938 4.05782 2.29761 4.07206 2.25488L4.15577 2.00372C4.20699 1.84973 4.25162 1.71555 4.31407 1.59563C4.56078 1.12186 5.01723 0.79287 5.5447 0.708641C5.67821 0.687321 5.8196 0.687411 5.9819 0.687514ZM5.00599 2.93753C5.04462 2.86176 5.07886 2.78303 5.10831 2.70161C5.11725 2.67689 5.12602 2.65057 5.13729 2.61675L5.21215 2.39219C5.28052 2.18706 5.29627 2.14522 5.31189 2.11523C5.39412 1.95731 5.54627 1.84764 5.7221 1.81957C5.75549 1.81423 5.80015 1.81253 6.01639 1.81253H8.48349C8.69973 1.81253 8.74439 1.81423 8.77779 1.81957C8.95361 1.84764 9.10576 1.95731 9.188 2.11523C9.20362 2.14522 9.21936 2.18705 9.28773 2.39219L9.36254 2.61662L9.39158 2.70163C9.42103 2.78304 9.45526 2.86177 9.49389 2.93753H5.00599Z"
+              fill="none" stroke="currentColor" />
+            <path
+              d="M2.6862 5.33761C2.66553 5.02764 2.3975 4.79311 2.08752 4.81377C1.77755 4.83444 1.54302 5.10247 1.56369 5.41245L1.91127 10.6262C1.9754 11.5883 2.02719 12.3654 2.14867 12.9752C2.27497 13.6092 2.48978 14.1387 2.93348 14.5538C3.37718 14.9689 3.91984 15.1481 4.56083 15.2319C5.17735 15.3126 5.95616 15.3125 6.92033 15.3125H7.5795C8.54367 15.3125 9.32254 15.3126 9.93906 15.2319C10.58 15.1481 11.1227 14.9689 11.5664 14.5538C12.0101 14.1387 12.2249 13.6092 12.3512 12.9752C12.4727 12.3654 12.5245 11.5883 12.5886 10.6263L12.9362 5.41245C12.9569 5.10247 12.7223 4.83444 12.4124 4.81377C12.1024 4.79311 11.8344 5.02764 11.8137 5.33761L11.4687 10.5119C11.4013 11.5228 11.3533 12.2262 11.2479 12.7554C11.1456 13.2688 11.0029 13.5405 10.7978 13.7323C10.5928 13.9242 10.3121 14.0485 9.79314 14.1164C9.25809 14.1864 8.55308 14.1875 7.53995 14.1875H6.95993C5.9468 14.1875 5.24179 14.1864 4.70674 14.1164C4.18774 14.0485 3.90712 13.9242 3.70206 13.7323C3.497 13.5405 3.35425 13.2687 3.25199 12.7554C3.14656 12.2262 3.09854 11.5228 3.03115 10.5119L2.6862 5.33761Z"
+              fill="none" stroke="currentColor" />
+            <path
+              d="M5.31898 6.69032C5.62809 6.65941 5.90374 6.88494 5.93466 7.19406L6.30966 10.9441C6.34057 11.2532 6.11504 11.5288 5.80592 11.5597C5.4968 11.5906 5.22115 11.3651 5.19024 11.056L4.81524 7.306C4.78433 6.99688 5.00986 6.72123 5.31898 6.69032Z"
+              fill="none" stroke="currentColor" />
+            <path
+              d="M9.18092 6.69032C9.49004 6.72123 9.71557 6.99688 9.68466 7.306L9.30966 11.056C9.27874 11.3651 9.00309 11.5906 8.69398 11.5597C8.38486 11.5288 8.15933 11.2532 8.19024 10.9441L8.56524 7.19406C8.59615 6.88494 8.8718 6.65941 9.18092 6.69032Z"
+              fill="none" stroke="currentColor" />
+          </svg>
+          }
+          <span>Delete</span>
+        </button>
+
+        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteModal(document)">
+          Close
+        </button>
+      </app-popup>
+
+
+      }
+      @else {
       @if (uploadProgress[document.key] !== undefined) {
       <button class="view-btn d-flex align-items-center" disabled title="Uploading">
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -130,6 +227,8 @@
       }
       }
     </td>
+
+
   </ng-template>
 
   <!-- Empty Template -->

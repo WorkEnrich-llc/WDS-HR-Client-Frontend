@@ -273,6 +273,11 @@
     <!-- Join Status Section -->
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
         <!-- Future join date -->
+        @if (isCancelContract()) {
+        <h5 class="m-0 text-center">
+            {{ employee.contact_info.name }} his contract has been cancelled.
+        </h5>
+        }
         @if (isJoiningFuture() && !isJoiningToday()) {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} will join on
@@ -310,8 +315,8 @@
     </div>
 
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
-        <app-contracts-tab [employee]="employee"
-            (upcomingContractIdChange)="setUpcomingContractId($event)"></app-contracts-tab>
+        <app-contracts-tab [employee]="employee" (upcomingContractIdChange)="setUpcomingContractId($event)"
+            (contractsDataUpdated)="handleContractsUpdate()"></app-contracts-tab>
     </div>
     <!-- Contracts Section -->
 

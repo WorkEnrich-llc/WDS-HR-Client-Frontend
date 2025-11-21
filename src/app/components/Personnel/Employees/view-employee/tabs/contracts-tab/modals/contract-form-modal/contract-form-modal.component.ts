@@ -49,10 +49,12 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
     if (this.isEditMode && this.contract?.status === 'Active') {
       this.contractForm.get('startDate')?.disable({ emitEvent: false });
+      this.contractForm.get('endDate')?.disable({ emitEvent: false });
       this.contractForm.get('withEndDate')?.disable({ emitEvent: false });
       this.contractForm.get('noticePeriod')?.disable({ emitEvent: false });
     } else {
       this.contractForm.get('startDate')?.enable({ emitEvent: false });
+      this.contractForm.get('endDate')?.enable({ emitEvent: false });
       this.contractForm.get('withEndDate')?.enable({ emitEvent: false });
       this.contractForm.get('noticePeriod')?.enable({ emitEvent: false });
     }
