@@ -149,7 +149,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                         id: item.id,
                         integrationName: item.name || `Integration ${String(item.id).padStart(3, '0')}`,
                         createDate: this.formatDate(item.created_at),
-                        expiryDate: this.formatDate(item.expires_at),
+                        expiryDate: this.formatExpiryDate(item.expires_at, item.no_expire),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
                         key: item.access_key || '--',
@@ -180,6 +180,17 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     private formatDate(dateString: string): string {
         if (!dateString) return '--';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB');
+    }
+
+    /**
+     * Format expiry date - returns formatted date or message if no expiry
+     */
+    private formatExpiryDate(dateString: string, noExpire: boolean): string {
+        if (noExpire || !dateString) {
+            return 'No expiry date';
+        }
         const date = new Date(dateString);
         return date.toLocaleDateString('en-GB');
     }
