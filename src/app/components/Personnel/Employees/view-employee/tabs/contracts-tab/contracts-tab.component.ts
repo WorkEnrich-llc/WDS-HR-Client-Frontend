@@ -34,9 +34,13 @@ import { finalize } from 'rxjs';
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
+  private employeeService = inject(EmployeeService);
 
   @Output() upcomingContractIdChange = new EventEmitter<number | null>();
   private upcomingContractId: number | null = null;
+
+  @Output() contractsDataUpdated = new EventEmitter<void>();
+  private upcomingContract: number | null = null;
 
 
   private toasterService = inject(ToasterMessageService);
@@ -67,7 +71,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // isOpen = false;
   isEditMode = false;
 
-  constructor(private employeeService: EmployeeService) { }
+  constructor() { }
 
   ngOnInit(): void {
     // Don't load here - let ngOnChanges handle it when employee input is set
@@ -98,6 +102,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         const activeContract = this.contractsData.find(contract => contract.status === 'Upcoming');
         this.upcomingContractId = activeContract ? activeContract.id : null;
         this.upcomingContractIdChange.emit(this.upcomingContractId);
+
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
@@ -248,6 +253,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.totalItems = this.contractsData.length;
         // this.loadEmployeeContracts();
         // Show success message
+        this.contractsDataUpdated.emit();
       },
       error: (error) => {
         this.isLoading = false;
@@ -312,6 +318,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
           this.closeAddModal();
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
@@ -347,6 +354,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           this.loadEmployeeContracts();
           this.closeAddModal();
           // Show success message
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error creating contract:', error);
@@ -502,6 +510,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
     this.toasterService.showSuccess('contract resignation processed successfully');
+    this.loadEmployeeContracts();
     // TODO: Add toast notification
   }
 

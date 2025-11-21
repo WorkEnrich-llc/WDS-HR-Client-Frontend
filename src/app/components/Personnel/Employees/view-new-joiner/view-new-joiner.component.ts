@@ -60,6 +60,7 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.route.params.subscribe(params => {
       this.employeeId = +params['id'];
       if (this.employeeId) {
@@ -88,6 +89,22 @@ export class ViewNewJoinerComponent implements OnInit {
       error: (error) => {
         console.error('Error loading new joiner:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  // handleContractsUpdate(): void {
+  //   this.loadEmployeeData();
+  // }
+
+  handleContractsUpdate(): void {
+    this.employeeService.getEmployeeById(this.employeeId).subscribe({
+      next: (response) => {
+        this.employee = response.data.object_info;
+        console.log('Parent employee data updated without full reload.');
+      },
+      error: (error) => {
+        console.error('Error updating employee info after contract change:', error);
       }
     });
   }
@@ -197,6 +214,12 @@ export class ViewNewJoinerComponent implements OnInit {
     const today = new Date();
     const joinDate = new Date(this.employee.job_info.start_contract);
     return joinDate > today;
+  }
+
+  // Check if Cancel Contract
+  isCancelContract(): boolean {
+    if (!this.employee) return false;
+    return this.employee.job_info.start_contract === null;
   }
 
   // Helper method to check subscription permissions

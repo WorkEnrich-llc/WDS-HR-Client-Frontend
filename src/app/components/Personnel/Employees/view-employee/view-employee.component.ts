@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -46,7 +46,7 @@ export class ViewEmployeeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toasterMessageService = inject(ToasterMessageService);
   private customFieldsService = inject(CustomFieldsService);
-
+  private changeDetector = inject(ChangeDetectorRef);
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
@@ -164,6 +164,8 @@ export class ViewEmployeeComponent implements OnInit {
             doc.fileType = item.info?.file_type;
           }
         });
+        this.documentsRequired.forEach(d => d.isLoading = false);
+        this.changeDetector.detectChanges();
       },
       error: (error) => console.error('Error loading documents', error)
     });
@@ -777,10 +779,17 @@ export class ViewEmployeeComponent implements OnInit {
           const doc = this.documentsRequired.find(d => d.key === docKey);
           if (doc) {
             doc.uploaded = true;
+            doc.isLoading = true;
           }
-          delete this.uploadProgress[docKey];
+          const spinnerHideDelay = 700;
+          setTimeout(() => {
+            delete this.uploadProgress[docKey];
+          }, spinnerHideDelay);
           this.loadEmployeeDocuments();
+          // delete this.uploadProgress[docKey];
           // this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+          input.value = '';
+          this.selectedDocumentKey = null;
 
         }
       }, error => {
