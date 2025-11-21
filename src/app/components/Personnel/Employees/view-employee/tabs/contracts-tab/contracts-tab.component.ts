@@ -13,7 +13,6 @@ import { ContractTerminateModalComponent } from './modals/contract-terminate-mod
 import { ContractTerminatedViewModalComponent } from './modals/contract-terminated-view-modal/contract-terminated-view-modal.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { finalize } from 'rxjs';
-import { EventSharedService } from '../../event-shared.service';
 
 @Component({
   standalone: true,
@@ -36,10 +35,12 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
   private employeeService = inject(EmployeeService);
-  private events = inject(EventSharedService);
 
   @Output() upcomingContractIdChange = new EventEmitter<number | null>();
   private upcomingContractId: number | null = null;
+
+  @Output() contractsDataUpdated = new EventEmitter<void>();
+  private upcomingContract: number | null = null;
 
 
   private toasterService = inject(ToasterMessageService);
@@ -83,7 +84,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       const currentId = changes['employee'].currentValue?.id;
       if (previousId !== currentId) {
         this.loadEmployeeContracts();
-        this.events.notifyContractsUpdated();
       }
     }
   }
@@ -102,6 +102,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         const activeContract = this.contractsData.find(contract => contract.status === 'Upcoming');
         this.upcomingContractId = activeContract ? activeContract.id : null;
         this.upcomingContractIdChange.emit(this.upcomingContractId);
+
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
@@ -252,6 +253,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.totalItems = this.contractsData.length;
         // this.loadEmployeeContracts();
         // Show success message
+        this.contractsDataUpdated.emit();
       },
       error: (error) => {
         this.isLoading = false;
@@ -262,7 +264,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
     });
     this.loadEmployeeContracts();
-    this.events.notifyContractsUpdated();
   }
 
   // Edit contract
@@ -316,8 +317,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           this.toasterService.showSuccess('Contract adjusted successfully');
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
-          this.events.notifyContractsUpdated();
           this.closeAddModal();
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
@@ -351,9 +352,9 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // Reload contracts to get updated list
           this.toasterService.showSuccess('Contract created successfully');
           this.loadEmployeeContracts();
-          this.events.notifyContractsUpdated();
           this.closeAddModal();
           // Show success message
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error creating contract:', error);
@@ -463,7 +464,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     });
     this.toasterService.showSuccess('contract terminated successfully');
     this.loadEmployeeContracts();
-    this.events.notifyContractsUpdated();
     // TODO: Add toast notification
   }
 
@@ -511,7 +511,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     });
     this.toasterService.showSuccess('contract resignation processed successfully');
     this.loadEmployeeContracts();
-    this.events.notifyContractsUpdated();
     // TODO: Add toast notification
   }
 
