@@ -142,6 +142,7 @@ export class ViewEmployeeComponent implements OnInit {
       { name: 'Policies', key: 'policies', uploaded: false },
       { name: 'Official Forms', key: 'official_forms', uploaded: false },
       // { name: 'ID Back', key: 'id_back', uploaded: false },
+      // { name: 'ID Front', key: 'id_front', uploaded: false },
       { name: 'Driver License', key: 'driver_license', uploaded: false },
       { name: '101 Medical File', key: '101_medical_file', uploaded: false },
       { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
@@ -780,11 +781,13 @@ export class ViewEmployeeComponent implements OnInit {
         } else if (event.type === HttpEventType.Response) {
           // upload complete
           this.loadEmployeeDocuments();
+          this.loadEmployeeDetails();
           const doc = this.documentsRequired.find(d => d.key === docKey);
           if (doc) {
             doc.uploaded = true;
-            doc.isLoading = true;
+            doc.isLoading = false;
           }
+
           const spinnerHideDelay = 900;
           setTimeout(() => {
             delete this.uploadProgress[docKey];
@@ -795,6 +798,7 @@ export class ViewEmployeeComponent implements OnInit {
           this.selectedDocumentKey = null;
 
         }
+
       }, error => {
         console.error('Error uploading document', error);
         delete this.uploadProgress[docKey];
@@ -804,6 +808,17 @@ export class ViewEmployeeComponent implements OnInit {
     // reset input and selected key
     input.value = '';
     this.selectedDocumentKey = null;
+  }
+
+  loadEmployeeDetails(): void {
+    if (!this.employee) return;
+    this.employeeService.getEmployeeById(this.employeeId).subscribe({
+      next: (res) => {
+        this.employee = res.data.object_info;
+        this.changeDetector.detectChanges();
+      },
+      error: (error) => console.error('Error loading employee details', error)
+    });
   }
 
   /** Delete an uploaded document */
@@ -849,6 +864,7 @@ export class ViewEmployeeComponent implements OnInit {
         doc.isDeleteModalOpen = false;
 
         this.documentsRequired = [...this.documentsRequired];
+        this.loadEmployeeDetails();
 
         // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
       },
