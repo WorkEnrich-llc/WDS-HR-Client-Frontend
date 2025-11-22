@@ -135,6 +135,7 @@ export class ViewEmployeeComponent implements OnInit {
     fileType?: string;
     isLoading?: boolean;
     isDeleteModalOpen?: boolean;
+    isEditable?: boolean;
   }> = [
       { name: 'CV', key: 'cv', uploaded: false },
       { name: 'ID', key: 'id', uploaded: false },
@@ -148,6 +149,19 @@ export class ViewEmployeeComponent implements OnInit {
       { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
       { name: 'Background Check', key: 'background_check', uploaded: false }
     ];
+
+
+  addNewDocument() {
+    const uniqueId = Date.now();
+    this.documentsRequired.push({
+      name: '',
+      key: `custom_doc_${uniqueId}`,
+      uploaded: false,
+      isEditable: true,
+      isDeleteModalOpen: false
+    });
+  }
+
 
   // Load existing documents for employee
   loadEmployeeDocuments(): void {
@@ -769,7 +783,7 @@ export class ViewEmployeeComponent implements OnInit {
     fileInput.click();
   }
 
-  onFileSelected(event: Event): void {
+  onFileSelecteds(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0 && this.selectedDocumentKey && this.employee) {
       const file = input.files[0];
@@ -809,6 +823,138 @@ export class ViewEmployeeComponent implements OnInit {
     input.value = '';
     this.selectedDocumentKey = null;
   }
+
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0 || !this.selectedDocumentKey || !this.employee) {
+      return;
+    }
+
+    const file = input.files[0];
+    const docKey = this.selectedDocumentKey;
+
+    const currentDoc = this.documentsRequired.find(d => d.key === docKey);
+
+    if (currentDoc && currentDoc.isEditable && (!currentDoc.name || currentDoc.name.trim() === '')) {
+      this.toasterMessageService.showError('Add File Name before selecting a file');
+      input.value = '';
+      this.selectedDocumentKey = null;
+      return;
+    }
+
+    this.employeeService.uploadEmployeeDocument(this.employee.id, docKey, file).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * (event.loaded / (event.total || 1)));
+          this.uploadProgress[docKey] = percentDone;
+        }
+        else if (event.type === HttpEventType.Response) {
+
+          // this.loadEmployeeDocuments(); 
+
+          if (currentDoc) {
+            currentDoc.uploaded = true;
+            currentDoc.isLoading = false;
+            currentDoc.isEditable = false;
+
+            currentDoc.fileName = file.name;
+            currentDoc.size = file.size / 1024;
+            currentDoc.uploadDate = new Date().toISOString();
+          }
+
+          const spinnerHideDelay = 900;
+          setTimeout(() => {
+            delete this.uploadProgress[docKey];
+          }, spinnerHideDelay);
+
+          this.toasterMessageService.showSuccess('Document uploaded successfully');
+
+          input.value = '';
+          this.selectedDocumentKey = null;
+        }
+      },
+      error: (error) => {
+        console.error('Error uploading document', error);
+
+        delete this.uploadProgress[docKey];
+        if (currentDoc) {
+          currentDoc.isLoading = false;
+        }
+
+        this.toasterMessageService.showError('Error uploading document');
+
+        input.value = '';
+        this.selectedDocumentKey = null;
+      }
+    });
+  }
+
+
+
+  // onFileSelected(event: Event): void {
+  //   const input = event.target as HTMLInputElement;
+
+
+
+  //   if (!input.files || input.files.length === 0 || !this.selectedDocumentKey || !this.employee) {
+  //     return;
+  //   }
+
+  //   const currentDoc = this.documentsRequired.find(d => d.key === this.selectedDocumentKey);
+
+  //   if (currentDoc && currentDoc.isEditable && !currentDoc.name.trim()) {
+  //     this.toasterMessageService.showError('Please enter document name before selecting a file');
+  //     input.value = '';
+  //     return;
+  //   }
+
+  //   const file = input.files[0];
+  //   const docKey = this.selectedDocumentKey;
+
+
+
+
+
+  //   // if (input.files && input.files.length > 0 && this.selectedDocumentKey && this.employee) {
+  //   // const file = input.files[0];
+  //   // const docKey = this.selectedDocumentKey;
+  //   this.employeeService.uploadEmployeeDocument(this.employee.id, docKey, file).subscribe(event => {
+  //     if (event.type === HttpEventType.UploadProgress) {
+  //       const percentDone = Math.round(100 * (event.loaded / (event.total || 1)));
+  //       this.uploadProgress[docKey] = percentDone;
+  //     } else if (event.type === HttpEventType.Response) {
+  //       // upload complete
+  //       this.loadEmployeeDocuments();
+  //       this.loadEmployeeDetails();
+  //       const doc = this.documentsRequired.find(d => d.key === docKey);
+  //       if (doc) {
+  //         doc.uploaded = true;
+  //         doc.isLoading = false;
+  //       }
+
+  //       const spinnerHideDelay = 900;
+  //       setTimeout(() => {
+  //         delete this.uploadProgress[docKey];
+  //       }, spinnerHideDelay);
+  //       // delete this.uploadProgress[docKey];
+  //       this.toasterMessageService.showSuccess(`${docKey} uploaded successfully`);
+  //       input.value = '';
+  //       this.selectedDocumentKey = null;
+
+  //     }
+
+  //   }, error => {
+  //     console.error('Error uploading document', error);
+  //     delete this.uploadProgress[docKey];
+  //     // this.toasterMessageService.showError(`Error uploading ${docKey}`);
+  //   });
+  //   // }
+  //   // reset input and selected key
+  //   input.value = '';
+  //   this.selectedDocumentKey = null;
+  // }
 
   loadEmployeeDetails(): void {
     if (!this.employee) return;

@@ -675,7 +675,8 @@
           } @if (currentTab === 'documents') {
           <app-documents-tab [employee]="employee" [documentsRequired]="documentsRequired"
             [uploadProgress]="uploadProgress" (fileSelected)="onFileSelected($event)"
-            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)">
+            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)"
+            (addDocumentClick)="addNewDocument()">
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
           <app-contracts-tab [employee]="employee"> </app-contracts-tab>

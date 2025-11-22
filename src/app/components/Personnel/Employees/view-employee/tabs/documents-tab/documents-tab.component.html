@@ -1,6 +1,12 @@
 <div class="documents-content">
   <h2 class="mb-3">Documents Checklist</h2>
 
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="onAddNewDocument()">
+      <span>add</span>
+    </button>
+  </div>
+
   <!-- hidden file input for uploads -->
   <input type="file" #fileInput (change)="onFileSelected($event)" hidden />
 
@@ -25,7 +31,15 @@
 
   <!-- Row Template -->
   <ng-template #documentsTableRow let-document>
-    <td>{{ document.name }}</td>
+    <!-- <td>{{ document.name }}</td> -->
+    <td>
+      @if (document.isEditable && !document.uploaded) {
+      <input type="text" class="form-control form-control-sm" [(ngModel)]="document.name" placeholder="Document Name"
+        required>
+      } @else {
+      {{ document.name }}
+      }
+    </td>
     <td>
       @if (document.uploaded) {
       {{ getFormattedDate(document.uploadDate) }}
