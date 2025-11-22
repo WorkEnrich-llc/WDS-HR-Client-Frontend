@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Branch } from '../../../../../core/interfaces/branch';
 import { Department } from '../../../../../core/interfaces/department';
 import { JobTitle } from '../../../../../core/interfaces/job-title';
@@ -122,6 +122,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
+        profile_img:new FormControl(''),
         code: [''],
         name_english: ['', [Validators.required, fourPartsValidator()]],
         name_arabic: ['', [Validators.required, arabicNameValidator()]],
