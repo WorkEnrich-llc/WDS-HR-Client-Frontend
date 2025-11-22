@@ -492,38 +492,141 @@ export class EditJobComponent {
   noResultsFound: boolean = false;
   loadJobs: boolean = false;
   selectJobError: boolean = false;
+  // getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
+  //   this.loadJobs = true;
+  //   const managementLevel = this.jobStep1.get('managementLevel')?.value;
+  //   this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
+  //     management_level: managementLevel,
+  //     search: this.searchTerm,
+  //     request_in: 'create'
+  //   }).subscribe({
+  //     next: (response) => {
+  //       this.ManageCurrentPage = Number(response.data.page);
+  //       this.ManageTotalItems = response.data.total_items;
+  //       this.ManagetotalPages = response.data.total_pages;
+
+  //       this.jobTitles = response.data.list_items.map((item: any) => {
+  //         const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
+  //         return {
+  //           id: item.id,
+  //           name: item.name,
+  //           assigned: isAssigned || false
+  //         };
+  //       });
+  //       this.sortDirection = 'desc';
+  //       this.currentSortColumn = 'id';
+  //       this.sortBy();
+  //       this.loadJobs = false;
+  //     },
+  //     error: (err) => {
+  //       console.error(err.error?.details);
+  //       this.loadJobs = false;
+  //     }
+  //   });
+  // }
+
+
+  allActiveJobTitles: any[] = [];
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
     this.loadJobs = true;
-    const managementLevel = this.jobStep1.get('managementLevel')?.value;
-    this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
-      management_level: managementLevel,
-      search: this.searchTerm,
-      request_in: 'create'
-    }).subscribe({
-      next: (response) => {
-        this.ManageCurrentPage = Number(response.data.page);
-        this.ManageTotalItems = response.data.total_items;
-        this.ManagetotalPages = response.data.total_pages;
 
-        this.jobTitles = response.data.list_items.map((item: any) => {
+    const managementLevel = this.jobStep1.get('managementLevel')?.value;
+
+    this._JobsService.getAllJobTitles(
+      ManageCurrentPage,
+      this.manageItemsPerPage,
+      {
+        management_level: managementLevel,
+        search: this.searchTerm,
+        request_in: 'create',
+        status: 'true'
+      }
+    ).subscribe({
+      next: (response) => {
+
+        const activeList = response.data.list_items.map((item: any) => {
           const isAssigned = this.jobTitleData?.assigns?.some((assigned: any) => assigned.id === item.id);
           return {
             id: item.id,
             name: item.name,
-            assigned: isAssigned || false
+            assigned: isAssigned || false,
+            is_active: item.is_active
           };
         });
+
+        const originalAssigned = this.jobTitleData?.assigns?.[0];
+        if (originalAssigned && originalAssigned.is_active === false) {
+          this.removedManager = {
+            id: originalAssigned.id,
+            name: originalAssigned.name + ' (Not Active)',
+            assigned: true,
+            is_active: false
+          };
+        } else {
+          this.removedManager = null;
+        }
+
+        this.ManageCurrentPage = Number(response.data.page);
+        this.ManageTotalItems = response.data.total_items;
+        this.ManagetotalPages = Math.ceil(this.ManageTotalItems / this.manageItemsPerPage);
+
+        this.jobTitles = activeList;
+
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+
+
+        this.allActiveJobTitles = activeList;
+        this.checkOriginalManagerStatus();
+
         this.loadJobs = false;
       },
-      error: (err) => {
-        console.error(err.error?.details);
+      error: () => {
         this.loadJobs = false;
       }
     });
   }
+
+
+  
+  checkOriginalManagerStatus() {
+    const managementLevel = this.jobStep1.get('managementLevel')?.value;
+
+    const itemsPerPageForCheck = 10000;
+
+    this._JobsService.getAllJobTitles(
+      1,
+      itemsPerPageForCheck,
+      {
+        management_level: managementLevel,
+        status: 'true',
+        request_in: 'create'
+      }
+    ).subscribe({
+      next: (response: any) => {
+        const allActiveJobTitles = response.data.list_items;
+        const originalAssigned = this.jobTitleData?.assigns?.[0];
+
+        if (originalAssigned) {
+          const existsInActive = allActiveJobTitles.some((j: { id: any; }) => j.id === originalAssigned.id);
+          if (!existsInActive) {
+            this.removedManager = {
+              ...originalAssigned,
+              is_active: false,
+              name: originalAssigned.name + ' (Not Active)'
+            };
+          } else {
+            this.removedManager = null;
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error checking original manager status', err);
+      }
+    });
+  }
+
 
 
   onSearchChange(event: any) {
@@ -723,14 +826,40 @@ export class EditJobComponent {
     } else if (this.removedManagerId !== null) {
       return this.removedManager;
     } else if (this.jobTitleData?.assigns?.length > 0) {
-      return this.jobTitleData.assigns[0];
+      const originalAssigned = this.jobTitleData.assigns[0];
+
+      const existsInAllPages = this.allActiveJobTitles?.some(j => j.id === originalAssigned.id);
+
+      if (!existsInAllPages) {
+        return {
+          ...originalAssigned,
+          is_active: false,
+          name: originalAssigned.name + ' (Not Active)'
+        };
+      }
+
+      return originalAssigned;
     }
     return null;
   }
 
+
+
   hasAssignedManager(): boolean {
+    const hadOriginalManager = this.originalAssignedIds?.length > 0;
+
+    if (!hadOriginalManager) {
+      return true;
+    }
+
+    const availableManagers = this.jobTitles.filter(j => j.id !== this.numericJobId);
+    if (availableManagers.length === 0) {
+      return true;
+    }
+
     return !!this.currentManager;
   }
+
 
 
   // input multibule data step 4

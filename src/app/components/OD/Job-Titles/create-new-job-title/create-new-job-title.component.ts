@@ -280,11 +280,14 @@ export class CreateNewJobTitleComponent {
         this.ManageTotalItems = response.data.total_items;
         this.ManagetotalPages = response.data.total_pages;
 
-        this.jobTitles = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          assigned: false
-        }));
+        this.jobTitles = response.data.list_items
+          .filter((item: any) => item.is_active === true)
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            assigned: false
+          }));
+
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();

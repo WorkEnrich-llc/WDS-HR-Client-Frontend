@@ -645,11 +645,13 @@
         <h6>Job Title Code</h6>
         <span>{{ currentManager?.code }}</span>
       </div>
-      }
+      } 
 
       <div class="info">
         <h6>Job Title</h6>
-        <span>{{ currentManager?.name }}</span>
+        <span [ngClass]="currentManager?.is_active === false ? 'text-danger' : ''">
+          {{ currentManager?.name }}
+        </span>
       </div>
 
       <!-- <div>
@@ -755,8 +757,7 @@
               </a>
               }@else {
               <span class="text-danger fw-semibold d-flex align-items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                  viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                   <g fill="none" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
                     <circle cx="12" cy="12" r="10" />
