@@ -85,7 +85,7 @@ export class PermissionComponent implements OnInit {
 
     const formData = new FormData();
 
-    formData.append('is_shared_minutes', this.tempIsShared ? '1' : '0');
+    formData.append('is_shared_minutes', this.tempIsShared ? 'true' : 'false');
 
     formData.append('late_arrive_minutes', late.minutes ? late.minutes.toString() : '');
     formData.append('late_arrive_note', late.note || '');

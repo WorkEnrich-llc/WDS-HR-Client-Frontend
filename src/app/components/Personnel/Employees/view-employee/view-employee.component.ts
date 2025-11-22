@@ -89,26 +89,7 @@ export class ViewEmployeeComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef;
   profileImage: string = './images/profile-defult.jpg';
 
-  triggerUpload() {
-    this.fileInput.nativeElement.click();
-  }
 
-  onImageSelected(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      alert('Only JPG, PNG, WEBP images are allowed!');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.profileImage = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';

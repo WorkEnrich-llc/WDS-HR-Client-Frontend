@@ -265,41 +265,49 @@ export class CreateNewJobTitleComponent {
   loadJobs: boolean = false;
   selectJobError: boolean = false;
 
-  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
-    this.loadJobs = true;
-    const managementLevel = this.jobStep1.get('managementLevel')?.value;
-    this.loadData = true;
-    this._JobsService.getAllJobTitles(ManageCurrentPage, this.manageItemsPerPage, {
+ getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
+  this.loadJobs = true;
+  const managementLevel = this.jobStep1.get('managementLevel')?.value;
+  this.loadData = true;
+
+  this._JobsService.getAllJobTitles(
+    ManageCurrentPage,
+    this.manageItemsPerPage,
+    {
       management_level: managementLevel,
       search: this.searchTerm,
-      request_in: 'create'
-    }).subscribe({
-      next: (response) => {
-        this.loadData = false;
-        this.ManageCurrentPage = Number(response.data.page);
-        this.ManageTotalItems = response.data.total_items;
-        this.ManagetotalPages = response.data.total_pages;
+      request_in: 'create',
+      status: 'true' 
+    }
+  ).subscribe({
+    next: (response) => {
+      this.loadData = false;
 
-        this.jobTitles = response.data.list_items
-          .filter((item: any) => item.is_active === true)
-          .map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            assigned: false
-          }));
+      this.ManageCurrentPage = Number(response.data.page);
+      this.ManageTotalItems = response.data.total_items;
+      this.ManagetotalPages = response.data.total_pages;
 
-        this.sortDirection = 'desc';
-        this.currentSortColumn = 'id';
-        this.sortBy();
-        this.loadJobs = false;
-      },
-      error: (err) => {
-        this.loadData = false;
-        console.error(err.error?.details);
-        this.loadJobs = false;
-      }
-    });
-  }
+      this.jobTitles = response.data.list_items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        assigned: false
+      }));
+
+      this.sortDirection = 'desc';
+      this.currentSortColumn = 'id';
+      this.sortBy();
+
+      this.loadJobs = false;
+    },
+
+    error: (err) => {
+      this.loadData = false;
+      console.error(err.error?.details);
+      this.loadJobs = false;
+    }
+  });
+}
+
   onSearchChange(event: any) {
     this.searchTerm = event.target.value;
     this.searchSubject.next(this.searchTerm);
