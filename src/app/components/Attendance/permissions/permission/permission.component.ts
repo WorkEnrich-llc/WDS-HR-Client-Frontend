@@ -68,7 +68,7 @@ export class PermissionComponent implements OnInit {
   //   this.filterBox.closeOverlay();
   // }
 
-  saveSettings() {
+  saveSetting() {
     if (this.permissions) {
       this.permissions.is_shared_minutes = this.tempIsShared;
     }
@@ -76,7 +76,7 @@ export class PermissionComponent implements OnInit {
   }
 
 
-  saveSetting() {
+  saveSettings() {
     this.isLoading = true;
 
     const late = this.permissions?.late_arrive || {};
