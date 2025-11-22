@@ -479,6 +479,8 @@ export class CreateNewJobTitleComponent {
   newRequirement: string = '';
   formSubmitted = false;
   inputTouched: boolean = false;
+  editingIndex: number | null = null;
+
   isFormInvalid(): boolean {
     return this.jobStep4.invalid || this.requirements.length === 0;
   }
@@ -486,21 +488,42 @@ export class CreateNewJobTitleComponent {
   showInputField() {
     this.showInput = true;
     this.newRequirement = '';
+    this.editingIndex = null;
   }
   onInputBlur() {
     this.inputTouched = true;
     this.confirmRequirement();
   }
+  // confirmRequirement() {
+  //   if (this.newRequirement.trim()) {
+  //     this.requirements.push(this.newRequirement.trim());
+  //   }
+  //   this.newRequirement = '';
+  //   this.showInput = false;
+  // }
+
   confirmRequirement() {
     if (this.newRequirement.trim()) {
-      this.requirements.push(this.newRequirement.trim());
+      if (this.editingIndex !== null) {
+        this.requirements[this.editingIndex] = this.newRequirement.trim();
+        this.editingIndex = null;
+      } else {
+        this.requirements.push(this.newRequirement.trim());
+      }
     }
     this.newRequirement = '';
     this.showInput = false;
+    this.editingIndex = null;
   }
 
   deleteRequirement(index: number) {
     this.requirements.splice(index, 1);
+  }
+
+  editRequirement(index: number) {
+    this.editingIndex = index;
+    this.newRequirement = this.requirements[index];
+    this.showInput = true;
   }
 
   // discard popup

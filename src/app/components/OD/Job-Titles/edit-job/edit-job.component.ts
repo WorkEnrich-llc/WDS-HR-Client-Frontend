@@ -589,7 +589,7 @@ export class EditJobComponent {
   }
 
 
-  
+
   checkOriginalManagerStatus() {
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
 
@@ -870,6 +870,10 @@ export class EditJobComponent {
   newRequirement: string = '';
   formSubmitted = false;
   inputTouched: boolean = false;
+
+  editingIndex: number | null = null;
+
+
   isFormInvalid(): boolean {
     return this.jobStep4.invalid || this.requirements.length === 0;
   }
@@ -877,23 +881,45 @@ export class EditJobComponent {
   showInputField() {
     this.showInput = true;
     this.newRequirement = '';
+    this.editingIndex = null;
   }
   onInputBlur() {
     this.inputTouched = true;
     this.confirmRequirement();
   }
+  // confirmRequirement() {
+  //   if (this.newRequirement.trim()) {
+  //     this.requirements.push(this.newRequirement.trim());
+  //     this.checkForChanges();
+  //   }
+  //   this.newRequirement = '';
+  //   this.showInput = false;
+  // }
+
   confirmRequirement() {
     if (this.newRequirement.trim()) {
-      this.requirements.push(this.newRequirement.trim());
+      if (this.editingIndex !== null) {
+        this.requirements[this.editingIndex] = this.newRequirement.trim();
+        this.editingIndex = null;
+      } else {
+        this.requirements.push(this.newRequirement.trim());
+      }
       this.checkForChanges();
     }
     this.newRequirement = '';
     this.showInput = false;
+    this.editingIndex = null;
   }
 
   deleteRequirement(index: number) {
     this.requirements.splice(index, 1);
     this.checkForChanges();
+  }
+
+  editRequirement(index: number) {
+    this.editingIndex = index;
+    this.newRequirement = this.requirements[index];
+    this.showInput = true;
   }
 
   // discard popup
