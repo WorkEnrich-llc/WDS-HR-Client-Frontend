@@ -850,6 +850,13 @@ export const routes: Routes = [
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Permissions_Control', action: 'update' }
               },
+              {
+                path: 'edit-shared-minutes',
+                loadComponent: () => import('./components/Attendance/permissions/edit-shared-minutes/edit-shared-minutes.component').then(m => m.EditSharedMinutesComponent),
+                title: 'Edit Shared Minutes',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Permissions_Control', action: 'update' }
+              },
             ]
           },
 
