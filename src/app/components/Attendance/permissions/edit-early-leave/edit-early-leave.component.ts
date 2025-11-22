@@ -106,12 +106,23 @@ export class EditEarlyLeaveComponent {
       note: null
     };
 
+    const sharedMinutes = this.permissions?.shared_minutes || {
+      minutes: null,
+      note: null
+    };
+
+
     const late_arrive_status =
       (lateFromApi.minutes && lateFromApi.minutes !== 0) ||
         (lateFromApi.note && lateFromApi.note.trim() !== '')
         ? 'true'
         : 'false';
 
+    const sharedMinutesHasContent =
+      (sharedMinutes.minutes !== null && sharedMinutes.minutes !== undefined) ||
+      (sharedMinutes.note && sharedMinutes.note.trim() !== '');
+
+    const shared_minutes_status = sharedMinutesHasContent ? 'true' : 'false';
     const early_leave_status = this.allowPermission ? 'true' : 'false';
 
     const formData = new FormData();
@@ -123,6 +134,10 @@ export class EditEarlyLeaveComponent {
     formData.append('early_leave_minutes', this.minutes ? this.minutes.toString() : '');
     formData.append('early_leave_note', this.note || '');
     formData.append('early_leave_status', early_leave_status);
+
+    formData.append('shared_minutes', sharedMinutes.minutes !== null && sharedMinutes.minutes !== undefined ? sharedMinutes.minutes.toString() : '');
+    formData.append('shared_minutes_note', sharedMinutes.note || '');
+    formData.append('shared_minutes_status', shared_minutes_status);
 
     // console.log('FormData content:');
     // formData.forEach((value, key) => {

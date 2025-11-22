@@ -112,11 +112,21 @@ export class EditLateArriveComponent {
       note: null
     };
 
+    const sharedMinutes = this.permissions?.shared_minutes || {
+      minutes: null,
+      note: null
+    };
+
     // Determine whether early_leave has content (minutes defined or note non-empty)
     const earlyLeaveHasContent =
       (earlyLeave.minutes !== null && earlyLeave.minutes !== undefined) ||
       (earlyLeave.note && earlyLeave.note.trim() !== '');
 
+    const sharedMinutesHasContent =
+      (sharedMinutes.minutes !== null && sharedMinutes.minutes !== undefined) ||
+      (sharedMinutes.note && sharedMinutes.note.trim() !== '');
+
+    const shared_minutes_status = sharedMinutesHasContent ? 'true' : 'false';
     const early_leave_status = earlyLeaveHasContent ? 'true' : 'false';
     const late_arrive_status = this.allowPermission ? 'true' : 'false';
 
@@ -128,6 +138,11 @@ export class EditLateArriveComponent {
     formData.append('early_leave_minutes', earlyLeave.minutes !== null && earlyLeave.minutes !== undefined ? earlyLeave.minutes.toString() : '');
     formData.append('early_leave_note', earlyLeave.note || '');
     formData.append('early_leave_status', early_leave_status);
+
+
+    formData.append('shared_minutes', sharedMinutes.minutes !== null && sharedMinutes.minutes !== undefined ? sharedMinutes.minutes.toString() : '');
+    formData.append('shared_minutes_note', sharedMinutes.note || '');
+    formData.append('shared_minutes_status', shared_minutes_status);
 
     // console.log('FormData content:');
     // formData.forEach((value, key) => {
