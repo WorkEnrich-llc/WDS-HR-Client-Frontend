@@ -200,6 +200,31 @@ export class EditSharedMinutesComponent {
 
 
     this._PermissionsService.updatePermission(formData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.errMsg = '';
+        this.toasterService.showSuccess('Permissions updated successfully');
+        this.router.navigate(['/permissions']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const statusCode = err?.status;
+        const errorHandling = err?.error?.data?.error_handling;
+
+        if (statusCode === 400) {
+          if (Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errMsg = errorHandling[0].error;
+          } else if (err?.error?.details) {
+            this.errMsg = err.error.details;
+          } else {
+
+            this.errMsg = "An unexpected error occurred. Please try again later.";
+          }
+        } else {
+          this.errMsg = "An unexpected error occurred. Please try again later.";
+        }
+        this.toasterService.showError(this.errMsg);
+      }
     });
   }
 
