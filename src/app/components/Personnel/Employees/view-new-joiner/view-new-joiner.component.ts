@@ -109,8 +109,9 @@ export class ViewNewJoinerComponent implements OnInit {
     });
   }
 
-  updateProfileImageFromResponse(data: any) {
-    const pictureData = data?.object_info?.picture;
+
+  updateProfileImageFromResponse(response: any) {
+    const pictureData = response?.data?.object_info?.picture;
     if (pictureData?.generate_signed_url) {
       this.profileImage = pictureData.generate_signed_url;
     }
@@ -137,7 +138,7 @@ export class ViewNewJoinerComponent implements OnInit {
         this.employee = response.data.object_info;
         this.subscription = response.data.subscription;
         this.loading = false;
-
+        this.updateProfileImageFromResponse(response);
         // Load work schedule data if employee has a work schedule
         if (this.employee?.job_info?.work_schedule?.id) {
           this.loadWorkScheduleData(this.employee.job_info.work_schedule.id);
