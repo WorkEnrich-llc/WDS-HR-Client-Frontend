@@ -974,6 +974,7 @@ export class ViewEmployeeComponent implements OnInit {
 
             if (serverId) currentDoc.id = serverId;
             if (serverUrl) currentDoc.url = serverUrl;
+            currentDoc.isDeleteModalOpen = false;
           }
 
           this.documentsRequired = [...this.documentsRequired];
@@ -1100,45 +1101,45 @@ export class ViewEmployeeComponent implements OnInit {
   //   }
   // }
 
-  onDeletes(docKey: string): void {
-    const doc = this.documentsRequired.find(d => d.key === docKey);
+  // onDeletes(docKey: string): void {
+  //   const doc = this.documentsRequired.find(d => d.key === docKey);
 
-    if (!doc || !doc.id || doc.isLoading) {
-      if (!doc?.id) {
-        console.warn('Cannot delete document, missing ID.');
-      }
-      return;
-    }
+  //   if (!doc || !doc.id || doc.isLoading) {
+  //     if (!doc?.id) {
+  //       console.warn('Cannot delete document, missing ID.');
+  //     }
+  //     return;
+  //   }
 
-    doc.isLoading = true;
+  //   doc.isLoading = true;
 
-    this.documentsRequired = [...this.documentsRequired];
+  //   this.documentsRequired = [...this.documentsRequired];
 
-    this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
-      next: () => {
-        doc.uploaded = false;
-        delete doc.url;
-        delete doc.id;
-        doc.isLoading = false;
-        doc.isDeleteModalOpen = false;
-        this.loadEmployeeDetails();
+  //   this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
+  //     next: () => {
+  //       doc.uploaded = false;
+  //       delete doc.url;
+  //       delete doc.id;
+  //       doc.isLoading = false;
+  //       doc.isDeleteModalOpen = false;
+  //       this.loadEmployeeDetails();
 
-        this.documentsRequired = [...this.documentsRequired];
+  //       this.documentsRequired = [...this.documentsRequired];
 
-        // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
-      },
-      error: (error) => {
-        console.error('Error deleting document', error);
+  //       // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
+  //     },
+  //     error: (error) => {
+  //       console.error('Error deleting document', error);
 
-        doc.isLoading = false;
-        doc.isDeleteModalOpen = false;
+  //       doc.isLoading = false;
+  //       doc.isDeleteModalOpen = false;
 
-        this.documentsRequired = [...this.documentsRequired];
+  //       this.documentsRequired = [...this.documentsRequired];
 
-        // this.toasterMessageService.showError(`Error deleting ${docKey}`);
-      }
-    });
-  }
+  //       // this.toasterMessageService.showError(`Error deleting ${docKey}`);
+  //     }
+  //   });
+  // }
 
 
   onDelete(docKey: string): void {
@@ -1158,14 +1159,6 @@ export class ViewEmployeeComponent implements OnInit {
     doc.isLoading = true;
     this.employeeService.deleteEmployeeDocument(doc.id, this.employee!.id).subscribe({
       next: () => {
-        // if (doc.key.startsWith('custom_doc_')) {
-        //   this.documentsRequired.splice(docIndex, 1);
-        // } else {
-        //   doc.uploaded = false;
-        //   delete doc.url;
-        //   delete doc.id;
-        //   doc.isLoading = false;
-        // }
         if (doc.isCustom) {
           this.documentsRequired.splice(docIndex, 1);
         } else {
