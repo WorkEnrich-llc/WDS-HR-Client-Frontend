@@ -104,7 +104,7 @@ export class PermissionComponent implements OnInit {
     this._PermissionsService.updatePermission(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.permissions.is_shared_minutes = this.tempIsShared;
+        this.permissions.is_shared_minutes = false;
 
         this.toasterService.showSuccess('Settings updated successfully');
         this.filterBox.closeOverlay();
