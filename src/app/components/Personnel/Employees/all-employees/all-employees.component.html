@@ -189,7 +189,7 @@
                         </g>
                     </svg>
                     <span>
-                        {{ employee.end_contract | date:'dd/MM/yyyy' }}
+                        {{ employee.end_contract ? (employee.end_contract | date:'dd/MM/yyyy') : '---' }}
                     </span>
                 </span>
 
