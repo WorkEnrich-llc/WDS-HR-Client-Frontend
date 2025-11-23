@@ -529,7 +529,7 @@ export class EditJobComponent {
   allActiveJobTitles: any[] = [];
   getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
     this.loadJobs = true;
-
+    this.loadData= true;
     const managementLevel = this.jobStep1.get('managementLevel')?.value;
 
     this._JobsService.getAllJobTitles(
@@ -581,9 +581,11 @@ export class EditJobComponent {
         this.checkOriginalManagerStatus();
 
         this.loadJobs = false;
+        this.loadData= false;
       },
       error: () => {
         this.loadJobs = false;
+        this.loadData=false;
       }
     });
   }
@@ -676,6 +678,16 @@ export class EditJobComponent {
 
   goNext() {
     if (this.currentStep === 3) {
+
+      if (this.filteredJobTitles.length === 1 && this.filteredJobTitles[0].id === this.numericJobId) {
+        this.selectJobError = false;
+
+        this.finalAssignedManager = this.currentManager;
+
+        this.currentStep++;
+        return;
+      }
+
       if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
         this.selectJobError = true;
         return;
@@ -683,9 +695,15 @@ export class EditJobComponent {
     }
 
     this.selectJobError = false;
-    this.currentStep++;
 
+    const selected = this.jobTitles.find(j => j.assigned);
+    if (selected) {
+      this.finalAssignedManager = selected;
+    }
+
+    this.currentStep++;
   }
+
 
   goPrev() {
     this.currentStep--;
@@ -812,34 +830,41 @@ export class EditJobComponent {
     this.newManagerSelected = true;
     this.managerRemoved = false;
 
-    if (this.jobTitleData?.assigns?.length) {
-      this.jobTitleData.assigns = [];
-    }
-
     this.checkForChanges();
   }
 
 
+
+  finalAssignedManager: any = null;
+
   get currentManager() {
+    if (this.finalAssignedManager) {
+      return this.finalAssignedManager;
+    }
+
     if (this.newManagerSelected) {
-      return this.jobTitles.find(j => j.assigned);
-    } else if (this.removedManagerId !== null) {
+      return this.jobTitleData?.assigns?.[0] || null;
+    }
+
+    if (this.removedManager) {
       return this.removedManager;
-    } else if (this.jobTitleData?.assigns?.length > 0) {
-      const originalAssigned = this.jobTitleData.assigns[0];
+    }
 
-      const existsInAllPages = this.allActiveJobTitles?.some(j => j.id === originalAssigned.id);
+    if (this.jobTitleData?.assigns?.length > 0) {
+      const original = this.jobTitleData.assigns[0];
+      const exists = this.allActiveJobTitles?.some(j => j.id === original.id);
 
-      if (!existsInAllPages) {
+      if (!exists) {
         return {
-          ...originalAssigned,
+          ...original,
           is_active: false,
-          name: originalAssigned.name + ' (Not Active)'
+          name: original.name + ' (Not Active)'
         };
       }
 
-      return originalAssigned;
+      return original;
     }
+
     return null;
   }
 
@@ -852,13 +877,13 @@ export class EditJobComponent {
       return true;
     }
 
-    const availableManagers = this.jobTitles.filter(j => j.id !== this.numericJobId);
-    if (availableManagers.length === 0) {
+    if (this.filteredJobTitles.length === 1 && this.filteredJobTitles[0].id === this.numericJobId) {
       return true;
     }
 
     return !!this.currentManager;
   }
+
 
 
 
