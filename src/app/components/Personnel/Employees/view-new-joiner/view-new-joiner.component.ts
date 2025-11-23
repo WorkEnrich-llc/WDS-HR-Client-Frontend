@@ -110,9 +110,14 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   updateProfileImageFromResponse(data: any) {
-    if (data?.picture?.image_url) {
-      this.profileImage = data.picture.image_url;
-    } else {
+    const pictureData = data?.object_info?.picture;
+    if (pictureData?.generate_signed_url) {
+      this.profileImage = pictureData.generate_signed_url;
+    }
+    else if (pictureData?.image_url) {
+      this.profileImage = pictureData.image_url;
+    }
+    else {
       this.profileImage = this.defaultImage;
     }
   }
