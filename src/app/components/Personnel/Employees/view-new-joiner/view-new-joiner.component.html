@@ -70,6 +70,21 @@
     <!-- 3 cards -->
     <div class="d-flex align-items-stretch gap-4">
         <div class="content-box d-flex flex-column gap-3 w-100">
+
+            <!-- Always visible fields -->
+            <div class="m-auto">
+                <div class="profile-hug" (click)="triggerUpload()">
+                    <img [src]="profileImage" (error)="handleImageError()" alt="Profile Picture">
+
+                    <div class="overlay">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Upload Image</span>
+                    </div>
+
+                    <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" hidden
+                        (change)="onImageSelected($event)">
+                </div>
+            </div>
             <h2>Contact Info</h2>
             <div class="info">
                 <h6>ID</h6>
@@ -172,14 +187,14 @@
                 <h6>Contract Start Date</h6>
                 <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || '----' }}</span>
             </div> -->
-            @if (employee.job_info.start_contract) {
+            <!-- @if (employee.job_info.start_contract) {
             <div class="info">
                 <h6>Contract Start Date</h6>
                 <span>{{
                     (employee.job_info.start_contract | date : "dd/MM/yyyy") || "----"
                     }}</span>
             </div>
-            }
+            } -->
 
             @if (employee.job_info.end_contract) {
             <div class="info">

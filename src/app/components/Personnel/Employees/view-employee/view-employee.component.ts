@@ -87,8 +87,27 @@ export class ViewEmployeeComponent implements OnInit {
 
   // profile picture
   @ViewChild('fileInput') fileInput!: ElementRef;
-  profileImage: string = './images/profile-defult.jpg';
+  readonly defaultImage: string = './images/profile-defult.jpg';
+  profileImage: string = this.defaultImage;
 
+
+
+  // onImageSelected(event: any) {
+  //   const file = event.target.files[0];
+  //   if (!file) return;
+
+  //   const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+  //   if (!allowed.includes(file.type)) {
+  //     alert('Only JPG, PNG, WEBP images are allowed!');
+  //     return;
+  //   }
+
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     this.profileImage = reader.result as string;
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
   triggerUpload() {
     this.fileInput.nativeElement.click();
   }
@@ -99,7 +118,7 @@ export class ViewEmployeeComponent implements OnInit {
 
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowed.includes(file.type)) {
-      alert('Only JPG, PNG, WEBP images are allowed!');
+      // this.toasterMessageService.showError('Only JPG, PNG, WEBP images are allowed!');
       return;
     }
 
@@ -108,7 +127,35 @@ export class ViewEmployeeComponent implements OnInit {
       this.profileImage = reader.result as string;
     };
     reader.readAsDataURL(file);
+
+    this.uploadImage(file);
   }
+
+  uploadImage(file: File) {
+    this.employeeService.changeEmployeePicture(this.employeeId, file).subscribe({
+      next: (response) => {
+        this.updateProfileImageFromResponse(response);
+        // this.toasterMessageService.showSuccess('Image uploaded successfully');
+      },
+      error: (err) => {
+        console.error('Upload failed', err);
+        // this.toasterMessageService.showError('Failed to upload image');
+      }
+    });
+  }
+
+  updateProfileImageFromResponse(data: any) {
+    if (data?.picture?.image_url) {
+      this.profileImage = data.picture.image_url;
+    } else {
+      this.profileImage = this.defaultImage;
+    }
+  }
+
+  handleImageError() {
+    this.profileImage = this.defaultImage;
+  }
+
 
   // Tab management
   currentTab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices' = 'attendance';

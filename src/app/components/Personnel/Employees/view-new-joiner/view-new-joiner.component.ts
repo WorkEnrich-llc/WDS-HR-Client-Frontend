@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ViewChild } from '@angular/core';
@@ -50,6 +50,10 @@ export class ViewNewJoinerComponent implements OnInit {
   modalMessage: string = '';
   modalMessage2: string = '';
 
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  readonly defaultImage: string = './images/profile-defult.jpg';
+  profileImage: string = this.defaultImage;
+
   constructor(
     private router: Router,
     private datePipe: DatePipe,
@@ -67,6 +71,54 @@ export class ViewNewJoinerComponent implements OnInit {
         this.loadEmployeeData();
       }
     });
+  }
+
+  triggerUpload() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      // this.toasterMessageService.showError('Only JPG, PNG, WEBP images are allowed!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profileImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    this.uploadImage(file);
+  }
+
+  uploadImage(file: File) {
+    this.employeeService.changeEmployeePicture(this.employeeId, file).subscribe({
+      next: (response) => {
+        this.updateProfileImageFromResponse(response);
+        // this.toasterMessageService.showSuccess('Image uploaded successfully');
+      },
+      error: (err) => {
+        console.error('Upload failed', err);
+        // this.toasterMessageService.showError('Failed to upload image');
+      }
+    });
+  }
+
+  updateProfileImageFromResponse(data: any) {
+    if (data?.picture?.image_url) {
+      this.profileImage = data.picture.image_url;
+    } else {
+      this.profileImage = this.defaultImage;
+    }
+  }
+
+  handleImageError() {
+    this.profileImage = this.defaultImage;
   }
 
   setUpcomingContractId(contractId: number | null): void {
