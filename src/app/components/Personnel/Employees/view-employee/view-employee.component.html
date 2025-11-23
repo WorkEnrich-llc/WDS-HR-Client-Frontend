@@ -246,6 +246,15 @@
     <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || 'N/A' }}</span>
     </div> -->
 
+        @if (employee.job_info.start_contract) {
+        <div class="info">
+          <h6>Contract Start Date</h6>
+          <span>{{
+            (employee.job_info.start_contract | date : "dd/MM/yyyy") || "----"
+            }}</span>
+        </div>
+        }
+
         @if (employee.job_info.end_contract) {
         <div class="info">
           <h6>Contract End Date</h6>
@@ -675,7 +684,8 @@
           } @if (currentTab === 'documents') {
           <app-documents-tab [employee]="employee" [documentsRequired]="documentsRequired"
             [uploadProgress]="uploadProgress" (fileSelected)="onFileSelected($event)"
-            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)">
+            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)"
+            (addDocumentClick)="addNewDocument()">
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
           <app-contracts-tab [employee]="employee"> </app-contracts-tab>

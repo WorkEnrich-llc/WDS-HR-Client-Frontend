@@ -7,10 +7,12 @@
   [isEditMode]="isEditMode" [isLoading]="isLoading" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
 </app-contract-form-modal> -->
 
+
 <div class="contracts-content">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Work Contracts</h2>
-    <button class="view-btn" (click)="addContract()">
+    <button class="view-btn" (click)="addContract()"
+      [title]="isAddContractDisabled ? 'Cannot add new contract ' : 'Add New Contract'">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10" />
@@ -345,3 +347,11 @@
 <!-- <app-contract-form-modal #addForm [isOpen]="isOpen" [contract]="editedContract" [employee]="employee"
   [isEditMode]="isEditMode" [isLoading]="isLoading" (onSave)="onContractSave($event)" (onClose)="closeAddModal()">
 </app-contract-form-modal> -->
+
+<app-popup [title]="modalTitle" [paragraph1]="modalMessage" [paragraph2]="modalMessage2" [isOpen]="isWarningModalOpen"
+  (close)="closeWarningModal()">
+
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-1 w-100" (click)="closeWarningModal()">
+    Close
+  </button>
+</app-popup>

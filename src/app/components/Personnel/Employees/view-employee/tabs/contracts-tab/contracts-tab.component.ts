@@ -13,6 +13,7 @@ import { ContractTerminateModalComponent } from './modals/contract-terminate-mod
 import { ContractTerminatedViewModalComponent } from './modals/contract-terminated-view-modal/contract-terminated-view-modal.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { finalize } from 'rxjs';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   standalone: true,
@@ -27,6 +28,7 @@ import { finalize } from 'rxjs';
     ContractResignModalComponent,
     ContractTerminatedViewModalComponent,
     ContractResignedViewModalComponent,
+    PopupComponent
   ],
   templateUrl: './contracts-tab.component.html',
   styleUrl: './contracts-tab.component.css'
@@ -71,6 +73,11 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // isOpen = false;
   isEditMode = false;
 
+  isWarningModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalMessage2 = '';
+
   constructor() { }
 
   ngOnInit(): void {
@@ -87,6 +94,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     }
   }
+
+
 
   // Load contracts from API
   private loadEmployeeContracts(): void {
@@ -275,11 +284,45 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   }
 
   // Add new contract
+  // addContract(): void {
+  //   this.isEditMode = false;
+  //   // this.editedContract = null;
+  //   this.selectedContract = null;
+  //   this.isAddModalOpen = true;
+  // }
+
+  get isAddContractDisabled(): boolean {
+    if (!this.contractsData || this.contractsData.length === 0) {
+      return false;
+    }
+    const hasOpenContract = this.contractsData.some(contract =>
+      (contract.status === 'Active' || contract.status === 'Probation') &&
+      (!contract.end_contract)
+    );
+    return hasOpenContract;
+  }
+
+
   addContract(): void {
+    const hasOpenContract = this.contractsData.some(contract =>
+      (contract.status === 'Active' || contract.status === 'Probation') &&
+      (!contract.end_contract)
+    );
+
+    if (hasOpenContract) {
+      this.modalTitle = 'Action Not Allowed';
+      this.modalMessage = 'You cannot create a new contract while there is an active contract with an indefinite period (No End Date).';
+      this.modalMessage2 = 'Please terminate or add an end date to the current contract first.';
+      this.isWarningModalOpen = true;
+      return;
+    }
     this.isEditMode = false;
-    // this.editedContract = null;
     this.selectedContract = null;
     this.isAddModalOpen = true;
+  }
+
+  closeWarningModal(): void {
+    this.isWarningModalOpen = false;
   }
 
   // Close add/edit contract overlay
