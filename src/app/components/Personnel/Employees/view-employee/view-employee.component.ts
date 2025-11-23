@@ -144,8 +144,8 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  updateProfileImageFromResponse(data: any) {
-    const pictureData = data?.object_info?.picture;
+  updateProfileImageFromResponse(response: any) {
+    const pictureData = response?.data?.object_info?.picture;
     if (pictureData?.generate_signed_url) {
       this.profileImage = pictureData.generate_signed_url;
     }
@@ -156,6 +156,8 @@ export class ViewEmployeeComponent implements OnInit {
       this.profileImage = this.defaultImage;
     }
   }
+
+
 
   handleImageError() {
     this.profileImage = this.defaultImage;
@@ -456,6 +458,7 @@ export class ViewEmployeeComponent implements OnInit {
         this.employee = response.data.object_info;
         // fetch documents
         this.loadEmployeeDocuments();
+        this.updateProfileImageFromResponse(response);
         this.subscription = response.data.subscription;
         this.loading = false;
       },
