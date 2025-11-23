@@ -172,6 +172,15 @@
                 <h6>Contract Start Date</h6>
                 <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || '----' }}</span>
             </div> -->
+            @if (employee.job_info.start_contract) {
+            <div class="info">
+                <h6>Contract Start Date</h6>
+                <span>{{
+                    (employee.job_info.start_contract | date : "dd/MM/yyyy") || "----"
+                    }}</span>
+            </div>
+            }
+
             @if (employee.job_info.end_contract) {
             <div class="info">
                 <h6>Contract End Date</h6>

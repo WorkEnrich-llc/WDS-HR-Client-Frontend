@@ -123,6 +123,12 @@
             End date is required when with end date is selected
           </div>
           }
+
+          @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
+          !contractForm.get('endDate')?.hasError('required')) {
+          <div class="invalid-feedback d-block"> End Date cannot be before Start Date
+          </div>
+          }
         </div>
       </div>
       }
