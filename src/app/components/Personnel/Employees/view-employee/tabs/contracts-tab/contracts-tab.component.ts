@@ -260,7 +260,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.toasterService.showSuccess('Contract cancelled successfully');
         this.contractsData = this.mapApiContractsToUI(listItems);
         this.totalItems = this.contractsData.length;
-        // this.loadEmployeeContracts();
+        this.loadEmployeeContracts();
         // Show success message
         this.contractsDataUpdated.emit();
       },

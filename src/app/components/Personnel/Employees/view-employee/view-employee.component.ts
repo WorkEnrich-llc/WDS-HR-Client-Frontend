@@ -145,9 +145,14 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   updateProfileImageFromResponse(data: any) {
-    if (data?.picture?.image_url) {
-      this.profileImage = data.picture.image_url;
-    } else {
+    const pictureData = data?.object_info?.picture;
+    if (pictureData?.generate_signed_url) {
+      this.profileImage = pictureData.generate_signed_url;
+    }
+    else if (pictureData?.image_url) {
+      this.profileImage = pictureData.image_url;
+    }
+    else {
       this.profileImage = this.defaultImage;
     }
   }
@@ -1104,9 +1109,9 @@ export class ViewEmployeeComponent implements OnInit {
         delete doc.id;
         doc.isLoading = false;
         doc.isDeleteModalOpen = false;
+        this.loadEmployeeDetails();
 
         this.documentsRequired = [...this.documentsRequired];
-        this.loadEmployeeDetails();
 
         // this.toasterMessageService.showSuccess(`${docKey} deleted successfully`);
       },
@@ -1158,6 +1163,7 @@ export class ViewEmployeeComponent implements OnInit {
           doc.isLoading = false;
         }
         this.documentsRequired = [...this.documentsRequired];
+        this.loadEmployeeDetails();
         this.changeDetector.detectChanges();
       },
       error: (err) => {
