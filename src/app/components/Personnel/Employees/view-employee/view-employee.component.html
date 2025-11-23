@@ -94,9 +94,16 @@
 
         <!-- Always visible fields -->
         <div class="m-auto">
-          <div class="profile-hug">
+          <div class="profile-hug" (click)="triggerUpload()">
             <img [src]="profileImage" alt="">
 
+            <div class="overlay">
+              <i class="fa-solid fa-upload"></i>
+              <span>Upload Image</span>
+            </div>
+
+            <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" hidden
+              (change)="onImageSelected($event)">
           </div>
         </div>
 

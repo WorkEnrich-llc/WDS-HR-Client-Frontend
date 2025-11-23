@@ -65,46 +65,46 @@ export class MainInformationStepComponent {
 
 
   // image
-  previewUrl: string | ArrayBuffer | null = null;
-  markLogoTouched() {
-    this.sharedService.mainInformation.get('profile_img')?.markAsTouched();
-  }
+  // previewUrl: string | ArrayBuffer | null = null;
+  // markLogoTouched() {
+  //   this.sharedService.mainInformation.get('profile_img')?.markAsTouched();
+  // }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    const imgControl = this.sharedService.mainInformation.get('profile_img');
+  // onFileSelected(event: Event): void {
+  //   const input = event.target as HTMLInputElement;
+  //   const file = input.files?.[0];
+  //   const imgControl = this.sharedService.mainInformation.get('profile_img');
 
-    this.previewUrl = null;
-    imgControl?.setErrors(null);
-    imgControl?.markAsTouched();
+  //   this.previewUrl = null;
+  //   imgControl?.setErrors(null);
+  //   imgControl?.markAsTouched();
 
-    if (!file) {
-      imgControl?.setErrors({ required: true });
-      return;
-    }
+  //   if (!file) {
+  //     imgControl?.setErrors({ required: true });
+  //     return;
+  //   }
 
-    const isPng = file.type === 'image/png';
-    const isUnder5MB = file.size <= 5 * 1024 * 1024;
+  //   const isPng = file.type === 'image/png';
+  //   const isUnder5MB = file.size <= 5 * 1024 * 1024;
 
-    if (!isPng) {
-      imgControl?.setErrors({ invalidFormat: true });
-      return;
-    }
+  //   if (!isPng) {
+  //     imgControl?.setErrors({ invalidFormat: true });
+  //     return;
+  //   }
 
-    if (!isUnder5MB) {
-      imgControl?.setErrors({ maxSize: true });
-      return;
-    }
+  //   if (!isUnder5MB) {
+  //     imgControl?.setErrors({ maxSize: true });
+  //     return;
+  //   }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.previewUrl = reader.result;
-      imgControl?.setValue(file);
-      imgControl?.setErrors(null);
-    };
-    reader.readAsDataURL(file);
-  }
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     this.previewUrl = reader.result;
+  //     imgControl?.setValue(file);
+  //     imgControl?.setErrors(null);
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
 
 
 }
