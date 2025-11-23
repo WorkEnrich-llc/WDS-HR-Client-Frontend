@@ -315,12 +315,24 @@ export class EmployeeService {
   }
 
 
-  changeEmployeePicture(employeeId: number, file: File): Observable<any> {
+  // changeEmployeePicture(employeeId: number, file: File): Observable<any> {
+  //   const formData = new FormData();
+
+  //   formData.append('picture', file);
+
+  //   formData.append('remove_picture', 'false');
+
+  //   return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
+  // }
+
+  changeEmployeePicture(employeeId: number, file: File | null, removePicture: boolean): Observable<any> {
     const formData = new FormData();
 
-    formData.append('picture', file);
+    formData.append('remove_picture', String(removePicture));
 
-    formData.append('remove_picture', 'false');
+    if (file) {
+      formData.append('picture', file);
+    }
 
     return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
   }

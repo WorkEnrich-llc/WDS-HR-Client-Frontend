@@ -132,17 +132,14 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   uploadImage(file: File) {
-    this.employeeService.changeEmployeePicture(this.employeeId, file).subscribe({
+    this.employeeService.changeEmployeePicture(this.employeeId, file, false).subscribe({
       next: (response) => {
         this.updateProfileImageFromResponse(response);
-        // this.toasterMessageService.showSuccess('Image uploaded successfully');
       },
-      error: (err) => {
-        console.error('Upload failed', err);
-        // this.toasterMessageService.showError('Failed to upload image');
-      }
+      error: (err) => console.error(err)
     });
   }
+
 
   updateProfileImageFromResponse(response: any) {
     const pictureData = response?.data?.object_info?.picture;
@@ -157,10 +154,22 @@ export class ViewEmployeeComponent implements OnInit {
     }
   }
 
-
+  get hasProfilePicture(): boolean {
+    return this.profileImage !== this.defaultImage;
+  }
 
   handleImageError() {
     this.profileImage = this.defaultImage;
+  }
+
+  removeImage(event: Event) {
+    event.stopPropagation();
+    this.employeeService.changeEmployeePicture(this.employeeId, null, true).subscribe({
+      next: () => {
+        this.profileImage = this.defaultImage;
+      },
+      error: (err) => console.error('Failed to remove image', err)
+    });
   }
 
 
