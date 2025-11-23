@@ -186,10 +186,23 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   }
 
   // Format date for display
-  private formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return this.datePipe.transform(date, 'yyyy-MM-dd') || dateString;
+  // private formatDate(dateString: string): string {
+  //   const date = new Date(dateString);
+  //   return this.datePipe.transform(date, 'yyyy-MM-dd') || dateString;
+  // }
+
+  private formatDate(dateStr: string): string | null {
+    if (!dateStr) return null;
+
+    if (dateStr.indexOf('/') > -1) {
+      const [day, month, year] = dateStr.split('/');
+      return `${year}-${month}-${day}`;
+    }
+
+    return dateStr;
   }
+
+
 
   // sortBy() {
   //   this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
