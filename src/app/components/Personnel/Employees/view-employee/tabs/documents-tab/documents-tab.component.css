@@ -1,3 +1,9 @@
 .text-warning {
   color: var(--color-warning-500) !important;
 }
+
+.view-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
