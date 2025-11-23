@@ -314,4 +314,14 @@ export class EmployeeService {
     return this.http.get<ContractAdjustmentsResponse>(url);
   }
 
+
+  changeEmployeePicture(employeeId: number, file: File): Observable<any> {
+    const formData = new FormData();
+
+    formData.append('picture', file);
+
+    formData.append('remove_picture', 'false');
+
+    return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
+  }
 }
