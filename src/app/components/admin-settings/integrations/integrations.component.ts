@@ -121,8 +121,10 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     private initializeFilterForm(): void {
         this.filterForm = this.formBuilder.group({
-            created_at: [''],
-            expiry_at: [''],
+            created_from: [''],
+            created_to: [''],
+            expiry_from: [''],
+            expiry_to: [''],
             status: ['']
         });
     }
@@ -150,14 +152,14 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                     this.integrations = response.data.list_items.map((item: any, index: number) => ({
                         id: item.id,
                         integrationName: item.name || `Integration ${String(item.id).padStart(3, '0')}`,
-                        createDate: this.formatDate(item.created_at),
+                        createDate: this.formatDate(item.created_from),
                         expiryDate: this.formatExpiryDate(item.expires_at, item.no_expire),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
                         key: item.access_key || '--',
                         features: this.formatFeatures(item.features?.features || []),
                         createdBy: item.created_by || '--',
-                        createdAt: item.created_at || '--',
+                        createdAt: item.created_from || '--',
                         noExpire: item.no_expire || false
                     }));
 
@@ -234,8 +236,10 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
             const rawFilters = this.filterForm.value;
 
             const filters = {
-                created_at: rawFilters.created_at || undefined,
-                expiry_at: rawFilters.expiry_at || undefined,
+                created_from: rawFilters.created_from || undefined,
+                created_to: rawFilters.created_to || undefined,
+                expiry_from: rawFilters.expiry_from || undefined,
+                expiry_to: rawFilters.expiry_to || undefined,
                 status: rawFilters.status || undefined
             };
 
@@ -271,7 +275,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
     onSearchChange(): void {
         // Trim the search term
         const trimmedSearch = this.searchTerm.trim();
-        
+
         // Only send search request if the trimmed value is different from the previous trimmed value
         // This prevents sending requests when only leading/trailing spaces are added/removed
         if (trimmedSearch !== this.trimmedSearchTerm) {
