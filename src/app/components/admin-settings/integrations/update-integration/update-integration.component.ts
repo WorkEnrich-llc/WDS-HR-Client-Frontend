@@ -1553,4 +1553,11 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         return false;
     }
 
+    /**
+     * Get dummy array for pagination pipe (needed for pagination-controls to work)
+     */
+    getDummyPaginationArray(): any[] {
+        return Array(this.itemsTotalItems).fill(null);
+    }
+
 }

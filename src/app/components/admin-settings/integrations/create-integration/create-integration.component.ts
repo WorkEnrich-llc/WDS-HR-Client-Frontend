@@ -1220,4 +1220,11 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         this.selectedSections = [];
         this.showServiceError = false;
     }
+
+    /**
+     * Get dummy array for pagination pipe (needed for pagination-controls to work)
+     */
+    getDummyPaginationArray(): any[] {
+        return Array(this.itemsTotalItems).fill(null);
+    }
 }

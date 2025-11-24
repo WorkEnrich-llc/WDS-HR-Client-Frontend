@@ -674,6 +674,9 @@
 
         <!-- Pagination -->
         @if (itemsTotalItems > 0) {
+        <!-- Dummy array for pagination pipe -->
+        @for (item of getDummyPaginationArray() | paginate: { id: 'items-pagination', itemsPerPage: itemsPerPage, currentPage: itemsCurrentPage, totalItems: itemsTotalItems }; track $index) {
+        }
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mt-3">
             <div class="d-flex align-items-center gap-2">
                 <div class="text-gray-sm pe-3">
@@ -700,6 +703,13 @@
                             stroke-width="1.5" d="m15 5l-6 7l6 7" />
                     </svg>
                 </button>
+                <pagination-controls 
+                    (pageChange)="onItemsPageChange($event)" 
+                    id="items-pagination"
+                    [maxSize]="5"
+                    [directionLinks]="false"
+                    [autoHide]="false">
+                </pagination-controls>
                 <button class="next p-0 btn border-0" [disabled]="itemsCurrentPage >= itemsTotalPages || isLoadingItems"
                     (click)="onItemsPageChange(+itemsCurrentPage + 1)" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

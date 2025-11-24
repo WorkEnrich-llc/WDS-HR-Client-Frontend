@@ -89,6 +89,60 @@
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
+/* Pagination styles (matching table component) */
+.ngx-pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.ngx-pagination li {
+    border-radius: 0.6rem !important;
+    width: 40px;
+    height: 40px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: 0.3s;
+}
+
+.ngx-pagination li:hover {
+    background-color: var(--color-secondary-50) !important;
+}
+
+.ngx-pagination li.current {
+    background-color: var(--color-primary-500) !important;
+    color: #fff !important;
+}
+
+.ngx-pagination a {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ngx-pagination a:hover {
+    background-color: unset !important;
+}
+
+.ngx-pagination .pagination-next,
+.ngx-pagination .pagination-previous {
+    display: none !important;
+}
+
+.ngx-pagination .small-screen {
+    display: none !important;
+}
+
+pagination-controls pagination-template nav {
+    margin-bottom: 0 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .content-box {
