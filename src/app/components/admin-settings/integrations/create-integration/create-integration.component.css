@@ -68,9 +68,17 @@
     font-weight: 400;
 }
 
-/* Extra spacing for expiry date checkbox */
-.input.mt-4 {
-    margin-top: 2rem !important;
+/* Input spacing and alignment */
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0;
 }
 
 /* Content box styling */
