@@ -270,25 +270,55 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   // Check if join date is today
-  isJoiningToday(): boolean {
-    if (!this.employee) return false;
-    const today = new Date();
-    const joinDate = new Date(this.employee.job_info.start_contract);
-    return joinDate.toDateString() === today.toDateString();
+  // isJoiningToday(): boolean {
+  //   if (!this.employee) return false;
+  //   const today = new Date();
+  //   const joinDate = new Date(this.employee.job_info.start_contract);
+  //   return joinDate.toDateString() === today.toDateString();
+  // }
+
+  // // Check if join date is in the future
+  // isJoiningFuture(): boolean {
+  //   if (!this.employee) return false;
+  //   const today = new Date();
+  //   const joinDate = new Date(this.employee.job_info.start_contract);
+  //   return joinDate > today;
+  // }
+
+  // // Check if Cancel Contract
+  // isCancelContract(): boolean {
+  //   if (!this.employee) return false;
+  //   return this.employee.job_info.start_contract === null || this.employee.job_info.start_contract === "";
+  // }
+
+  isCancelContract(): boolean {
+    if (!this.employee?.job_info?.start_contract) return true;
+    return false;
   }
 
   // Check if join date is in the future
   isJoiningFuture(): boolean {
-    if (!this.employee) return false;
+    const startContract = this.employee?.job_info?.start_contract;
+    if (!startContract) return false;
+
     const today = new Date();
-    const joinDate = new Date(this.employee.job_info.start_contract);
+    today.setHours(0, 0, 0, 0);
+
+    const joinDate = new Date(startContract);
+    joinDate.setHours(0, 0, 0, 0);
+
     return joinDate > today;
   }
 
-  // Check if Cancel Contract
-  isCancelContract(): boolean {
-    if (!this.employee) return false;
-    return this.employee.job_info.start_contract === null;
+  isJoiningToday(): boolean {
+    if (this.isCancelContract()) return false;
+
+    const today = new Date();
+    const startContract = this.employee?.job_info?.start_contract;
+    if (!startContract) return false;
+    const joinDate = new Date(startContract);
+
+    return joinDate.toDateString() === today.toDateString();
   }
 
   // Helper method to check subscription permissions
