@@ -96,7 +96,7 @@
 
     <!-- Table Header Template -->
     <ng-template #integrationsTableHeader>
-      <th scope="col" (click)="sortBy('integrationName')" style="cursor: pointer;" class="w-30">
+      <th scope="col" (click)="sortBy('integrationName')" style="cursor: pointer;" class="w-20">
         <div class="d-flex align-items-center justify-content-between gap-3">
           <div class="d-flex flex-column">
             <span class="header-two-line">Integration</span>
@@ -117,11 +117,11 @@
           </svg>
         </div>
       </th>
-      <th scope="col" (click)="sortBy('createDate')" style="cursor: pointer;">Create Date</th>
-      <th scope="col" (click)="sortBy('expiryDate')" style="cursor: pointer;">Expiry Date</th>
-      <th scope="col" (click)="sortBy('status')" style="cursor: pointer;">Status</th>
-      <th scope="col" (click)="sortBy('key')" style="cursor: pointer;">Key</th>
-      <th scope="col">Actions</th>
+      <th scope="col" (click)="sortBy('createDate')" style="cursor: pointer;" class="w-15">Create Date</th>
+      <th scope="col" (click)="sortBy('expiryDate')" style="cursor: pointer;" class="w-15">Expiry Date</th>
+      <th scope="col" (click)="sortBy('status')" style="cursor: pointer;" class="w-15">Status</th>
+      <th scope="col" (click)="sortBy('key')" style="cursor: pointer;" class="w-20">Key</th>
+      <th scope="col" class="w-15">Actions</th>
     </ng-template>
 
     <!-- Table Row Template -->
