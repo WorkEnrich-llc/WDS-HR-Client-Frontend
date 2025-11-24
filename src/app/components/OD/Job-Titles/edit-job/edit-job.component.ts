@@ -349,6 +349,7 @@ export class EditJobComponent {
     departmentControl?.updateValueAndValidity();
     sectionControl?.updateValueAndValidity();
   }
+
   // check changes
   checkForChanges() {
     if (!this.originalData) return;
@@ -672,10 +673,7 @@ export class EditJobComponent {
   }
 
 
-  // nextGetJobs(): void {
-  //   this.goNext();
-  //   this.getAllJobTitles(this.ManageCurrentPage, this.searchTerm);
-  // }
+ 
   // step 2 salary ranges
   jobStep2: FormGroup = new FormGroup({
     fullTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
@@ -705,16 +703,13 @@ export class EditJobComponent {
   goNext() {
     if (this.currentStep === 3) {
 
-      if (this.filteredJobTitles.length === 1 && this.filteredJobTitles[0].id === this.numericJobId) {
+      if (this.hasAssignedManager()) {
         this.selectJobError = false;
-
-        this.finalAssignedManager = this.currentManager;
-
         this.currentStep++;
         return;
       }
 
-      if (this.jobTitles.length > 0 && !this.jobTitles.some(job => job.assigned)) {
+      if (!this.jobTitles.some(job => job.assigned)) {
         this.selectJobError = true;
         return;
       }
@@ -770,11 +765,11 @@ export class EditJobComponent {
       case 2:
         return this.jobStep1.valid && this.jobStep2.valid;
       case 3:
-       
+
         if (this.jobTitles.length > 0) {
           return this.jobTitles.some(job => job.assigned);
         }
-        return true; 
+        return true;
       case 4:
         return this.jobStep1.valid && this.jobStep2.valid &&
           this.jobStep4.valid && this.requirements.length > 0 &&
@@ -836,90 +831,85 @@ export class EditJobComponent {
     }
   }
 
- toggleAssignStatus(selectedJob: any) {
-  const currentAssigned = this.jobTitles.find(job => job.assigned);
+  toggleAssignStatus(selectedJob: any) {
+    const currentAssigned = this.jobTitles.find(job => job.assigned);
 
-  this.jobTitles = this.jobTitles.map(job => {
-    if (job.id === selectedJob.id) {
-      return { ...job, assigned: true, assigns: [selectedJob] };
-    } else {
-      return { ...job, assigned: false, assigns: [] };
+    this.jobTitles = this.jobTitles.map(job => {
+      if (job.id === selectedJob.id) {
+        return { ...job, assigned: true, assigns: [selectedJob] };
+      } else {
+        return { ...job, assigned: false, assigns: [] };
+      }
+    });
+
+    if (currentAssigned && currentAssigned.id !== selectedJob.id) {
+
+      this.removedManagerId = currentAssigned.id;
+      this.removedManager = { ...currentAssigned };
+      if (!currentAssigned.is_active) {
+        this.removedManager.name += ' (Not Active)';
+      }
+      this.managerRemoved = true;
     }
-  });
 
-  if (currentAssigned && currentAssigned.id !== selectedJob.id) {
-
-    this.removedManagerId = currentAssigned.id;
-    this.removedManager = { ...currentAssigned };
-    if (!currentAssigned.is_active) {
-      this.removedManager.name += ' (Not Active)';
-    }
-    this.managerRemoved = true;
+    this.newManagerSelected = true;
+    this.checkForChanges();
   }
-
-  this.newManagerSelected = true;
-  this.checkForChanges();
-}
 
 
 
 
   finalAssignedManager: any = null;
 
-get currentManager() {
-  if (this.finalAssignedManager) {
-    return this.finalAssignedManager;
-  }
-
-  if (this.newManagerSelected) {
-    const newAssigned = this.jobTitles.find(j => j.assigned);
-    if (!newAssigned) return null;
-
-    const original = this.jobTitleData?.assigns?.[0];
-    if (original && !this.allActiveJobTitles?.some(j => j.id === original.id)) {
-      return {
-        ...original,
-        is_active: false,
-        name: original.name + ' (Not Active)'
-      };
+  get currentManager() {
+    if (this.finalAssignedManager) {
+      return this.finalAssignedManager;
     }
 
-    return newAssigned;
-  }
+    if (this.newManagerSelected) {
+      const newAssigned = this.jobTitles.find(j => j.assigned);
+      if (!newAssigned) return null;
 
-  if (this.removedManager) {
-    return this.removedManager;
-  }
+      const original = this.jobTitleData?.assigns?.[0];
+      if (original && !this.allActiveJobTitles?.some(j => j.id === original.id)) {
+        return {
+          ...original,
+          is_active: false,
+          name: original.name + ' (Not Active)'
+        };
+      }
 
-  if (this.jobTitleData?.assigns?.length > 0) {
-    const original = this.jobTitleData.assigns[0];
-    const exists = this.allActiveJobTitles?.some(j => j.id === original.id);
-
-    if (!exists) {
-      return {
-        ...original,
-        is_active: false,
-        name: original.name + ' (Not Active)'
-      };
+      return newAssigned;
     }
 
-    return original;
+    if (this.removedManager) {
+      return this.removedManager;
+    }
+
+    if (this.jobTitleData?.assigns?.length > 0) {
+      const original = this.jobTitleData.assigns[0];
+      const exists = this.allActiveJobTitles?.some(j => j.id === original.id);
+
+      if (!exists) {
+        return {
+          ...original,
+          is_active: false,
+          name: original.name + ' (Not Active)'
+        };
+      }
+
+      return original;
+    }
+
+    return null;
   }
-
-  return null;
-}
-
 
 
 
   hasAssignedManager(): boolean {
-    const hadOriginalManager = this.originalAssignedIds?.length > 0;
+    const hadOriginalManager = this.jobTitleData?.assigns?.length > 0;
 
     if (!hadOriginalManager) {
-      return true;
-    }
-
-    if (this.filteredJobTitles.length === 1 && this.filteredJobTitles[0].id === this.numericJobId) {
       return true;
     }
 
