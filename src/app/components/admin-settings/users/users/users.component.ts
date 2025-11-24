@@ -59,6 +59,7 @@ export class UsersComponent {
     .map(([key, value]) => ({ label: key, value }));
 
   searchTerm: string = '';
+  private trimmedSearchTerm: string = ''; // Track the last valid trimmed search term
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
@@ -90,8 +91,14 @@ export class UsersComponent {
       });
     this.getAllRoleNames();
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllUsers(this.currentPage, this.searchTerm, this.filterForm.value);
+    this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+      // Only trigger search if the trimmed search term has actually changed
+      const trimmedValue = this.searchTerm.trim();
+      if (trimmedValue !== this.trimmedSearchTerm) {
+        this.trimmedSearchTerm = trimmedValue;
+        this.currentPage = 1;
+        this.getAllUsers(this.currentPage, this.trimmedSearchTerm, this.filterForm.value);
+      }
     });
 
     this.filterForm = this.fb.group({
@@ -172,7 +179,11 @@ export class UsersComponent {
 
   resetFilterForm() {
     this.filterForm.reset();
-    this.filter();
+    this.searchTerm = '';
+    this.trimmedSearchTerm = '';
+    this.currentPage = 1;
+    this.filterBox.closeOverlay();
+    this.getAllUsers(this.currentPage);
   }
 
 
@@ -187,7 +198,8 @@ export class UsersComponent {
         role: rawFilters.role || undefined,
       };
       this.filterBox.closeOverlay();
-      this.getAllUsers(this.currentPage, this.searchTerm, filters);
+      this.currentPage = 1;
+      this.getAllUsers(this.currentPage, this.trimmedSearchTerm, filters);
     }
   }
 
@@ -331,7 +343,13 @@ export class UsersComponent {
   }
 
 
+  /**
+   * Handle search input change
+   * Trims whitespace and only triggers search if the trimmed value has changed
+   */
   onSearchChange() {
+    // Update the searchTerm model directly from the input
+    // The debounce will handle when to actually trigger the search
     this.searchSubject.next(this.searchTerm);
   }
 
