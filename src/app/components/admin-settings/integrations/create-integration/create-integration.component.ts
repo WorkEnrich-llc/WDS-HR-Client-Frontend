@@ -321,6 +321,14 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * For create mode, always return true (changes are always present in create mode)
+     * This getter is used in the shared template with update component
+     */
+    get hasChanges(): boolean {
+        return true;
+    }
+
+    /**
      * Open service filter overlay (first overlay - only services)
      */
     openServiceFilter(): void {

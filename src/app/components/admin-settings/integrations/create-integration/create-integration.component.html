@@ -2,7 +2,7 @@
 <app-page-header [breadcrumbs]="breadcrumb" [title]="isUpdate ? 'Update Integration' : 'Create Integration'"
     [create]="todayFormatted">
     <button class="btn btn-lg btn-success w-auto"
-        [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0" (click)="onSubmit()">
+        [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0 || (isUpdate && !hasChanges)" (click)="onSubmit()">
         @if (isSubmitting) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }

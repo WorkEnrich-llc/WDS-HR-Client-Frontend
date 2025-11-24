@@ -91,6 +91,14 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     // Discard modal state
     isDiscardModalOpen: boolean = false;
 
+    // Original data for change detection
+    private originalFormData: any = null;
+    private originalSelectedServices: any[] = [];
+    private isOriginalDataStored: boolean = false;
+    
+    // Cached change detection result
+    private _hasChanges: boolean = false;
+
     // Subscriptions for cleanup
     private featuresSubscription?: Subscription;
     private itemsSubscription?: Subscription;
@@ -289,6 +297,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             this.showServiceError = false;
         }
         
+        // Check for changes after service selection
+        this.checkForChanges();
+        
         this.serviceFilterBox.closeOverlay();
     }
 
@@ -388,6 +399,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedServices.push({ ...this.editingService });
         }
+        
+        // Check for changes after items/sections selection
+        this.checkForChanges();
         
         this.closeItemsFilter();
     }
@@ -591,6 +605,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         const index = this.selectedServices.findIndex(s => s.feature.name === featureName);
         if (index >= 0) {
             this.selectedServices.splice(index, 1);
+            // Check for changes after removing service
+            this.checkForChanges();
         }
     }
 
@@ -1181,6 +1197,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 if (features.length > 0) {
                     // Process all features
                     this.prefillAllFeatures(features);
+                } else {
+                    // If no features, store original data immediately
+                    this.storeOriginalData();
                 }
 
                 this.isLoadingDetails = false;
@@ -1231,6 +1250,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             next: (results) => {
                 // All features have been processed and added to selectedServices
                 console.log('All features prefilled:', this.selectedServices);
+                // Store original data after features are loaded
+                this.storeOriginalData();
             },
             error: (error) => {
                 console.error('Error prefilling features:', error);
@@ -1354,6 +1375,182 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 }
             })
         );
+    }
+
+    /**
+     * Store original form data and selected services for change detection
+     */
+    private storeOriginalData(): void {
+        // Only store once
+        if (this.isOriginalDataStored) {
+            return;
+        }
+
+        // Store original form values
+        const formValue = this.integrationForm.getRawValue();
+        this.originalFormData = {
+            name: formValue.name?.trim() || formValue.name || '',
+            startDate: formValue.startDate || '',
+            hasExpiryDate: formValue.hasExpiryDate || false,
+            expiryDate: formValue.expiryDate || ''
+        };
+
+        // Store original selected services (deep copy)
+        this.originalSelectedServices = this.deepCopySelectedServices(this.selectedServices);
+        this.isOriginalDataStored = true;
+
+        // Subscribe to form value changes to detect changes
+        this.setupFormChangeDetection();
+    }
+
+    /**
+     * Setup form change detection subscriptions
+     */
+    private setupFormChangeDetection(): void {
+        // Subscribe to form value changes
+        this.integrationForm.valueChanges.subscribe(() => {
+            this.checkForChanges();
+        });
+    }
+
+    /**
+     * Check for changes and update the cached value
+     */
+    private checkForChanges(): void {
+        this._hasChanges = this.computeHasChanges();
+    }
+
+    /**
+     * Deep copy selected services for comparison
+     */
+    private deepCopySelectedServices(services: any[]): any[] {
+        return services.map(service => {
+            const copy: any = {
+                feature: {
+                    name: service.feature?.name || '',
+                    is_all: service.feature?.is_all || false,
+                    values: service.feature?.values ? [...service.feature.values] : []
+                },
+                isAllSelected: service.isAllSelected || false
+            };
+
+            if (service.items && service.items.length > 0) {
+                copy.items = service.items.map((item: any) => ({
+                    id: item.id,
+                    name: item.name
+                }));
+            }
+
+            if (service.sections && service.sections.length > 0) {
+                copy.sections = service.sections.map((section: any) => ({
+                    id: section.id,
+                    name: section.name
+                }));
+            }
+
+            if (service.department) {
+                copy.department = {
+                    id: service.department.id,
+                    name: service.department.name
+                };
+            }
+
+            return copy;
+        });
+    }
+
+    /**
+     * Check if form or services have changed (getter for template)
+     */
+    get hasChanges(): boolean {
+        return this._hasChanges;
+    }
+
+    /**
+     * Compute if form or services have changed
+     */
+    private computeHasChanges(): boolean {
+        // If original data hasn't been stored yet, return false
+        if (!this.originalFormData || (this.originalSelectedServices.length === 0 && this.selectedServices.length === 0)) {
+            return false;
+        }
+
+        // Check if form values changed
+        const currentForm = this.integrationForm.getRawValue();
+        const formChanged = 
+            (currentForm.name?.trim() || currentForm.name || '') !== this.originalFormData.name ||
+            (currentForm.startDate || '') !== this.originalFormData.startDate ||
+            (currentForm.hasExpiryDate || false) !== this.originalFormData.hasExpiryDate ||
+            (currentForm.expiryDate || '') !== this.originalFormData.expiryDate;
+
+        if (formChanged) {
+            return true;
+        }
+
+        // Check if selected services changed
+        return this.servicesChanged();
+    }
+
+    /**
+     * Check if selected services have changed
+     */
+    private servicesChanged(): boolean {
+        // Check if count changed
+        if (this.selectedServices.length !== this.originalSelectedServices.length) {
+            return true;
+        }
+
+        // Check each service
+        for (let i = 0; i < this.selectedServices.length; i++) {
+            const current = this.selectedServices[i];
+            const original = this.originalSelectedServices.find(
+                s => s.feature.name === current.feature.name
+            );
+
+            if (!original) {
+                return true; // Service was added
+            }
+
+            // Check if isAllSelected changed
+            if (current.isAllSelected !== original.isAllSelected) {
+                return true;
+            }
+
+            // If not all selected, check items/sections
+            if (!current.isAllSelected) {
+                if (current.feature.name === 'Sections') {
+                    // For sections, check department and sections
+                    const currentDeptId = current.department?.id;
+                    const originalDeptId = original.department?.id;
+                    if (currentDeptId !== originalDeptId) {
+                        return true;
+                    }
+
+                    const currentSectionIds = (current.sections || []).map((s: any) => s.id).sort();
+                    const originalSectionIds = (original.sections || []).map((s: any) => s.id).sort();
+                    if (JSON.stringify(currentSectionIds) !== JSON.stringify(originalSectionIds)) {
+                        return true;
+                    }
+                } else {
+                    // For other features, check items
+                    const currentItemIds = (current.items || []).map((item: any) => item.id).sort();
+                    const originalItemIds = (original.items || []).map((item: any) => item.id).sort();
+                    if (JSON.stringify(currentItemIds) !== JSON.stringify(originalItemIds)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Check if any original service was removed
+        for (const original of this.originalSelectedServices) {
+            const found = this.selectedServices.find(s => s.feature.name === original.feature.name);
+            if (!found) {
+                return true; // Service was removed
+            }
+        }
+
+        return false;
     }
 
 }
