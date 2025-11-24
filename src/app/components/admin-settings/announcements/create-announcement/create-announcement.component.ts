@@ -169,13 +169,29 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
 
 
     /**
+     * Open image picker
+     */
+    openImagePicker(event: Event): void {
+        event.stopPropagation();
+        const fileInput = document.getElementById('image') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    /**
      * Handle image selection
      */
     onImageSelected(event: Event): void {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
 
-        if (!file) return;
+        // If no file selected (user cancelled), do nothing
+        if (!file) {
+            // Reset the input value to ensure change event fires next time
+            input.value = '';
+            return;
+        }
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
@@ -204,7 +220,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     /**
      * Remove selected image
      */
-    removeImage(): void {
+    removeImage(event?: Event): void {
+        if (event) {
+            event.stopPropagation();
+        }
         this.selectedImage = null;
         this.imageError = null;
 
