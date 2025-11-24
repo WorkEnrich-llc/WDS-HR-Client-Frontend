@@ -122,25 +122,22 @@ export class CreateNewBranchComponent implements OnInit {
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
     this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
+      status: 'true'
     }).subscribe({
       next: (response) => {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
 
-
-        const activeDepartments = response.data.list_items.filter(
-          (item: any) => item.is_active === true
-        );
-
-
-        this.departments = activeDepartments.map((item: any) => {
+        this.departments = response.data.list_items.map((item: any) => {
           const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
-          const sectionsWithSelection = (item.sections || []).map((section: any) => ({
-            ...section,
-            selected: false
-          }));
+          const sectionsWithSelection = (item.sections || [])
+            .filter((section: any) => section.is_active === true)
+            .map((section: any) => ({
+              ...section,
+              selected: false
+            }));
 
           return {
             id: item.id,
@@ -151,7 +148,9 @@ export class CreateNewBranchComponent implements OnInit {
           };
         });
 
-        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+        this.selectAll =
+          this.departments.length > 0 &&
+          this.departments.every(dep => dep.selected);
       },
       error: (err) => {
         console.error(err.error?.details);

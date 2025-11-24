@@ -143,25 +143,24 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   // get all departments
-  getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-      search: searchTerm || undefined,
-    }).subscribe({
-      next: (response) => {
-        this.currentPage = Number(response.data.page);
-        this.totalItems = response.data.total_items;
-        this.totalpages = response.data.total_pages;
+getAllDepartment(pageNumber: number, searchTerm: string = '') {
+  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+    search: searchTerm || undefined,
+  }).subscribe({
+    next: (response) => {
+      this.currentPage = Number(response.data.page);
+      this.totalItems = response.data.total_items;
+      this.totalpages = response.data.total_pages;
 
+      const allDepartments = response.data.list_items;
 
-        const activeDepartments = response.data.list_items.filter(
-          (item: any) => item.is_active === true
-        );
-
-        this.departments = activeDepartments.map((item: any) => {
+      this.departments = allDepartments
+        // خلى كل department يظهر لو هو active أو موجود في addeddepartments
+        .filter((item: { is_active: any; id: any; }) => item.is_active || this.addeddepartments.some(dep => dep.id === item.id))
+        .map((item: any) => {
           const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
           let rawSections: any[] = [];
-
           if (item.sections) {
             if (Array.isArray(item.sections)) {
               rawSections = item.sections;
@@ -170,20 +169,29 @@ export class EditBranchInfoComponent implements OnInit {
             }
           }
 
-          const activeSections = rawSections.filter(
-            (section: any) => section.is_active === true
-          );
+          // اختار السكشنز اللي فعالة أو موجودة في addeddepartments
+          const activeSections = rawSections
+            .filter(section =>
+              section.is_active || 
+              (this.addeddepartments.some(dep => dep.id === item.id &&
+                dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id)))
+            )
+            .map(section => {
+              const isAddedButInactive = this.addeddepartments.some(dep => dep.id === item.id &&
+                dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id && !section.is_active));
+              return {
+                ...section,
+                selected: false,
+                name: !section.is_active && isAddedButInactive ? `${section.name} (Not Active)` : section.name
+              };
+            });
 
-          const optionsList = activeSections.map((section: any) => ({
-            ...section,
-            selected: false
-          }));
-
+          const optionsList = activeSections;
           const selectedList = optionsList.filter(s => s.selected);
 
           return {
             id: item.id,
-            name: item.name,
+            name: item.is_active ? item.name : `${item.name} (Not Active)`,
             code: item.code || '',
             objectives: item.objectives || '',
             is_active: item.is_active ?? true,
@@ -198,14 +206,14 @@ export class EditBranchInfoComponent implements OnInit {
           };
         });
 
+      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+    },
+    error: (err) => {
+      console.error(err.error?.details);
+    }
+  });
+}
 
-        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-      },
-      error: (err) => {
-        console.error(err.error?.details);
-      }
-    });
-  }
 
 
   //checkboxes 

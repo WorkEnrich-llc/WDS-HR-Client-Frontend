@@ -1,16 +1,20 @@
-import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-documents-tab',
-  imports: [TableComponent, PopupComponent],
+  imports: [TableComponent, PopupComponent, FormsModule],
   templateUrl: './documents-tab.component.html',
   styleUrl: './documents-tab.component.css'
 })
 export class DocumentsTabComponent {
+
+
   @Input() employee: Employee | null = null;
   @Input() documentsRequired: Array<{
     name: string;
@@ -25,12 +29,18 @@ export class DocumentsTabComponent {
     fileType?: string;
     isLoading?: boolean;
     isDeleteModalOpen?: boolean;
+    isEditable?: boolean;
   }> = [];
   @Input() uploadProgress: { [key: string]: number } = {};
 
   @Output() fileSelected = new EventEmitter<Event>();
   @Output() uploadDocument = new EventEmitter<{ key: string; fileInput: HTMLInputElement }>();
   @Output() deleteDocument = new EventEmitter<string>();
+
+  @Output() addDocumentClick = new EventEmitter<void>();
+  onAddNewDocument(): void {
+    this.addDocumentClick.emit();
+  }
 
   // Table properties
   currentPage = 1;
@@ -53,9 +63,10 @@ export class DocumentsTabComponent {
   }
 
   onViewDocument(url?: string): void {
-    if (url) {
+    if (!url) return;
+    setTimeout(() => {
       window.open(url, '_blank');
-    }
+    }, 200);
   }
 
   getUploadedCount(): number {

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ViewChild } from '@angular/core';
@@ -50,6 +50,10 @@ export class ViewNewJoinerComponent implements OnInit {
   modalMessage: string = '';
   modalMessage2: string = '';
 
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  readonly defaultImage: string = './images/profile-defult.jpg';
+  profileImage: string = this.defaultImage;
+
   constructor(
     private router: Router,
     private datePipe: DatePipe,
@@ -60,11 +64,77 @@ export class ViewNewJoinerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.route.params.subscribe(params => {
       this.employeeId = +params['id'];
       if (this.employeeId) {
         this.loadEmployeeData();
       }
+    });
+  }
+
+  triggerUpload() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      // this.toasterMessageService.showError('Only JPG, PNG, WEBP images are allowed!');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profileImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    this.uploadImage(file);
+  }
+
+  uploadImage(file: File) {
+    this.employeeService.changeEmployeePicture(this.employeeId, file, false).subscribe({
+      next: (response) => {
+        this.updateProfileImageFromResponse(response);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+
+  updateProfileImageFromResponse(response: any) {
+    const pictureData = response?.data?.object_info?.picture;
+    if (pictureData?.generate_signed_url) {
+      this.profileImage = pictureData.generate_signed_url;
+    }
+    else if (pictureData?.image_url) {
+      this.profileImage = pictureData.image_url;
+    }
+    else {
+      this.profileImage = this.defaultImage;
+    }
+  }
+
+  get hasProfilePicture(): boolean {
+    return this.profileImage !== this.defaultImage;
+  }
+
+
+  handleImageError() {
+    this.profileImage = this.defaultImage;
+  }
+
+  removeImage(event: Event) {
+    event.stopPropagation();
+    this.employeeService.changeEmployeePicture(this.employeeId, null, true).subscribe({
+      next: () => {
+        this.profileImage = this.defaultImage;
+      },
+      error: (err) => console.error('Failed to remove image', err)
     });
   }
 
@@ -79,7 +149,7 @@ export class ViewNewJoinerComponent implements OnInit {
         this.employee = response.data.object_info;
         this.subscription = response.data.subscription;
         this.loading = false;
-
+        this.updateProfileImageFromResponse(response);
         // Load work schedule data if employee has a work schedule
         if (this.employee?.job_info?.work_schedule?.id) {
           this.loadWorkScheduleData(this.employee.job_info.work_schedule.id);
@@ -88,6 +158,22 @@ export class ViewNewJoinerComponent implements OnInit {
       error: (error) => {
         console.error('Error loading new joiner:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  // handleContractsUpdate(): void {
+  //   this.loadEmployeeData();
+  // }
+
+  handleContractsUpdate(): void {
+    this.employeeService.getEmployeeById(this.employeeId).subscribe({
+      next: (response) => {
+        this.employee = response.data.object_info;
+        console.log('Parent employee data updated without full reload.');
+      },
+      error: (error) => {
+        console.error('Error updating employee info after contract change:', error);
       }
     });
   }
@@ -197,6 +283,12 @@ export class ViewNewJoinerComponent implements OnInit {
     const today = new Date();
     const joinDate = new Date(this.employee.job_info.start_contract);
     return joinDate > today;
+  }
+
+  // Check if Cancel Contract
+  isCancelContract(): boolean {
+    if (!this.employee) return false;
+    return this.employee.job_info.start_contract === null;
   }
 
   // Helper method to check subscription permissions

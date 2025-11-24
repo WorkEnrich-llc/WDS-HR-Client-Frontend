@@ -314,4 +314,26 @@ export class EmployeeService {
     return this.http.get<ContractAdjustmentsResponse>(url);
   }
 
+
+  // changeEmployeePicture(employeeId: number, file: File): Observable<any> {
+  //   const formData = new FormData();
+
+  //   formData.append('picture', file);
+
+  //   formData.append('remove_picture', 'false');
+
+  //   return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
+  // }
+
+  changeEmployeePicture(employeeId: number, file: File | null, removePicture: boolean): Observable<any> {
+    const formData = new FormData();
+
+    formData.append('remove_picture', String(removePicture));
+
+    if (file) {
+      formData.append('picture', file);
+    }
+
+    return this.http.put(`${this.apiBaseUrl}personnel/employees/change-picture/${employeeId}/`, formData);
+  }
 }
