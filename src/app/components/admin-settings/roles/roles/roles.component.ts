@@ -60,6 +60,7 @@ export class RolesComponent {
   //   }
   // ];
   searchTerm: string = '';
+  private trimmedSearchTerm: string = ''; // Track the last valid trimmed search term
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
@@ -93,8 +94,14 @@ export class RolesComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllRoles(this.currentPage, value);
+    this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+      // Only trigger search if the trimmed search term has actually changed
+      const trimmedValue = this.searchTerm.trim();
+      if (trimmedValue !== this.trimmedSearchTerm) {
+        this.trimmedSearchTerm = trimmedValue;
+        this.currentPage = 1;
+        this.getAllRoles(this.currentPage, this.trimmedSearchTerm);
+      }
     });
     this.filterForm = this.fb.group({
       status: [''],
@@ -244,7 +251,13 @@ export class RolesComponent {
   }
 
 
+  /**
+   * Handle search input change
+   * Trims whitespace and only triggers search if the trimmed value has changed
+   */
   onSearchChange() {
+    // Update the searchTerm model directly from the input
+    // The debounce will handle when to actually trigger the search
     this.searchSubject.next(this.searchTerm);
   }
 
@@ -256,6 +269,8 @@ export class RolesComponent {
 
   resetFilterForm() {
     this.filterForm.reset();
+    this.searchTerm = '';
+    this.trimmedSearchTerm = '';
     this.currentPage = 1;
     this.filterBox.closeOverlay();
     this.getAllRoles(this.currentPage);

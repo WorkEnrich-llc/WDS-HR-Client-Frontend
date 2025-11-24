@@ -1,8 +1,80 @@
 .dropdown-menu {
   scrollbar-width: none;
-  -ms-overflow-style: none; 
+  -ms-overflow-style: none;
 }
 
 .dropdown-menu::-webkit-scrollbar {
   display: none;
+}
+
+
+.upload-box {
+  border: 1px solid var(--color-neutral-200);
+  background-color: var(--color-neutral-50);
+  border-radius: 16px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  margin-bottom: var(--spacing-4);
+  -webkit-transition: background-color 0.3s;
+  -moz-transition: background-color 0.3s;
+  -ms-transition: background-color 0.3s;
+  -o-transition: background-color 0.3s;
+}
+
+.upload-box:hover {
+  background-color: var(--color-secondary-50);
+}
+
+.upload-icon {
+  padding: 15px 40px;
+  background-color: var(--color-secondary-50);
+  border-radius: var(--border-radius-16);
+  -webkit-border-radius: var(--border-radius-16);
+  -moz-border-radius: var(--border-radius-16);
+  -ms-border-radius: var(--border-radius-16);
+  -o-border-radius: var(--border-radius-16);
+  border: 2px dashed var(--color-secondary-400);
+}
+
+.uploadtitle {
+  color: var(--color-secondary-700);
+}
+.uploadtitle div {
+    font-size: var(--font-size-b2)
+}
+.uploadtitle span {
+  color: var(--color-secondary-400) !important;
+   font-size: var(--font-size-b3)
+}
+
+.upload-icon svg path {
+  fill: var(--color-secondary-400);
+}
+
+.upload-content {
+  display: flex;
+  align-items: center;
+  /* gap: 12px; */
+  width: 100%;
+  justify-content: space-between;
+}
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.up-icon svg path{
+  stroke: var(--color-primary-500);
+}
+.preview-img {
+  max-width: 100%;
+  max-height: 130px;
+  object-fit: contain;
+  margin: auto;
 }

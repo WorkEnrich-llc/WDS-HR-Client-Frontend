@@ -34,7 +34,7 @@ export class GoogleMapsService {
       const script = document.createElement('script');
       script.async = true;
       script.defer = true;
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places&loading=async&callback=initMap`;
 
       // Set up callback
       (window as any).initMap = () => {

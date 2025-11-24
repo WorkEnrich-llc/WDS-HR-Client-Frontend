@@ -31,8 +31,10 @@ export class ViewUserComponent implements OnInit {
   updatedDate: string = '';
   deactivateOpen = false;
   activateOpen = false;
+  removeUserOpen = false;
   isStatusUpdating = false;
   isUserLoading = false;
+  isRemovingUser = false;
 
   userStatus = UserStatus;
 
@@ -168,18 +170,35 @@ export class ViewUserComponent implements OnInit {
     });
   }
 
-  removeUser(): void {
+  openRemoveUser(): void {
+    this.removeUserOpen = true;
+  }
+
+  closeRemoveUser(): void {
+    this.removeUserOpen = false;
+  }
+
+  confirmRemoveUser(): void {
+    if (this.isRemovingUser) {
+      return;
+    }
+    this.isRemovingUser = true;
+    this.removeUserOpen = false;
     // waiting for backend api
-    // this.usersService.removeUser(this.userId).subscribe({
-    //   next: () => {
-    //     this.toasterService.showSuccess('User removed successfully');
-    //     this.router.navigate(['/users']);
-    //   },
-    //   error: (err) => {
-    //     console.error('Failed to remove user', err);
-    //     this.toasterService.showError('Failed to remove user');
-    //   }
-    // });
+    this.usersService.deleteRole(this.userInfo?.email).pipe(
+      finalize(() => {
+        this.isRemovingUser = false;
+      })
+    ).subscribe({
+      next: () => {
+        this.toasterService.showSuccess('User removed successfully');
+        this.router.navigate(['/users']);
+      },
+      error: (err) => {
+        console.error('Failed to remove user', err);
+        this.toasterService.showError('Failed to remove user');
+      }
+    });
   }
 
 

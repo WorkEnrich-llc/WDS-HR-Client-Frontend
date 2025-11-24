@@ -994,7 +994,7 @@ h5 span {
   width: 130px;
   height: 130px;
   aspect-ratio: 1/1;
-  border-radius: 50%;
+  border-radius: var(--border-radius-16);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
@@ -1003,6 +1003,31 @@ h5 span {
   position: relative;
   cursor: pointer;
   transition: 0.3s ease;
+  -webkit-border-radius: var(--border-radius-16);
+  -moz-border-radius: var(--border-radius-16);
+  -ms-border-radius: var(--border-radius-16);
+  -o-border-radius: var(--border-radius-16);
+}
+
+.delete-btn {
+  position: absolute;
+  /* top: 5px; */
+  /* right: 5px; */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: #cc0000;
+  }
 }
 
 .profile-hug img {
@@ -1013,7 +1038,11 @@ h5 span {
 }
 
 .profile-hug:hover img {
-  transform: scale(1.12);
+  transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  -o-transform: scale(1.1);
 }
 
 .overlay {

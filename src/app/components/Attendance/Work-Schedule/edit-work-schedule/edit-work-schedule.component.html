@@ -247,7 +247,7 @@
                                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                                     d="M12 2v4M8.5 3.706A9.003 9.003 0 0 0 12 21a9 9 0 0 0 3.5-17.294" />
                             </svg>
-                            <span>{{ department.status ?  'Deactivate' : 'Activate'}}</span>
+                            <span>{{ department.status ? 'Deactivate' : 'Activate'}}</span>
                         </a>
                     </div>
                 </td>
@@ -476,7 +476,7 @@
             <div class="input">
                 <label for="shiftHours">Shift Hours</label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="number" formControlName="shift_hours" id="shiftHours"
+                    <input type="text" formControlName="shift_hours" id="shiftHours"
                         class="form-control custom-date-input" placeholder="Total Shift Hours Count" />
                 </div>
                 <p class="error-msg"

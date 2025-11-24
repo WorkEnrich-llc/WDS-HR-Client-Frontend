@@ -16,18 +16,24 @@ export class IntegrationsService {
     getAllIntegrations(page: number = 1, itemsPerPage: number = 10, searchTerm: string = '', filters: any = {}): Observable<any> {
         let params = new HttpParams()
             .set('page', page.toString())
-            .set('items_per_page', itemsPerPage.toString());
+            .set('per_page', itemsPerPage.toString());
 
         if (searchTerm) {
             params = params.set('search', searchTerm);
         }
 
         // Add filters if they exist
-        if (filters.created_at) {
-            params = params.set('created_at', filters.created_at);
+        if (filters.created_from) {
+            params = params.set('created_from', filters.created_from);
         }
-        if (filters.expiry_at) {
-            params = params.set('expiry_at', filters.expiry_at);
+        if (filters.created_to) {
+            params = params.set('created_to', filters.created_to);
+        }
+        if (filters.expiry_from) {
+            params = params.set('expiry_from', filters.expiry_from);
+        }
+        if (filters.expiry_to) {
+            params = params.set('expiry_to', filters.expiry_to);
         }
         if (filters.status) {
             params = params.set('status', filters.status);

@@ -15,7 +15,7 @@
     <span>Save Changes</span>
   </button>
 
-  <button class="btn btn-lg btn-danger w-auto" (click)="openModal()">
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
@@ -40,40 +40,35 @@
   <form [formGroup]="policyForm" class="d-flex flex-column gap-4">
     <div formArrayName="policies">
       @for (policy of policiesArray.controls; track $index; let i = $index) {
-      <div [formGroupName]="i" class="content-box policy-section">
-        <div class="d-flex align-items-start gap-3 w-100">
-          <div class="flex-grow-1 d-flex flex-column gap-3" style="min-width: 0;">
-            <!-- Title input -->
-            <div class="input">
-              <label for="title-{{i}}">Title <span class="text-danger">*</span></label>
-              <div class="form-outline w-100 position-relative">
-                <input type="text" id="title-{{i}}" formControlName="title" class="form-control"
-                  placeholder="Enter policy title"
-                  [class.is-invalid]="policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)" />
-              </div>
-              @if (policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)) {
-              <div class="text-danger mt-1">
-                Title is required.
-              </div>
-              }
-            </div>
-
-            <!-- Body textarea -->
-            <div class="input">
-              <label for="body-{{i}}">Body <span class="text-danger">*</span></label>
-              <div class="form-outline w-100 position-relative">
-                <textarea id="body-{{i}}" formControlName="body" class="form-control" placeholder="Enter policy body"
-                  rows="4"
-                  [class.is-invalid]="policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)"></textarea>
-              </div>
-              @if (policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)) {
-              <div class="text-danger mt-1">
-                Body is required.
-              </div>
-              }
-            </div>
+      <div [formGroupName]="i" class="content-box policy-section d-flex flex-column gap-3">
+        <!-- Title input -->
+        <div class="input">
+          <label for="title-{{i}}">Title <span class="text-danger">*</span></label>
+          <div class="form-outline w-100 position-relative">
+            <input type="text" id="title-{{i}}" formControlName="title" class="form-control"
+              placeholder="Enter policy title"
+              [class.is-invalid]="policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)" />
           </div>
+          @if (policy.get('title')?.invalid && (policy.get('title')?.touched || policy.get('title')?.dirty)) {
+          <div class="text-danger mt-1">
+            Title is required.
+          </div>
+          }
+        </div>
 
+        <!-- Body textarea -->
+        <div class="input">
+          <label for="body-{{i}}">Body <span class="text-danger">*</span></label>
+          <div class="form-outline w-100 position-relative">
+            <textarea id="body-{{i}}" formControlName="body" class="form-control" placeholder="Enter policy body"
+              rows="4"
+              [class.is-invalid]="policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)"></textarea>
+          </div>
+          @if (policy.get('body')?.invalid && (policy.get('body')?.touched || policy.get('body')?.dirty)) {
+          <div class="text-danger mt-1">
+            Body is required.
+          </div>
+          }
         </div>
         <!-- Remove Policy button -->
         <button type="button" class="btn btn-outline-danger remove-policy-btn mt-3" (click)="removePolicySection(i)">
@@ -115,10 +110,21 @@
 <app-popup [title]="'Discard Changes'"
   [paragraph1]="'Are you sure you want to discard all changes done to the Company Policy?'"
   [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+  <button modal-btn-left class="btn btn-lg btn-outline-dark w-100" (click)="confirmAction()">
     Discard Changes
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
     Keep Editing
+  </button>
+</app-popup>
+
+<!-- Remove Policy popup -->
+<app-popup [title]="'Remove Policy'" [paragraph1]="getRemovePolicyMessage()" [isOpen]="isRemovePolicyModalOpen"
+  (close)="closeRemovePolicyModal()">
+  <button modal-btn-left class="btn btn-lg btn-outline-danger w-100" (click)="confirmRemovePolicy()">
+    Remove Policy
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeRemovePolicyModal()">
+    Keep Policy
   </button>
 </app-popup>

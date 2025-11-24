@@ -123,6 +123,12 @@
             End date is required when with end date is selected
           </div>
           }
+
+          @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
+          !contractForm.get('endDate')?.hasError('required')) {
+          <div class="invalid-feedback d-block"> End Date cannot be before Start Date
+          </div>
+          }
         </div>
       </div>
       }
@@ -133,8 +139,9 @@
         <label for="noticePeriod">{{ isEditMode ? 'Notice Period (in Days)' : 'Notice Period' }}</label>
         <div class="form-outline w-100 position-relative">
           <input id="noticePeriod" type="number" class="form-control custom-date-input"
+            placeholder="Notice period in days (e.g. 30)"
             [class.is-invalid]="contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched"
-            placeholder="{{ isEditMode ? '60' : '60 days' }}" formControlName="noticePeriod" />
+            formControlName="noticePeriod" />
           @if (contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched) {
           <div class="invalid-feedback">
             <div *ngIf="contractForm.get('noticePeriod')?.errors?.['required']">Notice period is required</div>

@@ -186,3 +186,28 @@
 .btn-close-filter {
   z-index: 10;
 }
+
+/* Make table header full width */
+.content-box .table-responsive {
+  width: 100%;
+  overflow-x: visible;
+}
+
+.content-box .table-responsive table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.content-box .table-responsive thead {
+  width: 100%;
+  display: table-header-group;
+}
+
+.content-box .table-responsive thead tr {
+  width: 100%;
+  display: table-row;
+}
+
+.content-box .table-responsive thead tr th {
+  width: auto;
+}

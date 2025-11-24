@@ -31,6 +31,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
     // Table data
     integrations: any[] = [];
     searchTerm: string = '';
+    trimmedSearchTerm: string = ''; // Store the trimmed search term to compare
     sortDirection: string = 'asc';
     currentSortColumn: string = '';
     totalItems: number = 0;
@@ -120,8 +121,10 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     private initializeFilterForm(): void {
         this.filterForm = this.formBuilder.group({
-            created_at: [''],
-            expiry_at: [''],
+            created_from: [''],
+            created_to: [''],
+            expiry_from: [''],
+            expiry_to: [''],
             status: ['']
         });
     }
@@ -137,7 +140,8 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
 
         this.loadData = true;
 
-        this.integrationsSubscription = this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.searchTerm, this.currentFilters)
+        // Use trimmed search term for API call
+        this.integrationsSubscription = this.integrationsService.getAllIntegrations(pageNumber, this.itemsPerPage, this.trimmedSearchTerm, this.currentFilters)
             .subscribe({
                 next: (response: any) => {
                     this.currentPage = Number(response.data.page);
@@ -148,14 +152,14 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                     this.integrations = response.data.list_items.map((item: any, index: number) => ({
                         id: item.id,
                         integrationName: item.name || `Integration ${String(item.id).padStart(3, '0')}`,
-                        createDate: this.formatDate(item.created_at),
-                        expiryDate: this.formatDate(item.expires_at),
+                        createDate: this.formatDate(item.created_from),
+                        expiryDate: this.formatExpiryDate(item.expires_at, item.no_expire),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
                         key: item.access_key || '--',
                         features: this.formatFeatures(item.features?.features || []),
                         createdBy: item.created_by || '--',
-                        createdAt: item.created_at || '--',
+                        createdAt: item.created_from || '--',
                         noExpire: item.no_expire || false
                     }));
 
@@ -180,6 +184,17 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     private formatDate(dateString: string): string {
         if (!dateString) return '--';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB');
+    }
+
+    /**
+     * Format expiry date - returns formatted date or message if no expiry
+     */
+    private formatExpiryDate(dateString: string, noExpire: boolean): string {
+        if (noExpire || !dateString) {
+            return 'No expiry date';
+        }
         const date = new Date(dateString);
         return date.toLocaleDateString('en-GB');
     }
@@ -221,8 +236,10 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
             const rawFilters = this.filterForm.value;
 
             const filters = {
-                created_at: rawFilters.created_at || undefined,
-                expiry_at: rawFilters.expiry_at || undefined,
+                created_from: rawFilters.created_from || undefined,
+                created_to: rawFilters.created_to || undefined,
+                expiry_from: rawFilters.expiry_from || undefined,
+                expiry_to: rawFilters.expiry_to || undefined,
                 status: rawFilters.status || undefined
             };
 
@@ -256,7 +273,25 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      * Handle search input change
      */
     onSearchChange(): void {
-        this.searchSubject.next(this.searchTerm);
+        // Trim the search term
+        const trimmedSearch = this.searchTerm.trim();
+
+        // Only send search request if the trimmed value is different from the previous trimmed value
+        // This prevents sending requests when only leading/trailing spaces are added/removed
+        if (trimmedSearch !== this.trimmedSearchTerm) {
+            this.trimmedSearchTerm = trimmedSearch;
+            // Update the input value to remove leading/trailing spaces
+            if (this.searchTerm !== trimmedSearch) {
+                this.searchTerm = trimmedSearch;
+            }
+            // Send the trimmed search term
+            this.searchSubject.next(trimmedSearch);
+        } else {
+            // If only whitespace was added/removed, update the input value but don't send request
+            if (this.searchTerm !== trimmedSearch) {
+                this.searchTerm = trimmedSearch;
+            }
+        }
     }
 
     /**

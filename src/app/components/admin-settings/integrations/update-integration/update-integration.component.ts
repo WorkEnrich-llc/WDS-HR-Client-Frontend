@@ -4,7 +4,9 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { PopupComponent } from '../../../shared/popup/popup.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IntegrationsService } from 'app/core/services/admin-settings/integrations/integrations.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -14,7 +16,7 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'app-update-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
     templateUrl: '../create-integration/create-integration.component.html',
     styleUrls: ['../create-integration/create-integration.component.css']
 })
@@ -62,6 +64,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     itemsCurrentPage: number = 1;
     itemsPerPage: number = 10;
     itemsTotalItems: number = 0;
+    itemsTotalPages: number = 0;
 
     // Sections special case - departments and sections
     departments: FeatureItem[] = [];
@@ -84,6 +87,17 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
     // Service selection validation
     showServiceError: boolean = false;
+
+    // Discard modal state
+    isDiscardModalOpen: boolean = false;
+
+    // Original data for change detection
+    private originalFormData: any = null;
+    private originalSelectedServices: any[] = [];
+    private isOriginalDataStored: boolean = false;
+    
+    // Cached change detection result
+    private _hasChanges: boolean = false;
 
     // Subscriptions for cleanup
     private featuresSubscription?: Subscription;
@@ -149,9 +163,22 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.todayFormatted = today.toLocaleDateString('en-GB');
     }
 
+    /**
+     * Custom validator to check if name is not empty after trimming
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+        }
+        return null;
+    }
+
     private initializeForm(): void {
         this.integrationForm = this.formBuilder.group({
-            name: ['', [Validators.required]],
+            name: ['', [Validators.required, this.noWhitespaceValidator.bind(this)]],
             startDate: ['', [Validators.required]],
             hasExpiryDate: [false],
             expiryDate: ['']
@@ -172,7 +199,12 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
 
-        if (!nameControl?.value || nameControl?.errors) return false;
+        // Name is required and must not be only whitespace
+        const nameValue = nameControl?.value;
+        if (!nameValue || typeof nameValue !== 'string' || nameValue.trim().length === 0 || nameControl?.errors) {
+            return false;
+        }
+
         if (!startDateControl?.value || startDateControl?.errors) return false;
         if (hasExpiryDate && (!expiryDateControl?.value || expiryDateControl?.errors)) return false;
         return true;
@@ -265,6 +297,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             this.showServiceError = false;
         }
         
+        // Check for changes after service selection
+        this.checkForChanges();
+        
         this.serviceFilterBox.closeOverlay();
     }
 
@@ -275,10 +310,11 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.editingService = service;
         this.currentViewingFeature = service.feature;
         
-        // Reset search terms
+        // Reset search terms and pagination
         this.itemsSearchTerm = '';
         this.departmentsSearchTerm = '';
         this.sectionsSearchTerm = '';
+        this.itemsCurrentPage = 1;
         
         // Restore existing selections
         if (service.feature.name === 'Sections') {
@@ -322,6 +358,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         this.itemsSearchTerm = '';
         this.departmentsSearchTerm = '';
         this.sectionsSearchTerm = '';
+        this.itemsCurrentPage = 1;
     }
 
     /**
@@ -362,6 +399,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedServices.push({ ...this.editingService });
         }
+        
+        // Check for changes after items/sections selection
+        this.checkForChanges();
         
         this.closeItemsFilter();
     }
@@ -565,11 +605,13 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         const index = this.selectedServices.findIndex(s => s.feature.name === featureName);
         if (index >= 0) {
             this.selectedServices.splice(index, 1);
+            // Check for changes after removing service
+            this.checkForChanges();
         }
     }
 
     /**
-     * Load items for a feature
+     * Load items for a feature with pagination
      */
     loadFeatureItems(featureName: string): void {
         if (this.itemsSubscription) {
@@ -577,23 +619,25 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingItems = true;
-        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm).pipe(
-            switchMap((items) => {
+        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage).pipe(
+            switchMap((result) => {
                 // If no items returned, fallback to employees
-                if (!items || items.length === 0) {
-                    return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+                if (!result.items || result.items.length === 0) {
+                    return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage);
                 }
-                return of(items);
+                return of(result);
             }),
             catchError((error) => {
                 console.error('Error loading feature items, falling back to employees:', error);
                 // On error, fallback to employees
-                return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+                return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage);
             })
         ).subscribe({
-            next: (items) => {
-                this.featureItems = items;
-                this.itemsTotalItems = items.length;
+            next: (result) => {
+                this.featureItems = result.items || [];
+                this.itemsTotalItems = result.totalItems || 0;
+                this.itemsTotalPages = Number(result.totalPages) || 1;
+                this.itemsCurrentPage = Number(result.currentPage) || 1;
                 this.isLoadingItems = false;
                 
                 // If isAllSelected is true, don't pre-select any items (keep them unmarked)
@@ -604,28 +648,42 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 
                 if (existingService && existingService.isAllSelected) {
                     // If isAllSelected is true, don't pre-select items - keep them unmarked
-                    this.selectedItems = [];
+                    // But preserve items from other pages
+                    const currentPageItemIds = this.featureItems.map(item => item.id);
+                    this.selectedItems = this.selectedItems.filter(item => 
+                        !currentPageItemIds.includes(item.id)
+                    );
                 } else {
-                    // After loading, restore selected items from IDs (might be stored as IDs only from prefill)
+                    // After loading, restore selected items from all pages
+                    // Get all currently selected item IDs (from all pages)
+                    const selectedItemIds = this.selectedItems.map((item: any) =>
+                        typeof item === 'object' && item !== null ? item.id : item
+                    ).filter((id: any) => id !== null && id !== undefined);
+
+                    // Get item IDs from editingService if available
+                    let editingServiceItemIds: any[] = [];
                     if (this.editingService && this.editingService.items && this.editingService.items.length > 0) {
-                        // Extract IDs from stored items (could be full objects or just IDs)
-                        const selectedItemIds = this.editingService.items.map((item: any) => 
+                        editingServiceItemIds = this.editingService.items.map((item: any) => 
                             typeof item === 'object' && item !== null ? item.id : item
                         ).filter((id: any) => id !== null && id !== undefined);
-                        
-                        // Match IDs with loaded items
-                        const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
-                        this.selectedItems = items.filter((item: FeatureItem) => selectedItemIds.includes(item.id));
-                    } else if (this.selectedItems.length > 0) {
-                        // Restore from selectedItems (which might have been set as IDs in openItemsSelection)
-                        const selectedItemIds = this.selectedItems.map((item: any) => 
-                            typeof item === 'object' && item !== null ? item.id : item
-                        ).filter((id: any) => id !== null && id !== undefined);
-                        
-                        // Match IDs with loaded items
-                        const validItemIds = new Set(items.map((item: FeatureItem) => item.id));
-                        this.selectedItems = items.filter((item: FeatureItem) => selectedItemIds.includes(item.id));
                     }
+
+                    // Combine all selected IDs
+                    const allSelectedIds = [...new Set([...selectedItemIds, ...editingServiceItemIds])];
+
+                    // For items on current page that are selected, update them with full object data
+                    const currentPageSelectedItems = this.featureItems.filter((item: FeatureItem) => 
+                        allSelectedIds.includes(item.id)
+                    );
+
+                    // Keep items from other pages (not on current page)
+                    const otherPageSelectedItems = this.selectedItems.filter((item: any) => {
+                        const itemId = typeof item === 'object' && item !== null ? item.id : item;
+                        return !this.featureItems.some(fi => fi.id === itemId);
+                    });
+
+                    // Combine: items from other pages + items from current page
+                    this.selectedItems = [...otherPageSelectedItems, ...currentPageSelectedItems];
                 }
                 
                 // Don't save in real-time - only update on confirm
@@ -634,6 +692,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 console.error('Error loading feature items (including fallback):', error);
                 this.isLoadingItems = false;
                 this.featureItems = [];
+                this.itemsTotalItems = 0;
+                this.itemsTotalPages = 0;
             }
         });
     }
@@ -647,9 +707,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingDepartments = true;
-        this.departmentsSubscription = this.featuresFacade.loadFeatureItems('Departments', this.departmentsSearchTerm).subscribe({
-            next: (items) => {
-                this.departments = items;
+        this.departmentsSubscription = this.featuresFacade.loadFeatureItems('Departments', this.departmentsSearchTerm, 1, 10000).subscribe({
+            next: (result) => {
+                this.departments = result.items || [];
                 this.isLoadingDepartments = false;
             },
             error: (error) => {
@@ -740,11 +800,19 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      */
     toggleSelectAllItems(): void {
         if (this.isAllItemsSelected()) {
-            // Deselect all
-            this.selectedItems = [];
+            // Deselect all items on current page
+            const currentPageItemIds = this.featureItems.map(item => item.id);
+            this.selectedItems = this.selectedItems.filter(item =>
+                !currentPageItemIds.includes(item.id)
+            );
         } else {
-            // Select all
-            this.selectedItems = [...this.featureItems];
+            // Select all items on current page
+            const currentPageItemIds = this.featureItems.map(item => item.id);
+            const existingItemIds = this.selectedItems.map(item => item.id);
+            const newItems = this.featureItems.filter(item =>
+                !existingItemIds.includes(item.id)
+            );
+            this.selectedItems = [...this.selectedItems, ...newItems];
         }
         // Don't save in real-time - only update on confirm
     }
@@ -781,7 +849,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      * Check if all items are selected
      */
     isAllItemsSelected(): boolean {
-        return this.featureItems.length > 0 && this.selectedItems.length === this.featureItems.length;
+        if (this.featureItems.length === 0) return false;
+        // Check if all items on current page are selected
+        return this.featureItems.every(item => this.isItemSelected(item));
     }
 
     /**
@@ -792,17 +862,10 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get filtered items
+     * Get filtered items - now server-side, so just return current items
      */
     getFilteredItems(): FeatureItem[] {
-        if (!this.itemsSearchTerm.trim()) {
-            return this.featureItems;
-        }
-        const search = this.itemsSearchTerm.toLowerCase();
-        return this.featureItems.filter(item =>
-            item.name?.toLowerCase().includes(search) ||
-            item.code?.toLowerCase().includes(search)
-        );
+        return this.featureItems;
     }
 
     /**
@@ -820,12 +883,10 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get items for current page
+     * Get items for current page - now server-side, so just return current items
      */
     getItemsPage(): FeatureItem[] {
-        const filtered = this.getFilteredItems();
-        const start = (this.itemsCurrentPage - 1) * this.itemsPerPage;
-        return filtered.slice(start, start + this.itemsPerPage);
+        return this.featureItems;
     }
 
     /**
@@ -923,7 +984,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             const requestBody: any = {
                 request_data: {
                     integration_id: this.integrationId,
-                    name: formData.name,
+                    name: formData.name?.trim() || formData.name,
                     features: features,
                     start_at: formData.startDate,
                     no_expire: noExpire
@@ -950,7 +1011,25 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Handle cancel action - open discard modal
+     */
     onCancel(): void {
+        this.isDiscardModalOpen = true;
+    }
+
+    /**
+     * Close discard modal
+     */
+    closeDiscardModal(): void {
+        this.isDiscardModalOpen = false;
+    }
+
+    /**
+     * Confirm discard action
+     */
+    confirmDiscard(): void {
+        this.isDiscardModalOpen = false;
         this.router.navigate(['/integrations']);
     }
 
@@ -967,9 +1046,96 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Handle start date change
+     */
+    onStartDateChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If expiry date is set and is before start date, clear it
+        if (startDate && expiryDate && expiryDate < startDate) {
+            this.integrationForm.get('expiryDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Handle expiry date input change
+     */
+    onExpiryDateInputChange(): void {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+
+        // If start date is set and is after expiry date, clear it
+        if (expiryDate && startDate && startDate > expiryDate) {
+            this.integrationForm.get('startDate')?.setValue('');
+        }
+    }
+
+    /**
+     * Get minimum date for expiry date (start date)
+     */
+    getMinExpiryDate(): string {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        return startDate || '';
+    }
+
+    /**
+     * Get maximum date for start date (expiry date)
+     */
+    getMaxStartDate(): string {
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        return expiryDate || '';
+    }
+
+    /**
      * Search items
      */
+    /**
+     * Handle items search - reset to page 1 and reload with server-side search
+     */
     onItemsSearch(): void {
+        this.itemsCurrentPage = 1;
+        if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
+            this.loadFeatureItems(this.currentViewingFeature.name);
+        }
+    }
+
+    /**
+     * Handle items page change
+     */
+    onItemsPageChange(page: number): void {
+        // Prevent duplicate requests: check if page actually changed
+        if (this.itemsCurrentPage === page) {
+            return;
+        }
+        
+        // Prevent requests while loading
+        if (this.isLoadingItems) {
+            return;
+        }
+        
+        // Ensure page is at least 1
+        if (page < 1) {
+            return;
+        }
+        
+        // Only check upper bound if we have total pages data
+        if (this.itemsTotalPages > 0 && page > this.itemsTotalPages) {
+            return;
+        }
+        
+        // Update page and load data
+        this.itemsCurrentPage = page;
+        if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
+            this.loadFeatureItems(this.currentViewingFeature.name);
+        }
+    }
+
+    /**
+     * Handle items per page change
+     */
+    onItemsItemsPerPageChange(newItemsPerPage: number): void {
+        this.itemsPerPage = newItemsPerPage;
         this.itemsCurrentPage = 1;
         if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
             this.loadFeatureItems(this.currentViewingFeature.name);
@@ -1031,6 +1197,9 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 if (features.length > 0) {
                     // Process all features
                     this.prefillAllFeatures(features);
+                } else {
+                    // If no features, store original data immediately
+                    this.storeOriginalData();
                 }
 
                 this.isLoadingDetails = false;
@@ -1081,6 +1250,8 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             next: (results) => {
                 // All features have been processed and added to selectedServices
                 console.log('All features prefilled:', this.selectedServices);
+                // Store original data after features are loaded
+                this.storeOriginalData();
             },
             error: (error) => {
                 console.error('Error prefilling features:', error);
@@ -1126,21 +1297,22 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      */
     private prefillSectionsFeature(feature: any, isAll: boolean, values: number[]): any {
         // First load departments
-        return this.featuresFacade.loadFeatureItems('Departments').pipe(
-            switchMap((departments) => {
+        return this.featuresFacade.loadFeatureItems('Departments', undefined, 1, 10000).pipe(
+            switchMap((departmentsResult) => {
+                const departments = departmentsResult.items || [];
                 if (isAll) {
                     // If is_all is true, we need to find which department has sections
                     // Try to find a department that has sections
                     if (departments.length > 0) {
                         // Load sections for all departments to find which one has sections
-                        const departmentObservables = departments.map(dept =>
+                        const departmentObservables = departments.map((dept: FeatureItem) =>
                             this.featuresFacade.loadSectionsForDepartment(dept.id).pipe(
                                 map((sections) => ({ department: dept, sections }))
                             )
                         );
 
                         return forkJoin(departmentObservables).pipe(
-                            map((results) => {
+                            map((results: any[]) => {
                                 // Find the first department that has sections
                                 for (const result of results) {
                                     if (result.sections.length > 0) {
@@ -1171,7 +1343,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     }
                 } else {
                     // If is_all is false, find which department contains the selected sections
-                    const departmentObservables = departments.map(dept =>
+                    const departmentObservables = departments.map((dept: FeatureItem) =>
                         this.featuresFacade.loadSectionsForDepartment(dept.id).pipe(
                             map((sections) => ({ department: dept, sections }))
                         )
@@ -1182,7 +1354,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     }
 
                     return forkJoin(departmentObservables).pipe(
-                        map((results) => {
+                        map((results: any[]) => {
                             // Find the department that has the selected sections
                             for (const result of results) {
                                 const matchingSections = result.sections.filter((s: FeatureItem) => values.includes(s.id));
@@ -1203,6 +1375,189 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 }
             })
         );
+    }
+
+    /**
+     * Store original form data and selected services for change detection
+     */
+    private storeOriginalData(): void {
+        // Only store once
+        if (this.isOriginalDataStored) {
+            return;
+        }
+
+        // Store original form values
+        const formValue = this.integrationForm.getRawValue();
+        this.originalFormData = {
+            name: formValue.name?.trim() || formValue.name || '',
+            startDate: formValue.startDate || '',
+            hasExpiryDate: formValue.hasExpiryDate || false,
+            expiryDate: formValue.expiryDate || ''
+        };
+
+        // Store original selected services (deep copy)
+        this.originalSelectedServices = this.deepCopySelectedServices(this.selectedServices);
+        this.isOriginalDataStored = true;
+
+        // Subscribe to form value changes to detect changes
+        this.setupFormChangeDetection();
+    }
+
+    /**
+     * Setup form change detection subscriptions
+     */
+    private setupFormChangeDetection(): void {
+        // Subscribe to form value changes
+        this.integrationForm.valueChanges.subscribe(() => {
+            this.checkForChanges();
+        });
+    }
+
+    /**
+     * Check for changes and update the cached value
+     */
+    private checkForChanges(): void {
+        this._hasChanges = this.computeHasChanges();
+    }
+
+    /**
+     * Deep copy selected services for comparison
+     */
+    private deepCopySelectedServices(services: any[]): any[] {
+        return services.map(service => {
+            const copy: any = {
+                feature: {
+                    name: service.feature?.name || '',
+                    is_all: service.feature?.is_all || false,
+                    values: service.feature?.values ? [...service.feature.values] : []
+                },
+                isAllSelected: service.isAllSelected || false
+            };
+
+            if (service.items && service.items.length > 0) {
+                copy.items = service.items.map((item: any) => ({
+                    id: item.id,
+                    name: item.name
+                }));
+            }
+
+            if (service.sections && service.sections.length > 0) {
+                copy.sections = service.sections.map((section: any) => ({
+                    id: section.id,
+                    name: section.name
+                }));
+            }
+
+            if (service.department) {
+                copy.department = {
+                    id: service.department.id,
+                    name: service.department.name
+                };
+            }
+
+            return copy;
+        });
+    }
+
+    /**
+     * Check if form or services have changed (getter for template)
+     */
+    get hasChanges(): boolean {
+        return this._hasChanges;
+    }
+
+    /**
+     * Compute if form or services have changed
+     */
+    private computeHasChanges(): boolean {
+        // If original data hasn't been stored yet, return false
+        if (!this.originalFormData || (this.originalSelectedServices.length === 0 && this.selectedServices.length === 0)) {
+            return false;
+        }
+
+        // Check if form values changed
+        const currentForm = this.integrationForm.getRawValue();
+        const formChanged = 
+            (currentForm.name?.trim() || currentForm.name || '') !== this.originalFormData.name ||
+            (currentForm.startDate || '') !== this.originalFormData.startDate ||
+            (currentForm.hasExpiryDate || false) !== this.originalFormData.hasExpiryDate ||
+            (currentForm.expiryDate || '') !== this.originalFormData.expiryDate;
+
+        if (formChanged) {
+            return true;
+        }
+
+        // Check if selected services changed
+        return this.servicesChanged();
+    }
+
+    /**
+     * Check if selected services have changed
+     */
+    private servicesChanged(): boolean {
+        // Check if count changed
+        if (this.selectedServices.length !== this.originalSelectedServices.length) {
+            return true;
+        }
+
+        // Check each service
+        for (let i = 0; i < this.selectedServices.length; i++) {
+            const current = this.selectedServices[i];
+            const original = this.originalSelectedServices.find(
+                s => s.feature.name === current.feature.name
+            );
+
+            if (!original) {
+                return true; // Service was added
+            }
+
+            // Check if isAllSelected changed
+            if (current.isAllSelected !== original.isAllSelected) {
+                return true;
+            }
+
+            // If not all selected, check items/sections
+            if (!current.isAllSelected) {
+                if (current.feature.name === 'Sections') {
+                    // For sections, check department and sections
+                    const currentDeptId = current.department?.id;
+                    const originalDeptId = original.department?.id;
+                    if (currentDeptId !== originalDeptId) {
+                        return true;
+                    }
+
+                    const currentSectionIds = (current.sections || []).map((s: any) => s.id).sort();
+                    const originalSectionIds = (original.sections || []).map((s: any) => s.id).sort();
+                    if (JSON.stringify(currentSectionIds) !== JSON.stringify(originalSectionIds)) {
+                        return true;
+                    }
+                } else {
+                    // For other features, check items
+                    const currentItemIds = (current.items || []).map((item: any) => item.id).sort();
+                    const originalItemIds = (original.items || []).map((item: any) => item.id).sort();
+                    if (JSON.stringify(currentItemIds) !== JSON.stringify(originalItemIds)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Check if any original service was removed
+        for (const original of this.originalSelectedServices) {
+            const found = this.selectedServices.find(s => s.feature.name === original.feature.name);
+            if (!found) {
+                return true; // Service was removed
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get dummy array for pagination pipe (needed for pagination-controls to work)
+     */
+    getDummyPaginationArray(): any[] {
+        return Array(this.itemsTotalItems).fill(null);
     }
 
 }
