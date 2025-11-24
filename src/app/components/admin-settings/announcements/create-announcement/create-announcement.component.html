@@ -142,6 +142,11 @@
                     Body is required.
                 </p>
                 }
+                @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['whitespace']) {
+                <p class="error-msg">
+                    Body cannot start or end with whitespace.
+                </p>
+                }
                 @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['minlength']) {
                 <p class="error-msg">
                     Body must be at least 2 characters long.

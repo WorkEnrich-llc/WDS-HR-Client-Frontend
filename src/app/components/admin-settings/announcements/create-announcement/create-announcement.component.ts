@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -123,12 +123,29 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Custom validator to check if value is not empty after trimming and has no leading/trailing whitespace
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+            // Check if the original value has leading or trailing whitespace
+            if (control.value !== trimmed) {
+                return { whitespace: true };
+            }
+        }
+        return null;
+    }
+
+    /**
      * Initialize the form
      */
     initializeForm(): void {
         this.announcementForm = this.formBuilder.group({
             title: ['', [Validators.required, Validators.minLength(2)]],
-            body: ['', [Validators.required, Validators.minLength(2)]]
+            body: ['', [Validators.required, Validators.minLength(2), this.noWhitespaceValidator.bind(this)]]
         });
     }
 
@@ -712,8 +729,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.isSubmitting = true;
 
         const formData = new FormData();
-        formData.append('title', this.announcementForm.get('title')?.value);
-        formData.append('body', this.announcementForm.get('body')?.value);
+        const titleValue = this.announcementForm.get('title')?.value;
+        const bodyValue = this.announcementForm.get('body')?.value;
+        formData.append('title', typeof titleValue === 'string' ? titleValue.trim() : titleValue);
+        formData.append('body', typeof bodyValue === 'string' ? bodyValue.trim() : bodyValue);
         formData.append('type', this.getRecipientTypeNumber().toString());
 
         // Add recipients as array
