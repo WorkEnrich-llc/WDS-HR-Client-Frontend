@@ -15,7 +15,7 @@
     <span>Save Changes</span>
   </button>
 
-  <button class="btn btn-lg btn-danger w-auto" (click)="openModal()">
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
@@ -108,9 +108,9 @@
 
 <!-- Discard popup -->
 <app-popup [title]="'Discard Changes'"
-  [paragraph1]="'Are you sure you want to discard all changes done to the Company Policy?'" [isOpen]="isModalOpen"
-  (close)="closeModal()">
-  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+  [paragraph1]="'Are you sure you want to discard all changes done to the Company Policy?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-outline-dark w-100" (click)="confirmAction()">
     Discard Changes
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">

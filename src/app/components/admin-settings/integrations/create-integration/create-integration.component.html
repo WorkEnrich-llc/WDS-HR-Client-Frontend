@@ -2,7 +2,7 @@
 <app-page-header [breadcrumbs]="breadcrumb" [title]="isUpdate ? 'Update Integration' : 'Create Integration'"
     [create]="todayFormatted">
     <button class="btn btn-lg btn-success w-auto"
-        [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0" (click)="onSubmit()">
+        [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0 || (isUpdate && !hasChanges)" (click)="onSubmit()">
         @if (isSubmitting) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -108,7 +108,7 @@
 
         <!-- Form Content -->
         @if (!isLoadingDetails) {
-        <form [formGroup]="integrationForm" class="w-lg-50 d-flex flex-column gap-2">
+        <form [formGroup]="integrationForm" class="w-lg-50 d-flex flex-column gap-4">
             <div class="input">
                 <label for="integrationName">Name <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -120,7 +120,6 @@
                     Integration name is required.
                 </p>
                 }
-
             </div>
 
             <div class="input">
@@ -142,17 +141,22 @@
                             </clipPath>
                         </defs>
                     </svg>
-
                 </div>
-                @if (integrationForm.get('startDate')?.touched &&
-                integrationForm.get('startDate')?.errors?.['required']) {
-                <p class="error-msg">
-                    Start date is required.
-                </p>
+                @if (integrationForm.get('startDate')?.touched) {
+                    @if (integrationForm.get('startDate')?.errors?.['required']) {
+                        <p class="error-msg">
+                            Start date is required.
+                        </p>
+                    }
+                    @if (integrationForm.get('startDate')?.errors?.['startDateRange']) {
+                        <p class="error-msg">
+                            {{ integrationForm.get('startDate')?.errors?.['startDateRange']?.message || 'Start date must be before expiry date.' }}
+                        </p>
+                    }
                 }
             </div>
 
-            <div class="input mt-4">
+            <div class="input">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" formControlName="hasExpiryDate" id="hasExpiryDate"
                         (change)="onExpiryDateChange()">
@@ -183,11 +187,17 @@
                         </defs>
                     </svg>
                 </div>
-                @if (integrationForm.get('expiryDate')?.touched &&
-                integrationForm.get('expiryDate')?.errors?.['required']) {
-                <p class="error-msg">
-                    Expiry date is required.
-                </p>
+                @if (integrationForm.get('expiryDate')?.touched) {
+                    @if (integrationForm.get('expiryDate')?.errors?.['required']) {
+                        <p class="error-msg">
+                            Expiry date is required.
+                        </p>
+                    }
+                    @if (integrationForm.get('expiryDate')?.errors?.['dateRange']) {
+                        <p class="error-msg">
+                            {{ integrationForm.get('expiryDate')?.errors?.['dateRange']?.message || 'Expiry date must be after start date.' }}
+                        </p>
+                    }
                 }
             </div>
             }
@@ -419,6 +429,15 @@
                         </td>
                     </tr>
                     }
+                    @if (getFilteredFeatures().length === 0) {
+                    <tr>
+                        <td colspan="2" class="text-center py-4">
+                            <div class="empty-state">
+                                <p class="text-muted mb-0">No services found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -504,6 +523,15 @@
                         </td>
                     </tr>
                     }
+                    @if (getDepartmentsList().length === 0) {
+                    <tr>
+                        <td colspan="2" class="text-center py-4">
+                            <div class="empty-state">
+                                <p class="text-muted mb-0">No departments found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -559,6 +587,15 @@
                                             <div class="service-name-text">{{ section.name }}</div>
                                         </div>
                                     </div>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if (getFilteredSections().length === 0) {
+                        <tr>
+                            <td colspan="2" class="text-center py-4">
+                                <div class="empty-state">
+                                    <p class="text-muted mb-0">No sections found.</p>
                                 </div>
                             </td>
                         </tr>
@@ -637,6 +674,9 @@
 
         <!-- Pagination -->
         @if (itemsTotalItems > 0) {
+        <!-- Dummy array for pagination pipe -->
+        @for (item of getDummyPaginationArray() | paginate: { id: 'items-pagination', itemsPerPage: itemsPerPage, currentPage: itemsCurrentPage, totalItems: itemsTotalItems }; track $index) {
+        }
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mt-3">
             <div class="d-flex align-items-center gap-2">
                 <div class="text-gray-sm pe-3">
@@ -663,6 +703,13 @@
                             stroke-width="1.5" d="m15 5l-6 7l6 7" />
                     </svg>
                 </button>
+                <pagination-controls 
+                    (pageChange)="onItemsPageChange($event)" 
+                    id="items-pagination"
+                    [maxSize]="5"
+                    [directionLinks]="false"
+                    [autoHide]="false">
+                </pagination-controls>
                 <button class="next p-0 btn border-0" [disabled]="itemsCurrentPage >= itemsTotalPages || isLoadingItems"
                     (click)="onItemsPageChange(+itemsCurrentPage + 1)" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
