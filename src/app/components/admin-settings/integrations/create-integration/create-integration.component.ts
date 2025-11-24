@@ -161,14 +161,98 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Custom validator to check if expiry date is after start date
+     */
+    private dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+        if (!this.integrationForm) {
+            return null;
+        }
+
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = control.value;
+        const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
+
+        // Only validate if expiry date checkbox is checked
+        if (!hasExpiryDate) {
+            return null;
+        }
+
+        // If expiry date is empty, don't validate here (required validator will handle it)
+        if (!expiryDate) {
+            return null;
+        }
+
+        // If start date is not set yet, don't validate
+        if (!startDate) {
+            return null;
+        }
+
+        // Compare dates
+        const start = new Date(startDate);
+        const expiry = new Date(expiryDate);
+        
+        // Set time to midnight for accurate date comparison
+        start.setHours(0, 0, 0, 0);
+        expiry.setHours(0, 0, 0, 0);
+
+        if (expiry <= start) {
+            return { dateRange: { message: 'Expiry date must be after start date' } };
+        }
+
+        return null;
+    }
+
+    /**
+     * Custom validator to check if start date is before expiry date
+     */
+    private startDateValidator(control: AbstractControl): ValidationErrors | null {
+        if (!this.integrationForm) {
+            return null;
+        }
+
+        const startDate = control.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
+
+        // Only validate if expiry date checkbox is checked
+        if (!hasExpiryDate) {
+            return null;
+        }
+
+        // If start date is empty, don't validate here (required validator will handle it)
+        if (!startDate) {
+            return null;
+        }
+
+        // If expiry date is not set yet, don't validate
+        if (!expiryDate) {
+            return null;
+        }
+
+        // Compare dates
+        const start = new Date(startDate);
+        const expiry = new Date(expiryDate);
+        
+        // Set time to midnight for accurate date comparison
+        start.setHours(0, 0, 0, 0);
+        expiry.setHours(0, 0, 0, 0);
+
+        if (start >= expiry) {
+            return { startDateRange: { message: 'Start date must be before expiry date' } };
+        }
+
+        return null;
+    }
+
+    /**
      * Initialize the form
      */
     private initializeForm(): void {
         this.integrationForm = this.formBuilder.group({
             name: ['', [Validators.required, this.noWhitespaceValidator.bind(this)]],
-            startDate: ['', [Validators.required]],
+            startDate: ['', [Validators.required, this.startDateValidator.bind(this)]],
             hasExpiryDate: [false],
-            expiryDate: ['']
+            expiryDate: ['', [this.dateRangeValidator.bind(this)]]
         });
     }
 
@@ -984,41 +1068,43 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     onExpiryDateChange(): void {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
+        const startDateControl = this.integrationForm.get('startDate');
 
         if (hasExpiryDate) {
-            expiryDateControl?.setValidators([Validators.required]);
+            expiryDateControl?.setValidators([Validators.required, this.dateRangeValidator.bind(this)]);
+            startDateControl?.setValidators([Validators.required, this.startDateValidator.bind(this)]);
         } else {
             expiryDateControl?.clearValidators();
             expiryDateControl?.setValue('');
+            startDateControl?.setValidators([Validators.required]);
         }
 
         expiryDateControl?.updateValueAndValidity();
+        startDateControl?.updateValueAndValidity();
     }
 
     /**
      * Handle start date change
      */
     onStartDateChange(): void {
-        const startDate = this.integrationForm.get('startDate')?.value;
-        const expiryDate = this.integrationForm.get('expiryDate')?.value;
-
-        // If expiry date is set and is before start date, clear it
-        if (startDate && expiryDate && expiryDate < startDate) {
-            this.integrationForm.get('expiryDate')?.setValue('');
-        }
+        const startDateControl = this.integrationForm.get('startDate');
+        const expiryDateControl = this.integrationForm.get('expiryDate');
+        
+        // Update validators to re-check date range
+        startDateControl?.updateValueAndValidity({ emitEvent: false });
+        expiryDateControl?.updateValueAndValidity({ emitEvent: false });
     }
 
     /**
      * Handle expiry date input change
      */
     onExpiryDateInputChange(): void {
-        const startDate = this.integrationForm.get('startDate')?.value;
-        const expiryDate = this.integrationForm.get('expiryDate')?.value;
-
-        // If start date is set and is after expiry date, clear it
-        if (expiryDate && startDate && startDate > expiryDate) {
-            this.integrationForm.get('startDate')?.setValue('');
-        }
+        const startDateControl = this.integrationForm.get('startDate');
+        const expiryDateControl = this.integrationForm.get('expiryDate');
+        
+        // Update validators to re-check date range
+        startDateControl?.updateValueAndValidity({ emitEvent: false });
+        expiryDateControl?.updateValueAndValidity({ emitEvent: false });
     }
 
     /**

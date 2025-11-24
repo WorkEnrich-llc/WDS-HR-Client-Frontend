@@ -144,11 +144,17 @@
                     </svg>
 
                 </div>
-                @if (integrationForm.get('startDate')?.touched &&
-                integrationForm.get('startDate')?.errors?.['required']) {
-                <p class="error-msg">
-                    Start date is required.
-                </p>
+                @if (integrationForm.get('startDate')?.touched) {
+                    @if (integrationForm.get('startDate')?.errors?.['required']) {
+                        <p class="error-msg">
+                            Start date is required.
+                        </p>
+                    }
+                    @if (integrationForm.get('startDate')?.errors?.['startDateRange']) {
+                        <p class="error-msg">
+                            {{ integrationForm.get('startDate')?.errors?.['startDateRange']?.message || 'Start date must be before expiry date.' }}
+                        </p>
+                    }
                 }
             </div>
 
@@ -183,11 +189,17 @@
                         </defs>
                     </svg>
                 </div>
-                @if (integrationForm.get('expiryDate')?.touched &&
-                integrationForm.get('expiryDate')?.errors?.['required']) {
-                <p class="error-msg">
-                    Expiry date is required.
-                </p>
+                @if (integrationForm.get('expiryDate')?.touched) {
+                    @if (integrationForm.get('expiryDate')?.errors?.['required']) {
+                        <p class="error-msg">
+                            Expiry date is required.
+                        </p>
+                    }
+                    @if (integrationForm.get('expiryDate')?.errors?.['dateRange']) {
+                        <p class="error-msg">
+                            {{ integrationForm.get('expiryDate')?.errors?.['dateRange']?.message || 'Expiry date must be after start date.' }}
+                        </p>
+                    }
                 }
             </div>
             }
