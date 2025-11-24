@@ -193,9 +193,19 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            this.imageError = 'Please select a valid image file.';
+        // Clear any previous errors first
+        this.imageError = null;
+
+        // Validate file type - only allow jpg, jpeg, png, webp
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        const isValidType = allowedTypes.includes(file.type) ||
+            (fileExtension && ['jpg', 'jpeg', 'png', 'webp'].includes(fileExtension));
+
+        if (!isValidType) {
+            this.imageError = 'Please select a valid image file. Only JPG, JPEG, PNG, and WEBP formats are allowed.';
+            // Reset input
+            input.value = '';
             return;
         }
 
@@ -203,16 +213,19 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         const maxSize = 10 * 1024 * 1024; // 10MB in bytes
         if (file.size > maxSize) {
             this.imageError = 'Image size must be less than 10MB.';
+            // Reset input
+            input.value = '';
             return;
         }
-
-        // Clear any previous errors
-        this.imageError = null;
 
         // Create preview
         const reader = new FileReader();
         reader.onload = (e) => {
             this.selectedImage = e.target?.result as string;
+        };
+        reader.onerror = () => {
+            this.imageError = 'Failed to read the image file. Please try again.';
+            input.value = '';
         };
         reader.readAsDataURL(file);
     }

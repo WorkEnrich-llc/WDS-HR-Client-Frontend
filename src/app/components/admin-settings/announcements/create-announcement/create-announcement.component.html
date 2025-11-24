@@ -157,7 +157,7 @@
             <div class="input">
                 <label for="image">Announcement Image</label>
                 <div class="image-upload-container">
-                    <input type="file" id="image" accept="image/*" (change)="onImageSelected($event)"
+                    <input type="file" id="image" accept="image/jpeg,image/jpg,image/png,image/webp" (change)="onImageSelected($event)"
                         class="image-input" #imageInput>
                     <div class="image-upload-area" (click)="openImagePicker($event)" [class.has-image]="selectedImage">
                         @if (!selectedImage) {
