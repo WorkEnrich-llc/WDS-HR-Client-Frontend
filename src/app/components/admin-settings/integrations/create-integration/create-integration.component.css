@@ -68,9 +68,17 @@
     font-weight: 400;
 }
 
-/* Extra spacing for expiry date checkbox */
-.input.mt-4 {
-    margin-top: 2rem !important;
+/* Input spacing and alignment */
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0;
 }
 
 /* Content box styling */
@@ -79,6 +87,60 @@
     border-radius: 0.5rem;
     padding: 2rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Pagination styles (matching table component) */
+.ngx-pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.ngx-pagination li {
+    border-radius: 0.6rem !important;
+    width: 40px;
+    height: 40px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: 0.3s;
+}
+
+.ngx-pagination li:hover {
+    background-color: var(--color-secondary-50) !important;
+}
+
+.ngx-pagination li.current {
+    background-color: var(--color-primary-500) !important;
+    color: #fff !important;
+}
+
+.ngx-pagination a {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ngx-pagination a:hover {
+    background-color: unset !important;
+}
+
+.ngx-pagination .pagination-next,
+.ngx-pagination .pagination-previous {
+    display: none !important;
+}
+
+.ngx-pagination .small-screen {
+    display: none !important;
+}
+
+pagination-controls pagination-template nav {
+    margin-bottom: 0 !important;
 }
 
 /* Responsive */
@@ -221,13 +283,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
 }
 
-/* Row layout */
-.service-row {
-    padding: 1rem 1.25rem;
-    background: #ffffff;
-    border-bottom: 8px solid #f3f3f3;
-}
-
+/* Typography styles */
 .service-module-label {
     color: #6b86a6;
     font-weight: 600;
@@ -240,34 +296,65 @@
     font-size: 1.05rem;
 }
 
-/* Table wrapper to apply alternating backgrounds */
+/* Table wrapper - use separate border model for spacing */
 .services-list-table table {
     border-collapse: separate;
     border-spacing: 0 12px;
-    /* vertical spacing between rows */
     width: 100%;
 }
 
-/* Row cell container to look like white card inside gray band */
+/* Table cells - remove default padding and borders */
 .services-list-table tbody tr td {
-    background: #ffffff;
+    padding: 0;
+    border: none;
+    background: transparent;
+    vertical-align: middle;
+}
+
+/* Table header - empty header styling */
+.services-list-table thead.service-only-header th {
     padding: 12px 16px;
-    border-top: 1px solid #eef0f2;
-    border-bottom: 1px solid #eef0f2;
+    border: none;
+    background: #2b3a4b;
+    height: auto;
+    border-radius: 8px 8px 0 0;
 }
 
-/* Alternating gray band behind rows */
-.services-list-table tbody tr:nth-child(even) td {
-    background: #f3f4f6;
+/* Header feature name styling */
+.header-feature-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: capitalize;
 }
 
-/* But keep the inner content of our single-cell row white, using service-row block */
+/* Service row - card-like appearance without indentation */
 .services-list-table .service-row {
     background: #ffffff;
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #f0f0f0;
 }
 
-/* First header bar rounded top corners already set; ensure table top aligns */
+/* Hover effect for service rows */
+.services-list-table tbody tr:hover .service-row {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    border-color: #e0e0e0;
+}
+
+/* Selected row styling */
+.services-list-table tbody tr:has(.service-square-checkbox:checked) .service-row {
+    background: #f8f9ff;
+    border-color: #377AFD;
+    box-shadow: 0 2px 6px rgba(55, 122, 253, 0.15);
+}
+
+/* First header bar rounded top corners */
 .service-only-header-inner {
     border-radius: 12px 12px 0 0;
 }
@@ -294,50 +381,6 @@
     line-height: 1.2;
 }
 
-/* Ensure rows share exact width and alternate only by background */
-.services-list-table table {
-    width: 100%;
-    border-collapse: collapse;
-    /* no gaps so widths are identical */
-    border-spacing: 0;
-}
-
-.services-list-table tbody tr {
-    background: #ffffff;
-    /* default white */
-}
-
-.services-list-table tbody tr:nth-child(even) {
-    background: #f3f4f6;
-    /* light gray band */
-}
-
-.services-list-table tbody tr td {
-    padding: 12px 16px;
-    /* consistent inner spacing */
-    border: none;
-    /* no borders between rows */
-    background: transparent;
-    /* inherit row background */
-}
-
-/* Service row content uses the row background (no extra card) */
-.service-row {
-    background: transparent;
-    border: none;
-    padding: 0;
-    /* padding handled by td */
-}
-
-/* Keep checkbox and text styles */
-.service-module-label {
-    margin-bottom: 2px;
-}
-
-.service-name-text {
-    line-height: 1.2;
-}
-
 /* Override Bootstrap table defaults inside services list */
 .services-list-table .table {
     margin-bottom: 0;
@@ -354,13 +397,6 @@
 
 .services-list-table .table-hover tbody tr:hover>* {
     background-color: inherit;
-}
-
-/* Ensure inner content never paints a different background */
-.services-list-table .service-row,
-.services-list-table .service-row * {
-    background: transparent !important;
-    box-shadow: none !important;
 }
 
 /* Ensure selected squares in overlay are solid blue */
@@ -389,6 +425,7 @@
     background-size: contain;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M3.53553 4.94975L1.41421 2.82843L0 4.24264L3.53553 7.77817L9.8995 1.41421L8.48528 0L3.53553 4.94975Z' fill='%23E0EBFF'/%3E%3C/svg%3E");
 }
+
 
 .back-square-btn {
   width: 48px;

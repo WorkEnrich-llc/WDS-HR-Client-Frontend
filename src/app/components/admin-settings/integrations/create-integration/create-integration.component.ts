@@ -4,7 +4,9 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { PopupComponent } from '../../../shared/popup/popup.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { IntegrationsService } from '../../../../core/services/admin-settings/integrations/integrations.service';
@@ -14,7 +16,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-create-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
     templateUrl: './create-integration.component.html',
     styleUrls: ['./create-integration.component.css']
 })
@@ -61,6 +63,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     itemsCurrentPage: number = 1;
     itemsPerPage: number = 10;
     itemsTotalItems: number = 0;
+    itemsTotalPages: number = 0;
 
     // Sections special case - departments and sections
     departments: FeatureItem[] = [];
@@ -83,6 +86,9 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
     // Service selection validation
     showServiceError: boolean = false;
+
+    // Discard modal state
+    isDiscardModalOpen: boolean = false;
 
     // Subscriptions for cleanup
     private featuresSubscription?: Subscription;
@@ -142,14 +148,111 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Custom validator to check if name is not empty after trimming
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Custom validator to check if expiry date is after start date
+     */
+    private dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+        if (!this.integrationForm) {
+            return null;
+        }
+
+        const startDate = this.integrationForm.get('startDate')?.value;
+        const expiryDate = control.value;
+        const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
+
+        // Only validate if expiry date checkbox is checked
+        if (!hasExpiryDate) {
+            return null;
+        }
+
+        // If expiry date is empty, don't validate here (required validator will handle it)
+        if (!expiryDate) {
+            return null;
+        }
+
+        // If start date is not set yet, don't validate
+        if (!startDate) {
+            return null;
+        }
+
+        // Compare dates
+        const start = new Date(startDate);
+        const expiry = new Date(expiryDate);
+        
+        // Set time to midnight for accurate date comparison
+        start.setHours(0, 0, 0, 0);
+        expiry.setHours(0, 0, 0, 0);
+
+        if (expiry <= start) {
+            return { dateRange: { message: 'Expiry date must be after start date' } };
+        }
+
+        return null;
+    }
+
+    /**
+     * Custom validator to check if start date is before expiry date
+     */
+    private startDateValidator(control: AbstractControl): ValidationErrors | null {
+        if (!this.integrationForm) {
+            return null;
+        }
+
+        const startDate = control.value;
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
+
+        // Only validate if expiry date checkbox is checked
+        if (!hasExpiryDate) {
+            return null;
+        }
+
+        // If start date is empty, don't validate here (required validator will handle it)
+        if (!startDate) {
+            return null;
+        }
+
+        // If expiry date is not set yet, don't validate
+        if (!expiryDate) {
+            return null;
+        }
+
+        // Compare dates
+        const start = new Date(startDate);
+        const expiry = new Date(expiryDate);
+        
+        // Set time to midnight for accurate date comparison
+        start.setHours(0, 0, 0, 0);
+        expiry.setHours(0, 0, 0, 0);
+
+        if (start >= expiry) {
+            return { startDateRange: { message: 'Start date must be before expiry date' } };
+        }
+
+        return null;
+    }
+
+    /**
      * Initialize the form
      */
     private initializeForm(): void {
         this.integrationForm = this.formBuilder.group({
-            name: ['', [Validators.required]],
-            startDate: ['', [Validators.required]],
+            name: ['', [Validators.required, this.noWhitespaceValidator.bind(this)]],
+            startDate: ['', [Validators.required, this.startDateValidator.bind(this)]],
             hasExpiryDate: [false],
-            expiryDate: ['']
+            expiryDate: ['', [this.dateRangeValidator.bind(this)]]
         });
     }
 
@@ -176,8 +279,9 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
 
-        // Name is required
-        if (!nameControl?.value || nameControl?.errors) {
+        // Name is required and must not be only whitespace
+        const nameValue = nameControl?.value;
+        if (!nameValue || typeof nameValue !== 'string' || nameValue.trim().length === 0 || nameControl?.errors) {
             return false;
         }
 
@@ -217,15 +321,23 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * For create mode, always return true (changes are always present in create mode)
+     * This getter is used in the shared template with update component
+     */
+    get hasChanges(): boolean {
+        return true;
+    }
+
+    /**
      * Open service filter overlay (first overlay - only services)
      */
     openServiceFilter(): void {
         // Reset search terms
         this.featureSearchTerm = '';
-        
+
         // Initialize selectedServicesForFirstOverlay with currently selected services
         this.selectedServicesForFirstOverlay = this.selectedServices.map(s => s.feature);
-        
+
         this.serviceFilterBox.openOverlay();
         this.loadIntegrationFeatures();
     }
@@ -245,12 +357,13 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     openItemsSelection(service: any): void {
         this.editingService = service;
         this.currentViewingFeature = service.feature;
-        
-        // Reset search terms
+
+        // Reset search terms and pagination
         this.itemsSearchTerm = '';
         this.departmentsSearchTerm = '';
         this.sectionsSearchTerm = '';
-        
+        this.itemsCurrentPage = 1;
+
         // Restore existing selections
         if (service.feature.name === 'Sections') {
             this.selectedDepartment = service.department || null;
@@ -264,7 +377,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
             this.selectedItems = [...(service.items || [])];
             this.loadFeatureItems(service.feature.name);
         }
-        
+
         this.itemsFilterBox.openOverlay();
     }
 
@@ -289,7 +402,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
      */
     confirmItemsSelection(): void {
         if (!this.editingService) return;
-        
+
         // Save current selections to the editing service
         if (this.editingService.feature.name === 'Sections') {
             if (this.selectedSections.length > 0 && this.selectedDepartment) {
@@ -312,7 +425,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
                 this.editingService.isAllSelected = true;
             }
         }
-        
+
         // Update selectedServices with the editing service
         const existingIndex = this.selectedServices.findIndex(s => s.feature.name === this.editingService.feature.name);
         if (existingIndex >= 0) {
@@ -320,7 +433,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedServices.push({ ...this.editingService });
         }
-        
+
         this.closeItemsFilter();
     }
 
@@ -364,7 +477,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         // Remove services that were deselected
-        this.selectedServices = this.selectedServices.filter(s => 
+        this.selectedServices = this.selectedServices.filter(s =>
             this.selectedServicesForFirstOverlay.some(f => f.name === s.feature.name)
         );
 
@@ -372,7 +485,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         if (this.selectedServices.length > 0) {
             this.showServiceError = false;
         }
-        
+
         this.serviceFilterBox.closeOverlay();
     }
 
@@ -446,7 +559,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         // Set as current viewing feature and remember it
         this.currentViewingFeature = feature;
         this.lastViewedFeature = feature;
-        
+
         // Clear current viewing state (will be restored if exists)
         this.selectedItems = [];
         this.featureItems = [];
@@ -498,7 +611,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     getFeatureSelectionCount(featureName: string): number {
         const service = this.selectedServices.find(s => s.feature.name === featureName);
         if (!service) return 0;
-        
+
         if (featureName === 'Sections') {
             return (service.sections || []).length;
         } else {
@@ -562,7 +675,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Load items for a feature
+     * Load items for a feature with pagination
      */
     loadFeatureItems(featureName: string): void {
         if (this.itemsSubscription) {
@@ -570,29 +683,54 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingItems = true;
-        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm).pipe(
-            switchMap((items) => {
+        this.itemsSubscription = this.featuresFacade.loadFeatureItems(featureName, this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage).pipe(
+            switchMap((result) => {
                 // If no items returned, fallback to employees
-                if (!items || items.length === 0) {
-                    return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+                if (!result.items || result.items.length === 0) {
+                    return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage);
                 }
-                return of(items);
+                return of(result);
             }),
             catchError((error) => {
                 console.error('Error loading feature items, falling back to employees:', error);
                 // On error, fallback to employees
-                return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm);
+                return this.featuresFacade.loadFeatureItems('Employees', this.itemsSearchTerm, this.itemsCurrentPage, this.itemsPerPage);
             })
         ).subscribe({
-            next: (items) => {
-                this.featureItems = items;
-                this.itemsTotalItems = items.length;
+            next: (result) => {
+                this.featureItems = result.items || [];
+                this.itemsTotalItems = result.totalItems || 0;
+                this.itemsTotalPages = Number(result.totalPages) || 1;
+                this.itemsCurrentPage = Number(result.currentPage) || 1;
                 this.isLoadingItems = false;
+
+                // After loading, restore selected items from all pages
+                // Get all currently selected item IDs (from all pages)
+                const selectedItemIds = this.selectedItems.map((item: any) =>
+                    typeof item === 'object' && item !== null ? item.id : item
+                ).filter((id: any) => id !== null && id !== undefined);
+
+                // For items on current page that are selected, update them with full object data
+                // Keep items from other pages in selectedItems
+                const currentPageSelectedItems = this.featureItems.filter((item: FeatureItem) =>
+                    selectedItemIds.includes(item.id)
+                );
+
+                // Merge: keep items from other pages, update/add items from current page
+                const otherPageSelectedItems = this.selectedItems.filter((item: any) => {
+                    const itemId = typeof item === 'object' && item !== null ? item.id : item;
+                    return !this.featureItems.some(fi => fi.id === itemId);
+                });
+
+                // Combine: items from other pages + items from current page
+                this.selectedItems = [...otherPageSelectedItems, ...currentPageSelectedItems];
             },
             error: (error) => {
                 console.error('Error loading feature items (including fallback):', error);
                 this.isLoadingItems = false;
                 this.featureItems = [];
+                this.itemsTotalItems = 0;
+                this.itemsTotalPages = 0;
             }
         });
     }
@@ -606,9 +744,9 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingDepartments = true;
-        this.departmentsSubscription = this.featuresFacade.loadFeatureItems('Departments', this.departmentsSearchTerm).subscribe({
-            next: (items) => {
-                this.departments = items;
+        this.departmentsSubscription = this.featuresFacade.loadFeatureItems('Departments', this.departmentsSearchTerm, 1, 10000).subscribe({
+            next: (result) => {
+                this.departments = result.items || [];
                 this.isLoadingDepartments = false;
             },
             error: (error) => {
@@ -642,7 +780,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
             next: (items) => {
                 this.sections = items;
                 this.isLoadingSections = false;
-                
+
                 // After loading, ensure selectedSections only contains sections that exist in the loaded list
                 // This prevents issues when restoring selections
                 if (this.selectedSections.length > 0) {
@@ -690,11 +828,20 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
      */
     toggleSelectAllItems(): void {
         if (this.isAllItemsSelected()) {
-            // Deselect all
-            this.selectedItems = [];
+            // Deselect all items from current page only
+            const currentPageItemIds = this.featureItems.map(item => item.id);
+            this.selectedItems = this.selectedItems.filter(item =>
+                !currentPageItemIds.includes(item.id)
+            );
         } else {
-            // Select all
-            this.selectedItems = [...this.featureItems];
+            // Select all items from current page, keeping items from other pages
+            const currentPageItemIds = this.featureItems.map(item => item.id);
+            // Remove any existing items from current page
+            this.selectedItems = this.selectedItems.filter(item =>
+                !currentPageItemIds.includes(item.id)
+            );
+            // Add all items from current page
+            this.selectedItems = [...this.selectedItems, ...this.featureItems];
         }
         // Don't save in real-time - only update on confirm
     }
@@ -728,10 +875,12 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Check if all items are selected
+     * Check if all items on current page are selected
      */
     isAllItemsSelected(): boolean {
-        return this.featureItems.length > 0 && this.selectedItems.length === this.featureItems.length;
+        if (this.featureItems.length === 0) return false;
+        // Check if all items on current page are selected
+        return this.featureItems.every(item => this.isItemSelected(item));
     }
 
     /**
@@ -742,17 +891,10 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get filtered items
+     * Get filtered items - now server-side, so just return current items
      */
     getFilteredItems(): FeatureItem[] {
-        if (!this.itemsSearchTerm.trim()) {
-            return this.featureItems;
-        }
-        const search = this.itemsSearchTerm.toLowerCase();
-        return this.featureItems.filter(item =>
-            item.name?.toLowerCase().includes(search) ||
-            item.code?.toLowerCase().includes(search)
-        );
+        return this.featureItems;
     }
 
     /**
@@ -770,12 +912,10 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get items for current page
+     * Get items for current page - now server-side, so just return current items
      */
     getItemsPage(): FeatureItem[] {
-        const filtered = this.getFilteredItems();
-        const start = (this.itemsCurrentPage - 1) * this.itemsPerPage;
-        return filtered.slice(start, start + this.itemsPerPage);
+        return this.featureItems;
     }
 
     /**
@@ -835,10 +975,10 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
             } else {
                 hasNoItems = !service.items || service.items.length === 0;
             }
-            
+
             // Set is_all to true if no items selected or if explicitly marked as all selected
             const isAllSelected = service.isAllSelected || hasNoItems;
-            
+
             if (service.feature.name === 'Sections') {
                 return {
                     name: service.feature.name,
@@ -881,7 +1021,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
             const requestBody: any = {
                 request_data: {
-                    name: formData.name,
+                    name: formData.name?.trim() || formData.name,
                     features: features,
                     start_at: formData.startDate,
                     no_expire: noExpire
@@ -909,9 +1049,24 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handle cancel action
+     * Handle cancel action - open discard modal
      */
     onCancel(): void {
+        this.isDiscardModalOpen = true;
+    }
+
+    /**
+     * Close discard modal
+     */
+    closeDiscardModal(): void {
+        this.isDiscardModalOpen = false;
+    }
+
+    /**
+     * Confirm discard action
+     */
+    confirmDiscard(): void {
+        this.isDiscardModalOpen = false;
         this.router.navigate(['/integrations']);
     }
 
@@ -921,21 +1076,118 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     onExpiryDateChange(): void {
         const hasExpiryDate = this.integrationForm.get('hasExpiryDate')?.value;
         const expiryDateControl = this.integrationForm.get('expiryDate');
+        const startDateControl = this.integrationForm.get('startDate');
 
         if (hasExpiryDate) {
-            expiryDateControl?.setValidators([Validators.required]);
+            expiryDateControl?.setValidators([Validators.required, this.dateRangeValidator.bind(this)]);
+            startDateControl?.setValidators([Validators.required, this.startDateValidator.bind(this)]);
         } else {
             expiryDateControl?.clearValidators();
             expiryDateControl?.setValue('');
+            startDateControl?.setValidators([Validators.required]);
         }
 
         expiryDateControl?.updateValueAndValidity();
+        startDateControl?.updateValueAndValidity();
+    }
+
+    /**
+     * Handle start date change
+     */
+    onStartDateChange(): void {
+        const startDateControl = this.integrationForm.get('startDate');
+        const expiryDateControl = this.integrationForm.get('expiryDate');
+        
+        // Update validators to re-check date range
+        startDateControl?.updateValueAndValidity({ emitEvent: false });
+        expiryDateControl?.updateValueAndValidity({ emitEvent: false });
+    }
+
+    /**
+     * Handle expiry date input change
+     */
+    onExpiryDateInputChange(): void {
+        const startDateControl = this.integrationForm.get('startDate');
+        const expiryDateControl = this.integrationForm.get('expiryDate');
+        
+        // Update validators to re-check date range
+        startDateControl?.updateValueAndValidity({ emitEvent: false });
+        expiryDateControl?.updateValueAndValidity({ emitEvent: false });
+    }
+
+    /**
+     * Get minimum date for expiry date (start date)
+     */
+    getMinExpiryDate(): string {
+        const startDate = this.integrationForm.get('startDate')?.value;
+        return startDate || '';
+    }
+
+    /**
+     * Get maximum date for start date (expiry date)
+     */
+    getMaxStartDate(): string {
+        const expiryDate = this.integrationForm.get('expiryDate')?.value;
+        return expiryDate || '';
     }
 
     /**
      * Search items
      */
+    /**
+     * Handle items search - reset to page 1 and reload with server-side search
+     */
     onItemsSearch(): void {
+        this.itemsCurrentPage = 1;
+        if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
+            this.loadFeatureItems(this.currentViewingFeature.name);
+        }
+    }
+
+    /**
+     * Handle items page change
+     */
+    onItemsPageChange(page: number): void {
+        // Ensure page is a number
+        const pageNum = Number(page);
+        const currentPageNum = Number(this.itemsCurrentPage);
+        const totalPagesNum = Number(this.itemsTotalPages);
+
+        // Prevent duplicate requests: check if page actually changed
+        if (currentPageNum === pageNum) {
+            return;
+        }
+
+        // Prevent requests while loading
+        if (this.isLoadingItems) {
+            return;
+        }
+
+        // Ensure page is at least 1
+        if (pageNum < 1) {
+            return;
+        }
+
+        // Only check upper bound if we have total pages data
+        if (totalPagesNum > 0 && pageNum > totalPagesNum) {
+            return;
+        }
+
+        // Update page and load data
+        this.itemsCurrentPage = pageNum;
+
+        // Use editingService if available, otherwise currentViewingFeature
+        const feature = this.editingService?.feature || this.currentViewingFeature;
+        if (feature && feature.name !== 'Sections') {
+            this.loadFeatureItems(feature.name);
+        }
+    }
+
+    /**
+     * Handle items per page change
+     */
+    onItemsItemsPerPageChange(newItemsPerPage: number): void {
+        this.itemsPerPage = newItemsPerPage;
         this.itemsCurrentPage = 1;
         if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
             this.loadFeatureItems(this.currentViewingFeature.name);
@@ -967,5 +1219,12 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         this.sections = [];
         this.selectedSections = [];
         this.showServiceError = false;
+    }
+
+    /**
+     * Get dummy array for pagination pipe (needed for pagination-controls to work)
+     */
+    getDummyPaginationArray(): any[] {
+        return Array(this.itemsTotalItems).fill(null);
     }
 }

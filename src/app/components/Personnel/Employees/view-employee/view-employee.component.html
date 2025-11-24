@@ -95,12 +95,23 @@
         <!-- Always visible fields -->
         <div class="m-auto">
           <div class="profile-hug" (click)="triggerUpload()">
-            <img [src]="profileImage" alt="">
+            <img [src]="profileImage" (error)="handleImageError()" alt="Profile Picture">
 
             <div class="overlay">
               <i class="fa-solid fa-upload"></i>
               <span>Upload Image</span>
             </div>
+
+            @if(hasProfilePicture){
+            <button class="remove-btn delete-btn " (click)="removeImage($event)" title="Remove Picture">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3,6 5,6 21,6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+            }
+
 
             <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" hidden
               (change)="onImageSelected($event)">
@@ -245,6 +256,15 @@
     <h6>Contract Start Date</h6>
     <span>{{ (employee.job_info.start_contract | date:'dd/MM/yyyy') || 'N/A' }}</span>
     </div> -->
+
+        <!-- @if (employee.job_info.start_contract) {
+        <div class="info">
+          <h6>Contract Start Date</h6>
+          <span>{{
+            (employee.job_info.start_contract | date : "dd/MM/yyyy") || "----"
+            }}</span>
+        </div>
+        } -->
 
         @if (employee.job_info.end_contract) {
         <div class="info">
@@ -675,7 +695,8 @@
           } @if (currentTab === 'documents') {
           <app-documents-tab [employee]="employee" [documentsRequired]="documentsRequired"
             [uploadProgress]="uploadProgress" (fileSelected)="onFileSelected($event)"
-            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)">
+            (uploadDocument)="onUpload($event.key, $event.fileInput)" (deleteDocument)="onDelete($event)"
+            (addDocumentClick)="addNewDocument()">
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
           <app-contracts-tab [employee]="employee"> </app-contracts-tab>

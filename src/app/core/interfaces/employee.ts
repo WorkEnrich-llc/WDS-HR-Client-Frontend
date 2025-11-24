@@ -2,6 +2,11 @@ export interface CreateEmployeeRequest {
   request_data: {
     id?: number;
 
+    picture: {
+      generate_signed_url: string | null;
+      image_url: string | null;
+    }
+
     main_information: {
       code?: string;
       name_english?: string;
@@ -52,6 +57,10 @@ export interface CreateEmployeeResponse {
 export interface Employee {
   id: number;
   code: string;
+  picture: {
+    generate_signed_url: string | null;
+    image_url: string | null;
+  }
   contact_info: {
     name: string;
     name_arabic: string;

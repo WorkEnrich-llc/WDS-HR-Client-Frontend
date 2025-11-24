@@ -1,0 +1,72 @@
+.email-setting-card {
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--border-radius-16);
+  padding: var(--spacing-24);
+  background-color: var(--color-white);
+}
+
+.section-title {
+  font-size: var(--font-size-h4);
+  font-weight: 600;
+  color: var(--color-secondary-800);
+  margin-bottom: var(--spacing-16);
+}
+
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.field-label {
+  font-size: var(--font-size-b3);
+  color: var(--color-secondary-500);
+  font-weight: 400;
+}
+
+.field-value {
+  font-size: var(--font-size-b2);
+  color: var(--color-secondary-800);
+  font-weight: 500;
+}
+
+.tls-badge-container {
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-loader {
+  width: 100%;
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.info {
+  font-size: var(--font-size-b3);
+  line-height: var(--line-height-sm);
+  color: var(--color-secondary-700);
+}
+
+/* Custom styles for the wide edit button */
+.page-header .btn-lg.btn-primary {
+  width: auto;
+  min-width: 180px;
+  padding-left: var(--spacing-24) !important;
+  padding-right: var(--spacing-24) !important;
+}

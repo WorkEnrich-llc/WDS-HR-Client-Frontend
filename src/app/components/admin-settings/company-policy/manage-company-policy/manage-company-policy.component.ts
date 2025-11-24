@@ -26,6 +26,8 @@ export class ManageCompanyPolicyComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   errMsg: string = '';
   isModalOpen: boolean = false;
+  isRemovePolicyModalOpen: boolean = false;
+  policyIndexToRemove: number | null = null;
   originalPolicies: any[] = [];
   createdDate: string = '';
   updatedDate: string = '';
@@ -129,12 +131,64 @@ export class ManageCompanyPolicyComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Remove a policy section
+   * Open remove policy confirmation modal
+   */
+  openRemovePolicyModal(index: number): void {
+    // Don't allow removing if only one policy remains
+    if (this.policiesArray.length <= 1) {
+      this.toasterService.showError('You must have at least one policy section.');
+      return;
+    }
+    this.policyIndexToRemove = index;
+    this.isRemovePolicyModalOpen = true;
+  }
+
+  /**
+   * Close remove policy modal
+   */
+  closeRemovePolicyModal(): void {
+    this.isRemovePolicyModalOpen = false;
+    this.policyIndexToRemove = null;
+  }
+
+  /**
+   * Get the title of the policy being removed
+   */
+  getPolicyTitleToRemove(): string {
+    if (this.policyIndexToRemove === null) {
+      return '';
+    }
+    const policyControl = this.policiesArray.at(this.policyIndexToRemove);
+    const title = policyControl?.get('title')?.value || '';
+    return title.trim() || 'this policy section';
+  }
+
+  /**
+   * Get the remove policy confirmation message
+   */
+  getRemovePolicyMessage(): string {
+    const title = this.getPolicyTitleToRemove();
+    if (title && title !== 'this policy section') {
+      return `Are you sure you want to remove "${title}"?`;
+    }
+    return 'Are you sure you want to remove this policy section?';
+  }
+
+  /**
+   * Confirm and remove policy section
+   */
+  confirmRemovePolicy(): void {
+    if (this.policyIndexToRemove !== null && this.policiesArray.length > 1) {
+      this.policiesArray.removeAt(this.policyIndexToRemove);
+      this.closeRemovePolicyModal();
+    }
+  }
+
+  /**
+   * Remove a policy section (kept for backward compatibility, but now opens modal)
    */
   removePolicySection(index: number): void {
-    if (this.policiesArray.length > 1) {
-      this.policiesArray.removeAt(index);
-    }
+    this.openRemovePolicyModal(index);
   }
 
   /**
@@ -247,11 +301,7 @@ export class ManageCompanyPolicyComponent implements OnInit, OnDestroy {
    * Open discard modal
    */
   openModal(): void {
-    if (this.isChanged) {
-      this.isModalOpen = true;
-    } else {
-      this.router.navigate(['/company-policy']);
-    }
+    this.isModalOpen = true;
   }
 
   /**

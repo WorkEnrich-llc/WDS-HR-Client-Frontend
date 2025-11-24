@@ -29,13 +29,13 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
   constructor(private fb: FormBuilder) {
     this.contractForm = this.fb.group({
-      adjustmentType: [0], // 1- Appraisal, 2- Correction, 3- Raise (only for edit mode)
+      adjustmentType: [0], //0- Not Selected, 1- Appraisal, 2- Correction, 3- Raise, 4- Correction (only for edit mode)
       salary: [null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
       noticePeriod: [null, [Validators.required, Validators.min(1)]] // notice period in days
-    });
+    }, { validators: this.dateRangeValidator.bind(this) });
   }
 
   ngOnInit(): void {
@@ -47,20 +47,22 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       this.populateForm();
     }
 
-    if (this.isEditMode && this.contract?.status === 'Active') {
+    if (this.isEditMode && (this.contract?.status === 'Active' && this.contract.end_contract)) {
       this.contractForm.get('startDate')?.disable({ emitEvent: false });
+      this.contractForm.get('endDate')?.disable({ emitEvent: false });
       this.contractForm.get('withEndDate')?.disable({ emitEvent: false });
       this.contractForm.get('noticePeriod')?.disable({ emitEvent: false });
     } else {
       this.contractForm.get('startDate')?.enable({ emitEvent: false });
+      this.contractForm.get('endDate')?.enable({ emitEvent: false });
       this.contractForm.get('withEndDate')?.enable({ emitEvent: false });
       this.contractForm.get('noticePeriod')?.enable({ emitEvent: false });
     }
-    // if (changes['contract'] && this.contract && this.isEditMode) {
-    //   this.populateForm();
-    // } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
-    //   this.resetForm();
-    // }
+    if (changes['contract'] && this.contract && this.isEditMode) {
+      this.populateForm();
+    } else if (changes['isOpen'] && this.isOpen && !this.isEditMode) {
+      this.resetForm();
+    }
 
     // Set up conditional validation for end date
     this.setupConditionalValidation();
@@ -90,9 +92,16 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
   private setupSalaryTypeSubscription(): void {
     const adjustmentTypeControl = this.contractForm.get('adjustmentType');
+    const salaryControl = this.contractForm.get('salary');
     if (adjustmentTypeControl) {
-      adjustmentTypeControl.valueChanges.subscribe(() => {
+      adjustmentTypeControl.valueChanges.subscribe((typeValue) => {
         this.setupSalaryValidation();
+        if (typeValue === 3 && salaryControl) {
+          salaryControl.markAsTouched();
+        } else if (salaryControl) {
+          salaryControl.markAsUntouched();
+        }
+        salaryControl?.updateValueAndValidity();
       });
     }
   }
@@ -105,7 +114,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     let minSalaryValue = 1;
     const isRaise = this.isEditMode && adjustmentTypeControl.value === 3;
     if (isRaise && this.currentContractSalary !== null) {
-      minSalaryValue = this.currentContractSalary;
+      minSalaryValue = this.currentContractSalary + 1;
     }
 
     let validators = [
@@ -147,7 +156,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       salary: this.contract.salary,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
-      noticePeriod: this.contract.notice_period
+      noticePeriod: this.contract.notice_period || null
     });
 
     // Set up salary validation after populating
@@ -178,7 +187,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         startDate: null,
         withEndDate: false,
         endDate: null,
-        noticePeriod: 0
+        noticePeriod: null
       });
     }
 
@@ -199,9 +208,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       });
       return;
     }
-
     const formValue = this.contractForm.value;
-
     if (this.isEditMode) {
       // For edit mode (adjustment)
       const contractData = {
@@ -221,7 +228,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
         startDate: formValue.startDate,
         endDate: formValue.withEndDate ? formValue.endDate : null,
         withEndDate: formValue.withEndDate,
-        noticePeriod: formValue.noticePeriod,
+        notice_period: formValue.noticePeriod,
         isEdit: false
       };
       this.onSave.emit(contractData);
@@ -329,6 +336,17 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       };
     }
 
+    return null;
+  }
+
+  dateRangeValidator(control: any) {
+    const form = control as FormGroup;
+    const fromDate = form.get('startDate')?.value;
+    const toDate = form.get('endDate')?.value;
+
+    if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
+      return { dateRange: true };
+    }
     return null;
   }
 

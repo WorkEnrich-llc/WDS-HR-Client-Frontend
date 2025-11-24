@@ -13,6 +13,7 @@ import { ContractTerminateModalComponent } from './modals/contract-terminate-mod
 import { ContractTerminatedViewModalComponent } from './modals/contract-terminated-view-modal/contract-terminated-view-modal.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { finalize } from 'rxjs';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   standalone: true,
@@ -27,6 +28,7 @@ import { finalize } from 'rxjs';
     ContractResignModalComponent,
     ContractTerminatedViewModalComponent,
     ContractResignedViewModalComponent,
+    PopupComponent
   ],
   templateUrl: './contracts-tab.component.html',
   styleUrl: './contracts-tab.component.css'
@@ -34,9 +36,13 @@ import { finalize } from 'rxjs';
 export class ContractsTabComponent implements OnInit, OnChanges {
   @Input() employee: Employee | null = null;
   @ViewChild('addForm') addForm: ContractFormModalComponent | undefined;
+  private employeeService = inject(EmployeeService);
 
   @Output() upcomingContractIdChange = new EventEmitter<number | null>();
   private upcomingContractId: number | null = null;
+
+  @Output() contractsDataUpdated = new EventEmitter<void>();
+  private upcomingContract: number | null = null;
 
 
   private toasterService = inject(ToasterMessageService);
@@ -67,7 +73,12 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   // isOpen = false;
   isEditMode = false;
 
-  constructor(private employeeService: EmployeeService) { }
+  isWarningModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
+  modalMessage2 = '';
+
+  constructor() { }
 
   ngOnInit(): void {
     // Don't load here - let ngOnChanges handle it when employee input is set
@@ -84,6 +95,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     }
   }
 
+
+
   // Load contracts from API
   private loadEmployeeContracts(): void {
     if (!this.employee?.id) return;
@@ -98,6 +111,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         const activeContract = this.contractsData.find(contract => contract.status === 'Upcoming');
         this.upcomingContractId = activeContract ? activeContract.id : null;
         this.upcomingContractIdChange.emit(this.upcomingContractId);
+
       },
       error: (error) => {
         console.error('Error loading contracts:', error);
@@ -246,8 +260,9 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         this.toasterService.showSuccess('Contract cancelled successfully');
         this.contractsData = this.mapApiContractsToUI(listItems);
         this.totalItems = this.contractsData.length;
-        // this.loadEmployeeContracts();
+        this.loadEmployeeContracts();
         // Show success message
+        this.contractsDataUpdated.emit();
       },
       error: (error) => {
         this.isLoading = false;
@@ -269,11 +284,45 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   }
 
   // Add new contract
+  // addContract(): void {
+  //   this.isEditMode = false;
+  //   // this.editedContract = null;
+  //   this.selectedContract = null;
+  //   this.isAddModalOpen = true;
+  // }
+
+  get isAddContractDisabled(): boolean {
+    if (!this.contractsData || this.contractsData.length === 0) {
+      return false;
+    }
+    const hasOpenContract = this.contractsData.some(contract =>
+      (contract.status === 'Active' || contract.status === 'Probation') &&
+      (!contract.end_contract)
+    );
+    return hasOpenContract;
+  }
+
+
   addContract(): void {
+    const hasOpenContract = this.contractsData.some(contract =>
+      (contract.status === 'Active' || contract.status === 'Probation') &&
+      (!contract.end_contract)
+    );
+
+    if (hasOpenContract) {
+      this.modalTitle = 'Action Not Allowed';
+      this.modalMessage = 'You cannot create a new contract while there is an active contract with an indefinite period (No End Date).';
+      this.modalMessage2 = 'Please terminate or add an end date to the current contract first.';
+      this.isWarningModalOpen = true;
+      return;
+    }
     this.isEditMode = false;
-    // this.editedContract = null;
     this.selectedContract = null;
     this.isAddModalOpen = true;
+  }
+
+  closeWarningModal(): void {
+    this.isWarningModalOpen = false;
   }
 
   // Close add/edit contract overlay
@@ -312,6 +361,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // Reload contracts after adjustment
           this.loadEmployeeContracts();
           this.closeAddModal();
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error adjusting contract:', error);
@@ -347,6 +397,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           this.loadEmployeeContracts();
           this.closeAddModal();
           // Show success message
+          this.contractsDataUpdated.emit();
         },
         error: (error) => {
           console.error('Error creating contract:', error);
@@ -502,6 +553,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
     this.toasterService.showSuccess('contract resignation processed successfully');
+    this.loadEmployeeContracts();
     // TODO: Add toast notification
   }
 

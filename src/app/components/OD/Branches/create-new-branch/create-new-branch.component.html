@@ -315,7 +315,7 @@
             <ng-template #departmentTableEmptyRow>
                 <tr>
                     <td colspan="3" class="no-data py-4">
-                        <ng-container *ngIf="searchAddedDepartmentTerm?.trim(); else noDepartments">
+                        <ng-container *ngIf="searchAddedDepartmentTerm.trim(); else noDepartments">
                             No Department match your search.
                         </ng-container>
                         <ng-template #noDepartments>
@@ -409,7 +409,7 @@
         <ng-template #noAllDepartments>
             <tr>
                 <td colspan="3" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noDepartments">
+                    <ng-container *ngIf="searchTerm.trim(); else noDepartments">
                         No Department match your search.
                     </ng-container>
                     <ng-template #noDepartments>
@@ -503,7 +503,7 @@
         <ng-template #noAllSections>
             <tr>
                 <td colspan="3" class="no-data py-4">
-                    <ng-container *ngIf="searchDeptSectionsTerm?.trim(); else noDepartments">
+                    <ng-container *ngIf="searchDeptSectionsTerm.trim(); else noDepartments">
                         No Sections match your search.
                     </ng-container>
                     <ng-template #noDepartments>
