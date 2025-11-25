@@ -122,7 +122,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
-        // profile_img:new FormControl(''),
+        profile_image: new FormControl(''),
         code: [''],
         name_english: ['', [Validators.required, fourPartsValidator()]],
         name_arabic: ['', [Validators.required, arabicNameValidator()]],
@@ -845,6 +845,7 @@ export class ManageEmployeeSharedService {
     const options = { emitEvent: false };
 
     this.mainInformation.patchValue({
+      profile_image: data.picture.generate_signed_url,
       code: data.code,
       // code: data.id.toString(),
       name_english: data.contact_info.name,
@@ -1408,6 +1409,7 @@ export class ManageEmployeeSharedService {
     const requestData: any = {
       main_information: {
         code: formData.main_information.code,
+        profile_image: formData.main_information.profile_image,
         name_english: formData.main_information.name_english,
         name_arabic: formData.main_information.name_arabic,
         gender: formData.main_information.gender,

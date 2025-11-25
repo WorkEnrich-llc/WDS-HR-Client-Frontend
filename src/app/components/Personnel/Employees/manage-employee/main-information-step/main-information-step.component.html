@@ -4,7 +4,7 @@
     <div [formGroup]="sharedService.mainInformation" class="w-lg-50 d-flex flex-column gap-2">
 
 
-      <!-- <div class="form-group">
+      <div class="form-group">
         <label for="logoInput" class="upload-box w-100 text-center" (click)="markLogoTouched()">
           @if (!previewUrl) {
           <div class="upload-content">
@@ -46,13 +46,13 @@
 
         </label>
 
-        @if (sharedService.mainInformation.get('profile_img')?.touched &&
-        sharedService.mainInformation.get('profile_img')?.errors?.['maxSize']) {
+        @if (sharedService.mainInformation.get('profile_image')?.touched &&
+        sharedService.mainInformation.get('profile_image')?.errors?.['maxSize']) {
         <p class="error-msg">
           Image size must be less than 5MB.
         </p>
         }
-      </div> -->
+      </div>
 
 
       <div class="input">
