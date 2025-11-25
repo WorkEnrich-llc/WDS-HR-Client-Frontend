@@ -39,14 +39,7 @@ export class InsuranceDetailsStepComponent {
 
   get isSaveDisabled(): boolean {
     const isInvalid = this.sharedService.employeeForm.invalid;
-    const isLoading = this.sharedService.isLoading();
-    
-    if (this.sharedService.isEditMode()) {
-      // In edit mode: enable when form is valid and has unsaved changes
-      return isInvalid || !this.sharedService.hasUnsavedChanges() || isLoading;
-    } else {
-      // In create mode: enable when form is valid (allow save even if pristine during initial fill)
-      return isInvalid || isLoading;
-    }
+    const isUnchanged = this.sharedService.employeeForm.pristine;
+    return isInvalid || isUnchanged || this.sharedService.isLoading();
   }
 }
