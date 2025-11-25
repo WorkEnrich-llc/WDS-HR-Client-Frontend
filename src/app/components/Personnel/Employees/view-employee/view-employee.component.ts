@@ -19,6 +19,7 @@ import { CustomInfoComponent } from './tabs/custom-info-tab/custom-info.componen
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
+import { Contract } from 'app/core/interfaces/contract';
 
 
 
@@ -61,6 +62,321 @@ export class ViewEmployeeComponent implements OnInit {
 
   // Contact Info collapse state
   contactInfoExpanded = false;
+
+
+
+  contractsList: Contract[] = [];
+  firstContractDate: string | null = null;
+  lastContractDate: string | null = null;
+  employeeDisplayStatus: string = '';
+
+  private loadEmployeeContracts(): void {
+    if (!this.employeeId) return;
+    this.employeeService.getEmployeeContracts(this.employeeId).subscribe({
+      next: (response) => {
+        const list = response.data.list_items || response.data;
+        this.contractsList = list;
+        this.calculateDates(list);
+        // const currentStatus = this.getEmployeeStatus(this.firstContractDate, this.lastContractDate);
+        // this.employeeDisplayStatus = currentStatus;
+
+
+        this.calculateDates(this.contractsList);
+        this.updateEmployeeStatus(this.contractsList);
+
+      },
+      error: (error) => {
+        console.error('Error loading contracts:', error);
+      }
+    });
+  }
+
+  calculateDates(list: any[]) {
+    if (!list || list.length === 0) {
+      this.firstContractDate = 'N/A';
+      this.lastContractDate = 'N/A';
+      return;
+    }
+
+    const sorted = [...list].sort((a, b) => new Date(a.start_contract).getTime() - new Date(b.start_contract).getTime());
+
+    this.firstContractDate = sorted[0].start_contract;
+    this.lastContractDate = sorted[sorted.length - 1].start_contract;
+  }
+
+  // private getEmployeeStatus(firstContractDate: string | null, lastContractStatus: string | null): string {
+
+  //   if (!firstContractDate) return 'N/A';
+
+  //   const inactiveStatuses = ['Terminated', 'Resigned', 'Cancelled'];
+
+  //   if (lastContractStatus && inactiveStatuses.includes(lastContractStatus)) {
+  //     return lastContractStatus;
+  //   }
+
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
+
+  //   const startDate = new Date(firstContractDate);
+  //   startDate.setHours(0, 0, 0, 0);
+
+
+  //   if (isNaN(startDate.getTime())) return 'Invalid Date';
+
+  //   if (startDate > today) {
+  //     return 'New Joiner';
+  //   } else if (startDate.getTime() === today.getTime()) {
+  //     return 'Joining Today';
+  //   } else {
+
+  //     const diffTime = today.getTime() - startDate.getTime();
+  //     const daysDiff = diffTime / (1000 * 3600 * 24);
+
+  //     if (daysDiff <= 90) {
+  //       return 'New Employee';
+  //     } else {
+  //       return 'Employed';
+  //     }
+  //   }
+  // }
+
+  // private getEmployeeStatus(firstContractDate: string | null, lastContractStatus: string | null): string {
+
+  //   if (!firstContractDate) return 'N/A';
+  //   const statusToCheck = lastContractStatus ? lastContractStatus.trim() : '';
+
+  //   const inactiveStatuses = ['Terminate', 'Resigned', 'Cancelled', 'Expired'];
+
+  //   if (lastContractStatus && inactiveStatuses.includes(lastContractStatus)) {
+  //     return lastContractStatus;
+  //   }
+
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
+
+  //   const startDate = new Date(firstContractDate);
+  //   startDate.setHours(0, 0, 0, 0);
+
+  //   if (isNaN(startDate.getTime())) return 'Invalid Date';
+
+
+  //   if (startDate > today) {
+  //     return 'New Joiner';
+  //   } else if (startDate.getTime() === today.getTime()) {
+  //     return 'Joining Today';
+  //   } else {
+
+  //     const diffTime = today.getTime() - startDate.getTime();
+  //     const daysDiff = diffTime / (1000 * 3600 * 24);
+
+  //     if (daysDiff <= 90) {
+  //       return 'Probation';
+  //     } else if (daysDiff <= 365) {
+  //       return 'New Employee';
+  //     } else {
+  //       return 'Employed';
+  //     }
+  //   }
+  // }
+
+  // calculateEmployeeStatus(list: any[]) {
+  //   if (!list || list.length === 0) return;
+
+  //   const sortedContracts = [...list].sort((a, b) => {
+  //     const dateA = new Date(a.start_contract).getTime();
+  //     const dateB = new Date(b.start_contract).getTime();
+
+  //     if (dateA !== dateB) {
+  //       return dateA - dateB;
+  //     }
+
+  //     const getPriority = (status: string) => {
+  //       const s = status ? status.toLowerCase().trim() : '';
+  //       if (s === 'terminate' || s === 'terminated') return 2;
+  //       if (s === 'resigned') return 2;
+  //       if (s === 'expired') return 1;
+  //       return 0;
+  //     };
+
+  //     return getPriority(a.status) - getPriority(b.status);
+  //   });
+
+  //   const firstContract = sortedContracts[0];
+  //   const lastContract = sortedContracts[sortedContracts.length - 1];
+
+
+  //   console.log('Selected Last Contract Status:', lastContract.status);
+
+  //   this.employeeDisplayStatus = this.getEmployeeStatus(
+  //     firstContract.start_contract,
+  //     lastContract.status
+  //   );
+  // }
+
+  private updateEmployeeStatus(contracts: any[]) {
+    if (!contracts || contracts.length === 0) {
+      this.employeeDisplayStatus = 'N/A';
+      return;
+    }
+
+    const sortedContracts = this.sortContracts(contracts);
+    const firstContract = sortedContracts[0];
+
+    const activeContract = contracts.find(c =>
+      c.status?.trim().toLowerCase() === 'active'
+    );
+
+    if (activeContract) {
+      this.employeeDisplayStatus = this.getTimeBasedStatus(firstContract.start_contract);
+
+    } else {
+      this.employeeDisplayStatus = this.getLastEffectiveStatus(sortedContracts);
+    }
+
+    console.log('Final Status Displayed:', this.employeeDisplayStatus);
+  }
+
+  // calculateEmployeeStatus(contracts: any[]) {
+  //   if (!contracts || contracts.length === 0) {
+  //     this.employeeDisplayStatus = 'N/A';
+  //     return;
+  //   }
+
+  //   const sortedContracts = [...contracts].sort((a, b) => {
+  //     const dateA = new Date(a.start_contract).getTime();
+  //     const dateB = new Date(b.start_contract).getTime();
+
+  //     if (dateA !== dateB) return dateA - dateB;
+
+  //     return a.id - b.id;
+  //   });
+
+  //   const firstContract = sortedContracts[0];
+
+  //   const activeContract = contracts.find(c =>
+  //     c.status?.trim().toLowerCase() === 'active'
+  //   );
+
+  //   if (activeContract) {
+  //     this.employeeDisplayStatus = this.getTimeBasedStatus(firstContract.start_contract);
+
+  //   } else {
+  //     const lastContract = this.getLastEffectiveContract(sortedContracts);
+
+  //     this.employeeDisplayStatus = lastContract.status;
+  //   }
+  // }
+
+  private getTimeBasedStatus(startDateString: string): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(startDateString);
+    startDate.setHours(0, 0, 0, 0);
+
+    if (isNaN(startDate.getTime())) return 'Invalid Date';
+
+    if (startDate > today) {
+      return 'New Joiner';
+    }
+
+    if (startDate.getTime() === today.getTime()) {
+      return 'Joining Today';
+    }
+
+    const diffTime = today.getTime() - startDate.getTime();
+    const daysDiff = diffTime / (1000 * 3600 * 24);
+
+    if (daysDiff <= 90) {
+      return 'Probation';
+    } else if (daysDiff <= 365) {
+      return 'New Employee';
+    } else {
+      return 'Employed';
+    }
+  }
+
+  // private getLastEffectiveContract(sortedContracts: any[]): any {
+  //   const reversed = [...sortedContracts].reverse();
+
+  //   const lastContract = reversed[0];
+  //   const lastDate = new Date(lastContract.start_contract).getTime();
+
+  //   const sameDateContracts = reversed.filter(c =>
+  //     new Date(c.start_contract).getTime() === lastDate
+  //   );
+
+  //   if (sameDateContracts.length > 1) {
+  //     const priorityStatus = ['Terminate', 'Terminated', 'Resigned', 'Cancelled'];
+
+  //     const criticalContract = sameDateContracts.find(c =>
+  //       priorityStatus.some(s => c.status?.trim().toLowerCase().includes(s.toLowerCase()))
+  //     );
+
+  //     if (criticalContract) return criticalContract;
+  //   }
+
+  //   return lastContract;
+  // }
+
+  private getLastEffectiveStatus(sortedContracts: any[]): string {
+    const reversed = [...sortedContracts].reverse();
+
+    const lastContract = reversed[0];
+    const lastDate = new Date(lastContract.start_contract).getTime();
+
+    const sameDateContracts = reversed.filter(c =>
+      new Date(c.start_contract).getTime() === lastDate
+    );
+
+    if (sameDateContracts.length > 1) {
+      const priorityStatus = ['Terminate', 'Resign', 'Cancelled', 'Expired'];
+
+      const criticalContract = sameDateContracts.find(c =>
+        c.status && priorityStatus.some(s => c.status.toLowerCase().includes(s.toLowerCase()))
+      );
+
+      if (criticalContract) return criticalContract.status;
+    }
+
+    return lastContract.status || 'N/A';
+  }
+
+  private sortContracts(contracts: any[]) {
+    return [...contracts].sort((a, b) => {
+      const dateA = new Date(a.start_contract).getTime();
+      const dateB = new Date(b.start_contract).getTime();
+
+      if (dateA !== dateB) return dateA - dateB;
+
+      return a.id - b.id;
+    });
+  }
+
+
+
+  // private calculateAndEmitSummary() {
+  //   if (!this.contractsList || this.contractsList.length === 0) {
+  //     this.contractsSummaryLoaded.emit({ first: null, last: null });
+  //     return;
+  //   }
+
+  //   const result = this.contractsList.reduce((acc, current) => {
+  //     const currentStart = new Date(current.start_contract).getTime();
+  //     const minStart = new Date(acc.first.start_contract).getTime();
+  //     const maxStart = new Date(acc.last.start_contract).getTime();
+
+  //     return {
+  //       first: currentStart < minStart ? current : acc.first,
+  //       last: currentStart > maxStart ? current : acc.last
+  //     };
+  //   }, { first: this.contractsList[0], last: this.contractsList[0] });
+
+  //   this.contractsSummaryLoaded.emit({
+  //     first: result.first.start_contract,
+  //     last: result.last.end_contract
+  //   });
+  // }
 
   toggleContactInfo(): void {
     this.contactInfoExpanded = !this.contactInfoExpanded;
@@ -294,6 +610,7 @@ export class ViewEmployeeComponent implements OnInit {
       }
     });
     this.loadCustomValues();
+    this.loadEmployeeContracts();
   }
 
   get onboardingCompleted(): number {
@@ -605,19 +922,19 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   // Determine employee status based on contract dates and status
-  private getEmployeeStatus(employee: Employee): string {
-    const today = new Date();
-    const startDate = new Date(employee.job_info.start_contract);
-    const daysDiff = (today.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
+  // private getEmployeeStatus(employee: Employee): string {
+  //   const today = new Date();
+  //   const startDate = new Date(employee.job_info.start_contract);
+  //   const daysDiff = (today.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
 
-    if (daysDiff < 0) {
-      return 'New Joiner'; // Contract hasn't started yet
-    } else if (daysDiff <= 90) {
-      return 'New Employee'; // Within first 90 days
-    } else {
-      return 'Employed'; // More than 90 days
-    }
-  }
+  //   if (daysDiff < 0) {
+  //     return 'New Joiner'; // Contract hasn't started yet
+  //   } else if (daysDiff <= 90) {
+  //     return 'New Employee'; // Within first 90 days
+  //   } else {
+  //     return 'Employed'; // More than 90 days
+  //   }
+  // }
 
   // Tab management method
   setCurrentTab(tab: 'attendance' | 'requests' | 'documents' | 'contracts' | 'leave-balance' | 'custom-info' | 'devices'): void {
