@@ -235,7 +235,7 @@ export class ViewEmployeeComponent implements OnInit {
       this.employeeDisplayStatus = this.getLastEffectiveStatus(sortedContracts);
     }
 
-    console.log('Final Status Displayed:', this.employeeDisplayStatus);
+    // console.log('Final Status Displayed:', this.employeeDisplayStatus);
   }
 
   // calculateEmployeeStatus(contracts: any[]) {

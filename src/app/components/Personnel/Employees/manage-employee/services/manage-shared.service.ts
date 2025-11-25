@@ -149,7 +149,7 @@ export class ManageEmployeeSharedService {
         start_contract: ['', [Validators.required]],
         contract_type: [2, Validators.required],
         contract_end_date: [''],
-        include_probation: [false],
+        probation_period: [false],
         notice_period: [null],
         salary: ['', [Validators.required, Validators.min(0)]],
         // insurance_salary: ['']
@@ -845,7 +845,7 @@ export class ManageEmployeeSharedService {
     const options = { emitEvent: false };
 
     this.mainInformation.patchValue({
-      profile_image: data.picture?.generate_signed_url ?? null,
+      profile_image: data.picture?.generate_signed_url,
 
       code: data.code,
       // code: data.id.toString(),
@@ -1431,6 +1431,7 @@ export class ManageEmployeeSharedService {
 
     if (this.employeeForm.get('contract_details')) {
       contractDetailsPayload = {
+        probation_period: formData.attendance_details.probation_period,
         employment_type: formData.attendance_details.employment_type,
         work_mode: formData.attendance_details.work_mode,
         days_on_site: formData.attendance_details.days_on_site
@@ -1447,6 +1448,7 @@ export class ManageEmployeeSharedService {
       if (isCreateMode) {
         contractDetailsPayload = {
           ...contractDetailsPayload,
+          probation_period: formData.contract_details.probation_period,
           start_contract: this.formatDateForAPI(formData.contract_details.start_contract),
           contract_type: formData.contract_details.contract_type,
           contract_end_date: formData.contract_details.contract_type === 1
