@@ -143,76 +143,77 @@ export class EditBranchInfoComponent implements OnInit {
   }
 
   // get all departments
-getAllDepartment(pageNumber: number, searchTerm: string = '') {
-  this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
-    search: searchTerm || undefined,
-  }).subscribe({
-    next: (response) => {
-      this.currentPage = Number(response.data.page);
-      this.totalItems = response.data.total_items;
-      this.totalpages = response.data.total_pages;
+  getAllDepartment(pageNumber: number, searchTerm: string = '') {
+    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+      search: searchTerm || undefined,
+    }).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
 
-      const allDepartments = response.data.list_items;
+        const allDepartments = response.data.list_items;
 
-      this.departments = allDepartments
-        // خلى كل department يظهر لو هو active أو موجود في addeddepartments
-        .filter((item: { is_active: any; id: any; }) => item.is_active || this.addeddepartments.some(dep => dep.id === item.id))
-        .map((item: any) => {
-          const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
+        this.departments = allDepartments
+          .filter((item: { is_active: any; id: any; }) => item.is_active || this.addeddepartments.some(dep => dep.id === item.id))
+          .map((item: any) => {
+            const isSelected = this.addeddepartments.some(dep => dep.id === item.id);
 
-          let rawSections: any[] = [];
-          if (item.sections) {
-            if (Array.isArray(item.sections)) {
-              rawSections = item.sections;
-            } else if (item.sections.options_list) {
-              rawSections = item.sections.options_list;
+            let rawSections: any[] = [];
+            if (item.sections) {
+              if (Array.isArray(item.sections)) {
+                rawSections = item.sections;
+              } else if (item.sections.options_list) {
+                rawSections = item.sections.options_list;
+              }
             }
-          }
 
-          // اختار السكشنز اللي فعالة أو موجودة في addeddepartments
-          const activeSections = rawSections
-            .filter(section =>
-              section.is_active || 
-              (this.addeddepartments.some(dep => dep.id === item.id &&
-                dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id)))
-            )
-            .map(section => {
-              const isAddedButInactive = this.addeddepartments.some(dep => dep.id === item.id &&
-                dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id && !section.is_active));
-              return {
-                ...section,
-                selected: false,
-                name: !section.is_active && isAddedButInactive ? `${section.name} (Not Active)` : section.name
-              };
-            });
+            const activeSections = rawSections
+              .filter(section =>
+                section.is_active ||
+                (this.addeddepartments.some(dep => dep.id === item.id &&
+                  dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id)))
+              )
+              .map(section => {
+                const isAddedButInactive = this.addeddepartments.some(dep => dep.id === item.id &&
+                  dep.sections.selected_list.some((s: { id: any; }) => s.id === section.id && !section.is_active));
+                return {
+                  ...section,
+                  selected: false,
+                  name: !section.is_active && isAddedButInactive ? `${section.name} (Not Active)` : section.name
+                };
+              });
 
-          const optionsList = activeSections;
-          const selectedList = optionsList.filter(s => s.selected);
+            const optionsList = activeSections;
+            const selectedList = optionsList.filter(s => s.selected);
 
-          return {
-            id: item.id,
-            name: item.is_active ? item.name : `${item.name} (Not Active)`,
-            code: item.code || '',
-            objectives: item.objectives || '',
-            is_active: item.is_active ?? true,
-            created_at: item.created_at,
-            updated_at: item.updated_at,
-            selected: isSelected,
-            relationship_id: item.relationship_id || null,
-            sections: {
-              selected_list: selectedList,
-              options_list: optionsList
-            }
-          };
-        });
+            return {
+              id: item.id,
+              name: item.is_active ? item.name : `${item.name} (Not Active)`,
+              code: item.code || '',
+              objectives: item.objectives || '',
+              is_active: item.is_active ?? true,
+              created_at: item.created_at,
+              updated_at: item.updated_at,
+              selected: isSelected,
+              relationship_id: item.relationship_id || null,
+              sections: {
+                selected_list: selectedList,
+                options_list: optionsList
+              }
+            };
+          });
 
-      this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
-    },
-    error: (err) => {
-      console.error(err.error?.details);
-    }
-  });
-}
+        this.selectAll = this.departments.length > 0 && this.departments.every(dep => dep.selected);
+
+        this.syncAddedDepartmentsWithActiveStatus();
+        this.syncSectionsWithActiveStatus();
+      },
+      error: (err) => {
+        console.error(err.error?.details);
+      }
+    });
+  }
 
 
 
@@ -341,6 +342,61 @@ getAllDepartment(pageNumber: number, searchTerm: string = '') {
         return of(null);
       })
     );
+  }
+
+
+  // handle added department not active 
+  syncAddedDepartmentsWithActiveStatus(): void {
+    this.addeddepartments = this.addeddepartments.map(addedDept => {
+      const deptInMasterList = this.departments.find(d => d.id === addedDept.id);
+
+      if (deptInMasterList) {
+        return {
+          ...addedDept,
+          name: deptInMasterList.name,
+          is_active: deptInMasterList.is_active
+        };
+      }
+
+      return addedDept;
+    });
+  }
+
+
+  // hadle added sections not active
+  syncSectionsWithActiveStatus(): void {
+    this.addeddepartments = this.addeddepartments.map(dept => {
+      const masterDept = this.departments.find(d => d.id === dept.id);
+      if (!masterDept || !masterDept.sections?.options_list) return dept;
+
+      const updatedOptionsList = masterDept.sections.options_list
+        .map((masterSection: { id: any; name: any; is_active: any; }) => {
+          const existing = dept.sections?.options_list?.find((s: any) => s.id === masterSection.id);
+
+          if (existing) {
+            return { ...existing, name: masterSection.name, is_active: masterSection.is_active };
+          }
+          if (masterSection.is_active) {
+            return { ...masterSection, selected: false };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      const updatedSelectedList = (dept.sections?.selected_list || [])
+        .map((s: any) => updatedOptionsList.find((us: any) => us.id === s.id))
+        .filter(Boolean)
+        .map((s: any) => ({ ...s, selected: true }));
+
+      return {
+        ...dept,
+        sections: {
+          options_list: updatedOptionsList,
+          selected_list: updatedSelectedList
+        },
+        selectedSection: updatedSelectedList.length
+      };
+    });
   }
 
 

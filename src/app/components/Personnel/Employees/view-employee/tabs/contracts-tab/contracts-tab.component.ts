@@ -44,7 +44,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   @Output() contractsDataUpdated = new EventEmitter<void>();
   private upcomingContract: number | null = null;
 
-
   private toasterService = inject(ToasterMessageService);
   historyContract: Contract | null = null;
   editedContract: Contract | null = null;
@@ -121,6 +120,9 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       }
     });
   }
+
+
+
 
 
 

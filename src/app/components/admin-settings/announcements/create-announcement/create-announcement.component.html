@@ -142,6 +142,11 @@
                     Body is required.
                 </p>
                 }
+                @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['whitespace']) {
+                <p class="error-msg">
+                    Body cannot start or end with whitespace.
+                </p>
+                }
                 @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['minlength']) {
                 <p class="error-msg">
                     Body must be at least 2 characters long.
@@ -157,9 +162,9 @@
             <div class="input">
                 <label for="image">Announcement Image</label>
                 <div class="image-upload-container">
-                    <input type="file" id="image" accept="image/*" (change)="onImageSelected($event)"
+                    <input type="file" id="image" accept="image/jpeg,image/jpg,image/png,image/webp" (change)="onImageSelected($event)"
                         class="image-input" #imageInput>
-                    <div class="image-upload-area" (click)="imageInput.click()" [class.has-image]="selectedImage">
+                    <div class="image-upload-area" (click)="openImagePicker($event)" [class.has-image]="selectedImage">
                         @if (!selectedImage) {
                         <div class="upload-placeholder">
                             <div class="upload-icon-wrapper">
@@ -195,14 +200,14 @@
                         <div class="image-preview">
                             <img [src]="selectedImage" alt="Preview" class="preview-image">
                             <div class="image-overlay">
-                                <button type="button" class="remove-image-btn" (click)="removeImage()">
+                                <button type="button" class="remove-image-btn" (click)="removeImage($event)">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </button>
-                                <button type="button" class="change-image-btn" (click)="imageInput.click()">
+                                <button type="button" class="change-image-btn" (click)="openImagePicker($event)">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path

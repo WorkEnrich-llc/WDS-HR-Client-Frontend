@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -123,12 +123,29 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Custom validator to check if value is not empty after trimming and has no leading/trailing whitespace
+     */
+    private noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
+        if (control.value && typeof control.value === 'string') {
+            const trimmed = control.value.trim();
+            if (trimmed.length === 0) {
+                return { required: true };
+            }
+            // Check if the original value has leading or trailing whitespace
+            if (control.value !== trimmed) {
+                return { whitespace: true };
+            }
+        }
+        return null;
+    }
+
+    /**
      * Initialize the form
      */
     initializeForm(): void {
         this.announcementForm = this.formBuilder.group({
             title: ['', [Validators.required, Validators.minLength(2)]],
-            body: ['', [Validators.required, Validators.minLength(2)]]
+            body: ['', [Validators.required, Validators.minLength(2), this.noWhitespaceValidator.bind(this)]]
         });
     }
 
@@ -169,17 +186,43 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
 
 
     /**
+     * Open image picker
+     */
+    openImagePicker(event: Event): void {
+        event.stopPropagation();
+        const fileInput = document.getElementById('image') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    /**
      * Handle image selection
      */
     onImageSelected(event: Event): void {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
 
-        if (!file) return;
+        // If no file selected (user cancelled), do nothing
+        if (!file) {
+            // Reset the input value to ensure change event fires next time
+            input.value = '';
+            return;
+        }
 
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            this.imageError = 'Please select a valid image file.';
+        // Clear any previous errors first
+        this.imageError = null;
+
+        // Validate file type - only allow jpg, jpeg, png, webp
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        const isValidType = allowedTypes.includes(file.type) ||
+            (fileExtension && ['jpg', 'jpeg', 'png', 'webp'].includes(fileExtension));
+
+        if (!isValidType) {
+            this.imageError = 'Please select a valid image file. Only JPG, JPEG, PNG, and WEBP formats are allowed.';
+            // Reset input
+            input.value = '';
             return;
         }
 
@@ -187,16 +230,19 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         const maxSize = 10 * 1024 * 1024; // 10MB in bytes
         if (file.size > maxSize) {
             this.imageError = 'Image size must be less than 10MB.';
+            // Reset input
+            input.value = '';
             return;
         }
-
-        // Clear any previous errors
-        this.imageError = null;
 
         // Create preview
         const reader = new FileReader();
         reader.onload = (e) => {
             this.selectedImage = e.target?.result as string;
+        };
+        reader.onerror = () => {
+            this.imageError = 'Failed to read the image file. Please try again.';
+            input.value = '';
         };
         reader.readAsDataURL(file);
     }
@@ -204,7 +250,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     /**
      * Remove selected image
      */
-    removeImage(): void {
+    removeImage(event?: Event): void {
+        if (event) {
+            event.stopPropagation();
+        }
         this.selectedImage = null;
         this.imageError = null;
 
@@ -680,8 +729,10 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
         this.isSubmitting = true;
 
         const formData = new FormData();
-        formData.append('title', this.announcementForm.get('title')?.value);
-        formData.append('body', this.announcementForm.get('body')?.value);
+        const titleValue = this.announcementForm.get('title')?.value;
+        const bodyValue = this.announcementForm.get('body')?.value;
+        formData.append('title', typeof titleValue === 'string' ? titleValue.trim() : titleValue);
+        formData.append('body', typeof bodyValue === 'string' ? bodyValue.trim() : bodyValue);
         formData.append('type', this.getRecipientTypeNumber().toString());
 
         // Add recipients as array

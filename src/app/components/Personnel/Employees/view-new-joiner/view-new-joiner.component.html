@@ -72,9 +72,9 @@
         <div class="content-box d-flex flex-column gap-3 w-100">
 
             <!-- Always visible fields -->
-           
+
             <h2>Contact Info</h2>
-             <div class="m-auto">
+            <div class="m-auto">
                 <div class="profile-hug" (click)="triggerUpload()">
                     <img [src]="profileImage" (error)="handleImageError()" alt="Profile Picture">
 
@@ -95,7 +95,7 @@
                         (change)="onImageSelected($event)">
                 </div>
             </div>
-            
+
             <div class="info">
                 <h6>ID</h6>
                 <span>{{ employee.id || "----" }}</span>
@@ -307,30 +307,56 @@
     <!-- Join Status Section -->
     <div class="content-box d-flex flex-column gap-3 w-100 my-3">
         <!-- Future join date -->
-        @if (isCancelContract()) {
+        <!-- @if (isCancelContract() && !isJoiningFuture() && !isJoiningToday()) {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} his contract has been cancelled.
         </h5>
+        } -->
+        <!-- @if (isJoiningFuture() && !isJoiningToday()) {
+        <h5 class="m-0 text-center">
+            {{ employee.contact_info.name }} will join on
+            <span>{{ getFormattedJoinDate() }}</span>
+        </h5>
+        } -->
+        <!-- Today joined -->
+        <!-- @if (isJoiningToday()) {
+        <h5 class="m-0 text-center">
+            {{ employee.contact_info.name }} will join <span>Today</span>
+        </h5>
+        } -->
+        <!-- Past join date -->
+        <!-- @if (!isJoiningFuture() && !isJoiningToday()) {
+        <h5 class="m-0 text-center">
+            {{ employee.contact_info.name }} joined on
+            <span>{{ getFormattedJoinDate() }}</span>
+        </h5>
+        }  -->
+
+        @if (isCancelContract()) {
+        <h5 class="m-0 text-center">
+            <span class="text-danger">No active contract found for : </span>{{ employee.contact_info.name }}
+        </h5>
         }
-        @if (isJoiningFuture() && !isJoiningToday()) {
+        @else if (isJoiningFuture()) {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} will join on
             <span>{{ getFormattedJoinDate() }}</span>
         </h5>
         }
-        <!-- Today joined -->
-        @if (isJoiningToday()) {
+        @else if (isJoiningToday()) {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} will join <span>Today</span>
         </h5>
         }
-        <!-- Past join date -->
-        @if (!isJoiningFuture() && !isJoiningToday()) {
+        @else {
         <h5 class="m-0 text-center">
             {{ employee.contact_info.name }} joined on
             <span>{{ getFormattedJoinDate() }}</span>
         </h5>
-        } @if (isJoiningToday()) {
+        }
+
+
+        @if (isJoiningToday()) {
         <div class="d-flex justify-content-center">
             @if (hasEmployeePermission('update')) {
             <button class="btn btn-outline-danger btn-lg border-0 w-auto m-0" (click)="openRescheduleOverlay()">
