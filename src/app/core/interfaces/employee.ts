@@ -8,6 +8,7 @@ export interface CreateEmployeeRequest {
     }
 
     main_information: {
+      profile_image?: string | null;
       code?: string;
       name_english?: string;
       name_arabic?: string;
@@ -57,6 +58,7 @@ export interface CreateEmployeeResponse {
 export interface Employee {
   id: number;
   code: string;
+  profile_image?: string | null;
   picture: {
     generate_signed_url: string | null;
     image_url: string | null;

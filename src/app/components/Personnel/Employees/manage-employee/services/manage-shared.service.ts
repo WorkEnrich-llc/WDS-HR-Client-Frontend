@@ -845,7 +845,8 @@ export class ManageEmployeeSharedService {
     const options = { emitEvent: false };
 
     this.mainInformation.patchValue({
-      profile_image: data.picture.generate_signed_url,
+      profile_image: data.picture?.generate_signed_url ?? null,
+
       code: data.code,
       // code: data.id.toString(),
       name_english: data.contact_info.name,
