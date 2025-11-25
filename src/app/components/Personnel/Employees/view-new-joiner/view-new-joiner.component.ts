@@ -171,7 +171,20 @@ export class ViewNewJoinerComponent implements OnInit {
       next: (response) => {
         this.employee = response.data.object_info;
         console.log('Parent employee data updated without full reload.');
+
+        if (this.employee) {
+          const currentStatus = this.getEmployeeStatus(this.employee);
+
+          const activeStatuses = ['New Employee', 'Employed', 'Probation'];
+
+          if (activeStatuses.includes(currentStatus)) {
+
+            this.router.navigate(['/employees/view-employee', this.employeeId]);
+
+          }
+        }
       },
+
       error: (error) => {
         console.error('Error updating employee info after contract change:', error);
       }

@@ -70,6 +70,8 @@ export class ViewEmployeeComponent implements OnInit {
   lastContractDate: string | null = null;
   employeeDisplayStatus: string = '';
 
+  isNewJoinerView: boolean = false;
+
   private loadEmployeeContracts(): void {
     if (!this.employeeId) return;
     this.employeeService.getEmployeeContracts(this.employeeId).subscribe({
