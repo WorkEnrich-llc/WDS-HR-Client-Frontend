@@ -46,8 +46,8 @@
 
         </label>
 
-        @if (sharedService.mainInformation.get('profile_img')?.touched &&
-        sharedService.mainInformation.get('profile_img')?.errors?.['maxSize']) {
+        @if (sharedService.mainInformation.get('profile_image')?.touched &&
+        sharedService.mainInformation.get('profile_image')?.errors?.['maxSize']) {
         <p class="error-msg">
           Image size must be less than 5MB.
         </p>

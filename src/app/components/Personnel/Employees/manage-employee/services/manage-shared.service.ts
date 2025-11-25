@@ -122,7 +122,7 @@ export class ManageEmployeeSharedService {
   private initializeForm(): void {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
-        // profile_img:new FormControl(''),
+        profile_image:new FormControl(''),
         code: [''],
         name_english: ['', [Validators.required, fourPartsValidator()]],
         name_arabic: ['', [Validators.required, arabicNameValidator()]],

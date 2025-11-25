@@ -67,13 +67,13 @@ export class MainInformationStepComponent {
   // image
   previewUrl: string | ArrayBuffer | null = null;
   markLogoTouched() {
-    this.sharedService.mainInformation.get('profile_img')?.markAsTouched();
+    this.sharedService.mainInformation.get('profile_image')?.markAsTouched();
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    const imgControl = this.sharedService.mainInformation.get('profile_img');
+    const imgControl = this.sharedService.mainInformation.get('profile_image');
 
     this.previewUrl = null;
     imgControl?.setErrors(null);
