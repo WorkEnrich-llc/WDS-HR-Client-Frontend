@@ -6,8 +6,8 @@
   [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
   [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
 
-
-  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" [disabled]="isSaveDisabled">
+  <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" 
+    [disabled]="sharedService.isEditMode() ? (!sharedService.employeeForm.dirty && !sharedService.employeeForm.get('main_information.profile_image')?.dirty) || sharedService.isLoading() : isSaveDisabled">
     @if (sharedService.isLoading()) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
