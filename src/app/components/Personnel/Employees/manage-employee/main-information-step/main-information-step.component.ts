@@ -85,14 +85,14 @@ export class MainInformationStepComponent {
     }
 
     const isPng = file.type === 'image/png';
-    const isUnder5MB = file.size <= 5 * 1024 * 1024;
+    const isUnder16MB = file.size <= 16 * 1024 * 1024;
 
     if (!isPng) {
       imgControl?.setErrors({ invalidFormat: true });
       return;
     }
 
-    if (!isUnder5MB) {
+    if (!isUnder16MB) {
       imgControl?.setErrors({ maxSize: true });
       return;
     }
@@ -100,7 +100,7 @@ export class MainInformationStepComponent {
     const reader = new FileReader();
     reader.onload = () => {
       this.previewUrl = reader.result;
-      imgControl?.setValue(file);
+      imgControl?.setValue(reader.result); // Send base64 string instead of file
       imgControl?.setErrors(null);
     };
     reader.readAsDataURL(file);
