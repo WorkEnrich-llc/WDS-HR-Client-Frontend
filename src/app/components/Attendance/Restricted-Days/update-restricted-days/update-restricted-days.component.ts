@@ -67,7 +67,7 @@ export class UpdateRestrictedDaysComponent implements OnInit, AfterViewInit {
   ) {
     this._DepartmentsService.getAllDepartment(1, 10000, {
       search: searchTerm || undefined,
-      ...filters
+      ...filters, status: 'active'
     }).subscribe({
       next: (response) => {
         this.departments = response.data.list_items;
