@@ -44,6 +44,7 @@ export interface CreateEmployeeRequest {
       gross_insurance_salary?: number | null;
       gross_insurance?: number | null;
       notice_period?: number | null;
+      probation_period: boolean;
     };
   };
 }
@@ -131,6 +132,7 @@ export interface Employee {
       id: number;
       name: string;
     };
+    probation_period: boolean;
     start_contract: string;
     contract_type: {
       id: number;
