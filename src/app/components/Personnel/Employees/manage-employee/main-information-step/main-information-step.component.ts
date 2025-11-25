@@ -200,7 +200,5 @@ export class MainInformationStepComponent implements OnInit {
   // }
 
 }
-function ngOnInit() {
-  throw new Error('Function not implemented.');
-}
+
 
