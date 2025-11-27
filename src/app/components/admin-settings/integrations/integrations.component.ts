@@ -152,7 +152,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                     this.integrations = response.data.list_items.map((item: any, index: number) => ({
                         id: item.id,
                         integrationName: item.name || `Integration ${String(item.id).padStart(3, '0')}`,
-                        createDate: this.formatDate(item.created_from),
+                        createDate: this.formatDate(item.start_at),
                         expiryDate: this.formatExpiryDate(item.expires_at, item.no_expire),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
