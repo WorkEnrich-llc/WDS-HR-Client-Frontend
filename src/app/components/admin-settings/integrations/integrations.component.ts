@@ -229,6 +229,23 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Map status string to numeric code
+     * 0 = active, 1 = expired, 2 = revoked, 3 = pending
+     */
+    private mapStatusToCode(status: string): number | undefined {
+        if (!status) {
+            return undefined;
+        }
+        const statusMap: { [key: string]: number } = {
+            'active': 0,
+            'expired': 1,
+            'revoked': 2,
+            'pending': 3
+        };
+        return statusMap[status.toLowerCase()];
+    }
+
+    /**
      * Apply filters
      */
     filter(): void {
@@ -240,7 +257,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                 created_to: rawFilters.created_to || undefined,
                 expiry_from: rawFilters.expiry_from || undefined,
                 expiry_to: rawFilters.expiry_to || undefined,
-                status: rawFilters.status || undefined
+                status: this.mapStatusToCode(rawFilters.status)
             };
 
             this.currentFilters = filters;
