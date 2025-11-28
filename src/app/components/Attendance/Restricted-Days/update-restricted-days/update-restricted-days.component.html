@@ -3,7 +3,7 @@
     { label: 'Attendance', link: '/attendance' },
     { label: 'Restricted Days', link: '/restricted-days' },
     {  label: 'Edit Restricted Day - '+resterictedDayData.name}
-  ]" [title]="'Edit Restricted Day -b'+resterictedDayData.name" [create]="formattedCreatedAt"
+  ]" [title]="'Edit Restricted Day - '+resterictedDayData.name" [create]="formattedCreatedAt"
   [update]="formattedUpdatedAt">
   <button class="btn btn-lg btn-success w-auto" [disabled]="!restrictedDayForm.valid || isLoading || !formChanged()"
     (click)="updateRestrictedDay()">
@@ -54,12 +54,12 @@
             <input type="text" formControlName="name" id="restrictedName" class="form-control custom-date-input"
               placeholder="Restricted Day Name" />
           </div>
-          @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['minLength']) {
+          @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['minlength']) {
           <p class="error-msg">
             Restricted Day Name min length must be 3.
           </p>
           }
-          @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['maxLength']) {
+          @if (restrictedDayForm.get('name')?.touched && restrictedDayForm.get('name')?.errors?.['maxlength']) {
           <p class="error-msg">
             Restricted Day Name max length must be 100.
           </p>

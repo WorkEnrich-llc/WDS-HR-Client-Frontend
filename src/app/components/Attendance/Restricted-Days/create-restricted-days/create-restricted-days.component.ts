@@ -38,8 +38,8 @@ export class CreateRestrictedDaysComponent implements OnInit, AfterViewInit {
     private toasterMessageService: ToasterMessageService,
     private fb: FormBuilder
   ) {
-    // const today = new Date();
-    // this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
+    const today = new Date();
+    this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
   }
 
   ngOnInit(): void {
@@ -78,7 +78,7 @@ export class CreateRestrictedDaysComponent implements OnInit, AfterViewInit {
 
   restrictedDayForm: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]),
     restriction_type: new FormControl('', [Validators.required]),
     departments: new FormControl(''),
     dates: new FormControl('', [Validators.required]),
