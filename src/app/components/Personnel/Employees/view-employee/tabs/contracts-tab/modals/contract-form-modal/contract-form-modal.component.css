@@ -1,1 +1,8 @@
 /* Contract Form Modal Styles */
+.custom-date-input.is-invalid {
+  background-image: none !important;
+}
+
+.svg-error-adjust {
+  top: 36%;
+}

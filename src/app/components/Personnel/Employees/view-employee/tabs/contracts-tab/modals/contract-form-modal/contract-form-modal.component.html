@@ -76,6 +76,16 @@
           <input id="startDate" type="date" class="form-control custom-date-input"
             [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
             placeholder="Select Start Date" formControlName="startDate" />
+          <svg
+            [class.svg-error-adjust]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
           @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
           <div class="invalid-feedback">
             Start date is required
@@ -118,6 +128,15 @@
           <input id="endDate" type="date" class="form-control custom-date-input"
             [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
             placeholder="Select Start Date" formControlName="endDate" />
+          <svg [class.svg-error-adjust]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
           @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
           <div class="invalid-feedback">
             End date is required when with end date is selected
