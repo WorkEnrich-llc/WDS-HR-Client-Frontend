@@ -272,6 +272,14 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     resetFilterForm(): void {
         this.filterForm.reset();
+        // Explicitly set all form controls to empty strings to ensure placeholders show
+        this.filterForm.patchValue({
+            created_from: '',
+            created_to: '',
+            expiry_from: '',
+            expiry_to: '',
+            status: ''
+        });
         this.currentFilters = {};
         this.currentPage = 1;
         this.getAllIntegrations(this.currentPage);
