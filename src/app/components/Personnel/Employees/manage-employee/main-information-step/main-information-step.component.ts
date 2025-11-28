@@ -78,7 +78,9 @@ export class MainInformationStepComponent implements OnInit {
   }
 
   get hasProfilePicture(): boolean {
-    return this.profileImage !== this.defaultImage;
+    const val = this.sharedService.mainInformation.get('profile_image')?.value;
+    return !!val && val !== this.defaultImage;
+    // return this.profileImage !== this.defaultImage;
   }
 
 
@@ -93,6 +95,7 @@ export class MainInformationStepComponent implements OnInit {
 
   goNext() {
     this.sharedService.goNext();
+    console.log(this.sharedService.employeeForm.value);
   }
 
   onImageSelected(event: Event): void {
@@ -134,12 +137,13 @@ export class MainInformationStepComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.previewUrl = null;
-    this.sharedService.mainInformation.get('profile_image')?.setValue(this.defaultImage);
+    this.sharedService.mainInformation.get('profile_image')?.setValue('');
+    this.sharedService.mainInformation.get('rm_profile_img')?.setValue(true);
     this.sharedService.mainInformation.get('profile_image')?.markAsDirty();
 
     const fileInput = document.getElementById('logoInput') as HTMLInputElement;
     if (fileInput) {
-      fileInput.value = this.defaultImage;
+      fileInput.value = '';
     }
   }
 
