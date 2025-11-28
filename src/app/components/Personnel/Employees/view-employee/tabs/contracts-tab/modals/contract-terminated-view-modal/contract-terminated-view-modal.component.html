@@ -1,20 +1,17 @@
 <!-- Terminated Contract View Modal -->
-<app-overlay-filter-box
-  [title]="'Terminated Contract'"
-  [customWidth]="'500px'"
-  [isOverlayVisible]="isOpen"
+<app-overlay-filter-box [title]="'Terminated Contract'" [customWidth]="'500px'" [isOverlayVisible]="isOpen"
   (onClose)="closeModal()">
   <div modal-content>
     <div class="contract-details">
       <div class="detail-item">
         <label class="detail-label">Last Day</label>
-        <div class="detail-value">{{ formatDate(terminationData?.lastDay) }}</div>
+        <div class="detail-value">{{ formatDate(contract?.last_date || '') }}</div>
       </div>
 
       <div class="detail-item">
         <label class="detail-label">Reason</label>
         <div class="detail-value reason-text">
-          {{ terminationData?.reason || 'No reason provided' }}
+          {{ contract?.reason || 'No reason provided' }}
         </div>
       </div>
     </div>
