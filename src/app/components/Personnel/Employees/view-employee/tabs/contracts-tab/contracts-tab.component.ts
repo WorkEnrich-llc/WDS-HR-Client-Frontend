@@ -123,9 +123,6 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
 
 
-
-
-
   // Map API response to UI format
   private mapApiContractsToUI(apiContracts: Contract[]): Contract[] {
     return apiContracts.map(contract => ({
@@ -307,14 +304,24 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   addContract(): void {
     const hasOpenContract = this.contractsData.some(contract =>
-      (contract.status === 'Active' || contract.status === 'Probation') &&
+      (contract.status === 'Active' || contract.status === 'Probation' || contract.status === 'Upcoming') &&
       (!contract.end_contract)
     );
 
+
+
+
     if (hasOpenContract) {
       this.modalTitle = 'Action Not Allowed';
-      this.modalMessage = 'You cannot create a new contract while there is an active contract with an indefinite period (No End Date).';
-      this.modalMessage2 = 'Please terminate or add an end date to the current contract first.';
+      if (this.contractsData.some(contract => contract.status === 'Active')) {
+        this.modalMessage = 'You cannot create a new contract while there is an active contract with an indefinite period (No End Date).';
+      } this.modalMessage2 = 'Please terminate or add an end date to the current contract first.';
+      if (this.contractsData.some(contract => contract.status === 'Upcoming')) {
+        this.modalMessage = 'You cannot create a new contract while there is an upcoming contract with an indefinite period (No End Date).';
+        this.modalMessage2 = 'Please terminate or add an end date to this upcoming contract first.';
+      }
+      // this.modalMessage = 'You cannot create a new contract while there is an active contract with an indefinite period (No End Date).';
+      // this.modalMessage2 = 'Please terminate or add an end date to the current contract first.';
       this.isWarningModalOpen = true;
       return;
     }
