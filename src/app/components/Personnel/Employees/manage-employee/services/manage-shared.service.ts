@@ -123,6 +123,7 @@ export class ManageEmployeeSharedService {
     this.employeeForm = this.fb.group({
       main_information: this.fb.group({
         profile_image: new FormControl(''),
+        rm_profile_img: [false],
         code: [''],
         name_english: ['', [Validators.required, fourPartsValidator()]],
         name_arabic: ['', [Validators.required, arabicNameValidator()]],
@@ -176,8 +177,6 @@ export class ManageEmployeeSharedService {
     }
   }
 
-
-
   public loadInitialData(): void {
     if (this.branches().length > 1 && !this.isEditMode()) {
       return;
@@ -201,8 +200,6 @@ export class ManageEmployeeSharedService {
       }
     });
   }
-
-
 
   private initializeJobDetailsWatchers(): void {
     const jobDetails = this.jobDetails;
@@ -683,7 +680,7 @@ export class ManageEmployeeSharedService {
 
     jobDetails.get('department_id')?.enable({ emitEvent: false });
 
-    this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'active' }).subscribe({
+    this.departmentsService.getAllDepartment(1, 100, { branch_id: branchId, status: 'true' }).subscribe({
       next: (res) => {
 
         let depts = res.data?.list_items || [];
@@ -846,7 +843,6 @@ export class ManageEmployeeSharedService {
 
     this.mainInformation.patchValue({
       profile_image: data.picture?.generate_signed_url,
-
       code: data.code,
       // code: data.id.toString(),
       name_english: data.contact_info.name,
@@ -1407,10 +1403,18 @@ export class ManageEmployeeSharedService {
       }
     }
 
+    const currentImage = formData.main_information.profile_image;
+    const hasImage = !!currentImage && !currentImage.includes('profile-defult');
+    const shouldRemoveImage = !hasImage;
+    // const shouldRemoveImage = this.isEditMode() ? !currentImage : false;
+
     const requestData: any = {
       main_information: {
         code: formData.main_information.code,
-        profile_image: formData.main_information.profile_image,
+        profile_image: hasImage ? currentImage : '',
+        // profile_image: formData.main_information.profile_image,
+        rm_profile_img: shouldRemoveImage,
+        // rm_profile_img: formData.main_information.profile_image ? false : true,
         name_english: formData.main_information.name_english,
         name_arabic: formData.main_information.name_arabic,
         gender: formData.main_information.gender,

@@ -9,6 +9,7 @@ export interface CreateEmployeeRequest {
 
     main_information: {
       profile_image?: string | null;
+      rm_profile_img: boolean;
       code?: string;
       name_english?: string;
       name_arabic?: string;
@@ -60,6 +61,7 @@ export interface Employee {
   id: number;
   code: string;
   profile_image?: string | null;
+  rm_profile_img: boolean;
   picture: {
     generate_signed_url: string | null;
     image_url: string | null;

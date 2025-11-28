@@ -233,6 +233,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       };
       this.onSave.emit(contractData);
     }
+    this.closeModal();
   }
 
   // Helper method to convert display date (DD/MM/YYYY) to form date (YYYY-MM-DD)
@@ -344,7 +345,7 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     const fromDate = form.get('startDate')?.value;
     const toDate = form.get('endDate')?.value;
 
-    if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
+    if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
       return { dateRange: true };
     }
     return null;
