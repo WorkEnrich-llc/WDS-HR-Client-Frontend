@@ -142,3 +142,11 @@ textarea,
 input.is-invalid {
   background-image: none !important;
 }
+
+.custom-date-input.is-invalid {
+  background-image: none !important;
+}
+
+.svg-error-adjust {
+  top: 36%;
+}
