@@ -15,6 +15,8 @@ export interface Contract {
   trial: boolean;
   start_contract: string;
   end_contract: string;
+  last_date: string;
+  reason: string;
   salary: number;
   insurance_salary: number;
   insurance?: {
@@ -78,6 +80,8 @@ export interface Contract {
     lastDay: string;
     reason: string;
   };
+
+  resign_date: string;
   resignationData?: {
     resignDate: string;
     noticePeriod: number;

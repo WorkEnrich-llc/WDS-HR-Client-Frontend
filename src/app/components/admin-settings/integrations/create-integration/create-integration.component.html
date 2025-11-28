@@ -798,7 +798,7 @@
             </svg>
         </button>
         <!-- Create/Update Integration primary -->
-        <button class="btn btn-lg btn-success" [disabled]="isSubmitting || selectedServices.length === 0"
+        <button class="btn btn-lg btn-success" [disabled]="isSubmitting || !integrationForm.valid || selectedServices.length === 0 || (isUpdate && !hasChanges)"
             (click)="onSubmit()">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                 <g fill="none" stroke="currentColor" stroke-width="1.5">

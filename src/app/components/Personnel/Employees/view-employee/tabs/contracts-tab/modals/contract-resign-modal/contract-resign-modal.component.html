@@ -15,11 +15,34 @@
     <form [formGroup]="resignForm" class="resign-form">
       <div class="form-group">
         <label for="resignDate" class="form-label">Resign date</label>
-        <input type="date" id="resignDate" class="form-control" formControlName="resignDate"
-          [class.is-invalid]="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
-        <div class="invalid-feedback"
-          *ngIf="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
-          Resign date is required
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" id="resignDate" class="form-control custom-date-input" formControlName="resignDate"
+            [min]="minResignDate" [max]="maxResignDate"
+            [class.is-invalid]="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched">
+          <svg [class.svg-error-adjust]="resignForm.get('resignDate')?.invalid && resignForm.get('resignDate')?.touched"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+
+          @if(resignForm.get('resignDate')?.touched){
+          <div class="invalid-feedback">
+            @if(resignForm.get('resignDate')?.hasError('required')){
+            <span> Resign date is required </span>
+            }
+            @if(resignForm.get('resignDate')?.hasError('minDate')){
+            <span> Resign Date cannot after {{minResignDate}}</span>
+            }
+            @if(resignForm.get('resignDate')?.hasError('maxDate')){
+            <span>Date cannot be after contract end date {{maxResignDate}}</span>
+            }
+          </div>
+          }
+
         </div>
       </div>
 
@@ -42,11 +65,36 @@
 
       <div class="form-group">
         <label for="lastDay" class="form-label">Last day</label>
-        <input type="date" id="lastDay" class="form-control" formControlName="lastDay"
-          [class.is-invalid]="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched">
-        <div class="invalid-feedback" *ngIf="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched">
-          Last day is required
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="date" id="lastDay" class="form-control custom-date-input" formControlName="lastDay"
+            [class.is-invalid]="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched"
+            [min]="minLastDay" [max]="maxLastDay">
+          <svg [class.svg-error-adjust]="resignForm.get('lastDay')?.invalid && resignForm.get('lastDay')?.touched"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+
+          @if(resignForm.get('lastDay')?.touched){
+          <div class="invalid-feedback">
+            @if(resignForm.get('lastDay')?.hasError('required')){
+            <span>Last day is required</span>
+            }
+            @if(resignForm.get('lastDay')?.hasError('minDate')){
+            <span> Date cannot be before Resign Date {{ minLastDay }} </span>
+            }
+            @if(resignForm.get('lastDay')?.hasError('maxDate')){
+            <span> Date cannot be after contract end date {{ maxLastDay }}</span>
+            }
+          </div>
+          }
+
         </div>
+
       </div>
 
       <div class="form-group">
@@ -55,9 +103,14 @@
           formControlName="reason"
           [class.is-invalid]="resignForm.get('reason')?.invalid && resignForm.get('reason')?.touched">
         </textarea>
-        <div class="invalid-feedback" *ngIf="resignForm.get('reason')?.invalid && resignForm.get('reason')?.touched">
-          Reason is required
-        </div>
+        @if(resignForm.get('reason')?.hasError('required') && resignForm.get('reason')?.touched){
+        <div class="invalid-feedback">Reason is required</div>
+        }
+
+        @if (resignForm.get('reason')?.hasError('whitespace') && !resignForm.get('reason')?.hasError('required'))
+        {
+        <div class="invalid-feedback"> Reason cannot be only spaces.</div>
+        }
       </div>
     </form>
 
