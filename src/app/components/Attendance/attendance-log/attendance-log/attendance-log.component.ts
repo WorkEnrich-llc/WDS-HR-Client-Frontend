@@ -239,40 +239,32 @@ export class AttendanceLogComponent {
   // get times
   getFirstCheckIn(emp: any): string {
     const list = emp?.list_items;
-    if (!list || list.length === 0) {
-      return '--';
-    }
+    if (!list || list.length === 0) return '--';
 
     const first = list[0];
-    const checkIn = first?.times_object?.actual_check_in;
-
-    return checkIn && checkIn !== '00:00'
-      ? this.formatTimeTo12Hour(checkIn)
-      : '--';
+    return this.getFormattedCheckIn(first);
   }
 
   getLastCheckOut(emp: any): string {
     const list = emp?.list_items;
-    if (!list || list.length === 0) {
-      return '--';
-    }
+    if (!list || list.length === 0) return '--';
 
     const last = list[list.length - 1];
-    const checkOut = last?.times_object?.actual_check_out;
-
-    return checkOut && checkOut !== '00:00'
-      ? this.formatTimeTo12Hour(checkOut)
-      : '--';
+    return this.getFormattedCheckOut(last);
   }
-  // but time or -- in absent and leave 
-  getSafeTime(status: string | undefined, time: string | undefined): string {
+
+
+  getSafeCheckInTime(status: string | undefined, time: string | undefined): string {
     if (!status || !time) return '--';
 
     const normalizedStatus = status.trim();
     const normalizedTime = time.trim();
 
     if (
-      (normalizedStatus === 'Absent' || normalizedStatus === 'On Leave'|| normalizedStatus ==='Holiday' || normalizedStatus === 'Weekly leave') &&
+      (normalizedStatus === 'Absent' ||
+        normalizedStatus === 'On Leave' ||
+        normalizedStatus === 'Holiday' ||
+        normalizedStatus === 'Weekly leave') &&
       normalizedTime === '00:00'
     ) {
       return '--';
@@ -281,12 +273,20 @@ export class AttendanceLogComponent {
     return this.formatTimeTo12Hour(normalizedTime);
   }
 
+
   getFormattedCheckIn(log: any): string {
-    return this.getSafeTime(log?.status, log?.times_object?.actual_check_in);
+    return this.getSafeCheckInTime(log?.status, log?.times_object?.actual_check_in);
   }
 
   getFormattedCheckOut(log: any): string {
-    return this.getSafeTime(log?.status, log?.times_object?.actual_check_out);
+    const checkOut = log?.times_object?.actual_check_out;
+    const finished = log?.working_details?.finished;
+
+    if (!checkOut || checkOut === '00:00' || finished === false) {
+      return '--';
+    }
+
+    return this.formatTimeTo12Hour(checkOut);
   }
 
   // git status of first main record in list

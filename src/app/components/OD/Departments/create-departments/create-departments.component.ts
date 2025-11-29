@@ -17,7 +17,6 @@ import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components
 @Component({
   selector: 'app-create-departments',
   imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent],
-
   providers: [DatePipe],
   templateUrl: './create-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-departments.component.css'],

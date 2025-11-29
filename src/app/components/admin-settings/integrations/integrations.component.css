@@ -195,7 +195,7 @@
 
 .content-box .table-responsive table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .content-box .table-responsive thead {
@@ -209,5 +209,14 @@
 }
 
 .content-box .table-responsive thead tr th {
+  width: auto;
+}
+
+.content-box .table-responsive tbody tr {
+  width: 100%;
+  display: table-row;
+}
+
+.content-box .table-responsive tbody tr td {
   width: auto;
 }

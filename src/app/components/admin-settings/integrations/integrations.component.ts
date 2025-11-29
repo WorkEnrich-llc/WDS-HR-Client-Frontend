@@ -152,7 +152,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                     this.integrations = response.data.list_items.map((item: any, index: number) => ({
                         id: item.id,
                         integrationName: item.name || `Integration ${String(item.id).padStart(3, '0')}`,
-                        createDate: this.formatDate(item.created_from),
+                        createDate: this.formatDate(item.start_at),
                         expiryDate: this.formatExpiryDate(item.expires_at, item.no_expire),
                         status: this.getStatusInfo(item.status, item.expires_at),
                         originalStatus: item.status, // Store the original status from API
@@ -229,6 +229,23 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Map status string to numeric code
+     * 0 = active, 1 = expired, 2 = revoked, 3 = pending
+     */
+    private mapStatusToCode(status: string): number | undefined {
+        if (!status) {
+            return undefined;
+        }
+        const statusMap: { [key: string]: number } = {
+            'active': 0,
+            'expired': 1,
+            'revoked': 2,
+            'pending': 3
+        };
+        return statusMap[status.toLowerCase()];
+    }
+
+    /**
      * Apply filters
      */
     filter(): void {
@@ -240,7 +257,7 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
                 created_to: rawFilters.created_to || undefined,
                 expiry_from: rawFilters.expiry_from || undefined,
                 expiry_to: rawFilters.expiry_to || undefined,
-                status: rawFilters.status || undefined
+                status: this.mapStatusToCode(rawFilters.status)
             };
 
             this.currentFilters = filters;
@@ -255,6 +272,14 @@ export class IntegrationsComponent implements OnInit, OnDestroy {
      */
     resetFilterForm(): void {
         this.filterForm.reset();
+        // Explicitly set all form controls to empty strings to ensure placeholders show
+        this.filterForm.patchValue({
+            created_from: '',
+            created_to: '',
+            expiry_from: '',
+            expiry_to: '',
+            status: ''
+        });
         this.currentFilters = {};
         this.currentPage = 1;
         this.getAllIntegrations(this.currentPage);
