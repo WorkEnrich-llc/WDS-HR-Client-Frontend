@@ -386,7 +386,7 @@ export class CreateDepartmentsComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/departments/all-departments']);
-        this.toasterMessageService.sendMessage("Department created successfully");
+        this.toasterMessageService.showSuccess("Department created successfully","Created Successfully");
 
       },
       error: (err) => {

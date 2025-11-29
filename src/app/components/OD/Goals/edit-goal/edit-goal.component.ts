@@ -126,7 +126,7 @@ export class EditGoalComponent {
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
-        this.toasterMessageService.sendMessage("Goal updated successfully");
+        this.toasterMessageService.showSuccess("Goal updated successfully","Updated Successfully");
         this.goalForm.markAsPristine();
         this.router.navigate(['/goals']);
       },

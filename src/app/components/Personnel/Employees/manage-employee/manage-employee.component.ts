@@ -239,7 +239,7 @@ export class ManageEmployeeComponent implements OnInit {
       this.employeeService.updateEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);
-          this.toasterMessageService.showSuccess('Employee updated successfully!');
+          this.toasterMessageService.showSuccess('Employee updated successfully','Update Successfully');
           this.router.navigate(['/employees/all-employees']);
         },
         error: (error) => {
@@ -252,7 +252,7 @@ export class ManageEmployeeComponent implements OnInit {
       this.employeeService.createEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);
-          this.toasterMessageService.showSuccess('Employee created successfully!');
+          this.toasterMessageService.showSuccess('Employee created successfully',"Created Successfully");
           this.router.navigate(['/employees/all-employees']);
         },
         error: (error) => {

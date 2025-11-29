@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
 import { DatePipe } from '@angular/common';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-workflow',
@@ -16,7 +17,7 @@ export class ViewWorkflowComponent {
 
 
 
-  constructor(private _WorkflowService: WorkflowService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  constructor(private _WorkflowService: WorkflowService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workflowData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
@@ -70,6 +71,7 @@ export class ViewWorkflowComponent {
     this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Workflow Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -95,6 +97,7 @@ export class ViewWorkflowComponent {
     this._WorkflowService.updateWorkflowStatus(this.workflowData.id, deptStatus).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Workflow Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

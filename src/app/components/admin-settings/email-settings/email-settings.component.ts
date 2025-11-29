@@ -114,7 +114,7 @@ export class EmailSettingsComponent implements OnInit, OnDestroy {
         if (response && response.data && response.data.object_info) {
           this.emailSettings = response.data.object_info;
           this.updatedDate = this.formatDate(this.emailSettings.updated_at);
-          this.toasterService.showSuccess('Email settings deactivated successfully');
+          this.toasterService.showSuccess('Email settings deactivated successfully',"Updated Successfully");
         }
       },
       error: (error) => {
@@ -159,7 +159,7 @@ export class EmailSettingsComponent implements OnInit, OnDestroy {
         if (response && response.data && response.data.object_info) {
           this.emailSettings = response.data.object_info;
           this.updatedDate = this.formatDate(this.emailSettings.updated_at);
-          this.toasterService.showSuccess('Email settings activated successfully');
+          this.toasterService.showSuccess('Email settings activated successfully' , "Updated Successfully");
         }
       },
       error: (error) => {

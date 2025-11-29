@@ -239,7 +239,7 @@ getAllLeaveTypes(
         this.errMsg = '';
         // create success
         this.router.navigate(['/workflow/all-workflows']);
-        // this.toasterMessageService.sendMessage("Workflow created successfully");
+        this.toasterMessageService.showSuccess("Workflow created successfully","Created Successfully");
       },
       error: (err) => {
         this.isLoading = false;

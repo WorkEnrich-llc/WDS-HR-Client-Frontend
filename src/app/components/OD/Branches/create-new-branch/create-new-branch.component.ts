@@ -384,7 +384,7 @@ export class CreateNewBranchComponent implements OnInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/branches/all-branches']);
-        this.toasterMessageService.sendMessage("Branch created successfully");
+        this.toasterMessageService.showSuccess("Branch created successfully","Created Successfully");
 
       },
       error: (err) => {

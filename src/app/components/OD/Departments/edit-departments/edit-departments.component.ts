@@ -5,7 +5,6 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
@@ -14,6 +13,7 @@ import { GoalsService } from 'app/core/services/od/goals/goals.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { DepartmentChecklistService } from '../../../../core/services/od/departmentChecklist/department-checklist.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from '../../../shared/onboarding-checklist/onboarding-checklist.component';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-departments',
@@ -436,117 +436,7 @@ export class EditDepartmentsComponent implements OnInit {
 
 
   updateDept() {
-    // if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
-    //   this.errMsg = 'Please complete both steps with valid data and at least one section.';
-    //   return;
-    // }
-
-    // const form1Data = this.deptStep1.value;
-    // const originalSections = this.departmentData.sections || [];
-
-    // const currentSections = this.sectionsFormArray.controls.map((control: AbstractControl, index: number) => {
-    //   const group = control as FormGroup;
-
-    //   const subSections = this.getSubSections(group).controls.map((subControl: AbstractControl, subIndex: number) => {
-    //     const subGroup = subControl as FormGroup;
-    //     const id = subGroup.get('id')?.value || 0;
-
-    //     const matchedOriginalSub = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
-    //       .find((s: any) => s.id === id);
-
-    //     let record_type = 'create';
-    //     if (matchedOriginalSub) {
-    //       const changed =
-    //         subGroup.get('secCode')?.value !== matchedOriginalSub.code ||
-    //         subGroup.get('secName')?.value !== matchedOriginalSub.name ||
-    //         subGroup.get('status')?.value !== matchedOriginalSub.is_active;
-
-    //       record_type = changed ? 'update' : 'nothing';
-    //     }
-
-    //     return {
-    //       id,
-    //       index: subIndex + 1,
-    //       record_type,
-    //       code: subGroup.get('secCode')?.value,
-    //       name: subGroup.get('secName')?.value,
-    //       status: subGroup.get('status')?.value.toString()
-    //     };
-    //   });
-
-    //   const deletedSubSections = (originalSections.find((s: any) => s.id === group.get('id')?.value)?.sub_sections || [])
-    //     .filter((origSub: any) => !subSections.some(currSub => currSub.id === origSub.id))
-    //     .map((sub: any, idx: number) => ({
-    //       id: sub.id,
-    //       index: subSections.length + idx + 1,
-    //       record_type: 'delete',
-    //       code: sub.code,
-    //       name: sub.name,
-    //       status: sub.is_active.toString()
-    //     }));
-
-    //   const allSubSections = [...subSections, ...deletedSubSections];
-
-    //   const id = group.get('id')?.value || 0;
-    //   const matchedOriginal = originalSections.find((s: any) => s.id === id);
-
-    //   let record_type = 'create';
-    //   if (matchedOriginal) {
-    //     const changed =
-    //       group.get('secCode')?.value !== matchedOriginal.code ||
-    //       group.get('secName')?.value !== matchedOriginal.name ||
-    //       group.get('status')?.value !== matchedOriginal.is_active;
-
-    //     record_type = changed ? 'update' : 'nothing';
-
-    //     const subChanged = allSubSections.some(sub => sub.record_type === 'update' || sub.record_type === 'delete' || sub.record_type === 'create');
-    //     if (subChanged) record_type = 'update';
-    //   }
-
-    //   return {
-    //     id,
-    //     index: index + 1,
-    //     record_type,
-    //     code: group.get('secCode')?.value,
-    //     name: group.get('secName')?.value,
-    //     status: group.get('status')?.value.toString(),
-    //     sub_sections: allSubSections
-    //   };
-    // });
-
-    // const deletedSections = originalSections
-    //   .filter((orig: any) => !currentSections.some((curr: any) => curr.id === orig.id))
-    //   .map((section: any, index: number) => ({
-    //     id: section.id,
-    //     index: currentSections.length + index + 1,
-    //     code: section.code,
-    //     name: section.name,
-    //     status: section.is_active.toString(),
-    //     record_type: 'delete',
-    //     sub_sections: (section.sub_sections || []).map((sub: any, idx: number) => ({
-    //       id: sub.id,
-    //       index: idx + 1,
-    //       code: sub.code,
-    //       name: sub.name,
-    //       status: sub.is_active.toString(),
-    //       record_type: 'delete'
-    //     }))
-    //   }));
-
-    // const allSections = [...currentSections, ...deletedSections];
-
-    // const finalData = {
-    //   request_data: {
-    //     id: this.departmentData.id,
-    //     code: form1Data.code,
-    //     name: form1Data.name,
-    //     department_type: Number(form1Data.department_type),
-    //     objectives: form1Data.objectives,
-    //     goals: this.addedGoal.map((g: any) => g.id),
-    //     sections: allSections,
-    //     checklist: []
-    //   }
-    // };
+    
     if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
       this.errMsg = 'Please complete both steps with valid data and at least one section.';
       return;
@@ -678,7 +568,7 @@ export class EditDepartmentsComponent implements OnInit {
         this.isLoading = false;
         this.errMsg = '';
         this.router.navigate(['/departments/all-departments'], { queryParams: { page: this.currentPage } });
-        this.toasterMessageService.sendMessage("Department Updated successfully");
+        this.toasterMessageService.showSuccess("Department Updated successfully","Updated");
       },
       error: (err) => {
         this.isLoading = false;
@@ -927,7 +817,7 @@ export class EditDepartmentsComponent implements OnInit {
     this._DepartmentsService.updateDepartment(updatePayload).subscribe({
       next: (response) => {
         this.loadingChecklistItemTitle = null;
-        this.toasterMessageService.showSuccess('Checklist updated successfully');
+        this.toasterMessageService.showSuccess('Checklist updated successfully','Updated Successfully');
 
         // Refresh department checklist from latest server response without reloading the whole page
         this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({

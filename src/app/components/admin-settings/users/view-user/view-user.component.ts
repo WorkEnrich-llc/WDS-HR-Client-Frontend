@@ -126,7 +126,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User deactivated successfully');
+        this.toasterService.showSuccess('User deactivated successfully',"Updated Successfully");
         this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
@@ -150,7 +150,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User activated successfully');
+        this.toasterService.showSuccess('User activated successfully',"Updated Successfully");
         this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
@@ -161,7 +161,7 @@ export class ViewUserComponent implements OnInit {
   resendInvitation(): void {
     this.usersService.searchUser(this.userInfo?.email).subscribe({
       next: (res) => {
-        this.toasterService.showSuccess('Invitation resent successfully (search done)');
+        this.toasterService.showSuccess('Invitation resent successfully (search done)',"Sent Successfully");
       },
       error: (err) => {
         console.error('Failed to search user', err);
@@ -191,7 +191,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User removed successfully');
+        this.toasterService.showSuccess('User removed successfully',"Removed");
         this.router.navigate(['/users']);
       },
       error: (err) => {

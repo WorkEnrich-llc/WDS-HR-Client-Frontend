@@ -74,9 +74,13 @@ import { ApiToastHelper } from '../../../core/helpers/api-toast.helper';
     </div>
   `,
   styles: [`
+  .toast-container > div{
+    min-width: 300px;
+  }
     .toast-demo-container {
       padding: 20px;
       max-width: 800px;
+      min-width: 300px;
       margin: 0 auto;
     }
     

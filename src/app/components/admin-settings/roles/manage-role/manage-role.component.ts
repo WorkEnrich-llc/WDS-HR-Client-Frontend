@@ -687,7 +687,7 @@ export class ManageRoleComponent implements OnInit {
       this.adminRolesService.createRole(roleModel).subscribe({
         next: () => {
           this.isLoading = false;
-          this.toasterService.showSuccess('Role created successfully');
+          this.toasterService.showSuccess('Role created successfully', "Created Successfully");
           this.router.navigate(['/roles']);
         },
         error: (err) => {

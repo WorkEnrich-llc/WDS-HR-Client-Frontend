@@ -28,7 +28,7 @@ export class ToasterMessageService {
   // Toast methods for different types
   showSuccess(message: string, title?: string) {
     this.toastr.success(message, title || 'Success', {
-      timeOut: 3000,
+      timeOut: 4000,
       closeButton: true,
       progressBar: true,
       positionClass: 'toast-top-right',
@@ -38,7 +38,7 @@ export class ToasterMessageService {
 
   showError(message: string, title?: string) {
     this.toastr.error(message, title || 'Error', {
-      timeOut: 5000,
+      timeOut: 4000,
       closeButton: true,
       progressBar: true,
       positionClass: 'toast-top-right',
@@ -58,7 +58,7 @@ export class ToasterMessageService {
 
   showInfo(message: string, title?: string) {
     this.toastr.info(message, title || 'Info', {
-      timeOut: 3000,
+      timeOut: 4000,
       closeButton: true,
       progressBar: true,
       positionClass: 'toast-top-right',

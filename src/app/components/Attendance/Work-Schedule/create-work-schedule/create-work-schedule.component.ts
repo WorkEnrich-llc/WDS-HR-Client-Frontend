@@ -465,7 +465,7 @@ export class CreateWorkScheduleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/schedule/work-schedule']);
-        this.toasterMessageService.sendMessage("Work schedule created successfully");
+        this.toasterMessageService.showSuccess("Work schedule created successfully","Created Successfully");
 
       },
       error: (err) => {

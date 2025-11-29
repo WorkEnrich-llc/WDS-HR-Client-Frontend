@@ -4,7 +4,6 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, Reac
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +12,7 @@ import { debounceTime, map, of, Subject, catchError, Observable, tap, switchMap 
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { forkJoin } from 'rxjs';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
 
@@ -1082,7 +1082,7 @@ export class EditJobComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/jobs/all-job-titles']);
-        this.toasterMessageService.sendMessage("Job Title Updated successfully");
+        this.toasterMessageService.showSuccess("Job Title Updated successfully","Updated Successfully");
 
       },
       error: (err) => {
