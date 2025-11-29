@@ -6,6 +6,7 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-goal',
@@ -30,7 +31,8 @@ export class ViewGoalComponent {
     private goalsService: GoalsService,
     private route: ActivatedRoute,
     private datePipe: DatePipe,
-    private subService: SubscriptionService
+    private subService: SubscriptionService,
+    private toasterMessageService:ToasterMessageService
   ) { }
   goalData: any = [];
   formattedCreatedAt: string = '';
@@ -104,7 +106,7 @@ export class ViewGoalComponent {
     this.goalsService.updateGoalStatus(this.goalData.id, goalStatus).subscribe({
       next: (response) => {
         this.goalData = response.data.object_info;
-
+        this.toasterMessageService.showSuccess("Goal Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -130,6 +132,7 @@ export class ViewGoalComponent {
     this.goalsService.updateGoalStatus(this.goalData.id, goalStatus).subscribe({
       next: (response) => {
         this.goalData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Goal Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);

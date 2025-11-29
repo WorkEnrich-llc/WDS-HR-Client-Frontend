@@ -770,6 +770,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
+        this.toasterMessageService.showSuccess("Full Time updated successfully","Updated Successfully");
       },
       error: (error) => {
         console.error('Error saving rules:', error);

@@ -321,7 +321,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/leave-types/all-leave-types']);
-        this.toasterMessageService.sendMessage("Leave Type Updated successfully");
+        this.toasterMessageService.showSuccess("Leave Type Updated successfully","Updated Successfully");
 
       },
       error: (err) => {

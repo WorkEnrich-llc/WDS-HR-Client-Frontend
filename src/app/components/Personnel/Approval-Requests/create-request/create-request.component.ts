@@ -81,7 +81,7 @@ export class CreateRequestComponent implements OnInit {
       setTimeout(() => {
         this.sharedService.isLoading.set(false);
         this.sharedService.errMsg.set('');
-        this.toasterMessageService.sendMessage('Request created successfully!');
+        this.toasterMessageService.showSuccess('Request created successfully');
         this.router.navigate(['/requests']);
       }, 2000);
 

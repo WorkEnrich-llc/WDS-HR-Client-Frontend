@@ -374,7 +374,7 @@ export class UpdateWorkflowComponent {
         this.errMsg = '';
         // update success
         this.router.navigate(['/workflow/all-workflows']);
-        this.toasterMessageService.sendMessage("Workflow Updated successfully");
+        this.toasterMessageService.showSuccess("Workflow Updated successfully","Updated Successfully");
 
       },
       error: (err) => {

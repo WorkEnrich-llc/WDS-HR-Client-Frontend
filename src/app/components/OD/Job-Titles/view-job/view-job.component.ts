@@ -6,6 +6,7 @@ import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
 import { DatePipe } from '@angular/common';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-job',
@@ -16,7 +17,7 @@ import { SubscriptionService } from 'app/core/services/subscription/subscription
 })
 export class ViewJobComponent {
 
-  constructor(private _JobsService: JobsService, private router: Router, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
+  constructor(private _JobsService: JobsService,private toasterMessageService:ToasterMessageService, private router: Router, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   jobTitleData: any = { sections: [] };
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
@@ -162,6 +163,7 @@ export class ViewJobComponent {
         this.jobTitleData = response.data.object_info;
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.toasterMessageService.showSuccess("Job Title Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -189,6 +191,7 @@ export class ViewJobComponent {
         this.jobTitleData = response.data.object_info;
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.toasterMessageService.showSuccess("Job Title Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);

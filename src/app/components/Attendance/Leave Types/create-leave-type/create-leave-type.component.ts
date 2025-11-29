@@ -308,7 +308,7 @@ leaveType2: FormGroup = new FormGroup(
         this.errMsg = '';
 
         // Show success toast
-        this.toasterMessageService.showSuccess("Leave Type created successfully", "Success");
+        this.toasterMessageService.showSuccess("Leave Type created successfully", "Created Successfully");
 
         // Navigate to list page
         this.router.navigate(['/leave-types/all-leave-types']);

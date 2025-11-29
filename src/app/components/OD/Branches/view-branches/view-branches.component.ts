@@ -9,6 +9,7 @@ import { GoogleMapsLocationComponent, LocationData } from 'app/components/shared
 import { GoogleMapsModule } from '@angular/google-maps';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 interface Department {
   id: number;
@@ -29,7 +30,7 @@ interface Department {
 export class ViewBranchesComponent {
 
 
-  constructor(private _BranchesService: BranchesService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
+  constructor(private _BranchesService: BranchesService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   departments: Department[] = [];
   branchData: any = { sections: [] };
   formattedCreatedAt: string = '';
@@ -135,6 +136,7 @@ export class ViewBranchesComponent {
     this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
       next: (response) => {
         this.branchData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Branch Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -160,6 +162,7 @@ export class ViewBranchesComponent {
     this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
       next: (response) => {
         this.branchData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Branch Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);

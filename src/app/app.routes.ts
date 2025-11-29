@@ -1427,6 +1427,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/charts-demo/charts-demo.component').then(m => m.ChartsDemoComponent),
     title: 'Charts Demo'
   },
+  // test toast
+  // {
+  //   path: 'toast-demo',
+  //   loadComponent: () => import('./components/shared/toast-demo/toast-demo.component').then(m => m.ToastDemoComponent),
+  //   title: 'Toast Demo'
+  // },
 
 
   // page not font 404

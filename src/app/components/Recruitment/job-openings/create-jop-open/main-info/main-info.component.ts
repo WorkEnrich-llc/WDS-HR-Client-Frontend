@@ -639,7 +639,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.createJobOpening(jobData).subscribe({
       next: (response) => {
-        this.toasterService.showSuccess('Job opening created successfully!', 'Success');
+        this.toasterService.showSuccess('Job opening created successfully', 'Created Successfully');
         // You can redirect or reset form here
       },
       error: (error) => {

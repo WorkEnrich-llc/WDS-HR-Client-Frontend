@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { PayrollComponent } from 'app/core/models/payroll';
 import { DatePipe } from '@angular/common';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 
 @Component({
@@ -18,6 +19,7 @@ export class ViewPayrollComponentComponent implements OnInit {
   deactivateOpen = false;
   activateOpen = false;
   private payrollService = inject(PayrollComponentsService);
+  private toasterMessageService = inject(ToasterMessageService);
   private route = inject(ActivatedRoute);
   id!: number;
   componentData!: PayrollComponent;
@@ -63,6 +65,7 @@ export class ViewPayrollComponentComponent implements OnInit {
     this.payrollService.updateComponentStatus(this.id, compStatus).subscribe({
       next: () => {
         this.loadComponentData();
+        this.toasterMessageService.showSuccess("Payroll Component Updated successfully","Status Updated");
       },
       error: (err) => console.error('Failed to update status', err)
     });
@@ -78,6 +81,7 @@ export class ViewPayrollComponentComponent implements OnInit {
     this.payrollService.updateComponentStatus(this.id, compStatus).subscribe({
       next: () => {
         this.loadComponentData();
+         this.toasterMessageService.showSuccess("Payroll Component Updated successfully","Status Updated");
       },
       error: (err) => console.error('Failed to update status', err)
     });

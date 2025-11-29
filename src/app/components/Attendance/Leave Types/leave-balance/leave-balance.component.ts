@@ -190,7 +190,7 @@ export class LeaveBalanceComponent {
                 this.isLoading = false;
                 this.editBox.closeOverlay();
                 this.selectedBalance.total = this.editTotal;
-                this.toasterService.showSuccess('Leave balance updated successfully');
+                this.toasterService.showSuccess('Leave balance updated successfully',"Updated Successfully");
                 this.getAllLLeaveBalances(this.currentPage);
             },
             error: (err) => {

@@ -127,7 +127,7 @@ export class CreateRestrictedDaysComponent implements OnInit, AfterViewInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/restricted-days/all-restricted-days']);
-        this.toasterMessageService.sendMessage("Restricted Day created successfully");
+        this.toasterMessageService.showSuccess("Restricted Day created successfully","Created Successfully");
 
       },
       error: (err) => {

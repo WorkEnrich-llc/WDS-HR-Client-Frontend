@@ -153,7 +153,7 @@ export class ManageEmailSettingsComponent implements OnInit, OnDestroy {
     this.emailSettingsService.updateEmailSettings(requestData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        this.toasterService.showSuccess('Email settings updated successfully');
+        this.toasterService.showSuccess('Email settings updated successfully',"Updated Successfully");
         this.router.navigate(['/email-settings']);
       },
       error: (error) => {

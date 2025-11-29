@@ -84,36 +84,53 @@ export const authInterceptor: HttpInterceptorFn = (
   };
 
   return next(cloned).pipe(
-    catchError((error: HttpErrorResponse) => {
-      switch (error.status) {
-        case 401:
-          if (!req.url.includes('logout')) {
-            performLogout();
-          }
-          break;
+  catchError((error: HttpErrorResponse) => {
+    const hasAuthData =
+      (token && token.length > 0) ||
+      (sessionToken && sessionToken.length > 0) ||
+      (subdomain && subdomain.length > 0);
 
-        case 406:
-          toastr.error('Version 1.0.1 is available but does not support this platform.');
-          break;
+    const onlyDeviceTokenExists =
+      Object.keys(localStorage).length === 1 &&
+      localStorage.getItem('device_token') !== null;
 
-        case 410:
-          toastr.warning('Please update to a newer release.');
-          localStorage.clear();
-          sessionStorage.clear();
-          cookieService.deleteAll('/', window.location.hostname);
-          setTimeout(() => window.location.reload(), 2000);
+    switch (error.status) {
+      case 401:
+        if (!hasAuthData || onlyDeviceTokenExists) {
+          console.warn('401 received but user is not logged in → skipping logout');
           break;
+        }
 
-        case 425:
-          toastr.info('Coming soon — this feature is not yet available.');
+        if (req.url.includes('logout')) {
           break;
+        }
 
-        default:
-          console.error('Unhandled HTTP error:', error);
-          break;
-      }
+        performLogout();
+        break;
 
-      return throwError(() => error);
-    })
-  );
+      case 406:
+        toastr.error('Version 1.0.1 is available but does not support this platform.');
+        break;
+
+      case 410:
+        toastr.warning('Please update to a newer release.');
+        localStorage.clear();
+        sessionStorage.clear();
+        cookieService.deleteAll('/', window.location.hostname);
+        setTimeout(() => window.location.reload(), 2000);
+        break;
+
+      case 425:
+        toastr.info('Coming soon — this feature is not yet available.');
+        break;
+
+      default:
+        console.error('Unhandled HTTP error:', error);
+        break;
+    }
+
+    return throwError(() => error);
+  })
+);
+
 };

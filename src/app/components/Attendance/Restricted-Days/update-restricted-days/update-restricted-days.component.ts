@@ -81,7 +81,7 @@ export class UpdateRestrictedDaysComponent implements OnInit, AfterViewInit {
 
   restrictedDayForm: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]),
     restriction_type: new FormControl('', [Validators.required]),
     departments: new FormControl(''),
     dates: new FormControl('', [Validators.required]),
@@ -180,7 +180,7 @@ export class UpdateRestrictedDaysComponent implements OnInit, AfterViewInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/restricted-days/all-restricted-days']);
-        this.toasterMessageService.sendMessage("Restricted Day updated successfully");
+        this.toasterMessageService.showSuccess("Restricted Day updated successfully","Updated Successfully");
 
       },
       error: (err) => {
