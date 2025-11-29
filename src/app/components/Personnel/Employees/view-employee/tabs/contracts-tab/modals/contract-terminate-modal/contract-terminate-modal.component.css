@@ -112,3 +112,11 @@ textarea.form-control {
 .btn-secondary:hover {
   background-color: #4b5563;
 }
+
+.custom-date-input.is-invalid {
+  background-image: none !important;
+}
+
+.svg-error-adjust {
+  top: 36%;
+}

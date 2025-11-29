@@ -8,6 +8,8 @@ export interface CreateEmployeeRequest {
     }
 
     main_information: {
+      profile_image?: string | null;
+      rm_profile_img: boolean;
       code?: string;
       name_english?: string;
       name_arabic?: string;
@@ -43,6 +45,7 @@ export interface CreateEmployeeRequest {
       gross_insurance_salary?: number | null;
       gross_insurance?: number | null;
       notice_period?: number | null;
+      probation_period: boolean;
     };
   };
 }
@@ -57,6 +60,8 @@ export interface CreateEmployeeResponse {
 export interface Employee {
   id: number;
   code: string;
+  profile_image?: string | null;
+  rm_profile_img: boolean;
   picture: {
     generate_signed_url: string | null;
     image_url: string | null;
@@ -129,6 +134,7 @@ export interface Employee {
       id: number;
       name: string;
     };
+    probation_period: boolean;
     start_contract: string;
     contract_type: {
       id: number;

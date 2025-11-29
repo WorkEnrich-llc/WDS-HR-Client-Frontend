@@ -35,8 +35,8 @@ export class IntegrationsService {
         if (filters.expiry_to) {
             params = params.set('expiry_to', filters.expiry_to);
         }
-        if (filters.status) {
-            params = params.set('status', filters.status);
+        if (filters.status !== undefined && filters.status !== null) {
+            params = params.set('status', filters.status.toString());
         }
 
         return this._HttpClient.get(`${this.apiBaseUrl}main/admin-settings/integration`, { params });
