@@ -122,7 +122,7 @@
             <table class="table table-hover align-middle">
                 <thead #tableHeader>
                     <tr>
-                        <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+                        <th (click)="sortBy()" style="cursor: pointer;" class="width-fix" [ngStyle]="{ width: columnWidths[0] }">
                             <div class="d-flex align-items-center justify-content-between">
                                 <span>Employee</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="20"

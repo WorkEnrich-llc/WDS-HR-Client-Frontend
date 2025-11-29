@@ -4,56 +4,95 @@
     <div [formGroup]="sharedService.mainInformation" class="w-lg-50 d-flex flex-column gap-2">
 
 
-      <!-- <div class="form-group">
-        <label for="logoInput" class="upload-box w-100 text-center" (click)="markLogoTouched()">
-          @if (!previewUrl) {
-          <div class="upload-content">
-            <div class="left-group">
-              <div class="upload-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                  <path fill="currentColor"
-                    d="M6.5 18v-.09c0-.865 0-1.659.087-2.304c.095-.711.32-1.463.938-2.08c.618-.619 1.37-.844 2.08-.94c.646-.086 1.44-.086 2.306-.086h.178c.866 0 1.66 0 2.305.087c.711.095 1.463.32 2.08.938c.619.618.844 1.37.94 2.08c.085.637.086 1.416.086 2.267c2.573-.55 4.5-2.812 4.5-5.52c0-2.47-1.607-4.572-3.845-5.337C17.837 4.194 15.415 2 12.476 2C9.32 2 6.762 4.528 6.762 7.647c0 .69.125 1.35.354 1.962a4.4 4.4 0 0 0-.83-.08C3.919 9.53 2 11.426 2 13.765S3.919 18 6.286 18z"
-                    opacity=".5" />
-                  <path fill="currentColor" fill-rule="evenodd"
-                    d="M12 14c-1.886 0-2.828 0-3.414.586S8 16.114 8 18s0 2.828.586 3.414S10.114 22 12 22s2.828 0 3.414-.586S16 19.886 16 18s0-2.828-.586-3.414S13.886 14 12 14m1.805 3.084l-1.334-1.333a.667.667 0 0 0-.942 0l-1.334 1.333a.667.667 0 1 0 .943.943l.195-.195v1.946a.667.667 0 0 0 1.334 0v-1.946l.195.195a.667.667 0 0 0 .943-.943"
-                    clip-rule="evenodd" />
+      <div class="form-group">
+
+        <!-- <div class="d-flex align-items-center justify-content-between">
+          <label for="logoInput" class="upload-box w-100 text-center" (click)="markLogoTouched()">
+
+            @if (previewUrl || sharedService.mainInformation.get('profile_image')?.value) {
+            <img [src]="sharedService.mainInformation.get('profile_image')?.value" class="preview-img"
+              alt="Profile preview" />
+            }
+            @else {
+            <div class="upload-content">
+              <div class="left-group">
+                <div class="upload-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                    <path fill="currentColor" opacity=".5"
+                      d="M6.5 18v-.09c0-.865 0-1.659.087-2.304c.095-.711.32-1.463.938-2.08c.618-.619 1.37-.844 2.08-.94c.646-.086 1.44-.086 2.306-.086h.178c.866 0 1.66 0 2.305.087c.711.095 1.463.32 2.08.938c.619.618.844 1.37.94 2.08c.085.637.086 1.416.086 2.267c2.573-.55 4.5-2.812 4.5-5.52c0-2.47-1.607-4.572-3.845-5.337C17.837 4.194 15.415 2 12.476 2C9.32 2 6.762 4.528 6.762 7.647c0 .69.125 1.35.354 1.962a4.4 4.4 0 0 0-.83-.08C3.919 9.53 2 11.426 2 13.765S3.919 18 6.286 18z" />
+                    <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
+                      d="M12 14c-1.886 0-2.828 0-3.414.586S8 16.114 8 18s0 2.828.586 3.414S10.114 22 12 22s2.828 0 3.414-.586S16 19.886 16 18s0-2.828-.586-3.414S13.886 14 12 14m1.805 3.084l-1.334-1.333a.667.667 0 0 0-.942 0l-1.334 1.333a.667.667 0 1 0 .943.943l.195-.195v1.946a.667.667 0 0 0 1.334 0v-1.946l.195.195a.667.667 0 0 0 .943-.943" />
+                  </svg>
+                </div>
+                <div class="uploadtitle text-start">
+                  <div>Upload Profile Picture (Optional)</div>
+                  <span>Recommended (500x500) up to 5MB.</span>
+                </div>
+              </div>
+              <div class="up-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                    <path
+                      d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
+                    <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
+                  </g>
                 </svg>
               </div>
-
-              <div class="uploadtitle text-start">
-                <div>Upload Profile Picture (Optional)</div>
-                <span>Recommended (500x500) up to 5MB.</span>
-              </div>
             </div>
+            }
 
-            <div class="up-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                  <path
-                    d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
-                  <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
-                </g>
-              </svg>
-            </div>
+            <input type="file" id="logoInput" accept="image/png, image/jpeg, image/jpg, image/webp"
+              (change)="onFileSelected($event)" hidden />
+          </label>
 
-          </div>
+
+          @if (previewUrl || sharedService.mainInformation.get('profile_image')?.value) {
+          <button class="remove-btn delete-btn" (click)="removeImage($event)" title="Remove Image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+              viewBox="0 0 16 16">
+              <path
+                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+              <path fill-rule="evenodd"
+                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+            </svg>
+          </button>
           }
-          @if (previewUrl) {
-          <img [src]="previewUrl" class="preview-img" alt="Logo preview" />
-          }
-          <input type="file" id="logoInput" accept="image/png, image/jpeg, image/jpg, image/webp"
-            (change)="onFileSelected($event)" hidden />
 
-        </label>
+        </div> -->
 
-        @if (sharedService.mainInformation.get('profile_img')?.touched &&
-        sharedService.mainInformation.get('profile_img')?.errors?.['maxSize']) {
+        <!-- @if (sharedService.mainInformation.get('profile_image')?.touched &&
+        sharedService.mainInformation.get('profile_image')?.errors?.['maxSize']) {
         <p class="error-msg">
           Image size must be less than 5MB.
         </p>
-        }
-      </div> -->
+        } -->
 
+        <div class="m-auto">
+          <div class="profile-hug" (click)="fileInput.click()">
+            <img [src]="profileImage" alt="Profile Picture">
+
+            <div class="overlay">
+              <i class="fa-solid fa-upload"></i>
+              <span>Upload Image</span>
+            </div>
+
+            @if(hasProfilePicture){
+            <button class="remove-btn delete-btn " (click)="removeImage($event)" title="Remove Picture">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash"
+                viewBox="0 0 16 16">
+                <path
+                  d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                <path fill-rule="evenodd"
+                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+              </svg>
+            </button>
+            }
+
+            <input #fileInput type="file" accept="image/png, image/jpeg, image/webp" hidden
+              (change)="onImageSelected($event)">
+          </div>
+        </div>
+      </div>
 
       <div class="input">
         <label for="code">Employee Code (Optional)</label>

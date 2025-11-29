@@ -244,3 +244,11 @@
   background-color: #fef2f2;
   color: #b91c1c;
 }
+
+.custom-date-input.is-invalid {
+  background-image: none !important;
+}
+
+.svg-error-adjust {
+  top: 36%;
+}
