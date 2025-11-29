@@ -3,13 +3,13 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-work-schedule',
@@ -637,7 +637,7 @@ export class EditWorkScheduleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/schedule/work-schedule']);
-        this.toasterMessageService.sendMessage("Work schedule Updated successfully");
+        this.toasterMessageService.showSuccess("Work schedule Updated successfully","Updated Successfully");
 
       },
       error: (err) => {

@@ -122,7 +122,7 @@ export class AttachmentsComponent implements OnInit {
     if (this.isUpdateMode && this.jobId) {
       this.jobOpeningsService.updateJobOpening(this.jobId, jobData).subscribe({
         next: (response) => {
-          this.toasterService.showSuccess('Job opening updated successfully!', 'Success');
+          this.toasterService.showSuccess('Job opening updated successfully', 'Updated Successfully');
           this.router.navigate(['/job-openings/view-job-openings', this.jobId]);
         },
         error: (error) => {

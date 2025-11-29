@@ -208,6 +208,7 @@ export class EditBranchInfoComponent implements OnInit {
 
         this.syncAddedDepartmentsWithActiveStatus();
         this.syncSectionsWithActiveStatus();
+        this.originalDepartmentsSnapshot = JSON.parse(JSON.stringify(this.addeddepartments));
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -683,7 +684,7 @@ export class EditBranchInfoComponent implements OnInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/branches/all-branches']);
-        this.toasterMessageService.sendMessage("Branch Updated successfully");
+        this.toasterMessageService.showSuccess("Branch Updated successfully","Updated Successfully");
 
       },
       error: (err) => {

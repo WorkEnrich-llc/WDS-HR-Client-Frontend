@@ -221,7 +221,7 @@ export class ResetPasswordComponent {
         this.otpForm.reset();
         this.passwordForm.reset();
         // edit
-        this.toasterMessageService.sendMessage(response.details);
+        this.toasterMessageService.showSuccess(response.details);
 
         this._Router.navigate(['/auth/login']);
       },

@@ -764,6 +764,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         this.isSaving = false;
         this.toasterMessageService.showSuccess('Part-time attendance rules updated successfully!');
         this.router.navigate(['/attendance-rules']);
+        this.toasterMessageService.showSuccess("Part Time updated successfully","Updated Successfully");
       },
       error: (error) => {
         console.error('Error saving rules:', error);

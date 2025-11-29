@@ -76,7 +76,7 @@ export class NewGoalComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/goals']);
-        this.toasterMessageService.sendMessage("Goal created successfully");
+        this.toasterMessageService.showSuccess("Goal created successfully","Created Successfully");
 
       },
       error: (err) => {

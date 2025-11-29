@@ -1034,7 +1034,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
             this.createSubscription = this.integrationsService.createIntegration(requestBody).subscribe({
                 next: () => {
-                    this.toasterService.showSuccess('Integration created successfully.');
+                    this.toasterService.showSuccess('Integration created successfully.',"Created Successfully");
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {

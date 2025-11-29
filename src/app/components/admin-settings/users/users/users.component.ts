@@ -223,7 +223,7 @@ export class UsersComponent {
       next: () => {
         this.lastInvitationTimes.set(emailToResend, now);
         this.saveInvitationTimes();
-        this.toasterService.showSuccess('Invitation resent successfully');
+        this.toasterService.showSuccess('Invitation resent successfully',"Sent Successfully");
         this.isLoading = false;
         this.closeResendModal();
         this.getAllUsers(this.currentPage);
@@ -320,7 +320,7 @@ export class UsersComponent {
 
     this.userService.deleteRole(emailToDelete).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Deleted successfully');
+        this.toasterService.showSuccess('Deleted successfully',"Deleted");
         this.isLoading = false;
         this.closeDeleteModal();
         this.getAllUsers(this.currentPage);

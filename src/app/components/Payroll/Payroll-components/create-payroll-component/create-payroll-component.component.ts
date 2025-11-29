@@ -151,10 +151,10 @@ export class CreatePayrollComponentComponent implements OnInit {
     try {
       if (this.isEditMode) {
         await firstValueFrom(this.payrollService.updateComponent(formData));
-        this.toasterService.showSuccess('Component updated successfully');
+        this.toasterService.showSuccess('Component updated successfully',"Updated Successfully");
       } else {
         await firstValueFrom(this.payrollService.createComponent(formData));
-        this.toasterService.showSuccess('Component created successfully');
+        this.toasterService.showSuccess('Component created successfully',"Creates Successfully");
       }
       this.router.navigate(['/payroll-components/all-payroll-components']);
     } catch (err) {

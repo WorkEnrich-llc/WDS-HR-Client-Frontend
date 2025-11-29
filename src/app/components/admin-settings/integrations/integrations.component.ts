@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
@@ -16,7 +16,8 @@ import { UserStatus } from '../../../core/enums';
     selector: 'app-integrations',
     imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, PopupComponent, FormsModule, ReactiveFormsModule, RouterLink],
     templateUrl: './integrations.component.html',
-    styleUrls: ['./integrations.component.css']
+    styleUrls: ['./integrations.component.css'],
+    encapsulation:ViewEncapsulation.None
 })
 export class IntegrationsComponent implements OnInit, OnDestroy {
     private integrationsService = inject(IntegrationsService);

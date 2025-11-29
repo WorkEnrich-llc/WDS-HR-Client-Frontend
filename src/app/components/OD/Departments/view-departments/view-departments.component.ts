@@ -81,7 +81,6 @@ export class ViewDepartmentsComponent implements OnInit {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-        console.error(this.departmentData);
 
         this.sortDirection = 'desc';
         this.sortBy('id');
@@ -153,6 +152,7 @@ export class ViewDepartmentsComponent implements OnInit {
         this.departmentData = response.data.object_info;
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.toasterMessageService.showSuccess("Department Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -180,6 +180,7 @@ export class ViewDepartmentsComponent implements OnInit {
         this.departmentData = response.data.object_info;
         this.sortDirection = 'desc';
         this.sortBy('id');
+        this.toasterMessageService.showSuccess("Department Status Updated successfully","Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);

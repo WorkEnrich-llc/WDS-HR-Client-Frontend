@@ -481,68 +481,68 @@ export class SmartGridSheetComponent {
     this.stopSelection();
   }
 
-  @HostListener('document:keydown.delete', ['$event'])
-  @HostListener('document:keydown.backspace', ['$event'])
-  clearSelectedCells(event: KeyboardEvent) {
-    const active = document.activeElement as HTMLElement | null;
+@HostListener('document:keydown.delete', ['$event'])
+@HostListener('document:keydown.backspace', ['$event'])
+clearSelectedCells(event: Event) {
+  const keyboardEvent = event as KeyboardEvent;
 
-    const focusedIsInput =
-      !!active &&
-      (
-        active.tagName === 'INPUT' ||
-        active.tagName === 'SELECT' ||
-        active.tagName === 'TEXTAREA' ||
-        (active as HTMLElement).isContentEditable
-      );
+  const active = document.activeElement as HTMLElement | null;
 
-    let focusedCellRow: number | null = null;
-    let focusedCellCol: string | null = null;
+  const focusedIsInput =
+    !!active &&
+    (
+      active.tagName === 'INPUT' ||
+      active.tagName === 'SELECT' ||
+      active.tagName === 'TEXTAREA' ||
+      (active as HTMLElement).isContentEditable
+    );
 
-    if (active && (active as any).closest) {
-      const td = (active as HTMLElement).closest('td[data-row][data-col]') as HTMLElement | null;
-      if (td) {
-        const dr = td.getAttribute('data-row');
-        const dc = td.getAttribute('data-col');
-        focusedCellRow = dr !== null ? Number(dr) : null;
-        focusedCellCol = dc;
-      }
-    }
+  let focusedCellRow: number | null = null;
+  let focusedCellCol: string | null = null;
 
-    if (this.selectedCells.length === 0) return;
-
-    if (
-      this.selectedCells.length === 1 &&
-      focusedIsInput &&
-      focusedCellRow === this.selectedCells[0].row &&
-      focusedCellCol === this.selectedCells[0].col
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.selectedCells.forEach(cell => {
-      const control = this.rows()[cell.row].get(cell.col);
-      if (control) {
-        control.setValue('');
-        control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-        control.markAsPristine();
-        control.markAsUntouched();
-      }
-    });
-
-
-    this.emitUpdatedRows();
-    this.selectedCells = [];
-    this.ErrorPopup = false;
-    this.errorPopupMessage = '';
-
-    try {
-      (active as HTMLElement | null)?.blur();
-    } catch {
-
+  if (active && (active as any).closest) {
+    const td = (active as HTMLElement).closest('td[data-row][data-col]') as HTMLElement | null;
+    if (td) {
+      const dr = td.getAttribute('data-row');
+      const dc = td.getAttribute('data-col');
+      focusedCellRow = dr !== null ? Number(dr) : null;
+      focusedCellCol = dc;
     }
   }
+
+  if (this.selectedCells.length === 0) return;
+
+  if (
+    this.selectedCells.length === 1 &&
+    focusedIsInput &&
+    focusedCellRow === this.selectedCells[0].row &&
+    focusedCellCol === this.selectedCells[0].col
+  ) {
+    return;
+  }
+
+  keyboardEvent.preventDefault();
+  keyboardEvent.stopPropagation();
+
+  this.selectedCells.forEach(cell => {
+    const control = this.rows()[cell.row].get(cell.col);
+    if (control) {
+      control.setValue('');
+      control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+      control.markAsPristine();
+      control.markAsUntouched();
+    }
+  });
+
+  this.emitUpdatedRows();
+  this.selectedCells = [];
+  this.ErrorPopup = false;
+  this.errorPopupMessage = '';
+
+  try {
+    (active as HTMLElement | null)?.blur();
+  } catch {}
+}
 
 
   // =================== move with arrows ===================

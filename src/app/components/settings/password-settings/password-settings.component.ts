@@ -49,7 +49,7 @@ export class PasswordSettingsComponent implements OnInit {
       const { old_password, password, re_password } = this.changePasswordForm.value;
       this.changePasswordService.changePassword(old_password!, password!, re_password!).subscribe({
         next: (res) => {
-          this.toasterService.showSuccess('Password updated successfully.');
+          this.toasterService.showSuccess('Password updated successfully.',"Updated Successfully");
           this.changePasswordForm.reset();
         },
         error: (err) => {
