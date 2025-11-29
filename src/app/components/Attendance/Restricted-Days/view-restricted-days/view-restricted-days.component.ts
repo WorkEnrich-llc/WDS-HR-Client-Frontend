@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-restricted-days',
@@ -14,8 +15,8 @@ import { RestrictedService } from '../../../../core/services/attendance/restrict
 })
 export class ViewRestrictedDaysComponent {
 
-  constructor(private _RestrictedService: RestrictedService, private route: ActivatedRoute, private datePipe: DatePipe) { }
-
+  constructor(private _RestrictedService: RestrictedService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  
   resterictedDayData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
@@ -70,6 +71,7 @@ export class ViewRestrictedDaysComponent {
     this._RestrictedService.updateRestrictedDayStatus(this.resterictedDayData.id, deptStatus).subscribe({
       next: (response) => {
         this.resterictedDayData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Restricted Days Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -95,6 +97,7 @@ export class ViewRestrictedDaysComponent {
     this._RestrictedService.updateRestrictedDayStatus(this.resterictedDayData.id, deptStatus).subscribe({
       next: (response) => {
         this.resterictedDayData = response.data.object_info;
+        this.toasterMessageService.showSuccess("Restricted Days Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

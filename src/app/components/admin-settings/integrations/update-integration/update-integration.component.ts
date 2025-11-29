@@ -1081,7 +1081,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
             this.updateSubscription = this.integrationsService.updateIntegrationEntry(requestBody).subscribe({
                 next: () => {
-                    this.toasterService.showSuccess('Integration updated successfully.');
+                    this.toasterService.showSuccess('Integration updated successfully.',"Updated Successful");
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {

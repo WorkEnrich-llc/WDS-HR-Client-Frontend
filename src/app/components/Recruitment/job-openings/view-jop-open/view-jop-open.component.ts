@@ -371,7 +371,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening paused successfully');
+        this.toastr.success('Job opening paused successfully','Updated Successfully');
         this.closePauseModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
@@ -400,7 +400,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening is now live');
+        this.toastr.success('Job opening is now live','Updated Successfully');
         this.closeMakeLiveModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);

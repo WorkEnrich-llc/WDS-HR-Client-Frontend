@@ -435,7 +435,7 @@ export class ViewRoleComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Role deactivated successfully');
+        this.toasterService.showSuccess('Role deactivated successfully',"Updated Successfully");
         this.loadRoleDetails();
       },
       error: (err) => {
@@ -464,7 +464,7 @@ export class ViewRoleComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Role activated successfully');
+        this.toasterService.showSuccess('Role activated successfully',"Updated Successfully");
         this.loadRoleDetails();
       },
       error: (err) => {

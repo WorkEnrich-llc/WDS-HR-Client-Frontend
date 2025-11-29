@@ -285,7 +285,7 @@ export class ManageCompanyPolicyComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.isSubmitting = false;
         this.errMsg = '';
-        this.toasterService.showSuccess('Company Policy updated successfully');
+        this.toasterService.showSuccess('Company Policy updated successfully',"Updated Successfully");
         this.router.navigate(['/company-policy']);
       },
       error: (error) => {

@@ -72,7 +72,7 @@ export class ProfileSettingsComponent implements OnInit {
           this.currentProfileData = { ...data };
           this.patchValue();
           this.profileForm.markAsPristine();
-          this.toasterService.showSuccess('Profile updated successfully.');
+          this.toasterService.showSuccess('Profile updated successfully.',"Updated Successfully");
         },
         error: (err) => {
           this.toasterService.showError('Failed to update profile. Please try again later.');

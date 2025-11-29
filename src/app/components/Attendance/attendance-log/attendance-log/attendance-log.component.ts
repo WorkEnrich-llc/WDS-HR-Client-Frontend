@@ -296,8 +296,10 @@ export class AttendanceLogComponent {
 
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    this.currentPage = 1;
+    this.getAllAttendanceLog(this.getCurrentFilters());
   }
+
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -420,17 +422,10 @@ export class AttendanceLogComponent {
 
     this.selectedDate = date;
 
-    this.filterForm.patchValue({ from_date: '' });
     this.selectedRange = null;
+    this.filterForm.patchValue({ from_date: '' }, { emitEvent: false });
 
-    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-
-    this.getAllAttendanceLog({
-      page: this.currentPage,
-      per_page: this.itemsPerPage,
-      from_date: formattedDate,
-      to_date: ''
-    });
+    this.getAllAttendanceLog(this.getCurrentFilters());
   }
 
 
@@ -444,10 +439,34 @@ export class AttendanceLogComponent {
     return new Date(day.date).getTime();
   }
   // end calender
+  private getCurrentFilters(): IAttendanceFilters {
+    const raw = this.filterForm.value;
+
+    let from_date = '';
+    let to_date = '';
+
+    if (raw.from_date) {
+      from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
+      to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+    } else if (this.selectedDate) {
+      from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
+    }
+
+    return {
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      department_id: raw.department_id || undefined,
+      from_date,
+      to_date,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
+      search: this.searchTerm || undefined,
+    };
+  }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadFilteredAttendance();
+    this.getAllAttendanceLog(this.getCurrentFilters());
   }
 
   onItemsPerPageChange(newItemsPerPage: number): void {
@@ -511,26 +530,12 @@ export class AttendanceLogComponent {
 
   applyFilters(): void {
     if (this.filterForm.valid) {
-      const raw = this.filterForm.value;
-      let from_date = '';
-      let to_date = '';
-      if (raw.from_date) {
-        from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
-        to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
-      }
-      const filters: IAttendanceFilters = {
-        department_id: raw.department_id,
-        offenses: raw.offenses,
-        day_type: raw.day_type,
-        from_date,
-        to_date
-      };
+      this.currentPage = 1;
+      this.getAllAttendanceLog(this.getCurrentFilters());
       this.filterBox.closeOverlay();
-      this.getAllAttendanceLog(filters);
     }
-
-
   }
+
 
 
   applyFilter(): void {

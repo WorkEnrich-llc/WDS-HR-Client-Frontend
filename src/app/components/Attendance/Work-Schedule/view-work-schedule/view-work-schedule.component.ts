@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-work-schedule',
@@ -14,8 +15,8 @@ import { WorkSchaualeService } from '../../../../core/services/attendance/work-s
   styleUrl: './view-work-schedule.component.css'
 })
 export class ViewWorkScheduleComponent {
-
-  constructor(private _WorkSchaualeService: WorkSchaualeService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+  
+  constructor(private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workScduleData: any = [];
   workingDays: string[] = [];
   formattedCreatedAt: string = '';
@@ -124,7 +125,7 @@ export class ViewWorkScheduleComponent {
     this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
-
+        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -150,7 +151,7 @@ export class ViewWorkScheduleComponent {
     this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
-
+        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully","Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

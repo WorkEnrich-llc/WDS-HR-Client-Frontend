@@ -250,7 +250,7 @@ export class EditSalaryPortionsComponent implements OnInit {
     this.isLoading = true;
     this.salaryPortionService.updateSalaryPortion(requestPayload).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Salary portion updated successfully');
+        this.toasterService.showSuccess('Salary portion updated successfully',"Updated Successfully");
         this.router.navigate(['/salary-portions']);
         this.isLoading = false;
       },

@@ -626,7 +626,7 @@ export class CreateNewJobTitleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/jobs/all-job-titles']);
-        this.toasterMessageService.sendMessage("Job Title created successfully");
+        this.toasterMessageService.showSuccess("Job Title created successfully","Created Successfully");
 
       },
       error: (err) => {

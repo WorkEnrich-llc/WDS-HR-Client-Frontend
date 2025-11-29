@@ -337,7 +337,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     if (this.jobOpening?.id) {
       this.archivedOpeningsService.duplicateJobOpening(this.jobOpening.id).subscribe({
         next: (response) => {
-          this.toastr.success('Job opening duplicated successfully');
+          this.toastr.success('Job opening duplicated successfully',"Duplicated");
           this.closeDuplicateModal();
           // Navigate to job openings list
           this.router.navigate(['/job-openings']);
@@ -374,7 +374,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     if (this.jobOpening?.id) {
       this.archivedOpeningsService.unarchiveJobOpening(this.jobOpening.id).subscribe({
         next: (response) => {
-          this.toastr.success('Job opening unarchived successfully');
+          this.toastr.success('Job opening unarchived successfully',"Unarchived");
           this.closeUnarchiveModal();
           // Navigate back to archived openings list
           this.router.navigate(['/archived-openings']);

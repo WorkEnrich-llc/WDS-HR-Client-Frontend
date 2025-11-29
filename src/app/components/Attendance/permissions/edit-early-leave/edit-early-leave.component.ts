@@ -148,7 +148,7 @@ export class EditEarlyLeaveComponent {
       next: () => {
         this.isLoading = false;
         this.errMsg = '';
-        this.toasterService.showSuccess('Permissions updated successfully');
+        this.toasterService.showSuccess('Permissions updated successfully',"Updated Successfully");
         this.router.navigate(['/permissions']);
       },
       error: (err) => {
