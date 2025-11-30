@@ -14,7 +14,7 @@ import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 @Component({
   selector: 'app-attendance-log',
@@ -73,7 +73,7 @@ export class AttendanceLogComponent {
   }
 
   isLoading: boolean = false;
-  todayDayjs = dayjs();
+  todayDayjs: Dayjs = dayjs();
   searchTerm: string = '';
   filterForm!: FormGroup;
   sortDirection: string = 'asc';
@@ -89,7 +89,6 @@ export class AttendanceLogComponent {
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
-
 
   employees: any[] = [];
   columnWidths: string[] = [];
@@ -296,10 +295,8 @@ export class AttendanceLogComponent {
 
 
   onSearchChange() {
-    this.currentPage = 1;
-    this.getAllAttendanceLog(this.getCurrentFilters());
+    this.searchSubject.next(this.searchTerm);
   }
-
 
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -422,10 +419,17 @@ export class AttendanceLogComponent {
 
     this.selectedDate = date;
 
+    this.filterForm.patchValue({ from_date: '' });
     this.selectedRange = null;
-    this.filterForm.patchValue({ from_date: '' }, { emitEvent: false });
 
-    this.getAllAttendanceLog(this.getCurrentFilters());
+    const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+
+    this.getAllAttendanceLog({
+      page: this.currentPage,
+      per_page: this.itemsPerPage,
+      from_date: formattedDate,
+      to_date: ''
+    });
   }
 
 
@@ -439,34 +443,10 @@ export class AttendanceLogComponent {
     return new Date(day.date).getTime();
   }
   // end calender
-  private getCurrentFilters(): IAttendanceFilters {
-    const raw = this.filterForm.value;
-
-    let from_date = '';
-    let to_date = '';
-
-    if (raw.from_date) {
-      from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
-      to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
-    } else if (this.selectedDate) {
-      from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
-    }
-
-    return {
-      page: this.currentPage,
-      per_page: this.itemsPerPage,
-      department_id: raw.department_id || undefined,
-      from_date,
-      to_date,
-      offenses: raw.offenses || undefined,
-      day_type: raw.day_type || undefined,
-      search: this.searchTerm || undefined,
-    };
-  }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.getAllAttendanceLog(this.getCurrentFilters());
+    this.loadFilteredAttendance();
   }
 
   onItemsPerPageChange(newItemsPerPage: number): void {
@@ -530,12 +510,26 @@ export class AttendanceLogComponent {
 
   applyFilters(): void {
     if (this.filterForm.valid) {
-      this.currentPage = 1;
-      this.getAllAttendanceLog(this.getCurrentFilters());
+      const raw = this.filterForm.value;
+      let from_date = '';
+      let to_date = '';
+      if (raw.from_date) {
+        from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
+        to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+      }
+      const filters: IAttendanceFilters = {
+        department_id: raw.department_id,
+        offenses: raw.offenses,
+        day_type: raw.day_type,
+        from_date,
+        to_date
+      };
       this.filterBox.closeOverlay();
+      this.getAllAttendanceLog(filters);
     }
-  }
 
+
+  }
 
 
   applyFilter(): void {
