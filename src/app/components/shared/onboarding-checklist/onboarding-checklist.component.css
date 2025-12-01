@@ -426,6 +426,24 @@
   cursor: not-allowed;
 }
 
+/* Disabled state styles - prevent all interactions when any item is loading */
+.onboarding-checklist-item.disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+/* Ensure disabled items can't be clicked even if they have clickable class */
+.onboarding-checklist-item.disabled.clickable {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.onboarding-checklist-item.disabled.clickable:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .onboarding-checklist-item.loading .onboarding-item-text {
   color: var(--color-neutral-600);
 }

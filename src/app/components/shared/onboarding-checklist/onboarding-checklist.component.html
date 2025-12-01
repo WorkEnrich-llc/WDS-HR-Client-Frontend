@@ -1,14 +1,12 @@
 <!-- Onboarding Progress Badge - Fixed Bottom Right -->
 @if (showBadge && total > 0 && !isOpen) {
-<div class="onboarding-badge" 
-     (click)="onBadgeClick()">
+<div class="onboarding-badge" (click)="onBadgeClick()">
   <span class="onboarding-label">Onboarding</span>
   <div class="onboarding-progress-circle">
     <svg class="progress-ring" width="72" height="72" viewBox="0 0 72 72">
       <circle class="progress-ring-background" cx="36" cy="36" r="30" fill="none" stroke="#2c63cc" stroke-width="5" />
       <circle class="progress-ring-fill" cx="36" cy="36" r="30" fill="none" stroke="#153366" stroke-width="5"
-        [attr.stroke-dasharray]="getCircleCircumference()" 
-        [attr.stroke-dashoffset]="getCircleOffset()" />
+        [attr.stroke-dasharray]="getCircleCircumference()" [attr.stroke-dashoffset]="getCircleOffset()" />
     </svg>
     <span class="progress-text">{{ completed }} / {{ total }}</span>
   </div>
@@ -17,17 +15,16 @@
 
 <!-- Onboarding Checklist Modal - Floating Bottom Right -->
 @if (isOpen && checklistItems && checklistItems.length > 0) {
-<div class="onboarding-checklist-floating" 
-     [class.modal-slide-out]="isAnimatingOut">
-  <div class="onboarding-checklist-content" 
-       (click)="$event.stopPropagation()">
+<div class="onboarding-checklist-floating" [class.modal-slide-out]="isAnimatingOut">
+  <div class="onboarding-checklist-content" (click)="$event.stopPropagation()">
     <!-- Modal Header -->
     <div class="onboarding-modal-header">
       <div class="onboarding-modal-title-wrapper">
         <h2 class="onboarding-modal-title">Onboarding Checklist</h2>
         @if (allowToggle && showAutoSaveHint) {
         <div class="auto-save-hint">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             <path d="M9 12l2 2 4-4" />
           </svg>
@@ -36,7 +33,8 @@
         }
         @if (!allowToggle && showAutoSaveHint) {
         <div class="view-only-hint">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
@@ -45,7 +43,8 @@
         }
       </div>
       <button class="onboarding-modal-close" (click)="closeModal()" aria-label="Close">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
@@ -54,31 +53,30 @@
     <!-- Checklist Items -->
     <div class="onboarding-checklist-items">
       @for (item of checklistItems; track $index) {
-      <div class="onboarding-checklist-item" 
-           [class.completed]="item.status" 
-           [class.pending]="!item.status"
-           [class.clickable]="(allowToggle || !item.status) && !isItemDisabled(item)"
-           [class.loading]="isItemLoading(item.title)"
-           [class.disabled]="isItemLoading(item.title) || isItemDisabled(item)"
-           tabindex="-1"
-           (click)="onItemClick(item, $event)">
+      <div class="onboarding-checklist-item" [class.completed]="item.status" [class.pending]="!item.status"
+        [class.clickable]="(allowToggle || !item.status) && !isItemDisabled(item) && loadingItemTitle === null"
+        [class.loading]="isItemLoading(item.title)" [class.disabled]="isItemLoading(item.title) || isItemDisabled(item)"
+        tabindex="-1" (click)="onItemClick(item, $event)">
         <!-- Status Indicator -->
         <div class="onboarding-item-status-icon">
           @if (isItemLoading(item.title)) {
           <!-- Loading - Spinner -->
           <div class="loading-spinner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10" />
             </svg>
           </div>
           } @else if (item.status) {
           <!-- Completed - Green checkmark -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 6L9 17l-5-5" />
           </svg>
           } @else {
           <!-- Pending - Blue circle with checkmark -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="11" />
             <path d="M18 8L10 16l-4-4" />
           </svg>
@@ -92,4 +90,3 @@
   </div>
 </div>
 }
-

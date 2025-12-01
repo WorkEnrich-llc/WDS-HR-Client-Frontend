@@ -643,11 +643,12 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   updateChecklistItem(item: { title: string; status: boolean }): void {
-    if (!this.employee || this.loadingChecklistItemTitle) {
-      return; // Don't update if no employee or currently loading
+    // Don't update if no employee or currently loading (explicit null check)
+    if (!this.employee || this.loadingChecklistItemTitle !== null) {
+      return;
     }
 
-    // Set loading state for the clicked item
+    // Set loading state for the clicked item IMMEDIATELY to prevent other clicks
     this.loadingChecklistItemTitle = item.title;
 
     // Toggle the clicked item status, keep all others as they were
