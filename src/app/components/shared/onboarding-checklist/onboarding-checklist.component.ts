@@ -33,8 +33,10 @@ export class OnboardingChecklistComponent implements OnChanges {
   private previousChecklistItems: OnboardingListItem[] = []; // Track previous items to detect actual changes
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Unified handler: Check and clear expected status changes when loading is complete
-    // This prevents race conditions and ensures rows are enabled after API completes
+    // Unified handler: Keep rows disabled until BOTH:
+    // 1. loadingItemTitle is null (API completed)
+    // 2. checklistItems has the expected status (status actually updated)
+    // This prevents flickering and ensures smooth UI updates
 
     // Update previous items tracking
     if (changes['checklistItems']) {
@@ -60,34 +62,34 @@ export class OnboardingChecklistComponent implements OnChanges {
       return; // Still loading, wait
     }
 
-    // Loading is complete - check current status against expected and clear tracking
-    // Since loading is complete, we should clear the tracking regardless
-    // The API has finished, so the final state is what matters
+    // Loading is complete - now verify that checklistItems has the expected status
+    // Only clear when status actually matches expected OR when status has changed (update completed)
     const itemsToRemove: string[] = [];
 
     for (const [itemTitle, expectedStatus] of this.expectedStatusChanges.entries()) {
       const actualItem = this.checklistItems.find(item => item.title === itemTitle);
+      const previousItem = this.previousChecklistItems.find(item => item.title === itemTitle);
 
       if (actualItem) {
-        // Check if status matches expected
+        // Check if status matches expected (success case)
         if (actualItem.status === expectedStatus) {
-          // Success: status matches expected
+          // Success: status matches expected and loading is complete
           itemsToRemove.push(itemTitle);
-        } else {
-          // Status doesn't match expected - this could be:
-          // 1. Error case: status was reverted
-          // 2. Timing issue: status update hasn't propagated yet
-          // Since loading is complete, we should clear it anyway to prevent stuck state
-          // The parent component has finished processing, so we should enable rows
+        } else if (previousItem && previousItem.status !== actualItem.status) {
+          // Status changed from previous but doesn't match expected
+          // This means the update completed (status changed) but was reverted (error case)
+          // Since the update is complete (status changed), clear it
           itemsToRemove.push(itemTitle);
         }
+        // If status hasn't changed from previous, keep waiting
+        // This ensures we wait for the actual status update before enabling rows
       } else {
-        // Item not found - clear it
+        // Item not found - clear it (edge case)
         itemsToRemove.push(itemTitle);
       }
     }
 
-    // Remove completed/errored items from tracking
+    // Remove only items that have confirmed status updates
     itemsToRemove.forEach(title => this.expectedStatusChanges.delete(title));
 
     // If no more expected changes, clear processing flag

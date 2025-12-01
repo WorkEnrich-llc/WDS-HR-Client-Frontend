@@ -747,12 +747,25 @@ export class ViewEmployeeComponent implements OnInit {
     this.employeeService.updateEmployee(payload).subscribe({
       next: (response: any) => {
         this.toasterMessageService.showSuccess('Checklist item updated successfully');
-        // Update local onboarding list so the view reflects the change without reloading the whole page
-        if (this.employee) {
-          this.employee.onboarding_list = updatedOnboardingList;
-        }
-        // Clear loading state
-        this.loadingChecklistItemTitle = null;
+        // Reload employee data to get the updated checklist from server
+        // This ensures we have the latest data after all related APIs (department update, etc.) complete
+        this.employeeService.getEmployeeById(this.employeeId).subscribe({
+          next: (employeeResponse) => {
+            // Update employee data with fresh data from server
+            this.employee = employeeResponse.data.object_info;
+            this.changeDetector.detectChanges();
+            // Clear loading state only after employee data (including checklist) is reloaded
+            this.loadingChecklistItemTitle = null;
+          },
+          error: (reloadError) => {
+            console.error('Error reloading employee data:', reloadError);
+            // Even if reload fails, update local data and clear loading
+            if (this.employee) {
+              this.employee.onboarding_list = updatedOnboardingList;
+            }
+            this.loadingChecklistItemTitle = null;
+          }
+        });
       },
       error: (error: any) => {
         console.error('Error updating checklist item:', error);
