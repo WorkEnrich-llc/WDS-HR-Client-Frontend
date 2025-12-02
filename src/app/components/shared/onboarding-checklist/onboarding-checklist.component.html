@@ -21,7 +21,7 @@
     <div class="onboarding-modal-header">
       <div class="onboarding-modal-title-wrapper">
         <h2 class="onboarding-modal-title">Onboarding Checklist</h2>
-        @if (allowToggle && showAutoSaveHint) {
+        @if (allowToggle && !readOnly && showAutoSaveHint) {
         <div class="auto-save-hint">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,7 +31,7 @@
           <span>Auto-saved</span>
         </div>
         }
-        @if (!allowToggle && showAutoSaveHint) {
+        @if ((readOnly || !allowToggle) && showAutoSaveHint) {
         <div class="view-only-hint">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -54,7 +54,7 @@
     <div class="onboarding-checklist-items">
       @for (item of checklistItems; track $index) {
       <div class="onboarding-checklist-item" [class.completed]="item.status" [class.pending]="!item.status"
-        [class.clickable]="(allowToggle || !item.status) && !isItemDisabled(item) && loadingItemTitle === null"
+        [class.clickable]="!readOnly && (allowToggle || !item.status) && !isItemDisabled(item) && loadingItemTitle === null"
         [class.loading]="isItemLoading(item.title)" [class.disabled]="isItemLoading(item.title) || isItemDisabled(item)"
         tabindex="-1" (click)="onItemClick(item, $event)">
         <!-- Status Indicator -->

@@ -264,6 +264,11 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Remove transitions for read-only items to prevent any visual changes */
+.onboarding-checklist-item:not(.clickable) {
+  transition: none !important;
+}
+
 .onboarding-checklist-item.completed {
   background-color: var(--color-success-100);
   border: 1px solid var(--color-success-300);
@@ -302,13 +307,29 @@
   cursor: default;
   position: relative;
   user-select: none;
+  pointer-events: none;
 }
 
 .onboarding-checklist-item:not(.clickable):hover {
-  transform: none;
-  box-shadow: none;
-  background-color: inherit;
-  border-color: inherit;
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.onboarding-checklist-item:not(.clickable):active {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.onboarding-checklist-item:not(.clickable):focus {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+  outline: none !important;
 }
 
 .onboarding-checklist-item:not(.clickable).completed {
@@ -316,9 +337,13 @@
   border-color: var(--color-success-300);
 }
 
-.onboarding-checklist-item:not(.clickable).completed:hover {
-  background-color: var(--color-success-100);
-  border-color: var(--color-success-300);
+.onboarding-checklist-item:not(.clickable).completed:hover,
+.onboarding-checklist-item:not(.clickable).completed:active,
+.onboarding-checklist-item:not(.clickable).completed:focus {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .onboarding-checklist-item:not(.clickable).pending {
@@ -326,23 +351,13 @@
   border-color: var(--color-neutral-200);
 }
 
-.onboarding-checklist-item:not(.clickable).pending:hover {
-  background-color: var(--color-neutral-50);
-  border-color: var(--color-neutral-200);
-}
-
-/* Add a subtle visual indicator for read-only items */
-.onboarding-checklist-item:not(.clickable)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 10px;
-  pointer-events: none;
-  background: rgba(255, 255, 255, 0.3);
-  opacity: 0.4;
+.onboarding-checklist-item:not(.clickable).pending:hover,
+.onboarding-checklist-item:not(.clickable).pending:active,
+.onboarding-checklist-item:not(.clickable).pending:focus {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .onboarding-checklist-item:focus {

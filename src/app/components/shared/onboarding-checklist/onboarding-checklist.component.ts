@@ -23,6 +23,7 @@ export class OnboardingChecklistComponent implements OnChanges {
   @Input() allowToggle: boolean = false; // Allow toggling completed items (default: false for backward compatibility)
   @Input() disabledItemTitles: string[] = []; // Titles of items that should not be clickable
   @Input() showAutoSaveHint: boolean = true; // Show auto-save hint when allowToggle is true
+  @Input() readOnly: boolean = false; // Make the entire checklist read-only (no clicks allowed)
   @Output() close = new EventEmitter<void>();
   @Output() itemClick = new EventEmitter<OnboardingListItem>();
   @Output() badgeClick = new EventEmitter<void>();
@@ -128,6 +129,12 @@ export class OnboardingChecklistComponent implements OnChanges {
   }
 
   onItemClick(item: OnboardingListItem, event: Event): void {
+    // If readOnly is true, prevent all clicks
+    if (this.readOnly) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     // Prevent multiple simultaneous clicks
     if (this.isProcessingClick) {
       event.preventDefault();
@@ -178,11 +185,13 @@ export class OnboardingChecklistComponent implements OnChanges {
 
   isItemDisabled(item: OnboardingListItem): boolean {
     // Disable item if:
-    // 1. It's in the disabled list
-    // 2. Any item is currently loading
-    // 3. Processing a click (waiting for status update)
-    // 4. There are pending expected status changes (waiting for checklistItems to update)
-    return this.disabledItemTitles.includes(item.title)
+    // 1. readOnly is true (entire checklist is view-only)
+    // 2. It's in the disabled list
+    // 3. Any item is currently loading
+    // 4. Processing a click (waiting for status update)
+    // 5. There are pending expected status changes (waiting for checklistItems to update)
+    return this.readOnly
+      || this.disabledItemTitles.includes(item.title)
       || this.loadingItemTitle !== null
       || this.isProcessingClick
       || this.expectedStatusChanges.size > 0;
