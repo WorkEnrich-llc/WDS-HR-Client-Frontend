@@ -470,6 +470,11 @@ export class AdminDashboardComponent {
   totalItems: number = 0;
   itemsPerPage: number = 10;
 
+  // Getter to filter only active departments
+  get activeDepartments(): any[] {
+    return this.departments.filter(dept => dept.is_active === true);
+  }
+
   // get departemnt
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
     this._DepartmentsService.getAllDepartment(pageNumber, 10000, {

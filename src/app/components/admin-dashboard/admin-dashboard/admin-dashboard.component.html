@@ -5,7 +5,7 @@
             <select name="department" id="department" (change)="onParamChangeEvent('department', $event)"
                 class="form-select">
                 <option value="" selected>All Department</option>
-                @for (dept of departments; track $index) {
+                @for (dept of activeDepartments; track $index) {
                 <option [value]=dept.id>{{dept.name}}</option>
                 }
             </select>
@@ -51,7 +51,7 @@
                         @if(chartsData['Active Employees']) {
                         <hr>
                         <div class="sticker">
-                            <div  class="number text-end">{{ activeEmployeeTotal }}</div>
+                            <div class="number text-end">{{ activeEmployeeTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -94,7 +94,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of leaveBalanceValues; track $index) {
                         <div class="sticker">
-                            <div  class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="leaveBalanceColors[$index]"></div>
                             <p>{{ leaveBalanceLabels[$index] }}</p>
                         </div>
@@ -102,7 +102,7 @@
                         @if(chartsData['Leave Balance']) {
                         <hr>
                         <div class="sticker">
-                            <div  class="number text-end">{{ leaveBalanceTotal }}</div>
+                            <div class="number text-end">{{ leaveBalanceTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -145,7 +145,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of requestsValues; track $index) {
                         <div class="sticker">
-                            <div  class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="requestsColors[$index]"></div>
                             <p>{{ requestsLabels[$index] }}</p>
                         </div>
@@ -153,7 +153,7 @@
                         @if(chartsData['Requests']) {
                         <hr>
                         <div class="sticker">
-                            <div  class="number text-end">{{ requestsTotal }}</div>
+                            <div class="number text-end">{{ requestsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -184,7 +184,7 @@
                     <div class="d-flex flex-column gap-2">
                         @for (val of goalsValues; track $index) {
                         <div class="sticker">
-                            <div  class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="goalsColors[$index]"></div>
                             <p>{{ goalsLabels[$index] }}</p>
                         </div>
@@ -192,7 +192,7 @@
                         @if(chartsData['Goals']) {
                         <hr>
                         <div class="sticker">
-                            <div  class="number text-end">{{ goalsTotal }}</div>
+                            <div class="number text-end">{{ goalsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -366,7 +366,7 @@
 
                     <div class="d-flex flex-column gap-2">
                         <div *ngFor="let val of deptGuidelinesValues; let i = index" class="sticker">
-                            <div  class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="deptGuidelinesColors[i]"></div>
                             <p>{{ deptGuidelinesLabels[i] }}</p>
                         </div>
@@ -411,14 +411,14 @@
 
                     <div class="d-flex flex-column gap-2 mt-3">
                         <div *ngFor="let val of activeDepartmentsValues; let i = index" class="sticker">
-                            <div  class="number text-end">{{ val }}</div>
+                            <div class="number text-end">{{ val }}</div>
                             <div class="label" [style.background-color]="activeDepartmentsColors[i]"></div>
                             <p>{{ activeDepartmentsLabels[i] }}</p>
                         </div>
                         @if(chartsData['Active Departments']) {
                         <hr>
                         <div class="sticker">
-                            <div  class="number text-end">{{ activeDepartmentsTotal }}</div>
+                            <div class="number text-end">{{ activeDepartmentsTotal }}</div>
                             <div class="label" style="background-color: transparent;"></div>
                             <p>Total</p>
                         </div>
@@ -435,7 +435,7 @@
         <!-- Payroll Status -->
         <div class="col-12 col-lg-4 d-flex flex-column gap-3">
             <div class="content-box payroll flex-fill d-flex flex-column h-100 position-relative">
-                    <div class="overlay">
+                <div class="overlay">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
                         viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
                         <path fill="currentColor" fill-rule="evenodd"
