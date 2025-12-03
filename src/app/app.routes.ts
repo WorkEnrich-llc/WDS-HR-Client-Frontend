@@ -1335,6 +1335,30 @@ export const routes: Routes = [
             title: 'Manage Company Policy'
           },
           {
+            path: 'company-documents',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
+            title: 'Company Documents'
+          },
+          {
+            path: 'company-documents/create',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/create-company-document/create-company-document.component').then(m => m.CreateCompanyDocumentComponent),
+            title: 'Create Document'
+          },
+          {
+            path: 'company-documents/view/:id',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/view-company-document/view-company-document.component').then(m => m.ViewCompanyDocumentComponent),
+            title: 'View Company Document'
+          },
+          {
             path: 'email-settings',
             canActivate: [SubscriptionGuard],
             data: { feature: 'Email_Settings' },

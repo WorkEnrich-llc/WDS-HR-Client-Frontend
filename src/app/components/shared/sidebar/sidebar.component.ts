@@ -30,7 +30,7 @@ export class SidebarComponent implements OnInit {
     'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
-    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'email-settings', 'custom-field']
+    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'company-documents', 'email-settings', 'custom-field']
   };
 
   constructor(

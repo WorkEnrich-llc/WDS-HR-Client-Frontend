@@ -1,0 +1,105 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="Company Documents">
+    <button class="btn btn-lg btn-primary" routerLink="/company-documents/create" #actions>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+            <g fill="none" stroke="#ffffff" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+            </g>
+        </svg>
+        <span>Create Document</span>
+    </button>
+</app-page-header>
+
+<!-- content -->
+<div class="content-hug">
+    <app-table 
+        [data]="documents" 
+        [isLoading]="isLoading" 
+        [columnsCount]="5" 
+        [totalItems]="totalItems"
+        [itemsPerPage]="totalItems" 
+        [currentPage]="1" 
+        [disablePagination]="true"
+        [headerTemplate]="documentsTableHeader"
+        [rowTemplate]="documentsTableRow" 
+        [emptyTemplate]="noDocuments">
+    </app-table>
+
+    <!-- Table Header Template -->
+    <ng-template #documentsTableHeader>
+        <th>File</th>
+        <th>File Type</th>
+        <th>File Size</th>
+        <th>Upload Date</th>
+        <th>Actions</th>
+    </ng-template>
+
+    <!-- Table Row Template -->
+    <ng-template #documentsTableRow let-document>
+        <td>
+            <a href="javascript:void(0)" (click)="openDocument(document.document_url)" 
+               class="text-primary" 
+               [title]="document.info?.file_name || 'Open document'">
+                {{ document.info?.file_name || 'N/A' }}
+            </a>
+        </td>
+        <td>
+            <span class="badge bg-secondary">{{ document.info?.file_type || 'N/A' }}</span>
+        </td>
+        <td>
+            <span class="text-gray-sm">{{ formatFileSize(document.info?.file_size_kb) }}</span>
+        </td>
+        <td>
+            <span class="text-gray-sm">{{ formatDate(document.created_at) }}</span>
+        </td>
+        <td>
+            <div class="d-flex align-items-center gap-2">
+                @if (isUploading(document.id)) {
+                <button class="view-btn d-flex align-items-center" disabled title="Uploading">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <small>Uploading...</small>
+                </button>
+                } @else {
+                <button class="view-btn" (click)="triggerFilePicker(document.id)" title="Upload">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17,8 12,3 7,8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload
+                </button>
+                }
+                
+                <a [routerLink]="['/company-documents/view', document.id]" class="view-btn" title="View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    View
+                </a>
+            </div>
+        </td>
+    </ng-template>
+
+    <!-- Empty State Template -->
+    <ng-template #noDocuments>
+        <tr>
+            <td [attr.colspan]="5" class="text-center py-5">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <p class="mt-3 mb-0">No documents found</p>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</div>
+
