@@ -22,6 +22,7 @@ export class EditEmployeeSharedService {
    readonly isModalOpen = signal<boolean>(false);
    readonly isSuccessModalOpen = signal<boolean>(false);
    readonly employeeData = signal<Employee | null>(null);
+   private originalFormData: any = null;
    // Create service injected in constructor
    private createService: CreateEmployeeSharedService;
 
@@ -42,12 +43,15 @@ export class EditEmployeeSharedService {
 
 
    constructor(createService: CreateEmployeeSharedService) {
+      console.log('[EditEmployeeSharedService] Constructor called');
       this.createService = createService;
       this.initializeForm();
       this.setupFormWatchers();
+      console.log('[EditEmployeeSharedService] Form initialized:', this.employeeForm);
    }
 
    private initializeForm(): void {
+      console.log('[EditEmployeeSharedService] Initializing form...');
       this.employeeForm = this.fb.group({
          main_information: this.fb.group({
             code: [''],
@@ -90,6 +94,12 @@ export class EditEmployeeSharedService {
             work_schedule_id: [null, Validators.required]        // editable
             // activate_attendance_rules remains checkbox in template (always disabled)
          })
+      });
+      console.log('[EditEmployeeSharedService] Form created:', {
+         status: this.employeeForm.status,
+         valid: this.employeeForm.valid,
+         invalid: this.employeeForm.invalid,
+         value: this.employeeForm.value
       });
    }
 
@@ -231,6 +241,11 @@ export class EditEmployeeSharedService {
          include_gross_insurance_salary: hasGrossInsurance,
          gross_insurance_salary: hasGrossInsurance ? data.job_info.gross_insurance : ''
       });
+
+      // Store original form data for change detection
+      console.log('[EditEmployeeSharedService] About to store original form data');
+      this.storeOriginalFormData();
+      console.log('[EditEmployeeSharedService] Original form data stored');
    }
 
    private formatDateForInput(dateStr: string): string {
@@ -379,5 +394,100 @@ export class EditEmployeeSharedService {
       this.isModalOpen.set(false);
       this.isLoading.set(false);
       this.errMsg.set('');
+      this.originalFormData = null;
+   }
+
+   // Store original form data for change detection
+   private storeOriginalFormData(): void {
+      // Get only editable fields for comparison
+      const formValue = this.employeeForm.getRawValue();
+      this.originalFormData = JSON.parse(JSON.stringify({
+         main_information: {
+            code: formValue.main_information.code,
+            name: formValue.main_information.name,
+            gender: formValue.main_information.gender,
+            mobile: {
+               country_id: formValue.main_information.mobile.country_id,
+               number: formValue.main_information.mobile.number
+            },
+            personal_email: formValue.main_information.personal_email,
+            marital_status: formValue.main_information.marital_status,
+            date_of_birth: formValue.main_information.date_of_birth,
+            address: formValue.main_information.address
+         },
+         job_details: {
+            branch_id: formValue.job_details.branch_id,
+            years_of_experience: formValue.job_details.years_of_experience
+         },
+         contract_details: {
+            insurance_salary: formValue.contract_details.insurance_salary
+         },
+         attendance_details: {
+            days_on_site: formValue.attendance_details.days_on_site,
+            work_schedule_id: formValue.attendance_details.work_schedule_id
+         },
+         insurance_details: {
+            include_insurance_salary: formValue.insurance_details.include_insurance_salary,
+            insurance_salary: formValue.insurance_details.insurance_salary,
+            include_gross_insurance_salary: formValue.insurance_details.include_gross_insurance_salary,
+            gross_insurance_salary: formValue.insurance_details.gross_insurance_salary
+         }
+      }));
+      console.log('[EditEmployee] Original form data stored:', this.originalFormData);
+   }
+
+   // Check if form has changes
+   hasChanges(): boolean {
+      if (!this.originalFormData) {
+         console.log('[EditEmployee] hasChanges: No original data stored, returning false');
+         return false;
+      }
+
+      const currentFormValue = this.employeeForm.getRawValue();
+      const current = {
+         main_information: {
+            code: currentFormValue.main_information.code,
+            name: currentFormValue.main_information.name,
+            gender: currentFormValue.main_information.gender,
+            mobile: {
+               country_id: currentFormValue.main_information.mobile.country_id,
+               number: currentFormValue.main_information.mobile.number
+            },
+            personal_email: currentFormValue.main_information.personal_email,
+            marital_status: currentFormValue.main_information.marital_status,
+            date_of_birth: currentFormValue.main_information.date_of_birth,
+            address: currentFormValue.main_information.address
+         },
+         job_details: {
+            branch_id: currentFormValue.job_details.branch_id,
+            years_of_experience: currentFormValue.job_details.years_of_experience
+         },
+         contract_details: {
+            insurance_salary: currentFormValue.contract_details.insurance_salary
+         },
+         attendance_details: {
+            days_on_site: currentFormValue.attendance_details.days_on_site,
+            work_schedule_id: currentFormValue.attendance_details.work_schedule_id
+         },
+         insurance_details: {
+            include_insurance_salary: currentFormValue.insurance_details.include_insurance_salary,
+            insurance_salary: currentFormValue.insurance_details.insurance_salary,
+            include_gross_insurance_salary: currentFormValue.insurance_details.include_gross_insurance_salary,
+            gross_insurance_salary: currentFormValue.insurance_details.gross_insurance_salary
+         }
+      };
+
+      const currentStr = JSON.stringify(current);
+      const originalStr = JSON.stringify(this.originalFormData);
+      const hasChanges = currentStr !== originalStr;
+
+      console.log('[EditEmployee] hasChanges check:');
+      console.log('  - Original:', this.originalFormData);
+      console.log('  - Current:', current);
+      console.log('  - Original (string):', originalStr);
+      console.log('  - Current (string):', currentStr);
+      console.log('  - Has changes:', hasChanges);
+
+      return hasChanges;
    }
 }

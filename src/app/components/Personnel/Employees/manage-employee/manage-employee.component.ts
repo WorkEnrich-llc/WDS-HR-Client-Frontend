@@ -265,9 +265,25 @@ export class ManageEmployeeComponent implements OnInit {
   }
 
   get isSaveDisabled(): boolean {
+    const isLoading = this.sharedService.isLoading();
+    const isEditMode = this.sharedService.isEditMode();
+    const employeeDataLoaded = !!this.sharedService.employeeData();
+    
+    // In edit mode, don't validate until data is loaded
+    if (isEditMode && !employeeDataLoaded) {
+      return true; // Disable until data is loaded
+    }
+    
     const isInvalid = this.sharedService.employeeForm.invalid;
-    const isUnchanged = this.sharedService.employeeForm.pristine;
-    return isInvalid || isUnchanged || this.sharedService.isLoading();
+    
+    // In edit mode, check for changes. In create mode, check if form is pristine
+    const isUnchanged = isEditMode
+      ? !this.sharedService.hasChanges()
+      : this.sharedService.employeeForm.pristine;
+    
+    const isDisabled = isInvalid || isUnchanged || isLoading;
+
+    return isDisabled;
   }
 
   // onSubmit() {

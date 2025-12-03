@@ -13,17 +13,9 @@
 
 <!-- content -->
 <div class="content-hug">
-    <app-table 
-        [data]="documents" 
-        [isLoading]="isLoading" 
-        [columnsCount]="5" 
-        [totalItems]="totalItems"
-        [itemsPerPage]="totalItems" 
-        [currentPage]="1" 
-        [disablePagination]="true"
-        [headerTemplate]="documentsTableHeader"
-        [rowTemplate]="documentsTableRow" 
-        [emptyTemplate]="noDocuments">
+    <app-table [data]="documents" [isLoading]="isLoading" [columnsCount]="5" [totalItems]="totalItems"
+        [itemsPerPage]="totalItems" [currentPage]="1" [disablePagination]="true" [headerTemplate]="documentsTableHeader"
+        [rowTemplate]="documentsTableRow" [emptyTemplate]="noDocuments">
     </app-table>
 
     <!-- Table Header Template -->
@@ -38,10 +30,9 @@
     <!-- Table Row Template -->
     <ng-template #documentsTableRow let-document>
         <td>
-            <a href="javascript:void(0)" (click)="openDocument(document.document_url)" 
-               class="text-primary" 
-               [title]="document.info?.file_name || 'Open document'">
-                {{ document.info?.file_name || 'N/A' }}
+            <a href="javascript:void(0)" (click)="openDocument(document.document_url)" class="text-primary"
+                [title]="document.name || 'Open document'">
+                {{ document.name || 'N/A' }}
             </a>
         </td>
         <td>
@@ -71,7 +62,7 @@
                     Upload
                 </button>
                 }
-                
+
                 <a [routerLink]="['/company-documents/view', document.id]" class="view-btn" title="View">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -89,7 +80,8 @@
         <tr>
             <td [attr.colspan]="5" class="text-center py-5">
                 <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                         <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -102,4 +94,3 @@
         </tr>
     </ng-template>
 </div>
-
