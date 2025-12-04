@@ -261,7 +261,7 @@
   <!-- Department Checklist Component with Badge -->
   @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
   <app-onboarding-checklist [isOpen]="isChecklistModalOpen" [checklistItems]="departmentChecklistItems"
-    [showBadge]="true" [completed]="checklistCompleted" [total]="checklistTotal" [allowToggle]="false"
+    [showBadge]="true" [completed]="checklistCompleted" [total]="checklistTotal" [allowToggle]="false" [readOnly]="true"
     [disabledItemTitles]="disabledChecklistTitles" [loadingItemTitle]="loadingChecklistItemTitle"
     (close)="closeChecklistModal()" (badgeClick)="openChecklistModal()">
   </app-onboarding-checklist>

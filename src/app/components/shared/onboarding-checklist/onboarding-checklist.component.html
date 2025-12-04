@@ -54,9 +54,9 @@
     <div class="onboarding-checklist-items">
       @for (item of checklistItems; track $index) {
       <div class="onboarding-checklist-item" [class.completed]="item.status" [class.pending]="!item.status"
-        [class.clickable]="!readOnly && (allowToggle || !item.status) && !isItemDisabled(item) && loadingItemTitle === null"
+        [class.clickable]="!isReadOnlyMode && !readOnly && (allowToggle || !item.status) && !isItemDisabled(item) && loadingItemTitle === null"
         [class.loading]="isItemLoading(item.title)" [class.disabled]="isItemLoading(item.title) || isItemDisabled(item)"
-        tabindex="-1" (click)="onItemClick(item, $event)">
+        [class.read-only]="isReadOnlyMode || readOnly" tabindex="-1" (click)="onItemClick(item, $event)">
         <!-- Status Indicator -->
         <div class="onboarding-item-status-icon">
           @if (isItemLoading(item.title)) {

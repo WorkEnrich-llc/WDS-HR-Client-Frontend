@@ -387,7 +387,7 @@
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
     [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false"
-    [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
+    [readOnly]="true" [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
     (badgeClick)="openOnboardingModal()">
 </app-onboarding-checklist>
 }

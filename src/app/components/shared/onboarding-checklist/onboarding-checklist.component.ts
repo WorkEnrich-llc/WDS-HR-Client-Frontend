@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, OnInit } from '@angular/core';
 
 export interface OnboardingListItem {
   title: string;
@@ -13,7 +13,7 @@ export interface OnboardingListItem {
   templateUrl: './onboarding-checklist.component.html',
   styleUrl: './onboarding-checklist.component.css'
 })
-export class OnboardingChecklistComponent implements OnChanges {
+export class OnboardingChecklistComponent implements OnInit, OnChanges {
   @Input() isOpen: boolean = false;
   @Input() checklistItems: OnboardingListItem[] = [];
   @Input() showBadge: boolean = true;
@@ -29,11 +29,22 @@ export class OnboardingChecklistComponent implements OnChanges {
   @Output() badgeClick = new EventEmitter<void>();
 
   isAnimatingOut: boolean = false;
+  isReadOnlyMode: boolean = false; // Flag to ensure read-only state is set immediately
   private isProcessingClick: boolean = false;
   private expectedStatusChanges: Map<string, boolean> = new Map(); // Track expected status for each item
   private previousChecklistItems: OnboardingListItem[] = []; // Track previous items to detect actual changes
 
+  ngOnInit(): void {
+    // Set read-only flag as fallback (ngOnChanges should have already set it)
+    // This ensures it's set even if ngOnChanges didn't run
+    this.isReadOnlyMode = this.readOnly;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    // Always update read-only flag in ngOnChanges (runs before ngOnInit and on every input change)
+    // This ensures the flag is set immediately when the component receives inputs
+    this.isReadOnlyMode = this.readOnly;
+
     // Unified handler: Keep rows disabled until BOTH:
     // 1. loadingItemTitle is null (API completed)
     // 2. checklistItems has the expected status (status actually updated)
@@ -129,8 +140,8 @@ export class OnboardingChecklistComponent implements OnChanges {
   }
 
   onItemClick(item: OnboardingListItem, event: Event): void {
-    // If readOnly is true, prevent all clicks
-    if (this.readOnly) {
+    // If readOnly is true or flag is set, prevent all clicks
+    if (this.isReadOnlyMode || this.readOnly) {
       event.preventDefault();
       event.stopPropagation();
       return;
@@ -185,12 +196,13 @@ export class OnboardingChecklistComponent implements OnChanges {
 
   isItemDisabled(item: OnboardingListItem): boolean {
     // Disable item if:
-    // 1. readOnly is true (entire checklist is view-only)
+    // 1. readOnly is true (entire checklist is view-only) - use flag for immediate effect
     // 2. It's in the disabled list
     // 3. Any item is currently loading
     // 4. Processing a click (waiting for status update)
     // 5. There are pending expected status changes (waiting for checklistItems to update)
-    return this.readOnly
+    return this.isReadOnlyMode
+      || this.readOnly
       || this.disabledItemTitles.includes(item.title)
       || this.loadingItemTitle !== null
       || this.isProcessingClick
