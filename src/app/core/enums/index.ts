@@ -8,8 +8,9 @@ export enum ComponentTypes {
 
 
 export enum Classification {
-   Earning = 1,
-   Deduction = 2
+   Info = 1,
+   Earning = 2,
+   Deduction = 3
 }
 
 export const calculation: Array<KeyValue<number, string>> = [
