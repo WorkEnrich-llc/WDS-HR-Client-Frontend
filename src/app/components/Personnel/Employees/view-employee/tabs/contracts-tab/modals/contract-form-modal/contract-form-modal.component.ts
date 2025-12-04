@@ -29,13 +29,22 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
 
   constructor(private fb: FormBuilder) {
     this.contractForm = this.fb.group({
-      adjustmentType: [0], //0- Not Selected, 1- Appraisal, 2- Correction, 3- Raise, 4- Correction (only for edit mode)
+      adjustmentType: [0, this.adjustmentTypeValidator.bind(this)], //0- Not Selected, 1- Appraisal, 2- Correction, 3- Raise, 4- Correction (only for edit mode)
       salary: [null, [Validators.required, Validators.min(0), Validators.max(1000000)]],
       startDate: [null, Validators.required],
       withEndDate: [false], // checkbox for new contracts
       endDate: [null], // conditional field
       noticePeriod: [null, [Validators.required, Validators.min(1)]] // notice period in days
     }, { validators: this.dateRangeValidator.bind(this) });
+  }
+
+  // Custom validator for adjustmentType - required only in edit mode
+  adjustmentTypeValidator(control: any) {
+    // Only validate if in edit mode - value must not be 0 (Not Selected)
+    if (this.isEditMode && control.value === 0) {
+      return { required: true };
+    }
+    return null;
   }
 
   ngOnInit(): void {
@@ -70,6 +79,14 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
     // Set up salary range validation when employee data changes
     if (changes['employee'] && this.employee) {
       this.setupSalaryValidation();
+    }
+
+    // Update adjustmentType validator when isEditMode changes
+    if (changes['isEditMode']) {
+      const adjustmentTypeControl = this.contractForm.get('adjustmentType');
+      if (adjustmentTypeControl) {
+        adjustmentTypeControl.updateValueAndValidity();
+      }
     }
   }
 

@@ -811,6 +811,12 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
+  onContractsDataUpdated(): void {
+    // Refresh employee data after a contract is added/updated
+    this.loadEmployeeData();
+    this.loadEmployeeContracts();
+  }
+
   loadCustomValues(): void {
     this.isLoading = true;
     const modelName = 'employees';

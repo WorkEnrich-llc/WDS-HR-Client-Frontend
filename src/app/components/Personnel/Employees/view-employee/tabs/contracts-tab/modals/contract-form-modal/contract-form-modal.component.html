@@ -7,12 +7,21 @@
       @if (isEditMode) {
       <div class="input mb-3">
         <label for="adjustmentType">Adjustment Type</label>
-        <select id="adjustmentType" class="form-select" formControlName="adjustmentType">
-          <option [ngValue]="0">Not Selected</option>
-          <option [ngValue]="1">Appraisal</option>
-          <option [ngValue]="2">Correction</option>
-          <option [ngValue]="3">Raise</option>
-        </select>
+        <div class="form-outline w-100 position-relative">
+          <select id="adjustmentType" class="form-select"
+            [class.is-invalid]="contractForm.get('adjustmentType')?.invalid && contractForm.get('adjustmentType')?.touched"
+            formControlName="adjustmentType" (blur)="contractForm.get('adjustmentType')?.markAsTouched()">
+            <option [ngValue]="0">Not Selected</option>
+            <option [ngValue]="1">Appraisal</option>
+            <option [ngValue]="2">Correction</option>
+            <option [ngValue]="3">Raise</option>
+          </select>
+          @if (contractForm.get('adjustmentType')?.invalid && contractForm.get('adjustmentType')?.touched) {
+          <div class="invalid-feedback">
+            Adjustment type is required
+          </div>
+          }
+        </div>
       </div>
       }
 
@@ -113,9 +122,9 @@
 
       <!-- With end date checkbox - only for new contracts -->
       <!-- @if (!isEditMode) { -->
-      <div class="form-check mb-3 d-flex align-items-center gap-2">
-        <input class="form-check-input" type="checkbox" id="withEndDate" formControlName="withEndDate">
-        <label class="form-check-label" for="withEndDate">
+      <div class="form-check mb-3 d-flex align-items-center">
+        <input class="form-check-input me-2" type="checkbox" id="withEndDate" formControlName="withEndDate">
+        <label class="form-check-label mt-1" for="withEndDate">
           With end date
         </label>
       </div>

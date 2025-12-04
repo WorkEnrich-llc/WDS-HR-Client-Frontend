@@ -878,7 +878,7 @@
             (addDocumentClick)="addNewDocument()">
           </app-documents-tab>
           } @if (currentTab === 'contracts') {
-          <app-contracts-tab [employee]="employee">
+          <app-contracts-tab [employee]="employee" (contractsDataUpdated)="onContractsDataUpdated()">
           </app-contracts-tab>
           } @if (currentTab === 'leave-balance') {
           <app-leave-balance-tab [employee]="employee" [isEmployeeActive]="isEmployeeActive"></app-leave-balance-tab>
@@ -1035,8 +1035,8 @@
 <!-- Onboarding Checklist Component with Badge -->
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
-  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false"
-  [readOnly]="true" [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()" (badgeClick)="openOnboardingModal()"
+  [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false" [readOnly]="true"
+  [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()" (badgeClick)="openOnboardingModal()"
   (itemClick)="onChecklistItemClick($event)">
 </app-onboarding-checklist>
 }
