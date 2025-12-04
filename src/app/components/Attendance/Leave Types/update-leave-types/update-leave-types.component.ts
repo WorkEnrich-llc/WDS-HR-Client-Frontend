@@ -38,6 +38,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
       this.getLeaveJob(Number(this.leaveId));
     }
 
+    this.setupCheckboxControl('extra_with_min_days_service', ['minDaysService']);
     this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
     this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
@@ -122,6 +123,9 @@ export class UpdateLeaveTypesComponent implements OnInit {
         });
 
         this.leaveType3.patchValue({
+          extra_with_min_days_service: settings.extra_conditions?.min_days_service?.status || false,
+          minDaysService: settings.extra_conditions?.min_days_service?.value || null,
+
           extra_with_age: settings.extra_conditions?.age?.status || false,
           age: settings.extra_conditions?.age?.from || null,
           extraDays: settings.extra_conditions?.age?.to || null,
@@ -241,11 +245,14 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
   leaveType3 = this.fb.group({
     // checkboxes
+    extra_with_min_days_service: [false],
     extra_with_age: [false],
     extra_with_service: [false],
     extra_with_experience: [false],
 
     // inputs 
+    minDaysService: [{ value: '', disabled: true }],
+
     age: [{ value: '', disabled: true }],
     extraDays: [{ value: '', disabled: true }],
 
@@ -296,6 +303,13 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
     this.errMsg = '';
     this.isLoading = true;
+
+    // Get min_days_service value - can be number or string
+    const minDaysServiceValue = this.leaveType3.get('minDaysService')?.value;
+    const minDaysServiceValueFinal = minDaysServiceValue !== null && minDaysServiceValue !== ''
+      ? (isNaN(Number(minDaysServiceValue)) ? minDaysServiceValue : Number(minDaysServiceValue))
+      : null;
+
     const request_data = {
       id: Number(this.leaveTypeData.id),
       code: this.leaveType1.get('code')?.value,
@@ -309,7 +323,28 @@ export class UpdateLeaveTypesComponent implements OnInit {
         allow_carryover: this.carryoverAllowed,
         maximum_carryover_days: this.carryoverAllowed
           ? Number(this.leaveType2.get('maximum_carryover_days')?.value)
-          : 0
+          : 0,
+        extra_conditions: {
+          min_days_service: {
+            status: this.leaveType3.get('extra_with_min_days_service')?.value || false,
+            value: minDaysServiceValueFinal || 0
+          },
+          age: {
+            status: this.leaveType3.get('extra_with_age')?.value || false,
+            from: this.leaveType3.get('age')?.value ? Number(this.leaveType3.get('age')?.value) : 0,
+            to: this.leaveType3.get('extraDays')?.value ? Number(this.leaveType3.get('extraDays')?.value) : 0
+          },
+          service: {
+            status: this.leaveType3.get('extra_with_service')?.value || false,
+            from: this.leaveType3.get('yearsOfService')?.value ? Number(this.leaveType3.get('yearsOfService')?.value) : 0,
+            to: this.leaveType3.get('extraDaysService')?.value ? Number(this.leaveType3.get('extraDaysService')?.value) : 0
+          },
+          experience: {
+            status: this.leaveType3.get('extra_with_experience')?.value || false,
+            from: this.leaveType3.get('yearsOfExperience')?.value ? Number(this.leaveType3.get('yearsOfExperience')?.value) : 0,
+            to: this.leaveType3.get('extraDaysExperience')?.value ? Number(this.leaveType3.get('extraDaysExperience')?.value) : 0
+          }
+        }
       }
     };
     const finalData = { request_data };
@@ -321,7 +356,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/leave-types/all-leave-types']);
-        this.toasterMessageService.showSuccess("Leave Type Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Leave Type Updated successfully", "Updated Successfully");
 
       },
       error: (err) => {

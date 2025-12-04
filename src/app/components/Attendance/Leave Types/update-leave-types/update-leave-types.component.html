@@ -253,7 +253,7 @@
           Leave Limits must be number.
         </p>
         }
-         @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['limitTooSmall']) {
+        @if (leaveType2.get('leave_limits')?.touched && leaveType2.get('leave_limits')?.errors?.['limitTooSmall']) {
         <p class="error-msg">
           Leave Limits must be greater than or equal to Accrual Rate.
         </p>
@@ -359,6 +359,25 @@
     <h2>Extra Conditions</h2>
     <form [formGroup]="leaveType3" class="w-lg-50 d-flex flex-column gap-2">
 
+      <div class="input">
+        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_min_days_service"
+            formControlName="extra_with_min_days_service">
+          <label class="form-check-label" for="extra_with_min_days_service">
+            Minimum Days of Service
+          </label>
+        </div>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <div class="input w-100" [style.opacity]="leaveType3.get('minDaysService')?.disabled ? 0.5 : 1">
+            <label [for]="'MinDaysService'">Value</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" [id]="'MinDaysService'" class="form-control custom-date-input"
+                formControlName="minDaysService" placeholder="Enter number or select option" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr />
 
       <div class="input">
         <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">

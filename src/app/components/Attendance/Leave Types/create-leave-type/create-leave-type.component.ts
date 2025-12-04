@@ -34,6 +34,7 @@ export class CreateLeaveTypeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setupCheckboxControl('extra_with_min_days_service', ['minDaysService']);
     this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
     this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
@@ -105,65 +106,65 @@ export class CreateLeaveTypeComponent implements OnInit {
 
 
 
-leaveLimitGreaterOrEqualValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
-  const group = form as FormGroup;
-  const accrualCtrl = group.get('accrual_rate');
-  const limitCtrl = group.get('leave_limits');
+  leaveLimitGreaterOrEqualValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
+    const group = form as FormGroup;
+    const accrualCtrl = group.get('accrual_rate');
+    const limitCtrl = group.get('leave_limits');
 
-  if (!accrualCtrl || !limitCtrl) return null;
+    if (!accrualCtrl || !limitCtrl) return null;
 
-  const accrual = accrualCtrl.value;
-  const limit = limitCtrl.value;
-  if (accrual === null || accrual === '' || limit === null || limit === '') {
-    if (limitCtrl.errors?.['limitTooSmall']) {
-      const { limitTooSmall, ...others } = limitCtrl.errors;
-      limitCtrl.setErrors(Object.keys(others).length ? others : null);
+    const accrual = accrualCtrl.value;
+    const limit = limitCtrl.value;
+    if (accrual === null || accrual === '' || limit === null || limit === '') {
+      if (limitCtrl.errors?.['limitTooSmall']) {
+        const { limitTooSmall, ...others } = limitCtrl.errors;
+        limitCtrl.setErrors(Object.keys(others).length ? others : null);
+      }
+      return null;
     }
-    return null;
-  }
 
-  const accrualNum = Number(accrual);
-  const limitNum = Number(limit);
+    const accrualNum = Number(accrual);
+    const limitNum = Number(limit);
 
-  if (limitNum < accrualNum) {
-    limitCtrl.setErrors({ ...(limitCtrl.errors || {}), limitTooSmall: true });
-  } else {
-    if (limitCtrl.errors) {
-      delete limitCtrl.errors['limitTooSmall'];
-      if (!Object.keys(limitCtrl.errors).length) {
-        limitCtrl.setErrors(null);
+    if (limitNum < accrualNum) {
+      limitCtrl.setErrors({ ...(limitCtrl.errors || {}), limitTooSmall: true });
+    } else {
+      if (limitCtrl.errors) {
+        delete limitCtrl.errors['limitTooSmall'];
+        if (!Object.keys(limitCtrl.errors).length) {
+          limitCtrl.setErrors(null);
+        }
       }
     }
-  }
 
-  return null;
-};
+    return null;
+  };
 
 
-leaveType2: FormGroup = new FormGroup(
-  {
-    accrual_rate: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^\\d+(\\.\\d+)?$')
-    ]),
-    leave_limits: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^\\d+(\\.\\d+)?$')
-    ]),
-    max_review_days: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^\\d+(\\.\\d+)?$')
-    ]),
-    maximum_carryover_days: new FormControl(
-      { value: '', disabled: true },
-      [
-        Validators.pattern('^\\d+(\\.\\d+)?$'),
-        this.validateCarryoverAgainstLimit
-      ]
-    )
-  },
-  { validators: this.leaveLimitGreaterOrEqualValidator }
-);
+  leaveType2: FormGroup = new FormGroup(
+    {
+      accrual_rate: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      leave_limits: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      max_review_days: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^\\d+(\\.\\d+)?$')
+      ]),
+      maximum_carryover_days: new FormControl(
+        { value: '', disabled: true },
+        [
+          Validators.pattern('^\\d+(\\.\\d+)?$'),
+          this.validateCarryoverAgainstLimit
+        ]
+      )
+    },
+    { validators: this.leaveLimitGreaterOrEqualValidator }
+  );
 
 
   // private setupAccrualValidation() {
@@ -208,11 +209,14 @@ leaveType2: FormGroup = new FormGroup(
 
   leaveType3 = this.fb.group({
     // checkboxes
+    extra_with_min_days_service: [false],
     extra_with_age: [false],
     extra_with_service: [false],
     extra_with_experience: [false],
 
     // inputs 
+    minDaysService: [{ value: '', disabled: true }],
+
     age: [{ value: '', disabled: true }],
     extraDays: [{ value: '', disabled: true }],
 
@@ -281,6 +285,15 @@ leaveType2: FormGroup = new FormGroup(
           : 0,
 
         extra_conditions: {
+          min_days_service: {
+            status: this.leaveType3.get('extra_with_min_days_service')?.value || false,
+            value: (() => {
+              const val = this.leaveType3.get('minDaysService')?.value;
+              if (val === null || val === '') return 0;
+              // Check if it's a number, otherwise return as string
+              return isNaN(Number(val)) ? val : Number(val);
+            })()
+          },
           age: {
             status: this.leaveType3.get('extra_with_age')?.value || false,
             from: Number(this.leaveType3.get('age')?.value) || 0,
@@ -296,8 +309,6 @@ leaveType2: FormGroup = new FormGroup(
             from: Number(this.leaveType3.get('yearsOfExperience')?.value) || 0,
             to: Number(this.leaveType3.get('extraDaysExperience')?.value) || 0
           }
-
-
         }
       }
     };
