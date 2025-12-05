@@ -428,7 +428,8 @@ export class AttendanceLogComponent {
       page: this.currentPage,
       per_page: this.itemsPerPage,
       from_date: formattedDate,
-      to_date: ''
+      to_date: '',
+      search: this.searchTerm || undefined
     });
   }
 

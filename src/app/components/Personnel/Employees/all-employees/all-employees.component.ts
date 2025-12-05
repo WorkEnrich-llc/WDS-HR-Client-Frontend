@@ -47,16 +47,73 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private routeSubscription!: Subscription;
   private searchSubscription!: Subscription;
   private destroy$ = new Subject<void>();
+  private isInitialLoad: boolean = true;
+  private isUpdatingQueryParams: boolean = false;
+  private isChangingItemsPerPage: boolean = false;
   loading: boolean = true;
 
 
   ngOnInit(): void {
+    // Initialize filter form first
+    this.filterForm = this.fb.group({
+      created_from: [''],
+      created_to: [''],
+      status: [''],
+      contract_end_date: [''],
+      contract_start_date: [''],
+    });
+
+    // Load state from query params
     this.routeSubscription = this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
+        // Skip if we're programmatically updating query params
+        if (this.isUpdatingQueryParams) {
+          return;
+        }
+
+        // Load pagination
         const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
         this.currentPage = pageFromUrl;
+
+        // Load search term
+        if (params['search']) {
+          this.searchTerm = decodeURIComponent(params['search']);
+        }
+
+        // Load filters
+        if (params['filters']) {
+          try {
+            const filters = JSON.parse(decodeURIComponent(params['filters']));
+            this.activeFilters = filters;
+            // Populate filter form
+            this.filterForm.patchValue({
+              status: filters.status || '',
+              created_from: filters.created_from || '',
+              created_to: filters.created_to || '',
+              contract_end_date: filters.contract_end_date || '',
+              contract_start_date: filters.contract_start_date || ''
+            });
+          } catch (e) {
+            console.error('Error parsing filters from query params:', e);
+            this.activeFilters = {};
+          }
+        } else {
+          this.activeFilters = {};
+        }
+
+        // Load items per page from 'view' parameter
+        if (params['view']) {
+          this.itemsPerPage = +params['view'] || 10;
+        } else if (params['itemsPerPage']) {
+          // Backward compatibility: if itemsPerPage exists but view doesn't, use it
+          this.itemsPerPage = +params['itemsPerPage'] || 10;
+        }
+
+        // Load employees with restored state
+        this.isInitialLoad = true;
         this.loadEmployees();
+        this.isInitialLoad = false;
       });
 
 
@@ -94,6 +151,11 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           // If search is empty or whitespace-only, load without search term
           const finalSearchTerm = (searchTerm && searchTerm.trim() !== '') ? searchTerm.trim() : '';
           
+          // Update query params with search term (only if not initial load)
+          if (!this.isInitialLoad) {
+            this.updateQueryParams({ search: finalSearchTerm, page: 1 });
+          }
+          
           return this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, finalSearchTerm, this.activeFilters);
         })
       )
@@ -114,14 +176,6 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.toastr.error('Failed to load employees', 'Error');
         }
       });
-
-    this.filterForm = this.fb.group({
-      created_from: [''],
-      created_to: [''],
-      status: [''],
-      contract_end_date: [''],
-      contract_start_date: [''],
-    });
   }
 
   // loadEmployees(currentPage: number): void {
@@ -182,6 +236,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         contract_start_date: rawFilters.contract_start_date || null
       };
       this.currentPage = 1;
+      
+      // Update query params with filters
+      this.updateQueryParams({ filters: this.activeFilters, page: 1 });
+      
       this.loadEmployees();
       this.filterBox.closeOverlay();
     }
@@ -322,7 +380,44 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadEmployees();
+    
+    // Set flags to prevent route subscription and pageChange from interfering
+    this.isUpdatingQueryParams = true;
+    this.isChangingItemsPerPage = true;
+    
+    // Get current params to remove itemsPerPage if it exists
+    const currentParams = { ...this.route.snapshot.queryParams };
+    const updatedParams: any = {
+      ...currentParams,
+      view: newItemsPerPage.toString(),
+      page: '1'
+    };
+    
+    // Remove itemsPerPage if it exists
+    if (updatedParams['itemsPerPage']) {
+      delete updatedParams['itemsPerPage'];
+    }
+    
+    // Navigate with only the params we want
+    // Don't use merge - set all params explicitly to remove itemsPerPage
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: updatedParams
+    }).then(() => {
+      // Reset flags after navigation completes
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+        this.isChangingItemsPerPage = false;
+      }, 100); // Small delay to ensure pageChange event doesn't interfere
+      
+      // Load employees with the new itemsPerPage value
+      this.loadEmployees();
+    }).catch((error) => {
+      console.error('Navigation error:', error);
+      this.isUpdatingQueryParams = false;
+      this.isChangingItemsPerPage = false;
+      this.loadEmployees();
+    });
   }
 
   // onPageChange(page: number): void {
@@ -331,13 +426,16 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   onPageChange(page: number): void {
+    // Skip if we're changing items per page (it will trigger pageChange to 1)
+    if (this.isChangingItemsPerPage) {
+      return;
+    }
+    
     this.currentPage = page;
     this.paginationState.setPage('...', page);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { page },
-      queryParamsHandling: 'merge'
-    });
+    
+    // Update query params with page
+    this.updateQueryParams({ page });
   }
 
   ngOnDestroy(): void {
@@ -379,8 +477,89 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.filterForm.reset();
     this.activeFilters = {};
     this.currentPage = 1;
+    
+    // Clear filters from query params
+    this.updateQueryParams({ filters: null, page: 1 });
+    
     this.loadEmployees();
     this.filterBox.closeOverlay();
+  }
+
+  /**
+   * Update query parameters while preserving existing ones
+   */
+  private updateQueryParams(updates: { 
+    page?: number; 
+    search?: string; 
+    filters?: any; 
+    itemsPerPage?: number;
+  }): void {
+    const currentParams = this.route.snapshot.queryParams;
+    const newParams: any = { ...currentParams };
+
+    // Update page
+    if (updates.page !== undefined) {
+      newParams['page'] = updates.page.toString();
+    }
+
+    // Update search
+    if (updates.search !== undefined) {
+      if (updates.search && updates.search.trim() !== '') {
+        newParams['search'] = encodeURIComponent(updates.search);
+      } else {
+        delete newParams['search'];
+      }
+    }
+
+    // Update filters
+    if (updates.filters !== undefined) {
+      if (updates.filters && Object.keys(updates.filters).length > 0) {
+        // Only include non-null filters
+        const nonNullFilters: any = {};
+        Object.keys(updates.filters).forEach(key => {
+          if (updates.filters[key] !== null && updates.filters[key] !== '') {
+            nonNullFilters[key] = updates.filters[key];
+          }
+        });
+        
+        if (Object.keys(nonNullFilters).length > 0) {
+          newParams['filters'] = encodeURIComponent(JSON.stringify(nonNullFilters));
+        } else {
+          delete newParams['filters'];
+        }
+      } else {
+        delete newParams['filters'];
+      }
+    }
+
+    // Update items per page (save as 'view' in query params)
+    if (updates.itemsPerPage !== undefined) {
+      // Always save the view value if provided (even if it's the default)
+      if (updates.itemsPerPage !== null && updates.itemsPerPage !== undefined && !isNaN(updates.itemsPerPage) && updates.itemsPerPage > 0) {
+        newParams['view'] = updates.itemsPerPage.toString();
+        // Remove itemsPerPage if it exists (migration from old param)
+        delete newParams['itemsPerPage'];
+      } else {
+        // Only delete if explicitly set to null/undefined/0
+        delete newParams['view'];
+        delete newParams['itemsPerPage'];
+      }
+    }
+
+    // Set flag to prevent route subscription from firing
+    this.isUpdatingQueryParams = true;
+    
+    // Navigate with updated params
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: newParams,
+      queryParamsHandling: 'merge'
+    }).then(() => {
+      // Reset flag after navigation completes
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+      }, 0);
+    });
   }
 
 
