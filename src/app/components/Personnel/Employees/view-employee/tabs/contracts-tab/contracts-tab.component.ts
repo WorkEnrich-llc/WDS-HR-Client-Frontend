@@ -97,7 +97,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
 
   // Load contracts from API
-  private loadEmployeeContracts(): void {
+  loadEmployeeContracts(): void {
     if (!this.employee?.id) return;
 
     this.isLoading = true;
@@ -385,9 +385,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         next: () => {
           // this.isLoading = false;
           this.toasterService.showSuccess('Contract adjusted successfully');
-          // Reload contracts after adjustment
-          this.loadEmployeeContracts();
           this.closeAddModal();
+          // Emit event to parent - parent will handle refreshing both employee data and contracts
           this.contractsDataUpdated.emit();
         },
         error: (error) => {
@@ -436,9 +435,8 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           this.isLoading = false;
           // Reload contracts to get updated list
           this.toasterService.showSuccess('Contract created successfully');
-          this.loadEmployeeContracts();
           this.closeAddModal();
-          // Show success message
+          // Emit event to parent - parent will handle refreshing both employee data and contracts
           this.contractsDataUpdated.emit();
         },
         error: (error) => {

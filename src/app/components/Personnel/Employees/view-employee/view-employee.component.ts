@@ -48,6 +48,7 @@ export class ViewEmployeeComponent implements OnInit {
   private toasterMessageService = inject(ToasterMessageService);
   private customFieldsService = inject(CustomFieldsService);
   private changeDetector = inject(ChangeDetectorRef);
+  @ViewChild(ContractsTabComponent) contractsTabComponent?: ContractsTabComponent;
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
@@ -786,7 +787,7 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  loadEmployeeData(): void {
+  loadEmployeeData(reloadContractsTab: boolean = false, keepTab: string | null = null): void {
     this.loading = true;
     this.devicesLoaded = false;
     this.devicesAttempted = false;
@@ -803,19 +804,34 @@ export class ViewEmployeeComponent implements OnInit {
         this.updateProfileImageFromResponse(response);
         this.subscription = response.data.subscription;
         this.loading = false;
+        // Restore tab if it was set before loading
+        if (keepTab) {
+          this.setCurrentTab(keepTab as any);
+        }
+        // Reload contracts tab if requested (after employee data is loaded)
+        if (reloadContractsTab && this.contractsTabComponent && this.employee?.id) {
+          this.contractsTabComponent.loadEmployeeContracts();
+        }
       },
       error: (error) => {
         console.error('Error loading employee:', error);
         this.loading = false;
+        // Restore tab even on error
+        if (keepTab) {
+          this.setCurrentTab(keepTab as any);
+        }
       }
     });
   }
 
   onContractsDataUpdated(): void {
-    // Keep the contracts tab open
-    // Refresh the entire employee data after adding or editing a contract
-    this.currentTab = 'contracts';
-    this.loadEmployeeData();
+    // Keep the contracts tab open - set it before loading data
+    this.setCurrentTab('contracts');
+    // Pass true to reload contracts tab after employee data is loaded
+    // Pass 'contracts' to keepTab to ensure it stays on contracts tab after reload
+    this.loadEmployeeData(true, 'contracts');
+    // Also refresh contracts list for the summary display
+    this.loadEmployeeContracts();
   }
 
   loadCustomValues(): void {
