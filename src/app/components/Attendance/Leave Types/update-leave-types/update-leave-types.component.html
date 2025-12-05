@@ -371,12 +371,21 @@
     <form [formGroup]="leaveType3" class="w-lg-50 d-flex flex-column gap-2">
 
       <div class="input">
-        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">
-          <input class="form-check-input m-0" type="checkbox" id="extra_with_min_days_service"
-            formControlName="extra_with_min_days_service">
-          <label class="form-check-label" for="extra_with_min_days_service">
-            Minimum Days of Service
-          </label>
+        <div class="form-check p-0 m-0 my-2">
+          <div class="d-flex align-items-start gap-2">
+            <input class="form-check-input m-0 mt-1" type="checkbox" id="extra_with_min_days_service"
+              formControlName="extra_with_min_days_service" style="flex-shrink: 0;">
+            <div class="d-flex flex-column" style="gap: 0.25rem;">
+              <label class="form-check-label m-0" for="extra_with_min_days_service"
+                style="font-weight: 500; line-height: 1.5;">
+                Custom Minimum Days of Service
+              </label>
+              <small class="text-muted"
+                style="font-size: 0.875rem; line-height: 1.4; color: var(--color-secondary-400);">
+                By default, the leave balance will start after probation.
+              </small>
+            </div>
+          </div>
         </div>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <div class="input w-100" [style.opacity]="leaveType3.get('minDaysService')?.disabled ? 0.5 : 1">
