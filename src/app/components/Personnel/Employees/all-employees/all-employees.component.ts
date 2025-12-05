@@ -7,7 +7,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, of } from 'rxjs';
+import { takeUntil, switchMap, distinctUntilChanged, map } from 'rxjs/operators';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -43,29 +44,76 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private activeFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private routeSubscription!: Subscription;
+  private searchSubscription!: Subscription;
+  private destroy$ = new Subject<void>();
   loading: boolean = true;
 
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
-      this.currentPage = pageFromUrl;
-      this.loadEmployees();
-    });
+    this.routeSubscription = this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
+        this.currentPage = pageFromUrl;
+        this.loadEmployees();
+      });
 
 
     this.toasterSubscription = this.toasterMessageService.currentMessage$
-      .pipe(filter(msg => !!msg && msg.trim() !== ''))
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(msg => !!msg && msg.trim() !== '')
+      )
       .subscribe(msg => {
         this.toastr.clear();
         this.toastr.success(msg, '', { timeOut: 3000 });
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
-      this.currentPage = 1;
-      this.loadEmployees();
-    });
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        takeUntil(this.destroy$),
+        // Trim leading whitespace from search term
+        map((searchTerm: string) => {
+          const trimmed = searchTerm.trimStart();
+          // Update searchTerm property to reflect trimmed value in UI
+          this.searchTerm = trimmed;
+          return trimmed;
+        }),
+        // Debounce to wait for user to stop typing
+        debounceTime(600),
+        // Avoid duplicate consecutive searches
+        distinctUntilChanged(),
+        // Cancel previous request and make new one
+        switchMap((searchTerm: string) => {
+          this.loading = true;
+          this.loadData = true;
+          this.currentPage = 1;
+          
+          // If search is empty or whitespace-only, load without search term
+          const finalSearchTerm = (searchTerm && searchTerm.trim() !== '') ? searchTerm.trim() : '';
+          
+          return this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, finalSearchTerm, this.activeFilters);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.employees = response.data.list_items;
+          this.totalItems = response.data.total_items;
+          this.transformEmployeesForDisplay();
+          this.loading = false;
+          this.loadData = false;
+          this.sortDirection = 'desc';
+          this.sortBy();
+        },
+        error: (error) => {
+          console.error('Error loading employees:', error);
+          this.loading = false;
+          this.loadData = false;
+          this.toastr.error('Failed to load employees', 'Error');
+        }
+      });
 
     this.filterForm = this.fb.group({
       created_from: [''],
@@ -103,6 +151,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     // Pass all state properties to the service method
     this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.employees = response.data.list_items;
@@ -263,7 +312,11 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    // Trim leading whitespace before emitting
+    const trimmedSearch = this.searchTerm.trimStart();
+    // Update the searchTerm property to reflect trimmed value
+    this.searchTerm = trimmedSearch;
+    this.searchSubject.next(trimmedSearch);
   }
 
   onItemsPerPageChange(newItemsPerPage: number) {
@@ -288,9 +341,23 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Complete the destroy subject to trigger takeUntil for all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    // Unsubscribe from individual subscriptions if they exist
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+    
+    // Complete the search subject
+    this.searchSubject.complete();
   }
 
   navigateToEdit(employeeId: number): void {
