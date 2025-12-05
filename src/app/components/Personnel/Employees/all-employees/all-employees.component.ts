@@ -141,18 +141,21 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
-    this.filteredEmployees = this.employees.map(employee => ({
-      id: employee.id,
-      code: employee.code,
-      name: employee.contact_info.name,
-      name_arabic: employee.contact_info.name_arabic,
-      employeeStatus: employee.employee_status,
-      accountStatus: this.getAccountStatus(employee.employee_active),
-      jobTitle: employee.job_info.job_title.name,
-      branch: employee.job_info.branch.name,
-      joinDate: this.formatDate(employee.job_info.start_contract),
-      end_contract: employee.job_info.end_contract
-    }));
+    this.filteredEmployees = this.employees.map(employee => {
+      const endContract = employee.current_contract?.end_contract;
+      return {
+        id: employee.id,
+        code: employee.code,
+        name: employee.contact_info.name,
+        name_arabic: employee.contact_info.name_arabic,
+        employeeStatus: employee.employee_status,
+        accountStatus: this.getAccountStatus(employee.employee_active),
+        jobTitle: employee.job_info.job_title.name,
+        branch: employee.job_info.branch.name,
+        joinDate: this.formatDate(employee.job_info.start_contract),
+        end_contract: (endContract && endContract.trim() !== '') ? endContract : null
+      };
+    });
   }
 
   // Helper method to convert string employee_active to account status
