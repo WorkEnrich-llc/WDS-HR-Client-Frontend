@@ -813,9 +813,9 @@ export class ViewEmployeeComponent implements OnInit {
 
   onContractsDataUpdated(): void {
     // Keep the contracts tab open
-    // The contracts-tab component already reloads its own contracts data
-    // We don't need to reload anything here to avoid refreshing the entire employee
+    // Refresh the entire employee data after adding or editing a contract
     this.currentTab = 'contracts';
+    this.loadEmployeeData();
   }
 
   loadCustomValues(): void {

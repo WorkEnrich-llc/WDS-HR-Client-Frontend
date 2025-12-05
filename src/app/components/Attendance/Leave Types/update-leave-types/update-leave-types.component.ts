@@ -176,7 +176,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
   leaveType1: FormGroup = new FormGroup({
     code: new FormControl(''),
-    name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
+    name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]),
     description: new FormControl(''),
     employmentType: new FormControl('', [Validators.required]),
   });

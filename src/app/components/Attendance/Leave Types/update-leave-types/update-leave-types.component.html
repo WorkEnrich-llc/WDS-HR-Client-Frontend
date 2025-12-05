@@ -157,11 +157,22 @@
         <label for="leaveName">Leave Type Name<span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="text" id="leaveName" formControlName="name" class="form-control custom-date-input"
-            placeholder="Leave type name" />
+            placeholder="Leave type name" (focus)="leaveType1.get('name')?.markAsTouched()"
+            (blur)="leaveType1.get('name')?.markAsTouched()" />
         </div>
         @if (leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['required']) {
         <p class="error-msg">
           Leave Type Name is required.
+        </p>
+        }
+        @if (leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['minlength']) {
+        <p class="error-msg">
+          Leave Type Name must be at least 2 characters long.
+        </p>
+        }
+        @if (leaveType1.get('name')?.touched && leaveType1.get('name')?.errors?.['maxlength']) {
+        <p class="error-msg">
+          Leave Type Name must not exceed 100 characters.
         </p>
         }
       </div>
