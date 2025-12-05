@@ -1508,7 +1508,8 @@ export class ViewEmployeeComponent implements OnInit {
           doc.isLoading = false;
         }
         this.documentsRequired = [...this.documentsRequired];
-        this.loadEmployeeDetails();
+        // Refresh the entire employee data after deleting a document
+        this.loadEmployeeData();
         this.changeDetector.detectChanges();
       },
       error: (err) => {
