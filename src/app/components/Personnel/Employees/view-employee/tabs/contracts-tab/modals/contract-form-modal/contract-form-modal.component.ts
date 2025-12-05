@@ -225,29 +225,68 @@ export class ContractFormModalComponent implements OnInit, OnChanges {
       });
       return;
     }
-    const formValue = this.contractForm.value;
+    // Use getRawValue() to get values from disabled fields as well
+    const formValue = this.contractForm.getRawValue();
     if (this.isEditMode) {
       // For edit mode (adjustment)
-      const contractData = {
+      const contractData: any = {
         adjustmentType: formValue.adjustmentType,
         salary: formValue.salary,
-        startDate: formValue.startDate,
-        endDate: formValue.withEndDate ? formValue.endDate : null,
-        noticePeriod: formValue.noticePeriod,
         isEdit: true,
         contractId: this.contract?.id
       };
+
+      // Only include startDate if it has a value
+      if (formValue.startDate !== undefined && formValue.startDate !== null && formValue.startDate !== '') {
+        contractData.startDate = formValue.startDate;
+      }
+
+      // Only include endDate if withEndDate is true, otherwise set to null
+      if (formValue.withEndDate) {
+        if (formValue.endDate !== undefined && formValue.endDate !== null && formValue.endDate !== '') {
+          contractData.endDate = formValue.endDate;
+        } else {
+          contractData.endDate = null;
+        }
+      } else {
+        contractData.endDate = null;
+      }
+
+      // Only include noticePeriod if it has a value
+      if (formValue.noticePeriod !== undefined && formValue.noticePeriod !== null) {
+        contractData.noticePeriod = formValue.noticePeriod;
+      }
+
       this.onSave.emit(contractData);
     } else {
       // For new contract
-      const contractData = {
+      const contractData: any = {
         salary: formValue.salary,
-        startDate: formValue.startDate,
-        endDate: formValue.withEndDate ? formValue.endDate : null,
         withEndDate: formValue.withEndDate,
-        notice_period: formValue.noticePeriod,
         isEdit: false
       };
+
+      // Only include startDate if it has a value
+      if (formValue.startDate !== undefined && formValue.startDate !== null && formValue.startDate !== '') {
+        contractData.startDate = formValue.startDate;
+      }
+
+      // Only include endDate if withEndDate is true
+      if (formValue.withEndDate) {
+        if (formValue.endDate !== undefined && formValue.endDate !== null && formValue.endDate !== '') {
+          contractData.endDate = formValue.endDate;
+        } else {
+          contractData.endDate = null;
+        }
+      } else {
+        contractData.endDate = null;
+      }
+
+      // Only include notice_period if it has a value
+      if (formValue.noticePeriod !== undefined && formValue.noticePeriod !== null) {
+        contractData.notice_period = formValue.noticePeriod;
+      }
+
       this.onSave.emit(contractData);
     }
     this.closeModal();

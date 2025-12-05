@@ -350,14 +350,32 @@ export class ContractsTabComponent implements OnInit, OnChanges {
       // const contractId = contractData.contractId || this.editedContract?.id;
       const contractId = contractData.contractId || this.selectedContract?.id;
       // Adjust existing contract via API
-      const payload = {
+      // Build payload only with defined values, use original contract values if new values are undefined
+      const payload: any = {
         contract_id: contractId,
-        adjustment_type: contractData.adjustmentType,
-        salary: contractData.salary,
-        start_contract: contractData.startDate,
-        end_contract: contractData.endDate,
-        notice_period: contractData.noticePeriod
+        adjustment_type: contractData.adjustmentType
       };
+
+      // Only include salary if it's defined
+      if (contractData.salary !== undefined && contractData.salary !== null) {
+        payload.salary = contractData.salary;
+      }
+
+      // Only include start_contract if it's defined
+      if (contractData.startDate !== undefined && contractData.startDate !== null && contractData.startDate !== '') {
+        payload.start_contract = contractData.startDate;
+      }
+
+      // Only include end_contract if it's defined (can be null if no end date)
+      if (contractData.endDate !== undefined) {
+        payload.end_contract = contractData.endDate || null;
+      }
+
+      // Only include notice_period if it's defined
+      if (contractData.noticePeriod !== undefined && contractData.noticePeriod !== null) {
+        payload.notice_period = contractData.noticePeriod;
+      }
+
       this.employeeService.adjustEmployeeContractAdjustment(payload).pipe(
         finalize(() => {
           this.isLoading = false;
@@ -386,15 +404,30 @@ export class ContractsTabComponent implements OnInit, OnChanges {
         return;
       }
 
-      const payload = {
+      const payload: any = {
         employee_id: this.employee.id,
         contract_type: 1, // Default contract type
-        start_contract: contractData.startDate,
-        end_contract: contractData.endDate || null, // Default far future date if no end date
-        salary: contractData.salary,
-        notice_period: contractData.notice_period,
-        // insurance_salary: contractData.insuranceSalary || 0
       };
+
+      // Only include fields that are defined
+      if (contractData.startDate !== undefined && contractData.startDate !== null && contractData.startDate !== '') {
+        payload.start_contract = contractData.startDate;
+      }
+
+      // end_contract can be null if no end date
+      if (contractData.endDate !== undefined) {
+        payload.end_contract = contractData.endDate || null;
+      }
+
+      if (contractData.salary !== undefined && contractData.salary !== null) {
+        payload.salary = contractData.salary;
+      }
+
+      if (contractData.notice_period !== undefined && contractData.notice_period !== null) {
+        payload.notice_period = contractData.notice_period;
+      } else if (contractData.noticePeriod !== undefined && contractData.noticePeriod !== null) {
+        payload.notice_period = contractData.noticePeriod;
+      }
 
       this.employeeService.createEmployeeContract(payload).pipe(
         finalize(() => this.isLoading = false)
@@ -497,11 +530,20 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     // this.employeeService.terminateEmployeeContract(data.contract.id, data.terminationData).subscribe({
     // For now, just update local data
 
-    this.employeeService.terminateEmployeeContract({
-      contract_id: data.contract.id,
-      last_date: data.terminationData.lastDay,
-      reason: data.terminationData.reason
-    }).subscribe({
+    const payload: any = {
+      contract_id: data.contract.id
+    };
+
+    // Only include fields that are defined
+    if (data.terminationData.lastDay !== undefined && data.terminationData.lastDay !== null && data.terminationData.lastDay !== '') {
+      payload.last_date = data.terminationData.lastDay;
+    }
+
+    if (data.terminationData.reason !== undefined && data.terminationData.reason !== null && data.terminationData.reason.trim() !== '') {
+      payload.reason = data.terminationData.reason.trim();
+    }
+
+    this.employeeService.terminateEmployeeContract(payload).subscribe({
       next: response => {
         const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
         if (contractIndex !== -1) {
@@ -536,12 +578,25 @@ export class ContractsTabComponent implements OnInit, OnChanges {
     // this.employeeService.resignEmployeeContract(data.contract.id, data.resignationData).subscribe({
     // For now, just update local data
     if (!data?.contract?.id) return;
-    this.employeeService.resignEmployeeContract({
-      contract_id: data.contract.id,
-      last_date: data.resignationData.lastDay,
-      resign_date: data.resignationData.resignDate,
-      reason: data.resignationData.reason
-    }).subscribe({
+
+    const payload: any = {
+      contract_id: data.contract.id
+    };
+
+    // Only include fields that are defined
+    if (data.resignationData.lastDay !== undefined && data.resignationData.lastDay !== null && data.resignationData.lastDay !== '') {
+      payload.last_date = data.resignationData.lastDay;
+    }
+
+    if (data.resignationData.resignDate !== undefined && data.resignationData.resignDate !== null && data.resignationData.resignDate !== '') {
+      payload.resign_date = data.resignationData.resignDate;
+    }
+
+    if (data.resignationData.reason !== undefined && data.resignationData.reason !== null && data.resignationData.reason.trim() !== '') {
+      payload.reason = data.resignationData.reason.trim();
+    }
+
+    this.employeeService.resignEmployeeContract(payload).subscribe({
       next: () => {
         // const contractIndex = this.contractsData.findIndex(c => c.id === data.contract.id);
         // if (contractIndex !== -1) {
