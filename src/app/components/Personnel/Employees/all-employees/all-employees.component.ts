@@ -73,6 +73,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           return;
         }
 
+        // Track previous filters to detect changes
+        const previousFilters = JSON.stringify(this.activeFilters);
+
         // Load pagination
         const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
         this.currentPage = pageFromUrl;
@@ -80,6 +83,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         // Load search term
         if (params['search']) {
           this.searchTerm = decodeURIComponent(params['search']);
+        } else {
+          this.searchTerm = '';
         }
 
         // Load filters
@@ -100,7 +105,16 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             this.activeFilters = {};
           }
         } else {
+          // Clear filters if not in query params
           this.activeFilters = {};
+          // Reset filter form when filters are cleared
+          this.filterForm.patchValue({
+            status: '',
+            created_from: '',
+            created_to: '',
+            contract_end_date: '',
+            contract_start_date: ''
+          });
         }
 
         // Load items per page from 'view' parameter
@@ -111,11 +125,19 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.itemsPerPage = +params['itemsPerPage'] || 10;
         }
 
-        // Load employees with restored state (only if page actually changed)
-        if (pageFromUrl !== this.lastLoadedPage) {
-          this.isInitialLoad = true;
-          this.loadEmployees();
+        // Check if filters changed or page changed
+        const currentFilters = JSON.stringify(this.activeFilters);
+        const filtersChanged = previousFilters !== currentFilters;
+        const pageChanged = pageFromUrl !== this.lastLoadedPage;
+
+        // Load employees if page changed, filters changed, or it's initial load
+        if (pageChanged || filtersChanged || this.isInitialLoad) {
           this.isInitialLoad = false;
+          // Reset lastLoadedPage to ensure loadEmployees executes
+          if (filtersChanged) {
+            this.lastLoadedPage = 0;
+          }
+          this.loadEmployees();
         }
       });
 
@@ -245,12 +267,20 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         contract_end_date: rawFilters.contract_end_date || null,
         contract_start_date: rawFilters.contract_start_date || null
       };
+
+      // Reset to page 1 and reset lastLoadedPage to ensure loadEmployees executes
       this.currentPage = 1;
+      this.lastLoadedPage = 0; // Reset to force loadEmployees to execute
+
+      // Set flag to prevent route subscription from firing
+      this.isUpdatingQueryParams = true;
 
       // Update query params with filters
       this.updateQueryParams({ filters: this.activeFilters, page: 1 });
 
+      // Load employees with the new filters (bypassing duplicate check by resetting lastLoadedPage)
       this.loadEmployees();
+
       this.filterBox.closeOverlay();
     }
   }

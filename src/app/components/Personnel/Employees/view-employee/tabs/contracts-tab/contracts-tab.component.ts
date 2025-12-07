@@ -553,14 +553,16 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           this.contractsData[contractIndex].terminationData = data.terminationData;
         }
 
+        this.toasterService.showSuccess('contract terminated successfully');
+        this.loadEmployeeContracts();
+        
+        // Emit event to parent component to refresh entire employee data
+        this.contractsDataUpdated.emit();
       },
       error: error => {
         console.error('Error terminating contract:', error);
       }
     });
-    this.toasterService.showSuccess('contract terminated successfully');
-    this.loadEmployeeContracts();
-    // TODO: Add toast notification
   }
 
 
@@ -613,14 +615,17 @@ export class ContractsTabComponent implements OnInit, OnChanges {
             resignationData: data.resignationData
           };
         }
+
+        this.toasterService.showSuccess('contract resignation processed successfully');
+        this.loadEmployeeContracts();
+        
+        // Emit event to parent component to refresh entire employee data
+        this.contractsDataUpdated.emit();
       },
       error: error => {
         console.error('Error processing contract resignation:', error);
       }
     });
-    this.toasterService.showSuccess('contract resignation processed successfully');
-    this.loadEmployeeContracts();
-    // TODO: Add toast notification
   }
 
   // View terminated contract details
