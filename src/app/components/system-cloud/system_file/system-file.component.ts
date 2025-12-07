@@ -42,6 +42,7 @@ export class SystemFileComponent implements OnInit {
 
   errMsg: string = '';
   isLoading = false;
+  isUpdatingStructure = false;
   uploadSub!: Subscription;
   percentage: number = 0;
   uploadType: string = 'Pending';
@@ -757,6 +758,26 @@ export class SystemFileComponent implements OnInit {
     this.stopUploadTracking();
   }
 
+  updateStructure(): void {
+    if (!this.SystemFileId) return;
 
+    this.isUpdatingStructure = true;
+    this.errMsg = '';
+
+    this._systemCloudService.reUpdatePayroll(this.SystemFileId).subscribe({
+      next: (response) => {
+        this.isUpdatingStructure = false;
+        // Refresh the file data after successful update
+        if (this.SystemFileId) {
+          this.getSystemFileData(this.SystemFileId);
+        }
+      },
+      error: (err) => {
+        console.error('Error updating structure:', err);
+        this.errMsg = err.error?.details || 'An error occurred while updating structure.';
+        this.isUpdatingStructure = false;
+      }
+    });
+  }
 
 }
