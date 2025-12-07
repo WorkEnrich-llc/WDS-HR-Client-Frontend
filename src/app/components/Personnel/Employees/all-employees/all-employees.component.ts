@@ -50,6 +50,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private isInitialLoad: boolean = true;
   private isUpdatingQueryParams: boolean = false;
   private isChangingItemsPerPage: boolean = false;
+  private lastLoadedPage: number = 0; // Initialize to 0 so initial load always happens
   loading: boolean = true;
 
 
@@ -110,10 +111,12 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.itemsPerPage = +params['itemsPerPage'] || 10;
         }
 
-        // Load employees with restored state
-        this.isInitialLoad = true;
-        this.loadEmployees();
-        this.isInitialLoad = false;
+        // Load employees with restored state (only if page actually changed)
+        if (pageFromUrl !== this.lastLoadedPage) {
+          this.isInitialLoad = true;
+          this.loadEmployees();
+          this.isInitialLoad = false;
+        }
       });
 
 
@@ -147,15 +150,15 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.loading = true;
           this.loadData = true;
           this.currentPage = 1;
-          
+
           // If search is empty or whitespace-only, load without search term
           const finalSearchTerm = (searchTerm && searchTerm.trim() !== '') ? searchTerm.trim() : '';
-          
+
           // Update query params with search term (only if not initial load)
           if (!this.isInitialLoad) {
             this.updateQueryParams({ search: finalSearchTerm, page: 1 });
           }
-          
+
           return this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, finalSearchTerm, this.activeFilters);
         })
       )
@@ -200,6 +203,11 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   loadEmployees(): void {
+    // Prevent duplicate requests for the same page
+    if (this.currentPage === this.lastLoadedPage && !this.isInitialLoad) {
+      return;
+    }
+
     this.loading = true;
     this.loadData = true;
 
@@ -215,6 +223,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           this.loadData = false;
           this.sortDirection = 'desc';
           this.sortBy();
+          // Track the last loaded page to prevent duplicate requests
+          this.lastLoadedPage = this.currentPage;
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -236,10 +246,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         contract_start_date: rawFilters.contract_start_date || null
       };
       this.currentPage = 1;
-      
+
       // Update query params with filters
       this.updateQueryParams({ filters: this.activeFilters, page: 1 });
-      
+
       this.loadEmployees();
       this.filterBox.closeOverlay();
     }
@@ -380,11 +390,11 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    
+
     // Set flags to prevent route subscription and pageChange from interfering
     this.isUpdatingQueryParams = true;
     this.isChangingItemsPerPage = true;
-    
+
     // Get current params to remove itemsPerPage if it exists
     const currentParams = { ...this.route.snapshot.queryParams };
     const updatedParams: any = {
@@ -392,12 +402,12 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       view: newItemsPerPage.toString(),
       page: '1'
     };
-    
+
     // Remove itemsPerPage if it exists
     if (updatedParams['itemsPerPage']) {
       delete updatedParams['itemsPerPage'];
     }
-    
+
     // Navigate with only the params we want
     // Don't use merge - set all params explicitly to remove itemsPerPage
     this.router.navigate([], {
@@ -409,7 +419,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         this.isUpdatingQueryParams = false;
         this.isChangingItemsPerPage = false;
       }, 100); // Small delay to ensure pageChange event doesn't interfere
-      
+
       // Load employees with the new itemsPerPage value
       this.loadEmployees();
     }).catch((error) => {
@@ -430,19 +440,27 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     if (this.isChangingItemsPerPage) {
       return;
     }
-    
+
     this.currentPage = page;
-    this.paginationState.setPage('...', page);
-    
-    // Update query params with page
+    this.paginationState.setPage('employees/all-employees', page);
+
+    // Set flag to prevent route subscription from firing
+    // updateQueryParams will also set this flag, but we set it here first to be safe
+    this.isUpdatingQueryParams = true;
+
+    // Update query params with page - this will navigate and trigger route changes
+    // but the flag prevents the route subscription from calling loadEmployees
     this.updateQueryParams({ page });
+
+    // Load employees directly with the new page (route subscription is blocked by flag)
+    this.loadEmployees();
   }
 
   ngOnDestroy(): void {
     // Complete the destroy subject to trigger takeUntil for all subscriptions
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     // Unsubscribe from individual subscriptions if they exist
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
@@ -453,7 +471,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
-    
+
     // Complete the search subject
     this.searchSubject.complete();
   }
@@ -477,10 +495,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.filterForm.reset();
     this.activeFilters = {};
     this.currentPage = 1;
-    
+
     // Clear filters from query params
     this.updateQueryParams({ filters: null, page: 1 });
-    
+
     this.loadEmployees();
     this.filterBox.closeOverlay();
   }
@@ -488,10 +506,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   /**
    * Update query parameters while preserving existing ones
    */
-  private updateQueryParams(updates: { 
-    page?: number; 
-    search?: string; 
-    filters?: any; 
+  private updateQueryParams(updates: {
+    page?: number;
+    search?: string;
+    filters?: any;
     itemsPerPage?: number;
   }): void {
     const currentParams = this.route.snapshot.queryParams;
@@ -521,7 +539,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             nonNullFilters[key] = updates.filters[key];
           }
         });
-        
+
         if (Object.keys(nonNullFilters).length > 0) {
           newParams['filters'] = encodeURIComponent(JSON.stringify(nonNullFilters));
         } else {
@@ -548,17 +566,17 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     // Set flag to prevent route subscription from firing
     this.isUpdatingQueryParams = true;
-    
+
     // Navigate with updated params
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: newParams,
       queryParamsHandling: 'merge'
     }).then(() => {
-      // Reset flag after navigation completes
+      // Reset flag after navigation completes with enough delay to prevent route subscription from firing
       setTimeout(() => {
         this.isUpdatingQueryParams = false;
-      }, 0);
+      }, 100);
     });
   }
 

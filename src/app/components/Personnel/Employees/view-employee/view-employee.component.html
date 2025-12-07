@@ -51,9 +51,105 @@
 <div class="content-hug d-flex flex-column gap-4">
   <!-- Loading state -->
   @if (loading) {
-  <div class="d-flex justify-content-center align-items-center" style="min-height: 400px">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <!-- Skeleton Loaders for Employee Data -->
+  <div class="d-flex align-items-stretch gap-4">
+    <!-- Contact Info Skeleton -->
+    <div class="col-12 col-lg-6 col-xl-4">
+      <div class="content-box contact-info-card d-flex flex-column gap-3 h-100">
+        <div class="skeleton-loading skeleton-title"></div>
+        <div class="skeleton-loading skeleton-profile"></div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Info Skeleton -->
+    <div class="col-12 col-lg-6 col-xl-4">
+      <div class="content-box d-flex flex-column gap-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="skeleton-loading skeleton-title"></div>
+          <div class="skeleton-loading skeleton-badge"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Info Skeleton -->
+    <div class="col-12 col-lg-6 col-xl-4">
+      <div class="content-box d-flex flex-column gap-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="skeleton-loading skeleton-title"></div>
+          <div class="skeleton-loading skeleton-badge"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+        <div class="skeleton-info-item">
+          <div class="skeleton-loading skeleton-label"></div>
+          <div class="skeleton-loading skeleton-value"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Skeleton -->
+  <div class="content-box">
+    <div class="skeleton-tabs">
+      <div class="skeleton-loading skeleton-tab"></div>
+      <div class="skeleton-loading skeleton-tab"></div>
+      <div class="skeleton-loading skeleton-tab"></div>
+      <div class="skeleton-loading skeleton-tab"></div>
+      <div class="skeleton-loading skeleton-tab"></div>
     </div>
   </div>
   }
@@ -159,6 +255,21 @@
 
         <!-- Collapsible fields (Custom Fields only) -->
         <div class="contact-info-collapsible" [class.expanded]="contactInfoExpanded">
+          @if (isLoading) {
+          <!-- Custom Fields Skeleton Loaders -->
+          <div class="skeleton-info-item">
+            <div class="skeleton-loading skeleton-label"></div>
+            <div class="skeleton-loading skeleton-value"></div>
+          </div>
+          <div class="skeleton-info-item">
+            <div class="skeleton-loading skeleton-label"></div>
+            <div class="skeleton-loading skeleton-value"></div>
+          </div>
+          <div class="skeleton-info-item">
+            <div class="skeleton-loading skeleton-label"></div>
+            <div class="skeleton-loading skeleton-value"></div>
+          </div>
+          } @else {
           @for(item of customFieldValues; track item.id) {
           @if(item.custom_field.pinned === true && item.value.value) {
           <div class="info">
@@ -166,6 +277,7 @@
               item.custom_field.input_option.label }}</h6>
             <span [title]="item.value.value">{{ item.value.value }}</span>
           </div>
+          }
           }
           }
         </div>
