@@ -1,13 +1,13 @@
-import { Component, ElementRef, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service'; 
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, map, Observable, Subject, Subscription, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
@@ -25,7 +25,7 @@ import dayjs, { Dayjs } from 'dayjs';
   styleUrls: ['./../../../shared/table/table.component.css', './attendance-log.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
-export class AttendanceLogComponent {
+export class AttendanceLogComponent implements OnDestroy {
 
   constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
@@ -88,7 +88,9 @@ export class AttendanceLogComponent {
   baseDate: Date = new Date();
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
   private toasterSubscription!: Subscription;
+  private destroy$ = new Subject<void>();
 
   employees: any[] = [];
   columnWidths: string[] = [];
@@ -168,14 +170,78 @@ export class AttendanceLogComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
-      const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-      this.getAllAttendanceLog({
-        page: this.currentPage,
-        per_page: this.itemsPerPage,
-        from_date: formattedDate,
-        search: value
-      });
+    // Improved search with request cancellation, whitespace trimming, and better performance
+    this.searchSubscription = this.searchSubject.pipe(
+      takeUntil(this.destroy$),
+      // First filter: Skip whitespace-only searches, but allow empty string to clear search
+      filter((originalSearchTerm: string) => {
+        // Allow empty string (user cleared search - we want to reload without search filter)
+        if (originalSearchTerm === '') {
+          return true;
+        }
+        // Block whitespace-only strings (like "   "), but allow strings with content
+        return originalSearchTerm.trim().length > 0;
+      }),
+      // Trim ONLY leading whitespace and limit trailing spaces to maximum 3
+      map((searchTerm: string) => {
+        // Remove only leading whitespace
+        let trimmedStart = searchTerm.replace(/^\s+/, '');
+
+        // Limit trailing spaces to maximum 3 (ignore spaces beyond 3)
+        // Match trailing spaces and replace if more than 3
+        trimmedStart = trimmedStart.replace(/(\s{4,})$/, (match) => {
+          // If 4 or more trailing spaces, keep only 3
+          return '   ';
+        });
+
+        // Update searchTerm property to reflect processed value in UI
+        this.searchTerm = trimmedStart;
+        return trimmedStart;
+      }),
+      // Debounce to wait for user to stop typing
+      debounceTime(600),
+      // Avoid duplicate consecutive searches
+      distinctUntilChanged(),
+      // Cancel previous request and make new one (switchMap cancels previous observables)
+      switchMap((searchTerm: string) => {
+        // Reset to page 1 when searching
+        this.currentPage = 1;
+        this.loadData = true;
+        this.isLoading = true;
+
+        const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+
+        // If search is empty or whitespace-only, load without search term (clear search)
+        // Note: searchTerm already has leading spaces removed, so we check if it has any non-whitespace content
+        const finalSearchTerm = (searchTerm && searchTerm.trim().length > 0) ? searchTerm : undefined;
+
+        // Return the observable which switchMap will subscribe to
+        // This automatically cancels any previous incomplete requests
+        return this._AttendanceLogService.getAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: formattedDate,
+          search: finalSearchTerm
+        });
+      })
+    ).subscribe({
+      next: (data) => {
+        const info = data.data.object_info;
+        this.employees = info.list_items.map((emp: any) => ({
+          ...emp,
+          collapsed: true
+        }));
+
+        this.totalItems = info.total_items;
+        this.totalPages = info.total_pages;
+        this.loadData = false;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching attendance logs:', error);
+        this.loadData = false;
+        this.isLoading = false;
+      }
     });
 
 
@@ -187,6 +253,7 @@ export class AttendanceLogComponent {
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
     this.loadData = true;
+    this.isLoading = true;
     this._AttendanceLogService.getAttendanceLog(filters).subscribe({
       next: (data) => {
         const info = data.data.object_info;
@@ -198,11 +265,13 @@ export class AttendanceLogComponent {
         this.totalItems = info.total_items;
         this.totalPages = info.total_pages;
         this.loadData = false;
+        this.isLoading = false;
 
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
         this.loadData = false;
+        this.isLoading = false;
       }
     });
   }
@@ -295,7 +364,25 @@ export class AttendanceLogComponent {
 
 
   onSearchChange() {
+    // Emit the search term to the subject for debounced processing
     this.searchSubject.next(this.searchTerm);
+  }
+
+  ngOnDestroy(): void {
+    // Complete the destroy subject to trigger takeUntil for all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Unsubscribe from individual subscriptions if they exist
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+
+    // Complete the search subject
+    this.searchSubject.complete();
   }
 
   sortBy() {
