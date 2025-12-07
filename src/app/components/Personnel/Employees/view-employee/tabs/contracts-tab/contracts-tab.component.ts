@@ -66,6 +66,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   selectedContract: Contract | null = null;
   selectedForDropdown: Contract | null = null;
   contractHistory: ContractHistory[] = [];
+  isLoadingHistory: boolean = false; // Loading state for contract history
   contractTerminationData: any = null;
   contractResignationData: any = null;
   isAddModalOpen = false;
@@ -462,6 +463,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
   private loadContractHistory(contractId: number): void {
     // Load adjustment history from API
+    this.isLoadingHistory = true;
     this.employeeService.getEmployeeContractAdjustments(contractId).subscribe({
       next: response => {
         const adjustments = response.data.list_items;
@@ -480,10 +482,12 @@ export class ContractsTabComponent implements OnInit, OnChanges {
           // newValue: `${adj.new_salary.toLocaleString()} ${this.selectedContract?.currency || 'EGP'}`,
           reason: ''
         }));
+        this.isLoadingHistory = false;
       },
       error: error => {
         console.error('Error loading contract history:', error);
         this.contractHistory = [];
+        this.isLoadingHistory = false;
       }
     });
   }

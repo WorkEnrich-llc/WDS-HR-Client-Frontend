@@ -320,7 +320,7 @@
 
 <!-- Contract History Modal -->
 <app-contract-history-modal [isOpen]="isHistoryModalOpen" [contract]="selectedContract" [historyData]="contractHistory"
-  (onClose)="closeHistoryModal()">
+  [isLoading]="isLoadingHistory" (onClose)="closeHistoryModal()">
 </app-contract-history-modal>
 
 
