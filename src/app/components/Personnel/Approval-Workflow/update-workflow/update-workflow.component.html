@@ -37,6 +37,32 @@
 
     <div class="content-box d-flex flex-column gap-3 w-100 mx-auto">
       <h2>Main Information</h2>
+      
+      @if (isLoadingWorkflow) {
+      <!-- Skeleton loader for main form -->
+      <div class="w-lg-50 d-flex flex-column gap-2">
+        <div class="input">
+          <div class="skeleton-label skeleton-loading"></div>
+          <div class="skeleton-input skeleton-loading"></div>
+        </div>
+        <div class="input">
+          <div class="skeleton-label skeleton-loading"></div>
+          <div class="skeleton-input skeleton-loading"></div>
+        </div>
+        <div class="input">
+          <div class="skeleton-label skeleton-loading"></div>
+          <div class="skeleton-select skeleton-loading"></div>
+        </div>
+        <div class="input">
+          <div class="skeleton-label skeleton-loading"></div>
+          <div class="skeleton-select skeleton-loading"></div>
+        </div>
+        <div class="input">
+          <div class="skeleton-label skeleton-loading"></div>
+          <div class="skeleton-select skeleton-loading"></div>
+        </div>
+      </div>
+      } @else {
       <form [formGroup]="workflow1" class="w-lg-50 d-flex flex-column gap-2">
 
         <div class="input">
@@ -92,16 +118,21 @@
         </div>
 
 
+        @if (workflow1.get('workflow_type')?.value === 'leave') {
         <div class="input">
           <label for="leavetype">Leave Type <span>*</span></label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
+              @if (isLoadingLeaveTypes) {
+              <div class="skeleton-select skeleton-loading"></div>
+              } @else {
               <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select">
                 <option value="" disabled selected hidden>Select one Leave Type</option>
                 @for (item of leaveTypes; track item) {
                 <option [value]="item.id">{{item.name}}</option>
                 }
               </select>
+              }
             </div>
           </div>
           @if (workflow1.get('leave_id')?.touched && workflow1.get('leave_id')?.errors?.['required']) {
@@ -110,17 +141,22 @@
           </p>
           }
         </div>
+        }
 
         <div class="input">
           <label for="department">Department <span>*</span></label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
+              @if (isLoadingDepartments) {
+              <div class="skeleton-select skeleton-loading"></div>
+              } @else {
               <select name="department" formControlName="department_id" id="department" class="form-select">
                 <option value="" disabled selected hidden>Select one Department</option>
                 @for (item of departments; track item) {
                 <option [value]="item.id">{{item.name}}</option>
                 }
               </select>
+              }
             </div>
           </div>
           @if (workflow1.get('department_id')?.touched && workflow1.get('department_id')?.errors?.['required']) {
@@ -140,12 +176,24 @@
         </p>
         }
       </form>
+      }
     </div>
 
 
     <div class="content-box p-0 row w-100 mx-auto">
       <div class="steps col-3">
         <h4>Steps</h4>
+        @if (isLoadingWorkflow) {
+        <!-- Skeleton loader for steps list -->
+        <ul class="steps-links">
+          @for (i of [1,2,3]; track i) {
+          <li class="link">
+            <div class="skeleton-step-item skeleton-loading"></div>
+          </li>
+          }
+        </ul>
+        <div class="skeleton-step-item skeleton-loading" style="height: 60px;"></div>
+        } @else {
         <ul class="steps-links">
           @for (step of steps; track step; let i = $index) {
           <li class="link" [class.active]="i === selectedStepIndex" (click)="selectedStepIndex = i">
@@ -170,9 +218,13 @@
           </svg>
           <span>Add Step</span>
         </button>
+        }
       </div>
       <div class="col-9">
-        @if (steps[selectedStepIndex]) {
+        @if (isLoadingWorkflow) {
+        <!-- Skeleton loader for step form -->
+        <div class="skeleton-step-form skeleton-loading"></div>
+        } @else if (steps[selectedStepIndex]) {
         <form class="step-form w-75 d-flex flex-column gap-2" [formGroup]="steps[selectedStepIndex].form">
           <div class="input">
             <label for="stepName">Step Name</label>
@@ -207,12 +259,16 @@
             <label for="directManager">Assignee</label>
             <div class="d-flex align-items-center gap-4">
               <div class="form-outline w-100 position-relative custom-date-wrapper">
+                @if (isLoadingJobTitles) {
+                <div class="skeleton-select skeleton-loading"></div>
+                } @else {
                 <select name="directManager" formControlName="assignee" id="directManager" class="form-select">
                   <option value="" disabled selected hidden>Direct Manager</option>
                   @for (item of jobTitles; track item) {
                   <option [value]="item.id">{{item.name}}</option>
                   }
                 </select>
+                }
               </div>
             </div>
             @if (steps[selectedStepIndex].form.get('assignee')?.invalid &&
