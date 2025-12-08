@@ -1024,15 +1024,15 @@ export const routes: Routes = [
               },
               {
                 path: 'create-payroll-components',
-                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
+                loadComponent: () => import('./components/Payroll/Payroll-components/manage-payroll-component/manage-payroll-component.component').then(m => m.ManagePayrollComponentComponent),
                 title: 'Create Payroll Components',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Payroll_Components', action: 'create' }
               },
               {
                 path: 'edit/:id',
-                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
-                title: 'Edit Payroll Components',
+                loadComponent: () => import('./components/Payroll/Payroll-components/manage-payroll-component/manage-payroll-component.component').then(m => m.ManagePayrollComponentComponent),
+                title: 'Update Payroll Components',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Payroll_Components', action: 'update' }
               },
