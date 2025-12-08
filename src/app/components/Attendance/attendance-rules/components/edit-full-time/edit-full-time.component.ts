@@ -11,6 +11,18 @@ import { AttendanceRulesData } from '../../models/attendance-rules.interface';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 
+// Interfaces for lateness structure
+interface LatenessDeductionRule {
+  thresholdTime: number | null;
+  deductionValue: number | null;
+  deductionBase: number | null; // salaryPortionIndex
+}
+
+interface LatenessOccurrence {
+  isExpanded: boolean;
+  deductionRules: LatenessDeductionRule[];
+}
+
 @Component({
   selector: 'app-edit-full-time',
   imports: [PageHeaderComponent, PopupComponent, CommonModule, FormsModule],
@@ -37,6 +49,52 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSalaryPortions();
+    // Initialize with dummy data matching Figma design if no API data
+    this.initializeDummyData();
+  }
+
+  initializeDummyData(): void {
+    // This will be overridden by mapDataToForm if API data exists
+    // But ensures we have the Figma structure even before API loads
+    if (this.latenessOccurrences.length === 0 ||
+      (this.latenessOccurrences.length === 1 && this.latenessOccurrences[0].deductionRules.length === 1 &&
+        this.latenessOccurrences[0].deductionRules[0].thresholdTime === null)) {
+      this.latenessOccurrences = [
+        {
+          isExpanded: true,
+          deductionRules: [
+            { thresholdTime: 60, deductionValue: 0.25, deductionBase: null }, // Will be set to Base when salaryPortions load
+            { thresholdTime: null, deductionValue: null, deductionBase: null }
+          ]
+        },
+        {
+          isExpanded: false,
+          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+        },
+        {
+          isExpanded: false,
+          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+        }
+      ];
+    }
+  }
+
+  updateDummyDataWithBasePortion(): void {
+    // Find "Base" salary portion index
+    const basePortion = this.salaryPortions.find(p =>
+      p.name.toLowerCase().includes('base') || p.name.toLowerCase() === 'base' ||
+      p.name.toLowerCase() === 'net' || p.name.toLowerCase().includes('net')
+    );
+
+    // Update first occurrence's first rule if it has dummy data and no base set
+    if (this.latenessOccurrences.length > 0 &&
+      this.latenessOccurrences[0].deductionRules.length > 0 &&
+      this.latenessOccurrences[0].deductionRules[0].thresholdTime === 60 &&
+      this.latenessOccurrences[0].deductionRules[0].deductionValue === 0.25 &&
+      this.latenessOccurrences[0].deductionRules[0].deductionBase === null &&
+      basePortion) {
+      this.latenessOccurrences[0].deductionRules[0].deductionBase = basePortion.index;
+    }
   }
 
   loadSalaryPortions(): void {
@@ -109,7 +167,126 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     this.allowGrace = fullTimeSettings.grace_period?.status || false;
     this.graceMinutes = fullTimeSettings.grace_period?.minutes || 0;
 
-    // Map Lateness entries
+    // Map Lateness entries to new structure
+    // Group by occurrence index, each occurrence can have multiple deduction rules
+    if (fullTimeSettings.lateness && fullTimeSettings.lateness.length > 0) {
+      const groupedByOccurrence: { [key: number]: any[] } = {};
+      fullTimeSettings.lateness
+        .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+        .forEach((item: any) => {
+          const occurrenceIndex = item.occurrence_index ?? item.index ?? 0;
+          if (!groupedByOccurrence[occurrenceIndex]) {
+            groupedByOccurrence[occurrenceIndex] = [];
+          }
+          groupedByOccurrence[occurrenceIndex].push(item);
+        });
+
+      this.latenessOccurrences = Object.keys(groupedByOccurrence)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .map((key) => {
+          const items = groupedByOccurrence[parseInt(key)];
+          return {
+            isExpanded: true,
+            deductionRules: items.map((item: any) => ({
+              thresholdTime: item.threshold_time !== null && item.threshold_time !== undefined
+                ? Number(item.threshold_time)
+                : null,
+              deductionValue: item.value !== null && item.value !== undefined
+                ? Number(item.value)
+                : null,
+              deductionBase: item.salary_portion_index !== null && item.salary_portion_index !== undefined
+                ? Number(item.salary_portion_index)
+                : null
+            }))
+          };
+        });
+
+      // If no occurrences, create default with dummy data matching Figma
+      if (this.latenessOccurrences.length === 0) {
+        // Find "Base" salary portion index if available
+        const basePortionIndex = this.salaryPortions.find(p =>
+          p.name.toLowerCase().includes('base') || p.name.toLowerCase() === 'base'
+        )?.index || null;
+
+        this.latenessOccurrences = [
+          {
+            isExpanded: true,
+            deductionRules: [
+              { thresholdTime: 60, deductionValue: 0.25, deductionBase: basePortionIndex },
+              { thresholdTime: null, deductionValue: null, deductionBase: null }
+            ]
+          },
+          {
+            isExpanded: false,
+            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+          },
+          {
+            isExpanded: false,
+            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+          }
+        ];
+      } else {
+        // Ensure we have at least 3 occurrences, with first expanded and others collapsed
+        while (this.latenessOccurrences.length < 3) {
+          this.latenessOccurrences.push({
+            isExpanded: false,
+            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+          });
+        }
+        // Set first occurrence to expanded, others to collapsed
+        this.latenessOccurrences[0].isExpanded = true;
+        for (let i = 1; i < this.latenessOccurrences.length; i++) {
+          this.latenessOccurrences[i].isExpanded = false;
+        }
+        // If first occurrence has only one rule, add a second empty rule to match Figma
+        if (this.latenessOccurrences[0].deductionRules.length === 1) {
+          this.latenessOccurrences[0].deductionRules.push({
+            thresholdTime: null,
+            deductionValue: null,
+            deductionBase: null
+          });
+        }
+      }
+    } else {
+      // No API data - use dummy data matching Figma design
+      // Find "Base" salary portion index if available
+      const basePortionIndex = this.salaryPortions.find(p =>
+        p.name.toLowerCase().includes('base') || p.name.toLowerCase() === 'base'
+      )?.index || null;
+
+      this.latenessOccurrences = [
+        {
+          isExpanded: true,
+          deductionRules: [
+            { thresholdTime: 60, deductionValue: 0.25, deductionBase: basePortionIndex },
+            { thresholdTime: null, deductionValue: null, deductionBase: null }
+          ]
+        },
+        {
+          isExpanded: false,
+          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+        },
+        {
+          isExpanded: false,
+          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+        }
+      ];
+    }
+
+    // Initialize validation errors
+    this.latenessValidationErrors = {};
+    this.latenessOccurrences.forEach((occurrence, occurrenceIndex) => {
+      this.latenessValidationErrors[occurrenceIndex] = {};
+      occurrence.deductionRules.forEach((_, ruleIndex) => {
+        this.latenessValidationErrors[occurrenceIndex][ruleIndex] = {
+          thresholdTime: false,
+          deductionValue: false,
+          deductionBase: false
+        };
+      });
+    });
+
+    // Legacy support - keep for backward compatibility
     if (fullTimeSettings.lateness && fullTimeSettings.lateness.length > 0) {
       this.latenessEntries = [...fullTimeSettings.lateness]
         .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
@@ -124,10 +301,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     } else {
       this.latenessEntries = [{ value: null, salaryPortionIndex: null }];
     }
-    this.latenessValidationErrors = {};
-    this.latenessEntries.forEach((_, index) => {
-      this.latenessValidationErrors[index] = { value: false, salaryPortion: false };
-    });
 
     // Map Early Leave entries
     if (fullTimeSettings.early_leave && fullTimeSettings.early_leave.length > 0) {
@@ -238,33 +411,110 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
   graceMinutes: number = 0;
 
   // step 2 - Lateness
-  latenessEntries = [{ value: null as number | null, salaryPortionIndex: null as number | null }];
+  // New structure: Each occurrence has multiple deduction rules
+  latenessOccurrences: LatenessOccurrence[] = [
+    {
+      isExpanded: true,
+      deductionRules: [
+        { thresholdTime: 60, deductionValue: 0.25, deductionBase: null }, // Will be set to "Base" if available
+        { thresholdTime: null, deductionValue: null, deductionBase: null }
+      ]
+    },
+    {
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    },
+    {
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    }
+  ];
+
   salaryPortions: { name: string; percentage: number | string; index: number }[] = [];
   salaryPortionsLoading: boolean = false;
-  latenessValidationErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
+  latenessValidationErrors: { [occurrenceIndex: number]: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } } = {};
 
-  addLatenessRow() {
-    const newIndex = this.latenessEntries.length;
-    this.latenessEntries.push({ value: null, salaryPortionIndex: null });
-    // Initialize validation errors for the new row
-    this.latenessValidationErrors[newIndex] = { value: false, salaryPortion: false };
+  // Legacy support - keep for backward compatibility during migration
+  latenessEntries = [{ value: null as number | null, salaryPortionIndex: null as number | null }];
+
+  toggleOccurrenceExpanded(occurrenceIndex: number) {
+    if (this.latenessOccurrences[occurrenceIndex]) {
+      this.latenessOccurrences[occurrenceIndex].isExpanded = !this.latenessOccurrences[occurrenceIndex].isExpanded;
+    }
   }
 
-  removeLatenessRow(index: number) {
-    if (this.latenessEntries.length > 1) {
-      this.latenessEntries.splice(index, 1);
-      // Clean up validation errors for removed row and reindex remaining errors
-      const newErrors: { [key: number]: { value: boolean; salaryPortion: boolean } } = {};
+  addLatenessOccurrence() {
+    this.latenessOccurrences.push({
+      isExpanded: false,
+      deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
+    });
+    const newIndex = this.latenessOccurrences.length - 1;
+    this.latenessValidationErrors[newIndex] = { 0: { thresholdTime: false, deductionValue: false, deductionBase: false } };
+  }
+
+  removeLatenessOccurrence(occurrenceIndex: number) {
+    if (this.latenessOccurrences.length > 1) {
+      this.latenessOccurrences.splice(occurrenceIndex, 1);
+      // Clean up validation errors
+      const newErrors: { [key: number]: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } } = {};
       Object.keys(this.latenessValidationErrors).forEach(key => {
         const oldIndex = parseInt(key);
-        if (oldIndex < index) {
+        if (oldIndex < occurrenceIndex) {
           newErrors[oldIndex] = this.latenessValidationErrors[oldIndex];
-        } else if (oldIndex > index) {
+        } else if (oldIndex > occurrenceIndex) {
           newErrors[oldIndex - 1] = this.latenessValidationErrors[oldIndex];
         }
       });
       this.latenessValidationErrors = newErrors;
     }
+  }
+
+  addLatenessDeductionRule(occurrenceIndex: number) {
+    if (this.latenessOccurrences[occurrenceIndex]) {
+      this.latenessOccurrences[occurrenceIndex].deductionRules.push({
+        thresholdTime: null,
+        deductionValue: null,
+        deductionBase: null
+      });
+      const ruleIndex = this.latenessOccurrences[occurrenceIndex].deductionRules.length - 1;
+      if (!this.latenessValidationErrors[occurrenceIndex]) {
+        this.latenessValidationErrors[occurrenceIndex] = {};
+      }
+      this.latenessValidationErrors[occurrenceIndex][ruleIndex] = {
+        thresholdTime: false,
+        deductionValue: false,
+        deductionBase: false
+      };
+    }
+  }
+
+  removeLatenessDeductionRule(occurrenceIndex: number, ruleIndex: number) {
+    if (this.latenessOccurrences[occurrenceIndex] &&
+      this.latenessOccurrences[occurrenceIndex].deductionRules.length > 1) {
+      this.latenessOccurrences[occurrenceIndex].deductionRules.splice(ruleIndex, 1);
+      // Clean up validation errors for this occurrence
+      if (this.latenessValidationErrors[occurrenceIndex]) {
+        const newRuleErrors: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } = {};
+        Object.keys(this.latenessValidationErrors[occurrenceIndex]).forEach(key => {
+          const oldRuleIndex = parseInt(key);
+          if (oldRuleIndex < ruleIndex) {
+            newRuleErrors[oldRuleIndex] = this.latenessValidationErrors[occurrenceIndex][oldRuleIndex];
+          } else if (oldRuleIndex > ruleIndex) {
+            newRuleErrors[oldRuleIndex - 1] = this.latenessValidationErrors[occurrenceIndex][oldRuleIndex];
+          }
+        });
+        this.latenessValidationErrors[occurrenceIndex] = newRuleErrors;
+      }
+    }
+  }
+
+  // Legacy method for backward compatibility
+  addLatenessRow() {
+    this.addLatenessOccurrence();
+  }
+
+  removeLatenessRow(index: number) {
+    this.removeLatenessOccurrence(index);
   }
 
   // step 3 - Early Leave
@@ -364,17 +614,21 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   validateLatenessStep(): void {
     this.latenessValidationErrors = {};
-    this.latenessEntries.forEach((entry, index) => {
-      this.latenessValidationErrors[index] = {
-        value: entry.value === null || entry.value === undefined,
-        salaryPortion: entry.salaryPortionIndex === null || entry.salaryPortionIndex === undefined
-      };
+    this.latenessOccurrences.forEach((occurrence, occurrenceIndex) => {
+      this.latenessValidationErrors[occurrenceIndex] = {};
+      occurrence.deductionRules.forEach((rule, ruleIndex) => {
+        this.latenessValidationErrors[occurrenceIndex][ruleIndex] = {
+          thresholdTime: rule.thresholdTime === null || rule.thresholdTime === undefined,
+          deductionValue: rule.deductionValue === null || rule.deductionValue === undefined,
+          deductionBase: rule.deductionBase === null || rule.deductionBase === undefined
+        };
+      });
     });
   }
 
-  clearLatenessValidationError(index: number, field: 'value' | 'salaryPortion'): void {
-    if (this.latenessValidationErrors[index]) {
-      this.latenessValidationErrors[index][field] = false;
+  clearLatenessValidationError(occurrenceIndex: number, ruleIndex: number, field: 'thresholdTime' | 'deductionValue' | 'deductionBase'): void {
+    if (this.latenessValidationErrors[occurrenceIndex] && this.latenessValidationErrors[occurrenceIndex][ruleIndex]) {
+      this.latenessValidationErrors[occurrenceIndex][ruleIndex][field] = false;
     }
   }
 
@@ -538,10 +792,14 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
   isStepValid(step: number): boolean {
     switch (step) {
       case 1: // Lateness
-        return this.latenessEntries.length > 0 &&
-          this.latenessEntries.every(entry =>
-            entry.value !== null && entry.value !== undefined &&
-            entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
+        return this.latenessOccurrences.length > 0 &&
+          this.latenessOccurrences.every(occurrence =>
+            occurrence.deductionRules.length > 0 &&
+            occurrence.deductionRules.every(rule =>
+              rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+              rule.deductionValue !== null && rule.deductionValue !== undefined &&
+              rule.deductionBase !== null && rule.deductionBase !== undefined
+            )
           );
 
       case 2: // Early Leave
@@ -648,20 +906,21 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       request_data: {
         settings: {
           full_time: {
-            lateness: this.latenessEntries.map((entry, index) => {
-              // console.log('Mapping lateness entry:', {
-              //   entryIndex: index + 1,
-              //   value: entry.value,
-              //   salaryPortionIndex: entry.salaryPortionIndex,
-              //   availablePortions: this.salaryPortions
-              // });
-              return {
-                index: index + 1,
-                value: entry.value || 0,
-                salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
-                  ? Number(entry.salaryPortionIndex)
-                  : 1  // Default to 1 if not selected
-              };
+            lateness: this.latenessOccurrences.flatMap((occurrence, occurrenceIndex) => {
+              return occurrence.deductionRules.map((rule, ruleIndex) => {
+                // Calculate the global index for this rule
+                const globalIndex = this.latenessOccurrences
+                  .slice(0, occurrenceIndex)
+                  .reduce((sum, occ) => sum + occ.deductionRules.length, 0) + ruleIndex;
+
+                return {
+                  index: globalIndex,
+                  occurrence_index: occurrenceIndex,
+                  threshold_time: rule.thresholdTime,
+                  value: rule.deductionValue,
+                  salary_portion_index: rule.deductionBase
+                };
+              });
             }),
             early_leave: this.earlyLeaveRows.map((row, index) => ({
               index: index + 1,
@@ -770,7 +1029,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.isSaving = false;
         this.router.navigate(['/attendance-rules']);
-        this.toasterMessageService.showSuccess("Full Time updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Full Time updated successfully", "Updated Successfully");
       },
       error: (error) => {
         console.error('Error saving rules:', error);
