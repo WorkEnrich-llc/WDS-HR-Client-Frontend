@@ -34,70 +34,78 @@ export class AuthenticationService {
     return headers;
   }
 
+  private buildHttpOptions(headers?: HttpHeaders, params?: HttpParams): any {
+    return {
+      headers: headers || this.buildHeaders(),
+      withCredentials: true, // Enable cookies for cross-origin requests
+      ...(params && { params })
+    };
+  }
+
   // device register
   deviceRegister(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/device-register`;
-    return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
   // register user
   createAcount(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/register/create`;
-    return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
   // login
   login(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/login`;
-    return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
   getJobTitles(): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/register/job-titles`;
-    return this._HttpClient.get(url, { headers: this.buildHeaders() });
+    return this._HttpClient.get(url, this.buildHttpOptions(this.buildHeaders()));
   }
 
   checkEmail(email: string): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/register/check-email`;
     const body = new HttpParams().set('email', email);
     const headers = this.buildHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    return this._HttpClient.put(url, body, { headers });
+    return this._HttpClient.put(url, body, this.buildHttpOptions(headers));
   }
 
   checkDomain(domain: string): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/register/check-domain`;
     const params = new HttpParams().set('company_domain', domain);
-    return this._HttpClient.get(url, { params, headers: this.buildHeaders() });
+    return this._HttpClient.get(url, this.buildHttpOptions(this.buildHeaders(), params));
   }
 
   sendCode(email: string): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/register/send-code`;
     const body = new HttpParams().set('email', email);
     const headers = this.buildHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    return this._HttpClient.put(url, body, { headers });
+    return this._HttpClient.put(url, body, this.buildHttpOptions(headers));
   }
 
   forgetPassSendCode(email: string): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/forgot-password/send-code`;
     const body = new HttpParams().set('username', email);
     const headers = this.buildHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    return this._HttpClient.post(url, body, { headers });
+    return this._HttpClient.post(url, body, this.buildHttpOptions(headers));
   }
 
   forgetCheckCode(formData: FormData): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/forgot-password/check-code`;
-    return this._HttpClient.put(url, formData, { headers: this.buildHeaders() });
+    return this._HttpClient.put(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
   newPassword(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/authentication/forgot-password/new-password`;
-    return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
   // logout
   logout(): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/logout`;
     const headers = this.buildHeaders(true, true);
-    return this._HttpClient.put(url, {}, { headers });
+    return this._HttpClient.put(url, {}, this.buildHttpOptions(headers));
   }
 }
