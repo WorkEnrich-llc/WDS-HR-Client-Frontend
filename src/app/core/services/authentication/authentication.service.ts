@@ -36,19 +36,19 @@ export class AuthenticationService {
 
   // device register
   deviceRegister(formData: any): Observable<any> {
-    const url = `${this.apiBaseUrl}main/authentication/device-register`;
+    const url = `${this.apiBaseUrl}main/1_0_2/authentication/device-register`;
     return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
   }
 
   // register user
   createAcount(formData: any): Observable<any> {
-    const url = `${this.apiBaseUrl}main/authentication/register/create`;
+    const url = `${this.apiBaseUrl}main/1_0_2/authentication/register/create`;
     return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
   }
 
   // login
   login(formData: any): Observable<any> {
-    const url = `${this.apiBaseUrl}main/authentication/login`;
+    const url = `${this.apiBaseUrl}main/1_0_2/authentication/login`;
     return this._HttpClient.post(url, formData, { headers: this.buildHeaders() });
   }
 
@@ -96,7 +96,7 @@ export class AuthenticationService {
 
   // logout
   logout(): Observable<any> {
-    const url = `${this.apiBaseUrl}main/authentication/logout`;
+    const url = `${this.apiBaseUrl}main/1_0_2/authentication/logout`;
     const headers = this.buildHeaders(true, true);
     return this._HttpClient.put(url, {}, { headers });
   }

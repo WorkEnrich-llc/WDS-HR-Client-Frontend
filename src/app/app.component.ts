@@ -107,9 +107,22 @@ export class AppComponent {
       const data = await response.json();
       formData.append('ip', data.ip);
 
+      // Add r_IN only if running on localhost
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalhost) {
+        formData.append('r_IN', 'localhost');
+      }
+
       const res: any = await this._AuthenticationService.deviceRegister(formData).toPromise();
-      if (res?.data?.device_token) {
-        localStorage.setItem('device_token', res.data.device_token);
+      // Check both root level and data level for device_token
+      const deviceTokenValue = res?.device_token !== undefined ? res.device_token : res?.data?.device_token;
+
+      if (deviceTokenValue !== undefined && deviceTokenValue !== null) {
+        // Handle both boolean and string types
+        const deviceToken = typeof deviceTokenValue === 'boolean'
+          ? String(deviceTokenValue)
+          : deviceTokenValue;
+        localStorage.setItem('device_token', deviceToken);
       }
 
       if (fcmToken) localStorage.setItem('fcm_token', fcmToken);
