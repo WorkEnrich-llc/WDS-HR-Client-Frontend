@@ -45,9 +45,28 @@ export class LoginComponent implements OnInit {
   ) { }
 
 
-  login(): void {
+  private async initializeSession(): Promise<void> {
+    try {
+      await fetch("/", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Session initialization error:', error);
+    }
+  }
+
+  async login(): Promise<void> {
     this.isLoading = true;
     this.errMsg = '';
+
+    // Initialize session before login
+    await this.initializeSession();
+
     const device_token = localStorage.getItem('device_token');
     const formData = new FormData();
     formData.append('username', this.loginForm.get('email')?.value);
@@ -145,6 +164,9 @@ export class LoginComponent implements OnInit {
   }
 
   private async registerDevice(): Promise<void> {
+    // Initialize session before device registration
+    await this.initializeSession();
+
     const deviceDetector = new DeviceDetector();
     const userAgent = navigator.userAgent;
     const device = deviceDetector.parse(userAgent);

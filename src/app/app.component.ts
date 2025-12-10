@@ -74,8 +74,26 @@ export class AppComponent {
     this.checkTokenSub?.unsubscribe();
   }
 
+  private async initializeSession(): Promise<void> {
+    try {
+      await fetch("/", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Session initialization error:', error);
+    }
+  }
+
   private async registerDeviceAlways(): Promise<void> {
     try {
+      // Initialize session before device registration
+      await this.initializeSession();
+
       // const deviceInfo = this.deviceDetector.getDeviceInfo();
 
       const deviceDetector = new DeviceDetector();
