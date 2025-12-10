@@ -186,13 +186,24 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          this.employees = response.data.list_items;
-          this.totalItems = response.data.total_items;
-          this.transformEmployeesForDisplay();
-          this.loading = false;
-          this.loadData = false;
-          this.sortDirection = 'desc';
-          this.sortBy();
+          try {
+            // Handle response structure
+            const listItems = response?.data?.list_items || [];
+            const totalItems = response?.data?.total_items || 0;
+
+            this.employees = listItems;
+            this.totalItems = totalItems;
+            this.transformEmployeesForDisplay();
+            this.loading = false;
+            this.loadData = false;
+            this.sortDirection = 'desc';
+            this.sortBy();
+          } catch (error) {
+            console.error('Error processing search response:', error);
+            this.loading = false;
+            this.loadData = false;
+            this.toastr.error('Error processing search results', 'Error');
+          }
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -238,15 +249,26 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.employees = response.data.list_items;
-          this.totalItems = response.data.total_items;
-          this.transformEmployeesForDisplay();
-          this.loading = false;
-          this.loadData = false;
-          this.sortDirection = 'desc';
-          this.sortBy();
-          // Track the last loaded page to prevent duplicate requests
-          this.lastLoadedPage = this.currentPage;
+          try {
+            // Handle response structure
+            const listItems = response?.data?.list_items || [];
+            const totalItems = response?.data?.total_items || 0;
+
+            this.employees = listItems;
+            this.totalItems = totalItems;
+            this.transformEmployeesForDisplay();
+            this.loading = false;
+            this.loadData = false;
+            this.sortDirection = 'desc';
+            this.sortBy();
+            // Track the last loaded page to prevent duplicate requests
+            this.lastLoadedPage = this.currentPage;
+          } catch (error) {
+            console.error('Error processing employees data:', error);
+            this.loading = false;
+            this.loadData = false;
+            this.toastr.error('Error processing employees data', 'Error');
+          }
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -288,21 +310,39 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
-    this.filteredEmployees = this.employees.map(employee => {
-      const endContract = employee.current_contract?.end_contract;
-      return {
-        id: employee.id,
-        code: employee.code,
-        name: employee.contact_info.name,
-        name_arabic: employee.contact_info.name_arabic,
-        employeeStatus: employee.employee_status,
-        accountStatus: this.getAccountStatus(employee.employee_active),
-        jobTitle: employee.job_info.job_title.name,
-        branch: employee.job_info.branch.name,
-        joinDate: this.formatDate(employee.job_info.start_contract),
-        end_contract: (endContract && endContract.trim() !== '') ? endContract : null
-      };
-    });
+    try {
+      if (!this.employees || !Array.isArray(this.employees) || this.employees.length === 0) {
+        this.filteredEmployees = [];
+        return;
+      }
+
+      this.filteredEmployees = this.employees.map((item: any) => {
+        try {
+          // The employee data is nested in object_info
+          const employee = item.object_info || item;
+          const endContract = employee.current_contract?.end_contract;
+          return {
+            id: employee.id,
+            code: employee.code || '',
+            name: employee.contact_info?.name || '',
+            name_arabic: employee.contact_info?.name_arabic || '',
+            employeeStatus: employee.employee_status || '',
+            accountStatus: this.getAccountStatus(employee.employee_active),
+            jobTitle: employee.job_info?.job_title?.name || '',
+            branch: employee.job_info?.branch?.name || '',
+            joinDate: this.formatDate(employee.job_info?.start_contract),
+            end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
+            created_at: employee.created_at || ''
+          };
+        } catch (empError) {
+          console.error('Error transforming employee:', empError, item);
+          return null;
+        }
+      }).filter(emp => emp !== null); // Remove any null entries from failed transformations
+    } catch (error) {
+      console.error('Error transforming employees:', error);
+      this.filteredEmployees = [];
+    }
   }
 
   // Helper method to convert string employee_active to account status
