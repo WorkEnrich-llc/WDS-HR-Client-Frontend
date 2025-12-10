@@ -121,7 +121,7 @@ export class AuthenticationService {
   // logout
   logout(): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/logout`;
-    const headers = this.buildHeaders(true, true);
+    const headers = this.buildHeaders(true, true, true);
     return this._HttpClient.put(url, {}, this.buildHttpOptions(headers));
   }
 }
