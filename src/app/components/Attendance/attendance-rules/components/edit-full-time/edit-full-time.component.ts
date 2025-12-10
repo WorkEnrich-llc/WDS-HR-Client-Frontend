@@ -55,24 +55,11 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
 
   initializeDummyData(): void {
     // This will be overridden by mapDataToForm if API data exists
-    // But ensures we have the Figma structure even before API loads
-    if (this.latenessOccurrences.length === 0 ||
-      (this.latenessOccurrences.length === 1 && this.latenessOccurrences[0].deductionRules.length === 1 &&
-        this.latenessOccurrences[0].deductionRules[0].thresholdTime === null)) {
+    // Initialize with empty structure - will be populated from API response
+    if (this.latenessOccurrences.length === 0) {
       this.latenessOccurrences = [
         {
           isExpanded: true,
-          deductionRules: [
-            { thresholdTime: 60, deductionValue: 0.25, deductionBase: null }, // Will be set to Base when salaryPortions load
-            { thresholdTime: null, deductionValue: null, deductionBase: null }
-          ]
-        },
-        {
-          isExpanded: false,
-          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
-        },
-        {
-          isExpanded: false,
           deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
         }
       ];
@@ -168,106 +155,46 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     this.graceMinutes = fullTimeSettings.grace_period?.minutes || 0;
 
     // Map Lateness entries to new structure
-    // Group by occurrence index, each occurrence can have multiple deduction rules
+    // New API structure: array of occurrences, each with index and list of rules
     if (fullTimeSettings.lateness && fullTimeSettings.lateness.length > 0) {
-      const groupedByOccurrence: { [key: number]: any[] } = {};
-      fullTimeSettings.lateness
+      this.latenessOccurrences = fullTimeSettings.lateness
         .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
-        .forEach((item: any) => {
-          const occurrenceIndex = item.occurrence_index ?? item.index ?? 0;
-          if (!groupedByOccurrence[occurrenceIndex]) {
-            groupedByOccurrence[occurrenceIndex] = [];
-          }
-          groupedByOccurrence[occurrenceIndex].push(item);
-        });
+        .map((occurrence: any, occurrenceIndex: number) => {
+          // Each occurrence has an index and a list of rules
+          const rules = occurrence.list && Array.isArray(occurrence.list)
+            ? occurrence.list
+              .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
+              .map((rule: any) => ({
+                thresholdTime: rule.minutes !== null && rule.minutes !== undefined
+                  ? Number(rule.minutes)
+                  : null,
+                deductionValue: rule.value !== null && rule.value !== undefined
+                  ? Number(rule.value)
+                  : null,
+                deductionBase: rule.salary_portion_index !== null && rule.salary_portion_index !== undefined
+                  ? Number(rule.salary_portion_index)
+                  : null
+              }))
+            : [];
 
-      this.latenessOccurrences = Object.keys(groupedByOccurrence)
-        .sort((a, b) => parseInt(a) - parseInt(b))
-        .map((key) => {
-          const items = groupedByOccurrence[parseInt(key)];
           return {
-            isExpanded: true,
-            deductionRules: items.map((item: any) => ({
-              thresholdTime: item.threshold_time !== null && item.threshold_time !== undefined
-                ? Number(item.threshold_time)
-                : null,
-              deductionValue: item.value !== null && item.value !== undefined
-                ? Number(item.value)
-                : null,
-              deductionBase: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-                ? Number(item.salary_portion_index)
-                : null
-            }))
+            isExpanded: occurrenceIndex === 0, // Expand first occurrence by default
+            deductionRules: rules.length > 0 ? rules : [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
           };
         });
 
-      // If no occurrences, create default with dummy data matching Figma
-      if (this.latenessOccurrences.length === 0) {
-        // Find "Base" salary portion index if available
-        const basePortionIndex = this.salaryPortions.find(p =>
-          p.name.toLowerCase().includes('base') || p.name.toLowerCase() === 'base'
-        )?.index || null;
-
-        this.latenessOccurrences = [
-          {
-            isExpanded: true,
-            deductionRules: [
-              { thresholdTime: 60, deductionValue: 0.25, deductionBase: basePortionIndex },
-              { thresholdTime: null, deductionValue: null, deductionBase: null }
-            ]
-          },
-          {
-            isExpanded: false,
-            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
-          },
-          {
-            isExpanded: false,
-            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
-          }
-        ];
-      } else {
-        // Ensure we have at least 3 occurrences, with first expanded and others collapsed
-        while (this.latenessOccurrences.length < 3) {
-          this.latenessOccurrences.push({
-            isExpanded: false,
-            deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
-          });
-        }
-        // Set first occurrence to expanded, others to collapsed
+      // Set first occurrence to expanded, others to collapsed
+      if (this.latenessOccurrences.length > 0) {
         this.latenessOccurrences[0].isExpanded = true;
         for (let i = 1; i < this.latenessOccurrences.length; i++) {
           this.latenessOccurrences[i].isExpanded = false;
         }
-        // If first occurrence has only one rule, add a second empty rule to match Figma
-        if (this.latenessOccurrences[0].deductionRules.length === 1) {
-          this.latenessOccurrences[0].deductionRules.push({
-            thresholdTime: null,
-            deductionValue: null,
-            deductionBase: null
-          });
-        }
       }
     } else {
-      // No API data - use dummy data matching Figma design
-      // Find "Base" salary portion index if available
-      const basePortionIndex = this.salaryPortions.find(p =>
-        p.name.toLowerCase().includes('base') || p.name.toLowerCase() === 'base'
-      )?.index || null;
-
+      // No API data - create empty structure
       this.latenessOccurrences = [
         {
           isExpanded: true,
-          deductionRules: [
-            { thresholdTime: 60, deductionValue: 0.25, deductionBase: basePortionIndex },
-            { thresholdTime: null, deductionValue: null, deductionBase: null }
-          ]
-        },
-        {
-          isExpanded: false,
-          deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
-        },
-        {
-          isExpanded: false,
           deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
         }
       ];
@@ -303,17 +230,27 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     }
 
     // Map Early Leave entries
+    // New API structure: array of occurrences, each with index and list of rules
+    // For now, we'll flatten it to rows (one row per occurrence, using first rule from list)
+    // TODO: Update UI to support early leave occurrences with multiple rules like lateness
     if (fullTimeSettings.early_leave && fullTimeSettings.early_leave.length > 0) {
-      this.earlyLeaveRows = [...fullTimeSettings.early_leave]
+      this.earlyLeaveRows = fullTimeSettings.early_leave
         .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
-        .map((item: any) => ({
-          deduction: item.value !== null && item.value !== undefined
-            ? Number(item.value)
-            : null,
-          salaryPortionIndex: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-            ? Number(item.salary_portion_index)
-            : null
-        }));
+        .map((occurrence: any) => {
+          // Take the first rule from the list for each occurrence
+          const firstRule = occurrence.list && occurrence.list.length > 0
+            ? occurrence.list[0]
+            : null;
+
+          return {
+            deduction: firstRule && firstRule.value !== null && firstRule.value !== undefined
+              ? Number(firstRule.value)
+              : null,
+            salaryPortionIndex: firstRule && firstRule.salary_portion_index !== null && firstRule.salary_portion_index !== undefined
+              ? Number(firstRule.salary_portion_index)
+              : null
+          };
+        });
     } else {
       this.earlyLeaveRows = [{ deduction: null, salaryPortionIndex: null }];
     }
@@ -376,7 +313,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     this.originalData = JSON.parse(JSON.stringify({
       allowGrace: this.allowGrace,
       graceMinutes: this.graceMinutes,
-      latenessEntries: this.latenessEntries,
+      latenessOccurrences: this.latenessOccurrences,
       earlyLeaveRows: this.earlyLeaveRows,
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
@@ -393,7 +330,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
     const current = {
       allowGrace: this.allowGrace,
       graceMinutes: this.graceMinutes,
-      latenessEntries: this.latenessEntries,
+      latenessOccurrences: this.latenessOccurrences,
       earlyLeaveRows: this.earlyLeaveRows,
       allowOvertime: this.allowOvertime,
       overtimeType: this.overtimeType,
@@ -906,36 +843,65 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       request_data: {
         settings: {
           full_time: {
-            lateness: this.latenessOccurrences.flatMap((occurrence, occurrenceIndex) => {
-              return occurrence.deductionRules.map((rule, ruleIndex) => {
-                // Calculate the global index for this rule
-                const globalIndex = this.latenessOccurrences
-                  .slice(0, occurrenceIndex)
-                  .reduce((sum, occ) => sum + occ.deductionRules.length, 0) + ruleIndex;
+            lateness: this.latenessOccurrences.map((occurrence, occurrenceIndex) => {
+              // Filter out empty rules (where all fields are null)
+              const validRules = occurrence.deductionRules.filter(rule =>
+                rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+                rule.deductionValue !== null && rule.deductionValue !== undefined &&
+                rule.deductionBase !== null && rule.deductionBase !== undefined
+              );
 
-                return {
-                  index: globalIndex,
-                  occurrence_index: occurrenceIndex,
-                  threshold_time: rule.thresholdTime,
+              return {
+                index: occurrenceIndex + 1,
+                list: validRules.map((rule, ruleIndex) => ({
+                  index: ruleIndex + 1,
+                  minutes: rule.thresholdTime,
                   value: rule.deductionValue,
                   salary_portion_index: rule.deductionBase
+                }))
+              };
+            }).filter(occurrence => occurrence.list.length > 0),
+            early_leave: this.sameAsLateness
+              ? this.latenessOccurrences.map((occurrence, occurrenceIndex) => {
+                // If same as lateness, use lateness structure
+                const validRules = occurrence.deductionRules.filter(rule =>
+                  rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+                  rule.deductionValue !== null && rule.deductionValue !== undefined &&
+                  rule.deductionBase !== null && rule.deductionBase !== undefined
+                );
+
+                return {
+                  index: occurrenceIndex + 1,
+                  list: validRules.map((rule, ruleIndex) => ({
+                    index: ruleIndex + 1,
+                    minutes: rule.thresholdTime,
+                    value: rule.deductionValue,
+                    salary_portion_index: rule.deductionBase
+                  }))
                 };
-              });
-            }),
-            early_leave: this.earlyLeaveRows.map((row, index) => ({
-              index: index + 1,
-              value: row.deduction || 0,
-              salary_portion_index: row.salaryPortionIndex !== null && row.salaryPortionIndex !== undefined
-                ? Number(row.salaryPortionIndex)
-                : 1  // Default to 1 if not selected
-            })),
+              }).filter(occurrence => occurrence.list.length > 0)
+              : this.earlyLeaveRows.map((row, index) => {
+                // Structure early leave as occurrences with lists
+                // Each row becomes an occurrence with a single item in the list
+                return {
+                  index: index + 1,
+                  list: [{
+                    index: 1,
+                    minutes: 0, // Early leave doesn't have minutes in current UI, using 0 as placeholder
+                    value: row.deduction || 0,
+                    salary_portion_index: row.salaryPortionIndex !== null && row.salaryPortionIndex !== undefined
+                      ? Number(row.salaryPortionIndex)
+                      : 0
+                  }]
+                };
+              }).filter(occurrence => occurrence.list[0].value !== null && occurrence.list[0].value !== undefined),
             absence: this.absenceEntries.map((entry, index) => ({
               index: index + 1,
               value: entry.value || 0,
               salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
                 ? Number(entry.salaryPortionIndex)
-                : 1  // Default to 1 if not selected
-            })),
+                : 0
+            })).filter(entry => entry.value !== null && entry.value !== undefined),
             grace_period: {
               status: this.allowGrace,
               minutes: parseFloat((this.graceMinutes || 0).toString())
@@ -954,35 +920,45 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
                   from_time: entry.from || '0:0',
                   to_time: entry.to || '0:0',
                   rate: parseFloat((entry.rate || 0).toString())
-                  // salary_portion_index: entry.salaryPortionIndex !== null && entry.salaryPortionIndex !== undefined
-                  //   ? Number(entry.salaryPortionIndex)
-                  //   : 1
                 })) : [{ from_time: '0:0', to_time: '0:0', rate: 0.0 }]
               }
             }
           },
           part_time: {
-            lateness: (existingPartTimeSettings.lateness || []).map((item: any) => ({
-              index: item.index || 0,
-              value: item.value || 0,
-              salary_portion_index: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-                ? Number(item.salary_portion_index)
-                : 1  // Default to 1 if not set
-            })),
-            early_leave: (existingPartTimeSettings.early_leave || []).map((item: any) => ({
-              index: item.index || 0,
-              value: item.value || 0,
-              salary_portion_index: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-                ? Number(item.salary_portion_index)
-                : 1  // Default to 1 if not set
-            })),
-            absence: (existingPartTimeSettings.absence || []).map((item: any) => ({
-              index: item.index || 0,
-              value: item.value || 0,
-              salary_portion_index: item.salary_portion_index !== null && item.salary_portion_index !== undefined
-                ? Number(item.salary_portion_index)
-                : 1  // Default to 1 if not set
-            })),
+            // Preserve existing part_time structure (same as full_time - occurrences with lists)
+            lateness: existingPartTimeSettings.lateness && Array.isArray(existingPartTimeSettings.lateness)
+              ? existingPartTimeSettings.lateness.map((occurrence: any) => ({
+                index: occurrence.index,
+                list: occurrence.list && Array.isArray(occurrence.list)
+                  ? occurrence.list.map((rule: any) => ({
+                    index: rule.index,
+                    minutes: rule.minutes,
+                    value: rule.value,
+                    salary_portion_index: rule.salary_portion_index
+                  }))
+                  : []
+              }))
+              : [],
+            early_leave: existingPartTimeSettings.early_leave && Array.isArray(existingPartTimeSettings.early_leave)
+              ? existingPartTimeSettings.early_leave.map((occurrence: any) => ({
+                index: occurrence.index,
+                list: occurrence.list && Array.isArray(occurrence.list)
+                  ? occurrence.list.map((rule: any) => ({
+                    index: rule.index,
+                    minutes: rule.minutes,
+                    value: rule.value,
+                    salary_portion_index: rule.salary_portion_index
+                  }))
+                  : []
+              }))
+              : [],
+            absence: existingPartTimeSettings.absence && Array.isArray(existingPartTimeSettings.absence)
+              ? existingPartTimeSettings.absence.map((item: any) => ({
+                index: item.index,
+                value: item.value,
+                salary_portion_index: item.salary_portion_index
+              }))
+              : [],
             grace_period: existingPartTimeSettings.grace_period ? {
               status: existingPartTimeSettings.grace_period.status,
               minutes: parseFloat((existingPartTimeSettings.grace_period.minutes || 0).toString())
@@ -1034,6 +1010,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error saving rules:', error);
         this.isSaving = false;
+        this.toasterMessageService.showError('Failed to save attendance rules. Please try again.');
       }
     });
   }
