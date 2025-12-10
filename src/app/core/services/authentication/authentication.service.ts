@@ -17,7 +17,16 @@ export class AuthenticationService {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
-  private buildHeaders(isLogout: boolean = false, includeAuth: boolean = false): HttpHeaders {
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+  }
+
+  private buildHeaders(isLogout: boolean = false, includeAuth: boolean = false, includeCsrf: boolean = false): HttpHeaders {
     const plat = isLogout ? 'DASHBOARD' : this.platform;
     let headers = new HttpHeaders({
       'ver': this.version,
@@ -29,6 +38,13 @@ export class AuthenticationService {
       const sessionToken = this.authHelper.getSessionToken();
       if (token) headers = headers.set('Authorization', token);
       if (sessionToken) headers = headers.set('SESSIONTOKEN', sessionToken);
+    }
+
+    if (includeCsrf) {
+      const csrfToken = this.getCookie('csrftoken');
+      if (csrfToken) {
+        headers = headers.set('X-CSRFToken', csrfToken);
+      }
     }
 
     return headers;
@@ -45,19 +61,19 @@ export class AuthenticationService {
   // device register
   deviceRegister(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/device-register`;
-    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders(false, false, true)));
   }
 
   // register user
   createAcount(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/register/create`;
-    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders(false, false, true)));
   }
 
   // login
   login(formData: any): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/login`;
-    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
+    return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders(false, false, true)));
   }
 
   getJobTitles(): Observable<any> {
