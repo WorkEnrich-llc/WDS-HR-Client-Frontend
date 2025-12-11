@@ -119,26 +119,52 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
-          // Store session data for S-L API call in dashboard
+          // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
           const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
           const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
 
           if (hasSLC && hasSLT) {
-            // Store session data for dashboard to use
-            localStorage.setItem('pending_sl_data', JSON.stringify({
-              s_l_c: {
-                nonce: session.s_l_c.nonce,
-                ciphertext: session.s_l_c.ciphertext
-              },
-              s_l_t: {
-                nonce: session.s_l_t.nonce,
-                ciphertext: session.s_l_t.ciphertext
+            const requestData = {
+              request_data: {
+                s_l_c: {
+                  nonce: session.s_l_c.nonce,
+                  ciphertext: session.s_l_c.ciphertext
+                },
+                s_l_t: {
+                  nonce: session.s_l_t.nonce,
+                  ciphertext: session.s_l_t.ciphertext
+                }
               }
-            }));
-          }
+            };
 
-          // Navigate to dashboard immediately - it will handle the sequence
-          this._Router.navigate(['/dashboard']);
+            this._AuthenticationService.sessionLogin(requestData).subscribe({
+              next: () => {
+                // S-L API call successful, now call subscription status
+                this.subService.getSubscription().subscribe({
+                  next: (sub) => {
+                    if (sub) {
+                      this.subService.setSubscription(sub);
+                    }
+                    // Navigate after subscription is loaded
+                    this._Router.navigate(['/dashboard']);
+                  },
+                  error: (err) => {
+                    console.error('Subscription load error:', err);
+                    // Navigate even if subscription fails
+                    this._Router.navigate(['/dashboard']);
+                  }
+                });
+              },
+              error: (err) => {
+                console.error('S-L API call error:', err);
+                // If S-L fails, navigate directly without subscription call
+                this._Router.navigate(['/dashboard']);
+              }
+            });
+          } else {
+            // Missing session data, navigate directly without S-L or subscription
+            this._Router.navigate(['/dashboard']);
+          }
         } else {
           this.loginRetryCount = 0; // Reset on invalid response
           this.errMsg = 'Invalid response from server.';

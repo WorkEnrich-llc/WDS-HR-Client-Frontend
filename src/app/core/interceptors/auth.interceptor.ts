@@ -56,9 +56,35 @@ export const authInterceptor: HttpInterceptorFn = (
     plat: platform
   };
 
-  if (token) headers['Authorization'] = token;
-  if (subdomain) headers['SUBDOMAIN'] = subdomain;
-  if (sessionToken) headers['SESSIONTOKEN'] = sessionToken;
+  // Check if this is a subscription-status request
+  const isSubscriptionStatusRequest = req.url.includes('subscription-status');
+
+  if (token) {
+    // For subscription-status: don't send Authorization if token is "true" or "false"
+    if (isSubscriptionStatusRequest && (token === 'true' || token === 'false')) {
+      // Skip adding Authorization header
+    } else {
+      headers['Authorization'] = token;
+    }
+  }
+
+  if (subdomain) {
+    // For subscription-status: don't send SUBDOMAIN if authorization is "true"
+    if (isSubscriptionStatusRequest && token === 'true') {
+      // Skip adding SUBDOMAIN header
+    } else {
+      headers['SUBDOMAIN'] = subdomain;
+    }
+  }
+
+  if (sessionToken) {
+    // For subscription-status: don't send SESSIONTOKEN if it's "true" or "false"
+    if (isSubscriptionStatusRequest && (sessionToken === 'true' || sessionToken === 'false')) {
+      // Skip adding SESSIONTOKEN header
+    } else {
+      headers['SESSIONTOKEN'] = sessionToken;
+    }
+  }
 
   const cloned = req.clone({ setHeaders: headers });
 
