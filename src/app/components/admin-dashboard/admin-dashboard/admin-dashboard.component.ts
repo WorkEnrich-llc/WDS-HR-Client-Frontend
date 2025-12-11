@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartOptions, ChartType } from 'chart.js';
@@ -7,6 +7,8 @@ import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-d
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
+import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { AuthenticationService } from 'app/core/services/authentication/authentication.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -15,12 +17,14 @@ import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   constructor(
     private adminDashboardService: AdminDashboardService,
     private _DepartmentsService: DepartmentsService,
     private _BranchesService: BranchesService,
-    private leaveBalanceService: LeaveBalanceService
+    private leaveBalanceService: LeaveBalanceService,
+    private subService: SubscriptionService,
+    private authService: AuthenticationService
   ) { }
   getDataLoad: boolean = true;
 
@@ -64,6 +68,74 @@ export class AdminDashboardComponent {
     this.params.turnover_year = currentYear.toString();
     this.params.employees_year = currentYear.toString();
 
+    // Check for pending S-L data and handle the sequence
+    this.handleLoginSequence();
+  }
+
+  private handleLoginSequence(): void {
+    // Keep loader displayed
+    this.getDataLoad = true;
+
+    // Check for pending S-L data from login
+    const pendingSlData = localStorage.getItem('pending_sl_data');
+    if (pendingSlData) {
+      try {
+        const slData = JSON.parse(pendingSlData);
+        const requestData = {
+          request_data: {
+            s_l_c: {
+              nonce: slData.s_l_c.nonce,
+              ciphertext: slData.s_l_c.ciphertext
+            },
+            s_l_t: {
+              nonce: slData.s_l_t.nonce,
+              ciphertext: slData.s_l_t.ciphertext
+            }
+          }
+        };
+
+        // Call S-L API
+        this.authService.sessionLogin(requestData).subscribe({
+          next: () => {
+            // S-L successful, call subscription status
+            this.subService.getSubscription().subscribe({
+              next: (sub) => {
+                if (sub) {
+                  this.subService.setSubscription(sub);
+                }
+                // Now call dashboard APIs
+                this.loadDashboardData();
+                // Clear pending S-L data
+                localStorage.removeItem('pending_sl_data');
+              },
+              error: (err) => {
+                console.error('Subscription load error:', err);
+                // Still load dashboard even if subscription fails
+                this.loadDashboardData();
+                localStorage.removeItem('pending_sl_data');
+              }
+            });
+          },
+          error: (err) => {
+            console.error('S-L API call error:', err);
+            // If S-L fails, load dashboard without subscription
+            this.loadDashboardData();
+            localStorage.removeItem('pending_sl_data');
+          }
+        });
+      } catch (error) {
+        console.error('Error parsing pending S-L data:', error);
+        // If parsing fails, load dashboard normally
+        this.loadDashboardData();
+        localStorage.removeItem('pending_sl_data');
+      }
+    } else {
+      // No pending S-L data, load dashboard normally
+      this.loadDashboardData();
+    }
+  }
+
+  private loadDashboardData(): void {
     // get departments and branchs and leave balance
     this.getAllDepartment(this.currentPage);
     this.getAllBranchs(this.currentPage);
