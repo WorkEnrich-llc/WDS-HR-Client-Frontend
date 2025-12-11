@@ -25,16 +25,16 @@ let isLoggingOut = false;
  * Centralized HTTP Interceptor that handles:
  * 1. All authentication headers (Authorization, SESSIONTOKEN, SUBDOMAIN)
  * 2. Version and platform headers (ver, plat)
- * 3. Special logic for subscription-status requests
+ * 3. Conditional header logic (applies globally to all requests):
+ *    - Don't send Authorization if token is "true" or "false"
+ *    - Don't send SUBDOMAIN if authorization is "true"
+ *    - Don't send SESSIONTOKEN if it's "true" or "false"
  * 4. Error handling (401, 406, 410, 425)
  * 5. Automatic logout on 401 errors
  * 
  * IMPORTANT - Cookie Handling:
- * - withCredentials must be set in HTTP options when making requests, not in headers
- * - Interceptors cannot modify HTTP options (withCredentials is an option, not a header)
- * - To ensure cookies are sent with ALL requests, use BaseHttpService instead of HttpClient
- * - BaseHttpService automatically includes withCredentials: true for all requests
- * - See: src/app/core/services/http/README.md for usage guide
+ * - Cookies are automatically sent with all requests via global XMLHttpRequest patch
+ * - See: src/app/core/services/http/credentials-http-backend.ts
  */
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
@@ -75,33 +75,30 @@ export const authInterceptor: HttpInterceptorFn = (
   const sessionToken = authHelper.getSessionToken();
   const subdomain = authHelper.getSubdomain();
 
-  // Check if this is a subscription-status request (special handling)
-  const isSubscriptionStatusRequest = req.url.includes('subscription-status');
-
-  // Add Authorization header (with special logic for subscription-status)
+  // Add Authorization header (global condition: don't send if token is "true" or "false")
   if (token) {
-    // For subscription-status: don't send Authorization if token is "true" or "false"
-    if (isSubscriptionStatusRequest && (token === 'true' || token === 'false')) {
+    // Don't send Authorization if token is "true" or "false" (applies to all requests)
+    if (token === 'true' || token === 'false') {
       // Skip adding Authorization header
     } else {
       headers['Authorization'] = token;
     }
   }
 
-  // Add SUBDOMAIN header (with special logic for subscription-status)
+  // Add SUBDOMAIN header (global condition: don't send if authorization is "true")
   if (subdomain) {
-    // For subscription-status: don't send SUBDOMAIN if authorization is "true"
-    if (isSubscriptionStatusRequest && token === 'true') {
+    // Don't send SUBDOMAIN if authorization is "true" (applies to all requests)
+    if (token === 'true') {
       // Skip adding SUBDOMAIN header
     } else {
       headers['SUBDOMAIN'] = subdomain;
     }
   }
 
-  // Add SESSIONTOKEN header (with special logic for subscription-status)
+  // Add SESSIONTOKEN header (global condition: don't send if it's "true" or "false")
   if (sessionToken) {
-    // For subscription-status: don't send SESSIONTOKEN if it's "true" or "false"
-    if (isSubscriptionStatusRequest && (sessionToken === 'true' || sessionToken === 'false')) {
+    // Don't send SESSIONTOKEN if it's "true" or "false" (applies to all requests)
+    if (sessionToken === 'true' || sessionToken === 'false') {
       // Skip adding SESSIONTOKEN header
     } else {
       headers['SESSIONTOKEN'] = sessionToken;
