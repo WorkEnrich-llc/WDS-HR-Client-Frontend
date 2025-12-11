@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-edit-onboarding',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule],
+  imports: [PageHeaderComponent, ReactiveFormsModule],
   templateUrl: './edit-onboarding.component.html',
   styleUrl: './edit-onboarding.component.css'
 })

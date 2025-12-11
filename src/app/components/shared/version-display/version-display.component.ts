@@ -11,8 +11,12 @@ import { versionInfo } from '../../../../environments/version';
     <div class="version-display" [ngClass]="{'production': versionService.isProduction(), 'staging': versionService.isStaging(), 'development': versionService.isDevelopment()}">
       <small>
         <span class="version-text">v{{ versionInfo.version }}</span>
-        <span class="build-date-text" *ngIf="versionInfo.buildDate">&nbsp;•&nbsp;{{ versionInfo.buildDate | date:'short' }}</span>
-        <span class="branch-text" *ngIf="!versionService.isProduction() && versionService.getBranch()">{{ versionService.getBranch() }}</span>
+        @if (versionInfo.buildDate) {
+          <span class="build-date-text">&nbsp;•&nbsp;{{ versionInfo.buildDate | date:'short' }}</span>
+        }
+        @if (!versionService.isProduction() && versionService.getBranch()) {
+          <span class="branch-text">{{ versionService.getBranch() }}</span>
+        }
       </small>
     </div>
     `,

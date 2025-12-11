@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { AnnouncementsService } from '../../../../core/services/admin-settings/announcements/announcements.service';
@@ -7,7 +7,7 @@ import { AnnouncementsService } from '../../../../core/services/admin-settings/a
 @Component({
     selector: 'app-view-announcement',
     standalone: true,
-    imports: [CommonModule, PageHeaderComponent],
+    imports: [PageHeaderComponent],
     templateUrl: './view-announcement.component.html',
     styleUrls: ['./view-announcement.component.css']
 })

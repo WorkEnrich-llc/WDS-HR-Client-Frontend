@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
@@ -21,7 +21,7 @@ interface LeaveBalanceRecord {
 @Component({
   selector: 'app-leave-balance-tab',
   standalone: true,
-  imports: [CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
+  imports: [TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './leave-balance-tab.component.html',
   styleUrl: './leave-balance-tab.component.css'
 })

@@ -7,189 +7,231 @@
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <!-- Skeleton loader for initial load -->
-            <div *ngIf="jobTitlesInitialLoading" class="form-select placeholder-glow">
-              <span class="placeholder col-12"></span>
-            </div>
+            @if (jobTitlesInitialLoading) {
+              <div class="form-select placeholder-glow">
+                <span class="placeholder col-12"></span>
+              </div>
+            }
             <!-- Custom dropdown when loaded -->
-            <div *ngIf="!jobTitlesInitialLoading" class="custom-dropdown">
-              <div class="custom-dropdown-header form-select" (click)="toggleJobTitleDropdown()">
-                <span *ngIf="!selectedJobTitle">Select 1 Job Title</span>
-                <span *ngIf="selectedJobTitle">{{selectedJobTitle.code}} - {{selectedJobTitle.name}}</span>
-              </div>
-              <div *ngIf="isJobTitleDropdownOpen" class="custom-dropdown-menu" (scroll)="onJobTitlesScroll($event)">
-                <!-- Search input -->
-                <div class="dropdown-search-wrapper">
-                  <input type="text" class="form-control form-control-sm" placeholder="Search job titles..."
-                    [(ngModel)]="jobTitleSearchTerm" (input)="onJobTitleSearchChange()"
-                    (click)="$event.stopPropagation()" name="jobTitleSearch">
+            @if (!jobTitlesInitialLoading) {
+              <div class="custom-dropdown">
+                <div class="custom-dropdown-header form-select" (click)="toggleJobTitleDropdown()">
+                  @if (!selectedJobTitle) {
+                    <span>Select 1 Job Title</span>
+                  }
+                  @if (selectedJobTitle) {
+                    <span>{{selectedJobTitle.code}} - {{selectedJobTitle.name}}</span>
+                  }
                 </div>
-                <!-- Items list -->
-                <div *ngFor="let jobTitle of jobTitles" class="custom-dropdown-item" (click)="selectJobTitle(jobTitle)">
-                  {{jobTitle.code}} - {{jobTitle.name}}
+                @if (isJobTitleDropdownOpen) {
+                  <div class="custom-dropdown-menu" (scroll)="onJobTitlesScroll($event)">
+                    <!-- Search input -->
+                    <div class="dropdown-search-wrapper">
+                      <input type="text" class="form-control form-control-sm" placeholder="Search job titles..."
+                        [(ngModel)]="jobTitleSearchTerm" (input)="onJobTitleSearchChange()"
+                        (click)="$event.stopPropagation()" name="jobTitleSearch">
+                      </div>
+                      <!-- Items list -->
+                      @for (jobTitle of jobTitles; track jobTitle) {
+                        <div class="custom-dropdown-item" (click)="selectJobTitle(jobTitle)">
+                          {{jobTitle.code}} - {{jobTitle.name}}
+                        </div>
+                      }
+                      <!-- Loading skeleton -->
+                      @if (jobTitlesLoading) {
+                        <div class="custom-dropdown-item disabled">
+                          <div class="placeholder-glow">
+                            <span class="placeholder col-12"></span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
-                <!-- Loading skeleton -->
-                <div *ngIf="jobTitlesLoading" class="custom-dropdown-item disabled">
-                  <div class="placeholder-glow">
-                    <span class="placeholder col-12"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="input w-100">
-        <label for="empType">Employment type</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select name="empType" id="empType" class="form-select" [(ngModel)]="selectedEmploymentType"
-              (change)="onEmploymentTypeChange()">
-              <option value="" selected disabled hidden>Select 1 Employment type</option>
-              <option value="1">Full Time</option>
-              <option value="2">Part Time</option>
-              <option value="3">Per Hour</option>
-              <option value="4">Freelance</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="input w-100">
-        <label for="workmode">Work Mode</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select name="workmode" id="workmode" class="form-select" [(ngModel)]="selectedWorkMode"
-              (change)="onWorkModeChange()">
-              <option value="" selected disabled hidden>Select one</option>
-              <option value="onsite">On Site</option>
-              <option value="hypred">Hybrid</option>
-              <option value="remote">Remote</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="input w-100">
-        <label for="workSchedule">Work Schedule</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <!-- Skeleton loader for initial load -->
-            <div *ngIf="workSchedulesInitialLoading" class="form-select placeholder-glow">
-              <span class="placeholder col-12"></span>
-            </div>
-            <!-- Custom dropdown when loaded -->
-            <div *ngIf="!workSchedulesInitialLoading" class="custom-dropdown">
-              <div class="custom-dropdown-header form-select" (click)="toggleWorkScheduleDropdown()">
-                <span *ngIf="!selectedWorkSchedule">Select 1 Work Schedule</span>
-                <span *ngIf="selectedWorkSchedule">{{selectedWorkSchedule.code}} - {{selectedWorkSchedule.name}}</span>
-              </div>
-              <div *ngIf="isWorkScheduleDropdownOpen" class="custom-dropdown-menu"
-                (scroll)="onWorkSchedulesScroll($event)">
-                <!-- Search input -->
-                <div class="dropdown-search-wrapper">
-                  <input type="text" class="form-control form-control-sm" placeholder="Search work schedules..."
-                    [(ngModel)]="workScheduleSearchTerm" (input)="onWorkScheduleSearchChange()"
-                    (click)="$event.stopPropagation()" name="workScheduleSearch">
-                </div>
-                <!-- Items list -->
-                <div *ngFor="let workSchedule of workSchedules" class="custom-dropdown-item"
-                  (click)="selectWorkSchedule(workSchedule)">
-                  {{workSchedule.code}} - {{workSchedule.name}}
-                </div>
-                <!-- Loading skeleton -->
-                <div *ngIf="workSchedulesLoading" class="custom-dropdown-item disabled">
-                  <div class="placeholder-glow">
-                    <span class="placeholder col-12"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="input w-100" [ngStyle]="{ opacity: isHybridOrOnsite() ? '1' : '0.5' }">
-        <label for="onsiteDays">No. of Days on Site</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select name="onsiteDays" id="onsiteDays" class="form-select" [disabled]="!isHybridOrOnsite()"
-              [(ngModel)]="selectedOnsiteDays" (change)="onOnsiteDaysChange()">
-              <option value="" selected disabled hidden>Select Num</option>
-              @for (n of [1,2,3,4,5,6,7]; track n) {
-              <option [value]="n">{{ n }}</option>
               }
-            </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="input w-100">
-        <label for="branch">Branch</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <!-- Skeleton loader for initial load -->
-            <div *ngIf="branchesInitialLoading" class="form-select placeholder-glow">
-              <span class="placeholder col-12"></span>
+        <div class="input w-100">
+          <label for="empType">Employment type</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <select name="empType" id="empType" class="form-select" [(ngModel)]="selectedEmploymentType"
+                (change)="onEmploymentTypeChange()">
+                <option value="" selected disabled hidden>Select 1 Employment type</option>
+                <option value="1">Full Time</option>
+                <option value="2">Part Time</option>
+                <option value="3">Per Hour</option>
+                <option value="4">Freelance</option>
+              </select>
             </div>
-            <!-- Custom dropdown when loaded -->
-            <div *ngIf="!branchesInitialLoading" class="custom-dropdown">
-              <div class="custom-dropdown-header form-select" (click)="toggleBranchDropdown()">
-                <span *ngIf="!selectedBranch">Select 1 Branch</span>
-                <span *ngIf="selectedBranch">{{selectedBranch.code}} - {{selectedBranch.name}}</span>
+          </div>
+        </div>
+
+        <div class="input w-100">
+          <label for="workmode">Work Mode</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <select name="workmode" id="workmode" class="form-select" [(ngModel)]="selectedWorkMode"
+                (change)="onWorkModeChange()">
+                <option value="" selected disabled hidden>Select one</option>
+                <option value="onsite">On Site</option>
+                <option value="hypred">Hybrid</option>
+                <option value="remote">Remote</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="input w-100">
+          <label for="workSchedule">Work Schedule</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <!-- Skeleton loader for initial load -->
+              @if (workSchedulesInitialLoading) {
+                <div class="form-select placeholder-glow">
+                  <span class="placeholder col-12"></span>
+                </div>
+              }
+              <!-- Custom dropdown when loaded -->
+              @if (!workSchedulesInitialLoading) {
+                <div class="custom-dropdown">
+                  <div class="custom-dropdown-header form-select" (click)="toggleWorkScheduleDropdown()">
+                    @if (!selectedWorkSchedule) {
+                      <span>Select 1 Work Schedule</span>
+                    }
+                    @if (selectedWorkSchedule) {
+                      <span>{{selectedWorkSchedule.code}} - {{selectedWorkSchedule.name}}</span>
+                    }
+                  </div>
+                  @if (isWorkScheduleDropdownOpen) {
+                    <div class="custom-dropdown-menu"
+                      (scroll)="onWorkSchedulesScroll($event)">
+                      <!-- Search input -->
+                      <div class="dropdown-search-wrapper">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search work schedules..."
+                          [(ngModel)]="workScheduleSearchTerm" (input)="onWorkScheduleSearchChange()"
+                          (click)="$event.stopPropagation()" name="workScheduleSearch">
+                        </div>
+                        <!-- Items list -->
+                        @for (workSchedule of workSchedules; track workSchedule) {
+                          <div class="custom-dropdown-item"
+                            (click)="selectWorkSchedule(workSchedule)">
+                            {{workSchedule.code}} - {{workSchedule.name}}
+                          </div>
+                        }
+                        <!-- Loading skeleton -->
+                        @if (workSchedulesLoading) {
+                          <div class="custom-dropdown-item disabled">
+                            <div class="placeholder-glow">
+                              <span class="placeholder col-12"></span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </div>
-              <div *ngIf="isBranchDropdownOpen" class="custom-dropdown-menu" (scroll)="onBranchesScroll($event)">
-                <!-- Search input -->
-                <div class="dropdown-search-wrapper">
-                  <input type="text" class="form-control form-control-sm" placeholder="Search branches..."
-                    [(ngModel)]="branchSearchTerm" (input)="onBranchSearchChange()" (click)="$event.stopPropagation()"
-                    name="branchSearch">
-                </div>
-                <!-- Items list -->
-                <div *ngFor="let branch of branches" class="custom-dropdown-item" (click)="selectBranch(branch)">
-                  {{branch.code}} - {{branch.name}}
-                </div>
-                <!-- Loading skeleton -->
-                <div *ngIf="branchesLoading" class="custom-dropdown-item disabled">
-                  <div class="placeholder-glow">
+            </div>
+          </div>
+
+          <div class="input w-100" [ngStyle]="{ opacity: isHybridOrOnsite() ? '1' : '0.5' }">
+            <label for="onsiteDays">No. of Days on Site</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <select name="onsiteDays" id="onsiteDays" class="form-select" [disabled]="!isHybridOrOnsite()"
+                  [(ngModel)]="selectedOnsiteDays" (change)="onOnsiteDaysChange()">
+                  <option value="" selected disabled hidden>Select Num</option>
+                  @for (n of [1,2,3,4,5,6,7]; track n) {
+                    <option [value]="n">{{ n }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="input w-100">
+            <label for="branch">Branch</label>
+            <div class="d-flex align-items-center gap-4">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <!-- Skeleton loader for initial load -->
+                @if (branchesInitialLoading) {
+                  <div class="form-select placeholder-glow">
                     <span class="placeholder col-12"></span>
                   </div>
+                }
+                <!-- Custom dropdown when loaded -->
+                @if (!branchesInitialLoading) {
+                  <div class="custom-dropdown">
+                    <div class="custom-dropdown-header form-select" (click)="toggleBranchDropdown()">
+                      @if (!selectedBranch) {
+                        <span>Select 1 Branch</span>
+                      }
+                      @if (selectedBranch) {
+                        <span>{{selectedBranch.code}} - {{selectedBranch.name}}</span>
+                      }
+                    </div>
+                    @if (isBranchDropdownOpen) {
+                      <div class="custom-dropdown-menu" (scroll)="onBranchesScroll($event)">
+                        <!-- Search input -->
+                        <div class="dropdown-search-wrapper">
+                          <input type="text" class="form-control form-control-sm" placeholder="Search branches..."
+                            [(ngModel)]="branchSearchTerm" (input)="onBranchSearchChange()" (click)="$event.stopPropagation()"
+                            name="branchSearch">
+                          </div>
+                          <!-- Items list -->
+                          @for (branch of branches; track branch) {
+                            <div class="custom-dropdown-item" (click)="selectBranch(branch)">
+                              {{branch.code}} - {{branch.name}}
+                            </div>
+                          }
+                          <!-- Loading skeleton -->
+                          @if (branchesLoading) {
+                            <div class="custom-dropdown-item disabled">
+                              <div class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="input">
-        <label for="timeLmit">Time Limit</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="number" id="timeLmit" class="form-control custom-date-input" placeholder="Number of Days"
-            [(ngModel)]="timeLimit" name="timeLimit" (input)="onTimeLimitChange()" />
-        </div>
-      </div>
+            <div class="input">
+              <label for="timeLmit">Time Limit</label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input type="number" id="timeLmit" class="form-control custom-date-input" placeholder="Number of Days"
+                  [(ngModel)]="timeLimit" name="timeLimit" (input)="onTimeLimitChange()" />
+                </div>
+              </div>
 
-      <div class="input">
-        <label for="cvLmit">CV Limit</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="number" id="cvLmit" class="form-control custom-date-input" placeholder="Number of CVs"
-            [(ngModel)]="cvLimit" name="cvLimit" (input)="onCvLimitChange()" />
-        </div>
-      </div>
+              <div class="input">
+                <label for="cvLmit">CV Limit</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <input type="number" id="cvLmit" class="form-control custom-date-input" placeholder="Number of CVs"
+                    [(ngModel)]="cvLimit" name="cvLimit" (input)="onCvLimitChange()" />
+                  </div>
+                </div>
 
 
-    </form>
+              </form>
 
-    <!-- next button -->
-    <div class="btn-fixed">
-      <button class="btn btn-lg btn-primary"
-        [routerLink]="isUpdateMode ? ['/job-openings/update-job-openings', jobId, 'required-details'] : '/job-openings/create-job-openings/required-details'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-        </svg>
-        <span>Next (1/3)</span>
-      </button>
-    </div>
-  </div>
-</div>
+              <!-- next button -->
+              <div class="btn-fixed">
+                <button class="btn btn-lg btn-primary"
+                  [routerLink]="isUpdateMode ? ['/job-openings/update-job-openings', jobId, 'required-details'] : '/job-openings/create-job-openings/required-details'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                    </svg>
+                    <span>Next (1/3)</span>
+                  </button>
+                </div>
+              </div>
+            </div>

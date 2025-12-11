@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-company-documents',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, TableComponent],
+  imports: [RouterModule, PageHeaderComponent, TableComponent],
   templateUrl: './company-documents.component.html',
   styleUrls: ['./company-documents.component.css']
 })

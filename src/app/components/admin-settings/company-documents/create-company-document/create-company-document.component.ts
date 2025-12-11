@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-create-company-document',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PageHeaderComponent],
+  imports: [ReactiveFormsModule, FormsModule, PageHeaderComponent],
   templateUrl: './create-company-document.component.html',
   styleUrls: ['./create-company-document.component.css']
 })

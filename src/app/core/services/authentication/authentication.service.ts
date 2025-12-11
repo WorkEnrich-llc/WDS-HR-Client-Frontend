@@ -118,6 +118,13 @@ export class AuthenticationService {
     return this._HttpClient.post(url, formData, this.buildHttpOptions(this.buildHeaders()));
   }
 
+  // session login
+  sessionLogin(requestData: any): Observable<any> {
+    const url = `${this.apiBaseUrl}main/1_0_2/authentication/S-L`;
+    const headers = this.buildHeaders(false, false, true);
+    return this._HttpClient.post(url, requestData, this.buildHttpOptions(headers));
+  }
+
   // logout
   logout(): Observable<any> {
     const url = `${this.apiBaseUrl}main/1_0_2/authentication/logout`;

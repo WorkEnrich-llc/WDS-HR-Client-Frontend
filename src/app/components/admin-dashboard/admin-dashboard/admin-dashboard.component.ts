@@ -2,7 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartOptions, ChartType } from 'chart.js';
-import { CommonModule } from '@angular/common';
+
 import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-dashboard.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
@@ -10,7 +10,7 @@ import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [PageHeaderComponent, BaseChartDirective, CommonModule],
+  imports: [PageHeaderComponent, BaseChartDirective],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None

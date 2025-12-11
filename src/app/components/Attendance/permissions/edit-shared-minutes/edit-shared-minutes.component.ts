@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-shared-minutes',
-  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './edit-shared-minutes.component.html',
   styleUrl: './edit-shared-minutes.component.css'
 })

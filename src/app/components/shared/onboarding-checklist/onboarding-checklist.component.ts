@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, OnInit } from '@angular/core';
 
 export interface OnboardingListItem {
@@ -9,7 +9,7 @@ export interface OnboardingListItem {
 @Component({
   selector: 'app-onboarding-checklist',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './onboarding-checklist.component.html',
   styleUrl: './onboarding-checklist.component.css'
 })

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -14,7 +14,7 @@ import { UserStatus } from '../../../core/enums';
 
 @Component({
     selector: 'app-integrations',
-    imports: [CommonModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, PopupComponent, FormsModule, ReactiveFormsModule, RouterLink],
+    imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, PopupComponent, FormsModule, ReactiveFormsModule, RouterLink],
     templateUrl: './integrations.component.html',
     styleUrls: ['./integrations.component.css'],
     encapsulation:ViewEncapsulation.None

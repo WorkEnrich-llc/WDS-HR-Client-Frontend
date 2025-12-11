@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-goal',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, ReactiveFormsModule, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './edit-goal.component.html',
   styleUrl: './edit-goal.component.css'

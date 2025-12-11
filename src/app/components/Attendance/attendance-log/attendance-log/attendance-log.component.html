@@ -8,564 +8,589 @@
 
 <!-- start page content -->
 <div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <!-- start search and filter -->
-        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
-            <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+  <div class="content-box d-flex flex-column gap-3">
+    <!-- start search and filter -->
+    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
 
-                <!-- Search input -->
-                <div class="form-outline w-75">
-                    <input type="text" class="form-control" placeholder="Search for an employee"
-                        [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <circle cx="11.5" cy="11.5" r="9.5" />
-                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
-                        </g>
-                    </svg>
-                </div>
+        <!-- Search input -->
+        <div class="form-outline w-75">
+          <input type="text" class="form-control" placeholder="Search for an employee"
+            [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+              </g>
+            </svg>
+          </div>
 
-                <!-- Filter button -->
-                <button class="btn  btn-outline-primary custom-btn" (click)="overlay.openOverlay()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="none" stroke-width="1.5"
-                            d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
-                    </svg>
-                    <span>Filter</span>
-                </button>
+          <!-- Filter button -->
+          <button class="btn  btn-outline-primary custom-btn" (click)="overlay.openOverlay()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="none" stroke-width="1.5"
+                d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+              </svg>
+              <span>Filter</span>
+            </button>
 
-            </div>
+          </div>
 
-            <div class="d-flex align-items-center justify-content-end gap-2 w-100 w-lg-50">
-                <!-- routerLink="/attendance/attendance-log/manage-attendance" -->
-                <!-- <button class="btn btn-lg btn-primary" (click)="navigateToNewLog()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                        </g>
-                    </svg>
-                    <span>New Log</span>
-                </button> -->
+          <div class="d-flex align-items-center justify-content-end gap-2 w-100 w-lg-50">
+            <!-- routerLink="/attendance/attendance-log/manage-attendance" -->
+            <!-- <button class="btn btn-lg btn-primary" (click)="navigateToNewLog()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+              </g>
+            </svg>
+            <span>New Log</span>
+          </button> -->
 
-            </div>
+        </div>
 
-            <!-- last days -->
-            <!-- <div class="date-slider">
-                <button class="btn btn-outline-dark border-0" (click)="prevWeek()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="currentColor" fill-rule="evenodd"
-                            d="M15.488 4.43a.75.75 0 0 1 .081 1.058L9.988 12l5.581 6.512a.75.75 0 1 1-1.138.976l-6-7a.75.75 0 0 1 0-.976l6-7a.75.75 0 0 1 1.057-.081"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
+        <!-- last days -->
+        <!-- <div class="date-slider">
+        <button class="btn btn-outline-dark border-0" (click)="prevWeek()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="currentColor" fill-rule="evenodd"
+              d="M15.488 4.43a.75.75 0 0 1 .081 1.058L9.988 12l5.581 6.512a.75.75 0 1 1-1.138.976l-6-7a.75.75 0 0 1 0-.976l6-7a.75.75 0 0 1 1.057-.081"
+              clip-rule="evenodd" />
+            </svg>
+          </button>
 
-                <div class="dates">
-                    @for (day of days; track trackByDate($index, day)) {
-                    <div class="date-box" [class.today]="day.isToday" [class.selected]="isSelected(day.date)"
-                        [class.disabled]="day.date > today" (click)="selectDate(day.date)">
+          <div class="dates">
+            @for (day of days; track trackByDate($index, day)) {
+              <div class="date-box" [class.today]="day.isToday" [class.selected]="isSelected(day.date)"
+                [class.disabled]="day.date > today" (click)="selectDate(day.date)">
 
-                        <div class="day-label">{{ day.isToday ? 'Today' : day.label }}</div>
-                        <div class="day-number">{{ day.date | date: 'd MMM' }}</div>
+                <div class="day-label">{{ day.isToday ? 'Today' : day.label }}</div>
+                <div class="day-number">{{ day.date | date: 'd MMM' }}</div>
 
-                    </div>
-                    }
-                </div>
+              </div>
+            }
+          </div>
 
 
 
-                <button class="btn btn-outline-dark border-0" (click)="nextWeek()" [disabled]="!canGoNext()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="currentColor" fill-rule="evenodd"
-                            d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div> -->
+          <button class="btn btn-outline-dark border-0" (click)="nextWeek()" [disabled]="!canGoNext()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
+                clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div> -->
 
         </div>
 
         <!-- last days -->
         <div class="date-slider">
-            <button class="btn btn-outline-dark border-0" (click)="prevWeek()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M15.488 4.43a.75.75 0 0 1 .081 1.058L9.988 12l5.581 6.512a.75.75 0 1 1-1.138.976l-6-7a.75.75 0 0 1 0-.976l6-7a.75.75 0 0 1 1.057-.081"
-                        clip-rule="evenodd" />
-                </svg>
+          <button class="btn btn-outline-dark border-0" (click)="prevWeek()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M15.488 4.43a.75.75 0 0 1 .081 1.058L9.988 12l5.581 6.512a.75.75 0 1 1-1.138.976l-6-7a.75.75 0 0 1 0-.976l6-7a.75.75 0 0 1 1.057-.081"
+                clip-rule="evenodd" />
+              </svg>
             </button>
 
             <div class="dates">
-                @for (day of days; track trackByDate($index, day)) {
+              @for (day of days; track trackByDate($index, day)) {
                 <div class="date-box" [class.today]="day.isToday" [class.selected]="isSelected(day.date)"
-                    [class.disabled]="day.date > today" (click)="selectDate(day.date)">
+                  [class.disabled]="day.date > today" (click)="selectDate(day.date)">
 
-                    <div class="day-label">{{ day.isToday ? 'Today' : day.label }}</div>
-                    <div class="day-number">{{ day.date | date: 'd MMM' }}</div>
+                  <div class="day-label">{{ day.isToday ? 'Today' : day.label }}</div>
+                  <div class="day-number">{{ day.date | date: 'd MMM' }}</div>
 
                 </div>
-                }
+              }
             </div>
 
 
 
             <button class="btn btn-outline-dark border-0" (click)="nextWeek()" [disabled]="!canGoNext()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
-                        clip-rule="evenodd" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057"
+                  clip-rule="evenodd" />
                 </svg>
-            </button>
-        </div>
+              </button>
+            </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
                 <thead #tableHeader>
-                    <tr>
-                        <th (click)="sortBy()" style="cursor: pointer;" class="width-fix" [ngStyle]="{ width: columnWidths[0] }">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>Employee</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="20"
-                                    height="20" viewBox="0 0 24 24">
-                                    <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
-                                        <path d="M4 8h9m-7 5h7m-5 5h5" />
-                                        <path stroke-linejoin="round" d="M17 20V4l3 4" />
-                                    </g>
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="20"
-                                    height="20" viewBox="0 0 24 24">
-                                    <path fill="#DDE3EB" fill-rule="evenodd"
-                                        d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </th>
+                  <tr>
+                    <th (click)="sortBy()" style="cursor: pointer;" class="width-fix" [ngStyle]="{ width: columnWidths[0] }">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <span>Employee</span>
+                        @if (sortDirection === 'desc') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                            height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                              <path d="M4 8h9m-7 5h7m-5 5h5" />
+                              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                            </g>
+                          </svg>
+                        }
+                        @if (sortDirection === 'asc') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                            height="20" viewBox="0 0 24 24">
+                            <path fill="#DDE3EB" fill-rule="evenodd"
+                              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                              clip-rule="evenodd" />
+                            </svg>
+                          }
+                        </div>
+                      </th>
 
-                        <th>Date</th>
-                        <th>Day Type</th>
-                        <th>In</th>
-                        <th>Out</th>
-                        <th style="width: 150px;">Working</th>
-                        <th>Status</th>
-                        <th>Deduction</th>
-                        <th class="text-end">Actions</th>
+                      <th>Date</th>
+                      <th>Day Type</th>
+                      <th>In</th>
+                      <th>Out</th>
+                      <th style="width: 150px;">Working</th>
+                      <th>Status</th>
+                      <th>Deduction</th>
+                      <th class="text-end">Actions</th>
                     </tr>
-                </thead>
+                  </thead>
 
-                <tbody>
+                  <tbody>
                     @if(loadData){
-                    <ng-container>
-                        <tr *ngFor="let i of skeletonRows">
-                            <td *ngFor="let col of columnWidths" class="px-2 py-2">
+                      <ng-container>
+                        @for (i of skeletonRows; track i) {
+                          <tr>
+                            @for (col of columnWidths; track col) {
+                              <td class="px-2 py-2">
                                 <div class="skeleton-cell w-100" [ngStyle]="{ width: col, height: '30px' }"></div>
-                            </td>
-                        </tr>
-                    </ng-container>
+                              </td>
+                            }
+                          </tr>
+                        }
+                      </ng-container>
 
                     }
 
                     @if(!loadData){
-                    <ng-container *ngFor="let emp of employees | paginate: { 
-            id: 'attendance-pagination', 
-            itemsPerPage: itemsPerPage, 
-            currentPage: currentPage, 
-            totalItems: totalItems 
-            }; let i = index">
+                      @for (emp of employees | paginate: {
+                        id: 'attendance-pagination',
+                        itemsPerPage: itemsPerPage,
+                        currentPage: currentPage,
+                        totalItems: totalItems
+                        }; track emp; let i = $index) {
                         <tr [ngClass]="{ 'expanded-row': !emp.collapsed }">
-                            <td colspan="9" class="px-0 td">
-                                <div class="d-flex align-items-center main-row">
-
-                                    <!-- Main Employee Info -->
-                                    <div class="d-flex align-items-center name-cell"
-                                        [ngStyle]="{ width: columnWidths[0] }">
-                                        @if(emp.list_items?.length > 0){
-                                        <div style="width:40px">
-                                            <button class="btn btn-sm" (click)="toggleCollapse(emp)">
-                                                <svg *ngIf="emp.collapsed" xmlns="http://www.w3.org/2000/svg" width="20"
-                                                    height="20" viewBox="0 0 24 24">
-                                                    <path fill="currentColor"
-                                                        d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057" />
-                                                </svg>
-                                                <svg *ngIf="!emp.collapsed" xmlns="http://www.w3.org/2000/svg"
-                                                    width="20" height="20" viewBox="0 0 24 24">
-                                                    <path fill="currentColor"
-                                                        d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057" />
-                                                </svg>
-                                            </button>
-                                        </div>
+                          <td colspan="9" class="px-0 td">
+                            <div class="d-flex align-items-center main-row">
+                              <!-- Main Employee Info -->
+                              <div class="d-flex align-items-center name-cell"
+                                [ngStyle]="{ width: columnWidths[0] }">
+                                @if(emp.list_items?.length > 0){
+                                  <div style="width:40px">
+                                    <button class="btn btn-sm" (click)="toggleCollapse(emp)">
+                                      @if (emp.collapsed) {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                          height="20" viewBox="0 0 24 24">
+                                          <path fill="currentColor"
+                                            d="M8.512 4.43a.75.75 0 0 1 1.057.082l6 7a.75.75 0 0 1 0 .976l-6 7a.75.75 0 0 1-1.138-.976L14.012 12L8.431 5.488a.75.75 0 0 1 .08-1.057" />
+                                          </svg>
                                         }
-
-                                        <div class="d-flex flex-column ps-1">
-                                            <span class="d-block text-gray-sm">{{
-                                                emp?.employee?.id?.toString().padStart(4,
-                                                '0') }}</span>
-                                            <span class="d-block text-truncate" style="max-width: 220px;">
-                                                {{ emp?.employee?.name }}
-                                            </span>
-                                        </div>
+                                        @if (!emp.collapsed) {
+                                          <svg xmlns="http://www.w3.org/2000/svg"
+                                            width="20" height="20" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                              d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057" />
+                                            </svg>
+                                          }
+                                        </button>
+                                      </div>
+                                    }
+                                    <div class="d-flex flex-column ps-1">
+                                      <span class="d-block text-gray-sm">{{
+                                        emp?.employee?.id?.toString().padStart(4,
+                                      '0') }}</span>
+                                      <span class="d-block text-truncate" style="max-width: 220px;">
+                                        {{ emp?.employee?.name }}
+                                      </span>
                                     </div>
-
-                                    <div [ngStyle]="{ width: columnWidths[1] }">{{ emp.date | date:'dd/MM/yyyy' }}</div>
-                                    <div [ngStyle]="{ width: columnWidths[2] }">
-                                        @if (emp.is_working_day) {
-                                        <span>Working Day</span>
-                                        }@else{
-                                        <span>Day Off</span>
-                                        }
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[1] }">{{ emp.date | date:'dd/MM/yyyy' }}</div>
+                                  <div [ngStyle]="{ width: columnWidths[2] }">
+                                    @if (emp.is_working_day) {
+                                      <span>Working Day</span>
+                                      }@else{
+                                      <span>Day Off</span>
+                                    }
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[3] }">
+                                    <div class="d-flex flex-column">
+                                      <small class="d-block text-sm text-nowrap">{{
+                                      formatTimeTo12Hour(emp?.scheduled?.check_id)}}</small>
+                                      <span class="d-block text-nowrap">
+                                        {{ getFirstCheckIn(emp) }}
+                                      </span>
                                     </div>
-                                    <div [ngStyle]="{ width: columnWidths[3] }">
-                                        <div class="d-flex flex-column">
-                                            <small class="d-block text-sm text-nowrap">{{
-                                                formatTimeTo12Hour(emp?.scheduled?.check_id)}}</small>
-                                            <span class="d-block text-nowrap">
-                                                {{ getFirstCheckIn(emp) }}
-                                            </span>
-                                        </div>
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[4] }">
+                                    <div class="d-flex flex-column">
+                                      <small class="d-block text-sm text-nowrap">{{
+                                      formatTimeTo12Hour(emp?.scheduled?.check_out)}}</small>
+                                      <span class="d-block text-nowrap">
+                                        {{ getLastCheckOut(emp) }}
+                                      </span>
                                     </div>
-                                    <div [ngStyle]="{ width: columnWidths[4] }">
-                                        <div class="d-flex flex-column">
-                                            <small class="d-block text-sm text-nowrap">{{
-                                                formatTimeTo12Hour(emp?.scheduled?.check_out)}}</small>
-                                            <span class="d-block text-nowrap">
-                                                {{ getLastCheckOut(emp) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div [ngStyle]="{ width: columnWidths[5] }"
-                                        class="d-flex align-items-center justify-content-between gap-4">
-                                        <span>{{ emp?.work_hours }}</span>
-                                        @if(emp?.missing_hrs) {
-                                        <div class="d-flex flex-column">
-                                            <small class="d-block text-sm text-danger text-nowrap">Missing</small>
-                                            <span class="d-block text-nowrap text-danger">
-                                                {{ emp?.missing_hrs }}
-                                            </span>
-                                        </div>
-                                        }
-                                    </div>
-                                    <div [ngStyle]="{ width: columnWidths[6] }">
-                                        <span class="text-nowrap"
-                                            [ngClass]="getStatusClass(getMainRecord(emp.list_items)?.status)">
-                                            {{ getMainRecord(emp.list_items)?.status }}
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[5] }"
+                                    class="d-flex align-items-center justify-content-between gap-4">
+                                    <span>{{ emp?.work_hours }}</span>
+                                    @if(emp?.missing_hrs) {
+                                      <div class="d-flex flex-column">
+                                        <small class="d-block text-sm text-danger text-nowrap">Missing</small>
+                                        <span class="d-block text-nowrap text-danger">
+                                          {{ emp?.missing_hrs }}
                                         </span>
-
-                                    </div>
-                                    <div class="text-danger" [ngStyle]="{ width: columnWidths[7] }">{{ emp.deduction }}
-                                    </div>
-                                    <div [ngStyle]="{ width: columnWidths[8] }"></div>
+                                      </div>
+                                    }
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[6] }">
+                                    <span class="text-nowrap"
+                                      [ngClass]="getStatusClass(getMainRecord(emp.list_items)?.status)">
+                                      {{ getMainRecord(emp.list_items)?.status }}
+                                    </span>
+                                  </div>
+                                  <div class="text-danger" [ngStyle]="{ width: columnWidths[7] }">{{ emp.deduction }}
+                                  </div>
+                                  <div [ngStyle]="{ width: columnWidths[8] }"></div>
                                 </div>
-
                                 <!-- Collapsed section -->
-                                <div *ngIf="!emp.collapsed">
-                                    <div class="d-flex align-items-center inner-row" *ngFor="let log of emp.list_items">
+                                @if (!emp.collapsed) {
+                                  <div>
+                                    @for (log of emp.list_items; track log) {
+                                      <div class="d-flex align-items-center inner-row">
                                         <div class="d-flex align-items-center" [ngStyle]="{ width: columnWidths[0] }">
-                                            <div style="width:40px"></div>
+                                          <div style="width:40px"></div>
                                         </div>
-
                                         <div [ngStyle]="{ width: columnWidths[1] }"></div>
                                         <div [ngStyle]="{ width: columnWidths[2] }"></div>
                                         <div class="text-nowrap" [ngStyle]="{ width: columnWidths[3] }">
-                                            {{ getFormattedCheckIn(log) }}
+                                          {{ getFormattedCheckIn(log) }}
                                         </div>
-
                                         <div class="text-nowrap" [ngStyle]="{ width: columnWidths[4] }">
-                                            {{ getFormattedCheckOut(log) }}
+                                          {{ getFormattedCheckOut(log) }}
                                         </div>
-
                                         <div [ngStyle]="{ width: columnWidths[5] }"
-                                            class="d-flex align-items-center justify-content-between gap-4">
-                                            <span>{{ log?.hours_object?.work_hours }}</span>
-                                            @if(log?.hours_object?.missing_hrs !== '--') {
+                                          class="d-flex align-items-center justify-content-between gap-4">
+                                          <span>{{ log?.hours_object?.work_hours }}</span>
+                                          @if(log?.hours_object?.missing_hrs !== '--') {
                                             <div class="d-flex flex-column">
-                                                <small class="d-block text-sm text-danger text-nowrap">Missing</small>
-                                                <span class="d-block text-nowrap text-danger">
-                                                    {{ log?.hours_object?.missing_hrs }}
-                                                </span>
+                                              <small class="d-block text-sm text-danger text-nowrap">Missing</small>
+                                              <span class="d-block text-nowrap text-danger">
+                                                {{ log?.hours_object?.missing_hrs }}
+                                              </span>
                                             </div>
-                                            }
+                                          }
                                         </div>
                                         <div [ngStyle]="{ width: columnWidths[6] }">
-                                            <small class="text-nowrap" [ngClass]="getStatusClass( log.status)">
-                                                {{ log.status }}
-                                            </small>
+                                          <small class="text-nowrap" [ngClass]="getStatusClass( log.status)">
+                                            {{ log.status }}
+                                          </small>
                                         </div>
                                         <div class="text-danger" [ngStyle]="{ width: columnWidths[7] }">{{
-                                            log?.hours_object?.deduction }}
+                                          log?.hours_object?.deduction }}
                                         </div>
                                         <div [ngStyle]="{ width: columnWidths[8] }" class="text-end">
-                                            @if(log.canceled){
+                                          @if(log.canceled){
                                             <span class="badge-danger">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                    viewBox="0 0 24 24">
-                                                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                                        <circle cx="12" cy="12" r="10" />
-                                                        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                                                    </g>
-                                                </svg>
-                                                <span>Cancelled</span>
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24">
+                                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                                  <circle cx="12" cy="12" r="10" />
+                                                  <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                                </g>
+                                              </svg>
+                                              <span>Cancelled</span>
                                             </span>
                                             }@else{
-                                            <div *ngIf="!log.working_details?.canceled"
+                                            @if (!log.working_details?.canceled) {
+                                              <div
                                                 class="d-flex justify-content-end gap-4 align-items-center w-100">
                                                 <!-- <a class="view-btn" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Edit" [routerLink]="['/attendance/manage-attendance']"
-                                                    [state]="{ attendance: log }">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24">
-                                                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                                            <path stroke-linecap="round"
-                                                          d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-                                                            <path
-                                                                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-                                                        </g>
+                                                title="Edit" [routerLink]="['/attendance/manage-attendance']"
+                                                [state]="{ attendance: log }">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                  viewBox="0 0 24 24">
+                                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                                    <path stroke-linecap="round"
+                                                      d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                                                      <path
+                                                        d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+                                                      </g>
                                                     </svg>
+                                                  </a> -->
+                                                  <!-- <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top"
+                                                  title="Cancel" (click)="openModal(log, emp)">
+                                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24">
+                                                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                                      <circle cx="12" cy="12" r="10" />
+                                                      <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                                    </g>
+                                                  </svg>
                                                 </a> -->
-                                                <!-- <a class="remove-btn " data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Cancel" (click)="openModal(log, emp)">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24">
-                                                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                                            <circle cx="12" cy="12" r="10" />
-                                                            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                                                        </g>
-                                                    </svg>
-                                                </a> -->
-                                            </div>
+                                              </div>
                                             }
-
+                                          }
                                         </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-container>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </td>
+                            </tr>
+                          }
 
-                    <tr *ngIf="employees.length === 0">
-                        <td colspan="9" class="py-4">
-                            @if (searchTerm.trim()) {
-                            No Attendance Log match your search and filter.
-                            } @else {
-                            No Attendance Log Added Yet.
-                            }
-                        </td>
-                    </tr>
-                    }
-
-
-                </tbody>
-
-            </table>
-            <!-- Pagination Section -->
-            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mt-3"
-                *ngIf="employees.length > 0">
-
-                <!-- Left side: text + items per page -->
-                <div class="d-flex align-items-center gap-2">
-                    <div class="text-gray-sm pe-3">
-                        Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–
-                        {{
-                        (currentPage * itemsPerPage) > totalItems
-                        ? totalItems
-                        : (currentPage * itemsPerPage)
-                        }}
-                        from {{ totalItems }}
-                    </div>
-
-                    <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
-                        View
-                        <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage"
-                            (ngModelChange)="onItemsPerPageChange($event)">
-                            <option *ngFor="let option of [5, 10, 25, 50]" [value]="option">
-                                {{ option }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Right side: pagination controls -->
-                <div class="d-flex align-items-center justify-content-center gap-2 mt-3 mt-lg-0">
-                    <button class="prev p-0 btn border-0" [disabled]="currentPage === 1"
-                        (click)="onPageChange(currentPage - 1)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="1.5" d="m15 5l-6 7l6 7" />
-                        </svg>
-                    </button>
-
-                    <pagination-controls id="attendance-pagination" (pageChange)="onPageChange($event)">
-                    </pagination-controls>
-
-
-                    <button class="next p-0 btn border-0" [disabled]="currentPage * itemsPerPage >= totalItems"
-                        (click)="onPageChange(currentPage + 1)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="1.5" d="m9 5l6 7l-6 7" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-
-    </div>
-</div>
-
-
-
-
-<!-- filter popup -->
-<app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3" (ngSubmit)="applyFilters()">
-        <div class="input">
-            <label for="department">Departments</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select formControlName="department_id" name="department" id="department" class="form-select">
-                        <option value="" selected disabled hidden>All</option>
-                        @for (dept of (departmentList$ | async); track dept.id) {
-                        <option [value]="dept.id">{{dept.name}}</option>
+                          @if (employees.length === 0) {
+                            <tr>
+                              <td colspan="9" class="py-4">
+                                @if (searchTerm.trim()) {
+                                  No Attendance Log match your search and filter.
+                                } @else {
+                                  No Attendance Log Added Yet.
+                                }
+                              </td>
+                            </tr>
+                          }
                         }
-                    </select>
-                </div>
-                <svg *ngIf="!filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('department_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
-        </div>
 
-        <div class="input">
-            <label for="Offenses">Offenses</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select formControlName="offenses" name="Offenses" id="Offenses" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option value="late_arrive">Late Arrive</option>
-                        <option value="early_leave">Early Leave</option>
-                        <option value="no_show">No Show</option>
-                    </select>
-                </div>
-                <svg *ngIf="!filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('offenses')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
-        </div>
 
-        <div class="input">
-            <label for="dateRange">Specific date range</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input ngxDaterangepickerMd formControlName="from_date" class="form-control"
-                            placeholder="Select date range" [showDropdowns]="true" [autoApply]="true"
-                            [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" [maxDate]="todayDayjs" />
+                      </tbody>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <path stroke-linecap="round"
-                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                            <circle cx="18" cy="18" r="3" />
-                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                        </g>
-                    </svg>
-                </div>
-                <svg *ngIf="!hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="hasSelectedDateRange" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
-        </div>
+                    </table>
+                    <!-- Pagination Section -->
+                    @if (employees.length > 0) {
+                      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mt-3"
+                        >
+                        <!-- Left side: text + items per page -->
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="text-gray-sm pe-3">
+                            Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–
+                            {{
+                            (currentPage * itemsPerPage) > totalItems
+                            ? totalItems
+                            : (currentPage * itemsPerPage)
+                            }}
+                            from {{ totalItems }}
+                          </div>
+                          <div class="view-select d-flex align-items-center gap-2 custom-border-padding">
+                            View
+                            <select class="form-select form-select-md w-auto" [(ngModel)]="itemsPerPage"
+                              (ngModelChange)="onItemsPerPageChange($event)">
+                              @for (option of [5, 10, 25, 50]; track option) {
+                                <option [value]="option">
+                                  {{ option }}
+                                </option>
+                              }
+                            </select>
+                          </div>
+                        </div>
+                        <!-- Right side: pagination controls -->
+                        <div class="d-flex align-items-center justify-content-center gap-2 mt-3 mt-lg-0">
+                          <button class="prev p-0 btn border-0" [disabled]="currentPage === 1"
+                            (click)="onPageChange(currentPage - 1)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5" d="m15 5l-6 7l6 7" />
+                              </svg>
+                            </button>
+                            <pagination-controls id="attendance-pagination" (pageChange)="onPageChange($event)">
+                            </pagination-controls>
+                            <button class="next p-0 btn border-0" [disabled]="currentPage * itemsPerPage >= totalItems"
+                              (click)="onPageChange(currentPage + 1)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="1.5" d="m9 5l6 7l-6 7" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        }
 
-        <div class="input">
-            <label for="day-type">Day type</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select formControlName="day_type" name="day-type" id="day-type" class="form-select">
-                        <option value="" selected disabled hidden>Any</option>
-                        <option value="workday">Workday</option>
-                        <option value="weekend">Weekend</option>
-                        <option value="holiday">Holiday</option>
-                    </select>
-                </div>
-                <svg *ngIf="!filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('day_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
-        </div>
+                      </div>
+
+
+                    </div>
+                  </div>
 
 
 
 
+                  <!-- filter popup -->
+                  <app-overlay-filter-box #filterBox [title]="'Filters'">
+                    <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3" (ngSubmit)="applyFilters()">
+                      <div class="input">
+                        <label for="department">Departments</label>
+                        <div class="d-flex align-items-center gap-4">
+                          <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <select formControlName="department_id" name="department" id="department" class="form-select">
+                              <option value="" selected disabled hidden>All</option>
+                              @for (dept of (departmentList$ | async); track dept.id) {
+                                <option [value]="dept.id">{{dept.name}}</option>
+                              }
+                            </select>
+                          </div>
+                          @if (!filterForm.get('department_id')?.value) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                              height="24" viewBox="0 0 24 24">
+                              <path fill="#e04f5f"
+                                d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                                <path fill="#e04f5f" fill-rule="evenodd"
+                                  d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                  clip-rule="evenodd" />
+                                </svg>
+                              }
+                              @if (filterForm.get('department_id')?.value) {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                  height="24" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                  </g>
+                                </svg>
+                              }
+                            </div>
+                          </div>
 
-        <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-lg btn-primary w-100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Apply Filter</span>
-            </button>
-            <a type="button" class="text-danger-dark fw-bold w-100 text-center" (click)="resetFilterForm()">
-                <span>Clear Filters</span>
-            </a>
-        </div>
-    </form>
+                          <div class="input">
+                            <label for="Offenses">Offenses</label>
+                            <div class="d-flex align-items-center gap-4">
+                              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <select formControlName="offenses" name="Offenses" id="Offenses" class="form-select">
+                                  <option value="" selected disabled hidden>Select</option>
+                                  <option value="late_arrive">Late Arrive</option>
+                                  <option value="early_leave">Early Leave</option>
+                                  <option value="no_show">No Show</option>
+                                </select>
+                              </div>
+                              @if (!filterForm.get('offenses')?.value) {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                  height="24" viewBox="0 0 24 24">
+                                  <path fill="#e04f5f"
+                                    d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                                    <path fill="#e04f5f" fill-rule="evenodd"
+                                      d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                      clip-rule="evenodd" />
+                                    </svg>
+                                  }
+                                  @if (filterForm.get('offenses')?.value) {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                      viewBox="0 0 24 24">
+                                      <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                      </g>
+                                    </svg>
+                                  }
+                                </div>
+                              </div>
+
+                              <div class="input">
+                                <label for="dateRange">Specific date range</label>
+                                <div class="d-flex align-items-center gap-4">
+                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                    <input ngxDaterangepickerMd formControlName="from_date" class="form-control"
+                                      placeholder="Select date range" [showDropdowns]="true" [autoApply]="true"
+                                      [linkedCalendars]="false" [locale]="{ format: 'YYYY-MM-DD' }" [maxDate]="todayDayjs" />
+
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                        <g fill="none" stroke-width="1.5">
+                                          <path stroke-linecap="round"
+                                            d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                                            <circle cx="18" cy="18" r="3" />
+                                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                                          </g>
+                                        </svg>
+                                      </div>
+                                      @if (!hasSelectedDateRange) {
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                          viewBox="0 0 24 24">
+                                          <path fill="#e04f5f"
+                                            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                                            <path fill="#e04f5f" fill-rule="evenodd"
+                                              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                              clip-rule="evenodd" />
+                                            </svg>
+                                          }
+                                          @if (hasSelectedDateRange) {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                              viewBox="0 0 24 24">
+                                              <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                              </g>
+                                            </svg>
+                                          }
+                                        </div>
+                                      </div>
+
+                                      <div class="input">
+                                        <label for="day-type">Day type</label>
+                                        <div class="d-flex align-items-center gap-4">
+                                          <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                            <select formControlName="day_type" name="day-type" id="day-type" class="form-select">
+                                              <option value="" selected disabled hidden>Any</option>
+                                              <option value="workday">Workday</option>
+                                              <option value="weekend">Weekend</option>
+                                              <option value="holiday">Holiday</option>
+                                            </select>
+                                          </div>
+                                          @if (!filterForm.get('day_type')?.value) {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                              height="24" viewBox="0 0 24 24">
+                                              <path fill="#e04f5f"
+                                                d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                                                <path fill="#e04f5f" fill-rule="evenodd"
+                                                  d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                                                  clip-rule="evenodd" />
+                                                </svg>
+                                              }
+                                              @if (filterForm.get('day_type')?.value) {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                  viewBox="0 0 24 24">
+                                                  <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                                  </g>
+                                                </svg>
+                                              }
+                                            </div>
+                                          </div>
 
 
 
-</app-overlay-filter-box>
 
 
-<!-- Discard popup  -->
+                                          <div class="d-flex align-items-center gap-3">
+                                            <button type="submit" class="btn btn-lg btn-primary w-100">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <g fill="none" stroke-width="1.5">
+                                                  <circle cx="12" cy="12" r="10" />
+                                                  <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                                </g>
+                                              </svg>
+                                              <span>Apply Filter</span>
+                                            </button>
+                                            <a type="button" class="text-danger-dark fw-bold w-100 text-center" (click)="resetFilterForm()">
+                                              <span>Clear Filters</span>
+                                            </a>
+                                          </div>
+                                        </form>
+
+
+
+                                      </app-overlay-filter-box>
+
+
+                                      <!-- Discard popup  -->
 <app-popup [title]="'Cancel Attendance Log'" [paragraph1]="attendanceToCancel
     ? 'Are you sure you want to cancel the attendance log for ' 
       + attendanceToCancel.employeeName
@@ -576,14 +601,14 @@
       + formatTimeTo12Hour(attendanceToCancel.times_object?.actual_check_out)
       + ')?'
     : ''" [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
-        @if (isLoading) {
-        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-        }
-        Confirm
-    </button>
+                                        <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmAction()">
+                                          @if (isLoading) {
+                                            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                          }
+                                          Confirm
+                                        </button>
 
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-        Cancel
-    </button>
-</app-popup>
+                                        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+                                          Cancel
+                                        </button>
+                                      </app-popup>

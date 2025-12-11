@@ -16,278 +16,292 @@
         <div data-mdb-input-init class="form-outline w-75">
           <input type="text" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
             placeholder="Search for an employee" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <circle cx="11.5" cy="11.5" r="9.5" />
-              <path stroke-linecap="round" d="M18.5 18.5L22 22" />
-            </g>
-          </svg>
-        </div>
-
-        <!-- Filter button -->
-        <button class="btn btn-lg btn-outline-primary" (click)="filterBox.openOverlay()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-            <path fill="none" stroke-width="1.5"
-              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
-          </svg>
-          <span>Filter</span>
-        </button>
-
-      </div>
-
-    </div>
-    <!-- start Table -->
-    <app-table [data]="leaveBalances" [isLoading]="loadData" [columnsCount]="6" [totalItems]="totalItems"
-      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="leaveBalanceTableHeader"
-      [rowTemplate]="leaveBalanceTableRow" [emptyTemplate]="noLeaveBalance"></app-table>
-
-    <!-- Table Header Template -->
-    <ng-template #leaveBalanceTableHeader>
-      <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
-        <div class="d-flex align-items-center justify-content-between">
-          <span>Employee</span>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
-            viewBox="0 0 24 24">
-            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
-              <path d="M4 8h9m-7 5h7m-5 5h5" />
-              <path stroke-linejoin="round" d="M17 20V4l3 4" />
-            </g>
-          </svg>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
-            viewBox="0 0 24 24">
-            <path fill="#DDE3EB" fill-rule="evenodd"
-              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-      </th>
-      <th>Leave Type</th>
-      <th class="text-end">Total</th>
-      <th class="text-end">Used</th>
-      <th class="text-end">Available</th>
-      <th>Actions</th>
-    </ng-template>
-
-    <!-- Table Row Template -->
-    <ng-template #leaveBalanceTableRow let-balance let-i="index">
-      <td class="width-fix">
-        <span class="d-block text-gray-sm">{{ balance.employee.id.toString().padStart(4, '0') }}</span>
-        <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ balance.employee.name }}
-        </span>
-      </td>
-      <td>
-        <span class="d-block text-gray-sm">{{ balance.leave.id.toString().padStart(4, '0') }}</span>
-        <span class="d-block text-truncate" style="max-width: 300px;">
-          {{ balance.leave.name }}
-        </span>
-      </td>
-      <td class="text-end">
-        {{ balance.total }}
-      </td>
-      <td class="text-end">
-        {{ balance.used }}
-      </td>
-      <td class="text-end">
-        {{ balance.available }}
-      </td>
-      <td>
-        <a class="edit-btn " type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
-          (click)="openEditModal(balance)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-              <path
-                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-            </g>
-          </svg>
-        </a>
-      </td>
-    </ng-template>
-
-    <!-- Empty State Template -->
-    <ng-template #noLeaveBalance>
-      <tr>
-
-        <td colspan="5" class="no-data py-4">
-          @if (searchTerm.trim() || filterForm.dirty) {
-          No Leave Balance match your search and filter.
-          } @else {
-          No Leave Balance to display.
-          }
-        </td>
-      </tr>
-    </ng-template>
-  </div>
-</div>
-
-<!-- Filter Overlay -->
-<app-overlay-filter-box #filterBox title="Filter Leave Balance">
-  <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-
-
-
-
-    <div class="input">
-      <label for="employeeId">Employee(s)</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100">
-          <select name="" id="leaveType" formControlName="employee_id" class="form-select">
-            <option value="" selected disabled hidden>Select employee</option>
-            <option *ngFor="let balance of leaveBalances" [value]="balance.employee.id">{{ balance.employee.name }}
-            </option>
-          </select>
-        </div>
-        <svg *ngIf="!filterForm.get('employee_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-        <svg *ngIf="filterForm.get('employeeId')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <g fill="none" stroke="#3f9870" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-      </div>
-    </div>
-
-
-    <div class="input">
-      <label for="leaveType">Leave Type(s)</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="leaveType" formControlName="leave_id" class="form-select">
-            <option value="" selected disabled hidden>Select leave type</option>
-            <option [value]="1">Sick Leave</option>
-            <option [value]="2">Emergency Leave</option>
-            <option [value]="3">Religious Leave</option>
-          </select>
-        </div>
-        <svg *ngIf="!filterForm.get('leave_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-        <svg *ngIf="filterForm.get('leave_id')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <g fill="none" stroke="#3f9870" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-      </div>
-    </div>
-
-    <!-- <div class="input">
-      <label for="status">Leave Type</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="status" formControlName="status" class="form-select">
-            <option value="" selected disabled hidden>Select</option>
-            <option value="available">Available</option>
-            <option value="low">Low Balance</option>
-            <option value="exhausted">Exhausted</option>
-          </select>
-        </div>
-        <svg *ngIf="!filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <path fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-          <path fill="#e04f5f" fill-rule="evenodd"
-            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd" />
-        </svg>
-        <svg *ngIf="filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-          viewBox="0 0 24 24">
-          <g fill="none" stroke="#3f9870" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-      </div>
-    </div> -->
-
-
-
-    <div class="d-flex align-items-center mt-3 gap-3">
-      <button type="submit" class="btn btn-lg btn-primary w-100">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <g fill="none" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-        <span>Apply Filter</span>
-      </button>
-      <a (click)="resetFilterForm()" class="text-danger-dark fw-bold w-100 text-center">
-        <span>Clear Filters</span>
-      </a>
-    </div>
-  </form>
-</app-overlay-filter-box>
-
-<!-- Edit Leave Balance Modal -->
-<app-overlay-filter-box #editBox title="Edit Leave Balance">
-  <div *ngIf="selectedBalance">
-    <form (ngSubmit)="saveChanges()">
-      <div class="mb-2">
-        <small class="form-label text-muted m-0">Employee</small>
-        <p class="form-control-plaintext m-0">{{ selectedBalance.employee.name }}</p>
-      </div>
-      <div class="mb-2">
-        <small class="form-label text-muted m-0">Leave Type</small>
-        <p class="form-control-plaintext m-0">{{ selectedBalance.leave.name }}</p>
-      </div>
-
-      <div class="input mb-2">
-        <label for="totalBalance">Total Balance</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100">
-            <input type="number" id="totalBalance" class="form-control" [(ngModel)]="editTotal" name="totalBalance"
-              class="form-control custom-date-input" required />
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke-width="1.5">
+                <circle cx="11.5" cy="11.5" r="9.5" />
+                <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+              </g>
+            </svg>
           </div>
-        </div>
-      </div>
 
-      <div class="d-flex justify-content-between mb-2">
-        <div class="w-100">
-          <small class="text-muted">Used Days</small>
-          <p>{{ selectedBalance.used }} Days</p>
+          <!-- Filter button -->
+          <button class="btn btn-lg btn-outline-primary" (click)="filterBox.openOverlay()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="none" stroke-width="1.5"
+                d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+              </svg>
+              <span>Filter</span>
+            </button>
+
+          </div>
+
         </div>
-        <div class="w-100">
-          <small class="text-muted">Available Days</small>
-          <p>{{ selectedBalance.available }} Days</p>
-        </div>
-      </div>
-      <div class="d-flex align-items-center mt-3 gap-3">
-        <button type="submit" class="btn btn-lg btn-success w-100"
-          [disabled]="editTotal === originalTotal || isLoading">
-          @if(isLoading){
-          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-          }@else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-          </svg>
-          }
-          <span>Save Changes</span>
-        </button>
-        <a (click)="discardChanges()" class="btn btn-lg btn-outline-dark border-0 w-100">
-          <span>Discard Changes</span>
-        </a>
-      </div>
-    </form>
-  </div>
-</app-overlay-filter-box>
+        <!-- start Table -->
+        <app-table [data]="leaveBalances" [isLoading]="loadData" [columnsCount]="6" [totalItems]="totalItems"
+          [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+          (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="leaveBalanceTableHeader"
+        [rowTemplate]="leaveBalanceTableRow" [emptyTemplate]="noLeaveBalance"></app-table>
+
+        <!-- Table Header Template -->
+        <ng-template #leaveBalanceTableHeader>
+          <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
+            <div class="d-flex align-items-center justify-content-between">
+              <span>Employee</span>
+              @if (sortDirection === 'desc') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                  viewBox="0 0 24 24">
+                  <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+                    <path d="M4 8h9m-7 5h7m-5 5h5" />
+                    <path stroke-linejoin="round" d="M17 20V4l3 4" />
+                  </g>
+                </svg>
+              }
+              @if (sortDirection === 'asc') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                  viewBox="0 0 24 24">
+                  <path fill="#DDE3EB" fill-rule="evenodd"
+                    d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+                    clip-rule="evenodd" />
+                  </svg>
+                }
+              </div>
+            </th>
+            <th>Leave Type</th>
+            <th class="text-end">Total</th>
+            <th class="text-end">Used</th>
+            <th class="text-end">Available</th>
+            <th>Actions</th>
+          </ng-template>
+
+          <!-- Table Row Template -->
+          <ng-template #leaveBalanceTableRow let-balance let-i="index">
+            <td class="width-fix">
+              <span class="d-block text-gray-sm">{{ balance.employee.id.toString().padStart(4, '0') }}</span>
+              <span class="d-block text-truncate" style="max-width: 300px;">
+                {{ balance.employee.name }}
+              </span>
+            </td>
+            <td>
+              <span class="d-block text-gray-sm">{{ balance.leave.id.toString().padStart(4, '0') }}</span>
+              <span class="d-block text-truncate" style="max-width: 300px;">
+                {{ balance.leave.name }}
+              </span>
+            </td>
+            <td class="text-end">
+              {{ balance.total }}
+            </td>
+            <td class="text-end">
+              {{ balance.used }}
+            </td>
+            <td class="text-end">
+              {{ balance.available }}
+            </td>
+            <td>
+              <a class="edit-btn " type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+                (click)="openEditModal(balance)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round"
+                      d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
+                      <path
+                        d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
+                      </g>
+                    </svg>
+                  </a>
+                </td>
+              </ng-template>
+
+              <!-- Empty State Template -->
+              <ng-template #noLeaveBalance>
+                <tr>
+
+                  <td colspan="5" class="no-data py-4">
+                    @if (searchTerm.trim() || filterForm.dirty) {
+                      No Leave Balance match your search and filter.
+                    } @else {
+                      No Leave Balance to display.
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Filter Overlay -->
+          <app-overlay-filter-box #filterBox title="Filter Leave Balance">
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+
+
+
+
+              <div class="input">
+                <label for="employeeId">Employee(s)</label>
+                <div class="d-flex align-items-center gap-4">
+                  <div class="form-outline w-100">
+                    <select name="" id="leaveType" formControlName="employee_id" class="form-select">
+                      <option value="" selected disabled hidden>Select employee</option>
+                      @for (balance of leaveBalances; track balance) {
+                        <option [value]="balance.employee.id">{{ balance.employee.name }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                  @if (!filterForm.get('employee_id')?.value) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                      viewBox="0 0 24 24">
+                      <path fill="#e04f5f"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                        <path fill="#e04f5f" fill-rule="evenodd"
+                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                          clip-rule="evenodd" />
+                        </svg>
+                      }
+                      @if (filterForm.get('employeeId')?.value) {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24">
+                          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                          </g>
+                        </svg>
+                      }
+                    </div>
+                  </div>
+
+
+                  <div class="input">
+                    <label for="leaveType">Leave Type(s)</label>
+                    <div class="d-flex align-items-center gap-4">
+                      <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <select name="" id="leaveType" formControlName="leave_id" class="form-select">
+                          <option value="" selected disabled hidden>Select leave type</option>
+                          <option [value]="1">Sick Leave</option>
+                          <option [value]="2">Emergency Leave</option>
+                          <option [value]="3">Religious Leave</option>
+                        </select>
+                      </div>
+                      @if (!filterForm.get('leave_id')?.value) {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24">
+                          <path fill="#e04f5f"
+                            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                            <path fill="#e04f5f" fill-rule="evenodd"
+                              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                              clip-rule="evenodd" />
+                            </svg>
+                          }
+                          @if (filterForm.get('leave_id')?.value) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                              viewBox="0 0 24 24">
+                              <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                              </g>
+                            </svg>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- <div class="input">
+                      <label for="status">Leave Type</label>
+                      <div class="d-flex align-items-center gap-4">
+                        <div class="form-outline w-100 position-relative custom-date-wrapper">
+                          <select name="" id="status" formControlName="status" class="form-select">
+                            <option value="" selected disabled hidden>Select</option>
+                            <option value="available">Available</option>
+                            <option value="low">Low Balance</option>
+                            <option value="exhausted">Exhausted</option>
+                          </select>
+                        </div>
+                        <svg *ngIf="!filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                          viewBox="0 0 24 24">
+                          <path fill="#e04f5f"
+                            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                            <path fill="#e04f5f" fill-rule="evenodd"
+                              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                              clip-rule="evenodd" />
+                            </svg>
+                            <svg *ngIf="filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                              viewBox="0 0 24 24">
+                              <g fill="none" stroke="#3f9870" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                              </g>
+                            </svg>
+                          </div>
+                        </div> -->
+
+
+
+                        <div class="d-flex align-items-center mt-3 gap-3">
+                          <button type="submit" class="btn btn-lg btn-primary w-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                              <g fill="none" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                              </g>
+                            </svg>
+                            <span>Apply Filter</span>
+                          </button>
+                          <a (click)="resetFilterForm()" class="text-danger-dark fw-bold w-100 text-center">
+                            <span>Clear Filters</span>
+                          </a>
+                        </div>
+                      </form>
+                    </app-overlay-filter-box>
+
+                    <!-- Edit Leave Balance Modal -->
+                    <app-overlay-filter-box #editBox title="Edit Leave Balance">
+                      @if (selectedBalance) {
+                        <div>
+                          <form (ngSubmit)="saveChanges()">
+                            <div class="mb-2">
+                              <small class="form-label text-muted m-0">Employee</small>
+                              <p class="form-control-plaintext m-0">{{ selectedBalance.employee.name }}</p>
+                            </div>
+                            <div class="mb-2">
+                              <small class="form-label text-muted m-0">Leave Type</small>
+                              <p class="form-control-plaintext m-0">{{ selectedBalance.leave.name }}</p>
+                            </div>
+                            <div class="input mb-2">
+                              <label for="totalBalance">Total Balance</label>
+                              <div class="d-flex align-items-center gap-4">
+                                <div class="form-outline w-100">
+                                  <input type="number" id="totalBalance" class="form-control" [(ngModel)]="editTotal" name="totalBalance"
+                                    class="form-control custom-date-input" required />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="d-flex justify-content-between mb-2">
+                                <div class="w-100">
+                                  <small class="text-muted">Used Days</small>
+                                  <p>{{ selectedBalance.used }} Days</p>
+                                </div>
+                                <div class="w-100">
+                                  <small class="text-muted">Available Days</small>
+                                  <p>{{ selectedBalance.available }} Days</p>
+                                </div>
+                              </div>
+                              <div class="d-flex align-items-center mt-3 gap-3">
+                                <button type="submit" class="btn btn-lg btn-success w-100"
+                                  [disabled]="editTotal === originalTotal || isLoading">
+                                  @if(isLoading){
+                                    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                    }@else {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                      <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                      </g>
+                                    </svg>
+                                  }
+                                  <span>Save Changes</span>
+                                </button>
+                                <a (click)="discardChanges()" class="btn btn-lg btn-outline-dark border-0 w-100">
+                                  <span>Discard Changes</span>
+                                </a>
+                              </div>
+                            </form>
+                          </div>
+                        }
+                      </app-overlay-filter-box>

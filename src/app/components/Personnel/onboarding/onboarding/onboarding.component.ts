@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,7 +13,7 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-onboarding',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [PageHeaderComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.css',
   encapsulation: ViewEncapsulation.None

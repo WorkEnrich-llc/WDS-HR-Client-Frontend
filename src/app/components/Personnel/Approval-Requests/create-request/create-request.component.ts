@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,14 +15,13 @@ import { StepperNavigationComponent } from './stepper-navigation/stepper-navigat
   standalone: true,
   selector: 'app-create-request',
   imports: [
-    CommonModule,
     PageHeaderComponent,
     ReactiveFormsModule,
     PopupComponent,
     StepperNavigationComponent,
     MainInformationStepComponent,
     RequestDetailsStepComponent
-  ],
+],
   templateUrl: './create-request.component.html',
   styleUrls: ['./create-request.component.css'],
 })

@@ -3,7 +3,7 @@ import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild, inject,
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 @Component({

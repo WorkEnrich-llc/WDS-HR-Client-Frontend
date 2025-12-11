@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-view-company-document',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, PopupComponent],
+  imports: [RouterModule, PageHeaderComponent, PopupComponent],
   templateUrl: './view-company-document.component.html',
   styleUrls: ['./view-company-document.component.css']
 })

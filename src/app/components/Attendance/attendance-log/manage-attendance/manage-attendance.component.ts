@@ -1,6 +1,6 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-manage-attendance',
-  imports: [CommonModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule, AppTimeDisplayDirective, DateInputDirective],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule, AppTimeDisplayDirective, DateInputDirective],
   templateUrl: './manage-attendance.component.html',
   styleUrl: './manage-attendance.component.css'
 })
