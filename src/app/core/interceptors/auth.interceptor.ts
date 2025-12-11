@@ -4,7 +4,8 @@ import {
   HttpHandlerFn,
   HttpEvent,
   HttpInterceptorFn,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpContextToken
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -14,9 +15,23 @@ import { AuthHelperService } from '../services/authentication/auth-helper.servic
 import { AuthenticationService } from './../services/authentication/authentication.service';
 import { ToastrService } from 'ngx-toastr';
 
+// HttpContextToken to indicate that credentials should be sent
+export const WITH_CREDENTIALS = new HttpContextToken<boolean>(() => true);
+
 // Flag to prevent infinite logout loops
 let isLoggingOut = false;
 
+/**
+ * Centralized HTTP Interceptor that handles:
+ * 1. All authentication headers (Authorization, SESSIONTOKEN, SUBDOMAIN)
+ * 2. Version and platform headers (ver, plat)
+ * 3. Special logic for subscription-status requests
+ * 4. Error handling (401, 406, 410, 425)
+ * 5. Automatic logout on 401 errors
+ * 
+ * Note: withCredentials must be set in HTTP options when making requests,
+ * not in headers. Services should include { withCredentials: true } in their HTTP options.
+ */
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
@@ -31,34 +46,35 @@ export const authInterceptor: HttpInterceptorFn = (
   const version = '1.0.1';
   const platform = 'DASHBOARD';
 
+  // Skip interceptor for static assets and auth endpoints
   if (
     req.url.includes('assets') ||
     req.url.endsWith('login') ||
     req.url.endsWith('register') ||
     req.url.includes('manifest.json')
   ) {
-    return next(req);
-  }
-
-  if (!authHelper.validateAuth()) {
-    const clonedNoAuth = req.clone({
-      setHeaders: { ver: version, plat: platform }
+    // Still add withCredentials context for these requests
+    const clonedWithCredentials = req.clone({
+      context: req.context.set(WITH_CREDENTIALS, true)
     });
-    return next(clonedNoAuth);
+    return next(clonedWithCredentials);
   }
 
-  const token = authHelper.getToken();
-  const sessionToken = authHelper.getSessionToken();
-  const subdomain = authHelper.getSubdomain();
-
+  // Build headers object with version and platform
   const headers: Record<string, string> = {
     ver: version,
     plat: platform
   };
 
-  // Check if this is a subscription-status request
+  // Get auth tokens and subdomain
+  const token = authHelper.getToken();
+  const sessionToken = authHelper.getSessionToken();
+  const subdomain = authHelper.getSubdomain();
+
+  // Check if this is a subscription-status request (special handling)
   const isSubscriptionStatusRequest = req.url.includes('subscription-status');
 
+  // Add Authorization header (with special logic for subscription-status)
   if (token) {
     // For subscription-status: don't send Authorization if token is "true" or "false"
     if (isSubscriptionStatusRequest && (token === 'true' || token === 'false')) {
@@ -68,6 +84,7 @@ export const authInterceptor: HttpInterceptorFn = (
     }
   }
 
+  // Add SUBDOMAIN header (with special logic for subscription-status)
   if (subdomain) {
     // For subscription-status: don't send SUBDOMAIN if authorization is "true"
     if (isSubscriptionStatusRequest && token === 'true') {
@@ -77,6 +94,7 @@ export const authInterceptor: HttpInterceptorFn = (
     }
   }
 
+  // Add SESSIONTOKEN header (with special logic for subscription-status)
   if (sessionToken) {
     // For subscription-status: don't send SESSIONTOKEN if it's "true" or "false"
     if (isSubscriptionStatusRequest && (sessionToken === 'true' || sessionToken === 'false')) {
@@ -86,7 +104,12 @@ export const authInterceptor: HttpInterceptorFn = (
     }
   }
 
-  const cloned = req.clone({ setHeaders: headers });
+  // Clone request with headers and withCredentials context
+  // The WITH_CREDENTIALS context token indicates that cookies should be sent
+  const cloned = req.clone({
+    setHeaders: headers,
+    context: req.context.set(WITH_CREDENTIALS, true)
+  });
 
   const performLogout = () => {
     // Prevent infinite loop if already logging out
