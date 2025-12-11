@@ -18,6 +18,11 @@ import { environment } from './environments/environment';
 import { subscriptionInterceptor } from 'app/core/interceptors/subscription.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { GlobalErrorHandlerService } from './app/core/services/global-error-handler/global-error-handler.service';
+import { enableCredentialsGlobally } from './app/core/services/http/credentials-http-backend';
+
+// Enable credentials (cookies) for all HTTP requests globally
+// This ensures withCredentials: true is set for ALL XMLHttpRequest instances
+enableCredentialsGlobally();
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');

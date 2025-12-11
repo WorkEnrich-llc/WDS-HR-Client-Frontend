@@ -29,8 +29,12 @@ let isLoggingOut = false;
  * 4. Error handling (401, 406, 410, 425)
  * 5. Automatic logout on 401 errors
  * 
- * Note: withCredentials must be set in HTTP options when making requests,
- * not in headers. Services should include { withCredentials: true } in their HTTP options.
+ * IMPORTANT - Cookie Handling:
+ * - withCredentials must be set in HTTP options when making requests, not in headers
+ * - Interceptors cannot modify HTTP options (withCredentials is an option, not a header)
+ * - To ensure cookies are sent with ALL requests, use BaseHttpService instead of HttpClient
+ * - BaseHttpService automatically includes withCredentials: true for all requests
+ * - See: src/app/core/services/http/README.md for usage guide
  */
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
