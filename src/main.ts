@@ -91,20 +91,20 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('error', (event) => {
   // Suppress dynamic import errors and chunk loading errors
   if (event.message?.includes('Failed to fetch dynamically imported module') ||
-      event.message?.includes('chunk') ||
-      event.filename?.includes('chunk')) {
+    event.message?.includes('chunk') ||
+    event.filename?.includes('chunk')) {
     event.preventDefault();
     console.warn('Suppressed dynamic import error:', event.message);
     return false;
   }
-  
+
   // Suppress Google Maps loading warnings
-  if (event.message?.includes('Google Maps JavaScript API') && 
-      event.message?.includes('loading=async')) {
+  if (event.message?.includes('Google Maps JavaScript API') &&
+    event.message?.includes('loading=async')) {
     event.preventDefault();
     return false;
   }
-  
+
   return true;
 });
 
@@ -112,8 +112,8 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
   // Suppress dynamic import failures
   if (event.reason?.message?.includes('Failed to fetch dynamically imported module') ||
-      event.reason?.message?.includes('chunk') ||
-      event.reason?.name === 'ChunkLoadError') {
+    event.reason?.message?.includes('chunk') ||
+    event.reason?.name === 'ChunkLoadError') {
     event.preventDefault();
     console.warn('Suppressed unhandled promise rejection (dynamic import):', event.reason);
     return;
