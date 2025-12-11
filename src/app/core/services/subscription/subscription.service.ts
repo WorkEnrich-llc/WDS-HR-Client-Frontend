@@ -73,7 +73,9 @@ export class SubscriptionService {
  getSubscription(): Observable<any> {
   const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
 
-  return this._HttpClient.get<any>(url).pipe(
+  return this._HttpClient.get<any>(url, {
+    withCredentials: true // Enable cookies for cross-origin requests
+  }).pipe(
     map(res => {
       const features = res?.data?.features ?? null;
       return features ? { features } : null;
