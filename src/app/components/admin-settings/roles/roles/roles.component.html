@@ -157,7 +157,7 @@
     <ng-template #noroles>
       <tr>
         <td colspan="6" class="no-data py-4">
-          @if (searchTerm?.trim() || filterForm.dirty) {
+          @if (searchTerm.trim() || filterForm.dirty) {
             No Work Schedule match your search and filter.
           } @else {
             No Work Schedule Added Yet.
