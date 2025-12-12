@@ -119,6 +119,10 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
+          // Get sub_domain and construct redirect URL
+          const subDomain = companyInfo?.sub_domain;
+          const redirectUrl = this.constructSubdomainUrl(subDomain);
+
           // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
           const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
           const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
@@ -145,25 +149,25 @@ export class LoginComponent implements OnInit {
                     if (sub) {
                       this.subService.setSubscription(sub);
                     }
-                    // Navigate after subscription is loaded
-                    this._Router.navigate(['/dashboard']);
+                    // Redirect to subdomain URL
+                    this.redirectToSubdomain(redirectUrl);
                   },
                   error: (err) => {
                     console.error('Subscription load error:', err);
-                    // Navigate even if subscription fails
-                    this._Router.navigate(['/dashboard']);
+                    // Redirect even if subscription fails
+                    this.redirectToSubdomain(redirectUrl);
                   }
                 });
               },
               error: (err) => {
                 console.error('S-L API call error:', err);
-                // If S-L fails, navigate directly without subscription call
-                this._Router.navigate(['/dashboard']);
+                // If S-L fails, redirect directly
+                this.redirectToSubdomain(redirectUrl);
               }
             });
           } else {
-            // Missing session data, navigate directly without S-L or subscription
-            this._Router.navigate(['/dashboard']);
+            // Missing session data, redirect directly without S-L or subscription
+            this.redirectToSubdomain(redirectUrl);
           }
         } else {
           this.loginRetryCount = 0; // Reset on invalid response
@@ -251,5 +255,52 @@ export class LoginComponent implements OnInit {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
+  /**
+   * Construct subdomain URL from sub_domain
+   * Format: {protocol}://{sub_domain}.{base_domain}
+   */
+  private constructSubdomainUrl(subDomain: string | null | undefined): string | null {
+    if (!subDomain || subDomain.trim() === '') {
+      return null;
+    }
+
+    const currentUrl = window.location;
+    const protocol = currentUrl.protocol; // http: or https:
+    const hostname = currentUrl.hostname; // e.g., localhost, talentdot.org, or dev-google.talentdot.org
+    const port = currentUrl.port ? `:${currentUrl.port}` : '';
+
+    // If already on localhost, keep localhost (subdomain won't work on localhost)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // For localhost, we can't use subdomains, so just redirect to dashboard
+      return null;
+    }
+
+    // Extract base domain (remove any existing subdomain)
+    // e.g., "dev-google.talentdot.org" -> "talentdot.org"
+    // e.g., "talentdot.org" -> "talentdot.org"
+    let baseDomain = hostname;
+    const parts = hostname.split('.');
+    if (parts.length > 2) {
+      // Has subdomain, extract base domain (last two parts)
+      baseDomain = parts.slice(-2).join('.');
+    }
+
+    // Construct new URL with subdomain
+    const newUrl = `${protocol}//${subDomain}.${baseDomain}${port}`;
+    return newUrl;
+  }
+
+  /**
+   * Redirect to subdomain URL or fallback to router navigation
+   */
+  private redirectToSubdomain(url: string | null): void {
+    if (url) {
+      // Full page redirect to subdomain
+      window.location.href = url;
+    } else {
+      // Fallback to router navigation (e.g., for localhost)
+      this._Router.navigate(['/dashboard']);
+    }
+  }
 
 }
