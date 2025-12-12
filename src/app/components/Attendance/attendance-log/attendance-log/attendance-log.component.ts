@@ -574,6 +574,22 @@ export class AttendanceLogComponent implements OnDestroy {
     this.router.navigate(['/attendance/manage-attendance']);
   }
 
+  navigateToEditAttendance(log: any, emp: any): void {
+    const attendanceData = {
+      emp_id: emp?.employee?.id,
+      date: emp?.date,
+      working_details: {
+        record_id: log?.record_id,
+        actual_check_in: log?.times_object?.actual_check_in,
+        actual_check_out: log?.times_object?.actual_check_out
+      }
+    };
+
+    this.router.navigate(['/attendance/manage-attendance'], {
+      state: { attendance: attendanceData }
+    });
+  }
+
   cancelLog(attendance: any): void {
     this.isLoading = true;
     const payload = {

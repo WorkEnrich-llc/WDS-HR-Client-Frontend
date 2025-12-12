@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, FormsModule } from '@angular/forms';
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,12 +26,8 @@ export class ManageAttendanceComponent {
   private employeesService = inject(EmployeeService)
   private toasterService = inject(ToasterMessageService);
   private route = inject(ActivatedRoute);
-  // employeeList!: Observable<any[]>;
-  employeeList: any[] = [];
-  filteredEmployeeList: any[] = [];
-  employeeSearchTerm: string = '';
-  isEmployeeDropdownOpen: boolean = false;
-  selectedEmployee: any = null;
+  // Employees data
+  employees: Array<{ id: number; name: string }> = [];
   employeesLoading: boolean = true;
   createDate: string = '';
   updatedDate: string = '';
@@ -40,8 +36,6 @@ export class ManageAttendanceComponent {
   id!: number;
   isSubmitting = false;
   maxDate: string = '';
-
-  employeesList: any[] = [];
 
 
   private noFutureDateValidator(control: AbstractControl): ValidationErrors | null {
@@ -74,23 +68,7 @@ export class ManageAttendanceComponent {
     const todayFormatted = new Date().toLocaleDateString('en-GB');
     this.createDate = todayFormatted;
     // load employees and set loading state
-    this.employeesLoading = true;
-    this.employeesService.getEmployees(1, 100000).subscribe({
-      next: (res) => {
-        this.employeeList = res?.data?.list_items ?? [];
-        this.filteredEmployeeList = this.employeeList;
-        this.employeesLoading = false;
-
-        this.newLogForm.get('employee_id')?.enable();
-        this.updateSelectedEmployee();
-      },
-      error: (err) => {
-        console.error('Failed to load employees', err);
-        this.employeeList = [];
-        this.filteredEmployeeList = [];
-        this.employeesLoading = false;
-      }
-    });
+    this.loadEmployees();
     this.patchFormValues();
 
 
@@ -134,10 +112,6 @@ export class ManageAttendanceComponent {
         start: navigationRoute.attendance.working_details?.actual_check_in,
         end: navigationRoute.attendance.working_details?.actual_check_out,
       });
-      // Update selected employee after form is patched
-      setTimeout(() => {
-        this.updateSelectedEmployee();
-      }, 0);
       const today = new Date().toLocaleDateString('en-GB');
       this.updatedDate = today;
     }
@@ -188,75 +162,29 @@ export class ManageAttendanceComponent {
     });
   }
 
-  /**
-   * Toggle employee dropdown
-   */
-  toggleEmployeeDropdown(): void {
-    if (!this.newLogForm.get('employee_id')?.disabled) {
-      this.isEmployeeDropdownOpen = !this.isEmployeeDropdownOpen;
-      if (this.isEmployeeDropdownOpen) {
-        this.employeeSearchTerm = '';
-        this.filterEmployees();
+  private loadEmployees(): void {
+    this.employeesLoading = true;
+    this.employeesService.getEmployees(1, 10000).subscribe({
+      next: (res) => {
+        const items = res?.data?.list_items ?? [];
+        this.employees = Array.isArray(items)
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
+          : [];
+        this.employeesLoading = false;
+
+        this.newLogForm.get('employee_id')?.enable();
+      },
+      error: () => {
+        this.employees = [];
+        this.employeesLoading = false;
       }
-    }
-  }
-
-  /**
-   * Close employee dropdown
-   */
-  closeEmployeeDropdown(): void {
-    this.isEmployeeDropdownOpen = false;
-    this.employeeSearchTerm = '';
-    this.filterEmployees();
-  }
-
-  /**
-   * Select an employee
-   */
-  selectEmployee(employee: any): void {
-    this.selectedEmployee = employee;
-    this.newLogForm.patchValue({ employee_id: employee.id });
-    this.newLogForm.get('employee_id')?.markAsTouched();
-    this.closeEmployeeDropdown();
-  }
-
-  /**
-   * Update selected employee based on form value
-   */
-  updateSelectedEmployee(): void {
-    const employeeId = this.newLogForm.get('employee_id')?.value;
-    if (employeeId) {
-      this.selectedEmployee = this.employeeList.find(emp => emp.id === employeeId) || null;
-    } else {
-      this.selectedEmployee = null;
-    }
-  }
-
-  /**
-   * Filter employees based on search term
-   */
-  filterEmployees(): void {
-    if (!this.employeeSearchTerm.trim()) {
-      this.filteredEmployeeList = this.employeeList;
-      return;
-    }
-
-    const searchTerm = this.employeeSearchTerm.toLowerCase().trim();
-    this.filteredEmployeeList = this.employeeList.filter(emp => {
-      const name = emp.contact_info?.name?.toLowerCase() || '';
-      return name.includes(searchTerm);
     });
-  }
-
-  /**
-   * Close dropdown when clicking outside
-   */
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.employee-dropdown-container')) {
-      this.closeEmployeeDropdown();
-    }
   }
 
   /**
