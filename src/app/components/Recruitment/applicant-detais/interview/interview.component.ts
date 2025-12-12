@@ -400,10 +400,13 @@ export class InterviewComponent implements OnChanges {
       next: (empRes) => {
         const items = empRes?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
-          ? items.map((emp: any) => ({
-            id: emp?.id ?? 0,
-            name: emp?.contact_info?.name ?? '—'
-          }))
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
           : [];
         this.employeesLoading = false;
 
@@ -466,10 +469,13 @@ export class InterviewComponent implements OnChanges {
       next: (res) => {
         const items = res?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
-          ? items.map((emp: any) => ({
-            id: emp?.id ?? 0,
-            name: emp?.contact_info?.name ?? '—'
-          }))
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
           : [];
         this.employeesLoading = false;
       },
