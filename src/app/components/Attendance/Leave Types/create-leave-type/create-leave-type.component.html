@@ -298,8 +298,8 @@
       </div>
       <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
         <input class="form-check-input m-0" [(ngModel)]="carryoverAllowed" (change)="toggleCarryoverValidators()"
-          [ngModelOptions]="{ standalone: true }" type="checkbox" id="allowCarryover">
-        <label class="form-check-label m-0" for="allowCarryover">
+          [ngModelOptions]="{ standalone: true }" type="checkbox" id="allowCarryover" style="cursor: pointer;">
+        <label class="form-check-label m-0" for="allowCarryover" style="cursor: pointer;">
           Allow Carryover
         </label>
       </div>
@@ -386,10 +386,10 @@
         <div class="form-check p-0 m-0 my-2">
           <div class="d-flex align-items-start gap-2">
             <input class="form-check-input m-0 mt-1" type="checkbox" id="extra_with_min_days_service"
-              formControlName="extra_with_min_days_service" style="flex-shrink: 0;">
+              formControlName="extra_with_min_days_service" style="flex-shrink: 0; cursor: pointer;">
             <div class="d-flex flex-column" style="gap: 0.25rem;">
               <label class="form-check-label m-0" for="extra_with_min_days_service"
-                style="font-weight: 500; line-height: 1.5;">
+                style="font-weight: 500; line-height: 1.5; cursor: pointer;">
                 Custom Minimum Days of Service
               </label>
               <small class="text-muted"
@@ -406,101 +406,208 @@
               <input type="text" [id]="'MinDaysService'" class="form-control custom-date-input"
                 formControlName="minDaysService" placeholder="Enter number or select option" />
             </div>
+            @if (leaveType3.get('minDaysService')?.touched && leaveType3.get('minDaysService')?.errors?.['required']) {
+            <p class="error-msg">
+              Minimum Days of Service is required.
+            </p>
+            }
+            @if (leaveType3.get('minDaysService')?.touched && leaveType3.get('minDaysService')?.errors?.['pattern']) {
+            <p class="error-msg">
+              Please enter a valid number (digits only).
+            </p>
+            }
           </div>
         </div>
       </div>
       <hr />
 
       <div class="input">
-        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">
-          <input class="form-check-input m-0" type="checkbox" id="extra_with_age" formControlName="extra_with_age">
-          <label class="form-check-label m-0" for="extra_with_age">
+        <div class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_age" formControlName="extra_with_age" style="cursor: pointer;">
+          <label class="form-check-label m-0" for="extra_with_age" style="cursor: pointer;">
             Extra limit with Age
           </label>
         </div>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
 
-          <div class="w-100 d-flex align-items-start gap-2">
-            <div class="input w-100" [style.opacity]="leaveType3.get('age')?.disabled ? 0.5 : 1">
-              <label [for]="'Age' ">Age</label>
+        <div formArrayName="ageItems" class="d-flex flex-column gap-3">
+          @for (ageItem of ageItems.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="w-100 d-flex align-items-start gap-2">
+            <div class="input w-100">
+              <label [for]="'Age_' + i">Age</label>
               <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'Age' " class="form-control custom-date-input" formControlName="age" />
+                <input
+                  type="number"
+                  [id]="'Age_' + i"
+                  class="form-control custom-date-input"
+                  formControlName="age"
+                  placeholder="ex: 5"
+                />
               </div>
+              @if (ageItem.get('age')?.touched && ageItem.get('age')?.errors?.['required']) {
+              <p class="error-msg">
+                Age is required.
+              </p>
+              }
+              @if (ageItem.get('age')?.touched && ageItem.get('age')?.errors?.['pattern']) {
+              <p class="error-msg">
+                Please enter a valid number (digits only).
+              </p>
+              }
             </div>
-            <div class="input w-100" [style.opacity]="leaveType3.get('extraDays')?.disabled ? 0.5 : 1">
-              <label [for]="'ExtraDays'">Extra days</label>
+            <div class="input w-100">
+              <label [for]="'ExtraDays_' + i">Extra days</label>
               <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'ExtraDays' " class="form-control custom-date-input"
-                  formControlName="extraDays" />
+                <input
+                  type="number"
+                  [id]="'ExtraDays_' + i"
+                  class="form-control custom-date-input"
+                  formControlName="extraDays"
+                  placeholder="ex: 5"
+                />
               </div>
+              @if (ageItem.get('extraDays')?.touched && ageItem.get('extraDays')?.errors?.['required']) {
+              <p class="error-msg">
+                Extra days is required.
+              </p>
+              }
+              @if (ageItem.get('extraDays')?.touched && ageItem.get('extraDays')?.errors?.['pattern']) {
+              <p class="error-msg">
+                Please enter a valid number (digits only).
+              </p>
+              }
             </div>
-
+            @if (i > 0) {
+            <button
+              type="button"
+              class="btn btn-outline-danger mt-4"
+              (click)="removeAgeItem(i)"
+              style="height: fit-content;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
+                />
+              </svg>
+            </button>
+            }
           </div>
-
-
+          }
         </div>
+        
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-primary w-100 mt-3"
+          (click)="addAgeItem()"
+          [disabled]="!leaveType3.get('extra_with_age')?.value"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+            </g>
+          </svg>
+          <span>Extra limit with Age</span>
+        </button>
       </div>
       <hr />
 
       <div class="input">
-        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">
-          <input class="form-check-input m-0" type="checkbox" id="allowCarryover" formControlName="extra_with_service">
-          <label class="form-check-label m-0" for="allowCarryover">
+        <div class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1">
+          <input class="form-check-input m-0" type="checkbox" id="extra_with_service" formControlName="extra_with_service" style="cursor: pointer;">
+          <label class="form-check-label m-0" for="extra_with_service" style="cursor: pointer;">
             Extra limit with years of Service
           </label>
         </div>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <div class="w-100 d-flex align-items-start gap-2">
-            <div class="input w-100" [style.opacity]="leaveType3.get('yearsOfService')?.disabled ? 0.5 : 1">
-              <label [for]="'YearsOFService' ">Years of Service</label>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'YearsOFService' " class="form-control custom-date-input"
-                  formControlName="yearsOfService" />
-              </div>
-            </div>
-            <div class="input w-100" [style.opacity]="leaveType3.get('extraDaysService')?.disabled ? 0.5 : 1">
-              <label [for]="'ExtraDays'">Extra days</label>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'ExtraDays' " class="form-control custom-date-input"
-                  formControlName="extraDaysService" />
-              </div>
-            </div>
 
+        <div formArrayName="serviceItems" class="d-flex flex-column gap-3">
+          @for (serviceItem of serviceItems.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="w-100 d-flex align-items-start gap-2">
+            <div class="input w-100">
+              <label [for]="'YearsOfService_' + i">Years of Service</label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input
+                  type="number"
+                  [id]="'YearsOfService_' + i"
+                  class="form-control custom-date-input"
+                  formControlName="yearsOfService"
+                  placeholder="ex: 5"
+                />
+              </div>
+              @if (serviceItem.get('yearsOfService')?.touched && serviceItem.get('yearsOfService')?.errors?.['required']) {
+              <p class="error-msg">
+                Years of Service is required.
+              </p>
+              }
+              @if (serviceItem.get('yearsOfService')?.touched && serviceItem.get('yearsOfService')?.errors?.['pattern']) {
+              <p class="error-msg">
+                Please enter a valid number (digits only).
+              </p>
+              }
+            </div>
+            <div class="input w-100">
+              <label [for]="'ExtraDaysService_' + i">Extra days</label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input
+                  type="number"
+                  [id]="'ExtraDaysService_' + i"
+                  class="form-control custom-date-input"
+                  formControlName="extraDays"
+                  placeholder="ex: 5"
+                />
+              </div>
+              @if (serviceItem.get('extraDays')?.touched && serviceItem.get('extraDays')?.errors?.['required']) {
+              <p class="error-msg">
+                Extra days is required.
+              </p>
+              }
+              @if (serviceItem.get('extraDays')?.touched && serviceItem.get('extraDays')?.errors?.['pattern']) {
+              <p class="error-msg">
+                Please enter a valid number (digits only).
+              </p>
+              }
+            </div>
+            @if (i > 0) {
+            <button
+              type="button"
+              class="btn btn-outline-danger mt-4"
+              (click)="removeServiceItem(i)"
+              style="height: fit-content;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
+                />
+              </svg>
+            </button>
+            }
           </div>
+          }
         </div>
-
-
-      </div>
-      <hr />
-
-      <div class="input">
-        <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 my-2 gap-1">
-          <input class="form-check-input m-0" type="checkbox" id="allowCarryover"
-            formControlName="extra_with_experience">
-          <label class="form-check-label m-0" for="allowCarryover">
-            Extra limit with years of Experience
-          </label>
-        </div>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <div class="w-100 d-flex align-items-start gap-2">
-            <div class="input w-100" [style.opacity]="leaveType3.get('yearsOfExperience')?.disabled ? 0.5 : 1">
-              <label [for]="'YearsOfExperience' ">Years of Experience</label>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'YearsOfExperience' " class="form-control custom-date-input"
-                  formControlName="yearsOfExperience" />
-              </div>
-            </div>
-            <div class="input w-100" [style.opacity]="leaveType3.get('extraDaysExperience')?.disabled ? 0.5 : 1">
-              <label [for]="'ExtraDaysExperience'">Extra days</label>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="number" [id]="'ExtraDaysExperience' " class="form-control custom-date-input"
-                  formControlName="extraDaysExperience" />
-              </div>
-            </div>
-
-          </div>
-        </div>
-
+        
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-primary w-100 mt-3"
+          (click)="addServiceItem()"
+          [disabled]="!leaveType3.get('extra_with_service')?.value"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+            </g>
+          </svg>
+          <span>Extra limit with years of Service</span>
+        </button>
       </div>
 
     </form>

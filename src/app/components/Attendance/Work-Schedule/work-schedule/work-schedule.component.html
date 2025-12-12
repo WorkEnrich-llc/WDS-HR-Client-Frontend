@@ -25,7 +25,7 @@
         </div>
 
         <!-- Filter button -->
-        <button class="btn btn-lg btn-outline-primary" (click)="overlay.openOverlay()">
+        <button class="btn btn-lg btn-outline-primary" (click)="openFilterOverlay()">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
             <path fill="none" stroke-width="1.5"
               d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
@@ -168,16 +168,21 @@
 
 
 <!-- filter popup -->
-<app-overlay-filter-box #filterBox [title]="'Filters'">
+<app-overlay-filter-box #filterBox [title]="'Filters'" (onClose)="onFilterOverlayClose()">
   <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
       <label for="department">Department</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (loadingDepartments) {
+          <!-- Skeleton loader for department select -->
+          <div class="skeleton-loading skeleton-input" style="height: 38px; width: 100%; border-radius: 4px;"></div>
+          } @else {
           <select name="department" formControlName="department" id="department" class="form-select">
             <option value="" selected disabled hidden>Select</option>
             <option *ngFor="let dept of departments" [value]=dept.id>{{dept.name}}</option>
           </select>
+          }
         </div>
         <svg *ngIf="!filterForm.get('department')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">

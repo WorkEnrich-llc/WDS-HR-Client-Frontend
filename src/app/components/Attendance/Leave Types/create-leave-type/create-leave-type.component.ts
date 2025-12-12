@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
@@ -35,9 +35,9 @@ export class CreateLeaveTypeComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupCheckboxControl('extra_with_min_days_service', ['minDaysService']);
-    this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
-    this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+    this.setupAgeCheckbox();
+    this.setupServiceCheckbox();
     // this.setupAccrualValidation(); // 
 
     const leaveLimitsControl = this.leaveType2.get('leave_limits');
@@ -89,12 +89,89 @@ export class CreateLeaveTypeComponent implements OnInit {
       dependentControls.forEach(ctrl => {
         if (checked) {
           this.leaveType3.get(ctrl)?.enable();
+          // Add validators when enabled
+          this.leaveType3.get(ctrl)?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get(ctrl)?.updateValueAndValidity();
         } else {
           this.leaveType3.get(ctrl)?.disable();
           this.leaveType3.get(ctrl)?.reset();
+          this.leaveType3.get(ctrl)?.clearValidators();
+          this.leaveType3.get(ctrl)?.updateValueAndValidity();
         }
       });
     });
+  }
+
+  // FormArray methods for age items
+  get ageItems(): FormArray {
+    return this.leaveType3.get('ageItems') as FormArray;
+  }
+
+  addAgeItem(): void {
+    const ageItem = this.fb.group({
+      age: ['', [Validators.required, Validators.pattern('^\\d+$')]],
+      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+    });
+    this.ageItems.push(ageItem);
+  }
+
+  removeAgeItem(index: number): void {
+    this.ageItems.removeAt(index);
+  }
+
+  private setupAgeCheckbox(): void {
+    // Initialize with one item if empty
+    if (this.ageItems.length === 0) {
+      this.addAgeItem();
+    }
+    
+    this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        this.ageItems.enable();
+      } else {
+        this.ageItems.disable();
+        // Keep items but disable them, don't clear
+      }
+    });
+    // Initially disable the FormArray
+    this.ageItems.disable();
+  }
+
+  get serviceItems(): FormArray {
+    return this.leaveType3.get('serviceItems') as FormArray;
+  }
+
+  addServiceItem(): void {
+    const serviceItem = this.fb.group({
+      yearsOfService: ['', [Validators.required, Validators.pattern('^\\d+$')]],
+      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+    });
+    this.serviceItems.push(serviceItem);
+  }
+
+  removeServiceItem(index: number): void {
+    this.serviceItems.removeAt(index);
+  }
+
+  private setupServiceCheckbox(): void {
+    // Initialize with one item if empty
+    if (this.serviceItems.length === 0) {
+      this.addServiceItem();
+    }
+    
+    this.leaveType3.get('extra_with_service')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        this.serviceItems.enable();
+      } else {
+        this.serviceItems.disable();
+        // Keep items but disable them, don't clear
+      }
+    });
+    // Initially disable the FormArray
+    this.serviceItems.disable();
   }
 
   leaveType1: FormGroup = new FormGroup({
@@ -217,11 +294,11 @@ export class CreateLeaveTypeComponent implements OnInit {
     // inputs 
     minDaysService: [{ value: '', disabled: true }],
 
-    age: [{ value: '', disabled: true }],
-    extraDays: [{ value: '', disabled: true }],
+    // FormArray for age items
+    ageItems: this.fb.array([]),
 
-    yearsOfService: [{ value: '', disabled: true }],
-    extraDaysService: [{ value: '', disabled: true }],
+    // FormArray for service items
+    serviceItems: this.fb.array([]),
 
     yearsOfExperience: [{ value: '', disabled: true }],
     extraDaysExperience: [{ value: '', disabled: true }],
@@ -270,11 +347,36 @@ export class CreateLeaveTypeComponent implements OnInit {
 
     this.errMsg = '';
     this.isLoading = true;
+
+    // Build conditions.create array from age items
+    const ageConditions = this.ageItems.controls
+      .filter(control => control.get('age')?.value && control.get('extraDays')?.value)
+      .map(control => ({
+        condition: 1, // 1 = Age
+        value: Number(control.get('age')?.value) || 0,
+        value_to: 0, // or limit the value to
+        days: Number(control.get('extraDays')?.value) || 0,
+        status: true
+      }));
+
+    // Build conditions.create array from service items
+    const serviceConditions = this.serviceItems.controls
+      .filter(control => control.get('yearsOfService')?.value && control.get('extraDays')?.value)
+      .map(control => ({
+        condition: 2, // 2 = Service
+        value: Number(control.get('yearsOfService')?.value) || 0,
+        value_to: Number(control.get('extraDays')?.value) || 0,
+        days: Number(control.get('extraDays')?.value) || 0,
+        status: true
+      }));
+
     const request_data = {
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
+      permission: "day_off", // Default value, adjust if needed
       description: this.leaveType1.get('description')?.value,
       employment_type: Number(this.leaveType1.get('employmentType')?.value),
+      document_status: 3, // Default: Optional - 3, adjust if needed
       settings: {
         accrual_rate: Number(this.leaveType2.get('accrual_rate')?.value),
         leave_limits: Number(this.leaveType2.get('leave_limits')?.value),
@@ -283,7 +385,6 @@ export class CreateLeaveTypeComponent implements OnInit {
         maximum_carryover_days: this.carryoverAllowed
           ? Number(this.leaveType2.get('maximum_carryover_days')?.value)
           : 0,
-
         extra_conditions: {
           min_days_service: {
             status: this.leaveType3.get('extra_with_min_days_service')?.value || false,
@@ -295,21 +396,26 @@ export class CreateLeaveTypeComponent implements OnInit {
             })()
           },
           age: {
-            status: this.leaveType3.get('extra_with_age')?.value || false,
-            from: Number(this.leaveType3.get('age')?.value) || 0,
-            to: Number(this.leaveType3.get('extraDays')?.value) || 0
+            status: this.ageItems.length > 0 && this.leaveType3.get('extra_with_age')?.value,
+            from: this.ageItems.length > 0 ? Number(this.ageItems.controls[0].get('age')?.value) || 0 : 0,
+            to: this.ageItems.length > 0 ? Number(this.ageItems.controls[0].get('extraDays')?.value) || 0 : 0
           },
           service: {
-            status: this.leaveType3.get('extra_with_service')?.value || false,
-            from: Number(this.leaveType3.get('yearsOfService')?.value) || 0,
-            to: Number(this.leaveType3.get('extraDaysService')?.value) || 0
+            status: this.serviceItems.length > 0 && this.leaveType3.get('extra_with_service')?.value,
+            from: this.serviceItems.length > 0 ? Number(this.serviceItems.controls[0].get('yearsOfService')?.value) || 0 : 0,
+            to: this.serviceItems.length > 0 ? Number(this.serviceItems.controls[0].get('extraDays')?.value) || 0 : 0
           },
           experience: {
-            status: this.leaveType3.get('extra_with_experience')?.value || false,
-            from: Number(this.leaveType3.get('yearsOfExperience')?.value) || 0,
-            to: Number(this.leaveType3.get('extraDaysExperience')?.value) || 0
+            status: false,
+            from: 0,
+            to: 0
           }
         }
+      },
+      conditions: {
+        create: [...ageConditions, ...serviceConditions],
+        update: [],
+        delete: []
       }
     };
     const finalData = { request_data };

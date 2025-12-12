@@ -1,349 +1,621 @@
 <!-- start page header -->
-<app-page-header [breadcrumbs]="[
+<app-page-header
+  [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings' }
-  ]" title="All Job Openings">
+  ]"
+  title="All Job Openings"
+>
 </app-page-header>
 <!-- end page header -->
 <!-- start page content -->
 <div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <!-- start search and filter -->
-        <div
-            class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
-            <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
-                <!-- Search input -->
-                <div data-mdb-input-init class="form-outline w-75">
-                    <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
-                        (input)="onSearchChange()" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <circle cx="11.5" cy="11.5" r="9.5" />
-                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
-                        </g>
-                    </svg>
-                </div>
-
-                <!-- Filter button -->
-                <button class="btn btn-lg btn-outline-primary" (click)="filterBox.openOverlay()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                        <path fill="none" stroke-width="1.5"
-                            d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
-                    </svg>
-                    <span>Filter</span>
-                </button>
-
-            </div>
-
-            <!-- New job button -->
-            <button class="btn btn-lg btn-primary" routerLink="/job-openings/create-job-openings">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#ffffff" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-                    </g>
-                </svg>
-                <span>New Job Opening</span>
-            </button>
-
+  <div class="content-box d-flex flex-column gap-3">
+    <!-- start search and filter -->
+    <div
+      class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2"
+    >
+      <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+        <!-- Search input -->
+        <div data-mdb-input-init class="form-outline w-75">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke-width="1.5">
+              <circle cx="11.5" cy="11.5" r="9.5" />
+              <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+            </g>
+          </svg>
         </div>
 
-        <!-- start Table -->
+        <!-- Filter button -->
+        <button
+          class="btn btn-lg btn-outline-primary"
+          (click)="filterBox.openOverlay()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="none"
+              stroke-width="1.5"
+              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z"
+            />
+          </svg>
+          <span>Filter</span>
+        </button>
+      </div>
 
-        <app-table [data]="approvalRequests" [isLoading]="loadData" [columnsCount]="9" [totalItems]="totalItems"
-            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="jobTableHeader"
-            [rowTemplate]="jobTableRow" [emptyTemplate]="noJob"></app-table>
-
-        <ng-template #jobTableHeader>
-            <th class="w-20">Job title</th>
-            <th class="w-20">Branch</th>
-            <th class="w-20">Employment Type</th>
-            <th class="text-center relative group" data-bs-toggle="tooltip" data-bs-placement="top" title="Applicants">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
-                        clip-rule="evenodd" />
-                </svg>
-            </th>
-            <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Apply">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
-                        clip-rule="evenodd" />
-                    <path fill="currentColor"
-                        d="M19.856 14.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 0 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016" />
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M14.775 12.513A14.5 14.5 0 0 0 12 12.25c-2.313 0-4.445.526-6.024 1.414C4.42 14.54 3.25 15.866 3.25 17.5v.102c-.001 1.162-.002 2.62 1.277 3.662c.629.512 1.51.877 2.7 1.117c1.192.242 2.747.369 4.773.369c2.868 0 4.81-.254 6.12-.741c1.179-.44 1.877-1.082 2.25-1.892a4.75 4.75 0 1 0-5.596-7.604M14.75 16a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m-.994-2.135A4.75 4.75 0 0 0 17.31 20.7c-1.07.337-2.733.55-5.31.55c-1.975 0-3.42-.125-4.477-.339c-1.06-.214-1.68-.509-2.05-.81c-.684-.557-.724-1.293-.724-2.601c0-.851.622-1.775 1.961-2.528c1.316-.74 3.184-1.222 5.29-1.222c.605 0 1.193.04 1.755.115"
-                        clip-rule="evenodd" />
-                </svg>
-            </th>
-            <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Schadule">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M7 1.75a.75.75 0 0 1 .75.75v.763c.662-.013 1.391-.013 2.194-.013h4.112c.803 0 1.532 0 2.194.013V2.5a.75.75 0 0 1 1.5 0v.827q.39.03.739.076c1.172.158 2.121.49 2.87 1.238c.748.749 1.08 1.698 1.238 2.87q.074.562.107 1.23a.75.75 0 0 1 .019.46c.027.801.027 1.712.027 2.743v2.112c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433v-2.112c0-1.031 0-1.942.027-2.744a.75.75 0 0 1 .02-.46q.032-.667.106-1.229c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238q.35-.046.739-.076V2.5A.75.75 0 0 1 7 1.75m-4.237 8c-.013.653-.013 1.396-.013 2.25v2c0 1.907.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h4c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-2c0-.854 0-1.597-.013-2.25zm18.405-1.5H2.832q.024-.284.058-.54c.135-1.005.389-1.585.812-2.008s1.003-.677 2.009-.812c1.028-.138 2.382-.14 4.289-.14h4c1.907 0 3.262.002 4.29.14c1.005.135 1.585.389 2.008.812s.677 1.003.812 2.009q.034.255.058.539m-4.668 7.5a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m-2.25.75a2.25 2.25 0 1 1 4.5 0a2.25 2.25 0 0 1-4.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-            </th>
-            <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Rejected">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-            </th>
-            <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="Accepted">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                    <path fill="currentColor" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-            </th>
-            <th>Actions</th>
-        </ng-template>
-
-        <ng-template #jobTableRow let-job let-i="index">
-            <td>
-                <span class="d-block text-gray-sm">{{ job.jobId.toString().padStart(4, '0') }}</span>
-                <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ job.jobName }}
-                </span>
-            </td>
-            <td>
-                <span class="d-block text-gray-sm">{{ job.branchId != null ? job.branchId.toString().padStart(4, '0') :
-                    '—' }}</span>
-                <span class="d-block text-truncate" style="max-width: 300px;">
-                    {{ job.branchName }}
-                </span>
-            </td>
-            <td>
-                {{ job.empType }}
-            </td>
-            <td class="text-center">
-                {{job.numApplicant}}
-            </td>
-            <td class="text-center">
-                {{job.numApply}}
-            </td>
-            <td class="text-center text-primary">
-                {{job.numSchadule}}
-            </td>
-            <td class="text-center text-danger">
-                {{job.numRejected}}
-            </td>
-            <td class="text-center text-success">
-                {{job.numAccepted}}
-            </td>
-            <td>
-                <div class="d-flex justify-content-start gap-5 align-items-center w-100">
-                    <!-- <a [routerLink]="['/job-openings/view-job-openings', job.jobId]" -->
-                    <a (click)="navigateToView(job.jobId)"
-                        class="view-btn h-100 d-flex align-items-center gap-1 w-auto me-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path
-                                    d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
-                                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
-                            </g>
-                        </svg>
-                        <span>View</span>
-                    </a>
-                    <!-- Archive button -->
-                    <a (click)="openArchiveModal(job.jobId)"
-                        class="remove-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
-                        data-bs-toggle="tooltip" data-bs-placement="top" title="Archive">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="M12.53 17.53a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.22 1.22V11a.75.75 0 0 1 1.5 0v4.19l1.22-1.22a.75.75 0 1 1 1.06 1.06z" />
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12.057 1.25h-.114c-2.309 0-4.118 0-5.53.19c-1.444.194-2.584.6-3.479 1.494c-.895.895-1.3 2.035-1.494 3.48c-.19 1.411-.19 3.22-.19 5.529V12h.01c-.01.579-.01 1.23-.01 1.966v.068c0 1.371 0 2.447.07 3.311c.073.88.221 1.607.557 2.265a5.75 5.75 0 0 0 2.513 2.513c.658.336 1.385.485 2.265.556c.864.071 1.94.071 3.311.071h4.068c1.371 0 2.447 0 3.311-.07c.88-.072 1.607-.221 2.265-.557a5.75 5.75 0 0 0 2.513-2.513c.336-.658.485-1.385.556-2.265c.071-.864.071-1.94.071-3.311v-.068c0-.736 0-1.387-.01-1.966h.01v-.057c0-2.309 0-4.118-.19-5.53c-.194-1.444-.6-2.584-1.494-3.479c-.895-.895-2.035-1.3-3.48-1.494c-1.411-.19-3.22-.19-5.529-.19M4.39 5.877a5.8 5.8 0 0 0-1.508 1.11q.02-.192.044-.373c.172-1.279.5-2.05 1.069-2.62c.57-.569 1.34-.896 2.619-1.068c1.3-.174 3.008-.176 5.386-.176s4.086.002 5.386.176c1.279.172 2.05.5 2.62 1.069c.569.57.896 1.34 1.068 2.619q.023.18.044.373a5.8 5.8 0 0 0-1.508-1.11c-.658-.336-1.385-.484-2.265-.556c-.864-.071-1.94-.071-3.311-.071H9.966c-1.371 0-2.447 0-3.311.07c-.88.073-1.607.221-2.265.557m.68 1.336c.412-.21.92-.333 1.707-.397c.796-.065 1.81-.066 3.223-.066h4c1.412 0 2.427 0 3.223.066c.787.064 1.295.188 1.707.397a4.25 4.25 0 0 1 1.857 1.858c.21.411.333.919.397 1.706c.065.796.066 1.81.066 3.223s0 2.427-.066 3.223c-.064.787-.188 1.295-.397 1.707a4.25 4.25 0 0 1-1.857 1.857c-.412.21-.92.333-1.707.397c-.796.065-1.81.066-3.223.066h-4c-1.413 0-2.427 0-3.223-.066c-.787-.064-1.295-.188-1.706-.397a4.25 4.25 0 0 1-1.858-1.857c-.21-.412-.333-.92-.397-1.707c-.065-.796-.066-1.81-.066-3.223s0-2.427.066-3.223c.064-.787.188-1.295.397-1.706a4.25 4.25 0 0 1 1.858-1.858"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </a>
-
-                    <!-- Pause button - shown when job is Live -->
-                    <a *ngIf="isJobLive(job.status)" (click)="toggleJobStatus(job)"
-                        class="pause-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
-                        data-bs-toggle="tooltip" data-bs-placement="top" title="Pause">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m8.228-4.75h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.428.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013A8 8 0 0 0 9.5 8.75c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012m5.577-1.52h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.429.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013a8 8 0 0 0-.496-.008c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </a>
-
-                    <!-- Play/Live button - shown when job is Paused or other status -->
-                    <a *ngIf="!isJobLive(job.status)" (click)="toggleJobStatus(job)"
-                        class="play-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
-                        data-bs-toggle="tooltip" data-bs-placement="top" title="Make Live">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m9.44-4.44c-.347-.201-.737-.31-1.135-.31c-1.286 0-2.305 1.04-2.305 2.313v4.874c0 1.272 1.019 2.313 2.305 2.313c.398 0 .788-.109 1.134-.31l3.97-2.31c.72-.418 1.091-1.262 1.091-2.127s-.371-1.71-1.09-2.127z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </a>
-                </div>
-            </td>
-
-        </ng-template>
-
-        <ng-template #noJob>
-            <tr>
-                <td colspan="7" class="no-data py-4">
-                    <ng-container *ngIf="searchTerm?.trim(); else noJob">
-                        No Job Opening match your search.
-                    </ng-container>
-                    <ng-template #noJob>
-                        No Job Opening Added Yet.
-                    </ng-template>
-                </td>
-            </tr>
-        </ng-template>
+      <!-- New job button -->
+      <button
+        class="btn btn-lg btn-primary"
+        routerLink="/job-openings/create-job-openings"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="#ffffff" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+          </g>
+        </svg>
+        <span>New Job Opening</span>
+      </button>
     </div>
-</div>
 
+    <!-- start Table -->
+
+    <app-table
+      [data]="approvalRequests"
+      [isLoading]="loadData"
+      [columnsCount]="9"
+      [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage"
+      [currentPage]="currentPage"
+      (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+      [headerTemplate]="jobTableHeader"
+      [rowTemplate]="jobTableRow"
+      [emptyTemplate]="noJob"
+    ></app-table>
+
+    <ng-template #jobTableHeader>
+      <th class="w-20">Job title</th>
+      <th class="w-20">Branch</th>
+      <th class="w-20">Employment Type</th>
+      <th
+        class="text-center relative group"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Applicants"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </th>
+      <th
+        class="text-center"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Apply"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
+            clip-rule="evenodd"
+          />
+          <path
+            fill="currentColor"
+            d="M19.856 14.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 0 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016"
+          />
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M14.775 12.513A14.5 14.5 0 0 0 12 12.25c-2.313 0-4.445.526-6.024 1.414C4.42 14.54 3.25 15.866 3.25 17.5v.102c-.001 1.162-.002 2.62 1.277 3.662c.629.512 1.51.877 2.7 1.117c1.192.242 2.747.369 4.773.369c2.868 0 4.81-.254 6.12-.741c1.179-.44 1.877-1.082 2.25-1.892a4.75 4.75 0 1 0-5.596-7.604M14.75 16a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m-.994-2.135A4.75 4.75 0 0 0 17.31 20.7c-1.07.337-2.733.55-5.31.55c-1.975 0-3.42-.125-4.477-.339c-1.06-.214-1.68-.509-2.05-.81c-.684-.557-.724-1.293-.724-2.601c0-.851.622-1.775 1.961-2.528c1.316-.74 3.184-1.222 5.29-1.222c.605 0 1.193.04 1.755.115"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </th>
+      <th
+        class="text-center"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Schadule"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M7 1.75a.75.75 0 0 1 .75.75v.763c.662-.013 1.391-.013 2.194-.013h4.112c.803 0 1.532 0 2.194.013V2.5a.75.75 0 0 1 1.5 0v.827q.39.03.739.076c1.172.158 2.121.49 2.87 1.238c.748.749 1.08 1.698 1.238 2.87q.074.562.107 1.23a.75.75 0 0 1 .019.46c.027.801.027 1.712.027 2.743v2.112c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433v-2.112c0-1.031 0-1.942.027-2.744a.75.75 0 0 1 .02-.46q.032-.667.106-1.229c.158-1.172.49-2.121 1.238-2.87c.749-.748 1.698-1.08 2.87-1.238q.35-.046.739-.076V2.5A.75.75 0 0 1 7 1.75m-4.237 8c-.013.653-.013 1.396-.013 2.25v2c0 1.907.002 3.262.14 4.29c.135 1.005.389 1.585.812 2.008s1.003.677 2.009.812c1.028.138 2.382.14 4.289.14h4c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-2c0-.854 0-1.597-.013-2.25zm18.405-1.5H2.832q.024-.284.058-.54c.135-1.005.389-1.585.812-2.008s1.003-.677 2.009-.812c1.028-.138 2.382-.14 4.289-.14h4c1.907 0 3.262.002 4.29.14c1.005.135 1.585.389 2.008.812s.677 1.003.812 2.009q.034.255.058.539m-4.668 7.5a.75.75 0 1 0 0 1.5a.75.75 0 0 0 0-1.5m-2.25.75a2.25 2.25 0 1 1 4.5 0a2.25 2.25 0 0 1-4.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </th>
+      <th
+        class="text-center"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Rejected"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
+          />
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </th>
+      <th
+        class="text-center"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Accepted"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z"
+          />
+          <path
+            fill="currentColor"
+            fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </th>
+      <th>Actions</th>
+    </ng-template>
+
+    <ng-template #jobTableRow let-job let-i="index">
+      <td>
+        <span class="d-block text-gray-sm">{{
+          job.jobId.toString().padStart(4, "0")
+        }}</span>
+        <span class="d-block text-truncate" style="max-width: 300px">
+          {{ job.jobName }}
+        </span>
+      </td>
+      <td>
+        <span class="d-block text-gray-sm">{{
+          job.branchId != null ? job.branchId.toString().padStart(4, "0") : "—"
+        }}</span>
+        <span class="d-block text-truncate" style="max-width: 300px">
+          {{ job.branchName }}
+        </span>
+      </td>
+      <td>
+        {{ job.empType }}
+      </td>
+      <td class="text-center">
+        {{ job.numApplicant }}
+      </td>
+      <td class="text-center">
+        {{ job.numApply }}
+      </td>
+      <td class="text-center text-primary">
+        {{ job.numSchadule }}
+      </td>
+      <td class="text-center text-danger">
+        {{ job.numRejected }}
+      </td>
+      <td class="text-center text-success">
+        {{ job.numAccepted }}
+      </td>
+      <td>
+        <div
+          class="d-flex justify-content-start gap-5 align-items-center w-100"
+        >
+          <!-- <a [routerLink]="['/job-openings/view-job-openings', job.jobId]" -->
+          <a
+            (click)="navigateToView(job.jobId)"
+            class="view-btn h-100 d-flex align-items-center gap-1 w-auto me-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+            >
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z"
+                />
+                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+              </g>
+            </svg>
+            <span>View</span>
+          </a>
+          <!-- Archive button -->
+          <a
+            (click)="openArchiveModal(job.jobId)"
+            class="remove-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Archive"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M12.53 17.53a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.22 1.22V11a.75.75 0 0 1 1.5 0v4.19l1.22-1.22a.75.75 0 1 1 1.06 1.06z"
+              />
+              <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M12.057 1.25h-.114c-2.309 0-4.118 0-5.53.19c-1.444.194-2.584.6-3.479 1.494c-.895.895-1.3 2.035-1.494 3.48c-.19 1.411-.19 3.22-.19 5.529V12h.01c-.01.579-.01 1.23-.01 1.966v.068c0 1.371 0 2.447.07 3.311c.073.88.221 1.607.557 2.265a5.75 5.75 0 0 0 2.513 2.513c.658.336 1.385.485 2.265.556c.864.071 1.94.071 3.311.071h4.068c1.371 0 2.447 0 3.311-.07c.88-.072 1.607-.221 2.265-.557a5.75 5.75 0 0 0 2.513-2.513c.336-.658.485-1.385.556-2.265c.071-.864.071-1.94.071-3.311v-.068c0-.736 0-1.387-.01-1.966h.01v-.057c0-2.309 0-4.118-.19-5.53c-.194-1.444-.6-2.584-1.494-3.479c-.895-.895-2.035-1.3-3.48-1.494c-1.411-.19-3.22-.19-5.529-.19M4.39 5.877a5.8 5.8 0 0 0-1.508 1.11q.02-.192.044-.373c.172-1.279.5-2.05 1.069-2.62c.57-.569 1.34-.896 2.619-1.068c1.3-.174 3.008-.176 5.386-.176s4.086.002 5.386.176c1.279.172 2.05.5 2.62 1.069c.569.57.896 1.34 1.068 2.619q.023.18.044.373a5.8 5.8 0 0 0-1.508-1.11c-.658-.336-1.385-.484-2.265-.556c-.864-.071-1.94-.071-3.311-.071H9.966c-1.371 0-2.447 0-3.311.07c-.88.073-1.607.221-2.265.557m.68 1.336c.412-.21.92-.333 1.707-.397c.796-.065 1.81-.066 3.223-.066h4c1.412 0 2.427 0 3.223.066c.787.064 1.295.188 1.707.397a4.25 4.25 0 0 1 1.857 1.858c.21.411.333.919.397 1.706c.065.796.066 1.81.066 3.223s0 2.427-.066 3.223c-.064.787-.188 1.295-.397 1.707a4.25 4.25 0 0 1-1.857 1.857c-.412.21-.92.333-1.707.397c-.796.065-1.81.066-3.223.066h-4c-1.413 0-2.427 0-3.223-.066c-.787-.064-1.295-.188-1.706-.397a4.25 4.25 0 0 1-1.858-1.857c-.21-.412-.333-.92-.397-1.707c-.065-.796-.066-1.81-.066-3.223s0-2.427.066-3.223c.064-.787.188-1.295.397-1.706a4.25 4.25 0 0 1 1.858-1.858"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </a>
+
+          <!-- Pause button - shown when job is Live -->
+          @if (isJobLive(job.status)) {
+          <a
+            (click)="toggleJobStatus(job)"
+            class="pause-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Pause"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m8.228-4.75h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.428.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013A8 8 0 0 0 9.5 8.75c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012m5.577-1.52h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.429.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013a8 8 0 0 0-.496-.008c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </a>
+          }
+
+          <!-- Play/Live button - shown when job is Paused or other status -->
+          @if (!isJobLive(job.status)) {
+          <a
+            (click)="toggleJobStatus(job)"
+            class="play-btn h-100 d-flex align-items-center gap-1 w-auto cursor-pointer"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Make Live"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m9.44-4.44c-.347-.201-.737-.31-1.135-.31c-1.286 0-2.305 1.04-2.305 2.313v4.874c0 1.272 1.019 2.313 2.305 2.313c.398 0 .788-.109 1.134-.31l3.97-2.31c.72-.418 1.091-1.262 1.091-2.127s-.371-1.71-1.09-2.127z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </a>
+          }
+        </div>
+      </td>
+    </ng-template>
+
+    <ng-template #noJob>
+      <tr>
+        <td colspan="7" class="no-data py-4">
+          @if (searchTerm.trim()) { No Job Opening match your search. } @else {
+          No Job Opening Added Yet. }
+        </td>
+      </tr>
+    </ng-template>
+  </div>
+</div>
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-    <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
-        <!-- 1. Created At -->
-        <div class="input">
-            <label for="createdFrom">Created At</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="date" formControlName="createdFrom" id="createdFrom"
-                        class="form-control custom-date-input" placeholder="From Date" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <path stroke-linecap="round"
-                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                            <circle cx="18" cy="18" r="3" />
-                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                        </g>
-                    </svg>
-                </div>
-                <svg *ngIf="!filterForm.get('createdFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('createdFrom')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
+  <form
+    [formGroup]="filterForm"
+    (ngSubmit)="filter()"
+    class="w-100 d-flex flex-column gap-3"
+  >
+    <!-- 1. Created At -->
+    <div class="input">
+      <label for="createdFrom">Created At</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="date"
+            formControlName="createdFrom"
+            id="createdFrom"
+            class="form-control custom-date-input"
+            placeholder="From Date"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke-width="1.5">
+              <path
+                stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5"
+              />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
         </div>
+        @if (!filterForm.get('createdFrom')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
+          />
+          <path
+            fill="#e04f5f"
+            fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+        } @if (filterForm.get('createdFrom')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
 
-        <div class="input">
-            <label for="createdTo">Created To</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input type="date" formControlName="createdTo" id="createdTo" class="form-control custom-date-input"
-                        placeholder="To Date" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <g fill="none" stroke-width="1.5">
-                            <path stroke-linecap="round"
-                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                            <circle cx="18" cy="18" r="3" />
-                            <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                        </g>
-                    </svg>
-                </div>
-                <svg *ngIf="!filterForm.get('createdTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('createdTo')?.value" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
+    <div class="input">
+      <label for="createdTo">Created To</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="date"
+            formControlName="createdTo"
+            id="createdTo"
+            class="form-control custom-date-input"
+            placeholder="To Date"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke-width="1.5">
+              <path
+                stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5"
+              />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
         </div>
+        @if (!filterForm.get('createdTo')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
+          />
+          <path
+            fill="#e04f5f"
+            fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+        } @if (filterForm.get('createdTo')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
 
-        <!-- 2. Status -->
-        <div class="input">
-            <label for="status">Status</label>
-            <div class="d-flex align-items-center gap-4">
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <select name="" id="status" formControlName="status" class="form-select">
-                        <option value="" selected disabled hidden>Select</option>
-                        <option value="0">Live</option>
-                        <option value="1">Completed</option>
-                        <option value="2">Draft</option>
-                        <option value="3">Archived</option>
-                    </select>
-                </div>
-                <svg *ngIf="!filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <path fill="#e04f5f"
-                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-                    <path fill="#e04f5f" fill-rule="evenodd"
-                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                        clip-rule="evenodd" />
-                </svg>
-                <svg *ngIf="filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24">
-                    <g fill="none" stroke="#3f9870" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-            </div>
+    <!-- 2. Status -->
+    <div class="input">
+      <label for="status">Status</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select
+            name=""
+            id="status"
+            formControlName="status"
+            class="form-select"
+          >
+            <option value="" selected disabled hidden>Select</option>
+            <option value="0">Live</option>
+            <option value="1">Completed</option>
+            <option value="2">Draft</option>
+            <option value="3">Archived</option>
+          </select>
         </div>
+        @if (!filterForm.get('status')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
+          />
+          <path
+            fill="#e04f5f"
+            fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd"
+          />
+        </svg>
+        } @if (filterForm.get('status')?.value) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="#3f9870" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
 
-
-
-
-
-
-
-
-
-        <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-lg btn-primary w-100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <g fill="none" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>Apply Filter</span>
-            </button>
-            <a (click)="resetFilterForm()" type="button" class="text-danger-dark fw-bold w-100 text-center">
-                <span>Clear Filters</span>
-            </a>
-        </div>
-    </form>
-
-
-
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
+          </g>
+        </svg>
+        <span>Apply Filter</span>
+      </button>
+      <a
+        (click)="resetFilterForm()"
+        type="button"
+        class="text-danger-dark fw-bold w-100 text-center"
+      >
+        <span>Clear Filters</span>
+      </a>
+    </div>
+  </form>
 </app-overlay-filter-box>
 
 <!-- Archive confirmation popup -->
-<app-popup [title]="'Archive Job Opening'" [paragraph1]="'Are you sure you want to archive this job opening?'"
-    [paragraph2]="'This will move the job opening to archived status and it will no longer be visible to applicants.'"
-    [isOpen]="isArchiveModalOpen" (close)="closeArchiveModal()">
-    <button modal-btn-left class="btn btn-lg btn-warning w-100" (click)="confirmArchive()">
-        Confirm Archive
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeArchiveModal()">
-        Cancel
-    </button>
+<app-popup
+  [title]="'Archive Job Opening'"
+  [paragraph1]="'Are you sure you want to archive this job opening?'"
+  [paragraph2]="
+    'This will move the job opening to archived status and it will no longer be visible to applicants.'
+  "
+  [isOpen]="isArchiveModalOpen"
+  (close)="closeArchiveModal()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-warning w-100"
+    (click)="confirmArchive()"
+  >
+    Confirm Archive
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeArchiveModal()"
+  >
+    Cancel
+  </button>
 </app-popup>

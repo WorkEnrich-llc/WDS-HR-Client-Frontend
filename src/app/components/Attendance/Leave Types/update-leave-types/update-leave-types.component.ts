@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 
@@ -20,10 +20,15 @@ export class UpdateLeaveTypesComponent implements OnInit {
   carryoverAllowed: boolean = false;
   errMsg: string = '';
   isLoading: boolean = false;
+  loadingData: boolean = false;
   leaveTypeData: any = [];
   formattedCreatedAt: string = '';
   formattedUpdatedAt: string = '';
   leaveId: string | null = null;
+  originalConditions: any[] = []; // Store original conditions to track changes
+  documentStatus: number = 3; // Default: Optional - 3
+  permission: string = 'day_off'; // Default permission
+  isInitializing: boolean = false; // Flag to prevent change detection during initialization
   constructor(
     private _LeaveTypeService: LeaveTypeService,
     private router: Router,
@@ -39,9 +44,9 @@ export class UpdateLeaveTypesComponent implements OnInit {
     }
 
     this.setupCheckboxControl('extra_with_min_days_service', ['minDaysService']);
-    this.setupCheckboxControl('extra_with_age', ['age', 'extraDays']);
-    this.setupCheckboxControl('extra_with_service', ['yearsOfService', 'extraDaysService']);
     this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
+    this.setupAgeCheckbox();
+    this.setupServiceCheckbox();
 
     const leaveLimitsControl = this.leaveType2.get('leave_limits');
     const maximumCarryoverControl = this.leaveType2.get('maximum_carryover_days');
@@ -91,22 +96,123 @@ export class UpdateLeaveTypesComponent implements OnInit {
       dependentControls.forEach(ctrl => {
         if (checked) {
           this.leaveType3.get(ctrl)?.enable();
+          // Add validators when enabled
+          this.leaveType3.get(ctrl)?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get(ctrl)?.updateValueAndValidity();
         } else {
           this.leaveType3.get(ctrl)?.disable();
           this.leaveType3.get(ctrl)?.reset();
+          this.leaveType3.get(ctrl)?.clearValidators();
+          this.leaveType3.get(ctrl)?.updateValueAndValidity();
         }
       });
     });
   }
 
-  getLeaveJob(leaveId: number) {
+  // FormArray methods for age items
+  get ageItems(): FormArray {
+    return this.leaveType3.get('ageItems') as FormArray;
+  }
 
+  addAgeItem(conditionId?: number): void {
+    const ageItem = this.fb.group({
+      id: [conditionId || null], // Store condition ID if it exists
+      age: ['', [Validators.required, Validators.pattern('^\\d+$')]],
+      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+    });
+    this.ageItems.push(ageItem);
+    if (!this.isInitializing) {
+      this.leaveType3.markAsDirty();
+      this.checkFormChanges();
+    }
+  }
+
+  removeAgeItem(index: number): void {
+    this.ageItems.removeAt(index);
+    if (!this.isInitializing) {
+      this.leaveType3.markAsDirty();
+      this.checkFormChanges();
+    }
+  }
+
+  private setupAgeCheckbox(): void {
+    // Initialize with one item if empty
+    if (this.ageItems.length === 0) {
+      this.addAgeItem();
+    }
+    
+    this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        this.ageItems.enable();
+      } else {
+        this.ageItems.disable();
+        // Keep items but disable them, don't clear
+      }
+    });
+    // Initially disable the FormArray
+    this.ageItems.disable();
+  }
+
+  get serviceItems(): FormArray {
+    return this.leaveType3.get('serviceItems') as FormArray;
+  }
+
+  addServiceItem(conditionId?: number): void {
+    const serviceItem = this.fb.group({
+      id: [conditionId || null], // Store condition ID if it exists
+      yearsOfService: ['', [Validators.required, Validators.pattern('^\\d+$')]],
+      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+    });
+    this.serviceItems.push(serviceItem);
+    if (!this.isInitializing) {
+      this.leaveType3.markAsDirty();
+      this.checkFormChanges();
+    }
+  }
+
+  removeServiceItem(index: number): void {
+    this.serviceItems.removeAt(index);
+    if (!this.isInitializing) {
+      this.leaveType3.markAsDirty();
+      this.checkFormChanges();
+    }
+  }
+
+  private setupServiceCheckbox(): void {
+    // Initialize with one item if empty
+    if (this.serviceItems.length === 0) {
+      this.addServiceItem();
+    }
+    
+    this.leaveType3.get('extra_with_service')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        this.serviceItems.enable();
+      } else {
+        this.serviceItems.disable();
+        // Keep items but disable them, don't clear
+      }
+    });
+    // Initially disable the FormArray
+    this.serviceItems.disable();
+  }
+
+  getLeaveJob(leaveId: number) {
+    this.loadingData = true;
+    this.isInitializing = true; // Set flag to prevent change detection during initialization
     this._LeaveTypeService.showLeaveType(leaveId).subscribe({
       next: (response) => {
+        this.loadingData = false;
         this.leaveTypeData = response.data.object_info;
 
         const settings = this.leaveTypeData.settings;
         this.carryoverAllowed = settings.allow_carryover;
+
+        // Load document_status and permission
+        this.documentStatus = this.leaveTypeData.document_status?.id || 3;
+        this.permission = this.leaveTypeData.permission || 'day_off';
 
         this.leaveType1.patchValue({
           code: this.leaveTypeData.code,
@@ -127,50 +233,175 @@ export class UpdateLeaveTypesComponent implements OnInit {
           minDaysService: settings.extra_conditions?.min_days_service?.value || null,
 
           extra_with_age: settings.extra_conditions?.age?.status || false,
-          age: settings.extra_conditions?.age?.from || null,
-          extraDays: settings.extra_conditions?.age?.to || null,
 
           extra_with_service: settings.extra_conditions?.service?.status || false,
-          yearsOfService: settings.extra_conditions?.service?.from || null,
-          extraDaysService: settings.extra_conditions?.service?.to || null,
 
           extra_with_experience: settings.extra_conditions?.experience?.status || false,
           yearsOfExperience: settings.extra_conditions?.experience?.from || null,
           extraDaysExperience: settings.extra_conditions?.experience?.to || null
         });
 
+        // Store original conditions for tracking changes
+        this.originalConditions = this.leaveTypeData.conditions || [];
+
+        // Load age items from conditions array (condition.id === 1 means Age)
+        this.ageItems.clear();
+        const ageConditions = this.leaveTypeData.conditions?.filter((cond: any) => 
+          cond.condition?.id === 1 && cond.is_active
+        ) || [];
+        
+        if (ageConditions.length > 0) {
+          ageConditions.forEach((condition: any) => {
+            const ageItem = this.fb.group({
+              id: [condition.id || null], // Store original condition ID
+              age: [condition.value || '', [Validators.required, Validators.pattern('^\\d+$')]],
+              extraDays: [condition.days || '', [Validators.required, Validators.pattern('^\\d+$')]]
+            });
+            this.ageItems.push(ageItem);
+          });
+          if (this.leaveType3.get('extra_with_age')?.value) {
+            this.ageItems.enable();
+          }
+        } else {
+          // Initialize with one empty item if no data exists
+          this.addAgeItem();
+        }
+
+        // Load service items from conditions array (condition.id === 2 means Service)
+        this.serviceItems.clear();
+        const serviceConditions = this.leaveTypeData.conditions?.filter((cond: any) => 
+          cond.condition?.id === 2 && cond.is_active
+        ) || [];
+        
+        if (serviceConditions.length > 0) {
+          serviceConditions.forEach((condition: any) => {
+            const serviceItem = this.fb.group({
+              id: [condition.id || null], // Store original condition ID
+              yearsOfService: [condition.value || '', [Validators.required, Validators.pattern('^\\d+$')]],
+              extraDays: [condition.days || '', [Validators.required, Validators.pattern('^\\d+$')]]
+            });
+            this.serviceItems.push(serviceItem);
+          });
+          if (this.leaveType3.get('extra_with_service')?.value) {
+            this.serviceItems.enable();
+          }
+        } else {
+          // Initialize with one empty item if no data exists
+          this.addServiceItem();
+        }
+
+        // Apply validators if checkboxes are checked when loading existing data
+        if (settings.extra_conditions?.min_days_service?.status) {
+          this.leaveType3.get('minDaysService')?.enable();
+          this.leaveType3.get('minDaysService')?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get('minDaysService')?.updateValueAndValidity();
+        }
+        if (settings.extra_conditions?.service?.status) {
+          this.leaveType3.get('yearsOfService')?.enable();
+          this.leaveType3.get('yearsOfService')?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get('yearsOfService')?.updateValueAndValidity();
+          this.leaveType3.get('extraDaysService')?.enable();
+          this.leaveType3.get('extraDaysService')?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get('extraDaysService')?.updateValueAndValidity();
+        }
+        if (settings.extra_conditions?.experience?.status) {
+          this.leaveType3.get('yearsOfExperience')?.enable();
+          this.leaveType3.get('yearsOfExperience')?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get('yearsOfExperience')?.updateValueAndValidity();
+          this.leaveType3.get('extraDaysExperience')?.enable();
+          this.leaveType3.get('extraDaysExperience')?.setValidators([
+            Validators.required,
+            Validators.pattern('^\\d+$')
+          ]);
+          this.leaveType3.get('extraDaysExperience')?.updateValueAndValidity();
+        }
+
         this.toggleCarryoverValidators();
 
-        this.monitorFormChanges();
         this.leaveType2.get('leave_limits')?.updateValueAndValidity({ emitEvent: false });
 
         const created = this.leaveTypeData?.created_at;
         const updated = this.leaveTypeData?.updated_at;
         if (created) this.formattedCreatedAt = this.datePipe.transform(created, 'dd/MM/yyyy')!;
         if (updated) this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
+
+        // Initialize form change tracking after all data is loaded
+        this.isInitializing = false;
+        this.monitorFormChanges();
       },
       error: (err) => {
+        this.loadingData = false;
         console.log(err.error?.details);
       }
     });
   }
 
 
+  initialLeaveType1: any = null;
+  initialLeaveType2: any = null;
+  initialLeaveType3: any = null;
+
   monitorFormChanges() {
-    const initialLeaveType1 = this.leaveType1.getRawValue();
-    const initialLeaveType2 = this.leaveType2.getRawValue();
+    this.initialLeaveType1 = this.leaveType1.getRawValue();
+    this.initialLeaveType2 = this.leaveType2.getRawValue();
+    this.initialLeaveType3 = this.getLeaveType3RawValue();
 
     this.leaveType1.valueChanges.subscribe(() => {
-      const current1 = this.leaveType1.getRawValue();
-      this.isFormChanged = JSON.stringify(current1) !== JSON.stringify(initialLeaveType1) ||
-        JSON.stringify(this.leaveType2.getRawValue()) !== JSON.stringify(initialLeaveType2);
+      this.checkFormChanges();
     });
 
     this.leaveType2.valueChanges.subscribe(() => {
-      const current2 = this.leaveType2.getRawValue();
-      this.isFormChanged = JSON.stringify(this.leaveType1.getRawValue()) !== JSON.stringify(initialLeaveType1) ||
-        JSON.stringify(current2) !== JSON.stringify(initialLeaveType2);
+      this.checkFormChanges();
     });
+
+    this.leaveType3.valueChanges.subscribe(() => {
+      this.checkFormChanges();
+    });
+  }
+
+  checkFormChanges(): void {
+    const current1 = this.leaveType1.getRawValue();
+    const current2 = this.leaveType2.getRawValue();
+    const current3 = this.getLeaveType3RawValue();
+
+    this.isFormChanged = 
+      JSON.stringify(current1) !== JSON.stringify(this.initialLeaveType1) ||
+      JSON.stringify(current2) !== JSON.stringify(this.initialLeaveType2) ||
+      JSON.stringify(current3) !== JSON.stringify(this.initialLeaveType3);
+  }
+
+  getLeaveType3RawValue(): any {
+    return {
+      extra_with_min_days_service: this.leaveType3.get('extra_with_min_days_service')?.value,
+      minDaysService: this.leaveType3.get('minDaysService')?.value,
+      extra_with_age: this.leaveType3.get('extra_with_age')?.value,
+      extra_with_service: this.leaveType3.get('extra_with_service')?.value,
+      extra_with_experience: this.leaveType3.get('extra_with_experience')?.value,
+      yearsOfExperience: this.leaveType3.get('yearsOfExperience')?.value,
+      extraDaysExperience: this.leaveType3.get('extraDaysExperience')?.value,
+      ageItems: this.ageItems.controls.map(control => ({
+        id: control.get('id')?.value,
+        age: control.get('age')?.value,
+        extraDays: control.get('extraDays')?.value
+      })),
+      serviceItems: this.serviceItems.controls.map(control => ({
+        id: control.get('id')?.value,
+        yearsOfService: control.get('yearsOfService')?.value,
+        extraDays: control.get('extraDays')?.value
+      }))
+    };
   }
 
 
@@ -253,11 +484,11 @@ export class UpdateLeaveTypesComponent implements OnInit {
     // inputs 
     minDaysService: [{ value: '', disabled: true }],
 
-    age: [{ value: '', disabled: true }],
-    extraDays: [{ value: '', disabled: true }],
+    // FormArray for age items
+    ageItems: this.fb.array([]),
 
-    yearsOfService: [{ value: '', disabled: true }],
-    extraDaysService: [{ value: '', disabled: true }],
+    // FormArray for service items
+    serviceItems: this.fb.array([]),
 
     yearsOfExperience: [{ value: '', disabled: true }],
     extraDaysExperience: [{ value: '', disabled: true }],
@@ -310,12 +541,113 @@ export class UpdateLeaveTypesComponent implements OnInit {
       ? (isNaN(Number(minDaysServiceValue)) ? minDaysServiceValue : Number(minDaysServiceValue))
       : null;
 
+    // Build conditions arrays: create, update, delete
+    const conditionsToCreate: any[] = [];
+    const conditionsToUpdate: any[] = [];
+    const conditionsToDelete: any[] = [];
+
+    // Process age items (condition.id === 1)
+    this.ageItems.controls.forEach(control => {
+      const id = control.get('id')?.value;
+      const age = control.get('age')?.value;
+      const extraDays = control.get('extraDays')?.value;
+
+      // Only process if both values are filled
+      if (age && extraDays) {
+        const conditionData = {
+          condition: 1, // 1 = Age
+          value: Number(age) || 0,
+          value_to: 0,
+          days: Number(extraDays) || 0,
+          status: true
+        };
+
+        if (id) {
+          // Existing condition - check if it changed
+          const originalCondition = this.originalConditions.find((c: any) => c.id === id);
+          if (originalCondition) {
+            const hasChanged = 
+              originalCondition.value !== conditionData.value ||
+              originalCondition.days !== conditionData.days;
+            
+            if (hasChanged) {
+              conditionsToUpdate.push({
+                id: id,
+                ...conditionData
+              });
+            }
+          }
+        } else {
+          // New condition
+          conditionsToCreate.push(conditionData);
+        }
+      }
+    });
+
+    // Process service items (condition.id === 2)
+    this.serviceItems.controls.forEach(control => {
+      const id = control.get('id')?.value;
+      const yearsOfService = control.get('yearsOfService')?.value;
+      const extraDays = control.get('extraDays')?.value;
+
+      // Only process if both values are filled
+      if (yearsOfService && extraDays) {
+        const conditionData = {
+          condition: 2, // 2 = Service
+          value: Number(yearsOfService) || 0,
+          value_to: Number(extraDays) || 0,
+          days: Number(extraDays) || 0,
+          status: true
+        };
+
+        if (id) {
+          // Existing condition - check if it changed
+          const originalCondition = this.originalConditions.find((c: any) => c.id === id);
+          if (originalCondition) {
+            const hasChanged = 
+              originalCondition.value !== conditionData.value ||
+              originalCondition.value_to !== conditionData.value_to ||
+              originalCondition.days !== conditionData.days;
+            
+            if (hasChanged) {
+              conditionsToUpdate.push({
+                id: id,
+                ...conditionData
+              });
+            }
+          }
+        } else {
+          // New condition
+          conditionsToCreate.push(conditionData);
+        }
+      }
+    });
+
+    // Find deleted conditions (were in original but not in current FormArrays)
+    const currentAgeIds = this.ageItems.controls
+      .map(control => control.get('id')?.value)
+      .filter(id => id !== null && id !== undefined);
+    
+    const currentServiceIds = this.serviceItems.controls
+      .map(control => control.get('id')?.value)
+      .filter(id => id !== null && id !== undefined);
+    
+    const allCurrentIds = [...currentAgeIds, ...currentServiceIds];
+
+    this.originalConditions.forEach((originalCondition: any) => {
+      if (originalCondition.is_active && !allCurrentIds.includes(originalCondition.id)) {
+        conditionsToDelete.push({ id: originalCondition.id });
+      }
+    });
+
     const request_data = {
       id: Number(this.leaveTypeData.id),
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
+      permission: this.permission,
       description: this.leaveType1.get('description')?.value,
       employment_type: Number(this.leaveType1.get('employmentType')?.value),
+      document_status: this.documentStatus,
       settings: {
         accrual_rate: Number(this.leaveType2.get('accrual_rate')?.value),
         leave_limits: Number(this.leaveType2.get('leave_limits')?.value),
@@ -330,21 +662,26 @@ export class UpdateLeaveTypesComponent implements OnInit {
             value: minDaysServiceValueFinal || 0
           },
           age: {
-            status: this.leaveType3.get('extra_with_age')?.value || false,
-            from: this.leaveType3.get('age')?.value ? Number(this.leaveType3.get('age')?.value) : 0,
-            to: this.leaveType3.get('extraDays')?.value ? Number(this.leaveType3.get('extraDays')?.value) : 0
+            status: this.ageItems.length > 0 && this.leaveType3.get('extra_with_age')?.value,
+            from: this.ageItems.length > 0 ? Number(this.ageItems.controls[0].get('age')?.value) || 0 : 0,
+            to: this.ageItems.length > 0 ? Number(this.ageItems.controls[0].get('extraDays')?.value) || 0 : 0
           },
           service: {
-            status: this.leaveType3.get('extra_with_service')?.value || false,
-            from: this.leaveType3.get('yearsOfService')?.value ? Number(this.leaveType3.get('yearsOfService')?.value) : 0,
-            to: this.leaveType3.get('extraDaysService')?.value ? Number(this.leaveType3.get('extraDaysService')?.value) : 0
+            status: this.serviceItems.length > 0 && this.leaveType3.get('extra_with_service')?.value,
+            from: this.serviceItems.length > 0 ? Number(this.serviceItems.controls[0].get('yearsOfService')?.value) || 0 : 0,
+            to: this.serviceItems.length > 0 ? Number(this.serviceItems.controls[0].get('extraDays')?.value) || 0 : 0
           },
           experience: {
-            status: this.leaveType3.get('extra_with_experience')?.value || false,
-            from: this.leaveType3.get('yearsOfExperience')?.value ? Number(this.leaveType3.get('yearsOfExperience')?.value) : 0,
-            to: this.leaveType3.get('extraDaysExperience')?.value ? Number(this.leaveType3.get('extraDaysExperience')?.value) : 0
+            status: false,
+            from: 0,
+            to: 0
           }
         }
+      },
+      conditions: {
+        create: conditionsToCreate,
+        update: conditionsToUpdate,
+        delete: conditionsToDelete
       }
     };
     const finalData = { request_data };
@@ -397,8 +734,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
   get isSaveDisabled(): boolean {
     const isInvalid = this.leaveType1.invalid || this.leaveType2.invalid || this.leaveType3.invalid;
-    const isUnchanged = this.leaveType1.pristine && this.leaveType2.pristine && this.leaveType3.pristine;
-    return isInvalid || isUnchanged || this.isLoading;
+    return isInvalid || !this.isFormChanged || this.isLoading;
   }
 
 
