@@ -5,7 +5,9 @@
     { label: 'create New Job' }
   ]" title="Create Job - Job ID" [create]="todayFormatted">
   <button class="btn btn-lg btn-success w-auto">
-    <!-- <span *ngIf="isLoading" class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> -->
+    <!-- @if (isLoading) {
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    } -->
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
