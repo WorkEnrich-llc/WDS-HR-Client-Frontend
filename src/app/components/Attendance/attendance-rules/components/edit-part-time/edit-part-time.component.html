@@ -211,11 +211,11 @@
                 </label>
                 <input type="number" [id]="'lateness-threshold-' + occurrenceIndex + '-' + ruleIndex"
                   [(ngModel)]="rule.thresholdTime" class="form-control table-input"
-                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.thresholdTime"
+                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].thresholdTime"
                   (input)="clearLatenessValidationError(occurrenceIndex, ruleIndex, 'thresholdTime')"
-                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.thresholdTime"
+                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].thresholdTime"
                   placeholder="Enter Minutes" [ngModelOptions]="{ standalone: true }" />
-                @if (latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.thresholdTime) {
+                @if (latenessValidationErrors[occurrenceIndex][ruleIndex].thresholdTime) {
                 <div class="invalid-feedback d-block" role="alert">
                   Threshold time is required
                 </div>
@@ -230,11 +230,11 @@
                 </label>
                 <input type="number" [id]="'lateness-value-' + occurrenceIndex + '-' + ruleIndex"
                   [(ngModel)]="rule.deductionValue" class="form-control table-input"
-                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionValue"
+                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionValue"
                   (input)="clearLatenessValidationError(occurrenceIndex, ruleIndex, 'deductionValue')"
-                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionValue"
+                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionValue"
                   placeholder="Enter Value in days" [ngModelOptions]="{ standalone: true }" />
-                @if (latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionValue) {
+                @if (latenessValidationErrors[occurrenceIndex][ruleIndex].deductionValue) {
                 <div class="invalid-feedback d-block" role="alert">
                   Deduction value is required
                 </div>
@@ -249,9 +249,9 @@
                 </label>
                 <select [id]="'lateness-base-' + occurrenceIndex + '-' + ruleIndex" [(ngModel)]="rule.deductionBase"
                   class="form-select table-input"
-                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionBase"
+                  [class.is-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   (change)="clearLatenessValidationError(occurrenceIndex, ruleIndex, 'deductionBase')"
-                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionBase"
+                  [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
                   <option [value]="null">Select Salary Portion</option>
                   @for (portion of salaryPortions; track portion.index) {
@@ -264,7 +264,7 @@
                   </option>
                   }
                 </select>
-                @if (latenessValidationErrors[occurrenceIndex]?.[ruleIndex]?.deductionBase) {
+                @if (latenessValidationErrors[occurrenceIndex][ruleIndex].deductionBase) {
                 <div class="invalid-feedback d-block" role="alert">
                   Deduction base is required
                 </div>
