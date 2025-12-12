@@ -1,20 +1,21 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
 
 @Component({
   selector: 'app-required-details',
-  imports: [RouterLink, FormsModule],
+  imports: [FormsModule],
   templateUrl: './required-details.component.html',
   styleUrl: './required-details.component.css'
 })
 export class RequiredDetailsComponent implements OnInit {
   private jobCreationDataService = inject(JobCreationDataService);
-  private route = inject(ActivatedRoute);
 
-  isUpdateMode = false;
-  jobId: number | null = null;
+  @Input() isUpdateMode = false;
+  @Input() jobId: number | null = null;
+
+  @Output() prevTab = new EventEmitter<void>();
+  @Output() nextTab = new EventEmitter<void>();
 
   // Personal Details - Basic Info
   basicInfo = {
@@ -56,14 +57,6 @@ export class RequiredDetailsComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // Check if we're in update mode
-    this.route.parent?.params.subscribe(params => {
-      if (params['id']) {
-        this.isUpdateMode = true;
-        this.jobId = +params['id'];
-      }
-    });
-
     // Subscribe to service data to pre-fill form (for update mode)
     this.jobCreationDataService.jobData$.subscribe(data => {
       if (data.recruiter_dynamic_fields) {
@@ -193,5 +186,19 @@ export class RequiredDetailsComponent implements OnInit {
 
     // Update the service
     this.jobCreationDataService.updateDynamicFields(dynamicFields);
+  }
+
+  /**
+   * Navigate to previous step
+   */
+  goToPrevStep(): void {
+    this.prevTab.emit();
+  }
+
+  /**
+   * Navigate to next step (no validation needed for this tab as it's all checkboxes)
+   */
+  goToNextStep(): void {
+    this.nextTab.emit();
   }
 }

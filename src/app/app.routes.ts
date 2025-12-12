@@ -914,52 +914,14 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/create-jop-open.component').then(m => m.CreateJopOpenComponent),
                 title: 'Create Job Openings',
                 canActivate: [SubscriptionGuard],
-                data: { feature: 'Job_Openings', action: 'create' },
-                children: [
-                  {
-                    path: '',
-                    redirectTo: 'main-information',
-                    pathMatch: 'full'
-                  },
-                  {
-                    path: 'main-information',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
-                  },
-                  {
-                    path: 'required-details',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
-                  },
-                  {
-                    path: 'attachments',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
-                  },
-                ]
+                data: { feature: 'Job_Openings', action: 'create' }
               },
               {
                 path: 'update-job-openings/:id',
                 loadComponent: () => import('./components/Recruitment/job-openings/update-job-open/update-job-open.component').then(m => m.UpdateJobOpenComponent),
                 title: 'Update Job Opening',
                 canActivate: [SubscriptionGuard],
-                data: { feature: 'Job_Openings', action: 'update' },
-                children: [
-                  {
-                    path: '',
-                    redirectTo: 'main-information',
-                    pathMatch: 'full'
-                  },
-                  {
-                    path: 'main-information',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
-                  },
-                  {
-                    path: 'required-details',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
-                  },
-                  {
-                    path: 'attachments',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
-                  },
-                ]
+                data: { feature: 'Job_Openings', action: 'update' }
               },
               {
                 path: 'view-applicant-details/:applicationId',
