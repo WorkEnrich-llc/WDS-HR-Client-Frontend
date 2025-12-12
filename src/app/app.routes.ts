@@ -956,6 +956,27 @@ export const routes: Routes = [
             ]
           },
 
+          // Job Board Setup routes
+          {
+            path: 'job-board-setup',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Job_Board_Setup' },
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Recruitment/job-board-setup/view-job-board-setup/view-job-board-setup.component').then(m => m.ViewJobBoardSetupComponent),
+                title: 'Job Board Setup',
+              },
+              {
+                path: 'edit-job-board-setup',
+                loadComponent: () => import('./components/Recruitment/job-board-setup/edit-job-board-setup/edit-job-board-setup.component').then(m => m.EditJobBoardSetupComponent),
+                title: 'Edit Job Board Setup',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Board_Setup', action: 'update' }
+              },
+            ]
+          },
+
 
 
         ]

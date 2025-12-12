@@ -1,0 +1,313 @@
+/* Edit Job Board Setup Styles */
+
+:host {
+    /* Active tab/icon color */
+    --active-tab-color: #377AFD;
+    --active-tab-bg: #eef5ff;
+    /* Non-active tab/icon color */
+    --inactive-tab-color: #4A6D97;
+}
+
+/* Tab Navigation Styles - Matching Figma Design */
+.nav-tabs {
+    border-bottom: 1px solid #93a7c1;
+    gap: 0;
+    padding: 0;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+    position: relative;
+}
+
+.nav-tabs .nav-item .nav-link {
+    border: none;
+    background: transparent;
+    color: var(--inactive-tab-color);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 42px;
+}
+
+.nav-tabs .nav-item.active .nav-link {
+    background: var(--active-tab-bg);
+    color: var(--active-tab-color);
+    font-weight: 600;
+}
+
+.nav-tabs .nav-item.active .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background: #80aaff;
+    border-radius: 2px 2px 0 0;
+}
+
+.nav-tabs .nav-item:not(.active):hover .nav-link {
+    background: transparent;
+    color: #2c435d;
+}
+
+/* Icon styling */
+.nav-tabs .nav-item .nav-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.nav-tabs .nav-item.active .nav-link svg {
+    color: var(--active-tab-color);
+}
+
+.nav-tabs .nav-item:not(.active) .nav-link svg {
+    color: var(--inactive-tab-color);
+}
+
+/* Content box styling */
+.content-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.content-box .form-label {
+    font-weight: 400;
+    font-size: 16px;
+    color: #2c435d;
+    margin-bottom: 4px;
+}
+
+.content-box .form-control {
+    border: 1px solid #93a7c1;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    color: #2c435d;
+    min-height: 50px;
+}
+
+.content-box .form-control:focus {
+    border-color: #377AFD;
+    box-shadow: 0 0 0 0.2rem rgba(55, 122, 253, 0.25);
+}
+
+.content-box textarea.form-control {
+    min-height: 200px;
+    resize: vertical;
+}
+
+/* Social Media Links Section */
+.social-media-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    font-weight: 400;
+    font-size: 20px;
+    color: #1e2e40;
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.social-media-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 36px;
+    align-items: start;
+    margin: 0;
+    min-height: 50px;
+}
+
+.social-media-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.social-media-label-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    grid-column: 1;
+    min-width: 0;
+}
+
+.social-media-checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.social-media-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    z-index: 1;
+}
+
+.social-media-checkbox .checkmark {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #93a7c1;
+    border-radius: 4px;
+    background: #ffffff;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.social-media-checkbox input[type="checkbox"]:checked+.checkmark {
+    background: #377AFD;
+    border-color: #377AFD;
+}
+
+.social-media-checkbox input[type="checkbox"]:checked+.checkmark::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+
+.social-media-label {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 18px;
+    color: #2c435d;
+    white-space: nowrap;
+}
+
+.social-media-input {
+    height: 50px;
+    padding: 16px;
+    border: 1px solid #93a7c1;
+    border-radius: 16px;
+    font-size: 16px;
+    color: #2c435d;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 400px;
+}
+
+.social-media-input:focus:not(:disabled) {
+    border-color: #377AFD;
+    box-shadow: 0 0 0 0.2rem rgba(55, 122, 253, 0.25);
+    outline: none;
+}
+
+.social-media-input:disabled {
+    opacity: 0.45;
+    background: #ffffff;
+    cursor: not-allowed;
+}
+
+.social-media-input:disabled::placeholder {
+    opacity: 0.7;
+    color: #2c435d;
+}
+
+/* Theme Selector Section */
+.theme-selector-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.theme-buttons-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.theme-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 18px;
+    color: #2c435d;
+    white-space: nowrap;
+}
+
+.theme-button:hover {
+    background: rgba(55, 122, 253, 0.05);
+}
+
+.theme-button.selected {
+    background: rgba(var(--theme-color-rgb, 55, 122, 253), 0.05);
+    border-color: var(--theme-color, #377AFD);
+    color: var(--theme-color, #377AFD);
+}
+
+.theme-color-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.theme-name {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 18px;
+}
+
+.theme-preview {
+    border: 1px solid #c2c2c2;
+    border-radius: 8px;
+    height: 352px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    max-width: 495px;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
