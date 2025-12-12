@@ -35,9 +35,9 @@ export class CreateLeaveTypeComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupCheckboxControl('extra_with_min_days_service', ['minDaysService']);
-    this.setupCheckboxControl('extra_with_experience', ['yearsOfExperience', 'extraDaysExperience']);
     this.setupAgeCheckbox();
     this.setupServiceCheckbox();
+    this.setupExperienceCheckbox();
     // this.setupAccrualValidation(); // 
 
     const leaveLimitsControl = this.leaveType2.get('leave_limits');
@@ -111,9 +111,10 @@ export class CreateLeaveTypeComponent implements OnInit {
   }
 
   addAgeItem(): void {
+    const isChecked = this.leaveType3.get('extra_with_age')?.value;
     const ageItem = this.fb.group({
-      age: ['', [Validators.required, Validators.pattern('^\\d+$')]],
-      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+      age: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]],
+      extraDays: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]]
     });
     this.ageItems.push(ageItem);
   }
@@ -131,9 +132,22 @@ export class CreateLeaveTypeComponent implements OnInit {
     this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.ageItems.enable();
+        // Add required validators when checkbox is checked
+        this.ageItems.controls.forEach(control => {
+          control.get('age')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('age')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
       } else {
         this.ageItems.disable();
-        // Keep items but disable them, don't clear
+        // Remove required validators when checkbox is unchecked
+        this.ageItems.controls.forEach(control => {
+          control.get('age')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('age')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
       }
     });
     // Initially disable the FormArray
@@ -145,9 +159,10 @@ export class CreateLeaveTypeComponent implements OnInit {
   }
 
   addServiceItem(): void {
+    const isChecked = this.leaveType3.get('extra_with_service')?.value;
     const serviceItem = this.fb.group({
-      yearsOfService: ['', [Validators.required, Validators.pattern('^\\d+$')]],
-      extraDays: ['', [Validators.required, Validators.pattern('^\\d+$')]]
+      yearsOfService: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]],
+      extraDays: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]]
     });
     this.serviceItems.push(serviceItem);
   }
@@ -165,13 +180,74 @@ export class CreateLeaveTypeComponent implements OnInit {
     this.leaveType3.get('extra_with_service')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.serviceItems.enable();
+        // Add required validators when checkbox is checked
+        this.serviceItems.controls.forEach(control => {
+          control.get('yearsOfService')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('yearsOfService')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
       } else {
         this.serviceItems.disable();
-        // Keep items but disable them, don't clear
+        // Remove required validators when checkbox is unchecked
+        this.serviceItems.controls.forEach(control => {
+          control.get('yearsOfService')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('yearsOfService')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
       }
     });
     // Initially disable the FormArray
     this.serviceItems.disable();
+  }
+
+  get experienceItems(): FormArray {
+    return this.leaveType3.get('experienceItems') as FormArray;
+  }
+
+  addExperienceItem(): void {
+    const isChecked = this.leaveType3.get('extra_with_experience')?.value;
+    const experienceItem = this.fb.group({
+      yearsOfExperience: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]],
+      extraDays: ['', isChecked ? [Validators.required, Validators.pattern('^\\d+$')] : [Validators.pattern('^\\d+$')]]
+    });
+    this.experienceItems.push(experienceItem);
+  }
+
+  removeExperienceItem(index: number): void {
+    this.experienceItems.removeAt(index);
+  }
+
+  private setupExperienceCheckbox(): void {
+    // Initialize with one item if empty
+    if (this.experienceItems.length === 0) {
+      this.addExperienceItem();
+    }
+    
+    this.leaveType3.get('extra_with_experience')?.valueChanges.subscribe(checked => {
+      if (checked) {
+        this.experienceItems.enable();
+        // Add required validators when checkbox is checked
+        this.experienceItems.controls.forEach(control => {
+          control.get('yearsOfExperience')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('yearsOfExperience')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.required, Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
+      } else {
+        this.experienceItems.disable();
+        // Remove required validators when checkbox is unchecked
+        this.experienceItems.controls.forEach(control => {
+          control.get('yearsOfExperience')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('yearsOfExperience')?.updateValueAndValidity({ emitEvent: false });
+          control.get('extraDays')?.setValidators([Validators.pattern('^\\d+$')]);
+          control.get('extraDays')?.updateValueAndValidity({ emitEvent: false });
+        });
+      }
+    });
+    // Initially disable the FormArray
+    this.experienceItems.disable();
   }
 
   leaveType1: FormGroup = new FormGroup({
@@ -300,8 +376,8 @@ export class CreateLeaveTypeComponent implements OnInit {
     // FormArray for service items
     serviceItems: this.fb.array([]),
 
-    yearsOfExperience: [{ value: '', disabled: true }],
-    extraDaysExperience: [{ value: '', disabled: true }],
+    // FormArray for experience items
+    experienceItems: this.fb.array([]),
   });
 
 
@@ -370,6 +446,17 @@ export class CreateLeaveTypeComponent implements OnInit {
         status: true
       }));
 
+    // Build conditions.create array from experience items
+    const experienceConditions = this.experienceItems.controls
+      .filter(control => control.get('yearsOfExperience')?.value && control.get('extraDays')?.value)
+      .map(control => ({
+        condition: 3, // 3 = Experience
+        value: Number(control.get('yearsOfExperience')?.value) || 0,
+        value_to: Number(control.get('extraDays')?.value) || 0,
+        days: Number(control.get('extraDays')?.value) || 0,
+        status: true
+      }));
+
     const request_data = {
       code: this.leaveType1.get('code')?.value,
       name: this.leaveType1.get('name')?.value,
@@ -406,14 +493,14 @@ export class CreateLeaveTypeComponent implements OnInit {
             to: this.serviceItems.length > 0 ? Number(this.serviceItems.controls[0].get('extraDays')?.value) || 0 : 0
           },
           experience: {
-            status: false,
-            from: 0,
-            to: 0
+            status: this.experienceItems.length > 0 && this.leaveType3.get('extra_with_experience')?.value,
+            from: this.experienceItems.length > 0 ? Number(this.experienceItems.controls[0].get('yearsOfExperience')?.value) || 0 : 0,
+            to: this.experienceItems.length > 0 ? Number(this.experienceItems.controls[0].get('extraDays')?.value) || 0 : 0
           }
         }
       },
       conditions: {
-        create: [...ageConditions, ...serviceConditions],
+        create: [...ageConditions, ...serviceConditions, ...experienceConditions],
         update: [],
         delete: []
       }
