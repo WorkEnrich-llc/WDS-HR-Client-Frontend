@@ -1,0 +1,13 @@
+<app-navbar
+  [logo]="logoData"
+  [socialMediaLinks]="socialMediaLinks"
+  [websiteUrl]="websiteUrl"
+  [showVisitWebsite]="true"
+>
+</app-navbar>
+
+<div class="content-wrapper">
+  <router-outlet (activate)="onChildActivate($event)"></router-outlet>
+</div>
+
+<app-footer [logo]="logoData"></app-footer>

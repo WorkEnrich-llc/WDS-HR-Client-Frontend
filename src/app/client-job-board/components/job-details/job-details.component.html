@@ -1,0 +1,497 @@
+<main
+  class="job-details-container"
+  role="main"
+  [attr.aria-label]="
+    job ? 'Job details for ' + getJobTitle(job) : 'Job details'
+  "
+  [attr.aria-busy]="isLoading || isLoadingRelated"
+>
+  <!-- Loading State -->
+  @if (isLoading) {
+  <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    [attr.aria-label]="getLoadingAnnouncement()"
+    class="sr-only"
+  >
+    Loading job details, please wait...
+  </div>
+  <div
+    class="skeleton-loader"
+    role="progressbar"
+    aria-label="Loading job details"
+    aria-valuetext="Loading"
+  >
+    <div class="skeleton skeleton-header"></div>
+    <div class="skeleton skeleton-content"></div>
+    <div class="skeleton skeleton-content"></div>
+    <div class="skeleton skeleton-content short"></div>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage && !isLoading) {
+  <div
+    role="alert"
+    aria-live="assertive"
+    class="error-card"
+    aria-describedby="error-description"
+  >
+    <div class="error-card-content">
+      <div class="error-icon-wrapper">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          class="error-icon"
+        >
+          <path
+            d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <div class="error-text-content">
+        <h3 class="error-title">Oops! We couldn't load the job details</h3>
+        <p id="error-description" class="error-description">
+          {{ errorMessage }}
+        </p>
+      </div>
+    </div>
+    <div class="error-actions">
+      <button
+        type="button"
+        class="error-retry-button"
+        (click)="retryLoadJobDetails()"
+        aria-label="Try again to load job details"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C10.6781 16.5 12.2225 15.9258 13.4419 14.9419L12.375 12.375"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M16.5 9C16.5 4.85786 13.1421 1.5 9 1.5C7.32187 1.5 5.77754 2.07422 4.55812 3.05812L5.625 5.625"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M5.625 5.625L8.25 3L5.625 0.375"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12.375 12.375L9.75 15L12.375 17.625"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Try Again
+      </button>
+      <a
+        routerLink="/careers"
+        class="error-back-button"
+        aria-label="Go back to job listings"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M10.5 12.75L7.5 9L10.5 5.25"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Back to Jobs
+      </a>
+    </div>
+  </div>
+  }
+
+  <!-- Job Details Content - Two Column Layout -->
+  @if (!isLoading && job && !errorMessage) {
+  <div class="job-details-layout">
+    <!-- Left Column - Main Job Details -->
+    <div class="job-details-main">
+      <!-- Back Button -->
+      <nav class="back-navigation" aria-label="Back to job listings">
+        <a
+          routerLink="/careers"
+          class="back-link"
+          aria-label="Go back to job listings"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M10.5 12.75L7.5 9L10.5 5.25"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Back to Jobs</span>
+        </a>
+      </nav>
+
+      <!-- Job Information Card -->
+      <article
+        class="job-info-card"
+        [attr.aria-labelledby]="'job-title-' + job.id"
+        [attr.aria-describedby]="
+          'job-meta-' + job.id + ' job-description-heading'
+        "
+        [attr.aria-label]="getJobCardAriaLabel(job)"
+      >
+        <div class="job-tags" role="list" aria-label="Job tags">
+          <span
+            class="tag tag-primary"
+            role="listitem"
+            [attr.aria-label]="'Job level: ' + getJobLevel(job)"
+            >{{ getJobLevel(job) }}</span
+          >
+          @if (isJobNew(job.created_at)) {
+          <span
+            class="tag tag-new"
+            role="listitem"
+            aria-label="New job posting, posted within the last 7 days"
+          >
+            <span class="sr-only">New: </span>NEW!
+          </span>
+          }
+          <span
+            class="tag tag-secondary"
+            role="listitem"
+            [attr.aria-label]="'Employment type: ' + getEmploymentType(job)"
+            >{{ getEmploymentType(job) }}</span
+          >
+          <span
+            class="tag tag-secondary"
+            role="listitem"
+            [attr.aria-label]="'Work schedule: ' + getWorkSchedule(job)"
+            >{{ getWorkSchedule(job) }}</span
+          >
+        </div>
+
+        <h1 class="job-title" [attr.id]="'job-title-' + job.id" tabindex="-1">
+          {{ getJobTitle(job) }}
+        </h1>
+
+        <div
+          class="job-meta-info"
+          [attr.id]="'job-meta-' + job.id"
+          role="list"
+          aria-label="Job information"
+        >
+          <div class="job-meta-item" role="listitem">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                opacity="0.3"
+                d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
+                fill="#4A6D97"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
+                fill="#4A6D97"
+              />
+            </svg>
+            <span>
+              <span class="sr-only">Location: </span>{{ getJobBranch(job) }}
+            </span>
+          </div>
+          <div class="job-meta-item" role="listitem">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5ZM9 15C5.68629 15 3 12.3137 3 9C3 5.68629 5.68629 3 9 3C12.3137 3 15 5.68629 15 9C15 12.3137 12.3137 15 9 15Z"
+                fill="#4A6D97"
+              />
+              <path
+                d="M9 5.25V9L11.25 10.5"
+                stroke="#4A6D97"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>
+              <span class="sr-only">Experience required: </span
+              >{{ getExperienceText(getJobLevel(job)) }}
+            </span>
+          </div>
+        </div>
+
+        <button
+          class="apply-button"
+          type="button"
+          [attr.aria-label]="'Apply for ' + getJobTitle(job) + ' position'"
+          [attr.aria-describedby]="'job-title-' + job.id"
+          (click)="onApplyClick()"
+          (keydown.enter)="onApplyClick()"
+          (keydown.space)="onApplyClick(); $event.preventDefault()"
+        >
+          <span>Apply Now</span>
+          <span class="sr-only"> for {{ getJobTitle(job) }}</span>
+        </button>
+      </article>
+
+      <!-- Combined Job Description and Requirements Card -->
+      <section
+        class="job-section-card"
+        aria-labelledby="job-description-heading"
+        [attr.aria-describedby]="
+          job.job_requirements ? 'job-requirements-heading' : null
+        "
+      >
+        <!-- Job Description Section -->
+        <div class="section-block">
+          <h2 id="job-description-heading" class="section-heading">
+            Job Description
+          </h2>
+          <div
+            class="section-content"
+            role="region"
+            [attr.aria-labelledby]="'job-description-heading'"
+          >
+            <p [attr.aria-label]="'Job description for ' + getJobTitle(job)">
+              {{ job.job_description }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Separator -->
+        @if (job.job_requirements) {
+        <hr class="section-divider" aria-hidden="true" role="separator" />
+        }
+
+        <!-- Job Requirements Section -->
+        @if (job.job_requirements) {
+        <div class="section-block">
+          <h2 id="job-requirements-heading" class="section-heading">
+            Job Requirements
+          </h2>
+          <div
+            class="section-content"
+            role="region"
+            [attr.aria-labelledby]="'job-requirements-heading'"
+          >
+            <p [attr.aria-label]="'Job requirements for ' + getJobTitle(job)">
+              {{ job.job_requirements }}
+            </p>
+          </div>
+        </div>
+        }
+      </section>
+    </div>
+
+    <!-- Right Column - Related Opportunities -->
+    <aside
+      class="related-jobs-sidebar"
+      aria-label="Related job opportunities"
+      [attr.aria-busy]="isLoadingRelated"
+    >
+      <h2 class="related-jobs-title" id="related-opportunities-heading">
+        Related Opportunities
+      </h2>
+
+      @if (isLoadingRelated) {
+      <div
+        class="related-jobs-loading"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading related job opportunities"
+      >
+        <span class="sr-only"
+          >Loading related job opportunities, please wait.</span
+        >
+        @for (item of [1, 2, 3]; track item) {
+        <article
+          class="related-job-card skeleton-card"
+          role="article"
+          [attr.aria-label]="'Loading related job ' + item"
+        >
+          <div class="skeleton-job-tags" role="list" aria-hidden="true">
+            <div class="skeleton skeleton-tag"></div>
+            <div class="skeleton skeleton-tag"></div>
+          </div>
+          <div class="skeleton skeleton-job-category"></div>
+          <div class="skeleton skeleton-job-title"></div>
+          <div class="skeleton skeleton-job-location"></div>
+          <div class="skeleton skeleton-job-description"></div>
+        </article>
+        }
+      </div>
+      } @else {
+      <div
+        class="related-jobs-list"
+        role="list"
+        [attr.aria-labelledby]="'related-opportunities-heading'"
+        [attr.aria-label]="
+          'List of ' + relatedJobs.length + ' related job opportunities'
+        "
+      >
+        @for (relatedJob of relatedJobs; track relatedJob.id; let i = $index) {
+        <article
+          class="related-job-card"
+          role="listitem"
+          [attr.aria-labelledby]="'related-job-title-' + relatedJob.id"
+          [attr.aria-posinset]="i + 1"
+          [attr.aria-setsize]="relatedJobs.length"
+        >
+          <a
+            class="related-job-link"
+            [routerLink]="['/careers', relatedJob.id]"
+            [attr.aria-label]="getRelatedJobAriaLabel(relatedJob)"
+            [attr.aria-describedby]="'related-job-title-' + relatedJob.id"
+            tabindex="0"
+            (keydown.enter)="router.navigate(['/careers', relatedJob.id])"
+            (keydown.space)="
+              router.navigate(['/careers', relatedJob.id]);
+              $event.preventDefault()
+            "
+          >
+            <div class="related-job-tags" role="list" aria-label="Job tags">
+              <span
+                class="tag tag-primary"
+                role="listitem"
+                [attr.aria-label]="'Job level: ' + getJobLevel(relatedJob)"
+                >{{ getJobLevel(relatedJob) }}</span
+              >
+              @if (isJobNew(relatedJob.created_at)) {
+              <span
+                class="tag tag-new"
+                role="listitem"
+                aria-label="New job posting"
+              >
+                <span class="sr-only">New: </span>NEW!
+              </span>
+              }
+              <span
+                class="tag tag-secondary"
+                role="listitem"
+                [attr.aria-label]="
+                  'Employment type: ' + getEmploymentType(relatedJob)
+                "
+                >{{ getEmploymentType(relatedJob) }}</span
+              >
+              <span
+                class="tag tag-secondary"
+                role="listitem"
+                [attr.aria-label]="
+                  'Work schedule: ' + getWorkSchedule(relatedJob)
+                "
+                >{{ getWorkSchedule(relatedJob) }}</span
+              >
+            </div>
+
+            <h3
+              class="related-job-category"
+              [attr.id]="'related-job-title-' + relatedJob.id"
+            >
+              {{ getJobTitle(relatedJob) }}
+            </h3>
+
+            <div class="related-job-location">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  opacity="0.3"
+                  d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
+                  fill="#4A6D97"
+                />
+              </svg>
+              <span>
+                <span class="sr-only">Location: </span
+                >{{ getJobBranch(relatedJob) }}
+              </span>
+            </div>
+
+            <p
+              class="related-job-description"
+              [attr.aria-label]="'Description: ' + relatedJob.job_description"
+            >
+              {{ relatedJob.job_description }}
+            </p>
+          </a>
+        </article>
+        } @empty {
+        <p class="no-related-jobs" role="status" aria-live="polite">
+          No related opportunities available
+        </p>
+        }
+      </div>
+      }
+    </aside>
+  </div>
+  }
+</main>

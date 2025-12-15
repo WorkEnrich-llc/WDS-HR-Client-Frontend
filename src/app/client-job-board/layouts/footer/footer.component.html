@@ -1,0 +1,40 @@
+@if (logo().icon || logo().companyName || logo().tagline) {
+<footer class="footer-container" role="contentinfo" aria-label="Footer">
+  <div class="footer-content">
+    <!-- Left Section: Logo and Company Info -->
+    @if (logo().icon || logo().companyName || logo().tagline) {
+    <div class="footer-left">
+      @if (logo().icon) {
+      <img
+        [src]="logo().icon"
+        [alt]="logo().companyName || 'Company Logo'"
+        class="logo-icon"
+        aria-hidden="false"
+      />
+      } @if (logo().companyName || logo().tagline) {
+      <div class="logo-text">
+        @if (logo().companyName) {
+        <span class="company-name" aria-label="Company name">{{
+          logo().companyName
+        }}</span>
+        } @if (logo().tagline) {
+        <span class="tagline" aria-label="Company tagline">{{
+          logo().tagline
+        }}</span>
+        }
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Right Section: Copyright Information -->
+    @if (logo().companyName) {
+    <div class="footer-right">
+      <span class="copyright-text" aria-label="Copyright information">{{
+        getCopyrightText()
+      }}</span>
+    </div>
+    }
+  </div>
+</footer>
+}

@@ -1434,6 +1434,31 @@ export const routes: Routes = [
     loadComponent: () => import('./components/charts-demo/charts-demo.component').then(m => m.ChartsDemoComponent),
     title: 'Charts Demo'
   },
+
+  // Careers / Client Job Board (public route - no guards)
+  {
+    path: 'careers',
+    loadComponent: () => import('./client-job-board/client-job-board.component').then(m => m.ClientJobBoardComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./client-job-board/components/open-positions/open-positions.component').then(m => m.OpenPositionsComponent),
+        title: 'Open Positions'
+      },
+      {
+        path: ':id',
+        loadComponent: () => import('./client-job-board/components/job-details/job-details.component').then(m => m.JobDetailsComponent),
+        title: 'Job Details'
+      },
+      {
+        path: ':id/apply',
+        loadComponent: () => import('./client-job-board/components/apply-form/apply-form.component').then(m => m.ApplyFormComponent),
+        title: 'Apply for Job'
+      }
+    ],
+    title: 'Careers'
+  },
+
   // test toast
   // {
   //   path: 'toast-demo',

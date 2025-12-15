@@ -1,0 +1,262 @@
+<nav class="navbar-container" role="navigation" aria-label="Main navigation">
+  <div class="navbar-content">
+    <!-- Left Section: Logo and Company Info -->
+    @if (logo().icon || logo().companyName || logo().tagline) {
+    <div class="navbar-left">
+      @if (logo().icon) {
+      <img
+        [src]="logo().icon"
+        [alt]="logo().companyName || 'Company Logo'"
+        class="logo-icon"
+        aria-hidden="false"
+      />
+      } @else if (logo().companyName || logo().tagline) {
+      <div class="logo-icon-placeholder" aria-hidden="true">
+        <svg
+          class="logo-placeholder-svg"
+          width="40"
+          height="40"
+          viewBox="0 0 40 40"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <rect width="40" height="40" rx="8" class="logo-placeholder-bg" />
+          <!-- Three parallel slanted rectangular bars - stacked and offset -->
+          <!-- Top bar: shortest and thinnest -->
+          <rect
+            x="9"
+            y="11"
+            width="7"
+            height="2.5"
+            rx="1.25"
+            fill="white"
+            transform="rotate(45 12.5 12.25)"
+          />
+          <!-- Middle bar: medium size -->
+          <rect
+            x="11"
+            y="15"
+            width="9"
+            height="3"
+            rx="1.5"
+            fill="white"
+            transform="rotate(45 15.5 16.5)"
+          />
+          <!-- Bottom bar: longest and thickest -->
+          <rect
+            x="13"
+            y="19"
+            width="11"
+            height="3.5"
+            rx="1.75"
+            fill="white"
+            transform="rotate(45 18.5 20.75)"
+          />
+        </svg>
+      </div>
+      } @if (logo().companyName || logo().tagline) {
+      <div class="logo-text">
+        @if (logo().companyName) {
+        <span class="company-name" aria-label="Company name">{{
+          logo().companyName
+        }}</span>
+        } @if (logo().tagline) {
+        <span class="tagline" aria-label="Company tagline">{{
+          logo().tagline
+        }}</span>
+        }
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Right Section: Social Media and Visit Website -->
+    @if (hasSocialMedia() || (showVisitWebsite() && websiteUrl())) {
+    <div class="navbar-right">
+      <div
+        class="navbar-actions"
+        role="group"
+        aria-label="Social media and website links"
+      >
+        @if (hasSocialMedia()) {
+        <nav
+          class="social-media-icons"
+          aria-label="Social media links"
+          role="navigation"
+        >
+          @if (socialMediaLinks().facebook) {
+          <a
+            [href]="socialMediaLinks().facebook"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-icon"
+            aria-label="Visit our Facebook page (opens in new tab)"
+            data-tooltip="Facebook"
+            aria-describedby="facebook-tooltip"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <g clip-path="url(#clip0_247_1018)">
+                <path
+                  d="M9 0C4.02948 0 0 4.02948 0 9C0 13.2206 2.90592 16.7623 6.82596 17.735V11.7504H4.97016V9H6.82596V7.81488C6.82596 4.75164 8.21232 3.3318 11.2198 3.3318C11.79 3.3318 12.7739 3.44376 13.1764 3.55536V6.04836C12.964 6.02604 12.595 6.01488 12.1367 6.01488C10.661 6.01488 10.0908 6.57396 10.0908 8.02728V9H13.0306L12.5255 11.7504H10.0908V17.9341C14.5472 17.3959 18.0004 13.6015 18.0004 9C18 4.02948 13.9705 0 9 0Z"
+                  fill="#4A6D97"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_247_1018">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          </a>
+          } @if (socialMediaLinks().instagram) {
+          <a
+            [href]="socialMediaLinks().instagram"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-icon"
+            aria-label="Visit our Instagram page (opens in new tab)"
+            data-tooltip="Instagram"
+            aria-describedby="instagram-tooltip"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <g clip-path="url(#clip0_247_1023)">
+                <path
+                  d="M9 1.6207C11.4047 1.6207 11.6895 1.63125 12.6352 1.67344C13.5141 1.71211 13.9887 1.85977 14.3051 1.98281C14.7234 2.14453 15.0258 2.34141 15.3387 2.6543C15.6551 2.9707 15.8484 3.26953 16.0102 3.68789C16.1332 4.0043 16.2809 4.48242 16.3195 5.35781C16.3617 6.30703 16.3723 6.5918 16.3723 8.99297C16.3723 11.3977 16.3617 11.6824 16.3195 12.6281C16.2809 13.507 16.1332 13.9816 16.0102 14.298C15.8484 14.7164 15.6516 15.0187 15.3387 15.3316C15.0223 15.648 14.7234 15.8414 14.3051 16.0031C13.9887 16.1262 13.5105 16.2738 12.6352 16.3125C11.6859 16.3547 11.4012 16.3652 9 16.3652C6.59531 16.3652 6.31055 16.3547 5.36484 16.3125C4.48594 16.2738 4.01133 16.1262 3.69492 16.0031C3.27656 15.8414 2.97422 15.6445 2.66133 15.3316C2.34492 15.0152 2.15156 14.7164 1.98984 14.298C1.8668 13.9816 1.71914 13.5035 1.68047 12.6281C1.63828 11.6789 1.62773 11.3941 1.62773 8.99297C1.62773 6.58828 1.63828 6.30351 1.68047 5.35781C1.71914 4.47891 1.8668 4.0043 1.98984 3.68789C2.15156 3.26953 2.34844 2.96719 2.66133 2.6543C2.97773 2.33789 3.27656 2.14453 3.69492 1.98281C4.01133 1.85977 4.48945 1.71211 5.36484 1.67344C6.31055 1.63125 6.59531 1.6207 9 1.6207ZM9 0C6.55664 0 6.25078 0.0105469 5.29102 0.0527344C4.33477 0.0949219 3.67734 0.249609 3.10781 0.471094C2.51367 0.703125 2.01094 1.00898 1.51172 1.51172C1.00898 2.01094 0.703125 2.51367 0.471094 3.1043C0.249609 3.67734 0.0949219 4.33125 0.0527344 5.2875C0.0105469 6.25078 0 6.55664 0 9C0 11.4434 0.0105469 11.7492 0.0527344 12.709C0.0949219 13.6652 0.249609 14.3227 0.471094 14.8922C0.703125 15.4863 1.00898 15.9891 1.51172 16.4883C2.01094 16.9875 2.51367 17.2969 3.1043 17.5254C3.67734 17.7469 4.33125 17.9016 5.2875 17.9437C6.24727 17.9859 6.55312 17.9965 8.99648 17.9965C11.4398 17.9965 11.7457 17.9859 12.7055 17.9437C13.6617 17.9016 14.3191 17.7469 14.8887 17.5254C15.4793 17.2969 15.982 16.9875 16.4813 16.4883C16.9805 15.9891 17.2898 15.4863 17.5184 14.8957C17.7398 14.3227 17.8945 13.6687 17.9367 12.7125C17.9789 11.7527 17.9895 11.4469 17.9895 9.00352C17.9895 6.56016 17.9789 6.2543 17.9367 5.29453C17.8945 4.33828 17.7398 3.68086 17.5184 3.11133C17.2969 2.51367 16.991 2.01094 16.4883 1.51172C15.9891 1.0125 15.4863 0.703125 14.8957 0.474609C14.3227 0.253125 13.6688 0.0984375 12.7125 0.05625C11.7492 0.0105469 11.4434 0 9 0Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  d="M9 4.37695C6.44766 4.37695 4.37695 6.44766 4.37695 9C4.37695 11.5523 6.44766 13.623 9 13.623C11.5523 13.623 13.623 11.5523 13.623 9C13.623 6.44766 11.5523 4.37695 9 4.37695ZM9 11.9988C7.34414 11.9988 6.00117 10.6559 6.00117 9C6.00117 7.34414 7.34414 6.00117 9 6.00117C10.6559 6.00117 11.9988 7.34414 11.9988 9C11.9988 10.6559 10.6559 11.9988 9 11.9988Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  d="M14.8852 4.19411C14.8852 4.79176 14.4 5.2734 13.8059 5.2734C13.2082 5.2734 12.7266 4.78825 12.7266 4.19411C12.7266 3.59645 13.2117 3.11481 13.8059 3.11481C14.4 3.11481 14.8852 3.59996 14.8852 4.19411Z"
+                  fill="#4A6D97"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_247_1023">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          </a>
+          } @if (socialMediaLinks().twitter) {
+          <a
+            [href]="socialMediaLinks().twitter"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-icon"
+            aria-label="Visit our X (Twitter) page (opens in new tab)"
+            data-tooltip="X"
+            aria-describedby="twitter-tooltip"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M13.7447 1.42792H16.2748L10.7473 7.74554L17.25 16.3424H12.1584L8.17053 11.1284L3.60746 16.3424H1.07582L6.98808 9.58499L0.75 1.42792H5.97083L9.57555 6.19367L13.7447 1.42792ZM12.8567 14.828H14.2587L5.20905 2.86277H3.7046L12.8567 14.828Z"
+                fill="#4A6D97"
+              />
+            </svg>
+          </a>
+          } @if (socialMediaLinks().linkedin) {
+          <a
+            [href]="socialMediaLinks().linkedin"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social-icon"
+            aria-label="Visit our LinkedIn page (opens in new tab)"
+            data-tooltip="LinkedIn"
+            aria-describedby="linkedin-tooltip"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <g clip-path="url(#clip0_247_1035)">
+                <path
+                  d="M16.6676 0H1.32891C0.594141 0 0 0.580078 0 1.29727V16.6992C0 17.4164 0.594141 18 1.32891 18H16.6676C17.4023 18 18 17.4164 18 16.7027V1.29727C18 0.580078 17.4023 0 16.6676 0ZM5.34023 15.3387H2.66836V6.74648H5.34023V15.3387ZM4.0043 5.57578C3.14648 5.57578 2.45391 4.8832 2.45391 4.02891C2.45391 3.17461 3.14648 2.48203 4.0043 2.48203C4.85859 2.48203 5.55117 3.17461 5.55117 4.02891C5.55117 4.87969 4.85859 5.57578 4.0043 5.57578ZM15.3387 15.3387H12.6703V11.1621C12.6703 10.1672 12.6527 8.88398 11.2816 8.88398C9.89297 8.88398 9.68203 9.97031 9.68203 11.0918V15.3387H7.01719V6.74648H9.57656V7.9207H9.61172C9.9668 7.2457 10.8387 6.53203 12.1359 6.53203C14.8395 6.53203 15.3387 8.31094 15.3387 10.6242V15.3387Z"
+                  fill="#4A6D97"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_247_1035">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          </a>
+          }
+        </nav>
+        } @if (showVisitWebsite() && websiteUrl()) {
+        <a
+          [href]="websiteUrl()"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-md btn-outline-primary visit-website-btn"
+          aria-label="Visit company website (opens in new tab)"
+          role="button"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <g clip-path="url(#clip0_247_1040)">
+              <path
+                d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
+                fill="currentColor"
+              />
+              <path
+                d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
+                fill="currentColor"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_247_1040">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+
+          <span>Visit Website</span>
+        </a>
+        }
+      </div>
+    </div>
+    }
+  </div>
+</nav>

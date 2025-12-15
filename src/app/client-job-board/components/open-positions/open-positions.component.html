@@ -1,0 +1,766 @@
+<main class="open-positions-container" role="main" aria-label="Job openings">
+  <!-- Loading State -->
+  @if (isLoading) {
+  <div role="status" aria-live="polite" aria-busy="true" class="sr-only">
+    Loading job openings...
+  </div>
+  }
+
+  <!-- Skeleton Loader -->
+  @if (isLoading) {
+  <section class="job-listings-section" aria-label="Loading job openings">
+    <!-- Skeleton Header -->
+    <header class="section-header">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-subtitle"></div>
+    </header>
+
+    <!-- Skeleton Filters -->
+    <nav class="filters-row skeleton-filters" aria-label="Loading filters">
+      @for (item of [1, 2, 3, 4]; track item) {
+      <div class="filter-group">
+        <div class="skeleton skeleton-filter"></div>
+      </div>
+      }
+    </nav>
+
+    <!-- Skeleton Job Cards -->
+    <section class="job-cards-list" aria-label="Loading job cards">
+      @for (item of [1, 2, 3]; track item) {
+      <article class="job-card skeleton-card">
+        <div class="skeleton-job-tags">
+          <div class="skeleton skeleton-tag"></div>
+          <div class="skeleton skeleton-tag"></div>
+          <div class="skeleton skeleton-tag"></div>
+        </div>
+        <div class="skeleton skeleton-job-category"></div>
+        <div class="skeleton skeleton-job-title"></div>
+        <div class="skeleton skeleton-job-location"></div>
+        <div class="skeleton skeleton-job-description"></div>
+        <div class="skeleton skeleton-job-description short"></div>
+      </article>
+      }
+    </section>
+  </section>
+
+  <!-- Skeleton About Section -->
+  <aside
+    class="about-section skeleton-about"
+    aria-label="Loading about section"
+  >
+    <div class="skeleton skeleton-about-title"></div>
+    <div class="skeleton skeleton-about-text"></div>
+    <div class="skeleton skeleton-about-text"></div>
+    <div class="skeleton skeleton-about-text short"></div>
+  </aside>
+  }
+
+  <!-- Job Listings Section -->
+  @if (!isLoading) {
+  <section class="job-listings-section" aria-labelledby="job-listings-heading">
+    <!-- Error State - Full Width Above Join us now! -->
+    @if (errorMessage) {
+    <div
+      role="alert"
+      aria-live="assertive"
+      class="error-card error-card-full-width"
+      aria-describedby="error-description"
+    >
+      <div class="error-card-content">
+        <div class="error-icon-wrapper">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+            class="error-icon"
+          >
+            <path
+              d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <div class="error-text-content">
+          <h3 class="error-title">Oops! We couldn't load the job listings</h3>
+          <p id="error-description" class="error-description">
+            {{ errorMessage }}
+          </p>
+        </div>
+      </div>
+      <div class="error-actions">
+        <button
+          type="button"
+          class="error-retry-button"
+          (click)="retryLoadJobListings()"
+          aria-label="Try again to load job listings"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C10.6781 16.5 12.2225 15.9258 13.4419 14.9419L12.375 12.375"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M16.5 9C16.5 4.85786 13.1421 1.5 9 1.5C7.32187 1.5 5.77754 2.07422 4.55812 3.05812L5.625 5.625"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M5.625 5.625L8.25 3L5.625 0.375"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12.375 12.375L9.75 15L12.375 17.625"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Try Again
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Section Header -->
+    <header class="section-header">
+      <h1 id="job-listings-heading" class="join-text">Join us now!</h1>
+      <h2
+        class="positions-count"
+        [attr.aria-live]="'polite'"
+        [attr.aria-atomic]="'true'"
+      >
+        {{ totalItems }} Open Positions
+      </h2>
+    </header>
+
+    <!-- Filters Row -->
+    <nav
+      class="filters-row"
+      aria-label="Job filters"
+      role="toolbar"
+      aria-orientation="horizontal"
+    >
+      <!-- Department Dropdown -->
+      <div
+        class="filter-group"
+        appCloseDropdown
+        (appCloseDropdown)="isDepartmentOpen = false"
+      >
+        <div
+          class="filter-select"
+          [class.filter-select-open]="isDepartmentOpen"
+          (click)="toggleDropdown('department', $event)"
+          (keydown)="handleKeyDown($event, 'department')"
+          role="button"
+          tabindex="0"
+          aria-label="Filter by department"
+          [attr.aria-expanded]="isDepartmentOpen"
+          [attr.aria-controls]="isDepartmentOpen ? 'department-listbox' : null"
+          aria-haspopup="listbox"
+          [attr.aria-activedescendant]="getActiveDescendantId('department')"
+        >
+          <span
+            class="filter-select-text"
+            [class.filter-placeholder]="!selectedDepartment"
+            >{{ getDisplayValue("department") }}</span
+          >
+        </div>
+        <svg
+          class="dropdown-icon"
+          [class.dropdown-icon-open]="isDepartmentOpen"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M4.5 6.75L9 11.25L13.5 6.75"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        @if (isDepartmentOpen) {
+        <div
+          class="dropdown-menu"
+          role="listbox"
+          [attr.aria-label]="'Department filter options'"
+          id="department-listbox"
+        >
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedDepartment === ''"
+            (click)="selectOption('department', '', $event)"
+            (keydown)="
+              handleDropdownItemKeyDown($event, 'department', '', $event.target)
+            "
+            role="option"
+            [attr.aria-selected]="selectedDepartment === ''"
+            tabindex="0"
+            [attr.id]="'dept-option-all'"
+          >
+            Department
+          </div>
+          @for (dept of uniqueDepartments; track dept; let i = $index) {
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedDepartment === dept"
+            (click)="selectOption('department', dept, $event)"
+            (keydown)="
+              handleDropdownItemKeyDown(
+                $event,
+                'department',
+                dept,
+                $event.target
+              )
+            "
+            role="option"
+            [attr.aria-selected]="selectedDepartment === dept"
+            [attr.tabindex]="i === 0 ? '0' : '-1'"
+            [attr.id]="'dept-option-' + i"
+          >
+            {{ dept }}
+          </div>
+          } @empty {
+          <div class="dropdown-item" role="option" aria-disabled="true">
+            No departments available
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- City Dropdown -->
+      <div
+        class="filter-group"
+        appCloseDropdown
+        (appCloseDropdown)="isCityOpen = false"
+      >
+        <div
+          class="filter-select"
+          [class.filter-select-open]="isCityOpen"
+          (click)="toggleDropdown('city', $event)"
+          (keydown)="handleKeyDown($event, 'city')"
+          role="button"
+          tabindex="0"
+          aria-label="Filter by city"
+          [attr.aria-expanded]="isCityOpen"
+          [attr.aria-controls]="isCityOpen ? 'city-listbox' : null"
+          aria-haspopup="listbox"
+          [attr.aria-activedescendant]="getActiveDescendantId('city')"
+        >
+          <span
+            class="filter-select-text"
+            [class.filter-placeholder]="!selectedCity"
+            >{{ getDisplayValue("city") }}</span
+          >
+        </div>
+        <svg
+          class="dropdown-icon"
+          [class.dropdown-icon-open]="isCityOpen"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M4.5 6.75L9 11.25L13.5 6.75"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        @if (isCityOpen) {
+        <div
+          class="dropdown-menu"
+          role="listbox"
+          [attr.aria-label]="'City filter options'"
+          id="city-listbox"
+        >
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedCity === ''"
+            (click)="selectOption('city', '', $event)"
+            (keydown)="
+              handleDropdownItemKeyDown($event, 'city', '', $event.target)
+            "
+            role="option"
+            [attr.aria-selected]="selectedCity === ''"
+            tabindex="0"
+            id="city-option-all"
+          >
+            City
+          </div>
+          @for (city of uniqueCities; track city; let i = $index) {
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedCity === city"
+            (click)="selectOption('city', city, $event)"
+            (keydown)="
+              handleDropdownItemKeyDown($event, 'city', city, $event.target)
+            "
+            role="option"
+            [attr.aria-selected]="selectedCity === city"
+            [attr.tabindex]="i === 0 ? '0' : '-1'"
+            [attr.id]="'city-option-' + i"
+          >
+            {{ city }}
+          </div>
+          } @empty {
+          <div class="dropdown-item" role="option" aria-disabled="true">
+            No cities available
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Employment Type Dropdown -->
+      <div
+        class="filter-group"
+        appCloseDropdown
+        (appCloseDropdown)="isEmploymentTypeOpen = false"
+      >
+        <div
+          class="filter-select"
+          [class.filter-select-open]="isEmploymentTypeOpen"
+          (click)="toggleDropdown('employmentType', $event)"
+          (keydown)="handleKeyDown($event, 'employmentType')"
+          role="button"
+          tabindex="0"
+          aria-label="Filter by employment type"
+          [attr.aria-expanded]="isEmploymentTypeOpen"
+          [attr.aria-controls]="
+            isEmploymentTypeOpen ? 'employment-type-listbox' : null
+          "
+          aria-haspopup="listbox"
+          [attr.aria-activedescendant]="getActiveDescendantId('employmentType')"
+        >
+          <span
+            class="filter-select-text"
+            [class.filter-placeholder]="!selectedEmploymentType"
+            >{{ getDisplayValue("employmentType") }}</span
+          >
+        </div>
+        <svg
+          class="dropdown-icon"
+          [class.dropdown-icon-open]="isEmploymentTypeOpen"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M4.5 6.75L9 11.25L13.5 6.75"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        @if (isEmploymentTypeOpen) {
+        <div
+          class="dropdown-menu"
+          role="listbox"
+          [attr.aria-label]="'Employment type filter options'"
+          id="employment-type-listbox"
+        >
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedEmploymentType === ''"
+            (click)="selectOption('employmentType', '', $event)"
+            (keydown)="
+              handleDropdownItemKeyDown(
+                $event,
+                'employmentType',
+                '',
+                $event.target
+              )
+            "
+            role="option"
+            [attr.aria-selected]="selectedEmploymentType === ''"
+            tabindex="0"
+            id="employment-type-option-all"
+          >
+            Employment Type
+          </div>
+          @for (type of uniqueEmploymentTypes; track type; let i = $index) {
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedEmploymentType === type"
+            (click)="selectOption('employmentType', type, $event)"
+            (keydown)="
+              handleDropdownItemKeyDown(
+                $event,
+                'employmentType',
+                type,
+                $event.target
+              )
+            "
+            role="option"
+            [attr.aria-selected]="selectedEmploymentType === type"
+            [attr.tabindex]="i === 0 ? '0' : '-1'"
+            [attr.id]="'employment-type-option-' + i"
+          >
+            {{ type }}
+          </div>
+          } @empty {
+          <div class="dropdown-item" role="option" aria-disabled="true">
+            No employment types available
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Work Mode Dropdown -->
+      <div
+        class="filter-group"
+        appCloseDropdown
+        (appCloseDropdown)="isWorkModeOpen = false"
+      >
+        <div
+          class="filter-select"
+          [class.filter-select-open]="isWorkModeOpen"
+          (click)="toggleDropdown('workMode', $event)"
+          (keydown)="handleKeyDown($event, 'workMode')"
+          role="button"
+          tabindex="0"
+          aria-label="Filter by work mode"
+          [attr.aria-expanded]="isWorkModeOpen"
+          [attr.aria-controls]="isWorkModeOpen ? 'work-mode-listbox' : null"
+          aria-haspopup="listbox"
+          [attr.aria-activedescendant]="getActiveDescendantId('workMode')"
+        >
+          <span
+            class="filter-select-text"
+            [class.filter-placeholder]="!selectedWorkMode"
+            >{{ getDisplayValue("workMode") }}</span
+          >
+        </div>
+        <svg
+          class="dropdown-icon"
+          [class.dropdown-icon-open]="isWorkModeOpen"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M4.5 6.75L9 11.25L13.5 6.75"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        @if (isWorkModeOpen) {
+        <div
+          class="dropdown-menu"
+          role="listbox"
+          [attr.aria-label]="'Work mode filter options'"
+          id="work-mode-listbox"
+        >
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedWorkMode === ''"
+            (click)="selectOption('workMode', '', $event)"
+            (keydown)="
+              handleDropdownItemKeyDown($event, 'workMode', '', $event.target)
+            "
+            role="option"
+            [attr.aria-selected]="selectedWorkMode === ''"
+            tabindex="0"
+            id="work-mode-option-all"
+          >
+            Work Mode
+          </div>
+          @for (mode of uniqueWorkModes; track mode; let i = $index) {
+          <div
+            class="dropdown-item"
+            [class.selected]="selectedWorkMode === mode"
+            (click)="selectOption('workMode', mode, $event)"
+            (keydown)="
+              handleDropdownItemKeyDown($event, 'workMode', mode, $event.target)
+            "
+            role="option"
+            [attr.aria-selected]="selectedWorkMode === mode"
+            [attr.tabindex]="i === 0 ? '0' : '-1'"
+            [attr.id]="'work-mode-option-' + i"
+          >
+            {{ mode }}
+          </div>
+          } @empty {
+          <div class="dropdown-item" role="option" aria-disabled="true">
+            No work modes available
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </nav>
+
+    <!-- Job Cards List - Only show if no error -->
+    @if (!errorMessage) {
+    <section
+      class="job-cards-list"
+      aria-label="Job openings list"
+      [attr.aria-live]="'polite'"
+      [attr.aria-atomic]="'false'"
+    >
+      @for (job of filteredJobOpenings; track job.id; let i = $index) {
+      <article
+        class="job-card"
+        [attr.aria-labelledby]="'job-title-' + job.id"
+        [attr.aria-describedby]="
+          'job-description-' + job.id + ' job-location-' + job.id
+        "
+        role="article"
+      >
+        <a
+          class="job-card-link"
+          [routerLink]="['/careers', job.id]"
+          [attr.aria-label]="'View details for ' + job.title"
+          [attr.tabindex]="'0'"
+        >
+          <!-- Job Tags -->
+          <div class="job-tags" role="group" aria-label="Job metadata">
+            @if (job.isNew) {
+            <span class="tag tag-new" aria-label="New job posting">
+              <span class="sr-only">New: </span>NEW!
+            </span>
+            }
+            <span
+              class="tag tag-primary"
+              [attr.aria-label]="'Department: ' + job.department"
+              >{{ job.department }}</span
+            >
+            <span
+              class="tag tag-secondary"
+              [attr.aria-label]="'Employment type: ' + job.employmentType"
+              >{{ job.employmentType }}</span
+            >
+            <span
+              class="tag tag-secondary"
+              [attr.aria-label]="'Work mode: ' + job.workMode"
+              >{{ job.workMode }}</span
+            >
+          </div>
+
+          <!-- Job Content -->
+          <h3 class="job-category" aria-label="Job category">
+            {{ job.category }}
+          </h3>
+          <h2 class="job-title" [attr.id]="'job-title-' + job.id">
+            {{ job.title }}
+          </h2>
+
+          <div class="job-location" [attr.id]="'job-location-' + job.id">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                opacity="0.3"
+                d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
+                fill="#4A6D97"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
+                fill="#4A6D97"
+              />
+            </svg>
+
+            <span aria-label="Location">{{ job.location }}</span>
+          </div>
+
+          <p class="job-description" [attr.id]="'job-description-' + job.id">
+            {{ job.description }}
+          </p>
+        </a>
+      </article>
+      } @empty {
+      <div class="job-card" role="status" aria-live="polite">
+        <p class="job-description">
+          No job openings found matching your filters.
+        </p>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- Pagination - Only show if no error and has pages -->
+    @if (!errorMessage && !isLoading && totalPages > 1) {
+    <nav class="pagination-container" aria-label="Job listings pagination">
+      <div class="pagination-info">
+        <span class="pagination-text">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }}–{{
+            Math.min(currentPage * itemsPerPage, totalItems)
+          }}
+          of {{ totalItems }}
+        </span>
+      </div>
+
+      <div class="pagination-controls">
+        <!-- Previous Button -->
+        <button
+          class="pagination-btn pagination-btn-nav"
+          [class.disabled]="currentPage === 1"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
+          (keydown.enter)="onPageChange(currentPage - 1)"
+          aria-label="Go to previous page"
+          type="button"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M10.5 12.75L7.5 9L10.5 5.25"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="pagination-pages" role="list">
+          @if (currentPage > 3 && totalPages > 5) {
+          <button
+            class="pagination-btn pagination-btn-page"
+            (click)="onPageChange(1)"
+            (keydown.enter)="onPageChange(1)"
+            aria-label="Go to page 1"
+            type="button"
+          >
+            1
+          </button>
+          @if (currentPage > 4) {
+          <span class="pagination-ellipsis" aria-hidden="true">...</span>
+          } } @for (page of getPageNumbers(); track page) {
+          <button
+            class="pagination-btn pagination-btn-page"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+            (keydown.enter)="onPageChange(page)"
+            [attr.aria-label]="'Go to page ' + page"
+            [attr.aria-current]="page === currentPage ? 'page' : null"
+            type="button"
+          >
+            {{ page }}
+          </button>
+          } @if (currentPage < totalPages - 2 && totalPages > 5) { @if
+          (currentPage < totalPages - 3) {
+          <span class="pagination-ellipsis" aria-hidden="true">...</span>
+          }
+          <button
+            class="pagination-btn pagination-btn-page"
+            (click)="onPageChange(totalPages)"
+            (keydown.enter)="onPageChange(totalPages)"
+            [attr.aria-label]="'Go to page ' + totalPages"
+            type="button"
+          >
+            {{ totalPages }}
+          </button>
+          }
+        </div>
+
+        <!-- Next Button -->
+        <button
+          class="pagination-btn pagination-btn-nav"
+          [class.disabled]="currentPage >= totalPages"
+          [disabled]="currentPage >= totalPages"
+          (click)="onPageChange(currentPage + 1)"
+          (keydown.enter)="onPageChange(currentPage + 1)"
+          aria-label="Go to next page"
+          type="button"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M7.5 5.25L10.5 9L7.5 12.75"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </nav>
+    }
+  </section>
+
+  <!-- About Section -->
+  @if (aboutTitle || aboutDescription) {
+  <aside
+    class="about-section"
+    aria-labelledby="about-title"
+    role="complementary"
+  >
+    @if (aboutTitle) {
+    <h2 id="about-title" class="about-title">{{ aboutTitle }}</h2>
+    } @if (aboutDescription) {
+    <div class="about-content">
+      <p>{{ aboutDescription }}</p>
+    </div>
+    }
+  </aside>
+  } }
+</main>
