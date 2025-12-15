@@ -2,6 +2,7 @@ import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ClientJobBoardService } from '../../services/client-job-board.service';
+import { MetaTagsService } from '../../services/meta-tags.service';
 import { JobItem, JobFields, JobField } from '../../models/job-listing.model';
 import { CloseDropdownDirective } from '../../../core/directives/close-dropdown.directive';
 import { PopupComponent } from '../../../components/shared/popup/popup.component';
@@ -17,6 +18,7 @@ export class ApplyFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   router = inject(Router);
   private jobBoardService = inject(ClientJobBoardService);
+  private metaTagsService = inject(MetaTagsService);
   private fb = inject(FormBuilder);
 
   jobId: string | null = null;
@@ -268,6 +270,23 @@ export class ApplyFormComponent implements OnInit {
     if (!job) return '';
     // Use job_level first, fallback to work_mode (same logic as open-positions and job-details components)
     return job.job_level || this.getName(job.work_mode) || '';
+  }
+
+  /**
+   * Update meta tags for apply form page
+   */
+  private updateMetaTags(jobTitle: string): void {
+    // Load company settings to get company info for meta tags
+    this.jobBoardService.getCompanySettings().subscribe({
+      next: (response) => {
+        const companyInfo = response.data?.object_info;
+        this.metaTagsService.updateApplyFormMetaTags(companyInfo || null, jobTitle);
+      },
+      error: (error) => {
+        // If company settings fail, still update with basic info
+        this.metaTagsService.updateApplyFormMetaTags(null, jobTitle);
+      }
+    });
   }
 
   /**

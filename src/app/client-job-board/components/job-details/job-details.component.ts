@@ -2,6 +2,7 @@ import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClientJobBoardService } from '../../services/client-job-board.service';
+import { MetaTagsService } from '../../services/meta-tags.service';
 import { JobItem } from '../../models/job-listing.model';
 
 @Component({
@@ -15,6 +16,7 @@ export class JobDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   router = inject(Router);
   private jobBoardService = inject(ClientJobBoardService);
+  private metaTagsService = inject(MetaTagsService);
 
   jobId: string | null = null;
   job: JobItem | null = null;
@@ -48,10 +50,10 @@ export class JobDetailsComponent implements OnInit {
         if (jobData) {
           this.job = jobData;
           this.jobTitle = this.getName(jobData.job_title);
-          // Update route title dynamically
-          document.title = `${this.jobTitle} - Careers`;
           // Load related jobs
           this.loadRelatedJobs(jobData.id);
+          // Update meta tags for SEO
+          this.updateMetaTags(jobData);
         } else {
           this.errorMessage = 'Job not found';
         }
@@ -234,5 +236,27 @@ export class JobDetailsComponent implements OnInit {
     if (!job) return '';
     // Use job_level first, fallback to work_mode (same logic as open-positions component)
     return job.job_level || this.getName(job.work_mode) || '';
+  }
+
+  /**
+   * Update meta tags for job details page
+   */
+  private updateMetaTags(job: JobItem): void {
+    // Load company settings to get company info for meta tags
+    this.jobBoardService.getCompanySettings().subscribe({
+      next: (response) => {
+        const companyInfo = response.data?.object_info;
+        if (companyInfo) {
+          const jobTitle = this.getName(job.job_title);
+          const jobDescription = job.job_description || undefined;
+          this.metaTagsService.updateJobMetaTags(companyInfo, jobTitle, jobDescription, job.id);
+        }
+      },
+      error: (error) => {
+        // If company settings fail, still update with basic info
+        const jobTitle = this.getName(job.job_title);
+        this.metaTagsService.updateJobMetaTags(null, jobTitle, job.job_description, job.id);
+      }
+    });
   }
 }

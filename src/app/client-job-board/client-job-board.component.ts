@@ -6,6 +6,7 @@ import { NavbarComponent, LogoData, SocialMediaLinks } from './layouts/navbar/na
 import { FooterComponent } from './layouts/footer/footer.component';
 import { ClientJobBoardService } from './services/client-job-board.service';
 import { ThemeService } from './services/theme.service';
+import { MetaTagsService } from './services/meta-tags.service';
 
 @Component({
     selector: 'app-client-job-board',
@@ -18,6 +19,7 @@ export class ClientJobBoardComponent implements OnInit {
     private fb = inject(FormBuilder);
     private jobBoardService = inject(ClientJobBoardService);
     private themeService = inject(ThemeService);
+    private metaTagsService = inject(MetaTagsService);
 
     applicationForm!: FormGroup;
     uploadedFiles: { name: string; type: string; uploaded: boolean }[] = [];
@@ -91,6 +93,9 @@ export class ClientJobBoardComponent implements OnInit {
                     } else {
                         console.warn('No theme_color found in API response');
                     }
+
+                    // Update SEO meta tags based on company settings
+                    this.metaTagsService.updateMetaTags(objectInfo, 'Open Positions');
                 }
             },
             error: (error) => {
