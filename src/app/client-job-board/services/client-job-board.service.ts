@@ -23,8 +23,8 @@ export class ClientJobBoardService {
     // First, try to extract subdomain from the current URL
     const hostname = window.location.hostname;
 
-    // Extract subdomain from hostname (e.g., "dev-client.teamtalent.org" -> "client")
-    // Pattern: subdomain-maindomain or subdomain-subdomain-maindomain
+    // Extract subdomain from hostname (e.g., "dev-client.teamtalent.org" -> "dev-client")
+    // Returns the complete subdomain prefix before the main domain
     const extractSubdomainFromHostname = (host: string): string | null => {
       // Skip localhost and IP addresses
       if (host === 'localhost' || host === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) {
@@ -35,28 +35,17 @@ export class ClientJobBoardService {
       const parts = host.split('.');
 
       // For domains like "dev-client.teamtalent.org" or "client.teamtalent.org"
-      // We want to extract the subdomain part
+      // We want to extract the complete subdomain prefix
       // If we have at least 3 parts, the first part(s) before the main domain is the subdomain
       if (parts.length >= 3) {
-        // Handle cases like "dev-client.teamtalent.org" -> extract "client"
-        // or "client.teamtalent.org" -> extract "client"
-        const subdomainParts = parts.slice(0, -2); // Get all parts except the last 2 (main domain + TLD)
+        // Get all parts except the last 2 (main domain + TLD)
+        // For "dev-client.teamtalent.org" -> ["dev-client"]
+        const subdomainParts = parts.slice(0, -2);
 
-        // If we have "dev-client", we want "client" (the last part)
-        // If we have just "client", we want "client"
         if (subdomainParts.length > 0) {
-          // Join all subdomain parts and split by hyphen to get the actual subdomain
-          const fullSubdomain = subdomainParts.join('.');
-
-          // If it contains a hyphen (like "dev-client"), get the last part
-          if (fullSubdomain.includes('-')) {
-            const hyphenParts = fullSubdomain.split('-');
-            // Return the last part after the hyphen (e.g., "client" from "dev-client")
-            return hyphenParts[hyphenParts.length - 1];
-          }
-
-          // Otherwise return the full subdomain
-          return fullSubdomain;
+          // Join all subdomain parts to get the complete subdomain
+          // For "dev-client.teamtalent.org" -> "dev-client"
+          return subdomainParts.join('.');
         }
       } else if (parts.length === 2) {
         // For cases like "client.local" or similar
