@@ -22,4 +22,10 @@ export class JobBoardSetupService {
         const url = `${this.apiBaseUrl}recruiter/job-board-setup`;
         return this._HttpClient.post<any>(url, jobBoardSetupData);
     }
+
+    // update company logo
+    updateCompanyLogo(formData: FormData): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-board-setup/company-logo`;
+        return this._HttpClient.post<any>(url, formData);
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -32,6 +32,15 @@ export class EditJobBoardSetupComponent implements OnInit {
     isModalOpen: boolean = false;
     isSaveConfirmModalOpen: boolean = false;
     activeTab: string = 'about-company';
+
+    // Logo upload properties
+    selectedLogoFile: File | null = null;
+    logoPreviewUrl: string | null = null;
+    companyLogoUrl: string | null = null;
+    isSavingLogo: boolean = false;
+    isDeletingLogo: boolean = false;
+    isDeleteLogoModalOpen: boolean = false;
+    logoError: string | null = null;
 
     // Form data
     jobBoardSetup: any = {
@@ -163,6 +172,18 @@ export class EditJobBoardSetupComponent implements OnInit {
                 }
                 if (data.updated_at) {
                     this.updatedAt = this.formatDate(data.updated_at);
+                }
+
+                // Set company logo URL if available
+                if (data.company_logo) {
+                    // Use generate_signed_url if available, otherwise fallback to image_url or direct value
+                    if (data.company_logo.generate_signed_url) {
+                        this.companyLogoUrl = data.company_logo.generate_signed_url;
+                    } else if (data.company_logo.image_url) {
+                        this.companyLogoUrl = data.company_logo.image_url;
+                    } else if (typeof data.company_logo === 'string') {
+                        this.companyLogoUrl = data.company_logo;
+                    }
                 }
 
                 this.isLoading = false;
@@ -798,6 +819,168 @@ export class EditJobBoardSetupComponent implements OnInit {
         } else {
             this.validationErrors.socialMedia[platform] = '';
         }
+    }
+
+    // Logo upload methods
+    @ViewChild('logoInput') logoInput!: any;
+
+    openLogoPicker(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.logoInput && this.logoInput.nativeElement) {
+            this.logoInput.nativeElement.click();
+        }
+    }
+
+    onLogoFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        // Clear any previous errors first
+        this.logoError = null;
+
+        // Validate file type (images only)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            this.logoError = 'Please select a valid image file (PNG, JPG, JPEG, or WEBP)';
+            this.toastr.error(this.logoError, 'Invalid File Type');
+            return;
+        }
+
+        // Validate file size (e.g., max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            this.logoError = 'File size must be less than 5MB';
+            this.toastr.error(this.logoError, 'File Too Large');
+            return;
+        }
+
+        this.selectedLogoFile = file;
+        this.logoError = null;
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.logoPreviewUrl = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    removeLogo(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        // Only remove preview if it's a newly selected file, not the existing company logo
+        if (this.logoPreviewUrl && this.selectedLogoFile) {
+            this.selectedLogoFile = null;
+            this.logoPreviewUrl = null;
+            if (this.logoInput && this.logoInput.nativeElement) {
+                this.logoInput.nativeElement.value = '';
+            }
+        } else {
+            // If removing the existing company logo, open delete modal
+            this.openDeleteLogoModal();
+        }
+    }
+
+    saveLogo(): void {
+        if (!this.selectedLogoFile || this.isSavingLogo) {
+            return;
+        }
+
+        this.isSavingLogo = true;
+
+        const formData = new FormData();
+        formData.append('is_remove', 'false');
+        formData.append('company_logo', this.selectedLogoFile);
+
+        this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
+            next: (response: any) => {
+                this.toastr.success('Logo uploaded successfully', 'Success');
+                this.isSavingLogo = false;
+                this.selectedLogoFile = null;
+
+                // Update the logo URL if provided in response
+                const logoData = response.data?.object_info?.company_logo || response.data?.company_logo || response.company_logo;
+                if (logoData) {
+                    // Use generate_signed_url if available, otherwise fallback to image_url or direct value
+                    if (logoData.generate_signed_url) {
+                        this.companyLogoUrl = logoData.generate_signed_url;
+                    } else if (logoData.image_url) {
+                        this.companyLogoUrl = logoData.image_url;
+                    } else if (typeof logoData === 'string') {
+                        this.companyLogoUrl = logoData;
+                    }
+                } else if (this.logoPreviewUrl) {
+                    // Use preview as fallback
+                    this.companyLogoUrl = this.logoPreviewUrl;
+                }
+
+                this.logoPreviewUrl = null;
+
+                // Reset file input
+                const fileInput = document.getElementById('logoInput') as HTMLInputElement;
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+            },
+            error: (error: any) => {
+                console.error('Error uploading logo:', error);
+                this.toastr.error(error.error?.details || 'Failed to upload logo', 'Error');
+                this.isSavingLogo = false;
+            }
+        });
+    }
+
+    openDeleteLogoModal(): void {
+        if (!this.companyLogoUrl && !this.selectedLogoFile) {
+            return;
+        }
+        this.isDeleteLogoModalOpen = true;
+    }
+
+    closeDeleteLogoModal(): void {
+        this.isDeleteLogoModalOpen = false;
+    }
+
+    confirmDeleteLogo(): void {
+        this.closeDeleteLogoModal();
+
+        if (this.isDeletingLogo) {
+            return;
+        }
+
+        this.isDeletingLogo = true;
+
+        const formData = new FormData();
+        formData.append('is_remove', 'true');
+
+        this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
+            next: () => {
+                this.toastr.success('Logo deleted successfully', 'Success');
+                this.isDeletingLogo = false;
+                this.companyLogoUrl = null;
+                this.selectedLogoFile = null;
+                this.logoPreviewUrl = null;
+
+                // Reset file input
+                const fileInput = document.getElementById('logoInput') as HTMLInputElement;
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+
+                // Reload job board setup to get updated data
+                this.loadJobBoardSetup();
+            },
+            error: (error: any) => {
+                console.error('Error deleting logo:', error);
+                this.toastr.error(error.error?.details || 'Failed to delete logo', 'Error');
+                this.isDeletingLogo = false;
+            }
+        });
     }
 }
 
