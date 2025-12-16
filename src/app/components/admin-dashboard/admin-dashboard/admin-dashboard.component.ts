@@ -426,6 +426,47 @@ export class AdminDashboardComponent {
           }
         }
 
+        // -----------------------------
+        // Employee Onboarding
+        // -----------------------------
+        const employeeOnboarding = this.chartsData['Employee Onboarding'];
+        if (employeeOnboarding) {
+          this.employeeOnboardingLabels = employeeOnboarding.labels;
+          this.employeeOnboardingValues = employeeOnboarding.values;
+          this.employeeOnboardingColors = employeeOnboarding.colors;
+
+          this.employeeOnboardingData = {
+            labels: this.employeeOnboardingLabels,
+            datasets: [
+              {
+                data: this.employeeOnboardingValues.every(v => v === 0)
+                  ? [1]
+                  : this.employeeOnboardingValues,
+                backgroundColor: this.employeeOnboardingValues.every(v => v === 0)
+                  ? ['#e5e7eb50']
+                  : this.employeeOnboardingColors
+              }
+            ]
+          };
+
+          if (this.employeeOnboardingValues.every(v => v === 0)) {
+            this.employeeOnboardingOptions = this.getEmptyChartOptions();
+          } else {
+            this.employeeOnboardingOptions = {
+              responsive: true,
+              cutout: '50%',
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+              }
+            };
+          }
+        }
+
 
 
 
@@ -795,6 +836,24 @@ export class AdminDashboardComponent {
   };
   public get activeDepartmentsTotal() {
     return this.activeDepartmentsValues.reduce((a, b) => a + b, 0);
+  }
+
+  // -----------------------------
+  // Employee Onboarding Chart
+  // -----------------------------
+  public employeeOnboardingType: 'doughnut' = 'doughnut';
+  public employeeOnboardingLabels: string[] = [];
+  public employeeOnboardingValues: number[] = [];
+  public employeeOnboardingColors: string[] = [];
+  public employeeOnboardingData: any;
+  public employeeOnboardingOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    cutout: '50%',
+    animation: { animateRotate: true, animateScale: true },
+    plugins: { legend: { display: false } }
+  };
+  public get employeeOnboardingTotal() {
+    return this.employeeOnboardingValues.reduce((a, b) => a + b, 0);
   }
 
 
