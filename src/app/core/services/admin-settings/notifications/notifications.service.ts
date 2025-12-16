@@ -15,3 +15,5 @@ export class NotificationsService {
         return this.http.get(`${this.apiBaseUrl}main/admin-settings/notification`);
     }
 }
+
+
