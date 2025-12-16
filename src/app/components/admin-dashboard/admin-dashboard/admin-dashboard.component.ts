@@ -7,22 +7,313 @@ import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-d
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
+import { RouterLink } from '@angular/router';
+import { ISystemSetupStepItem, SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [PageHeaderComponent, BaseChartDirective],
+  imports: [PageHeaderComponent, BaseChartDirective, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class AdminDashboardComponent {
+  private readonly systemSetupDismissKey = 'system_setup_board_dismissed';
+  private readonly systemSetupTourDoneKey = 'system_setup_tour_done';
+  private readonly systemSetupTourCompletedKey = 'system_setup_tour_completed_steps';
+  private readonly systemSetupTourCurrentKey = 'system_setup_tour_current_step';
+  private readonly systemSetupTourSessionClosedKey = 'system_setup_tour_session_closed';
+
+  tourCurrentIndex = 0;
+  tourTargetRect: { top: number; left: number; width: number; height: number; right: number; bottom: number } | null = null;
+  tourCardPos: { top: number; left: number; placement: 'right' | 'left' } = { top: 0, left: 0, placement: 'right' };
+
+  private resizeHandler?: () => void;
+  private anchorRetryCount = 0;
   constructor(
     private adminDashboardService: AdminDashboardService,
     private _DepartmentsService: DepartmentsService,
     private _BranchesService: BranchesService,
-    private leaveBalanceService: LeaveBalanceService
+    private leaveBalanceService: LeaveBalanceService,
+    private systemSetupService: SystemSetupService
   ) { }
   getDataLoad: boolean = true;
+
+  // -----------------------------
+  // System Setup Board
+  // -----------------------------
+  systemSetupLoading = true;
+  systemSetupItems: ISystemSetupStepItem[] = [];
+  systemSetupError: string | null = null;
+
+  // ---------- Tour persistence ----------
+  private get tourDone(): boolean {
+    return localStorage.getItem(this.systemSetupTourDoneKey) === 'true';
+  }
+
+  private set tourDone(val: boolean) {
+    localStorage.setItem(this.systemSetupTourDoneKey, val ? 'true' : 'false');
+  }
+
+  private get tourCompletedSteps(): number[] {
+    try {
+      const raw = localStorage.getItem(this.systemSetupTourCompletedKey);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed.filter(x => typeof x === 'number') : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private set tourCompletedSteps(steps: number[]) {
+    const unique = Array.from(new Set(steps)).sort((a, b) => a - b);
+    localStorage.setItem(this.systemSetupTourCompletedKey, JSON.stringify(unique));
+  }
+
+  private get tourCurrentStep(): number | null {
+    const raw = localStorage.getItem(this.systemSetupTourCurrentKey);
+    const n = raw ? Number(raw) : NaN;
+    return Number.isFinite(n) ? n : null;
+  }
+
+  private set tourCurrentStep(step: number | null) {
+    if (step === null) {
+      localStorage.removeItem(this.systemSetupTourCurrentKey);
+      return;
+    }
+    localStorage.setItem(this.systemSetupTourCurrentKey, String(step));
+  }
+
+  get shouldShowSystemSetupTour(): boolean {
+    // Show tour until user actually completes all steps OR chooses "Skip all"
+    const completedAll = this.systemSetupTotal > 0 && this.tourCompletedCount >= this.systemSetupTotal;
+    if (this.tourDone && completedAll) return false;
+
+    // If user closed it for this session, keep it hidden until refresh/navigation ends.
+    // (We still allow it to show if it has never successfully anchored yet)
+    const sessionClosed = sessionStorage.getItem(this.systemSetupTourSessionClosedKey) === 'true';
+    if (sessionClosed && this.tourTargetRect) return false;
+
+    return (this.systemSetupLoading || !!this.systemSetupError || this.systemSetupTotal > 0);
+  }
+
+  closeTourForSession(): void {
+    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
+  }
+
+  get tourCompletedCount(): number {
+    const set = new Set(this.tourCompletedSteps);
+    return this.systemSetupItems.filter(i => set.has(i.step)).length;
+  }
+
+  get tourProgressPercent(): number {
+    if (!this.systemSetupTotal) return 0;
+    return Math.round((this.tourCompletedCount / this.systemSetupTotal) * 100);
+  }
+
+  get currentTourItem(): ISystemSetupStepItem | null {
+    if (!this.systemSetupItems.length) return null;
+    const idx = Math.min(Math.max(this.tourCurrentIndex, 0), this.systemSetupItems.length - 1);
+    return this.systemSetupItems[idx] || null;
+  }
+
+  isTourStepCompleted(step: number): boolean {
+    return new Set(this.tourCompletedSteps).has(step);
+  }
+
+  private syncTourIndexFromStorage(): void {
+    if (!this.systemSetupItems.length) {
+      this.tourCurrentIndex = 0;
+      return;
+    }
+
+    const completed = new Set(this.tourCompletedSteps);
+    const storedStep = this.tourCurrentStep;
+
+    if (storedStep !== null) {
+      const idx = this.systemSetupItems.findIndex(i => i.step === storedStep);
+      if (idx >= 0 && !completed.has(storedStep)) {
+        this.tourCurrentIndex = idx;
+        return;
+      }
+    }
+
+    const firstIncompleteIdx = this.systemSetupItems.findIndex(i => !completed.has(i.step));
+    this.tourCurrentIndex = firstIncompleteIdx >= 0 ? firstIncompleteIdx : 0;
+
+    const item = this.systemSetupItems[this.tourCurrentIndex];
+    if (item && !completed.has(item.step)) {
+      this.tourCurrentStep = item.step;
+    }
+  }
+
+  private getTourSidebarTargetKey(title: string): 'od' | 'attendance' | 'personnel' {
+    const normalized = (title || '').trim().toLowerCase();
+    if (normalized === 'work schedules') return 'attendance';
+    if (normalized === 'employees') return 'personnel';
+    // Goals/Departments/Branches/Job Titles → Operations Development
+    return 'od';
+  }
+
+  private updateTourAnchor(): void {
+    const item = this.currentTourItem;
+    if (!item) {
+      this.tourTargetRect = null;
+      return;
+    }
+
+    const key = this.getTourSidebarTargetKey(item.title);
+    const el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
+    if (!el) {
+      this.tourTargetRect = null;
+      return;
+    }
+
+    const r = el.getBoundingClientRect();
+    this.tourTargetRect = { top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom };
+
+    // Tooltip placement near sidebar element
+    const margin = 14;
+    const cardWidth = 360; // used for placement decisions
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    let placement: 'right' | 'left' = 'right';
+    let left = r.right + margin;
+
+    if (left + cardWidth > viewportW - 12) {
+      placement = 'left';
+      left = Math.max(12, r.left - margin - cardWidth);
+    }
+
+    // Top aligned to target, clamped into viewport
+    const desiredTop = r.top - 6;
+    const top = Math.min(Math.max(12, desiredTop), Math.max(12, viewportH - 12 - 260));
+
+    this.tourCardPos = { top, left, placement };
+  }
+
+  private ensureTourAnchor(): void {
+    this.updateTourAnchor();
+    if (this.tourTargetRect) {
+      this.anchorRetryCount = 0;
+      return;
+    }
+
+    if (this.anchorRetryCount >= 10) return;
+    this.anchorRetryCount += 1;
+    setTimeout(() => this.ensureTourAnchor(), 150);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait a tick for sidebar/layout paint
+    setTimeout(() => this.ensureTourAnchor(), 0);
+    this.resizeHandler = () => this.updateTourAnchor();
+    window.addEventListener('resize', this.resizeHandler);
+    window.addEventListener('scroll', this.resizeHandler, true);
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      window.removeEventListener('scroll', this.resizeHandler, true);
+    }
+  }
+
+  nextTourStep(): void {
+    const item = this.currentTourItem;
+    if (!item) return;
+
+    const completed = new Set(this.tourCompletedSteps);
+    completed.add(item.step);
+    this.tourCompletedSteps = Array.from(completed);
+
+    const nextIdx = this.systemSetupItems.findIndex((x, idx) => idx > this.tourCurrentIndex && !completed.has(x.step));
+    if (nextIdx >= 0) {
+      this.tourCurrentIndex = nextIdx;
+      this.tourCurrentStep = this.systemSetupItems[nextIdx].step;
+      setTimeout(() => this.ensureTourAnchor(), 0);
+      return;
+    }
+
+    const anyIncomplete = this.systemSetupItems.findIndex(x => !completed.has(x.step));
+    if (anyIncomplete >= 0) {
+      this.tourCurrentIndex = anyIncomplete;
+      this.tourCurrentStep = this.systemSetupItems[anyIncomplete].step;
+      setTimeout(() => this.ensureTourAnchor(), 0);
+      return;
+    }
+
+    this.tourDone = true;
+    // fully finished: persist and close
+    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
+  }
+
+  prevTourStep(): void {
+    if (!this.systemSetupItems.length) return;
+    this.tourCurrentIndex = Math.max(0, this.tourCurrentIndex - 1);
+    const item = this.systemSetupItems[this.tourCurrentIndex];
+    if (item && !this.isTourStepCompleted(item.step)) {
+      this.tourCurrentStep = item.step;
+    }
+    setTimeout(() => this.updateTourAnchor(), 0);
+  }
+
+  skipAllTourSteps(): void {
+    this.tourDone = true;
+    this.tourCurrentStep = null;
+    sessionStorage.setItem(this.systemSetupTourSessionClosedKey, 'true');
+  }
+
+  get systemSetupDismissed(): boolean {
+    return localStorage.getItem(this.systemSetupDismissKey) === 'true';
+  }
+
+  dismissSystemSetup(): void {
+    localStorage.setItem(this.systemSetupDismissKey, 'true');
+  }
+
+  resetSystemSetupDismiss(): void {
+    localStorage.removeItem(this.systemSetupDismissKey);
+  }
+
+  get systemSetupTotal(): number {
+    return this.systemSetupItems.length;
+  }
+
+  get systemSetupCompleted(): number {
+    return this.systemSetupItems.filter(x => x.checked).length;
+  }
+
+  get systemSetupProgressPercent(): number {
+    if (!this.systemSetupTotal) return 0;
+    return Math.round((this.systemSetupCompleted / this.systemSetupTotal) * 100);
+  }
+
+  get systemSetupIsDone(): boolean {
+    return this.systemSetupTotal > 0 && this.systemSetupCompleted === this.systemSetupTotal;
+  }
+
+  get currentLang(): 'en' | 'ar' {
+    return (localStorage.getItem('lang') === 'ar' ? 'ar' : 'en');
+  }
+
+  getSystemSetupMessage(item: ISystemSetupStepItem): string {
+    const msg = item?.message?.[this.currentLang] || item?.message?.en || item?.message?.ar;
+    if (item.checked) return msg || 'Completed';
+    return 'Not completed yet';
+  }
+
+  getSystemSetupRoute(title: string): string | null {
+    const normalized = (title || '').trim().toLowerCase();
+    if (normalized === 'goals') return '/goals/all-goals';
+    if (normalized === 'departments') return '/departments/all-departments';
+    if (normalized === 'branches') return '/branches/all-branches';
+    if (normalized === 'job titles' || normalized === 'job titles ') return '/jobs/all-job-titles';
+    if (normalized === 'work schedules') return '/schedule/work-schedule';
+    if (normalized === 'employees') return '/employees/all-employees';
+    return null;
+  }
 
   months: { value: number, label: string }[] = [];
 
@@ -33,6 +324,7 @@ export class AdminDashboardComponent {
   } = {};
 
   ngOnInit(): void {
+    this.loadSystemSetupBoard();
     // get monthes selects 
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
@@ -71,6 +363,26 @@ export class AdminDashboardComponent {
 
     // get dashboard data
     this.getDashboardData();
+  }
+
+  private loadSystemSetupBoard(): void {
+    this.systemSetupLoading = true;
+    this.systemSetupError = null;
+    this.systemSetupService.getSystemSetup().subscribe({
+      next: (res) => {
+        const items = res?.data?.list_items || [];
+        // ensure stable ordering by step
+        this.systemSetupItems = [...items].sort((a, b) => (a.step ?? 0) - (b.step ?? 0));
+        this.systemSetupLoading = false;
+        this.syncTourIndexFromStorage();
+        setTimeout(() => this.ensureTourAnchor(), 0);
+      },
+      error: (err) => {
+        this.systemSetupLoading = false;
+        this.systemSetupItems = [];
+        this.systemSetupError = err?.error?.details || 'Failed to load system setup.';
+      }
+    });
   }
 
 

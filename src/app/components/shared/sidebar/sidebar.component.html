@@ -113,6 +113,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingOne">
           <button
+            data-system-setup-target="od"
             class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
@@ -197,6 +198,7 @@
                 routerLink="/departments"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="departments"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Departments' : null"
@@ -229,6 +231,7 @@
                 routerLink="/branches"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="branches"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Branches' : null"
@@ -262,6 +265,7 @@
                 routerLink="/jobs"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="job-titles"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Job Titles' : null"
@@ -333,6 +337,7 @@
                 routerLink="/goals"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="goals"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Goals' : null"
@@ -403,6 +408,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTwo">
           <button
+            data-system-setup-target="personnel"
             class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
@@ -517,6 +523,7 @@
                 routerLink="/employees"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="employees"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Employees' : null"
@@ -696,6 +703,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingThree">
           <button
+            data-system-setup-target="attendance"
             class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
@@ -857,6 +865,7 @@
                 routerLink="/schedule"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: false }"
+                data-system-setup-target="work-schedules"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
                 [attr.title]="!collapsed ? 'Work Schedule' : null"

@@ -1,0 +1,181 @@
+.system-setup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+}
+
+.system-setup-highlight {
+  position: fixed;
+  border-radius: 14px;
+  border: 2px solid rgba(55, 122, 253, 0.95);
+  box-shadow: 0 0 0 6px rgba(55, 122, 253, 0.12);
+  pointer-events: none;
+  z-index: 100000;
+  transition: top 180ms ease, left 180ms ease, width 180ms ease, height 180ms ease;
+  animation: systemSetupPulse 1.6s ease-in-out infinite;
+}
+
+.system-setup-card {
+  position: fixed;
+  width: 340px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  padding: 14px;
+  backdrop-filter: blur(10px);
+  z-index: 100001;
+  transition: top 220ms ease, left 220ms ease, transform 180ms ease, opacity 180ms ease;
+  will-change: top, left, transform, opacity;
+}
+
+.system-setup-card.is-switching {
+  opacity: 0.92;
+  transform: translateY(4px) scale(0.995);
+}
+
+.system-setup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.system-setup-title {
+  font-weight: 900;
+  color: var(--color-secondary-700);
+  letter-spacing: -0.2px;
+}
+
+.system-setup-sub {
+  font-size: 12px;
+  color: rgba(44, 67, 93, 0.6);
+  margin-top: 2px;
+}
+
+.system-setup-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-primary-600);
+  background: rgba(55, 122, 253, 0.12);
+  border: 1px solid rgba(55, 122, 253, 0.2);
+}
+
+.system-setup-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(248, 250, 252, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary-700);
+  transition: all 0.2s ease;
+}
+
+.system-setup-close:hover {
+  background: rgba(55, 122, 253, 0.08);
+  border-color: rgba(55, 122, 253, 0.35);
+}
+
+.system-setup-arrow {
+  position: absolute;
+  top: 22px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(-2px 0 0 rgba(148, 163, 184, 0.35));
+}
+
+.system-setup-card.placement-left .system-setup-arrow {
+  left: auto;
+  right: -8px;
+  border-right: 0;
+  border-left: 10px solid rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(2px 0 0 rgba(148, 163, 184, 0.35));
+}
+
+.system-setup-progress {
+  margin-top: 10px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.system-setup-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(55, 122, 253, 0.85), rgba(55, 122, 253, 0.55));
+  border-radius: 999px;
+  transition: width 260ms ease;
+}
+
+.system-setup-step {
+  margin-top: 12px;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba(55, 122, 253, 0.18);
+  background: linear-gradient(180deg, rgba(55, 122, 253, 0.10), rgba(255, 255, 255, 0.92));
+}
+
+.system-setup-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-secondary-700);
+  background: rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.system-setup-step-title {
+  margin-top: 8px;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--color-secondary-700);
+}
+
+.system-setup-step-msg {
+  margin-top: 6px;
+  color: var(--color-secondary-600);
+  font-size: var(--font-size-b3);
+  line-height: 1.5;
+}
+
+.system-setup-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+@keyframes systemSetupPulse {
+  0% {
+    box-shadow: 0 0 0 6px rgba(55, 122, 253, 0.10);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(55, 122, 253, 0.14);
+  }
+
+  100% {
+    box-shadow: 0 0 0 6px rgba(55, 122, 253, 0.10);
+  }
+}

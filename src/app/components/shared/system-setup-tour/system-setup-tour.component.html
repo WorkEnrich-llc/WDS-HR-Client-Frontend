@@ -1,0 +1,125 @@
+@if (visible) {
+<div class="system-setup-backdrop">
+  @if (targetRect) {
+  <div
+    class="system-setup-highlight"
+    [style.top.px]="targetRect.top - 6"
+    [style.left.px]="targetRect.left - 6"
+    [style.width.px]="targetRect.width + 12"
+    [style.height.px]="targetRect.height + 12"
+  ></div>
+  }
+
+  <div
+    class="system-setup-card"
+    [class.placement-left]="cardPos.placement === 'left'"
+    [class.is-switching]="isSwitching"
+    [style.top.px]="cardPos.top"
+    [style.left.px]="cardPos.left"
+  >
+    <div class="system-setup-arrow"></div>
+
+    <div class="system-setup-header">
+      <div class="d-flex flex-column">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <div class="system-setup-title">System Setup</div>
+          @if (total > 0) {
+          <span class="system-setup-badge"
+            >{{ completedCount }}/{{ total }}</span
+          >
+          }
+        </div>
+        <div class="system-setup-sub">Follow the steps from the sidebar</div>
+      </div>
+
+      <button
+        type="button"
+        class="system-setup-close"
+        (click)="skipAll()"
+        aria-label="Close"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            d="M18 6L6 18M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+
+    @if (total > 0) {
+    <div class="system-setup-progress" aria-hidden="true">
+      <div
+        class="system-setup-progress__bar"
+        [style.width.%]="progressPercent"
+      ></div>
+    </div>
+    } @if (isLoading) {
+    <div
+      class="d-flex justify-content-center align-items-center w-100"
+      style="min-height: 140px"
+    >
+      <div
+        class="spinner-border text-primary"
+        style="width: 2.5rem; height: 2.5rem"
+        role="status"
+      ></div>
+    </div>
+    } @else if (error) {
+    <div
+      class="alert alert-warning d-flex align-items-center mt-3"
+      role="alert"
+    >
+      <span class="me-2">⚠</span>
+      <div>{{ error }}</div>
+    </div>
+    } @else if (current) {
+    <div class="system-setup-step">
+      <div class="system-setup-pill">
+        Step {{ current.step }} of {{ total }}
+      </div>
+      <div class="system-setup-step-title">{{ current.title }}</div>
+      <div class="system-setup-step-msg">{{ getMessage(current) }}</div>
+    </div>
+
+    <div class="system-setup-actions">
+      <button
+        type="button"
+        class="btn btn-sm btn-primary"
+        (click)="openModule()"
+      >
+        Open
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        (click)="prev()"
+        [disabled]="index === 0"
+      >
+        Back
+      </button>
+      <button type="button" class="btn btn-sm btn-primary" (click)="next()">
+        Next
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger ms-auto"
+        (click)="skipAll()"
+      >
+        Skip all
+      </button>
+    </div>
+    } @else {
+    <div class="text-center py-3 text-muted">No setup steps found.</div>
+    }
+  </div>
+</div>
+}
