@@ -329,11 +329,11 @@
     </div>
   </div>
 
-  <div class="row g-4 align-items-stretch">
+  <div class="row g-3 align-items-stretch">
     <!-- Turnover -->
-    <div class="col-12">
-      <div class="content-box flex-fill d-flex flex-column">
-        <div class="d-flex align-items-center justify-content-between">
+    <div class="col-12 col-lg-8">
+      <div class="content-box flex-fill d-flex flex-column h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
           <h2>Turnover</h2>
           <div class="form-outline w-50 select-inner">
             <select
@@ -349,6 +349,39 @@
         </div>
         @if(getDataLoad){
         <div
+          class="d-flex justify-content-center align-items-center w-100 flex-fill"
+          style="min-height: 200px"
+        >
+          <div
+            class="spinner-border text-primary"
+            style="width: 4rem; height: 4rem"
+            role="status"
+          ></div>
+        </div>
+        } @if(!getDataLoad){
+        <div
+          class="flex-fill"
+          style="width: 100%; height: 100%; min-height: 300px"
+        >
+          <canvas
+            baseChart
+            [data]="turnoverData"
+            [type]="turnoverType"
+            [options]="turnoverOptions"
+            style="width: 100%; height: 100%"
+          >
+          </canvas>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Employee Onboarding -->
+    <div class="col-12 col-lg-4">
+      <div class="content-box flex-fill d-flex flex-column h-100">
+        <h2 class="mb-3">Employee Onboarding</h2>
+        @if(getDataLoad){
+        <div
           class="d-flex justify-content-center align-items-center w-100"
           style="min-height: 200px"
         >
@@ -359,15 +392,38 @@
           ></div>
         </div>
         } @if(!getDataLoad){
-        <div class="flex-fill mt-3" style="width: 100%; height: 300px">
-          <canvas
-            baseChart
-            [data]="turnoverData"
-            [type]="turnoverType"
-            [options]="turnoverOptions"
-            style="width: 100%; height: 100%"
-          >
-          </canvas>
+        <div
+          class="d-flex align-items-center justify-content-center flex-fill gap-3"
+        >
+          <div style="height: 200px; flex-shrink: 0">
+            <canvas
+              baseChart
+              [data]="employeeOnboardingData"
+              [type]="employeeOnboardingType"
+              [options]="employeeOnboardingOptions"
+            >
+            </canvas>
+          </div>
+
+          <div class="d-flex flex-column gap-2" style="flex-shrink: 0">
+            @for (val of employeeOnboardingValues; track val; let i = $index) {
+            <div class="sticker">
+              <div class="number text-end">{{ val }}</div>
+              <div
+                class="label"
+                [style.background-color]="employeeOnboardingColors[i]"
+              ></div>
+              <p>{{ employeeOnboardingLabels[i] }}</p>
+            </div>
+            } @if(chartsData['Employee Onboarding']) {
+            <hr />
+            <div class="sticker">
+              <div class="number text-end">{{ employeeOnboardingTotal }}</div>
+              <div class="label" style="background-color: transparent"></div>
+              <p>Total</p>
+            </div>
+            }
+          </div>
         </div>
         }
       </div>
@@ -426,57 +482,6 @@
           <div class="sticker">
             <div class="label" style="background-color: #ff8f8f"></div>
             <p>Resigned</p>
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Employee Onboarding -->
-    <div class="col-12 col-lg-4 d-flex flex-column gap-3">
-      <div class="content-box flex-fill d-flex flex-column h-100">
-        <h2>Employee Onboarding</h2>
-        @if(getDataLoad){
-        <div
-          class="d-flex justify-content-center align-items-center w-100"
-          style="min-height: 200px"
-        >
-          <div
-            class="spinner-border text-primary"
-            style="width: 4rem; height: 4rem"
-            role="status"
-          ></div>
-        </div>
-        } @if(!getDataLoad){
-        <div class="d-flex align-items-center mt-auto gap-2">
-          <div style="height: 200px">
-            <canvas
-              baseChart
-              [data]="employeeOnboardingData"
-              [type]="employeeOnboardingType"
-              [options]="employeeOnboardingOptions"
-            >
-            </canvas>
-          </div>
-
-          <div class="d-flex flex-column gap-2">
-            @for (val of employeeOnboardingValues; track val; let i = $index) {
-            <div class="sticker">
-              <div class="number text-end">{{ val }}</div>
-              <div
-                class="label"
-                [style.background-color]="employeeOnboardingColors[i]"
-              ></div>
-              <p>{{ employeeOnboardingLabels[i] }}</p>
-            </div>
-            } @if(chartsData['Employee Onboarding']) {
-            <hr />
-            <div class="sticker">
-              <div class="number text-end">{{ employeeOnboardingTotal }}</div>
-              <div class="label" style="background-color: transparent"></div>
-              <p>Total</p>
-            </div>
-            }
           </div>
         </div>
         }

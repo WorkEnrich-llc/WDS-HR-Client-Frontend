@@ -73,6 +73,7 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   isLoading: boolean = false;
+  isExporting: boolean = false;
   todayDayjs: Dayjs = dayjs();
   searchTerm: string = '';
   filterForm!: FormGroup;
@@ -572,6 +573,69 @@ export class AttendanceLogComponent implements OnDestroy {
 
   navigateToNewLog(): void {
     this.router.navigate(['/attendance/manage-attendance']);
+  }
+
+  exportAttendanceLog(): void {
+    // Prevent multiple simultaneous requests
+    if (this.isExporting) {
+      return;
+    }
+
+    this.isExporting = true;
+
+    // Build filter params same as loadFilteredAttendance
+    const raw = this.filterForm.value;
+    let from_date = '';
+    let to_date = '';
+
+    // If date range is selected from filter form
+    if (raw.from_date && raw.from_date.startDate && raw.from_date.endDate) {
+      from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
+      to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+    }
+    // If single date is selected from calendar
+    else if (this.selectedDate) {
+      from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
+    }
+
+    const filters: IAttendanceFilters = {
+      department_id: raw.department_id || undefined,
+      from_date,
+      to_date,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
+      search: this.searchTerm || undefined,
+    };
+
+    // Remove undefined/null/empty values
+    const cleanFilters: any = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        cleanFilters[key] = value;
+      }
+    });
+
+    this._AttendanceLogService.exportAttendanceLog(cleanFilters).subscribe({
+      next: (blob: Blob) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `attendance-log-${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.isExporting = false;
+        this.toasterService.showSuccess('Attendance log exported successfully.');
+      },
+      error: (error) => {
+        console.error('Error exporting attendance log:', error);
+        this.isExporting = false;
+        this.toasterService.showError('Failed to export attendance log.');
+      }
+    });
   }
 
   navigateToEditAttendance(log: any, emp: any): void {

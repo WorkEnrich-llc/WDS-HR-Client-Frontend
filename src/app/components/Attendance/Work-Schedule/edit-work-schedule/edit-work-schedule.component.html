@@ -258,6 +258,9 @@
       <div class="input">
         <label for="workCode">Work Schedule ID (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (isDataLoading) {
+          <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+          } @else {
           <input
             type="text"
             formControlName="code"
@@ -265,12 +268,16 @@
             class="form-control custom-date-input"
             placeholder="0050"
           />
+          }
         </div>
       </div>
 
       <div class="input">
         <label for="workName">Work Schedule Name <span>*</span></label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (isDataLoading) {
+          <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+          } @else {
           <input
             type="text"
             formControlName="name"
@@ -278,8 +285,9 @@
             class="form-control custom-date-input"
             placeholder="Work Schedule Name "
           />
+          }
         </div>
-        @if (workSchadule1.get('name')?.touched &&
+        @if (!isDataLoading) { @if (workSchadule1.get('name')?.touched &&
         workSchadule1.get('name')?.errors?.['minLength']) {
         <p class="error-msg">Work Schedule Name min length must be 3.</p>
         } @if (workSchadule1.get('name')?.touched &&
@@ -288,7 +296,7 @@
         } @if (workSchadule1.get('name')?.touched &&
         workSchadule1.get('name')?.errors?.['required']) {
         <p class="error-msg">Work Schedule Name is required.</p>
-        }
+        } }
       </div>
     </form>
     @if (errMsg) {
@@ -301,7 +309,7 @@
     <div class="btn-fixed">
       <button
         class="btn btn-lg btn-primary"
-        [disabled]="!workSchadule1.valid"
+        [disabled]="!workSchadule1.valid || isDataLoading"
         (click)="goNext()"
       >
         <svg
@@ -331,6 +339,23 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Departments</h2>
+
+    @if (isDataLoading) {
+    <!-- Skeleton loader for Departments -->
+    <div class="d-flex flex-row justify-content-between gap-3">
+      <div class="skeleton-block" style="width: 25%; height: 40px"></div>
+    </div>
+    <div>
+      <app-table
+        [data]="[]"
+        [currentPage]="1"
+        [itemsPerPage]="5"
+        [disablePagination]="true"
+        [isLoading]="true"
+      >
+      </app-table>
+    </div>
+    } @if (!isDataLoading) {
     <div class="d-flex flex-row justify-content-between gap-3">
       <!-- Search input -->
       <div data-mdb-input-init class="form-outline w-25 w-md-100">
@@ -487,13 +512,14 @@
     <div class="alert alert-danger mb-0 mt-2" role="alert">
       {{ errMsg }}
     </div>
-    }
+    } }
 
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
       <button
         class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
         (click)="goPrev()"
+        [disabled]="isDataLoading"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -513,7 +539,7 @@
       </button>
       <button
         class="btn btn-lg btn-primary"
-        [disabled]="!workSchadule1.valid"
+        [disabled]="!workSchadule1.valid || isDataLoading"
         (click)="goNext()"
       >
         @if(addeddepartments.length > 0){
@@ -687,7 +713,16 @@
   <div class="content-box d-flex flex-column gap-3">
     <h2>Work Schedule System</h2>
     <div class="d-flex flex-wrap gap-2">
-      @for (day of days; track $index; let i = $index) {
+      @if (isDataLoading) { @for (i of [1,2,3,4,5,6,7]; track i) {
+      <div
+        class="skeleton-block"
+        style="
+          width: 160px;
+          height: 60px;
+          border-radius: var(--border-radius-16);
+        "
+      ></div>
+      } } @else { @for (day of days; track $index; let i = $index) {
       <div
         class="day-card d-flex align-items-center justify-content-center gap-2 p-3"
         [class.selected]="day.selected"
@@ -728,7 +763,7 @@
         </span>
         <span>{{ day.name }}</span>
       </div>
-      }
+      } }
     </div>
 
     <form [formGroup]="workSchadule2" class="w-lg-50 d-flex flex-column gap-2">
@@ -736,6 +771,9 @@
         <label for="empType">Employment Type</label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
+            @if (isDataLoading) {
+            <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+            } @else {
             <select
               name="empType"
               formControlName="employment_type"
@@ -749,9 +787,10 @@
               <option value="3">Per Hour</option>
               <option value="4">Freelance</option>
             </select>
+            }
           </div>
         </div>
-        @if (workSchadule2.get('employment_type')?.touched &&
+        @if (!isDataLoading && workSchadule2.get('employment_type')?.touched &&
         workSchadule2.get('employment_type')?.errors?.['required']) {
         <p class="error-msg">Employment Type is required.</p>
         }
@@ -761,6 +800,9 @@
         <label for="workType">Work Schedule Type</label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
+            @if (isDataLoading) {
+            <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+            } @else {
             <select
               name="workType"
               formControlName="work_schedule_type"
@@ -773,10 +815,11 @@
               <option value="2">Flexible</option>
               <option value="3">Remote</option>
             </select>
+            }
           </div>
         </div>
-        @if (workSchadule2.get('work_schedule_type')?.touched &&
-        workSchadule2.get('work_schedule_type')?.errors?.['required']) {
+        @if (!isDataLoading && workSchadule2.get('work_schedule_type')?.touched
+        && workSchadule2.get('work_schedule_type')?.errors?.['required']) {
         <p class="error-msg">Work Schedule Type is required.</p>
         }
       </div>
@@ -784,6 +827,9 @@
       <div class="input">
         <label for="shiftHours">Shift Hours</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (isDataLoading) {
+          <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+          } @else {
           <input
             type="text"
             formControlName="shift_hours"
@@ -791,8 +837,9 @@
             class="form-control custom-date-input"
             placeholder="Total Shift Hours Count"
           />
+          }
         </div>
-        @if (workSchadule2.get('shift_hours')?.touched &&
+        @if (!isDataLoading && workSchadule2.get('shift_hours')?.touched &&
         workSchadule2.get('shift_hours')?.errors?.['required']) {
         <p class="error-msg">Shift Hours Required.</p>
         }
@@ -805,6 +852,12 @@
             <div
               class="form-outline w-100 position-relative custom-date-wrapper"
             >
+              @if (isDataLoading) {
+              <div
+                class="skeleton-block"
+                style="width: 100%; height: 40px"
+              ></div>
+              } @else {
               <input
                 type="time"
                 formControlName="from"
@@ -812,8 +865,9 @@
                 class="form-control custom-date-input"
                 placeholder="From"
               />
+              }
             </div>
-            @if (workSchadule2.get('from')?.touched &&
+            @if (!isDataLoading && workSchadule2.get('from')?.touched &&
             workSchadule2.get('from')?.errors?.['required']) {
             <p class="error-msg">Required.</p>
             }
@@ -822,6 +876,12 @@
             <div
               class="form-outline w-100 position-relative custom-date-wrapper"
             >
+              @if (isDataLoading) {
+              <div
+                class="skeleton-block"
+                style="width: 100%; height: 40px"
+              ></div>
+              } @else {
               <input
                 type="time"
                 formControlName="to"
@@ -829,22 +889,15 @@
                 class="form-control custom-date-input"
                 placeholder="To"
               />
+              }
             </div>
-            @if (workSchadule2.get('to')?.touched &&
+            @if (!isDataLoading && workSchadule2.get('to')?.touched &&
             workSchadule2.get('to')?.errors?.['required']) {
             <p class="error-msg">Required.</p>
             }
           </div>
         </div>
-        <!-- <p class="error-msg"
-                    @if ((workSchadule2.get('from')?.touched || workSchadule2.get('to')?.touched) && 
-                           (workSchadule2.get('from')?.errors?.['shiftHoursMismatch'] || workSchadule2.get('to')?.errors?.['shiftHoursMismatch'])">
-        Shift range duration must match the specified shift hours ({{
-        workSchadule2.get('shift_hours')?.value }} hours).
-      </p>
-      } -->
-
-        @if (workSchadule2.errors?.['shiftHoursMismatch'] &&
+        @if (!isDataLoading && workSchadule2.errors?.['shiftHoursMismatch'] &&
         (workSchadule2.get('from')?.touched ||
         workSchadule2.get('to')?.touched)) {
         <p class="error-msg">
@@ -855,8 +908,28 @@
       </div>
 
       <div class="input">
+        <label for="maxCheckOut">Max Checkout</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (isDataLoading) {
+          <div class="skeleton-block" style="width: 100%; height: 40px"></div>
+          } @else {
+          <input
+            type="time"
+            formControlName="max_check_out"
+            id="maxCheckOut"
+            class="form-control custom-date-input"
+            placeholder="Max Checkout Time"
+          />
+          }
+        </div>
+      </div>
+
+      <div class="input">
         <label for="shiftTerms">Work Schedule Terms & Rules</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (isDataLoading) {
+          <div class="skeleton-block" style="width: 100%; height: 100px"></div>
+          } @else {
           <textarea
             type="text"
             formControlName="terms"
@@ -864,14 +937,15 @@
             class="form-control custom-date-input"
             placeholder="Work Schedule Terms and Rules"
           ></textarea>
+          }
         </div>
-        @if (workSchadule2.get('terms')?.touched &&
+        @if (!isDataLoading) { @if (workSchadule2.get('terms')?.touched &&
         workSchadule2.get('terms')?.errors?.['required']) {
         <p class="error-msg">Work Schedule Terms is Required.</p>
         } @if (workSchadule2.get('terms')?.touched &&
         workSchadule2.get('terms')?.errors?.['minlength']) {
         <p class="error-msg">Work Schedule Terms min length must be 10.</p>
-        }
+        } }
       </div>
     </form>
     @if (errMsg) {
@@ -879,11 +953,13 @@
       {{ errMsg }}
     </div>
     }
+
     <!-- prev and confirm buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
       <button
         class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
         (click)="goPrev()"
+        [disabled]="isDataLoading"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -909,6 +985,7 @@
           !isAtLeastOneDaySelected() ||
           !workSchadule2.valid ||
           isLoading ||
+          isDataLoading ||
           addeddepartments.length <= 0 ||
           !hasChanges
         "

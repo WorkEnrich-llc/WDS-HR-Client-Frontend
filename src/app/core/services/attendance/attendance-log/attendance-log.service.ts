@@ -63,5 +63,18 @@ export class AttendanceLogService {
     return this.http.put(`${this.apiBaseUrl}personnel/attendance-inactive`, formData);
   }
 
+  exportAttendanceLog(params: IAttendanceFilters = {}): Observable<Blob> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/log`;
+    return this.http.get(url, {
+      params: httpParams,
+      responseType: 'blob'
+    });
+  }
 
 }

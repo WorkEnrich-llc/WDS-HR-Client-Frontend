@@ -255,6 +255,7 @@ export class CreateWorkScheduleComponent {
     shift_hours: new FormControl('', [Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
     from: new FormControl(''),
     to: new FormControl(''),
+    max_check_out: new FormControl(''),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
   }, {
     validators: [this.shiftRangeValidator.bind(this)]
@@ -453,6 +454,7 @@ export class CreateWorkScheduleComponent {
             from: this.workSchadule2.get('from')?.value,
             to: this.workSchadule2.get('to')?.value
           },
+          max_check_out: this.workSchadule2.get('max_check_out')?.value,
           terms_and_rules: this.workSchadule2.get('terms')?.value
         }
       }
@@ -465,7 +467,7 @@ export class CreateWorkScheduleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/schedule/work-schedule']);
-        this.toasterMessageService.showSuccess("Work schedule created successfully","Created Successfully");
+        this.toasterMessageService.showSuccess("Work schedule created successfully", "Created Successfully");
 
       },
       error: (err) => {
