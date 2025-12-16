@@ -108,6 +108,34 @@
       </div>
 
       <div class="input w-100">
+        <label for="workMode">Work Mode</label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select
+              name="workMode"
+              id="workMode"
+              class="form-select"
+              [class.is-invalid]="isFormTouched && validationErrors.workMode"
+              [(ngModel)]="selectedWorkMode"
+              (change)="onWorkModeChange()"
+            >
+              <option value="" selected disabled hidden>
+                Select 1 Work Mode
+              </option>
+              @for (mode of workModes; track mode) {
+              <option [value]="mode.id">{{ mode.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (isFormTouched && validationErrors.workMode) {
+        <div class="text-danger small mt-1">
+          {{ validationErrors.workMode }}
+        </div>
+        }
+      </div>
+
+      <div class="input w-100">
         <label for="workSchedule">Work Schedule</label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -183,6 +211,7 @@
         }
       </div>
 
+      @if (selectedWorkMode === '3') {
       <div class="input w-100">
         <label for="onsiteDays">No. of Days on Site</label>
         <div class="d-flex align-items-center gap-4">
@@ -202,6 +231,7 @@
           </div>
         </div>
       </div>
+      }
 
       <div class="input w-100">
         <label for="branch">Branch</label>

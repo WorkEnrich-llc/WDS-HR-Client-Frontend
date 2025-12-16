@@ -32,9 +32,17 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   selectedBranch: any = null;
   selectedWorkSchedule: any = null;
   selectedEmploymentType: string = '';
+  selectedWorkMode: string = '';
   selectedOnsiteDays: string = '';
   timeLimit: number = 5;
   cvLimit: number = 20;
+
+  // Work Mode options
+  workModes = [
+    { id: 1, name: 'On site' },
+    { id: 2, name: 'Remote' },
+    { id: 3, name: 'Hybrid' }
+  ];
   isJobTitleDropdownOpen: boolean = false;
   isBranchDropdownOpen: boolean = false;
   isWorkScheduleDropdownOpen: boolean = false;
@@ -43,6 +51,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   validationErrors: {
     jobTitle: string;
     employmentType: string;
+    workMode: string;
     workSchedule: string;
     branch: string;
     timeLimit: string;
@@ -50,6 +59,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   } = {
       jobTitle: '',
       employmentType: '',
+      workMode: '',
       workSchedule: '',
       branch: '',
       timeLimit: '',
@@ -148,6 +158,11 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     // Pre-fill employment type
     if (mainInfo.employment_type) {
       this.selectedEmploymentType = mainInfo.employment_type.toString();
+    }
+
+    // Pre-fill work mode
+    if (mainInfo.work_mode) {
+      this.selectedWorkMode = mainInfo.work_mode.toString();
     }
 
     // Pre-fill days on site
@@ -628,6 +643,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
         main_information: {
           job_title_id: this.selectedJobTitle.id,
           employment_type: parseInt(this.selectedEmploymentType),
+          work_mode: parseInt(this.selectedWorkMode),
           work_schedule_id: parseInt(this.selectedWorkSchedule) || 1,
           days_on_site: parseInt(this.selectedOnsiteDays) || 0,
           branch_id: this.selectedBranch.id,
@@ -834,6 +850,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     const mainInfo = {
       job_title_id: this.selectedJobTitle?.id,
       employment_type: this.selectedEmploymentType ? parseInt(this.selectedEmploymentType) : undefined,
+      work_mode: this.selectedWorkMode ? parseInt(this.selectedWorkMode) : undefined,
       work_schedule_id: this.selectedWorkSchedule?.id,
       days_on_site: this.selectedOnsiteDays ? parseInt(this.selectedOnsiteDays) : 0,
       branch_id: this.selectedBranch?.id,
@@ -851,6 +868,20 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     this.updateJobData();
     if (this.isFormTouched) {
       this.validationErrors.employmentType = '';
+    }
+  }
+
+  /**
+   * Handle work mode change
+   */
+  onWorkModeChange(): void {
+    // Reset days on site if not hybrid
+    if (this.selectedWorkMode !== '3') {
+      this.selectedOnsiteDays = '';
+    }
+    this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.workMode = '';
     }
   }
 
@@ -920,6 +951,14 @@ export class MainInfoComponent implements OnInit, OnDestroy {
       isValid = false;
     } else {
       this.validationErrors.employmentType = '';
+    }
+
+    // Validate Work Mode
+    if (!this.selectedWorkMode) {
+      this.validationErrors.workMode = 'Work Mode is required';
+      isValid = false;
+    } else {
+      this.validationErrors.workMode = '';
     }
 
     // Validate Work Schedule
