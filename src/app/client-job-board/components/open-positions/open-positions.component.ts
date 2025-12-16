@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CloseDropdownDirective } from '../../../core/directives/close-dropdown.directive';
@@ -30,6 +30,8 @@ export class OpenPositionsComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
   totalItems: number = 0;
+
+  @Output() errorStateChange = new EventEmitter<boolean>();
   currentPage: number = 1;
   totalPages: number = 1;
   itemsPerPage: number = 10;
@@ -97,6 +99,8 @@ export class OpenPositionsComponent implements OnInit {
     this.jobBoardService.getJobListings(page, perPage).subscribe({
       next: (response) => {
         this.isLoading = false;
+        this.errorMessage = '';
+        this.errorStateChange.emit(false);
         // Map the API response to your JobOpening interface
         // The API returns jobs in response.data.list_items
         const jobsData = response.data?.list_items || [];
@@ -145,6 +149,7 @@ export class OpenPositionsComponent implements OnInit {
         this.totalItems = 0;
         this.currentPage = 1;
         this.totalPages = 1;
+        this.errorStateChange.emit(true);
       }
     });
   }
@@ -578,6 +583,7 @@ export class OpenPositionsComponent implements OnInit {
    */
   retryLoadJobListings(): void {
     this.errorMessage = '';
+    this.errorStateChange.emit(false);
     this.loadJobListings(this.currentPage, this.itemsPerPage);
   }
 }

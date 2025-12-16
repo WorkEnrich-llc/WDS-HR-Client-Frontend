@@ -36,6 +36,9 @@ export class ClientJobBoardComponent implements OnInit {
     // Store reference to active child component
     private activeChildComponent: any = null;
 
+    // Error state to hide navbar
+    hasError: boolean = false;
+
     ngOnInit(): void {
         this.initForm();
         this.loadCompanySettings();
@@ -177,6 +180,13 @@ export class ClientJobBoardComponent implements OnInit {
         this.activeChildComponent = component;
         // Pass about section data to child component if it's activated
         this.passDataToChild();
+
+        // Subscribe to error state changes from child component
+        if (component && component.errorStateChange) {
+            component.errorStateChange.subscribe((hasError: boolean) => {
+                this.hasError = hasError;
+            });
+        }
     }
 
     /**

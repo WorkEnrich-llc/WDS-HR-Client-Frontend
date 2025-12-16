@@ -237,15 +237,39 @@
   font-weight: 600;
 }
 
-.visit-website-btn svg {
-  fill: var(--color-primary);
-  color: var(--color-primary);
+/* Visit Website Icon - Override global btn-outline-primary styles and use fill */
+.visit-website-btn.btn-outline-primary svg {
+  stroke: none !important;
+  fill: none !important;
+  color: var(--color-primary) !important;
 }
 
-.visit-website-btn:hover svg,
-.visit-website-btn:focus svg {
-  fill: #ffffff;
-  color: #ffffff;
+.visit-website-btn svg path,
+.visit-website-btn svg g path,
+.visit-website-btn .visit-website-icon path,
+.visit-website-btn .visit-website-icon-group path {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+/* Ensure icon matches button text color on hover */
+.visit-website-btn.btn-outline-primary:hover svg,
+.visit-website-btn.btn-outline-primary:focus svg {
+  stroke: none !important;
+  fill: none !important;
+  color: #ffffff !important;
+}
+
+.visit-website-btn:hover svg path,
+.visit-website-btn:hover svg g path,
+.visit-website-btn:hover .visit-website-icon path,
+.visit-website-btn:hover .visit-website-icon-group path,
+.visit-website-btn:focus svg path,
+.visit-website-btn:focus svg g path,
+.visit-website-btn:focus .visit-website-icon path,
+.visit-website-btn:focus .visit-website-icon-group path {
+  fill: currentColor !important;
+  stroke: none !important;
 }
 
 /* Responsive Design */

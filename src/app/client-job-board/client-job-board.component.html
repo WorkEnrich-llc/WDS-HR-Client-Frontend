@@ -1,3 +1,4 @@
+@if (!hasError) {
 <app-navbar
   [logo]="logoData"
   [socialMediaLinks]="socialMediaLinks"
@@ -5,9 +6,12 @@
   [showVisitWebsite]="true"
 >
 </app-navbar>
+}
 
 <div class="content-wrapper">
   <router-outlet (activate)="onChildActivate($event)"></router-outlet>
 </div>
 
+@if (!hasError) {
 <app-footer [logo]="logoData"></app-footer>
+}

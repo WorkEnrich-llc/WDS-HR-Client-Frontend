@@ -55,55 +55,53 @@
   </aside>
   }
 
-  <!-- Job Listings Section -->
-  @if (!isLoading) {
-  <section class="job-listings-section" aria-labelledby="job-listings-heading">
-    <!-- Error State - Full Width Above Join us now! -->
-    @if (errorMessage) {
+  <!-- Error State - Centered Full Screen -->
+  @if (!isLoading && errorMessage) {
+  <div class="error-container">
     <div
       role="alert"
       aria-live="assertive"
-      class="error-card error-card-full-width"
+      class="error-card-centered"
       aria-describedby="error-description"
     >
-      <div class="error-card-content">
-        <div class="error-icon-wrapper">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-            focusable="false"
-            class="error-icon"
-          >
-            <path
-              d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
-        <div class="error-text-content">
-          <h3 class="error-title">Oops! We couldn't load the job listings</h3>
-          <p id="error-description" class="error-description">
-            {{ errorMessage }}
-          </p>
-        </div>
+      <div class="error-icon-circle">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          class="error-icon-large"
+        >
+          <path
+            d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
       </div>
-      <div class="error-actions">
+      <div class="error-content">
+        <h2 class="error-title-centered">
+          Oops! We couldn't load the job listings
+        </h2>
+        <p id="error-description" class="error-description-centered">
+          {{ errorMessage }}
+        </p>
+      </div>
+      <div class="error-actions-centered">
         <button
           type="button"
-          class="error-retry-button"
+          class="error-retry-button-centered"
           (click)="retryLoadJobListings()"
           aria-label="Try again to load job listings"
         >
           <svg
-            width="18"
-            height="18"
+            width="20"
+            height="20"
             viewBox="0 0 18 18"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -143,8 +141,12 @@
         </button>
       </div>
     </div>
-    }
+  </div>
+  }
 
+  <!-- Job Listings Section -->
+  @if (!isLoading && !errorMessage) {
+  <section class="job-listings-section" aria-labelledby="job-listings-heading">
     <!-- Section Header -->
     <header class="section-header">
       <h1 id="job-listings-heading" class="join-text">Join us now!</h1>
@@ -534,8 +536,7 @@
       </div>
     </nav>
 
-    <!-- Job Cards List - Only show if no error -->
-    @if (!errorMessage) {
+    <!-- Job Cards List -->
     <section
       class="job-cards-list"
       aria-label="Job openings list"
@@ -628,10 +629,9 @@
       </div>
       }
     </section>
-    }
 
-    <!-- Pagination - Only show if no error and has pages -->
-    @if (!errorMessage && !isLoading && totalPages > 1) {
+    <!-- Pagination - Only show if has pages -->
+    @if (!isLoading && totalPages > 1) {
     <nav class="pagination-container" aria-label="Job listings pagination">
       <div class="pagination-info">
         <span class="pagination-text">
@@ -747,8 +747,8 @@
     }
   </section>
 
-  <!-- About Section -->
-  @if (aboutTitle || aboutDescription) {
+  <!-- About Section - Only show if no error -->
+  @if (!errorMessage && (aboutTitle || aboutDescription)) {
   <aside
     class="about-section"
     aria-labelledby="about-title"
