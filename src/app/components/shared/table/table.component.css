@@ -1,4 +1,3 @@
-
 /* table style  */
 table.table thead tr th {
     background-color: var(--color-neutral-800);
@@ -37,28 +36,33 @@ table.table tbody tr:nth-child(even) td {
 table.table tbody tr:nth-child(odd) td {
     background-color: var(--color-white) !important;
 }
-table.table tbody tr:last-of-type td{
+
+table.table tbody tr:last-of-type td {
     border: none;
 }
-table.table tbody tr:last-of-type td:first-of-type{
+
+table.table tbody tr:last-of-type td:first-of-type {
     border-bottom-left-radius: var(--border-radius-25);
-    
+
 }
-table.table tbody tr:last-of-type td:last-of-type{
+
+table.table tbody tr:last-of-type td:last-of-type {
     border-bottom-right-radius: var(--border-radius-25);
-    
+
 }
-.text-gray-sm{
+
+.text-gray-sm {
     font-size: var(--font-size-b3);
-    color:var(--color-secondary-500);
+    color: var(--color-secondary-500);
     font-weight: 400;
 }
 
 
-.no-data{
+.no-data {
     font-size: var(--font-size-b2) !important;
     padding: var(--spacing-20);
 }
+
 /* pagination style */
 .ngx-pagination {
     margin: 0 !important;
@@ -119,60 +123,125 @@ table.table tbody tr:last-of-type td:last-of-type{
 .ngx-pagination .small-screen {
     display: none !important;
 }
+
 .custom-border-padding {
-    border-left: 1px solid gray;  
+    border-left: 1px solid gray;
     padding-left: 2rem;
-  }
-  pagination-controls pagination-template nav{
+}
+
+pagination-controls pagination-template nav {
     margin-bottom: 0 !important;
-  }
+}
+
 @media (min-width:991px) {
-     
-    .w-70{
+
+    .w-70 {
         width: 70% !important;
     }
-    .w-60{
+
+    .w-60 {
         width: 60% !important;
     }
-    .w-50{
+
+    .w-50 {
         width: 50% !important;
     }
-    .w-40{
+
+    .w-40 {
         width: 40% !important;
     }
-    .w-30{
+
+    .w-30 {
         width: 30% !important;
     }
-    .w-20{
+
+    .w-20 {
         width: 20% !important;
     }
-    .w-15{
+
+    .w-15 {
         width: 15% !important;
     }
-    .w-10{
+
+    .w-10 {
         width: 10% !important;
     }
-    .w-5{
+
+    .w-5 {
         width: 5% !important;
     }
 }
 
 .skeleton-block {
-  background-color: #d2d2d2; 
-  border-radius: 4px;
-  height: 30px;
-  animation: pulse 1.5s infinite;
+    background: linear-gradient(90deg,
+            var(--color-neutral-100, #f0f0f0) 25%,
+            var(--color-neutral-200, #e0e0e0) 50%,
+            var(--color-neutral-100, #f0f0f0) 75%);
+    background-size: 200% 100%;
+    border-radius: var(--border-radius-8, 8px);
+    height: 20px;
+    width: 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    margin: var(--spacing-4, 4px) 0;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-  100% {
-    opacity: 1;
-  }
+.skeleton-block.h-4 {
+    height: 16px;
 }
 
+.skeleton-block.w-full {
+    width: 100%;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        background-position: -200% 0;
+        opacity: 1;
+    }
+}
+
+/* Skeleton row styling */
+table.table tbody tr td .skeleton-block {
+    background: linear-gradient(90deg,
+            var(--color-neutral-100, #f0f0f0) 25%,
+            var(--color-neutral-200, #e0e0e0) 50%,
+            var(--color-neutral-100, #f0f0f0) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    min-height: 20px;
+}
+
+/* Varied widths for more realistic skeleton appearance */
+table.table tbody tr td:nth-child(1) .skeleton-block {
+    width: 85%;
+    max-width: 200px;
+}
+
+table.table tbody tr td:nth-child(2) .skeleton-block {
+    width: 70%;
+    max-width: 150px;
+}
+
+table.table tbody tr td:nth-child(3) .skeleton-block {
+    width: 60%;
+    max-width: 120px;
+}
+
+table.table tbody tr td:nth-child(4) .skeleton-block {
+    width: 50%;
+    max-width: 100px;
+}
+
+/* Ensure skeleton rows have proper spacing */
+table.table tbody tr:has(.skeleton-block) td {
+    padding: var(--spacing-12, 12px) var(--spacing-20, 20px);
+}

@@ -341,18 +341,23 @@
 .notification .icon svg path {
     fill: var(--color-secondary-500);
 }
-.notification.success .icon{
+
+.notification.success .icon {
     background-color: var(--color-success-100);
 }
+
 .notification.success .icon svg path {
     fill: var(--color-success-500);
 }
-.notification.danger .icon{
+
+.notification.danger .icon {
     background-color: var(--color-danger-100);
 }
+
 .notification.danger .icon svg path {
-fill: var(--color-danger-500);
+    fill: var(--color-danger-500);
 }
+
 .notification .noti-content {
     display: flex;
     flex-direction: column;
@@ -383,20 +388,80 @@ fill: var(--color-danger-500);
     -ms-border-radius: 25px !important;
     -o-border-radius: 25px !important;
 }
-.sidenav-nav-item{
+
+/* Skeleton loader styles */
+.notification-skeleton {
+    pointer-events: none;
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg,
+            var(--color-neutral-100, #f0f0f0) 25%,
+            var(--color-neutral-200, #e0e0e0) 50%,
+            var(--color-neutral-100, #f0f0f0) 75%);
+    background-size: 200% 100%;
+    border-radius: var(--border-radius-8, 8px);
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    height: 16px;
+}
+
+.skeleton-title {
+    width: 60%;
+    max-width: 200px;
+    height: 18px;
+}
+
+.skeleton-time {
+    width: 80px;
+    height: 14px;
+}
+
+.skeleton-body {
+    width: 100%;
+    height: 14px;
+    margin-top: var(--spacing-8, 8px);
+}
+
+.skeleton-body-short {
+    width: 70%;
+    height: 14px;
+    margin-top: var(--spacing-4, 4px);
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        background-position: -200% 0;
+        opacity: 1;
+    }
+}
+
+.sidenav-nav-item {
     cursor: pointer;
 }
-.sidenav-collapsed .logo-container .sidebar-text{
+
+.sidenav-collapsed .logo-container .sidebar-text {
     width: 9.5rem;
 }
-.sidebar-text{
+
+.sidebar-text {
     max-height: 30px;
 }
-.logo-container .sidebar-text{
+
+.logo-container .sidebar-text {
     height: 70px;
     max-height: 70px;
 }
-.view-btn:hover{
+
+.view-btn:hover {
     transform: unset;
     -webkit-transform: unset;
     -moz-transform: unset;

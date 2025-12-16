@@ -1855,52 +1855,37 @@
 
 <!-- Notifications popup -->
 <app-overlay-filter-box #notificationsBox [title]="'Notifications'">
+  @if (isLoadingNotifications) { @for (skeleton of [1,2,3,4]; track skeleton) {
+  <div class="notification notification-skeleton">
+    <div class="noti-content">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-time"></div>
+      </div>
+      <div class="skeleton-line skeleton-body"></div>
+      <div class="skeleton-line skeleton-body-short"></div>
+    </div>
+  </div>
+  } } @else if (notifications.length === 0) {
+  <div class="text-center py-4">
+    <p class="text-muted m-0">No notifications available</p>
+  </div>
+  } @else { @for (notification of notifications; track notification.id) {
   <div class="notification">
     <div class="noti-content">
       <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
+        <h6>{{ notification.extra_meta?.info?.title || "Notification" }}</h6>
+        <span>{{ getTimeAgo(notification.created_at) }}</span>
       </div>
       <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed
-        morbi
+        {{ notification.extra_meta?.info?.body || "" }}
       </p>
+      @if (notification.extra_meta?.info?.category) {
+      <small class="text-muted d-block mt-1">{{
+        notification.extra_meta.info.category
+      }}</small>
+      }
     </div>
   </div>
-  <div class="notification">
-    <div class="noti-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
-      </div>
-      <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed
-        morbi
-      </p>
-    </div>
-  </div>
-  <div class="notification">
-    <div class="noti-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
-      </div>
-      <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed
-        morbi
-      </p>
-    </div>
-  </div>
-  <div class="notification">
-    <div class="noti-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <h6>Label</h6>
-        <span>2 hr ago</span>
-      </div>
-      <p class="m-0">
-        Lorem ipsum dolor sit amet consectetur Volutpat dui nisl orci tellus sed
-        morbi
-      </p>
-    </div>
-  </div>
+  } }
 </app-overlay-filter-box>
