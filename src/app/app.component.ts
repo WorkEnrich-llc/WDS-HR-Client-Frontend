@@ -22,6 +22,7 @@ export class AppComponent {
 
   title = 'Talent.HR';
   private checkTokenSub?: Subscription;
+  hideVersionDisplay = false;
 
   constructor(
     private translate: TranslateService,
@@ -42,8 +43,10 @@ export class AppComponent {
     // Scroll to top on navigation
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    ).subscribe((event: NavigationEnd) => {
       this.viewportScroller.scrollToPosition([0, 0]);
+      // Hide version badge on public client job board routes
+      this.hideVersionDisplay = event.urlAfterRedirects.includes('/careers');
     });
   }
 
@@ -62,6 +65,8 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
+    // Initial route state (on refresh/deep-link)
+    this.hideVersionDisplay = this.router.url.includes('/client-job-board');
     const existingDeviceToken = localStorage.getItem('device_token');
 
     if (!existingDeviceToken) {

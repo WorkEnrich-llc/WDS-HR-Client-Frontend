@@ -7,12 +7,11 @@ import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-d
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
-import { RouterLink } from '@angular/router';
 import { ISystemSetupStepItem, SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [PageHeaderComponent, BaseChartDirective, RouterLink],
+  imports: [PageHeaderComponent, BaseChartDirective],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None
