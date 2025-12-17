@@ -27,6 +27,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   private handleReposition?: () => void;
   isSwitching = false;
   private switchingTimer?: number;
+  private lastTargetKey: string | null = null;
 
   constructor(private systemSetupService: SystemSetupService, private router: Router) { }
 
@@ -120,7 +121,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     const c = this.current;
     const completed = new Set(this.completedSteps);
     if (c && !completed.has(c.step)) this.currentStepStored = c.step;
-    setTimeout(() => this.ensureAnchor(), 0);
+    setTimeout(() => this.ensureAnchor(true), 0);
   }
 
   next(): void {
@@ -136,7 +137,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     if (nextIdx >= 0) {
       this.index = nextIdx;
       this.currentStepStored = this.items[nextIdx].step;
-      setTimeout(() => this.ensureAnchor(), 0);
+      setTimeout(() => this.ensureAnchor(true), 0);
       return;
     }
 
@@ -144,7 +145,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     if (anyIncomplete >= 0) {
       this.index = anyIncomplete;
       this.currentStepStored = this.items[anyIncomplete].step;
-      setTimeout(() => this.ensureAnchor(), 0);
+      setTimeout(() => this.ensureAnchor(true), 0);
       return;
     }
 
@@ -185,7 +186,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.syncIndexFromStorage();
         this.installRepositionHandlers();
-        setTimeout(() => this.ensureAnchor(), 0);
+        setTimeout(() => this.ensureAnchor(true), 0);
       },
       error: (err) => {
         this.isLoading = false;
@@ -197,7 +198,9 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
 
   private installRepositionHandlers(): void {
     if (this.handleReposition) return;
-    this.handleReposition = () => this.ensureAnchor();
+    // On scroll/resize: only recompute positions.
+    // Don't scrollIntoView() or open accordions here, otherwise it "fights" user scrolling.
+    this.handleReposition = () => this.updateAnchor(false);
     window.addEventListener('resize', this.handleReposition);
     window.addEventListener('scroll', this.handleReposition, true);
   }
@@ -255,23 +258,32 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateAnchor(): void {
+  private updateAnchor(allowScrollAndOpen: boolean): void {
     const c = this.current;
     if (!c) {
       this.targetRect = null;
       return;
     }
 
-    this.openAccordionForStep(c.title);
-
     const key = this.getStepTargetKey(c.title);
-    const el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
+    const targetChanged = this.lastTargetKey !== key;
+
+    let el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
+
+    // Only open the accordion when needed (and only on initial/step change).
+    if (!el && allowScrollAndOpen) {
+      this.openAccordionForStep(c.title);
+      el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
+    }
     if (!el) {
       this.targetRect = null;
       return;
     }
 
-    el.scrollIntoView({ block: 'center', inline: 'nearest' });
+    // Only scroll the sidebar item into view when step changes (never during normal scrolling).
+    if (allowScrollAndOpen && targetChanged) {
+      el.scrollIntoView({ block: 'center', inline: 'nearest' });
+    }
     const r = el.getBoundingClientRect();
     this.targetRect = { top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom };
 
@@ -290,17 +302,21 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     const desiredTop = r.top - 10;
     const top = Math.min(Math.max(12, desiredTop), Math.max(12, viewportH - 12 - 240));
     this.cardPos = { top, left, placement };
+
+    this.lastTargetKey = key;
   }
 
-  private ensureAnchor(): void {
-    this.updateAnchor();
+  private ensureAnchor(allowScrollAndOpen: boolean): void {
+    this.updateAnchor(allowScrollAndOpen);
     if (this.targetRect) {
       this.anchorRetryCount = 0;
       return;
     }
     if (this.anchorRetryCount >= 12) return;
     this.anchorRetryCount += 1;
-    setTimeout(() => this.ensureAnchor(), 150);
+    if (allowScrollAndOpen) {
+      setTimeout(() => this.ensureAnchor(true), 150);
+    }
   }
 }
 

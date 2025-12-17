@@ -432,6 +432,17 @@
   flex-direction: column;
 }
 
+/* CTA alignment inside description/requirements card */
+.section-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.section-actions .apply-button {
+  align-self: auto;
+}
+
 /* Section Divider - Separator line between sections */
 .section-divider {
   border: none;

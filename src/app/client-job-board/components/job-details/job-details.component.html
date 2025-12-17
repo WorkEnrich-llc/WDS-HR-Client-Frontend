@@ -338,6 +338,21 @@
           </div>
         </div>
         }
+
+        <div class="section-actions">
+          <button
+            class="apply-button"
+            type="button"
+            [attr.aria-label]="'Apply for ' + getJobTitle(job) + ' position'"
+            [attr.aria-describedby]="'job-title-' + job.id"
+            (click)="onApplyClick()"
+            (keydown.enter)="onApplyClick()"
+            (keydown.space)="onApplyClick(); $event.preventDefault()"
+          >
+            <span>Apply Now</span>
+            <span class="sr-only"> for {{ getJobTitle(job) }}</span>
+          </button>
+        </div>
       </section>
     </div>
 

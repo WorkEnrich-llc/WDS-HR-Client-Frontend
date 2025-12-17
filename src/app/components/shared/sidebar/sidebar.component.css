@@ -364,7 +364,7 @@
 }
 
 .notification.danger .icon svg path {
-    fill: var(--color-danger-500);
+fill: var(--color-danger-500);
 }
 
 .notification .noti-content {
