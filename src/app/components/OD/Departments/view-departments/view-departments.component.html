@@ -159,23 +159,14 @@
       </td>
       <td>
         @if (section.sub_sections?.length > 0) {
-        @for (sub of section.sub_sections; track sub.id) {
-        <span class="inline-flex items-center gap-1">
-          @if (sub.is_active) {
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
-            <circle cx="5" cy="5" r="5" fill="#4ca883" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
-            <circle cx="5" cy="5" r="5" fill="#e04f5f" />
-          </svg>
+        <div class="subsection-pills">
+          @for (sub of section.sub_sections; track sub.id) {
+          <span class="subsection-pill" [ngClass]="sub.is_active ? 'active' : 'inactive'">
+            <span class="status-dot" [ngStyle]="{'background': sub.is_active ? '#4ca883' : '#e04f5f'}"></span>
+            <span class="subsection-name">{{ sub.name }}</span>
+          </span>
           }
-          <span class="ms-1 text-gray-sm">{{ sub.name }}</span>
-        </span>
-        @if (section.sub_sections.indexOf(sub) !== section.sub_sections.length - 1) {
-        <span class="ms-1 me-2">, </span>
-        }
-        }
+        </div>
         } @else {
         <span class="text-gray-400 italic">No subsections</span>
         }

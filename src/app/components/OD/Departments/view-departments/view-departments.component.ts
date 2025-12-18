@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
@@ -14,7 +14,7 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 @Component({
   selector: 'app-view-departments',
   standalone: true,
-  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent, SkelatonLoadingComponent, OnboardingChecklistComponent],
+  imports: [RouterLink, PageHeaderComponent, TableComponent, PopupComponent, SkelatonLoadingComponent, OnboardingChecklistComponent, NgClass, NgStyle],
   providers: [DatePipe],
   templateUrl: './view-departments.component.html',
   styleUrls: ['./view-departments.component.css']
