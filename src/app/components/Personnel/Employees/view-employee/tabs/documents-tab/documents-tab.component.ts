@@ -1,3 +1,4 @@
+
 import { Component, Input, Output, EventEmitter, TemplateRef, ViewChild, inject, ChangeDetectorRef, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { HttpEventType } from '@angular/common/http';
 
@@ -72,11 +73,12 @@ export class DocumentsTabComponent implements OnInit, OnChanges {
       return;
     }
 
+
     const document = this.selectedDocument;
-    // file_id should be the main document ID (mainId), not the uploaded file ID
-    const fileId = document.mainId;
+    // Use fileId (sub.file_id) if exists, otherwise use mainId for new uploads
+    const fileId = document.fileId || document.mainId;
     if (!fileId) {
-      console.error('Cannot upload: file_id (mainId) is missing');
+      console.error('Cannot upload: file_id is missing');
       this.selectedDocument = null;
       return;
     }
@@ -257,6 +259,22 @@ export class DocumentsTabComponent implements OnInit, OnChanges {
     }
   }
 
+  // Update a document using file_id from sub object
+  updateDocument(document: any, updatePayload: any): void {
+    if (!document?.fileId) {
+      console.error('Cannot update: file_id (fileId) is missing');
+      return;
+    }
+    this.employeeService.uploadEmployeeDocumentV102(document.fileId, updatePayload).subscribe({
+      next: () => {
+        this.loadDocuments();
+      },
+      error: (error: any) => {
+        console.error('Error updating document:', error);
+      }
+    });
+  }
+
   loadDocuments(): void {
     if (!this.employee?.id) return;
 
@@ -282,7 +300,7 @@ export class DocumentsTabComponent implements OnInit, OnChanges {
 
           // Get document URL (prefer image_url, fallback to generate_signed_url)
           // Only use non-empty strings
-          const imageUrl = documentUrl.image_url?.trim() || '';
+          const imageUrl = documentUrl.generate_signed_url?.trim() || '';
           const signedUrl = documentUrl.generate_signed_url?.trim() || '';
           const url = imageUrl || signedUrl || undefined;
 

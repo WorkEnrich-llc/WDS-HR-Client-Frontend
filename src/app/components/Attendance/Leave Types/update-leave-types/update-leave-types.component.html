@@ -613,7 +613,7 @@
 </div>
 } @if (currentStep === 3) {
 <div class="content-hug">
-  <div class="content-box d-flex flex-column gap-3">
+  <div class="d-flex flex-column gap-3">
     @if (loadingData) {
     <!-- Skeleton Loader for Step 3 -->
     <div class="skeleton-loading skeleton-title"></div>
@@ -651,8 +651,9 @@
     } @else {
     <h2>Extra Conditions</h2>
     <form [formGroup]="leaveType3" class="w-lg-50 d-flex flex-column gap-2">
-      <div class="input">
-        <div class="form-check p-0 m-0 my-2">
+      <div class="input content-box">
+        <div class="form-check p-0 m-0 my-2 ">
+          <h4 class="mb-3">Minimum Days of Service</h4>
           <div class="d-flex align-items-start gap-2">
             <input
               class="form-check-input m-0 mt-1"
@@ -713,7 +714,8 @@
       </div>
       <hr />
 
-      <div class="input">
+      <div class="input content-box">
+        <h4 class="mb-3">Limit with Age</h4>
         <div
           class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
         >
@@ -832,7 +834,8 @@
       </div>
       <hr />
 
-      <div class="input">
+      <div class="input content-box">
+        <h4 class="mb-3">Limit with years of Service</h4>
         <div
           class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
         >
@@ -952,7 +955,8 @@
       </div>
       <hr />
 
-      <div class="input">
+      <div class="input content-box">
+        <h4 class="mb-3">Limit with years of Experience</h4>
         <div
           class="form-check d-flex align-items-center justify-content-start p-0 m-0 my-2 gap-1"
         >
