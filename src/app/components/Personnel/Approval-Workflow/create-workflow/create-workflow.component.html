@@ -91,12 +91,12 @@
           }
         </div>
 
-        <div class="input" [class.opacity-50]="workflow1.get('workflow_type')?.value !== 'leave'">
+        @if (workflow1.get('workflow_type')?.value === 'leave') {
+        <div class="input">
           <label for="leavetype">Leave Type <span>*</span></label>
           <div class="d-flex align-items-center gap-4">
             <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select"
-                [disabled]="workflow1.get('workflow_type')?.value !== 'leave'">
+              <select name="leavetype" formControlName="leave_id" id="leavetype" class="form-select">
 
                 <option value="" disabled selected hidden>Select one Leave Type</option>
                 @for (item of leaveTypes; track item) {
@@ -110,6 +110,7 @@
           <p class="error-msg">Leave Type is required.</p>
           }
         </div>
+        }
 
 
         <div class="input">

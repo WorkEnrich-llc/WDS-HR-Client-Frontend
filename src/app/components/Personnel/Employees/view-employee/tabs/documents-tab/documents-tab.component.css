@@ -1,3 +1,25 @@
+.file-thumb {
+  max-width: 48px;
+  max-height: 48px;
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: middle;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: underline;
+  color: #2a4d9f;
+  font-weight: 500;
+}
+
+.file-preview {
+  gap: 8px;
+}
+
 .text-warning {
   color: var(--color-warning-500) !important;
 }
