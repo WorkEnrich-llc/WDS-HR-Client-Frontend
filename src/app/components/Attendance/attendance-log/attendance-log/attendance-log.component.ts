@@ -1,3 +1,5 @@
+
+
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -27,8 +29,84 @@ import dayjs, { Dayjs } from 'dayjs';
 })
 export class AttendanceLogComponent implements OnDestroy {
 
+
   constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
+
+  // Action menu stubs for template
+  addLog(emp: any) { /* TODO: Implement add log */ }
+  editDeduction(emp: any) { /* TODO: Implement edit deduction */ }
+  // Deduction confirmation modal state
+  deductionModalOpen: boolean = false;
+  deductionModalLog: any = null;
+  deductionModalEmp: any = null;
+  deductionModalLoading: boolean = false;
+
+  toggleDeduction(log: any, emp: any) {
+    this.deductionModalLog = log;
+    this.deductionModalEmp = emp;
+    this.deductionModalOpen = true;
+  }
+
+  closeDeductionModal() {
+    this.deductionModalOpen = false;
+    this.deductionModalLog = null;
+    this.deductionModalEmp = null;
+    this.deductionModalLoading = false;
+  }
+
+  confirmDeductionToggle() {
+    if (!this.deductionModalLog) return;
+    this.handleDeductionToggle(this.deductionModalLog, this.deductionModalEmp, true);
+  }
+  editLog(log: any, emp: any) { this.openEditLogModal(log, emp); }
+
+  // Cancel log confirmation modal state
+  cancelModalOpen: boolean = false;
+  cancelModalLog: any = null;
+  cancelModalEmp: any = null;
+  cancelModalLoading: boolean = false;
+
+  openCancelLogModal(log: any, emp: any) {
+    this.cancelModalLog = log;
+    this.cancelModalEmp = emp;
+    this.cancelModalOpen = true;
+  }
+
+  closeCancelLogModal() {
+    this.cancelModalOpen = false;
+    this.cancelModalLog = null;
+    this.cancelModalEmp = null;
+    this.cancelModalLoading = false;
+  }
+
+  confirmCancelLog() {
+    if (!this.cancelModalLog) return;
+    const id = this.cancelModalLog.id ?? this.cancelModalLog.record_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found.');
+      return;
+    }
+    this.cancelModalLoading = true;
+    this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
+      next: () => {
+        this.closeCancelLogModal();
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success('Attendance log canceled successfully');
+      },
+      error: () => {
+        this.toastr.error('Failed to cancel attendance log');
+        this.closeCancelLogModal();
+      }
+    });
+  }
+  editCheckIn(log: any, emp: any) { this.openEditCheckInModal(log, emp); }
+  addCheckOut(log: any, emp: any) { this.openEditCheckOutModal(log, emp); }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
@@ -37,11 +115,18 @@ export class AttendanceLogComponent implements OnDestroy {
   private departmentService = inject(DepartmentsService);
   private toasterService = inject(ToasterMessageService);
   selectedRange: { startDate: string; endDate: string } | null = null;
+  editModalLoading: boolean = false;
 
   attendanceLogs: any[] = [];
   departmentList$!: Observable<any[]>;
   skeletonRows = Array.from({ length: 5 });
-
+  // Modal state for editing logs
+  editModalOpen: boolean = false;
+  editModalType: 'checkin' | 'checkout' | 'log' | null = null;
+  editModalLog: any = null;
+  editModalEmp: any = null;
+  editCheckInValue: string = '';
+  editCheckOutValue: string = '';
 
   // error text 
   isLate(actual: string, expected: string): boolean {
@@ -369,23 +454,6 @@ export class AttendanceLogComponent implements OnDestroy {
     this.searchSubject.next(this.searchTerm);
   }
 
-  ngOnDestroy(): void {
-    // Complete the destroy subject to trigger takeUntil for all subscriptions
-    this.destroy$.next();
-    this.destroy$.complete();
-
-    // Unsubscribe from individual subscriptions if they exist
-    if (this.toasterSubscription) {
-      this.toasterSubscription.unsubscribe();
-    }
-    if (this.searchSubscription) {
-      this.searchSubscription.unsubscribe();
-    }
-
-    // Complete the search subject
-    this.searchSubject.complete();
-  }
-
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.employees = this.employees.sort((a, b) => {
@@ -656,18 +724,19 @@ export class AttendanceLogComponent implements OnDestroy {
 
   cancelLog(attendance: any): void {
     this.isLoading = true;
-    const payload = {
-      record_id: attendance.record_id,
-      employee_id: attendance.employee_id,
-      date: attendance.date
-    };
-    this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
+    const id = attendance.id ?? attendance.record_id;
+    if (!id) {
+      this.toasterService.showError('Attendance log ID not found.');
+      this.isLoading = false;
+      return;
+    }
+    this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
         this.isLoading = false;
         console.error(err);
@@ -774,4 +843,171 @@ export class AttendanceLogComponent implements OnDestroy {
     this.attendanceToCancel = null;
   }
 
+  // Action menu state
+  openMainMenuIndex: number | null = null;
+  openSubMenu: { mainIndex: number; subIndex: number } | null = null;
+  private outsideClickListener: any;
+
+  openMainMenu(idx: number) {
+    this.openMainMenuIndex = idx;
+    this.openSubMenu = null;
+    // Add outside click listener
+    setTimeout(() => {
+      this.outsideClickListener = (event: MouseEvent) => {
+        const menu = document.querySelector('.action-menu-dropdown');
+        const btn = document.querySelector('.action-menu-btn');
+        if (menu && !menu.contains(event.target as Node) && btn && !btn.contains(event.target as Node)) {
+          this.closeMainMenu();
+        }
+      };
+      document.addEventListener('mousedown', this.outsideClickListener);
+    }, 0);
+  }
+  closeMainMenu() {
+    this.openMainMenuIndex = null;
+    if (this.outsideClickListener) {
+      document.removeEventListener('mousedown', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
+  }
+  openSubLogMenu(mainIdx: number, subIdx: number) {
+    this.openSubMenu = { mainIndex: mainIdx, subIndex: subIdx };
+    this.openMainMenuIndex = null;
+  }
+  closeSubLogMenu() {
+    this.openSubMenu = null;
+  }
+
+
+
+  openEditCheckInModal(log: any, emp: any) {
+    this.editModalType = 'checkin';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    this.editModalOpen = true;
+  }
+
+  openEditCheckOutModal(log: any, emp: any) {
+    this.editModalType = 'checkout';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editModalOpen = true;
+  }
+
+  openEditLogModal(log: any, emp: any) {
+    this.editModalType = 'log';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editModalOpen = true;
+  }
+
+  closeEditModal() {
+    this.editModalOpen = false;
+    this.editModalType = null;
+    this.editModalLog = null;
+    this.editModalEmp = null;
+    this.editCheckInValue = '';
+    this.editCheckOutValue = '';
+  }
+
+  updateEditModal() {
+    if (!this.editModalLog) return;
+    const id = this.editModalLog.id ?? this.editModalLog.record_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found.');
+      return;
+    }
+    this.editModalLoading = true;
+    let obs$;
+    if (this.editModalType === 'checkin') {
+      obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
+    } else if (this.editModalType === 'checkout') {
+      obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
+    } else if (this.editModalType === 'log') {
+      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+    } else {
+      this.closeEditModal();
+      this.editModalLoading = false;
+      return;
+    }
+    obs$.subscribe({
+      next: () => {
+        this.closeEditModal();
+        this.editModalLoading = false;
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success('Attendance log updated successfully');
+      },
+      error: (err) => {
+        this.toastr.error('Failed to update attendance log');
+        this.closeEditModal();
+        this.editModalLoading = false;
+      }
+    });
+  }
+
+  handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
+    // Debug: log the object to help diagnose missing id
+    console.log('Deduction toggle log object:', log);
+    const id = log?.id ?? log?.record_id ?? log?.recordID ?? log?.attendance_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found. Please contact support.');
+      console.error('Deduction toggle error: log object missing id/record_id:', log);
+      return;
+    }
+    if (!fromModal) {
+      // Only toggleDeduction should open the modal, not here
+      return;
+    }
+    this.deductionModalLoading = true;
+    const hasDeduction = log?.hours_object?.total_deduction > 0;
+    const actionText = hasDeduction ? 'remove' : 'add';
+    this._AttendanceLogService.toggleDeduction(id).subscribe({
+      next: () => {
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success(`Deduction ${actionText}ed successfully`);
+        this.closeDeductionModal();
+      },
+      error: () => {
+        this.toastr.error(`Failed to ${actionText} deduction`);
+        this.deductionModalLoading = false;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.outsideClickListener) {
+      document.removeEventListener('mousedown', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
+        // Complete the destroy subject to trigger takeUntil for all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Unsubscribe from individual subscriptions if they exist
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+
+    // Complete the search subject
+    this.searchSubject.complete();
+  }
 }

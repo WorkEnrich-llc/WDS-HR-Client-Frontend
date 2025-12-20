@@ -10,19 +10,30 @@ import { ToastrService } from 'ngx-toastr';
 import { debounceTime, distinctUntilChanged, filter, map, Subject, Subscription, switchMap } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 @Component({
   selector: 'app-work-schedule',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule, SystemSetupTourComponent],
   providers: [DatePipe],
   templateUrl: './work-schedule.component.html',
   styleUrl: './work-schedule.component.css'
 })
 export class WorkScheduleComponent implements OnInit, OnDestroy {
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
 
   filterForm!: FormGroup;
-  constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private fb: FormBuilder) { }
+  constructor(
+    private route: ActivatedRoute,
+    private _DepartmentsService: DepartmentsService,
+    private _WorkSchaualeService: WorkSchaualeService,
+    private toasterMessageService: ToasterMessageService,
+    private toastr: ToastrService,
+    private datePipe: DatePipe,
+    private fb: FormBuilder,
+    private systemSetupService: SystemSetupService
+  ) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;

@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ISystemSetupStepItem, SystemSetupService } from 'app/core/services/main/system-setup.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-system-setup-tour',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './system-setup-tour.component.html',
   styleUrls: ['./system-setup-tour.component.css'],
 })
@@ -14,33 +15,30 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   private readonly tourDoneKey = 'system_setup_tour_done';
   private readonly tourCompletedKey = 'system_setup_tour_completed_steps';
   private readonly tourCurrentKey = 'system_setup_tour_current_step';
+  private destroy$ = new Subject<void>();
 
   isLoading = true;
   error: string | null = null;
   items: ISystemSetupStepItem[] = [];
-  index = 0;
+  currentStepIndex = 0;
+  isOverlayOpen = false;
+  lastCreatedModule: string | null = null;
 
-  targetRect: { top: number; left: number; width: number; height: number; right: number; bottom: number } | null = null;
-  cardPos: { top: number; left: number; placement: 'right' | 'left' } = { top: 0, left: 0, placement: 'right' };
-
-  private anchorRetryCount = 0;
-  private handleReposition?: () => void;
-  isSwitching = false;
-  private switchingTimer?: number;
-  private lastTargetKey: string | null = null;
+  // Celebration properties
+  isCelebrating = false;
+  celebrationMessage: string = '';
+  celebrationStep: ISystemSetupStepItem | null = null;
 
   constructor(private systemSetupService: SystemSetupService, private router: Router) { }
 
   ngOnInit(): void {
     this.load();
+    this.setupReactiveUpdates();
   }
 
   ngOnDestroy(): void {
-    if (this.handleReposition) {
-      window.removeEventListener('resize', this.handleReposition);
-      window.removeEventListener('scroll', this.handleReposition, true);
-    }
-    if (this.switchingTimer) window.clearTimeout(this.switchingTimer);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get total(): number {
@@ -50,6 +48,99 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   get progressPercent(): number {
     if (this.total <= 0) return 0;
     return Math.round((this.completedCount / this.total) * 100);
+  }
+
+  get allStepsCompleted(): boolean {
+    return this.items.length > 0 && this.items.every(item => item.checked === true);
+  }
+
+  isStepRecentlyCompleted(step: ISystemSetupStepItem): boolean {
+    return this.lastCreatedModule !== null &&
+      step.title.toLowerCase().includes(this.lastCreatedModule.toLowerCase()) &&
+      this.isStepCompleted(step);
+  }
+
+  private setupReactiveUpdates(): void {
+    // Listen for module changes and auto-refresh
+    this.systemSetupService.moduleChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(moduleName => {
+        if (moduleName) {
+          this.lastCreatedModule = moduleName;
+          // Show a subtle notification that the step was updated
+          console.log(`✅ Item created in ${moduleName}! Refreshing system setup...`);
+        }
+      });
+
+    // Listen for system setup data changes
+    this.systemSetupService.systemSetup$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(response => {
+        if (response?.data?.list_items) {
+          this.items = [...(response.data.list_items || [])].sort((a, b) => (a.step ?? 0) - (b.step ?? 0));
+          this.syncIndexFromStorage();
+        }
+      });
+  }
+
+  toggleOverlay(): void {
+    this.isOverlayOpen = !this.isOverlayOpen;
+  }
+
+  closeOverlay(): void {
+    this.isOverlayOpen = false;
+  }
+
+  /**
+   * Show celebration for a completed step with message
+   * This method is called externally after successful module item creation
+   */
+  showCelebration(moduleName: string): void {
+    // Find the step that was just completed
+    const completedStep = this.items.find(item =>
+      item.title.toLowerCase().includes(moduleName.toLowerCase())
+    );
+
+    if (!completedStep) return;
+
+    // Set celebration properties
+    this.celebrationStep = completedStep;
+    this.celebrationMessage = this.getMessage(completedStep);
+
+    // Show celebration animation
+    this.isCelebrating = true;
+
+    // Open overlay to show the celebration
+    this.isOverlayOpen = true;
+
+    // Mark step as completed if not already
+    const completed = new Set(this.completedSteps);
+    if (!completed.has(completedStep.step)) {
+      completed.add(completedStep.step);
+      this.completedSteps = Array.from(completed);
+    }
+
+    // Auto-navigate to next step after 3 seconds
+    setTimeout(() => {
+      this.navigateToNextStep();
+      this.isCelebrating = false;
+      this.celebrationStep = null;
+    }, 3000);
+  }
+
+  private navigateToNextStep(): void {
+    const completed = new Set(this.completedSteps);
+    const nextIncompleteIndex = this.items.findIndex(item => !completed.has(item.step));
+
+    if (nextIncompleteIndex >= 0) {
+      this.currentStepIndex = nextIncompleteIndex;
+      this.currentStepStored = this.items[nextIncompleteIndex].step;
+    } else {
+      // All steps completed - finish tour
+      this.done = true;
+      this.currentStepStored = null;
+      this.isOverlayOpen = false;
+    }
   }
 
   private get done(): boolean {
@@ -90,68 +181,89 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   }
 
   get completedCount(): number {
-    const completed = new Set(this.completedSteps);
-    return this.items.filter((i) => completed.has(i.step)).length;
+    return this.items.filter((i) => i.checked === true).length;
   }
 
   get current(): ISystemSetupStepItem | null {
     if (!this.items.length) return null;
-    return this.items[Math.min(Math.max(this.index, 0), this.items.length - 1)] || null;
+    return this.items[Math.min(Math.max(this.currentStepIndex, 0), this.items.length - 1)] || null;
   }
 
   get visible(): boolean {
-    // Only truly hide when user chose "Skip all"
-    if (this.done) return false;
-    return this.isLoading || !!this.error || this.total > 0;
+    // Hide if all steps are completed based on API response
+    if (this.allStepsCompleted) return false;
+    // Show arrow button when not done and has items
+    return !this.done && this.total > 0;
   }
 
   close(): void {
-    // Close only for now (no session storage); user can refresh to see again unless they skipped all.
-    this.done = true;
+    this.isOverlayOpen = false;
   }
 
-  skipAll(): void {
-    this.done = true;
-    this.currentStepStored = null;
-  }
 
   prev(): void {
-    this.triggerSwitchAnim();
-    this.index = Math.max(0, this.index - 1);
+    this.currentStepIndex = Math.max(0, this.currentStepIndex - 1);
     const c = this.current;
     const completed = new Set(this.completedSteps);
     if (c && !completed.has(c.step)) this.currentStepStored = c.step;
-    setTimeout(() => this.ensureAnchor(true), 0);
   }
 
   next(): void {
     const c = this.current;
     if (!c) return;
-    this.triggerSwitchAnim();
 
     const completed = new Set(this.completedSteps);
     completed.add(c.step);
     this.completedSteps = Array.from(completed);
 
-    const nextIdx = this.items.findIndex((x, idx) => idx > this.index && !completed.has(x.step));
+    const nextIdx = this.items.findIndex((x, idx) => idx > this.currentStepIndex && !completed.has(x.step));
     if (nextIdx >= 0) {
-      this.index = nextIdx;
+      this.currentStepIndex = nextIdx;
       this.currentStepStored = this.items[nextIdx].step;
-      setTimeout(() => this.ensureAnchor(true), 0);
       return;
     }
 
     const anyIncomplete = this.items.findIndex((x) => !completed.has(x.step));
     if (anyIncomplete >= 0) {
-      this.index = anyIncomplete;
+      this.currentStepIndex = anyIncomplete;
       this.currentStepStored = this.items[anyIncomplete].step;
-      setTimeout(() => this.ensureAnchor(true), 0);
       return;
     }
 
     // finished
     this.done = true;
     this.currentStepStored = null;
+    this.isOverlayOpen = false;
+  }
+
+  goToStep(stepIndex: number): void {
+    if (stepIndex >= 0 && stepIndex < this.items.length) {
+      this.currentStepIndex = stepIndex;
+      const step = this.items[stepIndex];
+      if (step) {
+        this.currentStepStored = step.step;
+      }
+    }
+  }
+
+  isStepCompleted(step: ISystemSetupStepItem): boolean {
+    // Use API response checked status instead of local storage
+    return step.checked === true;
+  }
+
+  isStepCurrent(stepIndex: number): boolean {
+    return stepIndex === this.currentStepIndex;
+  }
+
+  isStepEnabled(stepIndex: number): boolean {
+    // Current step is always enabled, completed steps are enabled, next incomplete step is enabled
+    if (stepIndex === this.currentStepIndex) return true;
+    if (this.isStepCompleted(this.items[stepIndex])) return true;
+
+    // Check if this is the next incomplete step based on API response
+    const firstIncompleteIndex = this.items.findIndex(item => item.checked === false);
+
+    return stepIndex === firstIncompleteIndex;
   }
 
   openModule(): void {
@@ -160,20 +272,19 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     const route = this.getStepRoute(c.title);
     if (!route) return;
     this.router.navigateByUrl(route);
+    this.isOverlayOpen = false;
   }
 
-  private triggerSwitchAnim(): void {
-    this.isSwitching = true;
-    if (this.switchingTimer) window.clearTimeout(this.switchingTimer);
-    this.switchingTimer = window.setTimeout(() => {
-      this.isSwitching = false;
-    }, 180);
-  }
 
   getMessage(item: ISystemSetupStepItem): string {
+    // Only show messages for completed steps (checked: true)
+    if (!item.checked) {
+      return 'Not completed yet';
+    }
+
     const lang = localStorage.getItem('lang') === 'ar' ? 'ar' : 'en';
     const msg = item?.message?.[lang] || item?.message?.en || item?.message?.ar;
-    return msg || (item.checked ? 'Completed' : 'Not completed yet');
+    return msg || 'Completed';
   }
 
   private load(): void {
@@ -185,8 +296,6 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
         this.items = [...(res?.data?.list_items || [])].sort((a, b) => (a.step ?? 0) - (b.step ?? 0));
         this.isLoading = false;
         this.syncIndexFromStorage();
-        this.installRepositionHandlers();
-        setTimeout(() => this.ensureAnchor(true), 0);
       },
       error: (err) => {
         this.isLoading = false;
@@ -196,33 +305,21 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     });
   }
 
-  private installRepositionHandlers(): void {
-    if (this.handleReposition) return;
-    // On scroll/resize: only recompute positions.
-    // Don't scrollIntoView() or open accordions here, otherwise it "fights" user scrolling.
-    this.handleReposition = () => this.updateAnchor(false);
-    window.addEventListener('resize', this.handleReposition);
-    window.addEventListener('scroll', this.handleReposition, true);
-  }
 
   private syncIndexFromStorage(): void {
     if (!this.items.length) {
-      this.index = 0;
+      this.currentStepIndex = 0;
       return;
     }
-    const completed = new Set(this.completedSteps);
-    const stored = this.currentStepStored;
-    if (stored !== null) {
-      const idx = this.items.findIndex((i) => i.step === stored);
-      if (idx >= 0 && !completed.has(stored)) {
-        this.index = idx;
-        return;
-      }
-    }
-    const firstIncomplete = this.items.findIndex((i) => !completed.has(i.step));
-    this.index = firstIncomplete >= 0 ? firstIncomplete : 0;
+
+    // Find first uncompleted step based on API response (checked: false)
+    const firstIncomplete = this.items.findIndex((i) => i.checked === false);
+    this.currentStepIndex = firstIncomplete >= 0 ? firstIncomplete : 0;
+
     const c = this.current;
-    if (c && !completed.has(c.step)) this.currentStepStored = c.step;
+    if (c && !c.checked) {
+      this.currentStepStored = c.step;
+    }
   }
 
   private getStepRoute(title: string): string | null {
@@ -234,89 +331,6 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
     if (t === 'work schedules') return '/schedule';
     if (t === 'employees') return '/employees';
     return null;
-  }
-
-  private getStepTargetKey(title: string): string {
-    const t = (title || '').trim().toLowerCase();
-    if (t === 'goals') return 'goals';
-    if (t === 'departments') return 'departments';
-    if (t === 'branches') return 'branches';
-    if (t === 'job titles') return 'job-titles';
-    if (t === 'work schedules') return 'work-schedules';
-    if (t === 'employees') return 'employees';
-    return 'od';
-  }
-
-  private openAccordionForStep(title: string): void {
-    const t = (title || '').trim().toLowerCase();
-    const collapseId =
-      t === 'work schedules' ? 'collapseThree' : t === 'employees' ? 'collapseTwo' : 'collapseOne';
-    const btn = document.querySelector(`[data-bs-target="#${collapseId}"]`) as HTMLElement | null;
-    const panel = document.querySelector(`#${collapseId}`) as HTMLElement | null;
-    if (btn && panel && !panel.classList.contains('show')) {
-      btn.click(); // let Bootstrap handle collapse state
-    }
-  }
-
-  private updateAnchor(allowScrollAndOpen: boolean): void {
-    const c = this.current;
-    if (!c) {
-      this.targetRect = null;
-      return;
-    }
-
-    const key = this.getStepTargetKey(c.title);
-    const targetChanged = this.lastTargetKey !== key;
-
-    let el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
-
-    // Only open the accordion when needed (and only on initial/step change).
-    if (!el && allowScrollAndOpen) {
-      this.openAccordionForStep(c.title);
-      el = document.querySelector(`[data-system-setup-target="${key}"]`) as HTMLElement | null;
-    }
-    if (!el) {
-      this.targetRect = null;
-      return;
-    }
-
-    // Only scroll the sidebar item into view when step changes (never during normal scrolling).
-    if (allowScrollAndOpen && targetChanged) {
-      el.scrollIntoView({ block: 'center', inline: 'nearest' });
-    }
-    const r = el.getBoundingClientRect();
-    this.targetRect = { top: r.top, left: r.left, width: r.width, height: r.height, right: r.right, bottom: r.bottom };
-
-    const margin = 14;
-    const cardWidth = 340;
-    const viewportW = window.innerWidth;
-    const viewportH = window.innerHeight;
-
-    let placement: 'right' | 'left' = 'right';
-    let left = r.right + margin;
-    if (left + cardWidth > viewportW - 12) {
-      placement = 'left';
-      left = Math.max(12, r.left - margin - cardWidth);
-    }
-
-    const desiredTop = r.top - 10;
-    const top = Math.min(Math.max(12, desiredTop), Math.max(12, viewportH - 12 - 240));
-    this.cardPos = { top, left, placement };
-
-    this.lastTargetKey = key;
-  }
-
-  private ensureAnchor(allowScrollAndOpen: boolean): void {
-    this.updateAnchor(allowScrollAndOpen);
-    if (this.targetRect) {
-      this.anchorRetryCount = 0;
-      return;
-    }
-    if (this.anchorRetryCount >= 12) return;
-    this.anchorRetryCount += 1;
-    if (allowScrollAndOpen) {
-      setTimeout(() => this.ensureAnchor(true), 150);
-    }
   }
 }
 

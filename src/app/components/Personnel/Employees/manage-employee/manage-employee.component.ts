@@ -4,6 +4,7 @@ import {
   inject,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,6 +22,8 @@ import { InsuranceDetailsStepComponent } from './insurance-details/insurance-det
 import { ManageEmployeeSharedService } from './services/manage-shared.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 
 @Component({
@@ -37,7 +40,8 @@ import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components
     ContractDetailsStepComponent,
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent,
-    OnboardingChecklistComponent
+    OnboardingChecklistComponent,
+    SystemSetupTourComponent
   ],
   providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
@@ -45,6 +49,7 @@ import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components
 })
 
 export class ManageEmployeeComponent implements OnInit {
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
   // Dependency Injection
   private router = inject(Router);
   private datePipe = inject(DatePipe);
@@ -52,6 +57,7 @@ export class ManageEmployeeComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   public sharedService = inject(ManageEmployeeSharedService);
   private paginationState = inject(PaginationStateService);
+  private systemSetupService = inject(SystemSetupService);
 
   private route = inject(ActivatedRoute);
   // public isEditMode = false;
@@ -239,7 +245,7 @@ export class ManageEmployeeComponent implements OnInit {
       this.employeeService.updateEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);
-          this.toasterMessageService.showSuccess('Employee updated successfully','Update Successfully');
+          this.toasterMessageService.showSuccess('Employee updated successfully', 'Update Successfully');
           this.router.navigate(['/employees/all-employees']);
         },
         error: (error) => {
@@ -252,8 +258,16 @@ export class ManageEmployeeComponent implements OnInit {
       this.employeeService.createEmployee(employeeData).subscribe({
         next: () => {
           this.sharedService.isLoading.set(false);
-          this.toasterMessageService.showSuccess('Employee created successfully',"Created Successfully");
+          this.toasterMessageService.showSuccess('Employee created successfully', "Created Successfully");
           this.router.navigate(['/employees/all-employees']);
+
+          // After successful employee creation:
+          this.systemSetupService.notifyModuleItemCreated('employees');
+          if (this.systemSetupTour) {
+            setTimeout(() => {
+              this.systemSetupTour.showCelebration('employees');
+            }, 500);
+          }
         },
         error: (error) => {
           this.sharedService.isLoading.set(false);
@@ -268,19 +282,19 @@ export class ManageEmployeeComponent implements OnInit {
     const isLoading = this.sharedService.isLoading();
     const isEditMode = this.sharedService.isEditMode();
     const employeeDataLoaded = !!this.sharedService.employeeData();
-    
+
     // In edit mode, don't validate until data is loaded
     if (isEditMode && !employeeDataLoaded) {
       return true; // Disable until data is loaded
     }
-    
+
     const isInvalid = this.sharedService.employeeForm.invalid;
-    
+
     // In edit mode, check for changes. In create mode, check if form is pristine
     const isUnchanged = isEditMode
       ? !this.sharedService.hasChanges()
       : this.sharedService.employeeForm.pristine;
-    
+
     const isDisabled = isInvalid || isUnchanged || isLoading;
 
     return isDisabled;
