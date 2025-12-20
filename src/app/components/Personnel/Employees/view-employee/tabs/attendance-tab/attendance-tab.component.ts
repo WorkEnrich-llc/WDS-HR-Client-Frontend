@@ -229,7 +229,7 @@ export class AttendanceTabComponent implements OnChanges {
   }
 
   // but time or -- in absent and leave 
-   getFirstCheckIn(emp: any): string {
+  getFirstCheckIn(emp: any): string {
     const list = emp?.list_items;
     if (!list || list.length === 0) return '--';
 
@@ -280,7 +280,7 @@ export class AttendanceTabComponent implements OnChanges {
 
     return this.formatTimeTo12Hour(checkOut);
   }
-  
+
   getMainRecord(list: any[]): any {
     return list?.find(item => item.main_record === true);
   }
@@ -300,7 +300,7 @@ export class AttendanceTabComponent implements OnChanges {
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
       },
-      error: (err : any) => {
+      error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
         this.isLoading = false;
         console.error(err);

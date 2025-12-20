@@ -995,7 +995,7 @@ export class AttendanceLogComponent implements OnDestroy {
       document.removeEventListener('mousedown', this.outsideClickListener);
       this.outsideClickListener = null;
     }
-        // Complete the destroy subject to trigger takeUntil for all subscriptions
+    // Complete the destroy subject to trigger takeUntil for all subscriptions
     this.destroy$.next();
     this.destroy$.complete();
 
