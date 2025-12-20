@@ -635,18 +635,18 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Attendance/attendance-log/attendance-log/attendance-log.component').then(m => m.AttendanceLogComponent),
                 title: 'Attendance Log',
               },
-              // {
-              //   path: 'manage-attendance',
-              //   loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
-              //   title: 'Create Attendance Log',
-              // },
-              // {
-              //   path: 'manage-attendance/:id',
-              //   loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
-              //   title: 'Edit Attendance Log',
-              //   canActivate: [SubscriptionGuard],
-              //   data: { feature: 'Attendance_Log', action: 'update' }
-              // }
+              {
+                path: 'manage-attendance',
+                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+                title: 'Create Attendance Log',
+              },
+              {
+                path: 'manage-attendance/:id',
+                loadComponent: () => import('./components/Attendance/attendance-log/manage-attendance/manage-attendance.component').then(c => c.ManageAttendanceComponent),
+                title: 'Edit Attendance Log',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Attendance_Log', action: 'update' }
+              }
             ]
           },
 
@@ -914,52 +914,14 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/create-jop-open.component').then(m => m.CreateJopOpenComponent),
                 title: 'Create Job Openings',
                 canActivate: [SubscriptionGuard],
-                data: { feature: 'Job_Openings', action: 'create' },
-                children: [
-                  {
-                    path: '',
-                    redirectTo: 'main-information',
-                    pathMatch: 'full'
-                  },
-                  {
-                    path: 'main-information',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
-                  },
-                  {
-                    path: 'required-details',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
-                  },
-                  {
-                    path: 'attachments',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
-                  },
-                ]
+                data: { feature: 'Job_Openings', action: 'create' }
               },
               {
                 path: 'update-job-openings/:id',
                 loadComponent: () => import('./components/Recruitment/job-openings/update-job-open/update-job-open.component').then(m => m.UpdateJobOpenComponent),
                 title: 'Update Job Opening',
                 canActivate: [SubscriptionGuard],
-                data: { feature: 'Job_Openings', action: 'update' },
-                children: [
-                  {
-                    path: '',
-                    redirectTo: 'main-information',
-                    pathMatch: 'full'
-                  },
-                  {
-                    path: 'main-information',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/main-info/main-info.component').then(m => m.MainInfoComponent),
-                  },
-                  {
-                    path: 'required-details',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/required-details/required-details.component').then(m => m.RequiredDetailsComponent),
-                  },
-                  {
-                    path: 'attachments',
-                    loadComponent: () => import('./components/Recruitment/job-openings/create-jop-open/attachments/attachments.component').then(m => m.AttachmentsComponent),
-                  },
-                ]
+                data: { feature: 'Job_Openings', action: 'update' }
               },
               {
                 path: 'view-applicant-details/:applicationId',
@@ -994,6 +956,27 @@ export const routes: Routes = [
             ]
           },
 
+          // Job Board Setup routes
+          {
+            path: 'job-board-setup',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Job_Board_Setup' },
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Recruitment/job-board-setup/view-job-board-setup/view-job-board-setup.component').then(m => m.ViewJobBoardSetupComponent),
+                title: 'Job Board Setup',
+              },
+              {
+                path: 'edit-job-board-setup',
+                loadComponent: () => import('./components/Recruitment/job-board-setup/edit-job-board-setup/edit-job-board-setup.component').then(m => m.EditJobBoardSetupComponent),
+                title: 'Edit Job Board Setup',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Board_Setup', action: 'update' }
+              },
+            ]
+          },
+
 
 
         ]
@@ -1024,15 +1007,15 @@ export const routes: Routes = [
               },
               {
                 path: 'create-payroll-components',
-                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
+                loadComponent: () => import('./components/Payroll/Payroll-components/manage-payroll-component/manage-payroll-component.component').then(m => m.ManagePayrollComponentComponent),
                 title: 'Create Payroll Components',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Payroll_Components', action: 'create' }
               },
               {
                 path: 'edit/:id',
-                loadComponent: () => import('./components/Payroll/Payroll-components/create-payroll-component/create-payroll-component.component').then(m => m.CreatePayrollComponentComponent),
-                title: 'Edit Payroll Components',
+                loadComponent: () => import('./components/Payroll/Payroll-components/manage-payroll-component/manage-payroll-component.component').then(m => m.ManagePayrollComponentComponent),
+                title: 'Update Payroll Components',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Payroll_Components', action: 'update' }
               },
@@ -1335,6 +1318,30 @@ export const routes: Routes = [
             title: 'Manage Company Policy'
           },
           {
+            path: 'company-documents',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/company-documents.component').then(m => m.CompanyDocumentsComponent),
+            title: 'Company Documents'
+          },
+          {
+            path: 'company-documents/create',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/create-company-document/create-company-document.component').then(m => m.CreateCompanyDocumentComponent),
+            title: 'Create Document'
+          },
+          {
+            path: 'company-documents/view/:id',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Company_Documents' },
+            loadComponent: () =>
+              import('./components/admin-settings/company-documents/view-company-document/view-company-document.component').then(m => m.ViewCompanyDocumentComponent),
+            title: 'View Company Document'
+          },
+          {
             path: 'email-settings',
             canActivate: [SubscriptionGuard],
             data: { feature: 'Email_Settings' },
@@ -1427,6 +1434,31 @@ export const routes: Routes = [
     loadComponent: () => import('./components/charts-demo/charts-demo.component').then(m => m.ChartsDemoComponent),
     title: 'Charts Demo'
   },
+
+  // Careers / Client Job Board (public route - no guards)
+  {
+    path: 'careers',
+    loadComponent: () => import('./client-job-board/client-job-board.component').then(m => m.ClientJobBoardComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./client-job-board/components/open-positions/open-positions.component').then(m => m.OpenPositionsComponent),
+        title: 'Open Positions'
+      },
+      {
+        path: ':id',
+        loadComponent: () => import('./client-job-board/components/job-details/job-details.component').then(m => m.JobDetailsComponent),
+        title: 'Job Details'
+      },
+      {
+        path: ':id/apply',
+        loadComponent: () => import('./client-job-board/components/apply-form/apply-form.component').then(m => m.ApplyFormComponent),
+        title: 'Apply for Job'
+      }
+    ],
+    title: 'Careers'
+  },
+
   // test toast
   // {
   //   path: 'toast-demo',

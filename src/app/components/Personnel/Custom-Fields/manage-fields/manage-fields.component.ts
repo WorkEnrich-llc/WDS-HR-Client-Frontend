@@ -6,7 +6,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { CreateFieldRequest, DataType, InputOption, RequestData, TargetModelItem, UpdateFieldRequestData } from 'app/core/models/custom-field';
+import { CreateFieldRequest, DataType, InputOption, RequestData, TargetModelItem, UpdateFieldRequest, UpdateFieldRequestData } from 'app/core/models/custom-field';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -29,6 +29,7 @@ export class ManageFieldsComponent {
     // { name: 'integer', value: 'integer' },
     { name: 'email', value: 'email' },
     { name: 'date', value: 'date' },
+    { name: 'file', value: 'file' },
   ];
 
   public customFieldForm!: FormGroup;
@@ -49,6 +50,9 @@ export class ManageFieldsComponent {
   createDate: string = '';
   updatedDate: string = '';
   isLoading = false;
+  isLoadingFieldDetails = false;
+  fieldName: string = '';
+  initialFormValues: any = null;
 
 
 
@@ -95,17 +99,39 @@ export class ManageFieldsComponent {
 
 
   private loadFieldForEdit(fieldId: number): void {
-    this.customFieldService.getCustomFieldObject(fieldId).subscribe(fieldData => {
-      this.currentFieldId = fieldData.id;
+    this.isLoadingFieldDetails = true;
+    this.customFieldService.getCustomFieldObject(fieldId).subscribe({
+      next: (fieldData) => {
+        this.currentFieldId = fieldData.id;
+        this.fieldName = fieldData.input_option.label || '';
 
-      this.customFieldForm.patchValue({
-        target_model: fieldData.target_model,
-        label: fieldData.input_option.label,
-        type: fieldData.input_option.type,
-        required: fieldData.input_option.required,
-        pinned: fieldData.pinned,
-      });
+        const formValues = {
+          target_model: fieldData.target_model,
+          label: fieldData.input_option.label,
+          type: fieldData.input_option.type,
+          required: fieldData.input_option.required,
+          pinned: fieldData.pinned,
+        };
+
+        this.customFieldForm.patchValue(formValues);
+        // Store initial values for comparison
+        this.initialFormValues = { ...formValues };
+        this.isLoadingFieldDetails = false;
+      },
+      error: (err) => {
+        console.error('Error loading field details:', err);
+        this.isLoadingFieldDetails = false;
+      }
     });
+  }
+
+  hasFormChanged(): boolean {
+    if (!this.isEditMode || !this.initialFormValues) {
+      return false;
+    }
+    
+    const currentValues = this.customFieldForm.value;
+    return JSON.stringify(this.initialFormValues) !== JSON.stringify(currentValues);
   }
 
 
@@ -135,26 +161,32 @@ export class ManageFieldsComponent {
         allowed_extensions: []
       }
     };
-    const requestData: UpdateFieldRequestData = {
-      id: this.currentFieldId,
-      target_model: formValues.target_model,
-      input_option: inputOptions,
-      pinned: formValues.pinned
-    };
-
-    const finalRequest: CreateFieldRequest = {
-      request_data: requestData
-    };
-
-    if (this.isEditMode && this.id) {
-      formValues.id = String(this.id);
-    }
+    
     try {
       if (this.isEditMode) {
-        await firstValueFrom(this.customFieldService.updateCustomField(finalRequest));
+        // Update request - includes id
+        const updateRequestData: UpdateFieldRequestData = {
+          id: this.currentFieldId,
+          target_model: formValues.target_model,
+          input_option: inputOptions,
+          pinned: formValues.pinned
+        };
+        const updateRequest: UpdateFieldRequest = {
+          request_data: updateRequestData
+        };
+        await firstValueFrom(this.customFieldService.updateCustomField(updateRequest));
         this.toasterService.showSuccess('Custom field updated successfully');
       } else {
-        await firstValueFrom(this.customFieldService.createCustomField(finalRequest));
+        // Create request - no id
+        const createRequestData: RequestData = {
+          target_model: formValues.target_model,
+          input_option: inputOptions,
+          pinned: formValues.pinned
+        };
+        const createRequest: CreateFieldRequest = {
+          request_data: createRequestData
+        };
+        await firstValueFrom(this.customFieldService.createCustomField(createRequest));
         this.toasterService.showSuccess('Custom field created successfully');
       }
       this.router.navigate(['/custom-fields/all-custom-fields']);

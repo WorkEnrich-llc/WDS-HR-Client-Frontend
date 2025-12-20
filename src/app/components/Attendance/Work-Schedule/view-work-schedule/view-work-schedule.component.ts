@@ -15,8 +15,8 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
   styleUrl: './view-work-schedule.component.css'
 })
 export class ViewWorkScheduleComponent {
-  
-  constructor(private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
+
+  constructor(private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { }
   workScduleData: any = [];
   workingDays: string[] = [];
   formattedCreatedAt: string = '';
@@ -28,6 +28,7 @@ export class ViewWorkScheduleComponent {
   itemsPerPage: number = 10;
   workId: string | null = null;
   departments: any[] = [];
+  isLoading: boolean = true;
 
   ngOnInit(): void {
     this.workId = this.route.snapshot.paramMap.get('id');
@@ -66,7 +67,7 @@ export class ViewWorkScheduleComponent {
 
 
   getWorkSchedule(workId: number) {
-
+    this.isLoading = true;
     this._WorkSchaualeService.showWorkSchedule(workId).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
@@ -86,10 +87,11 @@ export class ViewWorkScheduleComponent {
         if (updated) {
           this.formattedUpdatedAt = this.datePipe.transform(updated, 'dd/MM/yyyy')!;
         }
-
+        this.isLoading = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoading = false;
       }
     });
   }
@@ -125,7 +127,7 @@ export class ViewWorkScheduleComponent {
     this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -151,7 +153,7 @@ export class ViewWorkScheduleComponent {
     this._WorkSchaualeService.updateWorkStatus(this.workScduleData.id, deptStatus).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Work Schedule Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

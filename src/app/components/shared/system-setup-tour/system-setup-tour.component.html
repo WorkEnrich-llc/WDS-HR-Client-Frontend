@@ -1,0 +1,132 @@
+<!-- Arrow Button in Top Right -->
+@if (visible) {
+<div class="setup-arrow-hint-container enhanced">
+  <button type="button" class="setup-arrow-btn" (click)="toggleOverlay()"
+    [attr.aria-label]="'System Setup Progress: ' + completedCount + ' of ' + total + ' steps completed'">
+    <span class="setup-arrow-beat">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L22 12L12 22L2 12Z" />
+      </svg>
+    </span>
+    <span class="setup-progress-indicator">{{ completedCount }}/{{ total }}</span>
+  </button>
+  <div class="setup-arrow-hint enhanced">
+    <span class="setup-hint-text setup-hint-beat">System setup steps available!</span>
+  </div>
+</div>
+}
+
+<!-- Overlay Modal -->
+@if (visible && isOverlayOpen) {
+<div class="setup-overlay-backdrop" (click)="closeOverlay()">
+  <div class="setup-overlay-modal" (click)="$event.stopPropagation()">
+    <div class="setup-overlay-header">
+      <div class="setup-overlay-title">
+        <h3>System Setup Guide</h3>
+        <p>Complete these steps to set up your system</p>
+      </div>
+      <button type="button" class="setup-overlay-close" (click)="closeOverlay()" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="setup-progress-bar">
+      <div class="setup-progress-fill" [style.width.%]="progressPercent"></div>
+    </div>
+
+    @if (isLoading) {
+    <div class="setup-loading">
+      <div class="spinner-border text-primary" role="status"></div>
+      <span>Loading setup steps...</span>
+    </div>
+    } @else if (error) {
+    <div class="setup-error">
+      <span>⚠</span>
+      <div>{{ error }}</div>
+    </div>
+    } @else {
+
+    <!-- Celebration Modal -->
+    @if (isCelebrating && celebrationStep) {
+    <div class="celebration-overlay">
+      <div class="celebration-content">
+        <div class="celebration-icon">🎉</div>
+        <h2 class="celebration-title">Congratulations!</h2>
+        <p class="celebration-message">{{ celebrationMessage }}</p>
+        <div class="celebration-step">
+          <div class="celebration-step-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <span class="celebration-step-title">{{ celebrationStep.title }} Complete</span>
+        </div>
+        <div class="celebration-progress">
+          <div class="celebration-progress-bar">
+            <div class="celebration-progress-fill" [style.width.%]="progressPercent"></div>
+          </div>
+          <span class="celebration-progress-text">{{ completedCount }} of {{ total }} steps completed</span>
+        </div>
+      </div>
+    </div>
+    }
+
+    <div class="setup-steps-container" [class.celebration-mode]="isCelebrating">
+      @for (item of items; track item.step; let i = $index) {
+      <div class="setup-step-item" [class.step-completed]="isStepCompleted(item)"
+        [class.step-current]="isStepCurrent(i)" [class.step-disabled]="!isStepEnabled(i)"
+        [class.step-recently-completed]="isStepRecentlyCompleted(item)" (click)="isStepEnabled(i) && goToStep(i)">
+        <div class="step-indicator">
+          @if (isStepCompleted(item)) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+          @if (isStepRecentlyCompleted(item)) {
+          <div class="success-pulse"></div>
+          }
+          } @else {
+          <span class="step-number">{{ item.step }}</span>
+          }
+        </div>
+        <div class="step-content">
+          <h4 class="step-title">
+            {{ item.title }}
+            @if (isStepRecentlyCompleted(item)) {
+            <span class="recently-completed-badge">✨ Just completed!</span>
+            }
+          </h4>
+          <p class="step-message">{{ getMessage(item) }}</p>
+          @if (isStepCurrent(i) || !isStepCompleted(item)) {
+          <div class="step-actions">
+            <button type="button" class="btn btn-sm btn-primary" (click)="openModule(); $event.stopPropagation()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-right: 6px;">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15,3 21,3 21,9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+              Open {{ item.title }}
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="setup-overlay-footer">
+      <div class="setup-progress-text">
+        {{ completedCount }} of {{ total }} steps completed
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}

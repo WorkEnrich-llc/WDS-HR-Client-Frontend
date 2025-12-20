@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -7,7 +7,7 @@ import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-f
 @Component({
   standalone: true,
   selector: 'app-contract-terminated-view-modal',
-  imports: [CommonModule, OverlayFilterBoxComponent],
+  imports: [OverlayFilterBoxComponent],
   templateUrl: './contract-terminated-view-modal.component.html',
   styleUrl: './contract-terminated-view-modal.component.css'
 })

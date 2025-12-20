@@ -2,11 +2,11 @@
 import { AfterContentInit, Component, ContentChild, Input, TemplateRef, OnInit, ViewEncapsulation, ContentChildren, ElementRef, QueryList } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SkelatonLoadingComponent } from '../skelaton-loading/skelaton-loading.component';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-page-header',
-  imports: [RouterLink, SkelatonLoadingComponent ,CommonModule],
+  imports: [RouterLink, SkelatonLoadingComponent],
   templateUrl: './page-header.component.html',
   styleUrls: ['./page-header.component.css'],
   encapsulation: ViewEncapsulation.None

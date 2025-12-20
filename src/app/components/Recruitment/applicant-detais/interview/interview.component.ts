@@ -1,7 +1,7 @@
 
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
@@ -10,7 +10,7 @@ import { EmployeeService } from 'app/core/services/personnel/employees/employee.
 
 @Component({
   selector: 'app-interview',
-  imports: [CommonModule, FormsModule, OverlayFilterBoxComponent],
+  imports: [FormsModule, OverlayFilterBoxComponent],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })
@@ -400,10 +400,13 @@ export class InterviewComponent implements OnChanges {
       next: (empRes) => {
         const items = empRes?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
-          ? items.map((emp: any) => ({
-            id: emp?.id ?? 0,
-            name: emp?.contact_info?.name ?? '—'
-          }))
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
           : [];
         this.employeesLoading = false;
 
@@ -466,10 +469,13 @@ export class InterviewComponent implements OnChanges {
       next: (res) => {
         const items = res?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
-          ? items.map((emp: any) => ({
-            id: emp?.id ?? 0,
-            name: emp?.contact_info?.name ?? '—'
-          }))
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
           : [];
         this.employeesLoading = false;
       },

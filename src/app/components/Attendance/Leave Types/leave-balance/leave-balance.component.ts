@@ -1,6 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -13,7 +13,7 @@ import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/
 
 @Component({
     selector: 'app-leave-balance',
-    imports: [PageHeaderComponent, CommonModule, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+    imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
     templateUrl: './leave-balance.component.html',
     styleUrls: ['./leave-balance.component.css']
 })

@@ -33,325 +33,318 @@
       <div class="d-flex align-items-center justify-content-between">
         <h2>Job Info</h2>
         @if (leaveRequest1) {
-        <span class="badge-newjoiner">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <path
-                d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
-              <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
-              <circle cx="16.5" cy="16.5" r="1.5" />
-              <path stroke-linecap="round" d="M2.5 9h19" />
-            </g>
-          </svg>
-          <span>New Joiner</span>
-        </span>
-        }
-      </div>
-      <div class="info">
-        <h6>Job Title</h6>
-        <span>{{ leaveRequest1?.job_info?.job_title }}</span>
-      </div>
-      <div class="info">
-        <h6>Employment Type</h6>
-        <span>{{ leaveRequest1?.job_info?.employment_type }}</span>
-      </div>
-      <div class="info">
-        <h6>Section</h6>
-        <span>{{ leaveRequest1?.job_info?.section }}</span>
-      </div>
-      <div class="info">
-        <h6>Department</h6>
-        <span>{{ leaveRequest1?.job_info?.department }}</span>
-      </div>
-      <div class="info">
-        <h6>Branch</h6>
-        <span>{{ leaveRequest1?.job_info?.branch }}</span>
-      </div>
-      <div class="d-flex align-items-center justify-content-between">
+          <span class="badge-newjoiner">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                  <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                  <circle cx="16.5" cy="16.5" r="1.5" />
+                  <path stroke-linecap="round" d="M2.5 9h19" />
+                </g>
+              </svg>
+              <span>New Joiner</span>
+            </span>
+          }
+        </div>
         <div class="info">
-          <h6>Direct Manager</h6>
-          <span>{{ getDirectManagerName() }}</span>
+          <h6>Job Title</h6>
+          <span>{{ leaveRequest1?.job_info?.job_title }}</span>
         </div>
-        <a class="view-btn h-100 d-flex align-items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-              <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
-              <path
-                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
-            </g>
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="content-box d-flex flex-column gap-3 w-100">
-      <div class="d-flex align-items-center justify-content-between">
-        <h2>Request Info</h2>
-        @if (leaveRequest1?.status?.name === 'Pending') {
-        <span class="badge-newjoiner">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <path
-                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-              <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-            </g>
-          </svg>
-          <span>Pending</span>
-        </span>
-        }
-        @if (leaveRequest1?.status?.name === 'Rejected') {
-        <span class="badge-danger">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-          </svg>
-          <span>Rejected</span>
-        </span>
-        }
-        @if (leaveRequest1?.status?.name === 'Accepted') {
-        <span class="badge-success">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-          </svg>
-          <span>Accepted</span>
-        </span>
-        }
-      </div>
-      <div class="info">
-        <h6>Request ID</h6>
-        <span>{{
-          (leaveRequest1?.request_info?.id ?? 0).toString().padStart(4, "0")
-          }}</span>
-      </div>
-      <div class="info">
-        <h6>Requested at</h6>
-        <span>{{
-          leaveRequest1?.request_info?.created_at | date : "dd/MM/yyyy"
-          }}</span>
-      </div>
-      <div class="info">
-        <h6>Request Type</h6>
-        <span>{{ leaveRequest1?.work_type }}</span>
-      </div>
-
-      <div class="info">
-        <h6>Leave Type</h6>
-        <span>{{ displayLeaveType() }}</span>
-      </div>
-
-      @if(leaveRequest1?.work_type === 'mission'){
-      <div class="info">
-        <h6>Mission Title</h6>
-        <span>{{ leaveRequest1?.mission?.title }}</span>
-      </div>
-      }
-
-
-
-      <div class="info">
-        <h6>Date Range</h6>
-        <span>{{ leaveRequest1?.dates?.from_date | date : "dd/MM/yyyy" }}
-          @if (leaveRequest1?.dates?.to_date) {
-          - {{ leaveRequest1?.dates?.to_date | date : "dd/MM/yyyy" }}
-          }</span>
-      </div>
-      <div class="info">
-        <h6>Reason</h6>
-        <span>{{ getReasonNote() }}</span>
-      </div>
-      @if (leaveRequest1?.work_type === 'permission') {
-      <div class="info">
-        <h6>Permission Details</h6>
-        <span>{{ getPermissionFlags() }}</span>
-      </div>
-      }
-      @if (getMinutesUsed()) {
-      <div class="info">
-        <h6>Duration</h6>
-        <span>{{ getMinutesUsed() }}</span>
-      </div>
-      }
-    </div>
-  </div>
-  @if(leaveRequest1?.work_type === 'leave' || leaveRequest1?.work_type === 'permission'){
-  <div class="d-flex flex-column flex-lg-row align-items-stretch gap-4">
-    <div class="content-box d-flex flex-column gap-3 w-50">
-      <h2>Documents</h2>
-      @if (leaveRequest1?.document_url?.generate_signed_url) {
-      <div class="d-flex align-items-center justify-content-between">
-        <a [attr.href]="leaveRequest1?.document_url?.generate_signed_url || null" download class="text-decoration-none">
-          <img [src]="leaveRequest1?.document_url?.image_url || 'assets/icons/download.svg'" width="20" height="20"
-            alt="Download" />
-        </a>
-      </div>
-      } @else {
-      <span class="text-muted">No documents attached</span>
-      }
-      <!-- } -->
-    </div>
-
-    <div class="content-box d-flex flex-column gap-3 w-100" *ngIf="leaveRequest.steps.length; else noSteps">
-      <h2>Steps</h2>
-      <div>
-        @for (step of leaveRequest.steps; track step; let i = $index) {
-        <div class="row step-info py-2 align-items-center">
-          <div class="col-1 d-flex align-items-center">
-            <div class="arrow p-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path fill="currentColor"
-                  d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-              </svg>
-            </div>
-            <div class="p-2 ms-auto">{{ i + 1 }}</div>
+        <div class="info">
+          <h6>Employment Type</h6>
+          <span>{{ leaveRequest1?.job_info?.employment_type }}</span>
+        </div>
+        <div class="info">
+          <h6>Section</h6>
+          <span>{{ leaveRequest1?.job_info?.section }}</span>
+        </div>
+        <div class="info">
+          <h6>Department</h6>
+          <span>{{ leaveRequest1?.job_info?.department }}</span>
+        </div>
+        <div class="info">
+          <h6>Branch</h6>
+          <span>{{ leaveRequest1?.job_info?.branch }}</span>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="info">
+            <h6>Direct Manager</h6>
+            <span>{{ getDirectManagerName() }}</span>
           </div>
-          <div class="col-3 name p-2">{{ step?.stepName }}</div>
-          <div class="job d-flex flex-column p-2 col-4">
-            <span><strong>{{ step?.approverType || '---' }}</strong>
-              {{ step?.approverRole || '' }}</span>
-            <h5>{{ step?.approverName || '---' }}</h5>
-          </div>
-          <div class="d-flex flex-column align-items-end gap-3 p-2 col-4">
-            @if (step?.status === 'Rejected') {
-            <span class="badge-danger">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+          <a class="view-btn h-100 d-flex align-items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                <path
+                  d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
                 </g>
               </svg>
-              <span>Rejected</span>
-            </span>
-            }
-            @if (step?.status === 'Accepted') {
-            <span class="badge-success">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                </g>
-              </svg>
-              <span>Accepted</span>
-            </span>
-            }
-            <!-- @if (step.status === 'Pending') {
-            <div class="d-flex">
-              <button class="btn custom-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-                  </g>
-                </svg>
-
-
-                <svg width="93" height="42" viewBox="0 0 93 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M0 21C0 16.3511 0 14.0266 0.4795 12.1123C1.91399 6.38552 6.38552 1.91399 12.1123 0.4795C14.0266 0 16.3511 0 21 0H71.6667C76.3156 0 78.6401 0 80.5543 0.4795C86.2811 1.91399 90.7527 6.38552 92.1872 12.1123C92.6667 14.0266 92.6667 16.3511 92.6667 21C92.6667 25.6489 92.6667 27.9734 92.1872 29.8877C90.7527 35.6145 86.2811 40.086 80.5543 41.5205C78.6401 42 76.3156 42 71.6667 42H21C16.3511 42 14.0266 42 12.1123 41.5205C6.38552 40.086 1.91399 35.6145 0.4795 29.8877C0 27.9734 0 25.6489 0 21Z"
-                    fill="#E04F5F" />
-                  <g clip-path="url(#clip0_3068_27347)">
-                    <path
-                      d="M17.356 18.7272C17.1363 18.5076 16.7802 18.5076 16.5605 18.7272C16.3408 18.9469 16.3408 19.3031 16.5605 19.5227L18.0377 21L16.5605 22.4772C16.3408 22.6969 16.3408 23.0531 16.5605 23.2727C16.7802 23.4924 17.1363 23.4924 17.356 23.2727L18.8332 21.7955L20.3105 23.2727C20.5301 23.4924 20.8863 23.4924 21.106 23.2727C21.3256 23.0531 21.3256 22.6969 21.106 22.4772L19.6287 21L21.106 19.5228C21.3256 19.3031 21.3256 18.9469 21.106 18.7273C20.8863 18.5076 20.5302 18.5076 20.3105 18.7273L18.8332 20.2045L17.356 18.7272Z"
-                      fill="#FEEAEA" />
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M18.8333 12.9375C14.3805 12.9375 10.7708 16.5472 10.7708 21C10.7708 25.4528 14.3805 29.0625 18.8333 29.0625C23.286 29.0625 26.8958 25.4528 26.8958 21C26.8958 16.5472 23.286 12.9375 18.8333 12.9375ZM11.8958 21C11.8958 17.1685 15.0018 14.0625 18.8333 14.0625C22.6647 14.0625 25.7708 17.1685 25.7708 21C25.7708 24.8315 22.6647 27.9375 18.8333 27.9375C15.0018 27.9375 11.8958 24.8315 11.8958 21Z"
-                      fill="#FEEAEA" />
-                  </g>
-                  <path
-                    d="M39.0566 27L36.5926 22.648H35.5366V27H33.2966V15.832H37.4886C38.3526 15.832 39.0886 15.9867 39.6966 16.296C40.3046 16.5947 40.758 17.0053 41.0566 17.528C41.366 18.04 41.5206 18.616 41.5206 19.256C41.5206 19.992 41.3073 20.6587 40.8806 21.256C40.454 21.8427 39.8193 22.248 38.9766 22.472L41.6486 27H39.0566ZM35.5366 20.968H37.4086C38.0166 20.968 38.47 20.824 38.7686 20.536C39.0673 20.2373 39.2166 19.8267 39.2166 19.304C39.2166 18.792 39.0673 18.3973 38.7686 18.12C38.47 17.832 38.0166 17.688 37.4086 17.688H35.5366V20.968ZM51.7866 22.376C51.7866 22.696 51.7653 22.984 51.7226 23.24H45.2426C45.296 23.88 45.52 24.3813 45.9146 24.744C46.3093 25.1067 46.7946 25.288 47.3706 25.288C48.2026 25.288 48.7946 24.9307 49.1466 24.216H51.5626C51.3066 25.0693 50.816 25.7733 50.0906 26.328C49.3653 26.872 48.4746 27.144 47.4186 27.144C46.5653 27.144 45.7973 26.9573 45.1146 26.584C44.4426 26.2 43.9146 25.6613 43.5306 24.968C43.1573 24.2747 42.9706 23.4747 42.9706 22.568C42.9706 21.6507 43.1573 20.8453 43.5306 20.152C43.904 19.4587 44.4266 18.9253 45.0986 18.552C45.7706 18.1787 46.544 17.992 47.4186 17.992C48.2613 17.992 49.0133 18.1733 49.6746 18.536C50.3466 18.8987 50.864 19.416 51.2266 20.088C51.6 20.7493 51.7866 21.512 51.7866 22.376ZM49.4666 21.736C49.456 21.16 49.248 20.7013 48.8426 20.36C48.4373 20.008 47.9413 19.832 47.3546 19.832C46.8 19.832 46.3306 20.0027 45.9466 20.344C45.5733 20.6747 45.344 21.1387 45.2586 21.736H49.4666ZM54.5576 17.08C54.1523 17.08 53.8163 16.9573 53.5496 16.712C53.2936 16.456 53.1656 16.1413 53.1656 15.768C53.1656 15.3947 53.2936 15.0853 53.5496 14.84C53.8163 14.584 54.1523 14.456 54.5576 14.456C54.9523 14.456 55.2776 14.584 55.5336 14.84C55.7896 15.0853 55.9176 15.3947 55.9176 15.768C55.9176 16.1413 55.7896 16.456 55.5336 16.712C55.2776 16.9573 54.9523 17.08 54.5576 17.08ZM55.6616 28.456C55.6616 29.4373 55.4163 30.1413 54.9256 30.568C54.4456 31.0053 53.7523 31.224 52.8456 31.224H51.8536V29.32H52.4936C52.835 29.32 53.075 29.2507 53.2136 29.112C53.3523 28.984 53.4216 28.7707 53.4216 28.472V18.136H55.6616V28.456ZM66.1148 22.376C66.1148 22.696 66.0934 22.984 66.0508 23.24H59.5708C59.6241 23.88 59.8481 24.3813 60.2428 24.744C60.6374 25.1067 61.1228 25.288 61.6988 25.288C62.5308 25.288 63.1228 24.9307 63.4748 24.216H65.8908C65.6348 25.0693 65.1441 25.7733 64.4188 26.328C63.6934 26.872 62.8028 27.144 61.7468 27.144C60.8934 27.144 60.1254 26.9573 59.4428 26.584C58.7708 26.2 58.2428 25.6613 57.8588 24.968C57.4854 24.2747 57.2988 23.4747 57.2988 22.568C57.2988 21.6507 57.4854 20.8453 57.8588 20.152C58.2321 19.4587 58.7548 18.9253 59.4268 18.552C60.0988 18.1787 60.8721 17.992 61.7468 17.992C62.5894 17.992 63.3414 18.1733 64.0028 18.536C64.6748 18.8987 65.1921 19.416 65.5548 20.088C65.9281 20.7493 66.1148 21.512 66.1148 22.376ZM63.7948 21.736C63.7841 21.16 63.5761 20.7013 63.1708 20.36C62.7654 20.008 62.2694 19.832 61.6828 19.832C61.1281 19.832 60.6588 20.0027 60.2748 20.344C59.9014 20.6747 59.6721 21.1387 59.5868 21.736H63.7948ZM67.1738 22.568C67.1738 21.6507 67.3604 20.8507 67.7338 20.168C68.1071 19.4747 68.6244 18.9413 69.2858 18.568C69.9471 18.184 70.7044 17.992 71.5578 17.992C72.6564 17.992 73.5631 18.2693 74.2778 18.824C75.0031 19.368 75.4884 20.136 75.7338 21.128H73.3178C73.1898 20.744 72.9711 20.4453 72.6618 20.232C72.3631 20.008 71.9898 19.896 71.5418 19.896C70.9018 19.896 70.3951 20.1307 70.0218 20.6C69.6484 21.0587 69.4618 21.7147 69.4618 22.568C69.4618 23.4107 69.6484 24.0667 70.0218 24.536C70.3951 24.9947 70.9018 25.224 71.5418 25.224C72.4484 25.224 73.0404 24.8187 73.3178 24.008H75.7338C75.4884 24.968 75.0031 25.7307 74.2778 26.296C73.5524 26.8613 72.6458 27.144 71.5578 27.144C70.7044 27.144 69.9471 26.9573 69.2858 26.584C68.6244 26.2 68.1071 25.6667 67.7338 24.984C67.3604 24.2907 67.1738 23.4853 67.1738 22.568ZM79.9828 19.976V24.264C79.9828 24.5627 80.0521 24.7813 80.1908 24.92C80.3401 25.048 80.5854 25.112 80.9268 25.112H81.9668V27H80.5588C78.6708 27 77.7268 26.0827 77.7268 24.248V19.976H76.6708V18.136H77.7268V15.944H79.9828V18.136H81.9668V19.976H79.9828Z"
-                    fill="white" />
-                  <defs>
-                    <clipPath id="clip0_3068_27347">
-                      <rect width="18" height="18" fill="white" transform="translate(9.83325 12)" />
-                    </clipPath>
-                  </defs>
-                </svg>
-
-
-
-
-
-                <span>Rejected</span>
-              </button>
-              <button class="btn custom-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                  </g>
-                </svg>
-
-                <svg width="93" height="42" viewBox="0 0 93 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M0 21C0 16.3511 0 14.0266 0.4795 12.1123C1.91399 6.38552 6.38552 1.91399 12.1123 0.4795C14.0266 0 16.3511 0 21 0H71.6667C76.3156 0 78.6401 0 80.5543 0.4795C86.2811 1.91399 90.7527 6.38552 92.1872 12.1123C92.6667 14.0266 92.6667 16.3511 92.6667 21C92.6667 25.6489 92.6667 27.9734 92.1872 29.8877C90.7527 35.6145 86.2811 40.086 80.5543 41.5205C78.6401 42 76.3156 42 71.6667 42H21C16.3511 42 14.0266 42 12.1123 41.5205C6.38552 40.086 1.91399 35.6145 0.4795 29.8877C0 27.9734 0 25.6489 0 21Z"
-                    fill="#377AFD" />
-                  <g clip-path="url(#clip0_3068_27352)">
-                    <path
-                      d="M18.356 19.5227C18.5757 19.3031 18.5757 18.9469 18.356 18.7273C18.1363 18.5076 17.7802 18.5076 17.5605 18.7273L14.2083 22.0795L13.106 20.9773C12.8863 20.7576 12.5302 20.7576 12.3105 20.9773C12.0908 21.1969 12.0908 21.5531 12.3105 21.7727L13.8105 23.2727C14.0302 23.4924 14.3863 23.4924 14.606 23.2727L18.356 19.5227Z"
-                      fill="#E0EBFF" />
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M15.3333 12.9375C10.8805 12.9375 7.27075 16.5472 7.27075 21C7.27075 25.4528 10.8805 29.0625 15.3333 29.0625C19.786 29.0625 23.3958 25.4528 23.3958 21C23.3958 16.5472 19.786 12.9375 15.3333 12.9375ZM8.39575 21C8.39575 17.1685 11.5018 14.0625 15.3333 14.0625C19.1647 14.0625 22.2708 17.1685 22.2708 21C22.2708 24.8315 19.1647 27.9375 15.3333 27.9375C11.5018 27.9375 8.39575 24.8315 8.39575 21Z"
-                      fill="#E0EBFF" />
-                  </g>
-                  <path
-                    d="M36.4728 24.872H32.0248L31.2888 27H28.9368L32.9528 15.816H35.5608L39.5768 27H37.2088L36.4728 24.872ZM35.8648 23.08L34.2488 18.408L32.6328 23.08H35.8648ZM40.5019 22.568C40.5019 21.6507 40.6885 20.8507 41.0619 20.168C41.4352 19.4747 41.9525 18.9413 42.6139 18.568C43.2752 18.184 44.0325 17.992 44.8859 17.992C45.9845 17.992 46.8912 18.2693 47.6059 18.824C48.3312 19.368 48.8165 20.136 49.0619 21.128H46.6459C46.5179 20.744 46.2992 20.4453 45.9899 20.232C45.6912 20.008 45.3179 19.896 44.8699 19.896C44.2299 19.896 43.7232 20.1307 43.3499 20.6C42.9765 21.0587 42.7899 21.7147 42.7899 22.568C42.7899 23.4107 42.9765 24.0667 43.3499 24.536C43.7232 24.9947 44.2299 25.224 44.8699 25.224C45.7765 25.224 46.3685 24.8187 46.6459 24.008H49.0619C48.8165 24.968 48.3312 25.7307 47.6059 26.296C46.8805 26.8613 45.9739 27.144 44.8859 27.144C44.0325 27.144 43.2752 26.9573 42.6139 26.584C41.9525 26.2 41.4352 25.6667 41.0619 24.984C40.6885 24.2907 40.5019 23.4853 40.5019 22.568ZM50.1269 22.568C50.1269 21.6507 50.3135 20.8507 50.6869 20.168C51.0602 19.4747 51.5775 18.9413 52.2389 18.568C52.9002 18.184 53.6575 17.992 54.5109 17.992C55.6095 17.992 56.5162 18.2693 57.2309 18.824C57.9562 19.368 58.4415 20.136 58.6869 21.128H56.2709C56.1429 20.744 55.9242 20.4453 55.6149 20.232C55.3162 20.008 54.9429 19.896 54.4949 19.896C53.8549 19.896 53.3482 20.1307 52.9749 20.6C52.6015 21.0587 52.4149 21.7147 52.4149 22.568C52.4149 23.4107 52.6015 24.0667 52.9749 24.536C53.3482 24.9947 53.8549 25.224 54.4949 25.224C55.4015 25.224 55.9935 24.8187 56.2709 24.008H58.6869C58.4415 24.968 57.9562 25.7307 57.2309 26.296C56.5055 26.8613 55.5989 27.144 54.5109 27.144C53.6575 27.144 52.9002 26.9573 52.2389 26.584C51.5775 26.2 51.0602 25.6667 50.6869 24.984C50.3135 24.2907 50.1269 23.4853 50.1269 22.568ZM68.5679 22.376C68.5679 22.696 68.5465 22.984 68.5039 23.24H62.0239C62.0772 23.88 62.3012 24.3813 62.6959 24.744C63.0905 25.1067 63.5759 25.288 64.1519 25.288C64.9839 25.288 65.5759 24.9307 65.9279 24.216H68.3439C68.0879 25.0693 67.5972 25.7733 66.8719 26.328C66.1465 26.872 65.2559 27.144 64.1999 27.144C63.3465 27.144 62.5785 26.9573 61.8959 26.584C61.2239 26.2 60.6959 25.6613 60.3119 24.968C59.9385 24.2747 59.7519 23.4747 59.7519 22.568C59.7519 21.6507 59.9385 20.8453 60.3119 20.152C60.6852 19.4587 61.2079 18.9253 61.8799 18.552C62.5519 18.1787 63.3252 17.992 64.1999 17.992C65.0425 17.992 65.7945 18.1733 66.4559 18.536C67.1279 18.8987 67.6452 19.416 68.0079 20.088C68.3812 20.7493 68.5679 21.512 68.5679 22.376ZM66.2479 21.736C66.2372 21.16 66.0292 20.7013 65.6239 20.36C65.2185 20.008 64.7225 19.832 64.1359 19.832C63.5812 19.832 63.1119 20.0027 62.7279 20.344C62.3545 20.6747 62.1252 21.1387 62.0399 21.736H66.2479ZM72.4429 19.416C72.7309 19.0107 73.1255 18.6747 73.6269 18.408C74.1389 18.1307 74.7202 17.992 75.3709 17.992C76.1282 17.992 76.8109 18.1787 77.4189 18.552C78.0375 18.9253 78.5229 19.4587 78.8749 20.152C79.2375 20.8347 79.4189 21.6293 79.4189 22.536C79.4189 23.4427 79.2375 24.248 78.8749 24.952C78.5229 25.6453 78.0375 26.184 77.4189 26.568C76.8109 26.952 76.1282 27.144 75.3709 27.144C74.7202 27.144 74.1442 27.0107 73.6429 26.744C73.1522 26.4773 72.7522 26.1413 72.4429 25.736V31.224H70.2029V18.136H72.4429V19.416ZM77.1309 22.536C77.1309 22.0027 77.0189 21.544 76.7949 21.16C76.5815 20.7653 76.2935 20.4667 75.9309 20.264C75.5789 20.0613 75.1949 19.96 74.7789 19.96C74.3735 19.96 73.9895 20.0667 73.6269 20.28C73.2749 20.4827 72.9869 20.7813 72.7629 21.176C72.5495 21.5707 72.4429 22.0347 72.4429 22.568C72.4429 23.1013 72.5495 23.5653 72.7629 23.96C72.9869 24.3547 73.2749 24.6587 73.6269 24.872C73.9895 25.0747 74.3735 25.176 74.7789 25.176C75.1949 25.176 75.5789 25.0693 75.9309 24.856C76.2935 24.6427 76.5815 24.3387 76.7949 23.944C77.0189 23.5493 77.1309 23.08 77.1309 22.536ZM83.6546 19.976V24.264C83.6546 24.5627 83.724 24.7813 83.8626 24.92C84.012 25.048 84.2573 25.112 84.5986 25.112H85.6386V27H84.2306C82.3426 27 81.3986 26.0827 81.3986 24.248V19.976H80.3426V18.136H81.3986V15.944H83.6546V18.136H85.6386V19.976H83.6546Z"
-                    fill="white" />
-                  <defs>
-                    <clipPath id="clip0_3068_27352">
-                      <rect width="18" height="18" fill="white" transform="translate(6.33325 12)" />
-                    </clipPath>
-                  </defs>
-                </svg>
-                <span>Accepted</span>
-              </button>
-            </div>
-            } -->
+            </a>
           </div>
         </div>
-        }
-      </div>
-    </div>
-    <ng-template #noSteps>
-      <div class="content-box d-flex flex-column gap-3 w-100">
-        <h2>Steps</h2>
-        <span class="text-muted">Approval workflow not available.</span>
-      </div>
-    </ng-template>
-  </div>
-  }
 
-  @if(leaveRequest1){
-  @if( leaveRequest1.work_type === 'mission'){
+        <div class="content-box d-flex flex-column gap-3 w-100">
+          <div class="d-flex align-items-center justify-content-between">
+            <h2>Request Info</h2>
+            @if (leaveRequest1?.status?.name === 'Pending') {
+              <span class="badge-newjoiner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path
+                      d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+                      <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+                    </g>
+                  </svg>
+                  <span>Pending</span>
+                </span>
+              }
+              @if (leaveRequest1?.status?.name === 'Rejected') {
+                <span class="badge-danger">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                    </g>
+                  </svg>
+                  <span>Rejected</span>
+                </span>
+              }
+              @if (leaveRequest1?.status?.name === 'Accepted') {
+                <span class="badge-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                    </g>
+                  </svg>
+                  <span>Accepted</span>
+                </span>
+              }
+            </div>
+            <div class="info">
+              <h6>Request ID</h6>
+              <span>{{
+                (leaveRequest1?.request_info?.id ?? 0).toString().padStart(4, "0")
+              }}</span>
+            </div>
+            <div class="info">
+              <h6>Requested at</h6>
+              <span>{{
+                leaveRequest1?.request_info?.created_at | date : "dd/MM/yyyy"
+              }}</span>
+            </div>
+            <div class="info">
+              <h6>Request Type</h6>
+              <span>{{ leaveRequest1?.work_type }}</span>
+            </div>
 
-  @if (leaveRequest1.mission.latitude && leaveRequest1.mission.longitude) {
+            <div class="info">
+              <h6>Leave Type</h6>
+              <span>{{ displayLeaveType() }}</span>
+            </div>
 
-  <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 140px; width: 100%;">
+            @if(leaveRequest1?.work_type === 'mission'){
+              <div class="info">
+                <h6>Mission Title</h6>
+                <span>{{ leaveRequest1?.mission?.title }}</span>
+              </div>
+            }
 
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
-    </div>
 
-    <google-map height="100%" width="100%"
-      [center]="{ lat: leaveRequest1.mission.latitude, lng: leaveRequest1.mission.longitude }" [zoom]="15"
-      [options]="{ disableDefaultUI: true, draggable: false, scrollwheel: false, zoomControl: false }">
 
-      <map-marker [position]="{ lat: leaveRequest1.mission.latitude, lng: leaveRequest1.mission.longitude }">
-      </map-marker>
+            <div class="info">
+              <h6>Date Range</h6>
+              <span>{{ leaveRequest1?.dates?.from_date | date : "dd/MM/yyyy" }}
+                @if (leaveRequest1?.dates?.to_date) {
+                  - {{ leaveRequest1?.dates?.to_date | date : "dd/MM/yyyy" }}
+                }</span>
+              </div>
+              <div class="info">
+                <h6>Reason</h6>
+                <span>{{ getReasonNote() }}</span>
+              </div>
+              @if (leaveRequest1?.work_type === 'permission') {
+                <div class="info">
+                  <h6>Permission Details</h6>
+                  <span>{{ getPermissionFlags() }}</span>
+                </div>
+              }
+              @if (getMinutesUsed()) {
+                <div class="info">
+                  <h6>Duration</h6>
+                  <span>{{ getMinutesUsed() }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          @if(leaveRequest1?.work_type === 'leave' || leaveRequest1?.work_type === 'permission'){
+            <div class="d-flex flex-column flex-lg-row align-items-stretch gap-4">
+              <div class="content-box d-flex flex-column gap-3 w-50">
+                <h2>Documents</h2>
+                @if (leaveRequest1?.document_url?.generate_signed_url) {
+                  <div class="d-flex align-items-center justify-content-between">
+                    <a [attr.href]="leaveRequest1?.document_url?.generate_signed_url || null" download class="text-decoration-none">
+                      <img [src]="leaveRequest1?.document_url?.image_url || 'assets/icons/download.svg'" width="20" height="20"
+                        alt="Download" />
+                      </a>
+                    </div>
+                  } @else {
+                    <span class="text-muted">No documents attached</span>
+                  }
+                  <!-- } -->
+                </div>
 
-    </google-map>
-  </div>
+                @if (leaveRequest.steps.length) {
+                  <div class="content-box d-flex flex-column gap-3 w-100">
+                    <h2>Steps</h2>
+                    <div>
+                      @for (step of leaveRequest.steps; track step; let i = $index) {
+                        <div class="row step-info py-2 align-items-center">
+                          <div class="col-1 d-flex align-items-center">
+                            <div class="arrow p-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                  d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+                                </svg>
+                              </div>
+                              <div class="p-2 ms-auto">{{ i + 1 }}</div>
+                            </div>
+                            <div class="col-3 name p-2">{{ step?.stepName }}</div>
+                            <div class="job d-flex flex-column p-2 col-4">
+                              <span><strong>{{ step?.approverType || '---' }}</strong>
+                            {{ step?.approverRole || '' }}</span>
+                            <h5>{{ step?.approverName || '---' }}</h5>
+                          </div>
+                          <div class="d-flex flex-column align-items-end gap-3 p-2 col-4">
+                            @if (step?.status === 'Rejected') {
+                              <span class="badge-danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                  </g>
+                                </svg>
+                                <span>Rejected</span>
+                              </span>
+                            }
+                            @if (step?.status === 'Accepted') {
+                              <span class="badge-success">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                  </g>
+                                </svg>
+                                <span>Accepted</span>
+                              </span>
+                            }
+                            <!-- @if (step.status === 'Pending') {
+                            <div class="d-flex">
+                              <button class="btn custom-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                  </g>
+                                </svg>
+                                <svg width="93" height="42" viewBox="0 0 93 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M0 21C0 16.3511 0 14.0266 0.4795 12.1123C1.91399 6.38552 6.38552 1.91399 12.1123 0.4795C14.0266 0 16.3511 0 21 0H71.6667C76.3156 0 78.6401 0 80.5543 0.4795C86.2811 1.91399 90.7527 6.38552 92.1872 12.1123C92.6667 14.0266 92.6667 16.3511 92.6667 21C92.6667 25.6489 92.6667 27.9734 92.1872 29.8877C90.7527 35.6145 86.2811 40.086 80.5543 41.5205C78.6401 42 76.3156 42 71.6667 42H21C16.3511 42 14.0266 42 12.1123 41.5205C6.38552 40.086 1.91399 35.6145 0.4795 29.8877C0 27.9734 0 25.6489 0 21Z"
+                                    fill="#E04F5F" />
+                                    <g clip-path="url(#clip0_3068_27347)">
+                                      <path
+                                        d="M17.356 18.7272C17.1363 18.5076 16.7802 18.5076 16.5605 18.7272C16.3408 18.9469 16.3408 19.3031 16.5605 19.5227L18.0377 21L16.5605 22.4772C16.3408 22.6969 16.3408 23.0531 16.5605 23.2727C16.7802 23.4924 17.1363 23.4924 17.356 23.2727L18.8332 21.7955L20.3105 23.2727C20.5301 23.4924 20.8863 23.4924 21.106 23.2727C21.3256 23.0531 21.3256 22.6969 21.106 22.4772L19.6287 21L21.106 19.5228C21.3256 19.3031 21.3256 18.9469 21.106 18.7273C20.8863 18.5076 20.5302 18.5076 20.3105 18.7273L18.8332 20.2045L17.356 18.7272Z"
+                                        fill="#FEEAEA" />
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                          d="M18.8333 12.9375C14.3805 12.9375 10.7708 16.5472 10.7708 21C10.7708 25.4528 14.3805 29.0625 18.8333 29.0625C23.286 29.0625 26.8958 25.4528 26.8958 21C26.8958 16.5472 23.286 12.9375 18.8333 12.9375ZM11.8958 21C11.8958 17.1685 15.0018 14.0625 18.8333 14.0625C22.6647 14.0625 25.7708 17.1685 25.7708 21C25.7708 24.8315 22.6647 27.9375 18.8333 27.9375C15.0018 27.9375 11.8958 24.8315 11.8958 21Z"
+                                          fill="#FEEAEA" />
+                                        </g>
+                                        <path
+                                          d="M39.0566 27L36.5926 22.648H35.5366V27H33.2966V15.832H37.4886C38.3526 15.832 39.0886 15.9867 39.6966 16.296C40.3046 16.5947 40.758 17.0053 41.0566 17.528C41.366 18.04 41.5206 18.616 41.5206 19.256C41.5206 19.992 41.3073 20.6587 40.8806 21.256C40.454 21.8427 39.8193 22.248 38.9766 22.472L41.6486 27H39.0566ZM35.5366 20.968H37.4086C38.0166 20.968 38.47 20.824 38.7686 20.536C39.0673 20.2373 39.2166 19.8267 39.2166 19.304C39.2166 18.792 39.0673 18.3973 38.7686 18.12C38.47 17.832 38.0166 17.688 37.4086 17.688H35.5366V20.968ZM51.7866 22.376C51.7866 22.696 51.7653 22.984 51.7226 23.24H45.2426C45.296 23.88 45.52 24.3813 45.9146 24.744C46.3093 25.1067 46.7946 25.288 47.3706 25.288C48.2026 25.288 48.7946 24.9307 49.1466 24.216H51.5626C51.3066 25.0693 50.816 25.7733 50.0906 26.328C49.3653 26.872 48.4746 27.144 47.4186 27.144C46.5653 27.144 45.7973 26.9573 45.1146 26.584C44.4426 26.2 43.9146 25.6613 43.5306 24.968C43.1573 24.2747 42.9706 23.4747 42.9706 22.568C42.9706 21.6507 43.1573 20.8453 43.5306 20.152C43.904 19.4587 44.4266 18.9253 45.0986 18.552C45.7706 18.1787 46.544 17.992 47.4186 17.992C48.2613 17.992 49.0133 18.1733 49.6746 18.536C50.3466 18.8987 50.864 19.416 51.2266 20.088C51.6 20.7493 51.7866 21.512 51.7866 22.376ZM49.4666 21.736C49.456 21.16 49.248 20.7013 48.8426 20.36C48.4373 20.008 47.9413 19.832 47.3546 19.832C46.8 19.832 46.3306 20.0027 45.9466 20.344C45.5733 20.6747 45.344 21.1387 45.2586 21.736H49.4666ZM54.5576 17.08C54.1523 17.08 53.8163 16.9573 53.5496 16.712C53.2936 16.456 53.1656 16.1413 53.1656 15.768C53.1656 15.3947 53.2936 15.0853 53.5496 14.84C53.8163 14.584 54.1523 14.456 54.5576 14.456C54.9523 14.456 55.2776 14.584 55.5336 14.84C55.7896 15.0853 55.9176 15.3947 55.9176 15.768C55.9176 16.1413 55.7896 16.456 55.5336 16.712C55.2776 16.9573 54.9523 17.08 54.5576 17.08ZM55.6616 28.456C55.6616 29.4373 55.4163 30.1413 54.9256 30.568C54.4456 31.0053 53.7523 31.224 52.8456 31.224H51.8536V29.32H52.4936C52.835 29.32 53.075 29.2507 53.2136 29.112C53.3523 28.984 53.4216 28.7707 53.4216 28.472V18.136H55.6616V28.456ZM66.1148 22.376C66.1148 22.696 66.0934 22.984 66.0508 23.24H59.5708C59.6241 23.88 59.8481 24.3813 60.2428 24.744C60.6374 25.1067 61.1228 25.288 61.6988 25.288C62.5308 25.288 63.1228 24.9307 63.4748 24.216H65.8908C65.6348 25.0693 65.1441 25.7733 64.4188 26.328C63.6934 26.872 62.8028 27.144 61.7468 27.144C60.8934 27.144 60.1254 26.9573 59.4428 26.584C58.7708 26.2 58.2428 25.6613 57.8588 24.968C57.4854 24.2747 57.2988 23.4747 57.2988 22.568C57.2988 21.6507 57.4854 20.8453 57.8588 20.152C58.2321 19.4587 58.7548 18.9253 59.4268 18.552C60.0988 18.1787 60.8721 17.992 61.7468 17.992C62.5894 17.992 63.3414 18.1733 64.0028 18.536C64.6748 18.8987 65.1921 19.416 65.5548 20.088C65.9281 20.7493 66.1148 21.512 66.1148 22.376ZM63.7948 21.736C63.7841 21.16 63.5761 20.7013 63.1708 20.36C62.7654 20.008 62.2694 19.832 61.6828 19.832C61.1281 19.832 60.6588 20.0027 60.2748 20.344C59.9014 20.6747 59.6721 21.1387 59.5868 21.736H63.7948ZM67.1738 22.568C67.1738 21.6507 67.3604 20.8507 67.7338 20.168C68.1071 19.4747 68.6244 18.9413 69.2858 18.568C69.9471 18.184 70.7044 17.992 71.5578 17.992C72.6564 17.992 73.5631 18.2693 74.2778 18.824C75.0031 19.368 75.4884 20.136 75.7338 21.128H73.3178C73.1898 20.744 72.9711 20.4453 72.6618 20.232C72.3631 20.008 71.9898 19.896 71.5418 19.896C70.9018 19.896 70.3951 20.1307 70.0218 20.6C69.6484 21.0587 69.4618 21.7147 69.4618 22.568C69.4618 23.4107 69.6484 24.0667 70.0218 24.536C70.3951 24.9947 70.9018 25.224 71.5418 25.224C72.4484 25.224 73.0404 24.8187 73.3178 24.008H75.7338C75.4884 24.968 75.0031 25.7307 74.2778 26.296C73.5524 26.8613 72.6458 27.144 71.5578 27.144C70.7044 27.144 69.9471 26.9573 69.2858 26.584C68.6244 26.2 68.1071 25.6667 67.7338 24.984C67.3604 24.2907 67.1738 23.4853 67.1738 22.568ZM79.9828 19.976V24.264C79.9828 24.5627 80.0521 24.7813 80.1908 24.92C80.3401 25.048 80.5854 25.112 80.9268 25.112H81.9668V27H80.5588C78.6708 27 77.7268 26.0827 77.7268 24.248V19.976H76.6708V18.136H77.7268V15.944H79.9828V18.136H81.9668V19.976H79.9828Z"
+                                          fill="white" />
+                                          <defs>
+                                            <clipPath id="clip0_3068_27347">
+                                              <rect width="18" height="18" fill="white" transform="translate(9.83325 12)" />
+                                            </clipPath>
+                                          </defs>
+                                        </svg>
+                                        <span>Rejected</span>
+                                      </button>
+                                      <button class="btn custom-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                          <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                          </g>
+                                        </svg>
+                                        <svg width="93" height="42" viewBox="0 0 93 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path
+                                            d="M0 21C0 16.3511 0 14.0266 0.4795 12.1123C1.91399 6.38552 6.38552 1.91399 12.1123 0.4795C14.0266 0 16.3511 0 21 0H71.6667C76.3156 0 78.6401 0 80.5543 0.4795C86.2811 1.91399 90.7527 6.38552 92.1872 12.1123C92.6667 14.0266 92.6667 16.3511 92.6667 21C92.6667 25.6489 92.6667 27.9734 92.1872 29.8877C90.7527 35.6145 86.2811 40.086 80.5543 41.5205C78.6401 42 76.3156 42 71.6667 42H21C16.3511 42 14.0266 42 12.1123 41.5205C6.38552 40.086 1.91399 35.6145 0.4795 29.8877C0 27.9734 0 25.6489 0 21Z"
+                                            fill="#377AFD" />
+                                            <g clip-path="url(#clip0_3068_27352)">
+                                              <path
+                                                d="M18.356 19.5227C18.5757 19.3031 18.5757 18.9469 18.356 18.7273C18.1363 18.5076 17.7802 18.5076 17.5605 18.7273L14.2083 22.0795L13.106 20.9773C12.8863 20.7576 12.5302 20.7576 12.3105 20.9773C12.0908 21.1969 12.0908 21.5531 12.3105 21.7727L13.8105 23.2727C14.0302 23.4924 14.3863 23.4924 14.606 23.2727L18.356 19.5227Z"
+                                                fill="#E0EBFF" />
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                  d="M15.3333 12.9375C10.8805 12.9375 7.27075 16.5472 7.27075 21C7.27075 25.4528 10.8805 29.0625 15.3333 29.0625C19.786 29.0625 23.3958 25.4528 23.3958 21C23.3958 16.5472 19.786 12.9375 15.3333 12.9375ZM8.39575 21C8.39575 17.1685 11.5018 14.0625 15.3333 14.0625C19.1647 14.0625 22.2708 17.1685 22.2708 21C22.2708 24.8315 19.1647 27.9375 15.3333 27.9375C11.5018 27.9375 8.39575 24.8315 8.39575 21Z"
+                                                  fill="#E0EBFF" />
+                                                </g>
+                                                <path
+                                                  d="M36.4728 24.872H32.0248L31.2888 27H28.9368L32.9528 15.816H35.5608L39.5768 27H37.2088L36.4728 24.872ZM35.8648 23.08L34.2488 18.408L32.6328 23.08H35.8648ZM40.5019 22.568C40.5019 21.6507 40.6885 20.8507 41.0619 20.168C41.4352 19.4747 41.9525 18.9413 42.6139 18.568C43.2752 18.184 44.0325 17.992 44.8859 17.992C45.9845 17.992 46.8912 18.2693 47.6059 18.824C48.3312 19.368 48.8165 20.136 49.0619 21.128H46.6459C46.5179 20.744 46.2992 20.4453 45.9899 20.232C45.6912 20.008 45.3179 19.896 44.8699 19.896C44.2299 19.896 43.7232 20.1307 43.3499 20.6C42.9765 21.0587 42.7899 21.7147 42.7899 22.568C42.7899 23.4107 42.9765 24.0667 43.3499 24.536C43.7232 24.9947 44.2299 25.224 44.8699 25.224C45.7765 25.224 46.3685 24.8187 46.6459 24.008H49.0619C48.8165 24.968 48.3312 25.7307 47.6059 26.296C46.8805 26.8613 45.9739 27.144 44.8859 27.144C44.0325 27.144 43.2752 26.9573 42.6139 26.584C41.9525 26.2 41.4352 25.6667 41.0619 24.984C40.6885 24.2907 40.5019 23.4853 40.5019 22.568ZM50.1269 22.568C50.1269 21.6507 50.3135 20.8507 50.6869 20.168C51.0602 19.4747 51.5775 18.9413 52.2389 18.568C52.9002 18.184 53.6575 17.992 54.5109 17.992C55.6095 17.992 56.5162 18.2693 57.2309 18.824C57.9562 19.368 58.4415 20.136 58.6869 21.128H56.2709C56.1429 20.744 55.9242 20.4453 55.6149 20.232C55.3162 20.008 54.9429 19.896 54.4949 19.896C53.8549 19.896 53.3482 20.1307 52.9749 20.6C52.6015 21.0587 52.4149 21.7147 52.4149 22.568C52.4149 23.4107 52.6015 24.0667 52.9749 24.536C53.3482 24.9947 53.8549 25.224 54.4949 25.224C55.4015 25.224 55.9935 24.8187 56.2709 24.008H58.6869C58.4415 24.968 57.9562 25.7307 57.2309 26.296C56.5055 26.8613 55.5989 27.144 54.5109 27.144C53.6575 27.144 52.9002 26.9573 52.2389 26.584C51.5775 26.2 51.0602 25.6667 50.6869 24.984C50.3135 24.2907 50.1269 23.4853 50.1269 22.568ZM68.5679 22.376C68.5679 22.696 68.5465 22.984 68.5039 23.24H62.0239C62.0772 23.88 62.3012 24.3813 62.6959 24.744C63.0905 25.1067 63.5759 25.288 64.1519 25.288C64.9839 25.288 65.5759 24.9307 65.9279 24.216H68.3439C68.0879 25.0693 67.5972 25.7733 66.8719 26.328C66.1465 26.872 65.2559 27.144 64.1999 27.144C63.3465 27.144 62.5785 26.9573 61.8959 26.584C61.2239 26.2 60.6959 25.6613 60.3119 24.968C59.9385 24.2747 59.7519 23.4747 59.7519 22.568C59.7519 21.6507 59.9385 20.8453 60.3119 20.152C60.6852 19.4587 61.2079 18.9253 61.8799 18.552C62.5519 18.1787 63.3252 17.992 64.1999 17.992C65.0425 17.992 65.7945 18.1733 66.4559 18.536C67.1279 18.8987 67.6452 19.416 68.0079 20.088C68.3812 20.7493 68.5679 21.512 68.5679 22.376ZM66.2479 21.736C66.2372 21.16 66.0292 20.7013 65.6239 20.36C65.2185 20.008 64.7225 19.832 64.1359 19.832C63.5812 19.832 63.1119 20.0027 62.7279 20.344C62.3545 20.6747 62.1252 21.1387 62.0399 21.736H66.2479ZM72.4429 19.416C72.7309 19.0107 73.1255 18.6747 73.6269 18.408C74.1389 18.1307 74.7202 17.992 75.3709 17.992C76.1282 17.992 76.8109 18.1787 77.4189 18.552C78.0375 18.9253 78.5229 19.4587 78.8749 20.152C79.2375 20.8347 79.4189 21.6293 79.4189 22.536C79.4189 23.4427 79.2375 24.248 78.8749 24.952C78.5229 25.6453 78.0375 26.184 77.4189 26.568C76.8109 26.952 76.1282 27.144 75.3709 27.144C74.7202 27.144 74.1442 27.0107 73.6429 26.744C73.1522 26.4773 72.7522 26.1413 72.4429 25.736V31.224H70.2029V18.136H72.4429V19.416ZM77.1309 22.536C77.1309 22.0027 77.0189 21.544 76.7949 21.16C76.5815 20.7653 76.2935 20.4667 75.9309 20.264C75.5789 20.0613 75.1949 19.96 74.7789 19.96C74.3735 19.96 73.9895 20.0667 73.6269 20.28C73.2749 20.4827 72.9869 20.7813 72.7629 21.176C72.5495 21.5707 72.4429 22.0347 72.4429 22.568C72.4429 23.1013 72.5495 23.5653 72.7629 23.96C72.9869 24.3547 73.2749 24.6587 73.6269 24.872C73.9895 25.0747 74.3735 25.176 74.7789 25.176C75.1949 25.176 75.5789 25.0693 75.9309 24.856C76.2935 24.6427 76.5815 24.3387 76.7949 23.944C77.0189 23.5493 77.1309 23.08 77.1309 22.536ZM83.6546 19.976V24.264C83.6546 24.5627 83.724 24.7813 83.8626 24.92C84.012 25.048 84.2573 25.112 84.5986 25.112H85.6386V27H84.2306C82.3426 27 81.3986 26.0827 81.3986 24.248V19.976H80.3426V18.136H81.3986V15.944H83.6546V18.136H85.6386V19.976H83.6546Z"
+                                                  fill="white" />
+                                                  <defs>
+                                                    <clipPath id="clip0_3068_27352">
+                                                      <rect width="18" height="18" fill="white" transform="translate(6.33325 12)" />
+                                                    </clipPath>
+                                                  </defs>
+                                                </svg>
+                                                <span>Accepted</span>
+                                              </button>
+                                            </div>
+                                            } -->
+                                          </div>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                } @else {
+                                  <div class="content-box d-flex flex-column gap-3 w-100">
+                                    <h2>Steps</h2>
+                                    <span class="text-muted">Approval workflow not available.</span>
+                                  </div>
+                                }
+                              </div>
+                            }
 
-  } @else {
-  <div class="info-placeholder"
-    style="height: 140px; display: grid; place-items: center; background: #f9f9f9; border-radius: 8px;">
-    <span style="color: #888;">Mission location not specified.</span>
-  </div>
+                            @if(leaveRequest1){
+                              @if( leaveRequest1.work_type === 'mission'){
 
-  }
+                                @if (leaveRequest1.mission.latitude && leaveRequest1.mission.longitude) {
 
-  }
-  }
-</div>
+                                  <div class="position-relative" style="border-radius: 8px; overflow: hidden; height: 140px; width: 100%;">
+
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;">
+                                    </div>
+
+                                    <google-map height="100%" width="100%"
+                                      [center]="{ lat: leaveRequest1.mission.latitude, lng: leaveRequest1.mission.longitude }" [zoom]="15"
+                                      [options]="{ disableDefaultUI: true, draggable: false, scrollwheel: false, zoomControl: false }">
+
+                                      <map-marker [position]="{ lat: leaveRequest1.mission.latitude, lng: leaveRequest1.mission.longitude }">
+                                      </map-marker>
+
+                                    </google-map>
+                                  </div>
+
+                                } @else {
+                                  <div class="info-placeholder"
+                                    style="height: 140px; display: grid; place-items: center; background: #f9f9f9; border-radius: 8px;">
+                                    <span style="color: #888;">Mission location not specified.</span>
+                                  </div>
+
+                                }
+
+                              }
+                            }
+                          </div>

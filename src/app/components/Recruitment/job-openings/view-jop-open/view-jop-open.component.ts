@@ -11,7 +11,8 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
   id: number; // table row id display (application or applicant code)
-  applicantId: number; // actual applicant id to be used in routing/API
+  applicantId: number; // actual applicant id
+  applicationId: number; // application id to be used in routing/API
   name: string;
   phoneNumber: string;
   email: string;
@@ -144,13 +145,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         if (response.data) {
           // Transform API response to match table format
           this.applicant = response.data.list_items.map((item: any) => ({
-            id: item.application?.id ?? item.id ?? 0,
-            applicantId: item.applicant?.id ?? 0,
-            name: item.applicant?.name || 'N/A',
-            phoneNumber: item.applicant?.phone || 'N/A',
-            email: item.applicant?.email || 'N/A',
-            status: item.application?.status || 'N/A',
-            statusAt: item.application?.created_at || 'N/A'
+            id: item.application_id ?? item.id ?? 0, // For display in table
+            applicantId: item.id ?? 0, // Actual applicant id
+            applicationId: item.application_id ?? 0, // Application id for navigation
+            name: item.name || 'N/A',
+            phoneNumber: item.phone ? item.phone.toString() : 'N/A',
+            email: item.email || 'N/A',
+            status: item.status || 'N/A',
+            statusAt: item.created_at || item.updated_at || 'N/A'
           }));
           this.totalItems = response.data.total_items || 0;
         }

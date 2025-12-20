@@ -83,16 +83,19 @@ export class RequestsTabComponent implements OnInit, OnChanges {
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'badge-warning';
+        return 'badge-newjoiner'; // Blue badge for pending (matches system pattern)
       case 'approved':
       case 'active':
-        return 'badge-success';
+      case 'accepted':
+        return 'badge-success'; // Green badge for approved/accepted
       case 'rejected':
-      case 'disabled':
-        return 'badge-danger';
+      case 'cancelled':
+        return 'badge-danger'; // Red badge for rejected/cancelled
       case 'expired':
+        return 'badge-gray'; // Gray badge for expired (using system gray colors)
+      case 'disabled':
       case 'inactive':
-        return 'badge-gray';
+        return 'badge-gray'; // Gray badge for inactive/disabled
       default:
         return 'badge-gray';
     }
@@ -118,9 +121,9 @@ export class RequestsTabComponent implements OnInit, OnChanges {
 
   getCurrentStep(request: ApprovalRequestItem): string {
     // Use API field `current_step` when available, otherwise fallback to status
-  const currentStep = (request as any).current_step;
-  if (currentStep) return currentStep;
-  const name = request.status?.name || '';
+    const currentStep = (request as any).current_step;
+    if (currentStep) return currentStep;
+    const name = request.status?.name || '';
     if (name.toLowerCase() === 'pending') return 'Pending Approval';
     if (name.toLowerCase() === 'approved' || name.toLowerCase() === 'accepted') return 'Approved';
     if (name.toLowerCase() === 'rejected') return 'Rejected';

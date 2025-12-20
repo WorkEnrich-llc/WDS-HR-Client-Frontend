@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { OnboardingService } from 'app/core/services/personnel/onboarding/onboarding.service';
 interface CheckItem {
   name: string;
@@ -12,7 +13,7 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-edit-onboarding',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule],
+  imports: [PageHeaderComponent, ReactiveFormsModule, PopupComponent],
   templateUrl: './edit-onboarding.component.html',
   styleUrl: './edit-onboarding.component.css'
 })
@@ -83,12 +84,19 @@ export class EditOnboardingComponent {
 
   // delete selected items
   deleteSelected() {
+    if (!this.hasSelectedChecks) return;
+    this.openDeleteModal();
+  }
+
+  confirmDelete() {
     this.checks = this.checks.filter(c => !c.completed);
     this.printData();
+    this.closeDeleteModal();
   }
 
   // Edit selected items
   startEditSelected() {
+    if (!this.hasSelectedChecks) return;
     this.checks.forEach(c => {
       if (c.completed) c.editing = true;
     });
@@ -185,5 +193,20 @@ export class EditOnboardingComponent {
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/dashboard']);
+  }
+
+  // Delete confirmation modal
+  isDeleteModalOpen = false;
+
+  openDeleteModal() {
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+  }
+
+  get selectedChecksCount(): number {
+    return this.checks.filter(c => c.completed).length;
   }
 }

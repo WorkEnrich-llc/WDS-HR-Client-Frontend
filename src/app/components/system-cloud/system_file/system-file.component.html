@@ -6,34 +6,34 @@
 
 <div class="content-hug">
   <!-- <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a type="button" routerLink="/cloud/cloud-system">Drive</a></li>
-      <li class="breadcrumb-item active"><a href="#">New Hires</a></li>
-    </ol>
-  </nav> -->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a type="button" routerLink="/cloud/cloud-system">Drive</a></li>
+    <li class="breadcrumb-item active"><a href="#">New Hires</a></li>
+  </ol>
+</nav> -->
 
-  <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      @for (crumb of breadcrumb; track $index; let i = $index) {
+<nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    @for (crumb of breadcrumb; track $index; let i = $index) {
       <li class="breadcrumb-item" [class.active]="i === breadcrumb.length - 1" style="cursor: pointer"
         (click)="goToFolder(crumb)">
         <a>{{ crumb.name }}</a>
       </li>
-      }
-    </ol>
-  </nav>
+    }
+  </ol>
+</nav>
 
 
-  <div class="d-flex align-items-center justify-content-between mt-3">
+<div class="d-flex align-items-center justify-content-between mt-3">
 
-    <div class="d-flex flex-column w-25">
-      <div class="form-outline  position-relative custom-date-wrapper">
-        <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control"
-          placeholder="File Name" readonly />
+  <div class="d-flex flex-column w-25">
+    <div class="form-outline  position-relative custom-date-wrapper">
+      <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control"
+        placeholder="File Name" readonly />
       </div>
 
       @if(errMsg){
-      <p class="m-0 mt-2 error-msg">{{errMsg}}</p>
+        <p class="m-0 mt-2 error-msg">{{errMsg}}</p>
       }
 
 
@@ -42,350 +42,382 @@
 
     <div class="d-flex align-items-end gap-3">
       @if (syncStatus === 'synced' && !isImported && !loadData && !upLoading) {
-      <span class="badge-success">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-        <span>Synced</span>
-      </span>
-      }
-      @if (syncStatus === 'syncing' && !isImported && !loadData && !upLoading) {
-      <span class="badge-newjoiner">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M12.079 2.25c-4.794 0-8.734 3.663-9.118 8.333H2a.75.75 0 0 0-.528 1.283l1.68 1.666a.75.75 0 0 0 1.056 0l1.68-1.666a.75.75 0 0 0-.528-1.283h-.893c.38-3.831 3.638-6.833 7.612-6.833a7.66 7.66 0 0 1 6.537 3.643a.75.75 0 1 0 1.277-.786A9.16 9.16 0 0 0 12.08 2.25m8.761 8.217a.75.75 0 0 0-1.054 0L18.1 12.133a.75.75 0 0 0 .527 1.284h.899c-.382 3.83-3.651 6.833-7.644 6.833a7.7 7.7 0 0 1-6.565-3.644a.75.75 0 1 0-1.277.788a9.2 9.2 0 0 0 7.842 4.356c4.808 0 8.765-3.66 9.15-8.333H22a.75.75 0 0 0 .527-1.284z" />
-        </svg>
-        <span>Syncing</span>
-      </span>
-      }
-
-
-      @if(isImported && !loadData && !upLoading){
-      <div class="switchs d-flex">
-        <a type="button" class="dispaly-switch text-danger" [class.active]="activeTab === 'failed'"
-          (click)="switchTab('failed')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none">
-              <path stroke="currentColor" stroke-width="1.5"
-                d="M5.312 10.762C8.23 5.587 9.689 3 12 3s3.77 2.587 6.688 7.762l.364.644c2.425 4.3 3.638 6.45 2.542 8.022S17.786 21 12.364 21h-.728c-5.422 0-8.134 0-9.23-1.572s.117-3.722 2.542-8.022z" />
-              <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 8v5" />
-              <circle cx="12" cy="16" r="1" fill="currentColor" />
-            </g>
-          </svg>
-          <div class="d-flex flex-column">
-            <strong class="m-0">{{ failedRows.length || 0 }}</strong>
-            <small>Failed</small>
-          </div>
-        </a>
-        <a type="button" class="dispaly-switch text-success active" [class.active]="activeTab === 'imported'"
-          (click)="switchTab('imported')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentcolor" stroke-width="1.5">
+        <span class="badge-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
               <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
-          <div class="d-flex flex-column">
-            <strong class="m-0">{{ importedRows.length || 0 }}</strong>
-            <small>Imported</small>
-          </div>
-        </a>
-      </div>
+          <span>Synced</span>
+        </span>
       }
-
-      @if (!isImported && !loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalAddtosystem()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-            <path d="M4 12a8 8 0 1 0 16 0" />
-            <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
-          </g>
-        </svg>
-        <span>Import to System</span>
-      </button>
-
-      }
-
-      @if (isImported && !loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalMissing()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
-        </svg>
-        <span>Try again</span>
-      </button>
-      }
-
-      @if (upLoading && uploadType !== 'Stopped' && uploadType !== 'Failure') {
-      <div class="progress relative overflow-hidden"
-        style="height: 25px; width: 250px; border-radius: 8px; background-color: #e0e0e0;">
-
-        <!-- Skeleton effect while empty -->
-        <div *ngIf="percentage === 0" class="skeleton-loading rounded-md w-full h-full absolute top-0 left-0">
-        </div>
-
-        <!-- Actual progress bar -->
-        <div *ngIf="percentage > 0"
-          class="progress-bar progress-bar-striped progress-bar-animated bg-primary transition-all duration-300 text-center text-white"
-          role="progressbar" [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0"
-          aria-valuemax="100">
-          {{ percentage }}%
-        </div>
-      </div>
-
-      @if (uploadType) {
-      <span class="badge-success" [ngClass]="getUploadBadge(uploadType).class">
-
-        @if (uploadType === 'Checking') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
-        </svg>
+      @if (syncStatus === 'syncing' && !isImported && !loadData && !upLoading) {
+        <span class="badge-newjoiner">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M12.079 2.25c-4.794 0-8.734 3.663-9.118 8.333H2a.75.75 0 0 0-.528 1.283l1.68 1.666a.75.75 0 0 0 1.056 0l1.68-1.666a.75.75 0 0 0-.528-1.283h-.893c.38-3.831 3.638-6.833 7.612-6.833a7.66 7.66 0 0 1 6.537 3.643a.75.75 0 1 0 1.277-.786A9.16 9.16 0 0 0 12.08 2.25m8.761 8.217a.75.75 0 0 0-1.054 0L18.1 12.133a.75.75 0 0 0 .527 1.284h.899c-.382 3.83-3.651 6.833-7.644 6.833a7.7 7.7 0 0 1-6.565-3.644a.75.75 0 1 0-1.277.788a9.2 9.2 0 0 0 7.842 4.356c4.808 0 8.765-3.66 9.15-8.333H22a.75.75 0 0 0 .527-1.284z" />
+            </svg>
+            <span>Syncing</span>
+          </span>
         }
 
-        @if (uploadType === 'Creating') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path
-              d="m18.18 8.04l.463-.464a1.966 1.966 0 1 1 2.781 2.78l-.463.464M18.18 8.04s.058.984.927 1.853s1.854.927 1.854.927M18.18 8.04l-4.26 4.26c-.29.288-.434.433-.558.592q-.22.282-.374.606c-.087.182-.151.375-.28.762l-.413 1.24l-.134.401m8.8-5.081l-4.26 4.26c-.29.29-.434.434-.593.558q-.282.22-.606.374c-.182.087-.375.151-.762.28l-1.24.413l-.401.134m0 0l-.401.134a.53.53 0 0 1-.67-.67l.133-.402m.938.938l-.938-.938" />
-            <path stroke-linecap="round"
-              d="M8 13h2.5M8 9h6.5M8 17h1.5M19.828 3.172C18.657 2 16.771 2 13 2h-2C7.229 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2c3.771 0 5.657 0 6.828-1.172c.944-.943 1.127-2.348 1.163-4.828" />
-          </g>
-        </svg>
-        }
 
-        @if (uploadType === 'Sending emails') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round"
-              d="M18 16.92c1.14-.099 1.922-.323 2.538-.828q.304-.25.554-.554C22 14.43 22 12.788 22 9.5c0-3.287 0-4.931-.908-6.038a4 4 0 0 0-.554-.554C19.43 2 17.788 2 14.5 2h-5c-3.287 0-4.931 0-6.038.908a4 4 0 0 0-.554.554C2 4.57 2 6.212 2 9.5c0 3.287 0 4.931.908 6.038a4 4 0 0 0 .554.554c.616.505 1.398.73 2.538.829M20.5 15.5l-6.5-5M3.5 3L14 10.5m6.5-7l-6.5 7" />
-            <path
-              d="m15.267 19.2l-1.335-2.67C13.089 14.843 12.668 14 12 14s-1.089.843-1.932 2.53L8.733 19.2c-.512 1.024-.768 1.537-.73 1.859c.057.465.407.842.868.93c.318.062.847-.157 1.905-.595c.39-.162.587-.243.787-.284c.288-.06.586-.06.874 0c.2.041.396.122.787.284c1.058.438 1.586.657 1.905.596c.46-.09.81-.465.867-.931c.04-.323-.217-.835-.729-1.858Z" />
-          </g>
-        </svg>
-        }
+        @if(isImported && !loadData && !upLoading){
+          <div class="switchs d-flex">
+            <a type="button" class="dispaly-switch text-danger" [class.active]="activeTab === 'failed'"
+              (click)="switchTab('failed')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none">
+                  <path stroke="currentColor" stroke-width="1.5"
+                    d="M5.312 10.762C8.23 5.587 9.689 3 12 3s3.77 2.587 6.688 7.762l.364.644c2.425 4.3 3.638 6.45 2.542 8.022S17.786 21 12.364 21h-.728c-5.422 0-8.134 0-9.23-1.572s.117-3.722 2.542-8.022z" />
+                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 8v5" />
+                    <circle cx="12" cy="16" r="1" fill="currentColor" />
+                  </g>
+                </svg>
+                <div class="d-flex flex-column">
+                  <strong class="m-0">{{ failedRows.length || 0 }}</strong>
+                  <small>Failed</small>
+                </div>
+              </a>
+              <a type="button" class="dispaly-switch text-success active" [class.active]="activeTab === 'imported'"
+                (click)="switchTab('imported')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentcolor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                  </g>
+                </svg>
+                <div class="d-flex flex-column">
+                  <strong class="m-0">{{ importedRows.length || 0 }}</strong>
+                  <small>Imported</small>
+                </div>
+              </a>
+            </div>
+          }
 
-        @if (uploadType === 'Completed') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-        }
+          @if (!loadData && !upLoading) {
+            <button class="btn btn-lg btn-outline-secondary" (click)="updateStructure()" [disabled]="isUpdatingStructure">
+              @if (!isUpdatingStructure) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                    <path d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
+                  </g>
+                </svg>
+                <span>Update Structure</span>
+              } @else {
+                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                <span>Updating...</span>
+              }
+            </button>
 
-        @if (uploadType === 'Stopped') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path
-              d="M8 12c0-1.886 0-2.828.586-3.414S10.114 8 12 8s2.828 0 3.414.586S16 10.114 16 12s0 2.828-.586 3.414S13.886 16 12 16s-2.828 0-3.414-.586S8 13.886 8 12Z" />
-          </g>
-        </svg>
-        }
+            <button class="btn btn-lg btn-outline-primary" (click)="openModalAddtosystem()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                  <path d="M4 12a8 8 0 1 0 16 0" />
+                  <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
+                </g>
+              </svg>
+              <span>Import to System</span>
+            </button>
 
-        @if (uploadType === 'Cancelled') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-          </g>
-        </svg>
-        }
+          }
 
-        @if (uploadType === 'Failure') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-            <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 7v6" />
-            <circle cx="12" cy="16" r="1" fill="currentColor" />
-          </g>
-        </svg>
-        }
+          @if (isImported && !loadData && !upLoading) {
+            <button class="btn btn-lg btn-outline-primary" (click)="openModalMissing()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
+                </svg>
+                <span>Try again</span>
+              </button>
+            }
 
-        @if (uploadType === 'Pending') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path
-              d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-            <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-          </g>
-        </svg>
-        }
-        <span>{{ getUploadBadge(uploadType).label }}</span>
-      </span>
-      }
+            @if (upLoading && uploadType !== 'Stopped' && uploadType !== 'Failure') {
+              <div class="progress relative overflow-hidden"
+                style="height: 25px; width: 250px; border-radius: 8px; background-color: #e0e0e0;">
 
-      <!-- <button class="btn btn-lg btn-outline-danger" (click)="cancelUpload()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-          viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-          </g>
-        </svg>
-        <span>Cancel Save</span>
-      </button> -->
-      }
+                <!-- Skeleton effect while empty -->
+                @if (percentage === 0) {
+                  <div class="skeleton-loading rounded-md w-full h-full absolute top-0 left-0">
+                  </div>
+                }
 
+                <!-- Actual progress bar -->
+                @if (percentage > 0) {
+                  <div
+                    class="progress-bar progress-bar-striped progress-bar-animated bg-primary transition-all duration-300 text-center text-white"
+                    role="progressbar" [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0"
+                    aria-valuemax="100">
+                    {{ percentage }}%
+                  </div>
+                }
+              </div>
 
+              @if (uploadType) {
+                <span class="badge-success" [ngClass]="getUploadBadge(uploadType).class">
 
+                  @if (uploadType === 'Checking') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="currentColor"
+                        d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
+                      </svg>
+                    }
 
-    </div>
+                    @if (uploadType === 'Creating') {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                          <path
+                            d="m18.18 8.04l.463-.464a1.966 1.966 0 1 1 2.781 2.78l-.463.464M18.18 8.04s.058.984.927 1.853s1.854.927 1.854.927M18.18 8.04l-4.26 4.26c-.29.288-.434.433-.558.592q-.22.282-.374.606c-.087.182-.151.375-.28.762l-.413 1.24l-.134.401m8.8-5.081l-4.26 4.26c-.29.29-.434.434-.593.558q-.282.22-.606.374c-.182.087-.375.151-.762.28l-1.24.413l-.401.134m0 0l-.401.134a.53.53 0 0 1-.67-.67l.133-.402m.938.938l-.938-.938" />
+                            <path stroke-linecap="round"
+                              d="M8 13h2.5M8 9h6.5M8 17h1.5M19.828 3.172C18.657 2 16.771 2 13 2h-2C7.229 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2c3.771 0 5.657 0 6.828-1.172c.944-.943 1.127-2.348 1.163-4.828" />
+                            </g>
+                          </svg>
+                        }
 
-  </div>
+                        @if (uploadType === 'Sending emails') {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <path stroke-linecap="round"
+                                d="M18 16.92c1.14-.099 1.922-.323 2.538-.828q.304-.25.554-.554C22 14.43 22 12.788 22 9.5c0-3.287 0-4.931-.908-6.038a4 4 0 0 0-.554-.554C19.43 2 17.788 2 14.5 2h-5c-3.287 0-4.931 0-6.038.908a4 4 0 0 0-.554.554C2 4.57 2 6.212 2 9.5c0 3.287 0 4.931.908 6.038a4 4 0 0 0 .554.554c.616.505 1.398.73 2.538.829M20.5 15.5l-6.5-5M3.5 3L14 10.5m6.5-7l-6.5 7" />
+                                <path
+                                  d="m15.267 19.2l-1.335-2.67C13.089 14.843 12.668 14 12 14s-1.089.843-1.932 2.53L8.733 19.2c-.512 1.024-.768 1.537-.73 1.859c.057.465.407.842.868.93c.318.062.847-.157 1.905-.595c.39-.162.587-.243.787-.284c.288-.06.586-.06.874 0c.2.041.396.122.787.284c1.058.438 1.586.657 1.905.596c.46-.09.81-.465.867-.931c.04-.323-.217-.835-.729-1.858Z" />
+                                </g>
+                              </svg>
+                            }
 
-</div>
+                            @if (uploadType === 'Completed') {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                  <circle cx="12" cy="12" r="10" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                              </svg>
+                            }
 
+                            @if (uploadType === 'Stopped') {
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                  <circle cx="12" cy="12" r="10" />
+                                  <path
+                                    d="M8 12c0-1.886 0-2.828.586-3.414S10.114 8 12 8s2.828 0 3.414.586S16 10.114 16 12s0 2.828-.586 3.414S13.886 16 12 16s-2.828 0-3.414-.586S8 13.886 8 12Z" />
+                                  </g>
+                                </svg>
+                              }
 
+                              @if (uploadType === 'Cancelled') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                                  </g>
+                                </svg>
+                              }
 
-<!-- sheet -->
-@if (!isAllLoaded) {
-<div class="d-flex justify-content-center align-items-center" style="min-height: 150px;">
-  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
-</div>
-} 
-@if (isAllLoaded && !isImported) {
-<app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="bodyRows" [fileEditable]="true" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
+                              @if (uploadType === 'Failure') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 7v6" />
+                                    <circle cx="12" cy="16" r="1" fill="currentColor" />
+                                  </g>
+                                </svg>
+                              }
 
-@if (isAllLoaded && isImported && activeTab === 'imported') {
-<app-smart-grid-sheet #smartGrid [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
-@if (isAllLoaded && isImported && activeTab === 'failed') {
-<app-smart-grid-sheet #failedGrid [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows"
-  [fileEditable]="true" (inputChanged)="onCellInput()"
-  (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
+                              @if (uploadType === 'Pending') {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path
+                                      d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+                                      <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+                                    </g>
+                                  </svg>
+                                }
+                                <span>{{ getUploadBadge(uploadType).label }}</span>
+                              </span>
+                            }
 
-
-
-<!-- save to system model -->
-<app-popup [title]="'Are you sure to Import To System?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
-  [isOpen]="addTosystemPOP" (close)="closeModalAddtosystem()">
-  @if (errMsg) {
-  <div class="alert alert-danger mb-0 mt-3" role="alert">
-    {{errMsg}}
-  </div>
-  }
-  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="addingTosystem()">
-    @if (!isLoading) {
-    <span>Add to System</span>
-    }
-    @if (isLoading) {
-    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-    }
-  </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalAddtosystem()">
-    Cancel
-  </button>
-</app-popup>
-
-<!-- show upload status model -->
-<app-popup [title]="'Save to System'" [isOpen]="showUploadPopup" (close)="cancelUpload()">
-  <div class="progress" style="height: 25px;">
-    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
-      [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
-      {{ percentage }}%
-    </div>
-  </div>
-  <div class="d-flex align-items-center justify-content-center my-2">
-    @if(uploadType ==='Completed'){
-    <span class="badge-success">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
-      <span>Completed</span>
-    </span>
-    }@else {
-    <span class="badge-newjoiner">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <path
-            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-          <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-        </g>
-      </svg>
-      <span>Pending</span>
-    </span>
-    }
-
-
-  </div>
-  <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
-    Cancel Save
-  </button>
-</app-popup>
-
-
-<!-- save to system misssing model -->
-<app-popup [title]="'Are you sure to Import To System Missing Data?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
-  [isOpen]="addMissingPopup" (close)="closeModalMissing()">
-  @if (errMsg) {
-  <div class="alert alert-danger mb-0 mt-3" role="alert">
-    {{errMsg}}
-  </div>
-  }
-  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="updateMissing()">
-    @if (!isLoading) {
-    <span>Add to System</span>
-    }
-    @if (isLoading) {
-    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-    }
-  </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalMissing()">
-    Cancel
-  </button>
-</app-popup>
-<!-- show update missing model -->
-<app-popup [title]="'Save to System Misssing Data'" [isOpen]="showMissingPopup" (close)="cancelUpload()">
-  <div class="progress" style="height: 25px;">
-    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
-      [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
-      {{ percentage }}%
-    </div>
-  </div>
-  <div class="d-flex align-items-center justify-content-center my-2">
-    @if(uploadType ==='Completed'){
-    <span class="badge-success">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
-      <span>Completed</span>
-    </span>
-    }@else {
-    <span class="badge-newjoiner">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <path
-            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
-          <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
-        </g>
-      </svg>
-      <span>Pending</span>
-    </span>
-    }
+                            <!-- <button class="btn btn-lg btn-outline-danger" (click)="cancelUpload()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                              viewBox="0 0 24 24">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+                              </g>
+                            </svg>
+                            <span>Cancel Save</span>
+                          </button> -->
+                        }
 
 
-  </div>
-  <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
-    Cancel Save
-  </button>
-</app-popup>
+
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+
+                  <!-- sheet -->
+                  @if (!isAllLoaded || loadData) {
+                    <div class="skeleton-grid-container">
+                      <!-- Skeleton Table Header -->
+                      <div class="skeleton-table-header">
+                        @for (i of [1,2,3,4,5,6]; track i) {
+                          <div class="skeleton-header-cell skeleton-loading"></div>
+                        }
+                      </div>
+
+                      <!-- Skeleton Table Rows -->
+                      @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+                        <div class="skeleton-table-row">
+                          @for (j of [1,2,3,4,5,6]; track j) {
+                            <div class="skeleton-cell skeleton-loading"></div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (isAllLoaded && !loadData && !isImported) {
+                    <app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
+                      [rowsInput]="bodyRows" [fileEditable]="true" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+                    </app-smart-grid-sheet>
+                  }
+
+                  @if (isAllLoaded && isImported && activeTab === 'imported') {
+                    <app-smart-grid-sheet #smartGrid [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
+                      [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+                    </app-smart-grid-sheet>
+                  }
+                  @if (isAllLoaded && isImported && activeTab === 'failed') {
+                    <app-smart-grid-sheet #failedGrid [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows"
+                      [fileEditable]="true" (inputChanged)="onCellInput()"
+                      (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
+                    </app-smart-grid-sheet>
+                  }
+
+
+
+                  <!-- save to system model -->
+                  <app-popup [title]="'Are you sure to Import To System?'"
+                    [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+                    [isOpen]="addTosystemPOP" (close)="closeModalAddtosystem()">
+                    @if (errMsg) {
+                      <div class="alert alert-danger mb-0 mt-3" role="alert">
+                        {{errMsg}}
+                      </div>
+                    }
+                    <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="addingTosystem()">
+                      @if (!isLoading) {
+                        <span>Add to System</span>
+                      }
+                      @if (isLoading) {
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                      }
+                    </button>
+                    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalAddtosystem()">
+                      Cancel
+                    </button>
+                  </app-popup>
+
+                  <!-- show upload status model -->
+                  <app-popup [title]="'Save to System'" [isOpen]="showUploadPopup" (close)="cancelUpload()">
+                    <div class="progress" style="height: 25px;">
+                      <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+                        [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+                        {{ percentage }}%
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center my-2">
+                      @if(uploadType ==='Completed'){
+                        <span class="badge-success">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <circle cx="12" cy="12" r="10" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                            </g>
+                          </svg>
+                          <span>Completed</span>
+                        </span>
+                        }@else {
+                        <span class="badge-newjoiner">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <path
+                                d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+                                <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+                              </g>
+                            </svg>
+                            <span>Pending</span>
+                          </span>
+                        }
+
+
+                      </div>
+                      <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
+                        Cancel Save
+                      </button>
+                    </app-popup>
+
+
+                    <!-- save to system misssing model -->
+                    <app-popup [title]="'Are you sure to Import To System Missing Data?'"
+                      [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+                      [isOpen]="addMissingPopup" (close)="closeModalMissing()">
+                      @if (errMsg) {
+                        <div class="alert alert-danger mb-0 mt-3" role="alert">
+                          {{errMsg}}
+                        </div>
+                      }
+                      <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="updateMissing()">
+                        @if (!isLoading) {
+                          <span>Add to System</span>
+                        }
+                        @if (isLoading) {
+                          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        }
+                      </button>
+                      <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalMissing()">
+                        Cancel
+                      </button>
+                    </app-popup>
+                    <!-- show update missing model -->
+                    <app-popup [title]="'Save to System Misssing Data'" [isOpen]="showMissingPopup" (close)="cancelUpload()">
+                      <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+                          [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+                          {{ percentage }}%
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center justify-content-center my-2">
+                        @if(uploadType ==='Completed'){
+                          <span class="badge-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                              </g>
+                            </svg>
+                            <span>Completed</span>
+                          </span>
+                          }@else {
+                          <span class="badge-newjoiner">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                  d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+                                  <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
+                                </g>
+                              </svg>
+                              <span>Pending</span>
+                            </span>
+                          }
+
+
+                        </div>
+                        <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
+                          Cancel Save
+                        </button>
+                      </app-popup>

@@ -322,10 +322,28 @@ export class RegisterComponent implements OnDestroy, OnInit {
 
 
 
+  private async initializeSession(): Promise<void> {
+    try {
+      await fetch("/", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Session initialization error:', error);
+    }
+  }
+
   // step 3 form
-  createAccount(): void {
+  async createAccount(): Promise<void> {
     this.isLoading = true;
     this.errMsg = '';
+
+    // Initialize session before account creation
+    await this.initializeSession();
 
     const device_token = localStorage.getItem('device_token');
     const formData = new FormData();

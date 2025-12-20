@@ -14,12 +14,12 @@ import { KeyValue } from '@angular/common';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
 @Component({
-  selector: 'app-create-payroll-component',
+  selector: 'app-manage-payroll-component',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
-  templateUrl: './create-payroll-component.component.html',
-  styleUrl: './create-payroll-component.component.css'
+  templateUrl: './manage-payroll-component.component.html',
+  styleUrl: './manage-payroll-component.component.css'
 })
-export class CreatePayrollComponentComponent implements OnInit {
+export class ManagePayrollComponentComponent implements OnInit {
 
   public createPayrollForm!: FormGroup;
   private fb = inject(FormBuilder);
@@ -34,7 +34,9 @@ export class CreatePayrollComponentComponent implements OnInit {
   componentTypes = COMPONENT_TYPES
   isSubmitting = false;
   isEditMode = false;
+  isLoading = false;
   id?: number;
+  componentName: string = '';
   salaryPortions: any[] = [];
   calculations: Array<KeyValue<number, string>> = calculation;
   createDate: string = '';
@@ -99,21 +101,47 @@ export class CreatePayrollComponentComponent implements OnInit {
     this.isEditMode = !!this.id;
 
     if (this.isEditMode) {
+      this.isLoading = true;
       this.payrollService.getComponentById(this.id).subscribe({
         next: (data) => {
+          const calculationId = data.calculation?.id ?? '';
+          const portionValue = data.salary_portion ?? data.portion?.index ?? '';
+          
+          // Store component name for header display
+          this.componentName = data.name || '';
+          
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,
             component_type: data.component_type.id,
             classification: data.classification.id,
-            portion: data.portion?.index ?? '',
-            calculation: data.calculation?.key ?? '',
+            portion: portionValue,
+            calculation: calculationId,
             show_in_payslip: data.show_in_payslip
           });
+          
+          // After patching, handle the calculation logic for portion field
+          const calcValue = +calculationId;
+          const portionControl = this.createPayrollForm.get('portion');
+          if (calcValue === 1) { // RawValue
+            portionControl?.setValue(0, { emitEvent: false });
+            portionControl?.disable({ emitEvent: false });
+            portionControl?.clearValidators();
+            portionControl?.updateValueAndValidity({ emitEvent: false });
+          } else if (calcValue === 2) { // Days
+            portionControl?.enable({ emitEvent: false });
+            portionControl?.setValidators([Validators.required]);
+            portionControl?.updateValueAndValidity({ emitEvent: false });
+          }
+          
           this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
           this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
+          this.isLoading = false;
         },
-        error: (err) => console.error('Failed to load component', err)
+        error: (err) => {
+          console.error('Failed to load component', err);
+          this.isLoading = false;
+        }
       });
     }
     else {
@@ -163,8 +191,6 @@ export class CreatePayrollComponentComponent implements OnInit {
       this.isSubmitting = false;
     }
   }
-
-
 
 
 

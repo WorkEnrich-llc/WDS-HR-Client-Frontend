@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { ReactiveFormsModule, ControlContainer, FormGroupDirective } from '@angular/forms';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
@@ -6,7 +6,7 @@ import { EditEmployeeSharedService } from '../services/edit-employee-shared.serv
 @Component({
   selector: 'app-edit-insurance-details-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './edit-insurance-details-step.component.html',
   styleUrls: ['./edit-insurance-details-step.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }]

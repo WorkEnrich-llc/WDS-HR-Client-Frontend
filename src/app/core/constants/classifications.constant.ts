@@ -2,6 +2,7 @@ import { Classification } from "@app/enums";
 
 
 export const CLASSIFICATION: Record<Classification, string> = {
+   [Classification.Info]: 'Info',
    [Classification.Earning]: 'Earning',
    [Classification.Deduction]: 'Deduction'
 };

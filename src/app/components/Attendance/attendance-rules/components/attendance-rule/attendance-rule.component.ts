@@ -124,8 +124,35 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
     return penalty ? `${penalty.value} day${penalty.value !== 1 ? 's' : ''}` : '-';
   }
 
-  getPenaltyWithSalaryPortion(penalties: any[], occurrenceIndex: number): { value: string; salaryPortion: any } {
-    const penalty = penalties?.find(p => p.index === occurrenceIndex);
+  getPenaltyWithSalaryPortion(penalties: any[], occurrenceIndex: number, isOccurrenceStructure: boolean = false): { value: string; salaryPortion: any } {
+    if (!penalties || penalties.length === 0) {
+      return { value: '-', salaryPortion: null };
+    }
+
+    // New structure: occurrences with lists (for lateness and early_leave)
+    if (isOccurrenceStructure) {
+      const occurrence = penalties.find((p: any) => p.index === occurrenceIndex);
+      if (!occurrence || !occurrence.list || occurrence.list.length === 0) {
+        return { value: '-', salaryPortion: null };
+      }
+
+      // Get the first rule from the list for display
+      const firstRule = occurrence.list[0];
+      const value = `${firstRule.value} day${firstRule.value !== 1 ? 's' : ''}`;
+      const salaryPortionIndex = firstRule.salary_portion_index !== null && firstRule.salary_portion_index !== undefined
+        ? Number(firstRule.salary_portion_index)
+        : 0;
+
+      const salaryPortion = this.salaryPortions.find(sp => sp.index === salaryPortionIndex);
+
+      return {
+        value,
+        salaryPortion: salaryPortion || null
+      };
+    }
+
+    // Old structure: simple array (for absence)
+    const penalty = penalties.find((p: any) => p.index === occurrenceIndex);
     if (!penalty) {
       return { value: '-', salaryPortion: null };
     }
@@ -133,7 +160,7 @@ export class AttendanceRuleComponent implements OnInit, OnDestroy {
     const value = `${penalty.value} day${penalty.value !== 1 ? 's' : ''}`;
     const salaryPortionIndex = penalty.salary_portion_index !== null && penalty.salary_portion_index !== undefined
       ? Number(penalty.salary_portion_index)
-      : 1; // Default to 1 if not set
+      : 0;
 
     const salaryPortion = this.salaryPortions.find(sp => sp.index === salaryPortionIndex);
 

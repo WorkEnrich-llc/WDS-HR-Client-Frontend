@@ -572,9 +572,11 @@
         <span>Assign Goal(s)</span>
       </a>
     </div>
-    <div class="alert alert-danger mb-0 mt-2" role="alert" *ngIf="errMsg">
+    @if (errMsg) {
+    <div class="alert alert-danger mb-0 mt-2" role="alert">
       {{errMsg}}
     </div>
+    }
     
     <!-- Department Checklist Component with Badge -->
     @if (departmentChecklistItems && departmentChecklistItems.length > 0) {
@@ -677,18 +679,17 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template #noGoals>
-      <tr>
-        <td colspan="3" class="no-data py-4">
-          <ng-container *ngIf="searchTerm.trim(); else noGoals">
-            No Goals match your search.
-          </ng-container>
-          <ng-template #noGoals>
-            No Goal Added Yet. You must add at least one Goal to the branch.
-          </ng-template>
-        </td>
-      </tr>
-    </ng-template>
+        <ng-template #noGoals>
+            <tr>
+                <td colspan="3" class="no-data py-4">
+                    @if (searchTerm.trim()) {
+                    No Goals match your search.
+                    } @else {
+                    No Goal Added Yet. You must add at least one Goal to the branch.
+                    }
+                </td>
+            </tr>
+        </ng-template>
   </div>
 
   <div class="d-flex align-items-center pt-4 gap-3">

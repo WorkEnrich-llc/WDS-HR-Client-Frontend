@@ -51,12 +51,20 @@ export class CustomFieldsComponent implements OnInit {
   // selectedFieldId: number | null = null;
 
   ngOnInit(): void {
+    // Get initial page from query params synchronously to avoid duplicate calls
+    const pageFromUrl = +this.activateRoute.snapshot.queryParams['page'] || 1;
+    this.currentPage = pageFromUrl;
+    this.paginationState.setPage('custom-fields/all-custom-fields', this.currentPage);
     this.getAllCustomFields(this.currentPage);
+
+    // Subscribe to query params changes for navigation
     this.activateRoute.queryParams.subscribe(params => {
       const pageFromUrl = +params['page'] || 1;
-      this.currentPage = pageFromUrl;
-      this.paginationState.setPage('custom-fields/all-custom-fields', this.currentPage);
-      this.getAllCustomFields(this.currentPage);
+      if (pageFromUrl !== this.currentPage) {
+        this.currentPage = pageFromUrl;
+        this.paginationState.setPage('custom-fields/all-custom-fields', this.currentPage);
+        this.getAllCustomFields(this.currentPage);
+      }
     });
 
     this.searchSubject.pipe(debounceTime(600)).subscribe(() => {
@@ -88,7 +96,7 @@ export class CustomFieldsComponent implements OnInit {
 
 
   private getAllCustomFields(pageNumber: number, searchTerm: string = ''): void {
-    this.loadData = false;
+    this.loadData = true;
     // const filters: CustomFieldFilters = {
     //   is_active: true
     // };

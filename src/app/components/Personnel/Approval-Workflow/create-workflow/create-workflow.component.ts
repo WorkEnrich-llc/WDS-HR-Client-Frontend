@@ -53,8 +53,16 @@ export class CreateWorkflowComponent {
     const leaveControl = this.workflow1.get('leave_id');
     if (workflowType === 'leave') {
       leaveControl?.enable({ emitEvent: false });
+      // Set required validator when enabled
+      leaveControl?.setValidators([Validators.required]);
+      leaveControl?.updateValueAndValidity({ emitEvent: false });
     } else {
       leaveControl?.disable({ emitEvent: false });
+      // Clear value when not leave type
+      leaveControl?.setValue('', { emitEvent: false });
+      // Remove required validator when disabled
+      leaveControl?.clearValidators();
+      leaveControl?.updateValueAndValidity({ emitEvent: false });
     }
   }
 
@@ -87,25 +95,25 @@ export class CreateWorkflowComponent {
   jobTitles: any[] = [];
   loadData: boolean = true;
 
-getAllLeaveTypes(
-  searchTerm: string = '',
-  filters?: {
-    employment_type?: string;
-  }
-) {
-  this._LeaveTypeService.getAllLeavetypes(1, 10000, {
-    search: searchTerm || undefined,
-    ...filters
-  }).subscribe({
-    next: (response) => {
-      this.leaveTypes = response.data.list_items.filter((item: { is_active: boolean; }) => item.is_active === true);
-    },
-    error: (err) => {
-        console.error(err.error?.details);
-      this.loadData = false;
+  getAllLeaveTypes(
+    searchTerm: string = '',
+    filters?: {
+      employment_type?: string;
     }
-  });
-}
+  ) {
+    this._LeaveTypeService.getAllLeavetypes(1, 10000, {
+      search: searchTerm || undefined,
+      ...filters
+    }).subscribe({
+      next: (response) => {
+        this.leaveTypes = response.data.list_items.filter((item: { is_active: boolean; }) => item.is_active === true);
+      },
+      error: (err) => {
+        console.error(err.error?.details);
+        this.loadData = false;
+      }
+    });
+  }
 
   getAllDepartments(
     searchTerm: string = '',
@@ -239,7 +247,7 @@ getAllLeaveTypes(
         this.errMsg = '';
         // create success
         this.router.navigate(['/workflow/all-workflows']);
-        this.toasterMessageService.showSuccess("Workflow created successfully","Created Successfully");
+        this.toasterMessageService.showSuccess("Workflow created successfully", "Created Successfully");
       },
       error: (err) => {
         this.isLoading = false;

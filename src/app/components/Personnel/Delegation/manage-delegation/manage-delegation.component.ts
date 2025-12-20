@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,11 +14,10 @@ import { CustomValidators } from 'app/core/validators/custom-validators';
 @Component({
   selector: 'app-manage-delegation',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     PageHeaderComponent,
     PopupComponent
-  ],
+],
   providers: [DatePipe],
   templateUrl: './manage-delegation.component.html',
   styleUrl: './manage-delegation.component.css'

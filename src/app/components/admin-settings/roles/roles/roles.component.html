@@ -157,12 +157,11 @@
     <ng-template #noroles>
       <tr>
         <td colspan="6" class="no-data py-4">
-          <ng-container *ngIf="searchTerm?.trim() || filterForm.dirty; else noroles">
+          @if (searchTerm.trim() || filterForm.dirty) {
             No Work Schedule match your search and filter.
-          </ng-container>
-          <ng-template #noroles>
+          } @else {
             No Work Schedule Added Yet.
-          </ng-template>
+          }
         </td>
       </tr>
     </ng-template>
@@ -205,7 +204,9 @@
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <select formControlName="activeModules" id="active_modules" class="form-select">
             <option value="" selected>Select</option>
-            <option *ngFor="let module of moduleNames" [value]="module">{{ module }}</option>
+            @for (module of moduleNames; track module) {
+              <option [value]="module">{{ module }}</option>
+            }
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -230,7 +231,9 @@
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <select formControlName="activeServices" name="active_services" id="active_services" class="form-select">
             <option value="" selected>Select</option>
-            <option *ngFor="let service of serviceNames" [value]="service">{{ service }}</option>
+            @for (service of serviceNames; track service) {
+              <option [value]="service">{{ service }}</option>
+            }
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

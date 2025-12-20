@@ -9,71 +9,75 @@
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" id="years_of_experience" formControlName="years_of_experience" class="form-control"
             placeholder="0" />
-        </div>
-      </div>
-
-      <div class="input">
-        <label for="branch_id">Branch <span>*</span></label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <select id="branch_id" formControlName="branch_id" class="form-select">
-              <option value="" disabled hidden>Select Branch</option>
-              <option *ngFor="let branch of createService.getActiveBranches()" [value]="branch.id">
-                {{ branch.name }}
-              </option>
-            </select>
           </div>
         </div>
-        <p *ngIf="sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)" class="error-msg">
-          {{ sharedService.getFieldError('branch_id', sharedService.jobDetails) }}
-        </p>
+
+        <div class="input">
+          <label for="branch_id">Branch <span>*</span></label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <select id="branch_id" formControlName="branch_id" class="form-select">
+                <option value="" disabled hidden>Select Branch</option>
+                @for (branch of createService.getActiveBranches(); track branch) {
+                  <option [value]="branch.id">
+                    {{ branch.name }}
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
+          @if (sharedService.isFieldInvalid('branch_id', sharedService.jobDetails)) {
+            <p class="error-msg">
+              {{ sharedService.getFieldError('branch_id', sharedService.jobDetails) }}
+            </p>
+          }
+        </div>
+
+        <div class="input">
+          <label for="department">Department</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="department" [value]="getDepartmentName()" class="form-control" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="input">
+          <label for="section">Section</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="section" [value]="getSectionName()" class="form-control" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="input">
+          <label for="job_title">Job Title</label>
+          <div class="d-flex align-items-center gap-4">
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="text" id="job_title" [value]="getJobTitleName()" class="form-control" readonly />
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="input">
-        <label for="department">Department</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="department" [value]="getDepartmentName()" class="form-control" readonly />
+      <!-- Navigation buttons -->
+      <div class="btn-fixed d-flex align-items-stretch gap-2">
+        <button type="button" class="btn btn-lg btn-outline-primary" (click)="goPrev()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="m20 12l-16 0m0 0l6-6m-6 6l6 6" />
+            </svg>
+            <span>Previous</span>
+          </button>
+          <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+              </svg>
+              <span>Next (2/4)</span>
+            </button>
           </div>
         </div>
       </div>
-
-      <div class="input">
-        <label for="section">Section</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="section" [value]="getSectionName()" class="form-control" readonly />
-          </div>
-        </div>
-      </div>
-
-      <div class="input">
-        <label for="job_title">Job Title</label>
-        <div class="d-flex align-items-center gap-4">
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <input type="text" id="job_title" [value]="getJobTitleName()" class="form-control" readonly />
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Navigation buttons -->
-    <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button type="button" class="btn btn-lg btn-outline-primary" (click)="goPrev()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="m20 12l-16 0m0 0l6-6m-6 6l6 6" />
-        </svg>
-        <span>Previous</span>
-      </button>
-      <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-        </svg>
-        <span>Next (2/4)</span>
-      </button>
-    </div>
-  </div>
-</div>

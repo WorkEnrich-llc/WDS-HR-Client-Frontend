@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -20,7 +20,7 @@ export function noWhitespaceValidator(): ValidatorFn {
 @Component({
   standalone: true,
   selector: 'app-contract-terminate-modal',
-  imports: [ReactiveFormsModule, CommonModule, OverlayFilterBoxComponent],
+  imports: [ReactiveFormsModule, OverlayFilterBoxComponent],
   templateUrl: './contract-terminate-modal.component.html',
   styleUrl: './contract-terminate-modal.component.css'
 })

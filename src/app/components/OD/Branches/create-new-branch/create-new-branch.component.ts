@@ -12,10 +12,12 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { GoogleMapsLocationComponent, LocationData } from '../../../shared/google-maps-location/google-maps-location.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 @Component({
   selector: 'app-create-new-branch',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, SystemSetupTourComponent],
   providers: [DatePipe],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
@@ -33,6 +35,7 @@ export class CreateNewBranchComponent implements OnInit {
   //  overlay 
   @ViewChild('departmentsOverlay') departmentsOverlay!: OverlayFilterBoxComponent;
   @ViewChild('sectionsOverlay') sectionsOverlay!: OverlayFilterBoxComponent;
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
 
 
   todayFormatted: string = '';
@@ -47,7 +50,8 @@ export class CreateNewBranchComponent implements OnInit {
     private toasterMessageService: ToasterMessageService,
     private _DepartmentsService: DepartmentsService,
     private subService: SubscriptionService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private systemSetupService: SystemSetupService
   ) {
 
 
@@ -378,14 +382,20 @@ export class CreateNewBranchComponent implements OnInit {
 
     // console.log(requestPayload);
     this._BranchesService.createBranch(requestPayload).subscribe({
-
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
         // create success
         this.router.navigate(['/branches/all-branches']);
-        this.toasterMessageService.showSuccess("Branch created successfully","Created Successfully");
-
+        this.toasterMessageService.showSuccess("Branch created successfully", "Created Successfully");
+        // Notify system setup tour
+        this.systemSetupService.notifyModuleItemCreated('branches');
+        // Show celebration animation
+        if (this.systemSetupTour) {
+          setTimeout(() => {
+            this.systemSetupTour.showCelebration('branches');
+          }, 500);
+        }
       },
       error: (err) => {
         this.isLoading = false;

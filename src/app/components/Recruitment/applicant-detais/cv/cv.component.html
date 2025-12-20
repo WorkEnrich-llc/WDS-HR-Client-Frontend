@@ -39,12 +39,14 @@
 
 
     <div style="height: 580px;" class="pdf-scrollbar mb-2">
-      <iframe *ngIf="viewerUrl" [src]="viewerUrl | safe" style="width: 100%; height: 100%; border: 0;"
+      @if (viewerUrl) {
+        <iframe [src]="viewerUrl | safe" style="width: 100%; height: 100%; border: 0;"
         allow="fullscreen"></iframe>
+      }
       @if (!viewerUrl) {
-      <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-        <span>No CV available.</span>
-      </div>
+        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+          <span>No CV available.</span>
+        </div>
       }
     </div>
 

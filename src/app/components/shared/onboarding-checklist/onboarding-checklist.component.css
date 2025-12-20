@@ -264,6 +264,23 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Remove transitions for read-only items to prevent any visual changes */
+.onboarding-checklist-item:not(.clickable),
+.onboarding-checklist-item.read-only {
+  transition: none !important;
+}
+
+/* Force read-only style immediately - must override everything */
+.onboarding-checklist-item[class*="read-only"] {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  user-select: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
 .onboarding-checklist-item.completed {
   background-color: var(--color-success-100);
   border: 1px solid var(--color-success-300);
@@ -280,9 +297,25 @@
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Override clickable styles when read-only */
+.onboarding-checklist-item.read-only.clickable {
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  transition: none !important;
+}
+
 .onboarding-checklist-item.clickable:hover {
   transform: translateX(4px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Override hover when read-only */
+.onboarding-checklist-item.read-only.clickable:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }
 
 /* Darken completed items on hover */
@@ -291,10 +324,24 @@
   border-color: var(--color-success-400);
 }
 
+/* Override completed hover when read-only */
+.onboarding-checklist-item.read-only.completed.clickable:hover {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  opacity: 0.6 !important;
+}
+
 /* Darken pending items on hover */
 .onboarding-checklist-item.pending.clickable:hover {
   background-color: var(--color-neutral-50);
   border-color: var(--color-neutral-300);
+}
+
+/* Override pending hover when read-only */
+.onboarding-checklist-item.read-only.pending.clickable:hover {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  opacity: 0.6 !important;
 }
 
 /* Non-clickable items (read-only mode) */
@@ -302,13 +349,29 @@
   cursor: default;
   position: relative;
   user-select: none;
+  pointer-events: none;
 }
 
 .onboarding-checklist-item:not(.clickable):hover {
-  transform: none;
-  box-shadow: none;
-  background-color: inherit;
-  border-color: inherit;
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.onboarding-checklist-item:not(.clickable):active {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+.onboarding-checklist-item:not(.clickable):focus {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+  outline: none !important;
 }
 
 .onboarding-checklist-item:not(.clickable).completed {
@@ -316,9 +379,13 @@
   border-color: var(--color-success-300);
 }
 
-.onboarding-checklist-item:not(.clickable).completed:hover {
-  background-color: var(--color-success-100);
-  border-color: var(--color-success-300);
+.onboarding-checklist-item:not(.clickable).completed:hover,
+.onboarding-checklist-item:not(.clickable).completed:active,
+.onboarding-checklist-item:not(.clickable).completed:focus {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .onboarding-checklist-item:not(.clickable).pending {
@@ -326,23 +393,13 @@
   border-color: var(--color-neutral-200);
 }
 
-.onboarding-checklist-item:not(.clickable).pending:hover {
-  background-color: var(--color-neutral-50);
-  border-color: var(--color-neutral-200);
-}
-
-/* Add a subtle visual indicator for read-only items */
-.onboarding-checklist-item:not(.clickable)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 10px;
-  pointer-events: none;
-  background: rgba(255, 255, 255, 0.3);
-  opacity: 0.4;
+.onboarding-checklist-item:not(.clickable).pending:hover,
+.onboarding-checklist-item:not(.clickable).pending:active,
+.onboarding-checklist-item:not(.clickable).pending:focus {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .onboarding-checklist-item:focus {
@@ -424,6 +481,112 @@
 
 .onboarding-checklist-item.loading.disabled {
   cursor: not-allowed;
+}
+
+/* Disabled state styles - prevent all interactions when any item is loading */
+.onboarding-checklist-item.disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+/* Ensure disabled class works with read-only - this ensures immediate disabled appearance */
+.onboarding-checklist-item.read-only.disabled,
+.onboarding-checklist-item.disabled.read-only {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+/* Read-only mode - always show disabled style when readOnly is true */
+/* These styles must override all other styles, so they're placed at the end with high specificity */
+.onboarding-checklist-item.read-only,
+.onboarding-checklist-item.read-only.clickable,
+.onboarding-checklist-item.read-only.disabled,
+.onboarding-checklist-item.read-only.loading,
+.onboarding-checklist-item.read-only.completed,
+.onboarding-checklist-item.read-only.pending,
+.onboarding-checklist-item.read-only.completed.clickable,
+.onboarding-checklist-item.read-only.pending.clickable,
+.onboarding-checklist-item.read-only.completed.disabled,
+.onboarding-checklist-item.read-only.pending.disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  user-select: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.onboarding-checklist-item.read-only.completed {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  opacity: 0.6 !important;
+}
+
+.onboarding-checklist-item.read-only.pending {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  opacity: 0.6 !important;
+}
+
+.onboarding-checklist-item.read-only:hover,
+.onboarding-checklist-item.read-only:active,
+.onboarding-checklist-item.read-only:focus,
+.onboarding-checklist-item.read-only.clickable:hover,
+.onboarding-checklist-item.read-only.clickable:active,
+.onboarding-checklist-item.read-only.clickable:focus {
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.onboarding-checklist-item.read-only.completed:hover,
+.onboarding-checklist-item.read-only.completed:active,
+.onboarding-checklist-item.read-only.completed:focus {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  opacity: 0.6 !important;
+}
+
+.onboarding-checklist-item.read-only.pending:hover,
+.onboarding-checklist-item.read-only.pending:active,
+.onboarding-checklist-item.read-only.pending:focus {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  opacity: 0.6 !important;
+}
+
+/* Override text and icon colors for read-only mode */
+.onboarding-checklist-item.read-only .onboarding-item-text {
+  color: var(--color-neutral-500) !important;
+  opacity: 0.8 !important;
+}
+
+.onboarding-checklist-item.read-only.completed .onboarding-item-text {
+  color: var(--color-success-600) !important;
+  opacity: 0.8 !important;
+}
+
+.onboarding-checklist-item.read-only .onboarding-item-status-icon {
+  opacity: 0.7 !important;
+}
+
+/* Ensure disabled items can't be clicked even if they have clickable class */
+.onboarding-checklist-item.disabled.clickable {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.onboarding-checklist-item.disabled.clickable:hover {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .onboarding-checklist-item.loading .onboarding-item-text {
@@ -557,4 +720,39 @@
   .onboarding-item-text {
     font-size: var(--font-size-b3);
   }
+}
+
+/* CRITICAL: Read-only styles that must apply immediately - highest specificity */
+/* This ensures items appear disabled from the start when readOnly is true */
+.onboarding-checklist-item.read-only,
+.onboarding-checklist-item[class*="read-only"],
+.onboarding-checklist-item.disabled[class*="read-only"],
+.onboarding-checklist-item[class*="read-only"].disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  user-select: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.onboarding-checklist-item.read-only.completed,
+.onboarding-checklist-item.read-only.completed.disabled,
+.onboarding-checklist-item.read-only.completed.clickable {
+  background-color: var(--color-success-100) !important;
+  border-color: var(--color-success-300) !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.onboarding-checklist-item.read-only.pending,
+.onboarding-checklist-item.read-only.pending.disabled,
+.onboarding-checklist-item.read-only.pending.clickable {
+  background-color: var(--color-neutral-50) !important;
+  border-color: var(--color-neutral-200) !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
 }

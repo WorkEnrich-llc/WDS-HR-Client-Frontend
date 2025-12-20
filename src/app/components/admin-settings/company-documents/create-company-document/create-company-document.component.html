@@ -1,0 +1,153 @@
+<!-- page header -->
+<app-page-header [breadcrumbs]="breadcrumb" title="Create Document" [create]="todayFormatted">
+    <button class="btn btn-lg btn-success w-auto"
+        [disabled]="isSubmitting || !documentForm.valid || !selectedFile" (click)="onSubmit()">
+        @if (isSubmitting) {
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        }
+        @if (!isSubmitting) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+        </svg>
+        }
+        <span>Create Document</span>
+    </button>
+
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="onDiscard()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+            </g>
+        </svg>
+        <span>Discard Entry</span>
+    </button>
+</app-page-header>
+
+<!-- content -->
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <h2>Document Information</h2>
+        <form [formGroup]="documentForm" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="file_name">File Name <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="file_name" type="text" id="file_name" class="form-control custom-date-input"
+                        placeholder="Enter file name" />
+                </div>
+                @if (documentForm.get('file_name')?.touched && documentForm.get('file_name')?.errors?.['required']) {
+                <p class="error-msg">
+                    File name is required.
+                </p>
+                }
+                @if (documentForm.get('file_name')?.touched && documentForm.get('file_name')?.errors?.['minlength']) {
+                <p class="error-msg">
+                    File name must be at least 2 characters long.
+                </p>
+                }
+                @if (documentForm.get('file_name')?.touched && documentForm.get('file_name')?.errors?.['whitespace']) {
+                <p class="error-msg">
+                    File name cannot start or end with whitespace.
+                </p>
+                }
+                @if (hasFieldError('file_name')) {
+                <p class="error-msg">
+                    {{ getFieldError('file_name') }}
+                </p>
+                }
+            </div>
+
+            <div class="input">
+                <label for="file">File <span>*</span></label>
+                <div class="file-upload-container">
+                    <input type="file" id="file" accept="*/*" (change)="onFileSelected($event)"
+                        class="file-input" #fileInput>
+                    <div class="file-upload-area" (click)="openFilePicker($event)" [class.has-file]="selectedFile">
+                        @if (!selectedFile) {
+                        <div class="upload-placeholder">
+                            <div class="upload-icon-wrapper">
+                                <div class="upload-cloud">
+                                    <!-- Cloud base -->
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M6.5 18H17.5C19.433 18 21 16.433 21 14.5C21 12.744 19.764 11.291 18.074 11.038C17.613 8.718 15.612 7 13.25 7C11.903 7 10.676 7.57 9.806 8.5C9.531 8.462 9.258 8.444 8.98 8.444C6.78 8.444 5 10.224 5 12.424C5 14.459 6.507 16.154 8.5 16.39"
+                                            stroke="#9CA3AF" stroke-width="1.7" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    <!-- Small upload badge -->
+                                    <div class="upload-cloud-badge">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="3" y="3" width="18" height="18" rx="5" fill="white" />
+                                            <path d="M12 16V8" stroke="#2563EB" stroke-width="1.8"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M9 11L12 8L15 11" stroke="#2563EB" stroke-width="1.8"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="upload-text">
+                                <h4>Upload file</h4>
+                                <p>Click to upload or drag & drop here</p>
+                                <span class="file-types">Any file type — up to 10MB</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="file-preview">
+                            <div class="file-info">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="file-details">
+                                    <span class="file-name">{{ getFileName() }}</span>
+                                    <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+                                </div>
+                            </div>
+                            <div class="file-overlay">
+                                <button type="button" class="remove-file-btn" (click)="removeFile($event)">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <button type="button" class="change-file-btn" (click)="openFilePicker($event)">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    @if (fileError) {
+                    <p class="error-msg">{{ fileError }}</p>
+                    }
+                    @if (hasFieldError('file')) {
+                    <p class="error-msg">{{ getFieldError('file') }}</p>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
