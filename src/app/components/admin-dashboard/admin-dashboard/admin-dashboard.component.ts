@@ -365,6 +365,15 @@ export class AdminDashboardComponent {
   }
 
   private loadSystemSetupBoard(): void {
+    // Check localStorage flag to skip API call if all steps completed
+    const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
+    if (allDoneFlag === 'true') {
+      this.systemSetupLoading = false;
+      this.systemSetupError = null;
+      this.systemSetupItems = [];
+      return;
+    }
+
     this.systemSetupLoading = true;
     this.systemSetupError = null;
     this.systemSetupService.getSystemSetup().subscribe({
@@ -375,6 +384,10 @@ export class AdminDashboardComponent {
         this.systemSetupLoading = false;
         this.syncTourIndexFromStorage();
         setTimeout(() => this.ensureTourAnchor(), 0);
+        // If all items are checked, set the flag in localStorage
+        if (this.systemSetupItems.length > 0 && this.systemSetupItems.every(item => item.checked === true)) {
+          localStorage.setItem('system_setup_tour_all_done', 'true');
+        }
       },
       error: (err) => {
         this.systemSetupLoading = false;

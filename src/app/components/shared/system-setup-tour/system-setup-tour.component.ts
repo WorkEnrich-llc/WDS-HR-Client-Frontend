@@ -288,6 +288,15 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   }
 
   private load(): void {
+    // Check localStorage flag to skip API call if all steps completed
+    const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
+    if (allDoneFlag === 'true') {
+      this.isLoading = false;
+      this.error = null;
+      this.items = [];
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
 
@@ -296,6 +305,10 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
         this.items = [...(res?.data?.list_items || [])].sort((a, b) => (a.step ?? 0) - (b.step ?? 0));
         this.isLoading = false;
         this.syncIndexFromStorage();
+        // If all items are checked, set the flag in localStorage
+        if (this.items.length > 0 && this.items.every(item => item.checked === true)) {
+          localStorage.setItem('system_setup_tour_all_done', 'true');
+        }
       },
       error: (err) => {
         this.isLoading = false;
