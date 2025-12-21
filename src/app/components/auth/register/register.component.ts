@@ -363,38 +363,78 @@ export class RegisterComponent implements OnDestroy, OnInit {
       next: (response) => {
         this.isLoading = false;
 
-        const authToken = response.data?.session?.auth_token;
-        const session_token = response.data?.session?.session_token;
-        const domain = response.data?.company_info?.domain;
+        const session = response?.data?.session;
+        const companyInfo = response?.data?.company_info;
+        const userInfo = response?.data?.user_info;
+        const authToken = session?.auth_token;
+        const session_token = session?.session_token;
+        const domain = companyInfo?.domain;
 
-        if (authToken && domain) {
+        const hasAuthToken = authToken !== undefined && authToken !== null && authToken !== false;
+        const hasDomain = domain !== undefined && domain !== null && domain !== '';
+
+        if (hasAuthToken && hasDomain) {
           this.cookieService.set('token', authToken);
           localStorage.setItem('token', JSON.stringify(authToken));
           localStorage.setItem('session_token', JSON.stringify(session_token));
 
-          const userInfo = response.data?.user_info;
-          const companyInfo = response.data?.company_info;
-
           if (userInfo) {
             localStorage.setItem('user_info', JSON.stringify(userInfo));
           }
-
           if (companyInfo) {
             localStorage.setItem('company_info', JSON.stringify(companyInfo));
           }
 
-          // this.subService.getSubscription().subscribe({
-          //   next: (sub) => {
-          //     if (sub) {
-          //       this.subService.setSubscription(sub);
-          //     }
-          //   },
-          //   error: (err) => {
-          //     console.error('Subscription load error:', err);
-          //   }
-          // });
+          // Get sub_domain and construct redirect URL
+          const subDomain = companyInfo?.sub_domain;
+          const redirectUrl = this.constructSubdomainUrl(subDomain);
 
-          this._Router.navigate(['/dashboard']);
+          // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
+          const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
+          const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
+
+          if (hasSLC && hasSLT) {
+            const requestData = {
+              request_data: {
+                s_l_c: {
+                  nonce: session.s_l_c.nonce,
+                  ciphertext: session.s_l_c.ciphertext
+                },
+                s_l_t: {
+                  nonce: session.s_l_t.nonce,
+                  ciphertext: session.s_l_t.ciphertext
+                }
+              }
+            };
+
+            this._AuthenticationService.sessionLogin(requestData).subscribe({
+              next: () => {
+                // S-L API call successful, now call subscription status
+                this.subService.getSubscription().subscribe({
+                  next: (sub) => {
+                    if (sub) {
+                      this.subService.setSubscription(sub);
+                    }
+                    // Redirect to subdomain URL
+                    this.redirectToSubdomain(redirectUrl);
+                  },
+                  error: (err) => {
+                    console.error('Subscription load error:', err);
+                    // Redirect even if subscription fails
+                    this.redirectToSubdomain(redirectUrl);
+                  }
+                });
+              },
+              error: (err) => {
+                console.error('S-L API call error:', err);
+                // If S-L fails, redirect directly
+                this.redirectToSubdomain(redirectUrl);
+              }
+            });
+          } else {
+            // Missing session data, redirect directly without S-L or subscription
+            this.redirectToSubdomain(redirectUrl);
+          }
         } else {
           this.errMsg = 'Invalid response from server.';
         }
@@ -405,6 +445,54 @@ export class RegisterComponent implements OnDestroy, OnInit {
         this.errMsg = err.error?.details || 'An error occurred while creating account.';
       }
     });
+  }
+
+  /**
+   * Construct subdomain URL from sub_domain
+   * Format: {protocol}://{sub_domain}.{base_domain}
+   */
+  private constructSubdomainUrl(subDomain: string | null | undefined): string | null {
+    if (!subDomain || subDomain.trim() === '') {
+      return null;
+    }
+
+    const currentUrl = window.location;
+    const protocol = currentUrl.protocol; // http: or https:
+    const hostname = currentUrl.hostname; // e.g., localhost, talentdot.org, or dev-google.talentdot.org
+    const port = currentUrl.port ? `:${currentUrl.port}` : '';
+
+    // If already on localhost, keep localhost (subdomain won't work on localhost)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // For localhost, we can't use subdomains, so just redirect to dashboard
+      return null;
+    }
+
+    // Extract base domain (remove any existing subdomain)
+    // e.g., "dev-google.talentdot.org" -> "talentdot.org"
+    // e.g., "talentdot.org" -> "talentdot.org"
+    let baseDomain = hostname;
+    const parts = hostname.split('.');
+    if (parts.length > 2) {
+      // Has subdomain, extract base domain (last two parts)
+      baseDomain = parts.slice(-2).join('.');
+    }
+
+    // Construct new URL with subdomain
+    const newUrl = `${protocol}//${subDomain}.${baseDomain}${port}`;
+    return newUrl;
+  }
+
+  /**
+   * Redirect to subdomain URL or fallback to router navigation
+   */
+  private redirectToSubdomain(url: string | null): void {
+    if (url) {
+      // Full page redirect to subdomain
+      window.location.href = url;
+    } else {
+      // Fallback to router navigation (e.g., for localhost)
+      this._Router.navigate(['/dashboard']);
+    }
   }
 
   otpCode: string = '';
