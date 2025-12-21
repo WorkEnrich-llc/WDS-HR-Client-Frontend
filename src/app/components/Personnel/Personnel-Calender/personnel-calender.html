@@ -27,18 +27,18 @@
                 &gt;
               </button>
               @if (showMonthYearPicker){
-                <div class="month-year-dropdown">
-                  <div class="dropdown-header">Select Month & Year</div>
-                  <div class="dropdown-body">
-                    <select [(ngModel)]="pickerMonth">
-                      <option *ngFor="let m of months; let i = index" [value]="i">{{ m }}</option>
-                    </select>
-                    <select [(ngModel)]="pickerYear">
-                      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-                    </select>
-                    <button class="btn btn-primary mt-2" (click)="setMonthYear()">Set</button>
-                  </div>
+              <div class="month-year-dropdown">
+                <div class="dropdown-header">Select Month & Year</div>
+                <div class="dropdown-body">
+                  <select [(ngModel)]="pickerMonth">
+                    <option *ngFor="let m of months; let i = index" [value]="i">{{ m }}</option>
+                  </select>
+                  <select [(ngModel)]="pickerYear">
+                    <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                  </select>
+                  <button class="btn btn-primary mt-2" (click)="setMonthYear()">Set</button>
                 </div>
+              </div>
               }
             </div>
           </div>
@@ -76,25 +76,25 @@
     <!-- day details -->
     <div class="col-lg-4">
       @if (selectedDateFormatted) {
-        <div class="content-box position-sticky" style="top: 9.8rem;">
-          @if (selectedDateFormatted) {
-            <div class="selected-day mb-4">
-              {{ selectedDateFormatted }}
-            </div>
-          }
-          @for (event of eventsDay; track event) {
-            <div class="event d-flex gap-3  align-items-stretch" [ngClass]="event.type.toLowerCase()">
-              <div class="border"></div>
-              <div class="contain d-flex flex-column">
-                <h5>{{event.type}}</h5>
-                <h3 class="font-semi-bold">{{event.title}}</h3>
-              </div>
-            </div>
-          }
-          @if (eventsDay.length<1 && selectedDateFormatted) {
-            <div class="noevents">No events In this Day</div>
-          }
-          <!-- <button class="btn btn-lg btn-primary w-100 mt-5">
+      <div class="content-box position-sticky" style="top: 9.8rem;">
+        @if (selectedDateFormatted) {
+        <div class="selected-day mb-4">
+          {{ selectedDateFormatted }}
+        </div>
+        }
+        @for (event of eventsDay; track event) {
+        <div class="event d-flex gap-3  align-items-stretch" [ngClass]="event.type.toLowerCase()">
+          <div class="border"></div>
+          <div class="contain d-flex flex-column">
+            <h5>{{event.type}}</h5>
+            <h3 class="font-semi-bold">{{event.title}}</h3>
+          </div>
+        </div>
+        }
+        @if (eventsDay.length<1 && selectedDateFormatted) { <div class="noevents">No events In this Day
+      </div>
+      }
+      <!-- <button class="btn btn-lg btn-primary w-100 mt-5">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
               <g fill="none" stroke="#ffffff" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
@@ -103,8 +103,8 @@
             </svg>
             <span>Add New Event</span>
           </button> -->
-        </div>
-      }
     </div>
+    }
   </div>
+</div>
 </div>

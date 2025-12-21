@@ -15,24 +15,55 @@
         <!-- search and new employee button -->
         <div
           class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
-          <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
-            <!-- Search input -->
-            <div data-mdb-input-init class="form-outline w-50">
-              <input type="text" class="form-control" placeholder="Search" />
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                <g fill="none" stroke-width="1.5">
-                  <circle cx="11.5" cy="11.5" r="9.5" />
-                  <path stroke-linecap="round" d="M18.5 18.5L22 22" />
-                </g>
-              </svg>
+          <div class="">
+            <!-- Modern Horizontal Month/Year Picker -->
+            <div class="month-year-picker-horizontal">
+              <button class="picker-arrow" (click)="prevMonth()">
+                &lt;
+              </button>
+              <button class="picker-label" (click)="toggleMonthYearPicker()">
+                {{ selectedMonthYear }}
+              </button>
+              <button class="picker-arrow" (click)="nextMonth()">
+                &gt;
+              </button>
+              @if (showMonthYearPicker){
+              <div class="month-year-dropdown">
+                <div class="dropdown-header">Select Month & Year</div>
+                <div class="dropdown-body">
+                  <select [(ngModel)]="pickerMonth">
+                    @for (m of months; track $index) {
+                    <option [value]="$index">{{ m }}</option>
+                    }
+                  </select>
+                  <select [(ngModel)]="pickerYear">
+                    @for (y of years; track $index) {
+                    <option [value]="y">{{ y }}</option>
+                    }
+                  </select>
+                  <button class="btn btn-primary mt-2" (click)="setMonthYear()">Set</button>
+                </div>
+              </div>
+              }
             </div>
           </div>
-
         </div>
 
         <!-- calender -->
         <div class="calendar-wrapper mt-4">
+          @if (isLoading) {
+          <div class="calendar-skeleton">
+            @for (r of [1,2,3,4,5,6]; track $index) {
+            <div class="skeleton-row">
+              @for (c of [1,2,3,4,5,6,7]; track $index) {
+              <div class="skeleton-cell" [attr.data-row]="$index" [attr.data-col]="$index"></div>
+              }
+            </div>
+            }
+          </div>
+          } @else {
           <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
+          }
         </div>
       </div>
 
@@ -41,27 +72,59 @@
     <!-- day details -->
     <div class="col-lg-4">
       @if (selectedDateFormatted) {
-        <div class="content-box position-sticky" style="top: 9.8rem;">
-          @if (selectedDateFormatted) {
-            <div class="selected-day mb-4">
-              {{ selectedDateFormatted }}
-            </div>
-          }
-          @for (event of eventsDay; track event) {
-            <div class="event d-flex gap-3  align-items-stretch"
-              [ngClass]="event.type.toLowerCase()">
-              <div class="border"></div>
-              <div class="contain d-flex flex-column">
-                <h5>{{event.type}}</h5>
-                <h3 class="font-semi-bold">{{event.title}}</h3>
-              </div>
-            </div>
-          }
-          @if (eventsDay.length<1 && selectedDateFormatted) {
-            <div class="noevents">No events In this Day</div>
-          }
+      <div class="content-box position-sticky" style="top: 9.8rem;">
+        @if (selectedDateFormatted) {
+        <div class="selected-day mb-4">
+          {{ selectedDateFormatted }}
         </div>
+        }
+        @for (event of eventsDay; track event) {
+        <div class="event-card d-flex gap-3 align-items-stretch p-3 mb-3 shadow-sm"
+          [ngClass]="event.type ? event.type.toLowerCase() : 'default'">
+          <div class="event-badge me-2" [ngClass]="'badge-' + (event.type.toLowerCase() || 'default')">
+            {{ event.type | titlecase }}
+          </div>
+          <div class="contain d-flex flex-column flex-grow-1">
+            <div class="event-title-row d-flex align-items-center mb-1">
+              <h3 class="font-semi-bold mb-0 event-title-text">{{ event.title }}</h3>
+            </div>
+            @if (event.interviewer || event.interviewee || event.location || event.start || event.end) {
+            <div class="event-details mt-2">
+              @if (event.interviewer) {
+              <div class="event-detail-row">
+                <span class="event-detail-label">Interviewer:</span>
+                <span class="event-detail-value">{{ event.interviewer }}</span>
+              </div>
+              }
+              @if (event.interviewee) {
+              <div class="event-detail-row">
+                <span class="event-detail-label">Interviewee:</span>
+                <span class="event-detail-value">{{ event.interviewee }}</span>
+              </div>
+              }
+              @if (event.location) {
+              <div class="event-detail-row">
+                <span class="event-detail-label">Location:</span>
+                <span class="event-detail-value">{{ event.location }}</span>
+              </div>
+              }
+              @if (event.start && event.end) {
+              <div class="event-detail-row">
+                <span class="event-detail-label">Time:</span>
+                <span class="event-detail-value">{{ event.start | date:'shortTime' }} - {{ event.end | date:'shortTime'
+                  }}</span>
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+        }
+        @if (eventsDay.length<1 && selectedDateFormatted) { <div class="noevents">No events In this Day
+      </div>
       }
     </div>
+    }
   </div>
+</div>
 </div>
