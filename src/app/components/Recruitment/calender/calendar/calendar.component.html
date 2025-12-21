@@ -70,6 +70,7 @@
               flex-direction: column;
               gap: 2px;
             }
+
             .fc-event-type-badge {
               display: inline-block;
               background: #e9ecef;
@@ -80,6 +81,7 @@
               margin-right: 4px;
               margin-bottom: 2px;
             }
+
             .fc-event-time {
               font-size: 0.8em;
               color: #888;
@@ -87,9 +89,9 @@
           </style>
           <script>
             // Enhance FullCalendar event rendering for better organization
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
               if (window.FullCalendar) {
-                window.FullCalendar.EventRenderer = function(info) {
+                window.FullCalendar.EventRenderer = function (info) {
                   var el = info.el;
                   var event = info.event;
                   var title = event.title || '';
