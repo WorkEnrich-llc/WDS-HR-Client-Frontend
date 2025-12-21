@@ -118,7 +118,7 @@
           {{ selectedDateFormatted }}
         </div>
         }
-        @for (event of eventsDay; track event) {
+        @for (event of eventsDay; track eventTrackBy($index, event)) {
         <div class="event-card d-flex gap-3 align-items-stretch p-3 mb-3 shadow-sm"
           [ngClass]="event.type ? event.type.toLowerCase() : 'default'">
           <div class="event-badge me-2" [ngClass]="'badge-' + (event.type.toLowerCase() || 'default')">

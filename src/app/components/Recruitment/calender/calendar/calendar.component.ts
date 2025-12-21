@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
 import { CalendarService } from './calendar.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
@@ -41,6 +41,10 @@ export class CalendarComponent {
   ];
   years: number[] = Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i);
 
+  eventTrackBy(index: number, event: CalendarEvent) {
+    return event.id || (event.date + '-' + event.title + '-' + event.type);
+  }
+
   toggleMonthYearPicker() {
     this.showMonthYearPicker = !this.showMonthYearPicker;
     if (this.showMonthYearPicker) {
@@ -49,10 +53,11 @@ export class CalendarComponent {
         this.pickerYear = this.currentDate.getFullYear();
       });
     }
+    this.cdr.detectChanges();
   }
 
   @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
-  constructor(private cdr: ChangeDetectorRef, private calendarService: CalendarService) { }
+  constructor(private cdr: ChangeDetectorRef, private calendarService: CalendarService, private ngZone: NgZone) { }
 
   currentDate: Date = new Date();
   get selectedMonthYear(): string {
@@ -60,17 +65,20 @@ export class CalendarComponent {
   }
   prevMonth() {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
   nextMonth() {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
   setMonthYear() {
     this.currentDate = new Date(this.pickerYear, this.pickerMonth, 1);
     this.showMonthYearPicker = false;
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
@@ -101,11 +109,17 @@ export class CalendarComponent {
           };
           this.cdr.detectChanges();
         }
-        this.isLoading = false;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         console.error('Calendar API error:', err);
-        this.isLoading = false;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -119,8 +133,10 @@ export class CalendarComponent {
   }
 
   ngAfterViewInit() {
-    this.isLoading = true;
     setTimeout(() => {
+      this.isLoading = true;
+      this.cdr.detectChanges();
+      
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       this.handleDateClick({ dateStr });
@@ -128,9 +144,8 @@ export class CalendarComponent {
       const calendarApi = this.calendarComponent?.getApi();
       calendarApi?.select(today);
 
-      this.cdr.detectChanges();
+      this.fetchCalendarForCurrentDate();
     });
-    this.fetchCalendarForCurrentDate();
   }
 
   selectedDateFormatted: string = '';
@@ -148,22 +163,28 @@ export class CalendarComponent {
       const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
       return [`event-${eventType}`];
     },
-    dateClick: this.handleDateClick.bind(this)
+    dateClick: this.handleDateClick.bind(this),
+    eventClick: (arg) => {
+      // arg.event.startStr is the date string for the event
+      this.handleDateClick({ dateStr: arg.event.startStr });
+    }
   };
 
   handleDateClick(arg: any) {
-    const clickedDate = arg.dateStr;
-    const dateObj = new Date(clickedDate);
+    this.ngZone.run(() => {
+      const clickedDate = arg.dateStr;
+      const dateObj = new Date(clickedDate);
 
-    this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+      this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      // Show all events for the selected date
+      this.eventsDay = this.events.filter(e => e.date === clickedDate);
+      this.cdr.detectChanges();
     });
-
-    // Show all events for the selected date
-    this.eventsDay = this.events.filter(e => e.date === clickedDate);
-    this.cdr.detectChanges();
   }
 }

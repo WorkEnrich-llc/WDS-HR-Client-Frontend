@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientJobBoardService } from '../../services/client-job-board.service';
 import { MetaTagsService } from '../../services/meta-tags.service';
 import { JobItem, JobFields, JobField } from '../../models/job-listing.model';
@@ -32,8 +32,11 @@ export class ApplyFormComponent implements OnInit {
   resumeFile: File | null = null;
   isUploadingCV: boolean = false;
   uploadedAttachments: { name: string; file: File }[] = [];
+
   isSubmitting: boolean = false;
   cvUploadedFileName: string | null = null;
+  // Store evaluation_id from upload-file response
+  uploadedEvaluationId: number | null = null;
 
   // Dynamic dropdown states - stored by field name
   dropdownStates: { [key: string]: boolean } = {};
@@ -335,6 +338,11 @@ export class ApplyFormComponent implements OnInit {
             } else if (this.resumeFile) {
               // Fallback to original filename if server doesn't return one
               this.cvUploadedFileName = this.resumeFile.name;
+            }
+
+            // Store evaluation_id if present
+            if (response?.data?.evaluation_id) {
+              this.uploadedEvaluationId = response.data.evaluation_id;
             }
 
             // Populate form with data from CV parsing
@@ -1347,7 +1355,7 @@ export class ApplyFormComponent implements OnInit {
     return {
       request_data: {
         job_id: this.jobId ? parseInt(this.jobId, 10) : null,
-        evaluation_id: 1, // TODO: Get from job details if available
+        evaluation_id: this.uploadedEvaluationId ?? 1, // Use uploaded evaluation_id if available
         application_content: applicationContent
       }
     };

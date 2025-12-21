@@ -1,3 +1,7 @@
+:host ::ng-deep .fc-header-toolbar {
+    display: none !important;
+}
+
 /* Skeleton Loader for Calendar */
 .calendar-skeleton {
     display: grid;
@@ -340,6 +344,32 @@
     margin-right: 6px;
 }
 
+/* End Contracts Event */
+:host ::ng-deep .event-end .fc-event-title {
+    color: var(--color-primary-600) !important;
+    position: relative;
+}
+
+:host ::ng-deep .event-end .fc-event-title::before {
+    content: '●';
+    color: var(--color-primary-600);
+    opacity: 0.5;
+    margin-right: 6px;
+}
+
+/* New Joiner Event */
+:host ::ng-deep .event-new .fc-event-title {
+    color: var(--color-info-600) !important;
+    position: relative;
+}
+
+:host ::ng-deep .event-new .fc-event-title::before {
+    content: '●';
+    color: var(--color-info-600);
+    opacity: 0.5;
+    margin-right: 6px;
+}
+
 :host ::ng-deep .fc-daygrid-day-frame {
     min-height: 150px;
 }
@@ -419,6 +449,14 @@
     background-color: var(--color-warning-400) !important;
 }
 
+.end .border {
+    background-color: var(--color-primary-400) !important;
+}
+
+.new .border {
+    background-color: var(--color-info-400) !important;
+}
+
 .holiday h5 {
     color: var(--color-success-600) !important;
 }
@@ -433,4 +471,12 @@
 
 .reminder h5 {
     color: var(--color-warning-600) !important;
+}
+
+.end h5 {
+    color: var(--color-primary-600) !important;
+}
+
+.new h5 {
+    color: var(--color-info-600) !important;
 }

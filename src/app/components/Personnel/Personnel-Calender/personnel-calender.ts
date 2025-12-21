@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
 import { PersonnelCalenderService } from './personnel-calender.service';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,9 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './personnel-calender.css'
 })
 export class PersonnelCalenderComponent {
+    eventTrackBy(index: number, event: { title: string; date: string; type: string }) {
+      return event.date + '-' + event.title + '-' + event.type;
+    }
   isLoading = false;
   // Month/Year Picker UI
   showMonthYearPicker = false;
@@ -28,12 +31,13 @@ export class PersonnelCalenderComponent {
   years: number[] = Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i);
 
   toggleMonthYearPicker() {
-    this.showMonthYearPicker = !this.showMonthYearPicker;
-    this.pickerMonth = this.currentDate.getMonth();
-    this.pickerYear = this.currentDate.getFullYear();
+     this.showMonthYearPicker = !this.showMonthYearPicker;
+     this.pickerMonth = this.currentDate.getMonth();
+     this.pickerYear = this.currentDate.getFullYear();
+     this.cdr.detectChanges();
   }
   @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
-  constructor(private cdr: ChangeDetectorRef, private calenderService: PersonnelCalenderService) { }
+  constructor(private cdr: ChangeDetectorRef, private calenderService: PersonnelCalenderService, private ngZone: NgZone) { }
 
   // Month/Year Picker State
   currentDate: Date = new Date();
@@ -42,17 +46,20 @@ export class PersonnelCalenderComponent {
   }
   prevMonth() {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
   nextMonth() {
     this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
   setMonthYear() {
     this.currentDate = new Date(this.pickerYear, this.pickerMonth, 1);
     this.showMonthYearPicker = false;
+    this.cdr.detectChanges();
     this.fetchCalendarForCurrentDate();
     this.updateCalendarMonth();
   }
@@ -63,38 +70,55 @@ export class PersonnelCalenderComponent {
     this.calenderService.getCalendar(year, month).subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
-          // Group events by date and type to avoid duplication
-          const eventMap: { [key: string]: { title: string; date: string; type: string } } = {};
+          // Show all events, including New Joiner, End Contracts, End Probation, etc.
+          const events: { title: string; date: string; type: string }[] = [];
           response.data.list_items.forEach((item: any) => {
             item.items.forEach((event: any) => {
-              const key = `${item.date}_${event.type}`;
               let title = event.type;
-              if (event.title) title += ' - ' + event.title;
-              if (event.name_en) title += ' - ' + event.name_en;
-              if (eventMap[key]) {
-                // Merge titles for same type on same day
-                eventMap[key].title += `, ${title}`;
+              // Custom formatting for special types
+              if (event.type === 'New Joiner') {
+                title = `New Joiner: ${event.name_en || event.name_ar || ''}`;
+              } else if (event.type === 'End Contracts') {
+                title = `End Contract: ${event.name_en || event.name_ar || ''}`;
+              } else if (event.type === 'End Probation') {
+                title = `End Probation: ${event.name_en || event.name_ar || ''}`;
               } else {
-                eventMap[key] = {
-                  title,
-                  date: item.date,
-                  type: event.type
-                };
+                if (event.title) title += ` - ${event.title}`;
+                if (event.name_en) title += ` - ${event.name_en}`;
               }
+              events.push({
+                title,
+                date: item.date,
+                type: event.type
+              });
             });
           });
-          this.events = Object.values(eventMap);
+          this.events = events;
+          // Force FullCalendar to re-render by creating a new object reference
           this.calendarOptions = {
             ...this.calendarOptions,
-            events: this.events
+            events: [...this.events],
+            eventContent: function(arg) {
+              // Custom rendering: show type and title
+              const type = arg.event.extendedProps['type'];
+              return {
+                html: `<div class='fc-event-custom'><span class='fc-event-type'>${type}</span><br><span class='fc-event-title'>${arg.event.title}</span></div>`
+              };
+            }
           };
           this.cdr.detectChanges();
         }
-        this.isLoading = false;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         console.error('Calendar API error:', err);
-        this.isLoading = false;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -107,8 +131,10 @@ export class PersonnelCalenderComponent {
   }
 
   ngAfterViewInit() {
-    this.isLoading = true;
     setTimeout(() => {
+      this.isLoading = true;
+      this.cdr.detectChanges();
+      
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       this.handleDateClick({ dateStr });
@@ -116,9 +142,8 @@ export class PersonnelCalenderComponent {
       const calendarApi = this.calendarComponent?.getApi();
       calendarApi?.select(today);
 
-      this.cdr.detectChanges();
+      this.fetchCalendarForCurrentDate();
     });
-    this.fetchCalendarForCurrentDate();
   }
 
   selectedDateFormatted: string = '';
@@ -155,19 +180,24 @@ export class PersonnelCalenderComponent {
       const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
       return [`event-${eventType}`];
     },
-    dateClick: this.handleDateClick.bind(this)
+    dateClick: this.handleDateClick.bind(this),
+    eventClick: (arg) => {
+      this.handleDateClick({ dateStr: arg.event.startStr });
+    }
   };
 
   handleDateClick(arg: any) {
-    const clickedDate = arg.dateStr;
-    const dateObj = new Date(clickedDate);
+    this.ngZone.run(() => {
+      const clickedDate = arg.dateStr;
+      const dateObj = new Date(clickedDate);
 
-    this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long'
+      this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long'
+      });
+
+      this.eventsDay = this.events.filter(e => e.date === clickedDate);
     });
-
-    this.eventsDay = this.events.filter(e => e.date === clickedDate);
   }
 }

@@ -82,7 +82,7 @@
           {{ selectedDateFormatted }}
         </div>
         }
-        @for (event of eventsDay; track event) {
+        @for (event of eventsDay; track eventTrackBy) {
         <div class="event d-flex gap-3  align-items-stretch" [ngClass]="event.type.toLowerCase()">
           <div class="border"></div>
           <div class="contain d-flex flex-column">
