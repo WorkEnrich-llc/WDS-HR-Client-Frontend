@@ -64,6 +64,44 @@
           } @else {
           <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
           }
+          <style>
+            .fc-event-title {
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+            }
+            .fc-event-type-badge {
+              display: inline-block;
+              background: #e9ecef;
+              color: #333;
+              border-radius: 4px;
+              font-size: 0.75em;
+              padding: 0 6px;
+              margin-right: 4px;
+              margin-bottom: 2px;
+            }
+            .fc-event-time {
+              font-size: 0.8em;
+              color: #888;
+            }
+          </style>
+          <script>
+            // Enhance FullCalendar event rendering for better organization
+            document.addEventListener('DOMContentLoaded', function() {
+              if (window.FullCalendar) {
+                window.FullCalendar.EventRenderer = function(info) {
+                  var el = info.el;
+                  var event = info.event;
+                  var title = event.title || '';
+                  var type = event.extendedProps && event.extendedProps.type ? event.extendedProps.type : '';
+                  var time = event.start ? event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                  var badge = type ? `<span class='fc-event-type-badge'>${type}</span>` : '';
+                  var timeHtml = time ? `<span class='fc-event-time'>${time}</span>` : '';
+                  el.innerHTML = `<div class='fc-event-title'>${badge}${title}${timeHtml ? '<br>' + timeHtml : ''}</div>`;
+                };
+              }
+            });
+          </script>
         </div>
       </div>
 
