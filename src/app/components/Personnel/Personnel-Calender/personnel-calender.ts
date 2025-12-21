@@ -16,9 +16,9 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './personnel-calender.css'
 })
 export class PersonnelCalenderComponent {
-    eventTrackBy(index: number, event: { title: string; date: string; type: string }) {
-      return event.date + '-' + event.title + '-' + event.type;
-    }
+  eventTrackBy(index: number, event: { title: string; date: string; type: string }) {
+    return event.date + '-' + event.title + '-' + event.type;
+  }
   isLoading = false;
   // Month/Year Picker UI
   showMonthYearPicker = false;
@@ -31,10 +31,10 @@ export class PersonnelCalenderComponent {
   years: number[] = Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i);
 
   toggleMonthYearPicker() {
-     this.showMonthYearPicker = !this.showMonthYearPicker;
-     this.pickerMonth = this.currentDate.getMonth();
-     this.pickerYear = this.currentDate.getFullYear();
-     this.cdr.detectChanges();
+    this.showMonthYearPicker = !this.showMonthYearPicker;
+    this.pickerMonth = this.currentDate.getMonth();
+    this.pickerYear = this.currentDate.getFullYear();
+    this.cdr.detectChanges();
   }
   @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
   constructor(private cdr: ChangeDetectorRef, private calenderService: PersonnelCalenderService, private ngZone: NgZone) { }
@@ -98,7 +98,7 @@ export class PersonnelCalenderComponent {
           this.calendarOptions = {
             ...this.calendarOptions,
             events: [...this.events],
-            eventContent: function(arg) {
+            eventContent: function (arg) {
               // Custom rendering: show type and title
               const type = arg.event.extendedProps['type'];
               return {
@@ -134,7 +134,7 @@ export class PersonnelCalenderComponent {
     setTimeout(() => {
       this.isLoading = true;
       this.cdr.detectChanges();
-      
+
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       this.handleDateClick({ dateStr });

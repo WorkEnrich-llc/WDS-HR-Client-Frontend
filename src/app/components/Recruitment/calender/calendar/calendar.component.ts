@@ -136,7 +136,7 @@ export class CalendarComponent {
     setTimeout(() => {
       this.isLoading = true;
       this.cdr.detectChanges();
-      
+
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       this.handleDateClick({ dateStr });

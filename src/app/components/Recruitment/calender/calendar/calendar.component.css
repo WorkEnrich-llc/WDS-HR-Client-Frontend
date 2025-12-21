@@ -3,6 +3,7 @@
 :host ::ng-deep .fc-header-toolbar {
     display: none !important;
 }
+
 /* Event Card UI Improvements */
 .event-card {
     background: #fff;
