@@ -75,21 +75,21 @@
       } @else if (document.uploaded) {
       <div class="file-preview d-flex align-items-center gap-2">
         @if (document.url) {
-          <a [href]="document.url" target="_blank" rel="noopener" class="file-link">
-            <svg width="20" height="20" fill="currentColor" class="me-1" viewBox="0 0 24 24">
-              <path
-                d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 8L16 4.586A2 2 0 0 0 14.828 4H6zm0-2h8.828A4 4 0 0 1 20 4.828V20a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4z" />
-            </svg>
-            View File
-          </a>
-          <div class="file-info ms-2">
-            @if (document.size) {
-              <div><strong>Size:</strong> {{ getFormattedSize(document.size) }}</div>
-            }
-            @if (document.fileType) {
-              <div><strong>Type:</strong> {{ document.fileType }}</div>
-            }
-          </div>
+        <a [href]="document.url" target="_blank" rel="noopener" class="file-link">
+          <svg width="20" height="20" fill="currentColor" class="me-1" viewBox="0 0 24 24">
+            <path
+              d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 8L16 4.586A2 2 0 0 0 14.828 4H6zm0-2h8.828A4 4 0 0 1 20 4.828V20a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4z" />
+          </svg>
+          View File
+        </a>
+        <div class="file-info ms-2">
+          @if (document.size) {
+          <div><strong>Size:</strong> {{ getFormattedSize(document.size) }}</div>
+          }
+          @if (document.fileType) {
+          <div><strong>Type:</strong> {{ document.fileType }}</div>
+          }
+        </div>
         }
       </div>
       } @else {
@@ -196,15 +196,15 @@
           <small>{{ uploadProgress[document.key] }}%</small>
         </button>
         } @else {
-        <button class="view-btn" (click)="onViewDocument(document.url)" title="View" [disabled]="
-            !document.url || uploadProgress[document.key] !== undefined
-          ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </button>
+        @if (document.url) {
+          <button class="view-btn" (click)="onViewDocument(document.url)" title="View" [disabled]="uploadProgress[document.key] !== undefined">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        }
 
         <button class="view-btn" (click)="onUpload(document, fileInput)" title="Upload"
           [disabled]="uploadProgress[document.key] !== undefined">
