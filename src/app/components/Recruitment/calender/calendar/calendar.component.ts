@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CalendarService } from './calendar.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
@@ -31,6 +32,7 @@ export interface CalendarEvent {
 })
 
 export class CalendarComponent {
+  private calendarSub?: Subscription;
   isLoading = false;
   showMonthYearPicker = false;
   pickerMonth: number = new Date().getMonth();
@@ -86,7 +88,10 @@ export class CalendarComponent {
     this.isLoading = true;
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth() + 1;
-    this.calendarService.getCalendar(year, month).subscribe({
+    if (this.calendarSub) {
+      this.calendarSub.unsubscribe();
+    }
+    this.calendarSub = this.calendarService.getCalendar(year, month).subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
           // Map each event with all details for calendar and day details
@@ -186,5 +191,11 @@ export class CalendarComponent {
       this.eventsDay = this.events.filter(e => e.date === clickedDate);
       this.cdr.detectChanges();
     });
+  }
+
+  ngOnDestroy() {
+    if (this.calendarSub) {
+      this.calendarSub.unsubscribe();
+    }
   }
 }

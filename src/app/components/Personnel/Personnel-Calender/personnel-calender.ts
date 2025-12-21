@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { PersonnelCalenderService } from './personnel-calender.service';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CommonModule } from '@angular/common';
@@ -16,6 +17,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './personnel-calender.css'
 })
 export class PersonnelCalenderComponent {
+  private calendarSub?: Subscription;
   eventTrackBy(index: number, event: { title: string; date: string; type: string }) {
     return event.date + '-' + event.title + '-' + event.type;
   }
@@ -67,7 +69,10 @@ export class PersonnelCalenderComponent {
     this.isLoading = true;
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth() + 1;
-    this.calenderService.getCalendar(year, month).subscribe({
+    if (this.calendarSub) {
+      this.calendarSub.unsubscribe();
+    }
+    this.calendarSub = this.calenderService.getCalendar(year, month).subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
           // Show all events, including New Joiner, End Contracts, End Probation, etc.
@@ -199,5 +204,11 @@ export class PersonnelCalenderComponent {
 
       this.eventsDay = this.events.filter(e => e.date === clickedDate);
     });
+  }
+
+  ngOnDestroy() {
+    if (this.calendarSub) {
+      this.calendarSub.unsubscribe();
+    }
   }
 }

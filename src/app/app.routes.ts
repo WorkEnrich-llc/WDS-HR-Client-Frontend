@@ -377,12 +377,7 @@ export const routes: Routes = [
                 path: '',
                 loadComponent: () => import('./components/Personnel/Personnel-Calender/personnel-calender').then(m => m.PersonnelCalenderComponent),
                 title: 'Personnel Calendar',
-              },
-              {
-                path: 'calender',
-                loadComponent: () => import('./components/Personnel/Personnel-Calender/personnel-calender').then(m => m.PersonnelCalenderComponent),
-                title: 'Personnel Calendar',
-              },
+              }
             ]
           },
 
