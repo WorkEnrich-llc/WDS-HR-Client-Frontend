@@ -293,16 +293,13 @@ export class DocumentsTabComponent implements OnInit, OnChanges {
           const sub = item.sub || {};
           const inputOption = main.input_option || {};
           const documentUrl = sub.document_url || {};
+          const info = documentUrl.info || {};
 
           // Check if document is uploaded (has file_id)
-          // A file_id indicates the document has been uploaded, even if URL is empty
           const isUploaded = !!sub.file_id;
 
-          // Get document URL (prefer image_url, fallback to generate_signed_url)
-          // Only use non-empty strings
-          const imageUrl = documentUrl.generate_signed_url?.trim() || '';
-          const signedUrl = documentUrl.generate_signed_url?.trim() || '';
-          const url = imageUrl || signedUrl || undefined;
+          // Get document URL (prefer generate_signed_url, fallback to image_url)
+          const url = documentUrl.generate_signed_url?.trim() || documentUrl.image_url?.trim() || undefined;
 
           return {
             name: inputOption.label || 'Untitled Document',
@@ -313,10 +310,10 @@ export class DocumentsTabComponent implements OnInit, OnChanges {
             mainId: main.id,
             fileId: sub.file_id,
             uploadDate: sub.created_at || sub.updated_at,
-            fileName: undefined, // Not available in API response
-            size: undefined, // Not available in API response
-            fileExt: undefined, // Not available in API response
-            fileType: undefined, // Not available in API response
+            fileName: info.file_name || undefined,
+            size: info.file_size_kb || undefined,
+            fileExt: info.file_ext || undefined,
+            fileType: info.file_type || undefined,
             isLoading: false,
             isDeleteModalOpen: false,
             isEditable: false

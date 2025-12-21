@@ -375,13 +375,13 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                redirectTo: 'calender',
-                pathMatch: 'full'
+                loadComponent: () => import('./components/Personnel/Personnel-Calender/personnel-calender').then(m => m.PersonnelCalenderComponent),
+                title: 'Personnel Calendar',
               },
               {
                 path: 'calender',
-                loadComponent: () => import('./components/Personnel/Dashboard/dashboard/dashboard.component').then(m => m.DashboardComponent),
-                title: 'Personnel Dashboard',
+                loadComponent: () => import('./components/Personnel/Personnel-Calender/personnel-calender').then(m => m.PersonnelCalenderComponent),
+                title: 'Personnel Calendar',
               },
             ]
           },
