@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -35,6 +35,7 @@ export class AllJobTitlesComponent {
   currentSortColumn: string = '';
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private getAllJobTitlesSub?: Subscription;
   private toasterSubscription!: Subscription;
   currentFilters: any = {};
   currentSearchTerm: string = '';
@@ -74,11 +75,37 @@ export class AllJobTitlesComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
-
-    });
-
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          this.currentPage = 1;
+          this.currentSearchTerm = term;
+          this.loadData = true;
+          return this._JobsService.getAllJobTitles(this.currentPage, this.itemsPerPage, {
+            search: term || undefined,
+            request_in: 'all',
+            ...this.currentFilters
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.currentPage = Number(response.data.page);
+          this.totalItems = response.data.total_items;
+          this.totalPages = response.data.total_pages;
+          this.jobTitles = response.data.list_items;
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+          this.loadData = false;
+        },
+        error: (err) => {
+          console.error(err.error?.details);
+          this.loadData = false;
+        }
+      });
 
     this.filterForm = this.fb.group({
       updated_from: [''],
@@ -112,6 +139,15 @@ export class AllJobTitlesComponent {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.getAllJobTitlesSub) {
+      this.getAllJobTitlesSub.unsubscribe();
+    }
+    if (this.jobTitleSub && typeof this.jobTitleSub.unsubscribe === 'function') {
+      this.jobTitleSub.unsubscribe();
+    }
+    if (this.searchSubject) {
+      this.searchSubject.complete();
+    }
   }
 
   sortBy() {
@@ -129,9 +165,16 @@ export class AllJobTitlesComponent {
   }
 
   onSearchChange() {
-    this.currentPage = 1;
-    this.currentSearchTerm = this.searchTerm;
-    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    let value = this.searchTerm || '';
+    // Remove leading spaces for the payload only (do not change input)
+    let payload = value.replace(/^\s+/, '');
+    // Prevent more than 2 consecutive spaces anywhere in the payload
+    payload = payload.replace(/ {3,}/g, '  ');
+    // Prevent search if only whitespace or just a single space
+    if (payload.trim().length === 0) {
+      return;
+    }
+    this.searchSubject.next(payload);
   }
 
 
@@ -178,7 +221,10 @@ export class AllJobTitlesComponent {
       request_in?: string;
     }
   ) {
-    this._JobsService.getAllJobTitles(pageNumber, this.itemsPerPage, {
+    if (this.getAllJobTitlesSub) {
+      this.getAllJobTitlesSub.unsubscribe();
+    }
+    this.getAllJobTitlesSub = this._JobsService.getAllJobTitles(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       request_in: 'all',
       ...filters
@@ -188,7 +234,6 @@ export class AllJobTitlesComponent {
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
         this.jobTitles = response.data.list_items;
-        // console.log(this.jobTitles);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -197,7 +242,6 @@ export class AllJobTitlesComponent {
       error: (err) => {
         console.error(err.error?.details);
         this.loadData = false;
-
       }
     });
   }

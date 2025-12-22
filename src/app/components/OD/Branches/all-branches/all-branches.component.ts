@@ -9,7 +9,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
@@ -48,6 +48,7 @@ export class AllBranchesComponent implements OnInit {
   currentSortColumn: string = '';
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private getAllBranchesSub?: Subscription;
   private toasterSubscription!: Subscription;
   currentFilters: any = {};
   currentSearchTerm: string = '';
@@ -87,10 +88,50 @@ export class AllBranchesComponent implements OnInit {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllBranches(this.currentPage, value);
-    });
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          this.currentPage = 1;
+          this.currentSearchTerm = term;
+          this.loadData = true;
+          return this._BranchesService.getAllBranches(this.currentPage, this.itemsPerPage, {
+            search: term || undefined,
+            ...this.currentFilters
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.currentPage = Number(response.data.page);
+          this.totalItems = response.data.total_items;
+          this.totalpages = response.data.total_pages;
+          this.branches = response.data.list_items.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            location: item.location,
+            max_employee: item.max_employee ?? null,
+            createdAt: this.datePipe.transform(item.created_at, 'dd/MM/yyyy'),
+            updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
+            status: item.is_active ? 'Active' : 'Inactive',
+          }));
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+          this.loadData = false;
+        },
+        error: (err) => {
+          console.error(err.error?.details);
+          this.loadData = false;
+        }
+      });
 
+    this.route.queryParams.subscribe(params => {
+      const pageFromUrl = +params['page'] || this.paginationState.getPage('branches/all-branches') || 1;
+      this.currentPage = pageFromUrl;
+      this.getAllBranches(pageFromUrl);
+    });
 
     this.filterForm = this.fb.group({
       status: [''],
@@ -124,6 +165,15 @@ export class AllBranchesComponent implements OnInit {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.getAllBranchesSub) {
+      this.getAllBranchesSub.unsubscribe();
+    }
+    if (this.branchSub && typeof this.branchSub.unsubscribe === 'function') {
+      this.branchSub.unsubscribe();
+    }
+    if (this.searchSubject) {
+      this.searchSubject.complete();
+    }
   }
 
   sortBy() {
@@ -142,9 +192,16 @@ export class AllBranchesComponent implements OnInit {
 
 
   onSearchChange() {
-    this.currentPage = 1;
-    this.currentSearchTerm = this.searchTerm;
-    this.getAllBranches(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    let value = this.searchTerm || '';
+    // Remove leading spaces for the payload only (do not change input)
+    let payload = value.replace(/^\s+/, '');
+    // Prevent more than 2 consecutive spaces anywhere in the payload
+    payload = payload.replace(/ {3,}/g, '  ');
+    // Prevent search if only whitespace or just a single space
+    if (payload.trim().length === 0) {
+      return;
+    }
+    this.searchSubject.next(payload);
   }
 
   filter(): void {
@@ -190,12 +247,14 @@ export class AllBranchesComponent implements OnInit {
       max_employees?: number;
     }
   ) {
-    this._BranchesService.getAllBranches(pageNumber, this.itemsPerPage, {
+    if (this.getAllBranchesSub) {
+      this.getAllBranchesSub.unsubscribe();
+    }
+    this.getAllBranchesSub = this._BranchesService.getAllBranches(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
       next: (response) => {
-        // console.log(response);
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         this.totalpages = response.data.total_pages;
@@ -210,14 +269,12 @@ export class AllBranchesComponent implements OnInit {
         }));
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
-
         this.sortBy();
         this.loadData = false;
       },
       error: (err) => {
         console.error(err.error?.details);
         this.loadData = false;
-
       }
     });
   }

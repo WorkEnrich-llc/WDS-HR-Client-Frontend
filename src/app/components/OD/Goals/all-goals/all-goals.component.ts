@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
@@ -9,7 +9,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-all-goals',
@@ -17,7 +17,7 @@ import { debounceTime, filter, Subject, Subscription } from 'rxjs';
   templateUrl: './all-goals.component.html',
   styleUrl: './all-goals.component.css'
 })
-export class AllGoalsComponent {
+export class AllGoalsComponent implements OnInit, OnDestroy {
 
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
@@ -81,11 +81,36 @@ export class AllGoalsComponent {
         this.toasterMessageService.clearMessage();
       });
 
+
     this.searchSubject
-      .pipe(debounceTime(300))
-      .subscribe(value => {
-        this.currentPage = 1;
-        this.getAllGoals(this.currentPage, value);
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          this.currentPage = 1;
+          this.currentSearchTerm = term;
+          this.loadData = true;
+          return this.goalsService.getAllGoals(this.currentPage, this.itemsPerPage, {
+            search: term || undefined,
+            goal_type: this.currentFilters.goal_type || undefined
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const data = response?.data;
+          this.currentPage = Number(data?.page ?? 1);
+          this.totalItems = data?.total_items ?? 0;
+          this.totalpages = data?.total_pages ?? 0;
+          this.Goals = data?.list_items ?? [];
+          this.sortDirection = 'desc';
+          this.sortBy();
+          this.loadData = false;
+        },
+        error: (err) => {
+          console.error("Error loading goals:", err.error?.details || err.message);
+          this.loadData = false;
+        }
       });
 
     this.filterForm = this.fb.group({
@@ -96,14 +121,17 @@ export class AllGoalsComponent {
 
   }
 
+  private getAllGoalsSub?: Subscription;
   getAllGoals(
     pageNumber: number = 1,
     searchTerm: string = '',
     filters: { goal_type?: number } = {}
   ): void {
     this.loadData = true;
-
-    this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
+    if (this.getAllGoalsSub) {
+      this.getAllGoalsSub.unsubscribe();
+    }
+    this.getAllGoalsSub = this.goalsService.getAllGoals(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       goal_type: filters.goal_type || undefined
     }).subscribe({
@@ -137,9 +165,19 @@ export class AllGoalsComponent {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
 
+
   ngOnDestroy(): void {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
+    }
+    if (this.GoalsSub && typeof this.GoalsSub.unsubscribe === 'function') {
+      this.GoalsSub.unsubscribe();
+    }
+    if (this.getAllGoalsSub) {
+      this.getAllGoalsSub.unsubscribe();
+    }
+    if (this.searchSubject) {
+      this.searchSubject.complete();
     }
   }
 
@@ -163,10 +201,18 @@ export class AllGoalsComponent {
 
 
   // search and filter
+
   onSearchChange() {
-    this.currentPage = 1;
-    this.currentSearchTerm = this.searchTerm;
-    this.getAllGoals(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    let value = this.searchTerm || '';
+    // Remove leading spaces for the payload only (do not change input)
+    let payload = value.replace(/^\s+/, '');
+    // Prevent more than 2 consecutive spaces anywhere in the payload
+    payload = payload.replace(/ {3,}/g, '  ');
+    // Prevent search if only whitespace or just a single space
+    if (payload.trim().length === 0) {
+      return;
+    }
+    this.searchSubject.next(payload);
   }
 
 
