@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 export interface JobCreationData {
     main_information: {
@@ -23,6 +23,53 @@ export class JobCreationDataService {
     });
 
     public jobData$ = this.jobDataSubject.asObservable();
+
+    // Subject to trigger create/update from header button
+    private triggerCreateUpdateSubject = new Subject<void>();
+    public triggerCreateUpdate$ = this.triggerCreateUpdateSubject.asObservable();
+
+    // Cached data for dropdowns
+    private cachedJobTitles: any[] = [];
+    private cachedBranches: any[] = [];
+    private cachedWorkSchedules: any[] = [];
+
+    triggerCreateUpdate(): void {
+        this.triggerCreateUpdateSubject.next();
+    }
+
+    // Job Titles cache
+    getCachedJobTitles(): any[] {
+        return this.cachedJobTitles;
+    }
+
+    setCachedJobTitles(jobTitles: any[]): void {
+        this.cachedJobTitles = jobTitles;
+    }
+
+    // Branches cache
+    getCachedBranches(): any[] {
+        return this.cachedBranches;
+    }
+
+    setCachedBranches(branches: any[]): void {
+        this.cachedBranches = branches;
+    }
+
+    // Work Schedules cache
+    getCachedWorkSchedules(): any[] {
+        return this.cachedWorkSchedules;
+    }
+
+    setCachedWorkSchedules(workSchedules: any[]): void {
+        this.cachedWorkSchedules = workSchedules;
+    }
+
+    // Clear all cached data
+    clearCache(): void {
+        this.cachedJobTitles = [];
+        this.cachedBranches = [];
+        this.cachedWorkSchedules = [];
+    }
 
     updateMainInformation(data: Partial<JobCreationData['main_information']>): void {
         const currentData = this.jobDataSubject.value;

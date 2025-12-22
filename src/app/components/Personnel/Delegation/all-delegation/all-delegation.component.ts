@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -14,7 +14,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-delegation',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, PopupComponent, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-delegation.component.html',
   styleUrl: './all-delegation.component.css'

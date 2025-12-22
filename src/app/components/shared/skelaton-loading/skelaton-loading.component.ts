@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-skelaton-loading',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './skelaton-loading.component.html',
   styleUrl: './skelaton-loading.component.css'
 })

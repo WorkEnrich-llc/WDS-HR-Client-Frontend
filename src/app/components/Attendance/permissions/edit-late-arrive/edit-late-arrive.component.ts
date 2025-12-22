@@ -3,13 +3,13 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { PermissionsService } from '../../../../core/services/attendance/permissions/permissions.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-late-arrive',
-  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './edit-late-arrive.component.html',
   styleUrl: './edit-late-arrive.component.css',
   encapsulation: ViewEncapsulation.None

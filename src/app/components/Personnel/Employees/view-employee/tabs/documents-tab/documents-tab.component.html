@@ -1,16 +1,28 @@
 <div class="documents-content">
   <h2 class="mb-3">Documents Checklist</h2>
-
+  <!-- 
   <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-outline-primary" routerLink="/permissions/edit-late-arrive" (click)="onAddNewDocument()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" fill-rule="evenodd"
+    <button
+      class="btn btn-outline-primary"
+      routerLink="/permissions/edit-late-arrive"
+      (click)="onAddNewDocument()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
           d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75"
-          clip-rule="evenodd" />
+          clip-rule="evenodd"
+        />
       </svg>
       <span>Add Document</span>
     </button>
-  </div>
+  </div> -->
 
   <!-- hidden file input for uploads -->
   <input type="file" class="input" #fileInput (change)="onFileSelected($event)" hidden />
@@ -18,8 +30,8 @@
   <!-- Documents Table -->
   <app-table [data]="documentsRequired" [totalItems]="documentsRequired.length" [itemsPerPage]="itemsPerPage"
     [currentPage]="currentPage" [columnsCount]="4" [headerTemplate]="documentsTableHeader"
-    [rowTemplate]="documentsTableRow" [emptyTemplate]="documentsTableEmpty" (pageChange)="onPageChange($event)"
-    (itemsPerPageChange)="onItemsPerPageChange($event)">
+    [rowTemplate]="documentsTableRow" [emptyTemplate]="documentsTableEmpty" [isLoading]="isLoading"
+    (pageChange)="onPageChange($event)" (itemsPerPageChange)="onItemsPerPageChange($event)">
   </app-table>
 
   <!-- Header Template -->
@@ -28,9 +40,11 @@
     <th class="w-20">Upload Date</th>
     <th class="w-20">
       <span class="d-block text-gray fw-light">Size</span>
-      <span class="d-block text-truncate" style="max-width: 300px;">
+      <span class="d-block text-truncate" style="max-width: 300px">
         File Name
       </span>
+    </th>
+
     <th class="w-30">Actions</th>
   </ng-template>
 
@@ -40,7 +54,7 @@
     <td>
       @if (document.isEditable && !document.uploaded) {
       <input type="text" class="form-control form-control-sm" [(ngModel)]="document.name" placeholder="Document Name"
-        required>
+        required />
       } @else {
       {{ document.name }}
       }
@@ -53,10 +67,30 @@
       }
     </td>
     <td>
-      @if (document.uploaded) {
-      <div>
-        <small class="text-muted">{{ getFormattedSize(document.size) }}</small><br>
-        <small>{{ document.fileName || 'Unknown File' }}</small>
+      @if (document.isLoading) {
+      <div class="progress" style="height: 6px; margin-bottom: 4px;">
+        <div class="progress-bar" [style.width.%]="uploadProgress[document.key] || 0"></div>
+      </div>
+      <span class="text-muted">Uploading...</span>
+      } @else if (document.uploaded) {
+      <div class="file-preview d-flex align-items-center gap-2">
+        @if (document.url) {
+        <a [href]="document.url" target="_blank" rel="noopener" class="file-link">
+          <svg width="20" height="20" fill="currentColor" class="me-1" viewBox="0 0 24 24">
+            <path
+              d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.828A2 2 0 0 0 19.414 8L16 4.586A2 2 0 0 0 14.828 4H6zm0-2h8.828A4 4 0 0 1 20 4.828V20a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4z" />
+          </svg>
+          View File
+        </a>
+        <div class="file-info ms-2">
+          @if (document.size) {
+          <div><strong>Size:</strong> {{ getFormattedSize(document.size) }}</div>
+          }
+          @if (document.fileType) {
+          <div><strong>Type:</strong> {{ document.fileType }}</div>
+          }
+        </div>
+        }
       </div>
       } @else {
       <span class="text-warning">Not Uploaded</span>
@@ -156,23 +190,25 @@
     <td>
       @if (document.uploaded) {
       <div class="d-flex align-items-center gap-2">
-
         @if (uploadProgress[document.key] !== undefined) {
         <button class="view-btn" disabled title="Uploading">
           <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           <small>{{ uploadProgress[document.key] }}%</small>
         </button>
         } @else {
+        @if (document.url) {
         <button class="view-btn" (click)="onViewDocument(document.url)" title="View"
-          [disabled]="!document.url || uploadProgress[document.key] !== undefined">
+          [disabled]="uploadProgress[document.key] !== undefined">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
         </button>
+        }
 
-        <button class="view-btn" (click)="onUpload(document.key, fileInput)" title="Upload">
+        <button class="view-btn" (click)="onUpload(document, fileInput)" title="Upload"
+          [disabled]="uploadProgress[document.key] !== undefined">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -181,8 +217,11 @@
           </svg>
           Upload
         </button>
-        <button class="remove-btn" (click)="openDeleteModal(document)" title="Delete "
-          [disabled]="!document.url || uploadProgress[document.key] !== undefined">
+        <button class="remove-btn" (click)="openDeleteModal(document)" title="Delete " [disabled]="
+            !document.fileId ||
+            document.isLoading ||
+            uploadProgress[document.key] !== undefined
+          ">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3,6 5,6 21,6" />
@@ -193,14 +232,17 @@
         }
       </div>
 
-
-      <app-popup [title]="'Delete'" [paragraph1]="'Are you Sure you want to delete this document: ' + document.name"
-        [paragraph2]="'This action can’t be undone!'" [isOpen]="document.isDeleteModalOpen"
+      <app-popup [title]="'Delete'" [paragraph1]="
+          'Are you Sure you want to delete this document: ' + document.name
+        " [paragraph2]="'This action can’t be undone!'" [isOpen]="document.isDeleteModalOpen"
         (close)="closeDeleteModal(document)">
-        <button modal-btn-left class="btn btn-lg btn-danger w-100"
-          [disabled]="!document.url || uploadProgress[document.key] !== undefined" (click)="onDelete(document.key)">
-
-          @if(document.isLoading){ <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        <button modal-btn-left class="btn btn-lg btn-danger w-100" [disabled]="
+            !document.fileId ||
+            document.isLoading ||
+            uploadProgress[document.key] !== undefined
+          " (click)="onDelete(document.key)">
+          @if(document.isLoading){
+          <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
           }@else{
           <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -225,17 +267,17 @@
         </button>
       </app-popup>
 
-
-      }
-      @else {
-      @if (uploadProgress[document.key] !== undefined) {
+      } @else { @if (uploadProgress[document.key] !== undefined) {
       <button class="view-btn d-flex align-items-center" disabled title="Uploading">
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         <small>{{ uploadProgress[document.key] }}%</small>
       </button>
       } @else {
-      <button class="view-btn" (click)="onUpload(document.key, fileInput)"
-        [disabled]="!document.name || !document.name.trim()">
+      <button class="view-btn" (click)="onUpload(document, fileInput)" [disabled]="
+          !document.name ||
+          !document.name.trim() ||
+          uploadProgress[document.key] !== undefined
+        ">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -244,7 +286,6 @@
         </svg>
         Upload
       </button>
-
 
       @if (document.isEditable) {
       <button class="remove-btn mx-3" (click)="onDelete(document.key)" title="Remove">
@@ -255,13 +296,8 @@
         </svg>
         Remove
       </button>
-      }
-
-      }
-      }
+      } } }
     </td>
-
-
   </ng-template>
 
   <!-- Empty Template -->
@@ -277,5 +313,4 @@
       </td>
     </tr>
   </ng-template>
-
 </div>

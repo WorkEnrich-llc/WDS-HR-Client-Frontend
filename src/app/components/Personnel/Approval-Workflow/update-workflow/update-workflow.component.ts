@@ -63,8 +63,16 @@ export class UpdateWorkflowComponent {
     const leaveControl = this.workflow1.get('leave_id');
     if (workflowType === 'leave') {
       leaveControl?.enable({ emitEvent: false });
+      // Set required validator when enabled
+      leaveControl?.setValidators([Validators.required]);
+      leaveControl?.updateValueAndValidity({ emitEvent: false });
     } else {
       leaveControl?.disable({ emitEvent: false });
+      // Clear value when not leave type
+      leaveControl?.setValue('', { emitEvent: false });
+      // Remove required validator when disabled
+      leaveControl?.clearValidators();
+      leaveControl?.updateValueAndValidity({ emitEvent: false });
     }
   }
 
@@ -80,9 +88,11 @@ export class UpdateWorkflowComponent {
   }
 
   getWorkflow(workId: number) {
+    this.isLoadingWorkflow = true;
     this._WorkflowService.showWorkflow(workId).subscribe({
       next: (response) => {
         this.workflowData = response.data.object_info;
+        this.isLoadingWorkflow = false;
 
         const created = this.workflowData?.created_at;
         const updated = this.workflowData?.updated_at;
@@ -151,6 +161,7 @@ export class UpdateWorkflowComponent {
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingWorkflow = false;
       }
     });
   }
@@ -173,6 +184,10 @@ export class UpdateWorkflowComponent {
   departments: any[] = [];
   jobTitles: any[] = [];
   loadData: boolean = true;
+  isLoadingWorkflow: boolean = false; // Loading state for workflow data
+  isLoadingLeaveTypes: boolean = false; // Loading state for leave types
+  isLoadingDepartments: boolean = false; // Loading state for departments
+  isLoadingJobTitles: boolean = false; // Loading state for job titles
 
   getAllLeaveTypes(
     searchTerm: string = '',
@@ -181,6 +196,7 @@ export class UpdateWorkflowComponent {
     },
     selectedLeaveId?: number
   ) {
+    this.isLoadingLeaveTypes = true;
     this._LeaveTypeService.getAllLeavetypes(1, 10000, {
       search: searchTerm || undefined,
       ...filters
@@ -199,9 +215,12 @@ export class UpdateWorkflowComponent {
         }
 
         this.leaveTypes = leaveTypes;
+        this.isLoadingLeaveTypes = false;
+        this.loadData = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingLeaveTypes = false;
         this.loadData = false;
       }
     });
@@ -213,15 +232,18 @@ export class UpdateWorkflowComponent {
       employment_type?: string;
     }
   ) {
+    this.isLoadingDepartments = true;
     this._DepartmentsService.getAllDepartment(1, 10000, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
       next: (response) => {
         this.departments = response.data.list_items;
+        this.isLoadingDepartments = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingDepartments = false;
         this.loadData = false;
       }
     });
@@ -234,15 +256,18 @@ export class UpdateWorkflowComponent {
       employment_type?: string;
     }
   ) {
+    this.isLoadingJobTitles = true;
     this._JobsService.getAllJobTitles(1, 10000, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
       next: (response) => {
         this.jobTitles = response.data.list_items;
+        this.isLoadingJobTitles = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingJobTitles = false;
         this.loadData = false;
       }
     });
@@ -361,7 +386,7 @@ export class UpdateWorkflowComponent {
         code: this.workflow1.value.code,
         name: this.workflow1.value.name,
         workflow_type: this.workflow1.value.workflow_type,
-        leave_id: Number(this.workflow1.value.leave_id),
+        leave_id: this.workflow1.value.workflow_type === 'leave' ? Number(this.workflow1.value.leave_id) : null,
         department_id: Number(this.workflow1.value.department_id),
         steps: [...currentSteps, ...removedSteps]
       }
@@ -374,7 +399,7 @@ export class UpdateWorkflowComponent {
         this.errMsg = '';
         // update success
         this.router.navigate(['/workflow/all-workflows']);
-        this.toasterMessageService.showSuccess("Workflow Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Workflow Updated successfully", "Updated Successfully");
 
       },
       error: (err) => {

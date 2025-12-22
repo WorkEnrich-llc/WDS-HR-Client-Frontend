@@ -9,6 +9,7 @@ import { SubscriptionService } from 'app/core/services/subscription/subscription
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { DepartmentChecklistService } from '../../../../core/services/od/departmentChecklist/department-checklist.service';
@@ -436,7 +437,7 @@ export class EditDepartmentsComponent implements OnInit {
 
 
   updateDept() {
-    
+
     if (this.deptStep1.invalid || this.deptStep2.invalid || this.sectionsFormArray.length === 0) {
       this.errMsg = 'Please complete both steps with valid data and at least one section.';
       return;
@@ -568,7 +569,7 @@ export class EditDepartmentsComponent implements OnInit {
         this.isLoading = false;
         this.errMsg = '';
         this.router.navigate(['/departments/all-departments'], { queryParams: { page: this.currentPage } });
-        this.toasterMessageService.showSuccess("Department Updated successfully","Updated");
+        this.toasterMessageService.showSuccess("Department Updated successfully", "Updated");
       },
       error: (err) => {
         this.isLoading = false;
@@ -663,6 +664,29 @@ export class EditDepartmentsComponent implements OnInit {
         this.toasterMessageService.showError('Failed to load department checklist');
       }
     });
+  }
+
+  // Load department checklist and return observable for chaining
+  private loadDepartmentChecklistObservable() {
+    return this.departmentChecklistService.getDepartmetChecks(1, 10000).pipe(
+      map((response) => {
+        // Get assigned checklist IDs from department response
+        const assignedChecklistIds = (this.departmentData?.assigned_checklist || []).map((item: any) => item.id);
+
+        // Transform API response to match OnboardingListItem format and build title-to-ID mapping
+        const listItems = response?.data?.list_items || [];
+        this.titleToIdMap.clear(); // Clear previous mapping
+        this.departmentChecklistItems = listItems.map((item: any) => {
+          // Store mapping of title to ID
+          this.titleToIdMap.set(item.name || '', item.id);
+          return {
+            title: item.name || '',
+            status: assignedChecklistIds.includes(item.id) // Mark as checked if in assigned_checklist
+          };
+        });
+        return response;
+      })
+    );
   }
 
   // Onboarding checklist modal methods
@@ -816,8 +840,7 @@ export class EditDepartmentsComponent implements OnInit {
     // Call update endpoint
     this._DepartmentsService.updateDepartment(updatePayload).subscribe({
       next: (response) => {
-        this.loadingChecklistItemTitle = null;
-        this.toasterMessageService.showSuccess('Checklist updated successfully','Updated Successfully');
+        this.toasterMessageService.showSuccess('Checklist updated successfully', 'Updated Successfully');
 
         // Refresh department checklist from latest server response without reloading the whole page
         this._DepartmentsService.showDepartment(this.departmentData.id).subscribe({
@@ -825,11 +848,23 @@ export class EditDepartmentsComponent implements OnInit {
             const updatedDept = deptResponse.data.object_info;
             // Update only departmentData and checklist-related state
             this.departmentData = updatedDept;
-            // Reload checklist to reflect updated assigned_checklist
-            this.loadDepartmentChecklist();
+            // Reload checklist to reflect updated assigned_checklist, then clear loading state
+            this.loadDepartmentChecklistObservable().subscribe({
+              next: () => {
+                // Clear loading state only after department data and checklist are reloaded
+                this.loadingChecklistItemTitle = null;
+              },
+              error: (checklistError) => {
+                console.error('Error loading department checklist:', checklistError);
+                // Clear loading state even on error to prevent stuck state
+                this.loadingChecklistItemTitle = null;
+              }
+            });
           },
           error: (deptError) => {
             console.error('Error refreshing department after checklist update:', deptError);
+            // Clear loading state even on error to prevent stuck state
+            this.loadingChecklistItemTitle = null;
           }
         });
       },

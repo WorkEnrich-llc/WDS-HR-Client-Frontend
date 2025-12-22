@@ -7,7 +7,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, of } from 'rxjs';
+import { takeUntil, switchMap, distinctUntilChanged, map } from 'rxjs/operators';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -43,30 +44,18 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private activeFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private routeSubscription!: Subscription;
+  private searchSubscription!: Subscription;
+  private destroy$ = new Subject<void>();
+  private isInitialLoad: boolean = true;
+  private isUpdatingQueryParams: boolean = false;
+  private isChangingItemsPerPage: boolean = false;
+  private lastLoadedPage: number = 0; // Initialize to 0 so initial load always happens
   loading: boolean = true;
 
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
-      this.currentPage = pageFromUrl;
-      this.loadEmployees();
-    });
-
-
-    this.toasterSubscription = this.toasterMessageService.currentMessage$
-      .pipe(filter(msg => !!msg && msg.trim() !== ''))
-      .subscribe(msg => {
-        this.toastr.clear();
-        this.toastr.success(msg, '', { timeOut: 3000 });
-        this.toasterMessageService.clearMessage();
-      });
-
-    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
-      this.currentPage = 1;
-      this.loadEmployees();
-    });
-
+    // Initialize filter form first
     this.filterForm = this.fb.group({
       created_from: [''],
       created_to: [''],
@@ -74,6 +63,155 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       contract_end_date: [''],
       contract_start_date: [''],
     });
+
+    // Load state from query params
+    this.routeSubscription = this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        // Skip if we're programmatically updating query params
+        if (this.isUpdatingQueryParams) {
+          return;
+        }
+
+        // Track previous filters to detect changes
+        const previousFilters = JSON.stringify(this.activeFilters);
+
+        // Load pagination
+        const pageFromUrl = +params['page'] || this.paginationState.getPage('employees/all-employees') || 1;
+        this.currentPage = pageFromUrl;
+
+        // Load search term
+        if (params['search']) {
+          this.searchTerm = decodeURIComponent(params['search']);
+        } else {
+          this.searchTerm = '';
+        }
+
+        // Load filters
+        if (params['filters']) {
+          try {
+            const filters = JSON.parse(decodeURIComponent(params['filters']));
+            this.activeFilters = filters;
+            // Populate filter form
+            this.filterForm.patchValue({
+              status: filters.status || '',
+              created_from: filters.created_from || '',
+              created_to: filters.created_to || '',
+              contract_end_date: filters.contract_end_date || '',
+              contract_start_date: filters.contract_start_date || ''
+            });
+          } catch (e) {
+            console.error('Error parsing filters from query params:', e);
+            this.activeFilters = {};
+          }
+        } else {
+          // Clear filters if not in query params
+          this.activeFilters = {};
+          // Reset filter form when filters are cleared
+          this.filterForm.patchValue({
+            status: '',
+            created_from: '',
+            created_to: '',
+            contract_end_date: '',
+            contract_start_date: ''
+          });
+        }
+
+        // Load items per page from 'view' parameter
+        if (params['view']) {
+          this.itemsPerPage = +params['view'] || 10;
+        } else if (params['itemsPerPage']) {
+          // Backward compatibility: if itemsPerPage exists but view doesn't, use it
+          this.itemsPerPage = +params['itemsPerPage'] || 10;
+        }
+
+        // Check if filters changed or page changed
+        const currentFilters = JSON.stringify(this.activeFilters);
+        const filtersChanged = previousFilters !== currentFilters;
+        const pageChanged = pageFromUrl !== this.lastLoadedPage;
+
+        // Load employees if page changed, filters changed, or it's initial load
+        if (pageChanged || filtersChanged || this.isInitialLoad) {
+          this.isInitialLoad = false;
+          // Reset lastLoadedPage to ensure loadEmployees executes
+          if (filtersChanged) {
+            this.lastLoadedPage = 0;
+          }
+          this.loadEmployees();
+        }
+      });
+
+
+    this.toasterSubscription = this.toasterMessageService.currentMessage$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(msg => !!msg && msg.trim() !== '')
+      )
+      .subscribe(msg => {
+        this.toastr.clear();
+        this.toastr.success(msg, '', { timeOut: 3000 });
+        this.toasterMessageService.clearMessage();
+      });
+
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        takeUntil(this.destroy$),
+        // Trim leading whitespace from search term
+        map((searchTerm: string) => {
+          const trimmed = searchTerm.trimStart();
+          // Update searchTerm property to reflect trimmed value in UI
+          this.searchTerm = trimmed;
+          return trimmed;
+        }),
+        // Debounce to wait for user to stop typing
+        debounceTime(600),
+        // Avoid duplicate consecutive searches
+        distinctUntilChanged(),
+        // Cancel previous request and make new one
+        switchMap((searchTerm: string) => {
+          this.loading = true;
+          this.loadData = true;
+          this.currentPage = 1;
+
+          // If search is empty or whitespace-only, load without search term
+          const finalSearchTerm = (searchTerm && searchTerm.trim() !== '') ? searchTerm.trim() : '';
+
+          // Update query params with search term (only if not initial load)
+          if (!this.isInitialLoad) {
+            this.updateQueryParams({ search: finalSearchTerm, page: 1 });
+          }
+
+          return this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, finalSearchTerm, this.activeFilters);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          try {
+            // Handle response structure
+            const listItems = response?.data?.list_items || [];
+            const totalItems = response?.data?.total_items || 0;
+
+            this.employees = listItems;
+            this.totalItems = totalItems;
+            this.transformEmployeesForDisplay();
+            this.loading = false;
+            this.loadData = false;
+            this.sortDirection = 'desc';
+            this.sortBy();
+          } catch (error) {
+            console.error('Error processing search response:', error);
+            this.loading = false;
+            this.loadData = false;
+            this.toastr.error('Error processing search results', 'Error');
+          }
+        },
+        error: (error) => {
+          console.error('Error loading employees:', error);
+          this.loading = false;
+          this.loadData = false;
+          this.toastr.error('Failed to load employees', 'Error');
+        }
+      });
   }
 
   // loadEmployees(currentPage: number): void {
@@ -98,20 +236,39 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   loadEmployees(): void {
+    // Prevent duplicate requests for the same page
+    if (this.currentPage === this.lastLoadedPage && !this.isInitialLoad) {
+      return;
+    }
+
     this.loading = true;
     this.loadData = true;
 
     // Pass all state properties to the service method
     this.employeeService.getEmployees(this.currentPage, this.itemsPerPage, this.searchTerm, this.activeFilters)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.employees = response.data.list_items;
-          this.totalItems = response.data.total_items;
-          this.transformEmployeesForDisplay();
-          this.loading = false;
-          this.loadData = false;
-          this.sortDirection = 'desc';
-          this.sortBy();
+          try {
+            // Handle response structure
+            const listItems = response?.data?.list_items || [];
+            const totalItems = response?.data?.total_items || 0;
+
+            this.employees = listItems;
+            this.totalItems = totalItems;
+            this.transformEmployeesForDisplay();
+            this.loading = false;
+            this.loadData = false;
+            this.sortDirection = 'desc';
+            this.sortBy();
+            // Track the last loaded page to prevent duplicate requests
+            this.lastLoadedPage = this.currentPage;
+          } catch (error) {
+            console.error('Error processing employees data:', error);
+            this.loading = false;
+            this.loadData = false;
+            this.toastr.error('Error processing employees data', 'Error');
+          }
         },
         error: (error) => {
           console.error('Error loading employees:', error);
@@ -132,8 +289,20 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         contract_end_date: rawFilters.contract_end_date || null,
         contract_start_date: rawFilters.contract_start_date || null
       };
+
+      // Reset to page 1 and reset lastLoadedPage to ensure loadEmployees executes
       this.currentPage = 1;
+      this.lastLoadedPage = 0; // Reset to force loadEmployees to execute
+
+      // Set flag to prevent route subscription from firing
+      this.isUpdatingQueryParams = true;
+
+      // Update query params with filters
+      this.updateQueryParams({ filters: this.activeFilters, page: 1 });
+
+      // Load employees with the new filters (bypassing duplicate check by resetting lastLoadedPage)
       this.loadEmployees();
+
       this.filterBox.closeOverlay();
     }
   }
@@ -141,18 +310,39 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   // Transform API data to match the template expectations
   transformEmployeesForDisplay(): void {
-    this.filteredEmployees = this.employees.map(employee => ({
-      id: employee.id,
-      code: employee.code,
-      name: employee.contact_info.name,
-      name_arabic: employee.contact_info.name_arabic,
-      employeeStatus: employee.employee_status,
-      accountStatus: this.getAccountStatus(employee.employee_active),
-      jobTitle: employee.job_info.job_title.name,
-      branch: employee.job_info.branch.name,
-      joinDate: this.formatDate(employee.job_info.start_contract),
-      end_contract: employee.job_info.end_contract
-    }));
+    try {
+      if (!this.employees || !Array.isArray(this.employees) || this.employees.length === 0) {
+        this.filteredEmployees = [];
+        return;
+      }
+
+      this.filteredEmployees = this.employees.map((item: any) => {
+        try {
+          // The employee data is nested in object_info
+          const employee = item.object_info || item;
+          const endContract = employee.current_contract?.end_contract;
+          return {
+            id: employee.id,
+            code: employee.code || '',
+            name: employee.contact_info?.name || '',
+            name_arabic: employee.contact_info?.name_arabic || '',
+            employeeStatus: employee.employee_status || '',
+            accountStatus: this.getAccountStatus(employee.employee_active),
+            jobTitle: employee.job_info?.job_title?.name || '',
+            branch: employee.job_info?.branch?.name || '',
+            joinDate: this.formatDate(employee.job_info?.start_contract),
+            end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
+            created_at: employee.created_at || ''
+          };
+        } catch (empError) {
+          console.error('Error transforming employee:', empError, item);
+          return null;
+        }
+      }).filter(emp => emp !== null); // Remove any null entries from failed transformations
+    } catch (error) {
+      console.error('Error transforming employees:', error);
+      this.filteredEmployees = [];
+    }
   }
 
   // Helper method to convert string employee_active to account status
@@ -260,13 +450,54 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    // Trim leading whitespace before emitting
+    const trimmedSearch = this.searchTerm.trimStart();
+    // Update the searchTerm property to reflect trimmed value
+    this.searchTerm = trimmedSearch;
+    this.searchSubject.next(trimmedSearch);
   }
 
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.loadEmployees();
+
+    // Set flags to prevent route subscription and pageChange from interfering
+    this.isUpdatingQueryParams = true;
+    this.isChangingItemsPerPage = true;
+
+    // Get current params to remove itemsPerPage if it exists
+    const currentParams = { ...this.route.snapshot.queryParams };
+    const updatedParams: any = {
+      ...currentParams,
+      view: newItemsPerPage.toString(),
+      page: '1'
+    };
+
+    // Remove itemsPerPage if it exists
+    if (updatedParams['itemsPerPage']) {
+      delete updatedParams['itemsPerPage'];
+    }
+
+    // Navigate with only the params we want
+    // Don't use merge - set all params explicitly to remove itemsPerPage
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: updatedParams
+    }).then(() => {
+      // Reset flags after navigation completes
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+        this.isChangingItemsPerPage = false;
+      }, 100); // Small delay to ensure pageChange event doesn't interfere
+
+      // Load employees with the new itemsPerPage value
+      this.loadEmployees();
+    }).catch((error) => {
+      console.error('Navigation error:', error);
+      this.isUpdatingQueryParams = false;
+      this.isChangingItemsPerPage = false;
+      this.loadEmployees();
+    });
   }
 
   // onPageChange(page: number): void {
@@ -275,19 +506,44 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   // }
 
   onPageChange(page: number): void {
+    // Skip if we're changing items per page (it will trigger pageChange to 1)
+    if (this.isChangingItemsPerPage) {
+      return;
+    }
+
     this.currentPage = page;
-    this.paginationState.setPage('...', page);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { page },
-      queryParamsHandling: 'merge'
-    });
+    this.paginationState.setPage('employees/all-employees', page);
+
+    // Set flag to prevent route subscription from firing
+    // updateQueryParams will also set this flag, but we set it here first to be safe
+    this.isUpdatingQueryParams = true;
+
+    // Update query params with page - this will navigate and trigger route changes
+    // but the flag prevents the route subscription from calling loadEmployees
+    this.updateQueryParams({ page });
+
+    // Load employees directly with the new page (route subscription is blocked by flag)
+    this.loadEmployees();
   }
 
   ngOnDestroy(): void {
+    // Complete the destroy subject to trigger takeUntil for all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Unsubscribe from individual subscriptions if they exist
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+
+    // Complete the search subject
+    this.searchSubject.complete();
   }
 
   navigateToEdit(employeeId: number): void {
@@ -309,8 +565,89 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     this.filterForm.reset();
     this.activeFilters = {};
     this.currentPage = 1;
+
+    // Clear filters from query params
+    this.updateQueryParams({ filters: null, page: 1 });
+
     this.loadEmployees();
     this.filterBox.closeOverlay();
+  }
+
+  /**
+   * Update query parameters while preserving existing ones
+   */
+  private updateQueryParams(updates: {
+    page?: number;
+    search?: string;
+    filters?: any;
+    itemsPerPage?: number;
+  }): void {
+    const currentParams = this.route.snapshot.queryParams;
+    const newParams: any = { ...currentParams };
+
+    // Update page
+    if (updates.page !== undefined) {
+      newParams['page'] = updates.page.toString();
+    }
+
+    // Update search
+    if (updates.search !== undefined) {
+      if (updates.search && updates.search.trim() !== '') {
+        newParams['search'] = encodeURIComponent(updates.search);
+      } else {
+        delete newParams['search'];
+      }
+    }
+
+    // Update filters
+    if (updates.filters !== undefined) {
+      if (updates.filters && Object.keys(updates.filters).length > 0) {
+        // Only include non-null filters
+        const nonNullFilters: any = {};
+        Object.keys(updates.filters).forEach(key => {
+          if (updates.filters[key] !== null && updates.filters[key] !== '') {
+            nonNullFilters[key] = updates.filters[key];
+          }
+        });
+
+        if (Object.keys(nonNullFilters).length > 0) {
+          newParams['filters'] = encodeURIComponent(JSON.stringify(nonNullFilters));
+        } else {
+          delete newParams['filters'];
+        }
+      } else {
+        delete newParams['filters'];
+      }
+    }
+
+    // Update items per page (save as 'view' in query params)
+    if (updates.itemsPerPage !== undefined) {
+      // Always save the view value if provided (even if it's the default)
+      if (updates.itemsPerPage !== null && updates.itemsPerPage !== undefined && !isNaN(updates.itemsPerPage) && updates.itemsPerPage > 0) {
+        newParams['view'] = updates.itemsPerPage.toString();
+        // Remove itemsPerPage if it exists (migration from old param)
+        delete newParams['itemsPerPage'];
+      } else {
+        // Only delete if explicitly set to null/undefined/0
+        delete newParams['view'];
+        delete newParams['itemsPerPage'];
+      }
+    }
+
+    // Set flag to prevent route subscription from firing
+    this.isUpdatingQueryParams = true;
+
+    // Navigate with updated params
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: newParams,
+      queryParamsHandling: 'merge'
+    }).then(() => {
+      // Reset flag after navigation completes with enough delay to prevent route subscription from firing
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+      }, 100);
+    });
   }
 
 

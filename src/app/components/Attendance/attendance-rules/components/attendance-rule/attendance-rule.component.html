@@ -136,7 +136,7 @@
           <tr>
             <td>Lateness</td>
             @for (occurrence of [1, 2, 3]; track occurrence) {
-            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.lateness || [], occurrence);
+            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.lateness || [], occurrence, true);
             <td>
               <div class="d-flex flex-column">
                 <span class="fw-semibold">{{ penaltyData.value }}</span>
@@ -165,7 +165,7 @@
           <tr>
             <td>Early Leave</td>
             @for (occurrence of [1, 2, 3]; track occurrence) {
-            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.early_leave || [], occurrence);
+            @let penaltyData = getPenaltyWithSalaryPortion(getFullTimeSettings()?.early_leave || [], occurrence, true);
             <td>
               <div class="d-flex flex-column">
                 <span class="fw-semibold">{{ penaltyData.value }}</span>
@@ -258,7 +258,7 @@
           <tr>
             <td>Lateness</td>
             @for (occurrence of [1, 2, 3]; track occurrence) {
-            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.lateness || [], occurrence);
+            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.lateness || [], occurrence, true);
             <td>
               <div class="d-flex flex-column">
                 <span class="fw-semibold">{{ penaltyData.value }}</span>
@@ -287,7 +287,7 @@
           <tr>
             <td>Early Leave</td>
             @for (occurrence of [1, 2, 3]; track occurrence) {
-            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.early_leave || [], occurrence);
+            @let penaltyData = getPenaltyWithSalaryPortion(getPartTimeSettings()?.early_leave || [], occurrence, true);
             <td>
               <div class="d-flex flex-column">
                 <span class="fw-semibold">{{ penaltyData.value }}</span>

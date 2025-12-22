@@ -1,7 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, Output, EventEmitter, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
 import { BranchesService } from '../../../../../core/services/od/branches/branches.service';
 import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
@@ -13,7 +12,7 @@ import { Subject, debounceTime } from 'rxjs';
 @Component({
   selector: 'app-main-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   providers: [DatePipe],
   templateUrl: './main-info.component.html',
   styleUrl: './main-info.component.css'
@@ -25,21 +24,50 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   private jobOpeningsService = inject(JobOpeningsService);
   private jobCreationDataService = inject(JobCreationDataService);
   private toasterService = inject(ToasterMessageService);
-  private route = inject(ActivatedRoute);
 
-  selectedWorkMode: string = '';
+  @Input() isUpdateMode = false;
+  @Input() jobId: number | null = null;
+
   selectedJobTitle: any = null;
   selectedBranch: any = null;
   selectedWorkSchedule: any = null;
   selectedEmploymentType: string = '';
+  selectedWorkMode: string = '';
   selectedOnsiteDays: string = '';
   timeLimit: number = 5;
   cvLimit: number = 20;
+
+  // Work Mode options
+  workModes = [
+    { id: 1, name: 'On site' },
+    { id: 2, name: 'Remote' },
+    { id: 3, name: 'Hybrid' }
+  ];
   isJobTitleDropdownOpen: boolean = false;
   isBranchDropdownOpen: boolean = false;
   isWorkScheduleDropdownOpen: boolean = false;
-  isUpdateMode = false;
-  jobId: number | null = null;
+
+  // Validation state
+  validationErrors: {
+    jobTitle: string;
+    employmentType: string;
+    workMode: string;
+    workSchedule: string;
+    branch: string;
+    timeLimit: string;
+    cvLimit: string;
+  } = {
+      jobTitle: '',
+      employmentType: '',
+      workMode: '',
+      workSchedule: '',
+      branch: '',
+      timeLimit: '',
+      cvLimit: ''
+    };
+  isFormTouched = false;
+
+  @Output() nextTab = new EventEmitter<void>();
 
   // Job Titles infinite scroll
   jobTitles: any[] = [];
@@ -78,19 +106,12 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   private workScheduleSearchSubject = new Subject<string>();
 
   ngOnInit(): void {
-    // Check if we're in update mode
-    this.route.parent?.params.subscribe(params => {
-      if (params['id']) {
-        this.isUpdateMode = true;
-        this.jobId = +params['id'];
-      }
-    });
+    // Load from cache first, then load from API if needed
+    this.loadJobTitlesFromCache();
+    this.loadBranchesFromCache();
+    this.loadWorkSchedulesFromCache();
 
-    this.loadJobTitles();
-    this.loadBranches();
-    this.loadWorkSchedules();
-
-    // Load existing data from service (for update mode)
+    // Load existing data from service (for both create and update mode)
     this.loadExistingData();
 
     // Setup debounced search for job titles
@@ -98,7 +119,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
       this.jobTitles = [];
       this.jobTitlesPage = 1;
       this.jobTitlesHasMore = true;
-      this.loadJobTitles();
+      this.loadJobTitlesFromAPI();
     });
 
     // Setup debounced search for branches
@@ -106,7 +127,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
       this.branches = [];
       this.branchesPage = 1;
       this.branchesHasMore = true;
-      this.loadBranches();
+      this.loadBranchesFromAPI();
     });
 
     // Setup debounced search for work schedules
@@ -114,76 +135,143 @@ export class MainInfoComponent implements OnInit, OnDestroy {
       this.workSchedules = [];
       this.workSchedulesPage = 1;
       this.workSchedulesHasMore = true;
-      this.loadWorkSchedules();
+      this.loadWorkSchedulesFromAPI();
     });
   }
 
   loadExistingData(): void {
-    // Subscribe to service data to pre-fill form (for update mode)
+    // Get current data from service immediately
+    const currentData = this.jobCreationDataService.getCurrentData();
+    if (currentData.main_information) {
+      this.applyMainInformationData(currentData.main_information);
+    }
+
+    // Also subscribe to service data changes for real-time updates
     this.jobCreationDataService.jobData$.subscribe(data => {
       if (data.main_information) {
-        const mainInfo = data.main_information;
-
-        // Pre-fill employment type
-        if (mainInfo.employment_type) {
-          this.selectedEmploymentType = mainInfo.employment_type.toString();
-        }
-
-        // Pre-fill days on site
-        if (mainInfo.days_on_site !== undefined) {
-          this.selectedOnsiteDays = mainInfo.days_on_site.toString();
-        }
-
-        // Pre-fill time limit and cv limit
-        if (mainInfo.time_limit !== undefined) {
-          this.timeLimit = mainInfo.time_limit;
-        }
-        if (mainInfo.cv_limit !== undefined) {
-          this.cvLimit = mainInfo.cv_limit;
-        }
-
-        // Pre-select job title (we need to wait for job titles to load)
-        if (mainInfo.job_title_id) {
-          setTimeout(() => {
-            const jobTitle = this.jobTitles.find(jt => jt.id === mainInfo.job_title_id);
-            if (jobTitle) {
-              this.selectedJobTitle = jobTitle;
-            }
-          }, 1000); // Wait for initial load
-        }
-
-        // Pre-select branch
-        if (mainInfo.branch_id) {
-          setTimeout(() => {
-            const branch = this.branches.find(b => b.id === mainInfo.branch_id);
-            if (branch) {
-              this.selectedBranch = branch;
-            }
-          }, 1000); // Wait for initial load
-        }
-
-        // Pre-select work schedule
-        if (mainInfo.work_schedule_id) {
-          setTimeout(() => {
-            const workSchedule = this.workSchedules.find(ws => ws.id === mainInfo.work_schedule_id);
-            if (workSchedule) {
-              this.selectedWorkSchedule = workSchedule;
-            }
-          }, 1000); // Wait for initial load
-        }
+        this.applyMainInformationData(data.main_information);
       }
     });
   }
 
-  isHybridOrOnsite(): boolean {
-    return this.selectedWorkMode === 'onsite' || this.selectedWorkMode === 'hypred';
+  applyMainInformationData(mainInfo: any): void {
+    // Pre-fill employment type
+    if (mainInfo.employment_type) {
+      this.selectedEmploymentType = mainInfo.employment_type.toString();
+    }
+
+    // Pre-fill work mode
+    if (mainInfo.work_mode) {
+      this.selectedWorkMode = mainInfo.work_mode.toString();
+    }
+
+    // Pre-fill days on site
+    if (mainInfo.days_on_site !== undefined) {
+      this.selectedOnsiteDays = mainInfo.days_on_site.toString();
+    }
+
+    // Pre-fill time limit and cv limit
+    if (mainInfo.time_limit !== undefined) {
+      this.timeLimit = mainInfo.time_limit;
+    }
+    if (mainInfo.cv_limit !== undefined) {
+      this.cvLimit = mainInfo.cv_limit;
+    }
+
+    // Pre-select job title
+    if (mainInfo.job_title_id) {
+      // Try to find in already loaded list
+      let jobTitle = this.jobTitles.find(jt => jt.id === mainInfo.job_title_id);
+      if (jobTitle) {
+        this.selectedJobTitle = jobTitle;
+      } else {
+        // If not found, wait for list to load and try again
+        const checkJobTitle = () => {
+          jobTitle = this.jobTitles.find(jt => jt.id === mainInfo.job_title_id);
+          if (jobTitle) {
+            this.selectedJobTitle = jobTitle;
+          } else if (this.jobTitlesInitialLoading) {
+            setTimeout(checkJobTitle, 100);
+          }
+        };
+        setTimeout(checkJobTitle, 100);
+      }
+    }
+
+    // Pre-select branch
+    if (mainInfo.branch_id) {
+      let branch = this.branches.find(b => b.id === mainInfo.branch_id);
+      if (branch) {
+        this.selectedBranch = branch;
+      } else {
+        const checkBranch = () => {
+          branch = this.branches.find(b => b.id === mainInfo.branch_id);
+          if (branch) {
+            this.selectedBranch = branch;
+          } else if (this.branchesInitialLoading) {
+            setTimeout(checkBranch, 100);
+          }
+        };
+        setTimeout(checkBranch, 100);
+      }
+    }
+
+    // Pre-select work schedule
+    if (mainInfo.work_schedule_id) {
+      let workSchedule = this.workSchedules.find(ws => ws.id === mainInfo.work_schedule_id);
+      if (workSchedule) {
+        this.selectedWorkSchedule = workSchedule;
+      } else {
+        const checkWorkSchedule = () => {
+          workSchedule = this.workSchedules.find(ws => ws.id === mainInfo.work_schedule_id);
+          if (workSchedule) {
+            this.selectedWorkSchedule = workSchedule;
+          } else if (this.workSchedulesInitialLoading) {
+            setTimeout(checkWorkSchedule, 100);
+          }
+        };
+        setTimeout(checkWorkSchedule, 100);
+      }
+    }
+  }
+
+  /**
+   * Load job titles from cache first
+   */
+  loadJobTitlesFromCache(): void {
+    const cached = this.jobCreationDataService.getCachedJobTitles();
+    if (cached.length > 0) {
+      this.jobTitles = cached;
+      this.jobTitlesInitialLoading = false;
+      this.jobTitlesHasMore = false; // Assume all cached
+    } else {
+      // No cache, load from API
+      this.loadJobTitles();
+    }
   }
 
   /**
    * Load job titles with pagination
    */
   loadJobTitles(): void {
+    // If searching, don't use cache
+    if (this.jobTitleSearchTerm.trim()) {
+      this.loadJobTitlesFromAPI();
+      return;
+    }
+
     if (this.jobTitlesLoading || !this.jobTitlesHasMore) {
+      return;
+    }
+
+    this.loadJobTitlesFromAPI();
+  }
+
+  /**
+   * Load job titles from API
+   */
+  private loadJobTitlesFromAPI(): void {
+    if (this.jobTitlesLoading || (!this.jobTitleSearchTerm.trim() && !this.jobTitlesHasMore)) {
       return;
     }
 
@@ -197,7 +285,19 @@ export class MainInfoComponent implements OnInit, OnDestroy {
         if (response.data && response.data.list_items) {
           // Filter to only include active job titles
           const activeJobTitles = response.data.list_items.filter((jobTitle: any) => jobTitle.is_active === true);
-          this.jobTitles = [...this.jobTitles, ...activeJobTitles];
+
+          if (this.jobTitleSearchTerm.trim()) {
+            // If searching, replace the list
+            this.jobTitles = activeJobTitles;
+          } else {
+            // If not searching, append to existing
+            this.jobTitles = [...this.jobTitles, ...activeJobTitles];
+            // Cache the full list (first page only, no search)
+            if (this.jobTitlesPage === 1 && !this.jobTitleSearchTerm.trim()) {
+              this.jobCreationDataService.setCachedJobTitles([...this.jobTitles]);
+            }
+          }
+
           this.jobTitlesTotalPages = response.data.total_pages || 1;
           this.jobTitlesHasMore = this.jobTitlesPage < this.jobTitlesTotalPages;
         }
@@ -213,10 +313,42 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Load branches from cache first
+   */
+  loadBranchesFromCache(): void {
+    const cached = this.jobCreationDataService.getCachedBranches();
+    if (cached.length > 0) {
+      this.branches = cached;
+      this.branchesInitialLoading = false;
+      this.branchesHasMore = false; // Assume all cached
+    } else {
+      // No cache, load from API
+      this.loadBranches();
+    }
+  }
+
+  /**
    * Load branches with pagination
    */
   loadBranches(): void {
+    // If searching, don't use cache
+    if (this.branchSearchTerm.trim()) {
+      this.loadBranchesFromAPI();
+      return;
+    }
+
     if (this.branchesLoading || !this.branchesHasMore) {
+      return;
+    }
+
+    this.loadBranchesFromAPI();
+  }
+
+  /**
+   * Load branches from API
+   */
+  private loadBranchesFromAPI(): void {
+    if (this.branchesLoading || (!this.branchSearchTerm.trim() && !this.branchesHasMore)) {
       return;
     }
 
@@ -229,7 +361,19 @@ export class MainInfoComponent implements OnInit, OnDestroy {
         if (response.data && response.data.list_items) {
           // Filter to only include active branches
           const activeBranches = response.data.list_items.filter((branch: any) => branch.is_active === true);
-          this.branches = [...this.branches, ...activeBranches];
+
+          if (this.branchSearchTerm.trim()) {
+            // If searching, replace the list
+            this.branches = activeBranches;
+          } else {
+            // If not searching, append to existing
+            this.branches = [...this.branches, ...activeBranches];
+            // Cache the full list (first page only, no search)
+            if (this.branchesPage === 1 && !this.branchSearchTerm.trim()) {
+              this.jobCreationDataService.setCachedBranches([...this.branches]);
+            }
+          }
+
           this.branchesTotalPages = response.data.total_pages || 1;
           this.branchesHasMore = this.branchesPage < this.branchesTotalPages;
         }
@@ -244,8 +388,38 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Load work schedules from cache first
+   */
+  loadWorkSchedulesFromCache(): void {
+    const cached = this.jobCreationDataService.getCachedWorkSchedules();
+    if (cached.length > 0) {
+      this.workSchedules = cached;
+      this.workSchedulesInitialLoading = false;
+      this.workSchedulesHasMore = false; // Assume all cached
+    } else {
+      // No cache, load from API
+      this.loadWorkSchedules();
+    }
+  }
+
   loadWorkSchedules(): void {
+    // If searching, don't use cache
+    if (this.workScheduleSearchTerm.trim()) {
+      this.loadWorkSchedulesFromAPI();
+      return;
+    }
+
     if (this.workSchedulesLoading || !this.workSchedulesHasMore) return;
+
+    this.loadWorkSchedulesFromAPI();
+  }
+
+  /**
+   * Load work schedules from API
+   */
+  private loadWorkSchedulesFromAPI(): void {
+    if (this.workSchedulesLoading || (!this.workScheduleSearchTerm.trim() && !this.workSchedulesHasMore)) return;
 
     this.workSchedulesLoading = true;
     this.workSchedulesInitialLoading = this.workSchedulesPage === 1;
@@ -257,11 +431,19 @@ export class MainInfoComponent implements OnInit, OnDestroy {
         if (response.data && response.data.list_items) {
           // Filter to only include active work schedules
           const activeWorkSchedules = response.data.list_items.filter((workSchedule: any) => workSchedule.is_active === true);
-          
-          if (this.workSchedulesPage === 1) {
+
+          if (this.workScheduleSearchTerm.trim()) {
+            // If searching, replace the list
             this.workSchedules = activeWorkSchedules;
           } else {
-            this.workSchedules = [...this.workSchedules, ...activeWorkSchedules];
+            // If not searching
+            if (this.workSchedulesPage === 1) {
+              this.workSchedules = activeWorkSchedules;
+              // Cache the full list (first page only, no search)
+              this.jobCreationDataService.setCachedWorkSchedules([...this.workSchedules]);
+            } else {
+              this.workSchedules = [...this.workSchedules, ...activeWorkSchedules];
+            }
           }
 
           this.workSchedulesTotalPages = response.data.total_pages || 1;
@@ -291,7 +473,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     // Load more when user is near the bottom (80% scrolled)
     if (scrollPosition >= scrollHeight * 0.8 && this.jobTitlesHasMore && !this.jobTitlesLoading) {
       this.jobTitlesPage++;
-      this.loadJobTitles();
+      this.loadJobTitlesFromAPI();
     }
   }
 
@@ -306,7 +488,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     // Load more when user is near the bottom (80% scrolled)
     if (scrollPosition >= scrollHeight * 0.8 && this.branchesHasMore && !this.branchesLoading) {
       this.branchesPage++;
-      this.loadBranches();
+      this.loadBranchesFromAPI();
     }
   }
 
@@ -321,7 +503,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     // Load more when user is near the bottom (80% scrolled)
     if (scrollPosition >= scrollHeight * 0.8 && this.workSchedulesHasMore && !this.workSchedulesLoading) {
       this.workSchedulesPage++;
-      this.loadWorkSchedules();
+      this.loadWorkSchedulesFromAPI();
     }
   }
 
@@ -360,6 +542,9 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     this.isJobTitleDropdownOpen = false;
     this.jobTitleSearchTerm = ''; // Clear search when selection is made
     this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.jobTitle = '';
+    }
   }
 
   /**
@@ -370,6 +555,9 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     this.isBranchDropdownOpen = false;
     this.branchSearchTerm = ''; // Clear search when selection is made
     this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.branch = '';
+    }
   }
 
   /**
@@ -380,6 +568,9 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     this.isWorkScheduleDropdownOpen = false;
     this.workScheduleSearchTerm = ''; // Clear search when selection is made
     this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.workSchedule = '';
+    }
   }
 
   /**
@@ -452,6 +643,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
         main_information: {
           job_title_id: this.selectedJobTitle.id,
           employment_type: parseInt(this.selectedEmploymentType),
+          work_mode: parseInt(this.selectedWorkMode),
           work_schedule_id: parseInt(this.selectedWorkSchedule) || 1,
           days_on_site: parseInt(this.selectedOnsiteDays) || 0,
           branch_id: this.selectedBranch.id,
@@ -658,6 +850,7 @@ export class MainInfoComponent implements OnInit, OnDestroy {
     const mainInfo = {
       job_title_id: this.selectedJobTitle?.id,
       employment_type: this.selectedEmploymentType ? parseInt(this.selectedEmploymentType) : undefined,
+      work_mode: this.selectedWorkMode ? parseInt(this.selectedWorkMode) : undefined,
       work_schedule_id: this.selectedWorkSchedule?.id,
       days_on_site: this.selectedOnsiteDays ? parseInt(this.selectedOnsiteDays) : 0,
       branch_id: this.selectedBranch?.id,
@@ -673,19 +866,29 @@ export class MainInfoComponent implements OnInit, OnDestroy {
    */
   onEmploymentTypeChange(): void {
     this.updateJobData();
-  }
-
-  /**
-   * Handle work schedule change
-   */
-  onWorkScheduleChange(): void {
-    this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.employmentType = '';
+    }
   }
 
   /**
    * Handle work mode change
    */
   onWorkModeChange(): void {
+    // Reset days on site if not hybrid
+    if (this.selectedWorkMode !== '3') {
+      this.selectedOnsiteDays = '';
+    }
+    this.updateJobData();
+    if (this.isFormTouched) {
+      this.validationErrors.workMode = '';
+    }
+  }
+
+  /**
+   * Handle work schedule change
+   */
+  onWorkScheduleChange(): void {
     this.updateJobData();
   }
 
@@ -701,6 +904,20 @@ export class MainInfoComponent implements OnInit, OnDestroy {
    */
   onTimeLimitChange(): void {
     this.updateJobData();
+    if (this.isFormTouched) {
+      this.validateTimeLimit();
+    }
+  }
+
+  /**
+   * Validate Time Limit
+   */
+  validateTimeLimit(): void {
+    if (!this.timeLimit || this.timeLimit <= 0) {
+      this.validationErrors.timeLimit = 'Time Limit must be greater than 0';
+    } else {
+      this.validationErrors.timeLimit = '';
+    }
   }
 
   /**
@@ -708,6 +925,91 @@ export class MainInfoComponent implements OnInit, OnDestroy {
    */
   onCvLimitChange(): void {
     this.updateJobData();
+    if (this.isFormTouched) {
+      this.validateCvLimit();
+    }
+  }
+
+  /**
+   * Validate all fields
+   */
+  validateForm(): boolean {
+    this.isFormTouched = true;
+    let isValid = true;
+
+    // Validate Job Title
+    if (!this.selectedJobTitle) {
+      this.validationErrors.jobTitle = 'Job Title is required';
+      isValid = false;
+    } else {
+      this.validationErrors.jobTitle = '';
+    }
+
+    // Validate Employment Type
+    if (!this.selectedEmploymentType) {
+      this.validationErrors.employmentType = 'Employment Type is required';
+      isValid = false;
+    } else {
+      this.validationErrors.employmentType = '';
+    }
+
+    // Validate Work Mode
+    if (!this.selectedWorkMode) {
+      this.validationErrors.workMode = 'Work Mode is required';
+      isValid = false;
+    } else {
+      this.validationErrors.workMode = '';
+    }
+
+    // Validate Work Schedule
+    if (!this.selectedWorkSchedule) {
+      this.validationErrors.workSchedule = 'Work Schedule is required';
+      isValid = false;
+    } else {
+      this.validationErrors.workSchedule = '';
+    }
+
+    // Validate Branch
+    if (!this.selectedBranch) {
+      this.validationErrors.branch = 'Branch is required';
+      isValid = false;
+    } else {
+      this.validationErrors.branch = '';
+    }
+
+    // Validate Time Limit
+    this.validateTimeLimit();
+    if (this.validationErrors.timeLimit) {
+      isValid = false;
+    }
+
+    // Validate CV Limit
+    this.validateCvLimit();
+    if (this.validationErrors.cvLimit) {
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  /**
+   * Validate CV Limit
+   */
+  validateCvLimit(): void {
+    if (!this.cvLimit || this.cvLimit <= 0) {
+      this.validationErrors.cvLimit = 'CV Limit must be greater than 0';
+    } else {
+      this.validationErrors.cvLimit = '';
+    }
+  }
+
+  /**
+   * Navigate to next step with validation
+   */
+  goToNextStep(): void {
+    if (this.validateForm()) {
+      this.nextTab.emit();
+    }
   }
 
   ngOnDestroy(): void {

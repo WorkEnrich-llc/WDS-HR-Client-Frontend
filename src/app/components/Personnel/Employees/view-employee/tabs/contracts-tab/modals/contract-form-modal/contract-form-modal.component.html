@@ -5,23 +5,32 @@
     <form [formGroup]="contractForm">
       <!-- Salary range display for edit mode only -->
       @if (isEditMode) {
-      <div class="input mb-3">
-        <label for="adjustmentType">Adjustment Type</label>
-        <select id="adjustmentType" class="form-select" formControlName="adjustmentType">
-          <option [ngValue]="0">Not Selected</option>
-          <option [ngValue]="1">Appraisal</option>
-          <option [ngValue]="2">Correction</option>
-          <option [ngValue]="3">Raise</option>
-        </select>
-      </div>
+        <div class="input mb-3">
+          <label for="adjustmentType">Adjustment Type</label>
+          <div class="form-outline w-100 position-relative">
+            <select id="adjustmentType" class="form-select"
+              [class.is-invalid]="contractForm.get('adjustmentType')?.invalid && contractForm.get('adjustmentType')?.touched"
+              formControlName="adjustmentType" (blur)="contractForm.get('adjustmentType')?.markAsTouched()">
+              <option [ngValue]="0">Not Selected</option>
+              <option [ngValue]="1">Appraisal</option>
+              <option [ngValue]="2">Correction</option>
+              <option [ngValue]="3">Raise</option>
+            </select>
+            @if (contractForm.get('adjustmentType')?.invalid && contractForm.get('adjustmentType')?.touched) {
+              <div class="invalid-feedback">
+                Adjustment type is required
+              </div>
+            }
+          </div>
+        </div>
       }
 
       <!-- Salary range display for new contract mode -->
       @if ( shouldShowSalaryRanges()) {
-      <div class="d-flex justify-content-between mb-2">
-        <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
-        <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
-      </div>
+        <div class="d-flex justify-content-between mb-2">
+          <small>Min. Salary {{ getSalaryRanges()!.minimum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+          <small>Max Salary {{ getSalaryRanges()!.maximum | number:'1.0-0' }} {{ getSalaryRanges()!.currency }}</small>
+        </div>
       }
 
       <!-- New Salary Field -->
@@ -32,159 +41,163 @@
             [class.is-invalid]="contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched"
             placeholder="In EGP" formControlName="salary" />
 
-          @if(contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched){
-          <div class="invalid-feedback">
+            @if(contractForm.get('salary')?.invalid && contractForm.get('salary')?.touched){
+              <div class="invalid-feedback">
 
-            @if(contractForm.get('salary')?.errors?.['required']){
-            <div>Salary is required</div>
-            }
+                @if(contractForm.get('salary')?.errors?.['required']){
+                  <div>Salary is required</div>
+                }
 
-            @if(contractForm.get('salary')?.errors?.['min']){
-            <div>
-              @if (isEditMode && contractForm.get('adjustmentType')?.value === 3) {
-              Salary must be greater than the current salary ({{ currentContractSalary | number:'1.0-0' }}
-              EGP)
-              }
-              @else if (shouldShowSalaryRanges()) {
-              Salary must be at least {{ getSalaryRanges()!.minimum }} {{ getSalaryRanges()!.currency }}
-              }
-              @else {
-              Salary must be greater than 0
-              }
-            </div>
+                @if(contractForm.get('salary')?.errors?.['min']){
+                  <div>
+                    @if (isEditMode && contractForm.get('adjustmentType')?.value === 3) {
+                      Salary must be greater than the current salary ({{ currentContractSalary | number:'1.0-0' }}
+                      EGP)
+                    }
+                    @else if (shouldShowSalaryRanges()) {
+                    Salary must be at least {{ getSalaryRanges()!.minimum }} {{ getSalaryRanges()!.currency }}
+                  }
+                  @else {
+                  Salary must be greater than 0
+                }
+              </div>
             }
 
             @if(contractForm.get('salary')?.errors?.['max']){
-            <div>
-              @if (shouldShowSalaryRanges()) {
-              Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}
-              } @else {
-              The value cannot be greater than 1,000,000
-              }
-            </div>
+              <div>
+                @if (shouldShowSalaryRanges()) {
+                  Salary cannot exceed {{ getSalaryRanges()!.maximum }} {{ getSalaryRanges()!.currency }}
+                } @else {
+                  The value cannot be greater than 1,000,000
+                }
+              </div>
             }
           </div>
-          }
-        </div>
+        }
       </div>
+    </div>
 
 
-      <!-- Start Date Field -->
-      <div class="input mb-3">
-        <label for="startDate">Start Date</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input id="startDate" type="date" class="form-control custom-date-input"
-            [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
-            placeholder="Select Start Date" formControlName="startDate" />
+    <!-- Start Date Field -->
+    <div class="input mb-3">
+      <label for="startDate">Start Date</label>
+      <div class="form-outline w-100 position-relative custom-date-wrapper">
+        <input id="startDate" type="date" class="form-control custom-date-input"
+          [class.is-invalid]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
+          placeholder="Select Start Date" formControlName="startDate" />
           <svg
             [class.svg-error-adjust]="contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched"
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <path stroke-linecap="round"
                 d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-          @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
-          <div class="invalid-feedback">
-            Start date is required
+                <circle cx="18" cy="18" r="3" />
+                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+              </g>
+            </svg>
+            @if (contractForm.get('startDate')?.invalid && contractForm.get('startDate')?.touched) {
+              <div class="invalid-feedback">
+                Start date is required
+              </div>
+            }
           </div>
-          }
         </div>
-      </div>
 
-      <!-- End Date Field - for edit mode (contract adjustments) -->
-      <!-- @if (isEditMode) {
-      <div class="input mb-3">
-        <label for="endDate">End Date</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input id="endDate" type="date" class="form-control custom-date-input"
-            [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-            placeholder="Select End Date" formControlName="endDate" />
-          @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
-          <div class="invalid-feedback">
-            End date is required
+        <!-- End Date Field - for edit mode (contract adjustments) -->
+        <!-- @if (isEditMode) {
+        <div class="input mb-3">
+          <label for="endDate">End Date</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input id="endDate" type="date" class="form-control custom-date-input"
+              [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+              placeholder="Select End Date" formControlName="endDate" />
+              @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
+                <div class="invalid-feedback">
+                  End date is required
+                </div>
+              }
+            </div>
           </div>
-          }
-        </div>
-      </div>
-      } -->
+          } -->
 
-      <!-- With end date checkbox - only for new contracts -->
-      <!-- @if (!isEditMode) { -->
-      <div class="form-check mb-3 d-flex align-items-center gap-2">
-        <input class="form-check-input" type="checkbox" id="withEndDate" formControlName="withEndDate">
-        <label class="form-check-label" for="withEndDate">
-          With end date
-        </label>
-      </div>
-
-      <!-- End Date Field - only show if checkbox is checked -->
-      @if (contractForm.get('withEndDate')?.value === true) {
-      <div class="input mb-3">
-        <label for="endDate">End Date Date</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input id="endDate" type="date" class="form-control custom-date-input"
-            [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-            placeholder="Select Start Date" formControlName="endDate" />
-          <svg [class.svg-error-adjust]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-          @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
-          <div class="invalid-feedback">
-            End date is required when with end date is selected
+          <!-- With end date checkbox - only for new contracts -->
+          <!-- @if (!isEditMode) { -->
+          <div class="form-check mb-3 d-flex align-items-center">
+            <input class="form-check-input me-2" type="checkbox" id="withEndDate" formControlName="withEndDate">
+            <label class="form-check-label mt-1" for="withEndDate">
+              With end date
+            </label>
           </div>
-          }
 
-          @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
-          !contractForm.get('endDate')?.hasError('required')) {
-          <div class="invalid-feedback d-block"> End Date cannot be before Start Date
-          </div>
-          }
-        </div>
-      </div>
-      }
-      <!-- } -->
+          <!-- End Date Field - only show if checkbox is checked -->
+          @if (contractForm.get('withEndDate')?.value === true) {
+            <div class="input mb-3">
+              <label for="endDate">End Date Date</label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input id="endDate" type="date" class="form-control custom-date-input"
+                  [class.is-invalid]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+                  placeholder="Select Start Date" formControlName="endDate" />
+                  <svg [class.svg-error-adjust]="contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" stroke-width="1.5">
+                      <path stroke-linecap="round"
+                        d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                        <circle cx="18" cy="18" r="3" />
+                        <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                      </g>
+                    </svg>
+                    @if (contractForm.get('endDate')?.invalid && contractForm.get('endDate')?.touched) {
+                      <div class="invalid-feedback">
+                        End date is required when with end date is selected
+                      </div>
+                    }
 
-      <!-- Notice Period Field - for both new contracts and adjustments -->
-      <div class="input mb-3">
-        <label for="noticePeriod">{{ isEditMode ? 'Notice Period (in Days)' : 'Notice Period' }}</label>
-        <div class="form-outline w-100 position-relative">
-          <input id="noticePeriod" type="number" class="form-control custom-date-input"
-            placeholder="Notice period in days (e.g. 30)"
-            [class.is-invalid]="contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched"
-            formControlName="noticePeriod" />
-          @if (contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched) {
-          <div class="invalid-feedback">
-            <div *ngIf="contractForm.get('noticePeriod')?.errors?.['required']">Notice period is required</div>
-            <div *ngIf="contractForm.get('noticePeriod')?.errors?.['min']">Notice period must be at least 1 day</div>
-          </div>
-          }
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="d-flex align-items-center gap-4 mt-4">
-    <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100" [disabled]="isSaveDisabled">
-      @if (isLoading) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-      } @else {
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem;">
-        <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="1.5" />
-        <path d="M12 8v4l2 2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round" />
-      </svg>
-      <span>{{ getSaveButtonText() }}</span>
-      }
-    </button>
+                    @if (contractForm.hasError('dateRange') && contractForm.get('endDate')?.touched &&
+                      !contractForm.get('endDate')?.hasError('required')) {
+                      <div class="invalid-feedback d-block"> End Date cannot be before Start Date
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <!-- } -->
 
-    <button type="button" (click)="closeModal()" class="btn btn-lg btn-outline-dark border-0 w-100">Close</button>
-  </div>
-</app-overlay-filter-box>
+              <!-- Notice Period Field - for both new contracts and adjustments -->
+              <div class="input mb-3">
+                <label for="noticePeriod">{{ isEditMode ? 'Notice Period (in Days)' : 'Notice Period' }}</label>
+                <div class="form-outline w-100 position-relative">
+                  <input id="noticePeriod" type="number" class="form-control custom-date-input"
+                    placeholder="Notice period in days (e.g. 30)"
+                    [class.is-invalid]="contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched"
+                    formControlName="noticePeriod" />
+                    @if (contractForm.get('noticePeriod')?.invalid && contractForm.get('noticePeriod')?.touched) {
+                      <div class="invalid-feedback">
+                        @if (contractForm.get('noticePeriod')?.errors?.['required']) {
+                          <div>Notice period is required</div>
+                        }
+                        @if (contractForm.get('noticePeriod')?.errors?.['min']) {
+                          <div>Notice period must be at least 1 day</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="d-flex align-items-center gap-4 mt-4">
+              <button type="button" (click)="saveContract()" class="btn btn-lg btn-primary w-100" [disabled]="isSaveDisabled">
+                @if (isLoading) {
+                  <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem;">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="1.5" />
+                    <path d="M12 8v4l2 2" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    </svg>
+                    <span>{{ getSaveButtonText() }}</span>
+                  }
+                </button>
+
+                <button type="button" (click)="closeModal()" class="btn btn-lg btn-outline-dark border-0 w-100">Close</button>
+              </div>
+            </app-overlay-filter-box>

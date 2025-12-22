@@ -5,6 +5,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
@@ -13,10 +14,11 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
 import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
 
 @Component({
   selector: 'app-create-departments',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent],
+  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, SystemSetupTourComponent],
   providers: [DatePipe],
   templateUrl: './create-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-departments.component.css'],
@@ -31,6 +33,9 @@ export class CreateDepartmentsComponent {
   //  Goals overlay 
   @ViewChild('goalsOverlay') goalsOverlay!: OverlayFilterBoxComponent;
 
+  //  System Setup Tour
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -40,6 +45,7 @@ export class CreateDepartmentsComponent {
     private subService: SubscriptionService,
     private goalsService: GoalsService,
     private departmentChecklistService: DepartmentChecklistService,
+    private systemSetupService: SystemSetupService,
   ) {
     this.deptStep2 = this.fb.group({
       sections: this.fb.array([])
@@ -386,7 +392,16 @@ export class CreateDepartmentsComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/departments/all-departments']);
-        this.toasterMessageService.showSuccess("Department created successfully","Created Successfully");
+        this.toasterMessageService.showSuccess("Department created successfully", "Created Successfully");
+        // Notify system setup tour
+        this.systemSetupService.notifyModuleItemCreated('departments');
+
+        // Show celebration animation
+        if (this.systemSetupTour) {
+          setTimeout(() => {
+            this.systemSetupTour.showCelebration('departments');
+          }, 500); // Small delay to ensure data is refreshed
+        }
 
       },
       error: (err) => {

@@ -1,4 +1,6 @@
-import { Component, ElementRef, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+
+
+import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -7,7 +9,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, map, Observable, Subject, Subscription, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
@@ -25,10 +27,86 @@ import dayjs, { Dayjs } from 'dayjs';
   styleUrls: ['./../../../shared/table/table.component.css', './attendance-log.component.css'],
   encapsulation: ViewEncapsulation.None,
 })
-export class AttendanceLogComponent {
+export class AttendanceLogComponent implements OnDestroy {
+
 
   constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
+
+  // Action menu stubs for template
+  addLog(emp: any) { /* TODO: Implement add log */ }
+  editDeduction(emp: any) { /* TODO: Implement edit deduction */ }
+  // Deduction confirmation modal state
+  deductionModalOpen: boolean = false;
+  deductionModalLog: any = null;
+  deductionModalEmp: any = null;
+  deductionModalLoading: boolean = false;
+
+  toggleDeduction(log: any, emp: any) {
+    this.deductionModalLog = log;
+    this.deductionModalEmp = emp;
+    this.deductionModalOpen = true;
+  }
+
+  closeDeductionModal() {
+    this.deductionModalOpen = false;
+    this.deductionModalLog = null;
+    this.deductionModalEmp = null;
+    this.deductionModalLoading = false;
+  }
+
+  confirmDeductionToggle() {
+    if (!this.deductionModalLog) return;
+    this.handleDeductionToggle(this.deductionModalLog, this.deductionModalEmp, true);
+  }
+  editLog(log: any, emp: any) { this.openEditLogModal(log, emp); }
+
+  // Cancel log confirmation modal state
+  cancelModalOpen: boolean = false;
+  cancelModalLog: any = null;
+  cancelModalEmp: any = null;
+  cancelModalLoading: boolean = false;
+
+  openCancelLogModal(log: any, emp: any) {
+    this.cancelModalLog = log;
+    this.cancelModalEmp = emp;
+    this.cancelModalOpen = true;
+  }
+
+  closeCancelLogModal() {
+    this.cancelModalOpen = false;
+    this.cancelModalLog = null;
+    this.cancelModalEmp = null;
+    this.cancelModalLoading = false;
+  }
+
+  confirmCancelLog() {
+    if (!this.cancelModalLog) return;
+    const id = this.cancelModalLog.id ?? this.cancelModalLog.record_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found.');
+      return;
+    }
+    this.cancelModalLoading = true;
+    this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
+      next: () => {
+        this.closeCancelLogModal();
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success('Attendance log canceled successfully');
+      },
+      error: () => {
+        this.toastr.error('Failed to cancel attendance log');
+        this.closeCancelLogModal();
+      }
+    });
+  }
+  editCheckIn(log: any, emp: any) { this.openEditCheckInModal(log, emp); }
+  addCheckOut(log: any, emp: any) { this.openEditCheckOutModal(log, emp); }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
@@ -37,11 +115,18 @@ export class AttendanceLogComponent {
   private departmentService = inject(DepartmentsService);
   private toasterService = inject(ToasterMessageService);
   selectedRange: { startDate: string; endDate: string } | null = null;
+  editModalLoading: boolean = false;
 
   attendanceLogs: any[] = [];
   departmentList$!: Observable<any[]>;
   skeletonRows = Array.from({ length: 5 });
-
+  // Modal state for editing logs
+  editModalOpen: boolean = false;
+  editModalType: 'checkin' | 'checkout' | 'log' | null = null;
+  editModalLog: any = null;
+  editModalEmp: any = null;
+  editCheckInValue: string = '';
+  editCheckOutValue: string = '';
 
   // error text 
   isLate(actual: string, expected: string): boolean {
@@ -73,6 +158,7 @@ export class AttendanceLogComponent {
   }
 
   isLoading: boolean = false;
+  isExporting: boolean = false;
   todayDayjs: Dayjs = dayjs();
   searchTerm: string = '';
   filterForm!: FormGroup;
@@ -88,7 +174,9 @@ export class AttendanceLogComponent {
   baseDate: Date = new Date();
   days: { label: string, date: Date, isToday: boolean }[] = [];
   private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
   private toasterSubscription!: Subscription;
+  private destroy$ = new Subject<void>();
 
   employees: any[] = [];
   columnWidths: string[] = [];
@@ -168,14 +256,78 @@ export class AttendanceLogComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(600)).subscribe(value => {
-      const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
-      this.getAllAttendanceLog({
-        page: this.currentPage,
-        per_page: this.itemsPerPage,
-        from_date: formattedDate,
-        search: value
-      });
+    // Improved search with request cancellation, whitespace trimming, and better performance
+    this.searchSubscription = this.searchSubject.pipe(
+      takeUntil(this.destroy$),
+      // First filter: Skip whitespace-only searches, but allow empty string to clear search
+      filter((originalSearchTerm: string) => {
+        // Allow empty string (user cleared search - we want to reload without search filter)
+        if (originalSearchTerm === '') {
+          return true;
+        }
+        // Block whitespace-only strings (like "   "), but allow strings with content
+        return originalSearchTerm.trim().length > 0;
+      }),
+      // Trim ONLY leading whitespace and limit trailing spaces to maximum 3
+      map((searchTerm: string) => {
+        // Remove only leading whitespace
+        let trimmedStart = searchTerm.replace(/^\s+/, '');
+
+        // Limit trailing spaces to maximum 3 (ignore spaces beyond 3)
+        // Match trailing spaces and replace if more than 3
+        trimmedStart = trimmedStart.replace(/(\s{4,})$/, (match) => {
+          // If 4 or more trailing spaces, keep only 3
+          return '   ';
+        });
+
+        // Update searchTerm property to reflect processed value in UI
+        this.searchTerm = trimmedStart;
+        return trimmedStart;
+      }),
+      // Debounce to wait for user to stop typing
+      debounceTime(600),
+      // Avoid duplicate consecutive searches
+      distinctUntilChanged(),
+      // Cancel previous request and make new one (switchMap cancels previous observables)
+      switchMap((searchTerm: string) => {
+        // Reset to page 1 when searching
+        this.currentPage = 1;
+        this.loadData = true;
+        this.isLoading = true;
+
+        const formattedDate = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!;
+
+        // If search is empty or whitespace-only, load without search term (clear search)
+        // Note: searchTerm already has leading spaces removed, so we check if it has any non-whitespace content
+        const finalSearchTerm = (searchTerm && searchTerm.trim().length > 0) ? searchTerm : undefined;
+
+        // Return the observable which switchMap will subscribe to
+        // This automatically cancels any previous incomplete requests
+        return this._AttendanceLogService.getAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: formattedDate,
+          search: finalSearchTerm
+        });
+      })
+    ).subscribe({
+      next: (data) => {
+        const info = data.data.object_info;
+        this.employees = info.list_items.map((emp: any) => ({
+          ...emp,
+          collapsed: true
+        }));
+
+        this.totalItems = info.total_items;
+        this.totalPages = info.total_pages;
+        this.loadData = false;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching attendance logs:', error);
+        this.loadData = false;
+        this.isLoading = false;
+      }
     });
 
 
@@ -187,6 +339,7 @@ export class AttendanceLogComponent {
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
     this.loadData = true;
+    this.isLoading = true;
     this._AttendanceLogService.getAttendanceLog(filters).subscribe({
       next: (data) => {
         const info = data.data.object_info;
@@ -198,11 +351,13 @@ export class AttendanceLogComponent {
         this.totalItems = info.total_items;
         this.totalPages = info.total_pages;
         this.loadData = false;
+        this.isLoading = false;
 
       },
       error: (error) => {
         console.error('Error fetching attendance logs:', error);
         this.loadData = false;
+        this.isLoading = false;
       }
     });
   }
@@ -295,6 +450,7 @@ export class AttendanceLogComponent {
 
 
   onSearchChange() {
+    // Emit the search term to the subject for debounced processing
     this.searchSubject.next(this.searchTerm);
   }
 
@@ -428,7 +584,8 @@ export class AttendanceLogComponent {
       page: this.currentPage,
       per_page: this.itemsPerPage,
       from_date: formattedDate,
-      to_date: ''
+      to_date: '',
+      search: this.searchTerm || undefined
     });
   }
 
@@ -486,20 +643,100 @@ export class AttendanceLogComponent {
     this.router.navigate(['/attendance/manage-attendance']);
   }
 
+  exportAttendanceLog(): void {
+    // Prevent multiple simultaneous requests
+    if (this.isExporting) {
+      return;
+    }
+
+    this.isExporting = true;
+
+    // Build filter params same as loadFilteredAttendance
+    const raw = this.filterForm.value;
+    let from_date = '';
+    let to_date = '';
+
+    // If date range is selected from filter form
+    if (raw.from_date && raw.from_date.startDate && raw.from_date.endDate) {
+      from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
+      to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+    }
+    // If single date is selected from calendar
+    else if (this.selectedDate) {
+      from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
+    }
+
+    const filters: IAttendanceFilters = {
+      department_id: raw.department_id || undefined,
+      from_date,
+      to_date,
+      offenses: raw.offenses || undefined,
+      day_type: raw.day_type || undefined,
+      search: this.searchTerm || undefined,
+    };
+
+    // Remove undefined/null/empty values
+    const cleanFilters: any = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        cleanFilters[key] = value;
+      }
+    });
+
+    this._AttendanceLogService.exportAttendanceLog(cleanFilters).subscribe({
+      next: (blob: Blob) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `attendance-log-${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.isExporting = false;
+        this.toasterService.showSuccess('Attendance log exported successfully.');
+      },
+      error: (error) => {
+        console.error('Error exporting attendance log:', error);
+        this.isExporting = false;
+        this.toasterService.showError('Failed to export attendance log.');
+      }
+    });
+  }
+
+  navigateToEditAttendance(log: any, emp: any): void {
+    const attendanceData = {
+      emp_id: emp?.employee?.id,
+      date: emp?.date,
+      working_details: {
+        record_id: log?.record_id,
+        actual_check_in: log?.times_object?.actual_check_in,
+        actual_check_out: log?.times_object?.actual_check_out
+      }
+    };
+
+    this.router.navigate(['/attendance/manage-attendance'], {
+      state: { attendance: attendanceData }
+    });
+  }
+
   cancelLog(attendance: any): void {
     this.isLoading = true;
-    const payload = {
-      record_id: attendance.record_id,
-      employee_id: attendance.employee_id,
-      date: attendance.date
-    };
-    this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
+    const id = attendance.id ?? attendance.record_id;
+    if (!id) {
+      this.toasterService.showError('Attendance log ID not found.');
+      this.isLoading = false;
+      return;
+    }
+    this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
         this.isLoading = false;
         console.error(err);
@@ -606,4 +843,171 @@ export class AttendanceLogComponent {
     this.attendanceToCancel = null;
   }
 
+  // Action menu state
+  openMainMenuIndex: number | null = null;
+  openSubMenu: { mainIndex: number; subIndex: number } | null = null;
+  private outsideClickListener: any;
+
+  openMainMenu(idx: number) {
+    this.openMainMenuIndex = idx;
+    this.openSubMenu = null;
+    // Add outside click listener
+    setTimeout(() => {
+      this.outsideClickListener = (event: MouseEvent) => {
+        const menu = document.querySelector('.action-menu-dropdown');
+        const btn = document.querySelector('.action-menu-btn');
+        if (menu && !menu.contains(event.target as Node) && btn && !btn.contains(event.target as Node)) {
+          this.closeMainMenu();
+        }
+      };
+      document.addEventListener('mousedown', this.outsideClickListener);
+    }, 0);
+  }
+  closeMainMenu() {
+    this.openMainMenuIndex = null;
+    if (this.outsideClickListener) {
+      document.removeEventListener('mousedown', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
+  }
+  openSubLogMenu(mainIdx: number, subIdx: number) {
+    this.openSubMenu = { mainIndex: mainIdx, subIndex: subIdx };
+    this.openMainMenuIndex = null;
+  }
+  closeSubLogMenu() {
+    this.openSubMenu = null;
+  }
+
+
+
+  openEditCheckInModal(log: any, emp: any) {
+    this.editModalType = 'checkin';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    this.editModalOpen = true;
+  }
+
+  openEditCheckOutModal(log: any, emp: any) {
+    this.editModalType = 'checkout';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editModalOpen = true;
+  }
+
+  openEditLogModal(log: any, emp: any) {
+    this.editModalType = 'log';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editModalOpen = true;
+  }
+
+  closeEditModal() {
+    this.editModalOpen = false;
+    this.editModalType = null;
+    this.editModalLog = null;
+    this.editModalEmp = null;
+    this.editCheckInValue = '';
+    this.editCheckOutValue = '';
+  }
+
+  updateEditModal() {
+    if (!this.editModalLog) return;
+    const id = this.editModalLog.id ?? this.editModalLog.record_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found.');
+      return;
+    }
+    this.editModalLoading = true;
+    let obs$;
+    if (this.editModalType === 'checkin') {
+      obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
+    } else if (this.editModalType === 'checkout') {
+      obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
+    } else if (this.editModalType === 'log') {
+      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+    } else {
+      this.closeEditModal();
+      this.editModalLoading = false;
+      return;
+    }
+    obs$.subscribe({
+      next: () => {
+        this.closeEditModal();
+        this.editModalLoading = false;
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success('Attendance log updated successfully');
+      },
+      error: (err) => {
+        this.toastr.error('Failed to update attendance log');
+        this.closeEditModal();
+        this.editModalLoading = false;
+      }
+    });
+  }
+
+  handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
+    // Debug: log the object to help diagnose missing id
+    console.log('Deduction toggle log object:', log);
+    const id = log?.id ?? log?.record_id ?? log?.recordID ?? log?.attendance_id;
+    if (!id) {
+      this.toastr.error('Attendance log ID not found. Please contact support.');
+      console.error('Deduction toggle error: log object missing id/record_id:', log);
+      return;
+    }
+    if (!fromModal) {
+      // Only toggleDeduction should open the modal, not here
+      return;
+    }
+    this.deductionModalLoading = true;
+    const hasDeduction = log?.hours_object?.total_deduction > 0;
+    const actionText = hasDeduction ? 'remove' : 'add';
+    this._AttendanceLogService.toggleDeduction(id).subscribe({
+      next: () => {
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
+        this.toastr.success(`Deduction ${actionText}ed successfully`);
+        this.closeDeductionModal();
+      },
+      error: () => {
+        this.toastr.error(`Failed to ${actionText} deduction`);
+        this.deductionModalLoading = false;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.outsideClickListener) {
+      document.removeEventListener('mousedown', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
+    // Complete the destroy subject to trigger takeUntil for all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Unsubscribe from individual subscriptions if they exist
+    if (this.toasterSubscription) {
+      this.toasterSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+
+    // Complete the search subject
+    this.searchSubject.complete();
+  }
 }

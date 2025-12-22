@@ -22,6 +22,7 @@ export class AppComponent {
 
   title = 'Talent.HR';
   private checkTokenSub?: Subscription;
+  hideVersionDisplay = false;
 
   constructor(
     private translate: TranslateService,
@@ -42,8 +43,10 @@ export class AppComponent {
     // Scroll to top on navigation
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    ).subscribe((event: NavigationEnd) => {
       this.viewportScroller.scrollToPosition([0, 0]);
+      // Hide version badge on public client job board routes
+      this.hideVersionDisplay = event.urlAfterRedirects.includes('/careers');
     });
   }
 
@@ -62,6 +65,8 @@ export class AppComponent {
   }
 
   async ngOnInit(): Promise<void> {
+    // Initial route state (on refresh/deep-link)
+    this.hideVersionDisplay = this.router.url.includes('/client-job-board');
     const existingDeviceToken = localStorage.getItem('device_token');
 
     if (!existingDeviceToken) {
@@ -74,8 +79,26 @@ export class AppComponent {
     this.checkTokenSub?.unsubscribe();
   }
 
+  private async initializeSession(): Promise<void> {
+    try {
+      await fetch("/", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Session initialization error:', error);
+    }
+  }
+
   private async registerDeviceAlways(): Promise<void> {
     try {
+      // Initialize session before device registration
+      await this.initializeSession();
+
       // const deviceInfo = this.deviceDetector.getDeviceInfo();
 
       const deviceDetector = new DeviceDetector();
@@ -107,9 +130,22 @@ export class AppComponent {
       const data = await response.json();
       formData.append('ip', data.ip);
 
+      // Add r_IN only if running on localhost
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalhost) {
+        formData.append('r_IN', 'localhost');
+      }
+
       const res: any = await this._AuthenticationService.deviceRegister(formData).toPromise();
-      if (res?.data?.device_token) {
-        localStorage.setItem('device_token', res.data.device_token);
+      // Check both root level and data level for device_token
+      const deviceTokenValue = res?.device_token !== undefined ? res.device_token : res?.data?.device_token;
+
+      if (deviceTokenValue !== undefined && deviceTokenValue !== null) {
+        // Handle both boolean and string types
+        const deviceToken = typeof deviceTokenValue === 'boolean'
+          ? String(deviceTokenValue)
+          : deviceTokenValue;
+        localStorage.setItem('device_token', deviceToken);
       }
 
       if (fcmToken) localStorage.setItem('fcm_token', fcmToken);

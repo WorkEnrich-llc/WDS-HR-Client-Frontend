@@ -34,6 +34,7 @@ export class EditWorkScheduleComponent {
   todayFormatted: string = '';
   errMsg: string = '';
   isLoading: boolean = false;
+  isDataLoading: boolean = true;
 
   constructor(
     private router: Router,
@@ -77,6 +78,7 @@ export class EditWorkScheduleComponent {
   }
 
   getWorkSchedule(workId: number) {
+    this.isDataLoading = true;
     this._WorkSchaualeService.showWorkSchedule(workId).subscribe({
       next: (response) => {
         this.workScduleData = response.data.object_info;
@@ -97,6 +99,7 @@ export class EditWorkScheduleComponent {
             shift_hours: system.shift_hours,
             from: system.shift_range?.from || '',
             to: system.shift_range?.to || '',
+            max_check_out: system.max_check_out || '',
             terms: system.terms_and_rules || ''
           });
         }
@@ -139,10 +142,11 @@ export class EditWorkScheduleComponent {
           }));
           this.checkForChanges();
         }, 0);
-
+        this.isDataLoading = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isDataLoading = false;
       }
     });
   }
@@ -398,6 +402,7 @@ export class EditWorkScheduleComponent {
     shift_hours: new FormControl('', [Validators.pattern(/^\d+(\.\d{1,2})?$/)]),
     from: new FormControl(''),
     to: new FormControl(''),
+    max_check_out: new FormControl(''),
     terms: new FormControl('', [Validators.required, Validators.minLength(10)]),
   }, {
     validators: [this.shiftRangeValidator.bind(this)]
@@ -625,6 +630,7 @@ export class EditWorkScheduleComponent {
             from: this.workSchadule2.get('from')?.value,
             to: this.workSchadule2.get('to')?.value
           },
+          max_check_out: this.workSchadule2.get('max_check_out')?.value,
           terms_and_rules: this.workSchadule2.get('terms')?.value
         }
       }
@@ -637,7 +643,7 @@ export class EditWorkScheduleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/schedule/work-schedule']);
-        this.toasterMessageService.showSuccess("Work schedule Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Work schedule Updated successfully", "Updated Successfully");
 
       },
       error: (err) => {

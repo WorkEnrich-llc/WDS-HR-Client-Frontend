@@ -144,6 +144,30 @@ export class EmployeeService {
     return this.http.get<any>(url);
   }
 
+  // Get employee documents from personal API endpoint
+  getEmployeeDocumentsPersonal(employeeId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/document/${employeeId}`;
+    return this.http.get<any>(url);
+  }
+
+  // Upload employee document (v1_0_2)
+  uploadEmployeeDocumentV102(fileId: number, file: File): Observable<HttpEvent<any>> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/document`;
+    const formData = new FormData();
+    formData.append('file_id', fileId.toString());
+    formData.append('file', file);
+
+    return this.http.put<any>(url, formData, { reportProgress: true, observe: 'events' });
+  }
+
+  // Delete employee document (v1_0_2)
+  deleteEmployeeDocumentV102(fileId: number): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/employees/document`;
+    const formData = new FormData();
+    formData.append('file_id', fileId.toString());
+    return this.http.delete<any>(url, { body: formData });
+  }
+
   // Get attendance log for a specific date and employee
   getAttendanceLog(date: string, employeeId: number): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/attendance-log?date=${date}&employee=${employeeId}`;

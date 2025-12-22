@@ -1063,3 +1063,94 @@ h5 span {
 .profile-hug:hover .overlay {
   opacity: 1;
 }
+
+/* Skeleton Loader Styles */
+.skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-profile {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.skeleton-title {
+  height: 24px;
+  width: 40%;
+  margin-bottom: 16px;
+}
+
+.skeleton-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-label {
+  height: 14px;
+  width: 35%;
+}
+
+.skeleton-value {
+  height: 16px;
+  width: 65%;
+}
+
+.skeleton-button {
+  height: 32px;
+  width: 100px;
+  border-radius: 8px;
+}
+
+.skeleton-badge {
+  height: 28px;
+  width: 100px;
+  border-radius: 16px;
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.skeleton-tab {
+  height: 40px;
+  width: 120px;
+  border-radius: 8px;
+}
+
+.skeleton-table-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.skeleton-table-cell {
+  height: 16px;
+  flex: 1;
+}
+
+.skeleton-table-cell.w-20 {
+  width: 20%;
+}
+
+.skeleton-table-cell.w-30 {
+  width: 30%;
+}

@@ -1,3 +1,4 @@
+
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
@@ -54,14 +55,57 @@ export class AttendanceLogService {
     return this.http.get<any>(url, { params: httpParams });
   }
 
-  cancelAttendanceLog(data: { record_id: number; employee_id: number; date: string }) {
+  // Cancel log by id for new endpoint
+  cancelAttendanceLogById(id: string | number) {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/canceled`;
     const formData = new FormData();
-    formData.append('record_id', String(data.record_id));
-    formData.append('employee_id', String(data.employee_id));
-    formData.append('date', data.date);
-
-    return this.http.put(`${this.apiBaseUrl}personnel/attendance-inactive`, formData);
+    formData.append('id', String(id));
+    return this.http.put(url, formData);
   }
 
+  exportAttendanceLog(params: IAttendanceFilters = {}): Observable<Blob> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/log`;
+    return this.http.get(url, {
+      params: httpParams,
+      responseType: 'blob'
+    });
+  }
 
+  updateCheckIn(id: string | number, check_in: string) {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in`;
+    const formData = new FormData();
+    formData.append('id', String(id));
+    formData.append('check_in', check_in);
+    return this.http.put(url, formData);
+  }
+
+  updateCheckOut(id: string | number, check_out: string) {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
+    const formData = new FormData();
+    formData.append('id', String(id));
+    formData.append('check_out', check_out);
+    return this.http.put(url, formData);
+  }
+
+  updateLog(id: string | number, check_in: string, check_out: string) {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
+    const formData = new FormData();
+    formData.append('id', String(id));
+    formData.append('check_in', check_in);
+    formData.append('check_out', check_out);
+    return this.http.put(url, formData);
+  }
+
+  toggleDeduction(id: string | number) {
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/deduction`;
+    const formData = new FormData();
+    formData.append('id', String(id));
+    return this.http.put(url, formData);
+  }
 }

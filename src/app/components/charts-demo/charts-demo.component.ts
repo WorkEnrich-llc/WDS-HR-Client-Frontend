@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Chart, ChartConfiguration, ChartType, ChartData, registerables } from 'chart.js';
 
 // Register Chart.js components
@@ -8,7 +8,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-charts-demo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './charts-demo.component.html',
   styleUrls: ['./charts-demo.component.css']
 })

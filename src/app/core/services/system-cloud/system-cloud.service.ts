@@ -115,4 +115,10 @@ export class SystemCloudService {
         return this._HttpClient.get(url);
     }
 
+    // re-update payroll structure
+    reUpdatePayroll(id: string): Observable<any> {
+        const url = `${this.apiBaseUrl}cloud/system-file-data/re-update-payroll/${id}/`;
+        return this._HttpClient.put(url, {});
+    }
+
 }

@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
@@ -10,7 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-view-goal',
-  imports: [PageHeaderComponent, RouterLink, CommonModule, PopupComponent, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent, SkelatonLoadingComponent],
   providers: [DatePipe],
   templateUrl: './view-goal.component.html',
   styleUrl: './view-goal.component.css'

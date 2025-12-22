@@ -1,0 +1,128 @@
+/* Skeleton Loader Styles */
+.skeleton-container {
+    padding: 24px;
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-title {
+    height: 32px;
+    width: 60%;
+    margin-bottom: 16px;
+}
+
+.skeleton-meta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.skeleton-meta-line {
+    height: 16px;
+    width: 150px;
+}
+
+.skeleton-body {
+    margin-bottom: 32px;
+}
+
+.skeleton-body-line {
+    height: 20px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.skeleton-body-line.short {
+    width: 70%;
+}
+
+/* Section Title */
+.section-title {
+    font-size: var(--font-size-h4);
+    font-weight: 600;
+    color: var(--color-secondary-800);
+    margin-bottom: var(--spacing-16);
+}
+
+/* Field Item */
+.field-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+}
+
+.field-label {
+    font-size: var(--font-size-b3);
+    color: var(--color-secondary-500);
+    font-weight: 400;
+    margin: 0;
+}
+
+.field-value {
+    font-size: var(--font-size-b2);
+    color: var(--color-secondary-800);
+    font-weight: 500;
+}
+
+.text-primary {
+    color: var(--color-primary-600);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.text-primary:hover {
+    color: var(--color-primary-700);
+    text-decoration: underline;
+}
+
+/* Error State */
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.error-icon {
+    color: #dc3545;
+    margin-bottom: 24px;
+}
+
+.error-state h3 {
+    color: #2b3a4b;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.error-state p {
+    color: #6c757d;
+    font-size: 16px;
+    margin-bottom: 24px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-info-card {
+        padding: 20px;
+    }
+
+    .main-info-header {
+        font-size: 18px;
+    }
+}
+

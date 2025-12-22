@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,7 +22,7 @@ interface SelectedRole {
 
 @Component({
   selector: 'app-add-user',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective, CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CloseDropdownDirective],
   providers: [DatePipe],
   templateUrl: './manage-user.component.html',
   styleUrl: './manage-user.component.css'

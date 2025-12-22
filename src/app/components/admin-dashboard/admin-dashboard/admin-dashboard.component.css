@@ -198,12 +198,14 @@ hr {
 
 
 /* overlaysoon  */
-.content-box.alerts,.content-box.payroll {
+.content-box.alerts,
+.content-box.payroll {
   position: relative;
   overflow: hidden;
 }
 
-.content-box.alerts .overlay ,.content-box.payroll .overlay{
+.content-box.alerts .overlay,
+.content-box.payroll .overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -218,4 +220,409 @@ hr {
   font-weight: 600;
   color: var(--color-primary-500); 
   text-transform: uppercase;
+}
+
+/* -----------------------------
+   System Setup Board (Dashboard)
+------------------------------ */
+.system-setup-board {
+  border: 1px solid rgba(55, 122, 253, 0.18);
+  background: linear-gradient(180deg, rgba(55, 122, 253, 0.06), rgba(255, 255, 255, 1));
+}
+
+.system-setup-board .setup-subtitle {
+  color: var(--color-secondary-600);
+  font-size: var(--font-size-b3);
+}
+
+.setup-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary-600);
+  background: rgba(55, 122, 253, 0.12);
+  border: 1px solid rgba(55, 122, 253, 0.2);
+}
+
+.setup-badge.done {
+  color: var(--color-success-700);
+  background: rgba(76, 168, 131, 0.12);
+  border-color: rgba(76, 168, 131, 0.25);
+}
+
+.setup-progress-wrap {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.setup-progress-label {
+  color: var(--color-secondary-600);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.setup-progress-value {
+  color: var(--color-secondary-700);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.setup-progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.25);
+  overflow: hidden;
+}
+
+.setup-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #377AFD, #66BBFF);
+  transition: width 0.35s ease;
+}
+
+.setup-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setup-step {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.setup-step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.setup-step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(148, 163, 184, 0.7);
+  color: var(--color-secondary-700);
+  background: #fff;
+}
+
+.setup-step-icon.checked {
+  border-color: rgba(76, 168, 131, 0.9);
+  background: rgba(76, 168, 131, 0.12);
+  color: var(--color-success-700);
+}
+
+.setup-step-number {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.setup-step-line {
+  width: 2px;
+  flex: 1;
+  margin-top: 8px;
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 99px;
+}
+
+.setup-step:last-child .setup-step-line {
+  display: none;
+}
+
+.setup-step-body {
+  flex: 1;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.setup-step.checked .setup-step-body {
+  border-color: rgba(76, 168, 131, 0.25);
+}
+
+.setup-step-title {
+  color: var(--color-secondary-700);
+  font-size: var(--font-size-b2);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.setup-step-msg {
+  color: var(--color-secondary-600);
+  font-size: var(--font-size-b3);
+  margin-top: 2px;
+}
+
+.setup-step-msg.muted {
+  color: rgba(44, 67, 93, 0.55);
+}
+
+.setup-step-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--color-primary-600);
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(55, 122, 253, 0.25);
+  background: rgba(55, 122, 253, 0.08);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.setup-step-link:hover {
+  background: rgba(55, 122, 253, 0.14);
+  border-color: rgba(55, 122, 253, 0.35);
+  text-decoration: none;
+}
+
+/* -----------------------------
+   System Setup Onboarding Overlay
+------------------------------ */
+.setup-onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px 24px;
+  overflow: auto;
+}
+
+.setup-onboarding-card {
+  width: min(860px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.setup-onboarding-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setup-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(248, 250, 252, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary-700);
+  transition: all 0.2s ease;
+}
+
+.setup-close:hover {
+  background: rgba(55, 122, 253, 0.08);
+  border-color: rgba(55, 122, 253, 0.35);
+}
+
+.setup-done {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(76, 168, 131, 0.25);
+  background: rgba(76, 168, 131, 0.10);
+}
+
+.setup-done-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-success-700);
+  background: rgba(76, 168, 131, 0.14);
+  border: 1px solid rgba(76, 168, 131, 0.25);
+  flex-shrink: 0;
+}
+
+.setup-done-title {
+  font-weight: 800;
+  color: var(--color-secondary-700);
+}
+
+.setup-done-sub {
+  color: var(--color-secondary-600);
+  font-size: var(--font-size-b3);
+}
+
+/* -----------------------------
+   Guided Tour: single step card
+------------------------------ */
+.setup-step-card {
+  width: min(720px, 100%);
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.setup-onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+}
+
+.setup-target-highlight {
+  position: fixed;
+  border-radius: 14px;
+  border: 2px solid rgba(55, 122, 253, 0.9);
+  box-shadow: 0 0 0 6px rgba(55, 122, 253, 0.12);
+  pointer-events: none;
+  z-index: 10000;
+}
+
+.setup-tooltip-card {
+  position: fixed;
+  width: 360px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  padding: 14px;
+  backdrop-filter: blur(10px);
+  z-index: 10001;
+}
+
+.setup-tooltip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.setup-tooltip-title {
+  font-weight: 900;
+  color: var(--color-secondary-700);
+}
+
+.setup-tooltip-sub {
+  font-size: 12px;
+  color: rgba(44, 67, 93, 0.6);
+  margin-top: 2px;
+}
+
+.setup-tooltip-step {
+  margin-top: 12px;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba(55, 122, 253, 0.18);
+  background: linear-gradient(180deg, rgba(55, 122, 253, 0.10), rgba(255, 255, 255, 0.85));
+}
+
+.setup-tooltip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.setup-tooltip-arrow {
+  position: absolute;
+  top: 22px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgba(255, 255, 255, 0.86);
+  filter: drop-shadow(-2px 0 0 rgba(148, 163, 184, 0.35));
+}
+
+.setup-tooltip-card.placement-left .setup-tooltip-arrow {
+  left: auto;
+  right: -8px;
+  border-right: 0;
+  border-left: 10px solid rgba(255, 255, 255, 0.86);
+  filter: drop-shadow(2px 0 0 rgba(148, 163, 184, 0.35));
+}
+
+.setup-step-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setup-step-hero {
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(55, 122, 253, 0.18);
+  background: linear-gradient(180deg, rgba(55, 122, 253, 0.10), rgba(255, 255, 255, 0.85));
+}
+
+.setup-step-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-secondary-700);
+  background: rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.setup-step-hero-title {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--color-secondary-700);
+}
+
+.setup-step-hero-msg {
+  margin-top: 6px;
+  color: var(--color-secondary-600);
+  font-size: var(--font-size-b3);
+  line-height: 1.5;
+}
+
+.setup-step-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.setup-step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }

@@ -222,10 +222,12 @@
                 <h6>Salary</h6>
                 <span>{{ employee.job_info.salary || '----' }} EGP</span>
             </div> -->
-            <!-- <div class="info" *ngIf="employee.job_info.days_on_site">
+            <!-- @if (employee.job_info.days_on_site) {
+            <div class="info">
                 <h6>Days On Site</h6>
                 <span>{{ employee.job_info.days_on_site }} days/week</span>
-            </div> -->
+            </div>
+            } -->
             @if (employee.job_info.direct_manager?.name) {
             <div class="d-flex align-items-center justify-content-between">
                 <div class="info">
@@ -387,7 +389,7 @@
 @if (employee && employee.onboarding_list) {
 <app-onboarding-checklist [isOpen]="isOnboardingModalOpen" [checklistItems]="employee.onboarding_list"
     [showBadge]="true" [completed]="onboardingCompleted" [total]="onboardingTotal" [allowToggle]="false"
-    [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
+    [readOnly]="true" [loadingItemTitle]="loadingChecklistItemTitle" (close)="closeOnboardingModal()"
     (badgeClick)="openOnboardingModal()">
 </app-onboarding-checklist>
 }

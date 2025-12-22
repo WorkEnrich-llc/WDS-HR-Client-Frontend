@@ -4,12 +4,12 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormsModule } from '@angular/forms';
 import { PermissionsService } from '../../../../core/services/attendance/permissions/permissions.service';
-import { CommonModule } from '@angular/common';
+
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-edit-early-leave',
-  imports: [PageHeaderComponent, PopupComponent, FormsModule, CommonModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule],
   templateUrl: './edit-early-leave.component.html',
   styleUrl: './edit-early-leave.component.css',
   encapsulation: ViewEncapsulation.None

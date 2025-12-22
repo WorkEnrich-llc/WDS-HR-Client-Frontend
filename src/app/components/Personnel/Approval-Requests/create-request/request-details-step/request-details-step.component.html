@@ -4,14 +4,13 @@
 
     <div [formGroup]="sharedService.requestDetails" class="w-lg-50 d-flex flex-column gap-2">
       <!-- Leave form -->
-      <ng-container *ngIf="isLeaveRequest()">
+      @if (isLeaveRequest()) {
         <div class="input">
           <label>Request Type</label>
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <div class="form-control custom-date-input bg-light" readonly>{{ selectedRequestTypeName() }}</div>
           </div>
         </div>
-
         <div class="input">
           <label for="leave_type">Leave Type <span>*</span></label>
           <div [formGroup]="leaveGroup">
@@ -19,16 +18,15 @@
               <select id="leave_type" class="form-select" formControlName="leave_type">
                 <option value="" disabled hidden>Select Leave Type</option>
                 @for (type of sharedService.leaveTypes(); track type.id) {
-                <option [value]="type.id">{{ type.name }}</option>
+                  <option [value]="type.id">{{ type.name }}</option>
                 }
               </select>
             </div>
             @if (leaveGroup.get('leave_type')?.invalid && leaveGroup.get('leave_type')?.touched) {
-            <p class="error-msg">Please select a leave type</p>
+              <p class="error-msg">Please select a leave type</p>
             }
           </div>
         </div>
-
         <div class="d-flex gap-3 mt-3">
           <div class="p-3 border rounded w-50">
             <div class="small text-muted">Total Leaves per month</div>
@@ -39,7 +37,6 @@
             <div class="fw-bold">8 Days</div>
           </div>
         </div>
-
         <div class="input">
           <label for="leave_dates">Leave Date(s)</label>
           <div class="d-flex align-items-center gap-4" [formGroup]="leaveGroup">
@@ -49,248 +46,238 @@
                 <g fill="none" stroke-width="1.5">
                   <path stroke-linecap="round"
                     d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                  <circle cx="18" cy="18" r="3" />
-                  <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                </g>
-              </svg>
-            </div>
-          </div>
-          @if (leaveGroup.get('from_date')?.invalid && leaveGroup.get('from_date')?.touched) {
-          <p class="error-msg">Please select a date</p>
-          }
-        </div>
-      </ng-container>
-
-      <!-- Overtime form -->
-      <ng-container *ngIf="isOvertimeRequest()">
-        <div class="input">
-          <label>Request Type</label>
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <div class="form-control custom-date-input bg-light" readonly>{{ selectedRequestTypeName() }}</div>
-          </div>
-        </div>
-
-        <div class="input">
-          <label for="ot_date">Select Date <span>*</span></label>
-          <div [formGroup]="overtimeGroup">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input id="ot_date" type="date" formControlName="date" class="form-control custom-date-input" />
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round"
-                    d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                  <circle cx="18" cy="18" r="3" />
-                  <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                </g>
-              </svg>
-            </div>
-            @if (overtimeGroup.get('date')?.invalid && overtimeGroup.get('date')?.touched) {
-            <p class="error-msg">Please select a date</p>
-            }
-          </div>
-        </div>
-
-        <div class="input form-check">
-          <div [formGroup]="overtimeGroup">
-            <input id="employee_logged" class="form-check-input" type="checkbox" formControlName="employee_logged">
-            <label class="form-check-label" for="employee_logged">Employee logged in the hours</label>
-          </div>
-        </div>
-
-        <div class="input">
-          <label>Overtime Hours</label>
-          <div [formGroup]="overtimeGroup">
-            <div class="d-flex gap-2">
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="time" formControlName="from" class="form-control custom-date-input" />
-              </div>
-              <div class="form-outline w-100 position-relative custom-date-wrapper">
-                <input type="time" formControlName="to" class="form-control custom-date-input" />
+                    <circle cx="18" cy="18" r="3" />
+                    <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                  </g>
+                </svg>
               </div>
             </div>
-            @if ((overtimeGroup.get('from')?.invalid && overtimeGroup.get('from')?.touched) ||
-            (overtimeGroup.get('to')?.invalid && overtimeGroup.get('to')?.touched)) {
-            <p class="error-msg">Please provide overtime from/to times</p>
+            @if (leaveGroup.get('from_date')?.invalid && leaveGroup.get('from_date')?.touched) {
+              <p class="error-msg">Please select a date</p>
             }
           </div>
-        </div>
-
-        <div class="input form-check">
-          <div [formGroup]="overtimeGroup">
-            <input id="override_rates" class="form-check-input" type="checkbox" formControlName="override_rates">
-            <label class="form-check-label" for="override_rates">Override Overtime Rates</label>
-          </div>
-        </div>
-
-        <div class="input">
-          <div [formGroup]="overtimeGroup">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input type="text" formControlName="custom_rate" class="form-control custom-date-input"
-                placeholder="Custom Rate" />
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Permission form -->
-      <ng-container *ngIf="isPermissionRequest()">
-        <div class="input">
-          <label>Request Type</label>
-          <div class="form-outline w-100 position-relative custom-date-wrapper">
-            <div class="form-control custom-date-input bg-light" readonly>{{ selectedRequestTypeName() }}</div>
-          </div>
-        </div>
-
-        <div class="input">
-          <label>Permission Type</label>
-          <div [formGroup]="permissionGroup" class="d-flex gap-3 mt-2">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" formControlName="permission_type" value="early"
-                id="early_leave">
-              <label class="form-check-label" for="early_leave">
-                Early Leave
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" formControlName="permission_type" value="late"
-                id="late_arrive">
-              <label class="form-check-label" for="late_arrive">
-                Late Arrive
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex gap-3 mt-3">
-          <div class="p-3 border rounded w-50">
-            <div class="small text-muted">Total minutes per month</div>
-            <div class="fw-bold">360 mins</div>
-          </div>
-          <div class="p-3 border rounded w-50">
-            <div class="small text-muted">Available minutes</div>
-            <div class="fw-bold">200 mins</div>
-          </div>
-        </div>
-
-        <div class="input">
-          <label for="perm_date">Select Date <span>*</span></label>
-          <div [formGroup]="permissionGroup">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input id="perm_date" type="date" formControlName="date" class="form-control custom-date-input"
-                placeholder="dd/mm/yyyy" />
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round"
-                    d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-                  <circle cx="18" cy="18" r="3" />
-                  <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-                </g>
-              </svg>
-            </div>
-            @if (permissionGroup.get('date')?.invalid && permissionGroup.get('date')?.touched) {
-            <p class="error-msg">Please select a date</p>
-            }
-          </div>
-        </div>
-
-        <div class="input">
-          <label for="perm_time">Select Arrive Time <span>*</span></label>
-          <div [formGroup]="permissionGroup">
-            <div class="form-outline w-100 position-relative custom-date-wrapper">
-              <input id="perm_time" type="time" formControlName="time" class="form-control custom-date-input"
-                placeholder="00:00" />
-            </div>
-            @if (permissionGroup.get('time')?.invalid && permissionGroup.get('time')?.touched) {
-            <p class="error-msg">Please select a time</p>
-            }
-          </div>
-        </div>
-
-        <!-- Notes removed as per design -->
-      </ng-container>
-      <!-- Error Message -->
-      @if (sharedService.errMsg()) {
-      <div class="alert alert-danger mb-0 mt-3" role="alert">
-        {{ sharedService.errMsg() }}
-      </div>
-      }
-    </div>
-
-
-  </div>
-
-  <!-- Attachments Section - Only for Leave Requests -->
-  <div class="content-box d-flex flex-column gap-3 mt-4" *ngIf="isLeaveRequest()">
-    <h5>Attachments</h5>
-
-    <div class="mb-3 col-4">
-      <label class="btn btn-outline-primary">
-        <input type="file" (change)="addAttachments($event)" multiple hidden />
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-            <path
-              d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
-            <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
-          </g>
-        </svg>
-        Upload Documents
-      </label>
-    </div>
-    <div class="">
-      @for (att of attachments; track att.id; let i = $index) {
-      <div class="mb-2 p-2 border rounded d-flex justify-content-between align-items-center col-4">
-        <div>{{ att.name }}</div>
-        <div class="d-flex gap-3 align-items-center">
-          <button type="button" class="view-btn" (click)="downloadAttachment(i)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                <path
-                  d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
-                <path stroke-linejoin="round" d="M12 2v13m0 0l-3-3.5m3 3.5l3-3.5" />
-              </g>
-            </svg>
-            Download
-          </button>
-          <button type="button" class="remove-btn" (click)="removeAttachment(i)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-              viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
-                d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
-            </svg>
-            Delete
-          </button>
-        </div>
-      </div>
-      }
-    </div>
-
-  </div>
-
-  
-</div>
-
-  <!-- prev and confirm buttons -->
-    <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-        (click)="onPrevious()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M20 12H4m0 0l6-6m-6 6l6 6" />
-        </svg>
-      </button>
-      <button class="btn btn-lg btn-success"
-        (click)="onSubmit()">
-        <!-- @if (isLoading) {
-        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
-        @if (!isLoading) {
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-          </g>
-        </svg>
-        } -->
-        <span>Submit Request</span>
-      </button>
-    </div>
+
+        <!-- Overtime form -->
+        @if (isOvertimeRequest()) {
+          <div class="input">
+            <label>Request Type</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <div class="form-control custom-date-input bg-light" readonly>{{ selectedRequestTypeName() }}</div>
+            </div>
+          </div>
+          <div class="input">
+            <label for="ot_date">Select Date <span>*</span></label>
+            <div [formGroup]="overtimeGroup">
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <input id="ot_date" type="date" formControlName="date" class="form-control custom-date-input" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round"
+                      d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                      <circle cx="18" cy="18" r="3" />
+                      <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                    </g>
+                  </svg>
+                </div>
+                @if (overtimeGroup.get('date')?.invalid && overtimeGroup.get('date')?.touched) {
+                  <p class="error-msg">Please select a date</p>
+                }
+              </div>
+            </div>
+            <div class="input form-check">
+              <div [formGroup]="overtimeGroup">
+                <input id="employee_logged" class="form-check-input" type="checkbox" formControlName="employee_logged">
+                <label class="form-check-label" for="employee_logged">Employee logged in the hours</label>
+              </div>
+            </div>
+            <div class="input">
+              <label>Overtime Hours</label>
+              <div [formGroup]="overtimeGroup">
+                <div class="d-flex gap-2">
+                  <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="time" formControlName="from" class="form-control custom-date-input" />
+                  </div>
+                  <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input type="time" formControlName="to" class="form-control custom-date-input" />
+                  </div>
+                </div>
+                @if ((overtimeGroup.get('from')?.invalid && overtimeGroup.get('from')?.touched) ||
+                  (overtimeGroup.get('to')?.invalid && overtimeGroup.get('to')?.touched)) {
+                  <p class="error-msg">Please provide overtime from/to times</p>
+                }
+              </div>
+            </div>
+            <div class="input form-check">
+              <div [formGroup]="overtimeGroup">
+                <input id="override_rates" class="form-check-input" type="checkbox" formControlName="override_rates">
+                <label class="form-check-label" for="override_rates">Override Overtime Rates</label>
+              </div>
+            </div>
+            <div class="input">
+              <div [formGroup]="overtimeGroup">
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <input type="text" formControlName="custom_rate" class="form-control custom-date-input"
+                    placeholder="Custom Rate" />
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Permission form -->
+            @if (isPermissionRequest()) {
+              <div class="input">
+                <label>Request Type</label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                  <div class="form-control custom-date-input bg-light" readonly>{{ selectedRequestTypeName() }}</div>
+                </div>
+              </div>
+              <div class="input">
+                <label>Permission Type</label>
+                <div [formGroup]="permissionGroup" class="d-flex gap-3 mt-2">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" formControlName="permission_type" value="early"
+                      id="early_leave">
+                      <label class="form-check-label" for="early_leave">
+                        Early Leave
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" formControlName="permission_type" value="late"
+                        id="late_arrive">
+                        <label class="form-check-label" for="late_arrive">
+                          Late Arrive
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-3 mt-3">
+                    <div class="p-3 border rounded w-50">
+                      <div class="small text-muted">Total minutes per month</div>
+                      <div class="fw-bold">360 mins</div>
+                    </div>
+                    <div class="p-3 border rounded w-50">
+                      <div class="small text-muted">Available minutes</div>
+                      <div class="fw-bold">200 mins</div>
+                    </div>
+                  </div>
+                  <div class="input">
+                    <label for="perm_date">Select Date <span>*</span></label>
+                    <div [formGroup]="permissionGroup">
+                      <div class="form-outline w-100 position-relative custom-date-wrapper">
+                        <input id="perm_date" type="date" formControlName="date" class="form-control custom-date-input"
+                          placeholder="dd/mm/yyyy" />
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                              <path stroke-linecap="round"
+                                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+                                <circle cx="18" cy="18" r="3" />
+                                <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+                              </g>
+                            </svg>
+                          </div>
+                          @if (permissionGroup.get('date')?.invalid && permissionGroup.get('date')?.touched) {
+                            <p class="error-msg">Please select a date</p>
+                          }
+                        </div>
+                      </div>
+                      <div class="input">
+                        <label for="perm_time">Select Arrive Time <span>*</span></label>
+                        <div [formGroup]="permissionGroup">
+                          <div class="form-outline w-100 position-relative custom-date-wrapper">
+                            <input id="perm_time" type="time" formControlName="time" class="form-control custom-date-input"
+                              placeholder="00:00" />
+                            </div>
+                            @if (permissionGroup.get('time')?.invalid && permissionGroup.get('time')?.touched) {
+                              <p class="error-msg">Please select a time</p>
+                            }
+                          </div>
+                        </div>
+                        <!-- Notes removed as per design -->
+                      }
+                      <!-- Error Message -->
+                      @if (sharedService.errMsg()) {
+                        <div class="alert alert-danger mb-0 mt-3" role="alert">
+                          {{ sharedService.errMsg() }}
+                        </div>
+                      }
+                    </div>
+
+
+                  </div>
+
+                  <!-- Attachments Section - Only for Leave Requests -->
+                  @if (isLeaveRequest()) {
+                    <div class="content-box d-flex flex-column gap-3 mt-4">
+                      <h5>Attachments</h5>
+                      <div class="mb-3 col-4">
+                        <label class="btn btn-outline-primary">
+                          <input type="file" (change)="addAttachments($event)" multiple hidden />
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                              <path
+                                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
+                                <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
+                              </g>
+                            </svg>
+                            Upload Documents
+                          </label>
+                        </div>
+                        <div class="">
+                          @for (att of attachments; track att.id; let i = $index) {
+                            <div class="mb-2 p-2 border rounded d-flex justify-content-between align-items-center col-4">
+                              <div>{{ att.name }}</div>
+                              <div class="d-flex gap-3 align-items-center">
+                                <button type="button" class="view-btn" (click)="downloadAttachment(i)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                                      <path
+                                        d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
+                                        <path stroke-linejoin="round" d="M12 2v13m0 0l-3-3.5m3 3.5l3-3.5" />
+                                      </g>
+                                    </svg>
+                                    Download
+                                  </button>
+                                  <button type="button" class="remove-btn" (click)="removeAttachment(i)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                      viewBox="0 0 24 24">
+                                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
+                                        d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
+                                      </svg>
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+
+
+                      </div>
+
+                      <!-- prev and confirm buttons -->
+                      <div class="btn-fixed d-flex align-items-stretch gap-2">
+                        <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                          (click)="onPrevious()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M20 12H4m0 0l6-6m-6 6l6 6" />
+                            </svg>
+                          </button>
+                          <button class="btn btn-lg btn-success"
+                            (click)="onSubmit()">
+                            <!-- @if (isLoading) {
+                            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                          }
+                          @if (!isLoading) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                              </g>
+                            </svg>
+                            } -->
+                            <span>Submit Request</span>
+                          </button>
+                        </div>

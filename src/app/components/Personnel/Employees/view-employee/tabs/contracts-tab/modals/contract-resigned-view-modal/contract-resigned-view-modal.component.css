@@ -26,12 +26,19 @@
   background-color: #f9fafb;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .reason-text {
   min-height: 4rem;
   white-space: pre-wrap;
   line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* Modal Footer */

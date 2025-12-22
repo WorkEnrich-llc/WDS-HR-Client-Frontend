@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { TableComponent } from '../../shared/table/table.component';
@@ -13,7 +13,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-announcements',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
+  imports: [RouterModule, PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './announcements.component.html',
   styleUrls: ['./announcements.component.css']
 })

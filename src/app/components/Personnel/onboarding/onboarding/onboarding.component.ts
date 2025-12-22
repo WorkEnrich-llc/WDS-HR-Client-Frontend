@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,7 +13,7 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-onboarding',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule, RouterLink],
+  imports: [PageHeaderComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.css',
   encapsulation: ViewEncapsulation.None
@@ -21,6 +21,7 @@ interface CheckItem {
 export class OnboardingComponent {
   checks: CheckItem[] = [];
   checkForm: FormGroup;
+  loadingData: boolean = false;
   constructor(private router: Router, private fb: FormBuilder, private onboardingService: OnboardingService) {
     this.checkForm = this.fb.group({
       checkName: ['', Validators.required]
@@ -33,6 +34,7 @@ export class OnboardingComponent {
 
 
   getOnboarding() {
+    this.loadingData = true;
     this.onboardingService.getOnboarding().subscribe({
       next: (response) => {
         const list = response.data.object_info.onboarding_list || [];
@@ -42,9 +44,11 @@ export class OnboardingComponent {
           completed: false,
           editing: false
         }));
+        this.loadingData = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.loadingData = false;
       }
     });
   }

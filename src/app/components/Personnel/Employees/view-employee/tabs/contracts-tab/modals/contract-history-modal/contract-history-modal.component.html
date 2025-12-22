@@ -40,11 +40,53 @@
         </tr>
       </ng-template>
 
+      <!-- Skeleton Loader Template -->
+      <ng-template #historySkeletonTemplate>
+        @for (i of [1,2,3,4,5]; track i) {
+        <tr>
+          <td class="text-start" style="padding: var(--spacing-12) var(--spacing-20);">
+            <div class="skeleton-loading skeleton-text" style="height: 16px; width: 40px;"></div>
+          </td>
+          <td class="text-start" style="padding: var(--spacing-12) var(--spacing-20);">
+            <div class="skeleton-loading skeleton-text" style="height: 16px; width: 80px;"></div>
+          </td>
+          <td class="text-start" style="padding: var(--spacing-12) var(--spacing-20);">
+            <div class="skeleton-loading skeleton-text" style="height: 16px; width: 100px;"></div>
+          </td>
+          <td class="text-start" style="padding: var(--spacing-12) var(--spacing-20);">
+            <div class="skeleton-loading skeleton-text" style="height: 16px; width: 110px;"></div>
+          </td>
+          <td class="text-start" style="padding: var(--spacing-12) var(--spacing-20);">
+            <div class="skeleton-loading skeleton-text" style="height: 16px; width: 80px;"></div>
+          </td>
+        </tr>
+        }
+      </ng-template>
+
+      @if (isLoading) {
+      <div class="table-responsive">
+        <table class="table w-100 mb-0">
+          <thead>
+            <tr>
+              <th class="text-start">ID</th>
+              <th class="text-start">Date</th>
+              <th class="text-start">Type</th>
+              <th class="text-start">New Salary</th>
+              <th class="text-start">End Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngTemplateOutlet="historySkeletonTemplate"></ng-container>
+          </tbody>
+        </table>
+      </div>
+      } @else {
       <app-table [data]="historyData" [totalItems]="historyData.length" [currentPage]="1"
-        [itemsPerPage]="historyData.length" [disablePagination]="true" [isLoading]="false" [columnsCount]="4"
+        [itemsPerPage]="historyData.length" [disablePagination]="true" [isLoading]="false" [columnsCount]="5"
         [headerTemplate]="historyHeaderTemplate" [rowTemplate]="historyRowTemplate"
         [emptyTemplate]="historyEmptyTemplate">
       </app-table>
+      }
     </div>
   </div>
 </app-overlay-filter-box>

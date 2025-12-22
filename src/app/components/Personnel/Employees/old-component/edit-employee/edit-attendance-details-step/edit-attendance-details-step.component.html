@@ -1,83 +1,85 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <h2>Attendance Details</h2>
-  <div [formGroup]="sharedService.attendanceDetails" class="w-lg-50 d-flex flex-column gap-2">
+    <div [formGroup]="sharedService.attendanceDetails" class="w-lg-50 d-flex flex-column gap-2">
 
       <div class="input">
         <label for="employment_type">Employment Type</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="text" id="employment_type" 
-            [value]="getEmploymentTypeName()" 
+          <input type="text" id="employment_type"
+            [value]="getEmploymentTypeName()"
             class="form-control"
             readonly />
+          </div>
         </div>
-      </div>
 
-      <div class="input">
-        <label for="work_mode">Work Mode</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="text" id="work_mode" 
-            [value]="getWorkModeName()" 
-            class="form-control"
-            readonly />
-        </div>
-      </div>
+        <div class="input">
+          <label for="work_mode">Work Mode</label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input type="text" id="work_mode"
+              [value]="getWorkModeName()"
+              class="form-control"
+              readonly />
+            </div>
+          </div>
 
-      <div class="input">
-        <label for="days_on_site">No. of Days on site</label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="number" id="days_on_site" 
-            formControlName="days_on_site"
-            class="form-control"
-            placeholder="0" />
-        </div>
-        <p *ngIf="sharedService.isFieldInvalid('days_on_site', sharedService.attendanceDetails)" class="error-msg">
-          {{ sharedService.getFieldError('days_on_site', sharedService.attendanceDetails) }}
-        </p>
-      </div>
+          <div class="input">
+            <label for="days_on_site">No. of Days on site</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+              <input type="number" id="days_on_site"
+                formControlName="days_on_site"
+                class="form-control"
+                placeholder="0" />
+              </div>
+              @if (sharedService.isFieldInvalid('days_on_site', sharedService.attendanceDetails)) {
+                <p class="error-msg">
+                  {{ sharedService.getFieldError('days_on_site', sharedService.attendanceDetails) }}
+                </p>
+              }
+            </div>
 
-      <div class="input">
-        <label for="work_schedule_id">Work Schedule <span>*</span></label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select">
-            <option [value]="null" disabled hidden>Select Work Schedule</option>
-            @for (schedule of sharedService.workSchedules(); track schedule.id) {
-              <option [value]="schedule.id">{{ schedule.name }}</option>
-            }
-          </select>
-        </div>
-        @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {
-          <p class="error-msg">
-            {{sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails)}}
-          </p>
-        }
-      </div>
+            <div class="input">
+              <label for="work_schedule_id">Work Schedule <span>*</span></label>
+              <div class="form-outline w-100 position-relative custom-date-wrapper">
+                <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select">
+                  <option [value]="null" disabled hidden>Select Work Schedule</option>
+                  @for (schedule of sharedService.workSchedules(); track schedule.id) {
+                    <option [value]="schedule.id">{{ schedule.name }}</option>
+                  }
+                </select>
+              </div>
+              @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {
+                <p class="error-msg">
+                  {{sharedService.getFieldError('work_schedule_id', sharedService.attendanceDetails)}}
+                </p>
+              }
+            </div>
 
-      <div class="input">
-        <label class="d-flex align-items-center gap-2">
-          <input type="checkbox" disabled checked="false" />
-          <span>Activate Attendance Rules</span>
-        </label>
-      </div>
+            <div class="input">
+              <label class="d-flex align-items-center gap-2">
+                <input type="checkbox" disabled checked="false" />
+                <span>Activate Attendance Rules</span>
+              </label>
+            </div>
 
-    </div>
+          </div>
 
-    <!-- Navigation buttons -->
-    <div class="btn-fixed d-flex gap-3">
-      <button type="button" class="btn btn-lg btn-outline-primary" (click)="goPrev()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-            stroke-width="1.5" d="m20 12l-16 0m0 0l6-6m-6 6l6 6" />
-        </svg>
-        <span>Previous</span>
-      </button>
-      <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-            stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-        </svg>
-        <span>Next (3/4)</span>
-      </button>
-    </div>
-  </div>
-</div>
+          <!-- Navigation buttons -->
+          <div class="btn-fixed d-flex gap-3">
+            <button type="button" class="btn btn-lg btn-outline-primary" (click)="goPrev()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="1.5" d="m20 12l-16 0m0 0l6-6m-6 6l6 6" />
+                </svg>
+                <span>Previous</span>
+              </button>
+              <button type="button" class="btn btn-lg btn-primary" (click)="goNext()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                  </svg>
+                  <span>Next (3/4)</span>
+                </button>
+              </div>
+            </div>
+          </div>

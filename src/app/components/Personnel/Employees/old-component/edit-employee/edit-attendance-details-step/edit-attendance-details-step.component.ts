@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
 import { WorkSchaualeService } from '../../../../../core/services/attendance/work-schaduale/work-schauale.service';
@@ -7,7 +7,7 @@ import { WorkSchaualeService } from '../../../../../core/services/attendance/wor
 @Component({
   standalone: true,
   selector: 'app-edit-attendance-details-step',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './edit-attendance-details-step.component.html',
   styleUrls: ['./edit-attendance-details-step.component.css']
 })
