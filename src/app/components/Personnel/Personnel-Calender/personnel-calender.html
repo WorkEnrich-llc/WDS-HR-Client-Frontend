@@ -83,7 +83,8 @@
         </div>
         }
         @for (event of eventsDay; track event.title) {
-        <div class="event d-flex gap-3  align-items-stretch" [ngClass]="event.type.toLowerCase()">
+        <div class="event d-flex gap-3  align-items-stretch"
+          [ngClass]="event.type.toLowerCase() === 'new joiner' ? 'new-joiner' : event.type.toLowerCase() === 'end contract' ? 'end-contract' : event.type.toLowerCase()">
           <div class="border"></div>
           <div class="contain d-flex flex-column">
             <h5>{{event.type}}</h5>

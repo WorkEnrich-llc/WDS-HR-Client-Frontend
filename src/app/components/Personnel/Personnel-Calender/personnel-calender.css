@@ -1,3 +1,24 @@
+.end-contract .border {
+    background-color: var(--color-purple-400, #8e24aa) !important;
+}
+
+.end-contract h5 {
+    color: var(--color-purple-600, #6d1b7b) !important;
+}
+
+/* End Contract Event (calendar event dot style) */
+:host ::ng-deep .event-end-contract .fc-event-title {
+    color: var(--color-purple-600, #6d1b7b) !important;
+    position: relative;
+}
+
+:host ::ng-deep .event-end-contract .fc-event-title::before {
+    content: '●';
+    color: var(--color-purple-600, #6d1b7b);
+    opacity: 0.5;
+    margin-right: 6px;
+}
+
 :host ::ng-deep .fc-header-toolbar {
     display: none !important;
 }
@@ -344,32 +365,6 @@
     margin-right: 6px;
 }
 
-/* End Contracts Event */
-:host ::ng-deep .event-end .fc-event-title {
-    color: var(--color-primary-600) !important;
-    position: relative;
-}
-
-:host ::ng-deep .event-end .fc-event-title::before {
-    content: '●';
-    color: var(--color-primary-600);
-    opacity: 0.5;
-    margin-right: 6px;
-}
-
-/* New Joiner Event */
-:host ::ng-deep .event-new .fc-event-title {
-    color: var(--color-info-600) !important;
-    position: relative;
-}
-
-:host ::ng-deep .event-new .fc-event-title::before {
-    content: '●';
-    color: var(--color-info-600);
-    opacity: 0.5;
-    margin-right: 6px;
-}
-
 :host ::ng-deep .fc-daygrid-day-frame {
     min-height: 150px;
 }
@@ -437,8 +432,13 @@
     background-color: var(--color-success-400) !important;
 }
 
+
 .blackout .border {
     background-color: var(--color-danger-400) !important;
+}
+
+.new-joiner .border {
+    background-color: var(--color-primary-400, #1976d2) !important;
 }
 
 .meeting .border {
@@ -449,20 +449,30 @@
     background-color: var(--color-warning-400) !important;
 }
 
-.end .border {
-    background-color: var(--color-primary-400) !important;
-}
-
-.new .border {
-    background-color: var(--color-info-400) !important;
-}
-
 .holiday h5 {
     color: var(--color-success-600) !important;
 }
 
+
 .blackout h5 {
     color: var(--color-danger-600) !important;
+}
+
+.new-joiner h5 {
+    color: var(--color-primary-600, #1565c0) !important;
+}
+
+/* New Joiner Event (calendar event dot style) */
+:host ::ng-deep .event-new-joiner .fc-event-title {
+    color: var(--color-primary-600, #1565c0) !important;
+    position: relative;
+}
+
+:host ::ng-deep .event-new-joiner .fc-event-title::before {
+    content: '●';
+    color: var(--color-primary-600, #1565c0);
+    opacity: 0.5;
+    margin-right: 6px;
 }
 
 .meeting h5 {
@@ -471,12 +481,4 @@
 
 .reminder h5 {
     color: var(--color-warning-600) !important;
-}
-
-.end h5 {
-    color: var(--color-primary-600) !important;
-}
-
-.new h5 {
-    color: var(--color-info-600) !important;
 }

@@ -182,7 +182,10 @@ export class PersonnelCalenderComponent {
     dayMaxEvents: 4,
     height: 'auto',
     eventClassNames: (arg) => {
-      const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
+      let eventType = (arg.event.extendedProps as any).type?.toLowerCase();
+      // Normalize for New Joiner and End Contract
+      if (eventType === 'new joiner') eventType = 'new-joiner';
+      if (eventType === 'end contract') eventType = 'end-contract';
       return [`event-${eventType}`];
     },
     dateClick: this.handleDateClick.bind(this),
