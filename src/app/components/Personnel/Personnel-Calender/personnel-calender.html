@@ -1,0 +1,111 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+    { label: 'Personnel', link: '/dashboard' },
+    { label: 'Calender' }
+  ]" title="Personnel Calender">
+</app-page-header>
+<!-- end page header -->
+<!-- start content -->
+<div class="content-hug">
+  <div class="row align-items-stretch">
+    <!-- calender -->
+    <div class="col-lg-8">
+      <div class="content-box h-100">
+        <!-- search and new employee button -->
+        <div
+          class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+          <div class="">
+            <!-- Modern Horizontal Month/Year Picker -->
+            <div class="month-year-picker-horizontal">
+              <button class="picker-arrow" (click)="prevMonth()">
+                &lt;
+              </button>
+              <button class="picker-label" (click)="toggleMonthYearPicker()">
+                {{ selectedMonthYear }}
+              </button>
+              <button class="picker-arrow" (click)="nextMonth()">
+                &gt;
+              </button>
+              @if (showMonthYearPicker){
+              <div class="month-year-dropdown">
+                <div class="dropdown-header">Select Month & Year</div>
+                <div class="dropdown-body">
+                  <select [(ngModel)]="pickerMonth">
+                    <option *ngFor="let m of months; let i = index" [value]="i">{{ m }}</option>
+                  </select>
+                  <select [(ngModel)]="pickerYear">
+                    <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                  </select>
+                  <button class="btn btn-primary mt-2" (click)="setMonthYear()">Set</button>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- New Branch button -->
+          <!-- <button class="btn btn-lg btn-primary" routerLink="/employees/create-employee">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <g fill="none" stroke="#ffffff" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+              </g>
+            </svg>
+            <span>New Employee</span>
+          </button> -->
+
+        </div>
+
+        <!-- calender -->
+        <div class="calendar-wrapper mt-4">
+          <ng-container *ngIf="isLoading; else calendarContent">
+            <div class="calendar-skeleton">
+              <div class="skeleton-row" *ngFor="let r of [1,2,3,4,5,6]">
+                <div class="skeleton-cell" *ngFor="let c of [1,2,3,4,5,6,7]"></div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #calendarContent>
+            <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- day details -->
+    <div class="col-lg-4">
+      @if (selectedDateFormatted) {
+      <div class="content-box position-sticky" style="top: 9.8rem;">
+        @if (selectedDateFormatted) {
+        <div class="selected-day mb-4">
+          {{ selectedDateFormatted }}
+        </div>
+        }
+        @for (event of eventsDay; track event.title) {
+        <div class="event d-flex gap-3  align-items-stretch"
+          [ngClass]="event.type.toLowerCase() === 'new joiner' ? 'new-joiner' : event.type.toLowerCase() === 'end contract' ? 'end-contract' : event.type.toLowerCase()">
+          <div class="border"></div>
+          <div class="contain d-flex flex-column">
+            <h5>{{event.type}}</h5>
+            <h3 class="font-semi-bold">{{event.title}}</h3>
+          </div>
+        </div>
+        }
+        @if (eventsDay.length<1 && selectedDateFormatted) { <div class="noevents">No events In this Day
+      </div>
+      }
+      <!-- <button class="btn btn-lg btn-primary w-100 mt-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <g fill="none" stroke="#ffffff" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+              </g>
+            </svg>
+            <span>Add New Event</span>
+          </button> -->
+    </div>
+    }
+  </div>
+</div>
+</div>

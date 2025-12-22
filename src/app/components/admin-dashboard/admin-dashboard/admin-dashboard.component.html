@@ -353,7 +353,7 @@
           </div>
 
           <div class="d-flex flex-column gap-2">
-            @for (val of deptGuidelinesValues; track val; let i = $index) {
+            @for (val of deptGuidelinesValues; track $index; let i = $index) {
             <div class="sticker">
               <div class="number text-end">{{ val }}</div>
               <div class="label" [style.background-color]="deptGuidelinesColors[i]"></div>
