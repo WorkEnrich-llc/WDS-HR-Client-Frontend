@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, EventEmitter, Output } from '@angular/core';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { CreateRequestSharedService } from '../services/create-request-shared.service';
 
 @Component({
   selector: 'app-request-details-step',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './request-details-step.component.html',
   styleUrl: './request-details-step.component.css'
 })

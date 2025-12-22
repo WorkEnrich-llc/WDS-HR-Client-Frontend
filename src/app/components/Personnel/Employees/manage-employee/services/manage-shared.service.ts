@@ -111,6 +111,7 @@ export class ManageEmployeeSharedService {
   currentDate = new Date().toISOString().split('T')[0];
   readonly isEditMode = signal<boolean>(false);
   readonly isContractExpiring = signal<boolean>(false);
+  private originalFormData: any = null;
   suppressWatchers = false;
 
   constructor() {
@@ -496,6 +497,21 @@ export class ManageEmployeeSharedService {
 
         this.enableFieldsOnLoad(data.job_info);
 
+        // In edit mode, clear validators for fields in hidden steps
+        if (this.isEditMode()) {
+          // Contract details step is hidden in edit mode
+          const contractDetails = this.contractDetails;
+          contractDetails.get('start_contract')?.clearValidators();
+          contractDetails.get('start_contract')?.updateValueAndValidity({ emitEvent: false });
+          contractDetails.get('salary')?.clearValidators();
+          contractDetails.get('salary')?.updateValueAndValidity({ emitEvent: false });
+        }
+
+        // Store original form data for change detection
+        setTimeout(() => {
+          this.storeOriginalFormData();
+        }, 100);
+
         this.suppressWatchers = false;
         this.isLoading.set(false);
       },
@@ -584,6 +600,15 @@ export class ManageEmployeeSharedService {
   }
 
   private enableFieldsOnLoad(jobInfo: any): void {
+    // In edit mode, clear validators for contract_details fields since that step is hidden
+    if (this.isEditMode()) {
+      const contractDetails = this.contractDetails;
+      contractDetails.get('start_contract')?.clearValidators();
+      contractDetails.get('start_contract')?.updateValueAndValidity({ emitEvent: false });
+      contractDetails.get('salary')?.clearValidators();
+      contractDetails.get('salary')?.updateValueAndValidity({ emitEvent: false });
+    }
+
     const level = jobInfo.management_level;
     const jobDetails = this.jobDetails;
 
@@ -1528,6 +1553,32 @@ export class ManageEmployeeSharedService {
     this.selectedJobTitle.set(null);
     this.currentSalaryRange.set(null);
     this.onboardingList.set([]);
+    this.originalFormData = null;
+  }
+
+  // Store original form data for change detection
+  private storeOriginalFormData(): void {
+    const formValue = this.employeeForm.getRawValue();
+    this.originalFormData = JSON.parse(JSON.stringify(formValue));
+  }
+
+  // Check if form has changes
+  hasChanges(): boolean {
+    if (!this.isEditMode()) {
+      // In create mode, check if form is dirty (has been touched)
+      return this.employeeForm.dirty;
+    }
+
+    if (!this.originalFormData) {
+      return false;
+    }
+
+    const currentFormValue = this.employeeForm.getRawValue();
+    const currentStr = JSON.stringify(currentFormValue);
+    const originalStr = JSON.stringify(this.originalFormData);
+    const hasChanges = currentStr !== originalStr;
+
+    return hasChanges;
   }
 
 

@@ -1,16 +1,18 @@
 import { DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
 import { GoalsService } from 'app/core/services/od/goals/goals.service';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-new-goal',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent],
   providers: [DatePipe],
   templateUrl: './new-goal.component.html',
   styleUrl: './new-goal.component.css'
@@ -20,12 +22,16 @@ export class NewGoalComponent {
   errMsg: string = '';
   isLoading: boolean = false;
 
+  //  System Setup Tour
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
+
   constructor(
     private router: Router,
     private datePipe: DatePipe,
     private goalsService: GoalsService,
     private toasterMessageService: ToasterMessageService,
-    private subService: SubscriptionService
+    private subService: SubscriptionService,
+    private systemSetupService: SystemSetupService
   ) {
 
 
@@ -76,7 +82,16 @@ export class NewGoalComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/goals']);
-        this.toasterMessageService.showSuccess("Goal created successfully","Created Successfully");
+        this.toasterMessageService.showSuccess("Goal created successfully", "Created Successfully");
+        // Notify system setup tour
+        this.systemSetupService.notifyModuleItemCreated('goals');
+
+        // Show celebration animation
+        if (this.systemSetupTour) {
+          setTimeout(() => {
+            this.systemSetupTour.showCelebration('goals');
+          }, 500); // Small delay to ensure data is refreshed
+        }
 
       },
       error: (err) => {

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
 import { CreateEmployeeSharedService } from '../../create-employee/services/create-employee-shared.service';
@@ -8,7 +8,7 @@ import { BranchesService } from 'app/core/services/od/branches/branches.service'
 @Component({
   standalone: true,
   selector: 'app-edit-job-details-step',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './edit-job-details-step.component.html',
   styleUrls: ['./edit-job-details-step.component.css']
 })

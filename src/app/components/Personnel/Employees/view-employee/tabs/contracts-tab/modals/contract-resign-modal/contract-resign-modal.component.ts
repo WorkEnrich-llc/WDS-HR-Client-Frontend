@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -38,7 +38,7 @@ export function dateConstraintValidator(minDateStr?: string, maxDateStr?: string
 @Component({
   standalone: true,
   selector: 'app-contract-resign-modal',
-  imports: [ReactiveFormsModule, CommonModule, OverlayFilterBoxComponent],
+  imports: [ReactiveFormsModule, OverlayFilterBoxComponent],
   templateUrl: './contract-resign-modal.component.html',
   styleUrl: './contract-resign-modal.component.css'
 })

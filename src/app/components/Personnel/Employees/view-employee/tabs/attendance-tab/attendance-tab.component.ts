@@ -229,7 +229,7 @@ export class AttendanceTabComponent implements OnChanges {
   }
 
   // but time or -- in absent and leave 
-   getFirstCheckIn(emp: any): string {
+  getFirstCheckIn(emp: any): string {
     const list = emp?.list_items;
     if (!list || list.length === 0) return '--';
 
@@ -280,7 +280,7 @@ export class AttendanceTabComponent implements OnChanges {
 
     return this.formatTimeTo12Hour(checkOut);
   }
-  
+
   getMainRecord(list: any[]): any {
     return list?.find(item => item.main_record === true);
   }
@@ -288,18 +288,19 @@ export class AttendanceTabComponent implements OnChanges {
 
   cancelLog(attendance: any): void {
     this.isLoading = true;
-    const payload = {
-      record_id: attendance.record_id,
-      employee_id: attendance.employee_id,
-      date: attendance.date
-    };
-    this._AttendanceLogService.cancelAttendanceLog(payload).subscribe({
+    const id = attendance.id ?? attendance.record_id;
+    if (!id) {
+      this.toasterService.showError('Attendance log ID not found.');
+      this.isLoading = false;
+      return;
+    }
+    this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
         attendance.canceled = true;
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
         this.isLoading = false;
         console.error(err);

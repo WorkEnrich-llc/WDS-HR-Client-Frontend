@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CompanyPolicyService } from '../../../core/services/admin-settings/company-policy/company-policy.service';
@@ -8,7 +8,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-company-policy',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent],
+  imports: [RouterModule, PageHeaderComponent],
   templateUrl: './company-policy.component.html',
   styleUrls: ['./company-policy.component.css']
 })

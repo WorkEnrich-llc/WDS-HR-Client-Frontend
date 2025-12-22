@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { NotificationsService } from 'app/core/services/admin-settings/notifications/notifications.service';
 import { filter } from 'rxjs/operators';
 
 interface SideNavToggle {
@@ -28,14 +29,15 @@ export class SidebarComponent implements OnInit {
     'collapseOne': ['departments', 'branches', 'jobs', 'organizational-Chart', 'goals', 'dept-check'],
     'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
     'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
-    'collapseFour': ['calendar', 'job-openings', 'archived-openings'],
+    'collapseFour': ['calendar', 'job-openings', 'archived-openings', 'job-board-setup'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
-    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'email-settings', 'custom-field']
+    'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'company-documents', 'email-settings', 'custom-field']
   };
 
   constructor(
     private router: Router,
-    public subService: SubscriptionService
+    public subService: SubscriptionService,
+    private notificationsService: NotificationsService
   ) { }
 
 
@@ -47,6 +49,8 @@ export class SidebarComponent implements OnInit {
 
   isNotificationOpen = false;
   hasNewNotifications = true;
+  notifications: any[] = [];
+  isLoadingNotifications = false;
 
   // get logo from local storage
   companyInfo = localStorage.getItem('company_info');
@@ -63,7 +67,59 @@ export class SidebarComponent implements OnInit {
     } else {
       this.overlay.openOverlay();
       this.isNotificationOpen = true;
+      this.loadNotifications();
     }
+  }
+
+  loadNotifications(): void {
+    this.isLoadingNotifications = true;
+    this.notificationsService.getNotifications().subscribe({
+      next: (response) => {
+        // Extract notifications from response.data.object_info.list_items
+        this.notifications = response?.data?.object_info?.list_items || [];
+        this.isLoadingNotifications = false;
+      },
+      error: (error) => {
+        console.error('Error loading notifications:', error);
+        this.notifications = [];
+        this.isLoadingNotifications = false;
+      }
+    });
+  }
+
+  getTimeAgo(dateString: string | null | undefined): string {
+    if (!dateString) return 'N/A';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return 'Just now';
+    }
+
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
+    }
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `${diffInHours} ${diffInHours === 1 ? 'hr' : 'hrs'} ago`;
+    }
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) {
+      return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    }
+
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) {
+      return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
+    }
+
+    const diffInYears = Math.floor(diffInDays / 365);
+    return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;
   }
 
   // end notification popup

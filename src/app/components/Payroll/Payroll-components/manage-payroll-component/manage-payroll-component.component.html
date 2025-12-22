@@ -1,0 +1,299 @@
+<!-- start page header -->
+<app-page-header
+  [breadcrumbs]="[
+    { label: 'Payroll', link: '/payroll-components' },
+    {
+      label: 'Payroll Component',
+      link: '/payroll-components/all-payroll-components'
+    },
+    { label: isEditMode ? 'Update Component ' + componentName : 'Create New Component' }
+  ]"
+  [title]="isEditMode ? 'Update Component ' + componentName : 'Create New Component'"
+  [create]="createDate"
+  [update]="updatedDate"
+>
+  <button class="btn btn-lg btn-success w-auto" (click)="createComponent()" [disabled]="isSubmitting">
+    @if (!isSubmitting) {
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m8.5 12.5l2 2l5-5"
+        />
+      </g>
+    </svg>
+    <span>{{ isEditMode ? 'Update Component' : 'Create Component' }}</span>
+    } @else {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    <span>{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+    }
+  </button>
+
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Component</span>
+  </button>
+</app-page-header>
+
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Main Information</h2>
+    
+    @if (isLoading && isEditMode) {
+    <!-- Skeleton Loaders -->
+    <div class="w-lg-50 d-flex flex-column gap-2">
+      <!-- Component Code Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label"></div>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <div class="skeleton-loading skeleton-input"></div>
+        </div>
+      </div>
+
+      <!-- Component Name Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label" style="width: 180px;"></div>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <div class="skeleton-loading skeleton-input"></div>
+        </div>
+      </div>
+
+      <!-- Type Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label" style="width: 80px;"></div>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="skeleton-loading skeleton-select"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classification Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label" style="width: 140px;"></div>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="skeleton-loading skeleton-select"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculation Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label" style="width: 130px;"></div>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="skeleton-loading skeleton-select"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salary Portion Skeleton -->
+      <div class="input">
+        <div class="skeleton-loading skeleton-label" style="width: 180px;"></div>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <div class="skeleton-loading skeleton-select"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkbox Skeleton -->
+      <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+        <div class="skeleton-loading skeleton-checkbox"></div>
+        <div class="skeleton-loading skeleton-checkbox-label"></div>
+      </div>
+    </div>
+    } @else {
+    <!-- Actual Form -->
+    <form
+      [formGroup]="createPayrollForm"
+      class="w-lg-50 d-flex flex-column gap-2"
+    >
+      <div class="input">
+        <label for="compCode">Component Code (Optional)</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="text"
+            id="compCode"
+            class="form-control custom-date-input"
+            placeholder="0050"
+            formControlName="code"
+          />
+        </div>
+      </div>
+
+      <div class="input">
+        <label for="compName">Component Name <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="text"
+            id="compName"
+            class="form-control custom-date-input"
+            placeholder="Enter Component Name"
+            formControlName="name"
+          />
+        </div>
+        @if (createPayrollForm.get('name')?.touched &&
+        createPayrollForm.get('name')?.errors?.['required']) {
+        <p class="error-msg">Component Name is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="type">Type <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select
+              name="type"
+              id="type"
+              class="form-select"
+              formControlName="component_type"
+            >
+              <option value="" disabled hidden>Select Type</option>
+              @for (c of componentTypes ; track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (createPayrollForm.get('component_type')?.touched &&
+        createPayrollForm.get('component_type')?.errors?.['required']) {
+        <p class="error-msg">Component Type is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="Classification">Classification <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select
+              name="Classification"
+              id="Classification"
+              class="form-select"
+              formControlName="classification"
+            >
+              <option value="" disabled hidden>Select Classification</option>
+              @for (c of classifications ; track c.id) {
+              <option [value]="c.id">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (createPayrollForm.get('classification')?.touched &&
+        createPayrollForm.get('classification')?.errors?.['required']) {
+        <p class="error-msg">classification is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="Calculation">Calculation <span>*</span></label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select
+              name="Calculation"
+              id="Calculation"
+              class="form-select"
+              formControlName="calculation"
+            >
+              <option value="" disabled hidden>Select Calculation</option>
+              @for (c of calculations ; track c.key) {
+              <option [value]="c.key">{{ c.value }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (createPayrollForm.get('calculation')?.touched &&
+        createPayrollForm.get('calculation')?.errors?.['required']) {
+        <p class="error-msg">calculation is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="portion">Select salary portion </label>
+        <div class="d-flex align-items-center gap-4">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <select
+              name="portion"
+              id="portion"
+              class="form-select"
+              formControlName="portion"
+            >
+              <option value="" disabled hidden>Select Portion</option>
+              @for (p of salaryPortions; track p.index) {
+              <option [value]="p.index">
+                {{ p.name }}
+              </option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (createPayrollForm.get('portion')?.touched &&
+        createPayrollForm.get('portion')?.errors?.['required']) {
+        <p class="error-msg">Portion is required.</p>
+        }
+      </div>
+
+      <div
+        class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3"
+      >
+        <input
+          class="form-check-input m-0"
+          type="checkbox"
+          id="shown"
+          formControlName="show_in_payslip"
+        />
+        <label class="form-check-label m-0" for="shown">
+          Shown in Employee Payslip
+        </label>
+      </div>
+    </form>
+    }
+  </div>
+</div>
+
+<!-- Discard popup  -->
+<app-popup
+  [title]="'Discard Payroll Component'"
+  [paragraph1]="
+    isEditMode 
+      ? 'Are you sure you want to discard updating the Payroll Component?'
+      : 'Are you sure you want to discard creating the new Payroll Component?'
+  "
+  [paragraph2]="'This action cannot be undone!'"
+  [isOpen]="isModalOpen"
+  (close)="closeModal()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-dark w-100"
+    (click)="confirmAction()"
+  >
+    Discard Component
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeModal()"
+  >
+    Cancel
+  </button>
+</app-popup>
+

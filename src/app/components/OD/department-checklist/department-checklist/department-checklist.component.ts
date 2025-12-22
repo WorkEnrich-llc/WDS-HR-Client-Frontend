@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,7 +13,7 @@ interface CheckItem {
 }
 @Component({
   selector: 'app-department-checklist',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent, SkelatonLoadingComponent],
   templateUrl: './department-checklist.component.html',
   styleUrl: './department-checklist.component.css',
   encapsulation: ViewEncapsulation.None

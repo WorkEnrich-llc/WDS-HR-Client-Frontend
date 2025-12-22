@@ -3,13 +3,14 @@ import { Injectable } from "@angular/core";
 import { environment } from "environments/environment";
 import { BehaviorSubject, map, Observable, of } from "rxjs";
 import { AuthHelperService } from "../authentication/auth-helper.service";
+import { BaseHttpService } from "../http/base-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
   private apiBaseUrl: string;
 
   constructor(
-    private _HttpClient: HttpClient,
+    private _HttpClient: BaseHttpService, // Use BaseHttpService to automatically include withCredentials
     private _AuthHelper: AuthHelperService
   ) {
     this.apiBaseUrl = environment.apiBaseUrl;
@@ -73,6 +74,7 @@ export class SubscriptionService {
  getSubscription(): Observable<any> {
   const url = `${this.apiBaseUrl}main/authentication/subscription-status`;
 
+  // BaseHttpService automatically includes withCredentials: true
   return this._HttpClient.get<any>(url).pipe(
     map(res => {
       const features = res?.data?.features ?? null;

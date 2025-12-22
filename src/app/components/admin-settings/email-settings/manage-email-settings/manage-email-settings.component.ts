@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
@@ -10,7 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-manage-email-settings',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule],
+  imports: [RouterModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule],
   templateUrl: './manage-email-settings.component.html',
   styleUrls: ['./manage-email-settings.component.css']
 })

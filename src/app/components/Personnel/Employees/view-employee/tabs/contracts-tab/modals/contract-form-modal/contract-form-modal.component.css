@@ -6,3 +6,9 @@
 .svg-error-adjust {
   top: 36%;
 }
+
+/* Checkbox cursor pointer */
+.form-check-input,
+.form-check-label {
+  cursor: pointer;
+}

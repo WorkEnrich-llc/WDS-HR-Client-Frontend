@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -11,6 +11,8 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
+import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const errors: any = {};
@@ -20,6 +22,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
     { min: 'partTime_minimum', max: 'partTime_maximum', label: 'partTime' },
     { min: 'hourly_minimum', max: 'hourly_maximum', label: 'hourly' },
   ];
+
 
   let hasError = false;
 
@@ -37,7 +40,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-create-new-job-title',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent],
   providers: [DatePipe],
   templateUrl: './create-new-job-title.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']
@@ -55,7 +58,8 @@ export class CreateNewJobTitleComponent {
   private searchSubject = new Subject<string>();
 
   constructor(private toasterMessageService: ToasterMessageService, private fb: FormBuilder, private toastr: ToastrService,
-    private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router) {
+    private _DepartmentsService: DepartmentsService, private subService: SubscriptionService, private _JobsService: JobsService, private datePipe: DatePipe, private router: Router,
+    private systemSetupService: SystemSetupService) {
 
     const today = new Date();
     this.todayFormatted = this.datePipe.transform(today, 'dd/MM/yyyy')!;
@@ -265,48 +269,48 @@ export class CreateNewJobTitleComponent {
   loadJobs: boolean = false;
   selectJobError: boolean = false;
 
- getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
-  this.loadJobs = true;
-  const managementLevel = this.jobStep1.get('managementLevel')?.value;
-  this.loadData = true;
+  getAllJobTitles(ManageCurrentPage: number, searchTerm: string = '') {
+    this.loadJobs = true;
+    const managementLevel = this.jobStep1.get('managementLevel')?.value;
+    this.loadData = true;
 
-  this._JobsService.getAllJobTitles(
-    ManageCurrentPage,
-    this.manageItemsPerPage,
-    {
-      management_level: managementLevel,
-      search: this.searchTerm,
-      request_in: 'create',
-      status: 'true' 
-    }
-  ).subscribe({
-    next: (response) => {
-      this.loadData = false;
+    this._JobsService.getAllJobTitles(
+      ManageCurrentPage,
+      this.manageItemsPerPage,
+      {
+        management_level: managementLevel,
+        search: this.searchTerm,
+        request_in: 'create',
+        status: 'true'
+      }
+    ).subscribe({
+      next: (response) => {
+        this.loadData = false;
 
-      this.ManageCurrentPage = Number(response.data.page);
-      this.ManageTotalItems = response.data.total_items;
-      this.ManagetotalPages = response.data.total_pages;
+        this.ManageCurrentPage = Number(response.data.page);
+        this.ManageTotalItems = response.data.total_items;
+        this.ManagetotalPages = response.data.total_pages;
 
-      this.jobTitles = response.data.list_items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        assigned: false
-      }));
+        this.jobTitles = response.data.list_items.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          assigned: false
+        }));
 
-      this.sortDirection = 'desc';
-      this.currentSortColumn = 'id';
-      this.sortBy();
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
 
-      this.loadJobs = false;
-    },
+        this.loadJobs = false;
+      },
 
-    error: (err) => {
-      this.loadData = false;
-      console.error(err.error?.details);
-      this.loadJobs = false;
-    }
-  });
-}
+      error: (err) => {
+        this.loadData = false;
+        console.error(err.error?.details);
+        this.loadJobs = false;
+      }
+    });
+  }
 
   onSearchChange(event: any) {
     this.searchTerm = event.target.value;
@@ -626,8 +630,15 @@ export class CreateNewJobTitleComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/jobs/all-job-titles']);
-        this.toasterMessageService.showSuccess("Job Title created successfully","Created Successfully");
-
+        this.toasterMessageService.showSuccess("Job Title created successfully", "Created Successfully");
+        // Notify system setup tour
+        this.systemSetupService.notifyModuleItemCreated('job titles');
+        // Show celebration animation
+        if (this.systemSetupTour) {
+          setTimeout(() => {
+            this.systemSetupTour.showCelebration('job titles');
+          }, 500);
+        }
       },
       error: (err) => {
         this.isLoading = false;
@@ -654,5 +665,5 @@ export class CreateNewJobTitleComponent {
     });
   }
 
-
+  @ViewChild(SystemSetupTourComponent) systemSetupTour!: SystemSetupTourComponent;
 }

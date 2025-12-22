@@ -1,1 +1,36 @@
 /* Contract History Modal Styles */
+
+/* Skeleton Loader Styles */
+.skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-text {
+  margin: 0;
+  display: inline-block;
+}
+
+.history-table-container {
+  width: 100%;
+}
+
+.history-table-container .table-responsive {
+  width: 100%;
+}
+
+.history-table-container table.table {
+  width: 100%;
+  margin-bottom: 0;
+}

@@ -61,19 +61,23 @@
       <th (click)="sortBy()" style="cursor: pointer;" class="width-fix">
         <div class="d-flex align-items-center justify-content-between">
           <span>Leave Type</span>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'desc'" width="24" height="24"
+          @if (sortDirection === 'desc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
             viewBox=Employees>
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
               <path d="M4 8h9m-7 5h7m-5 5h5" />
               <path stroke-linejoin="round" d="M17 20V4l3 4" />
             </g>
           </svg>
-          <svg xmlns="http://www.w3.org/2000/svg" *ngIf="sortDirection === 'asc'" width="24" height="24"
+          }
+          @if (sortDirection === 'asc') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
             viewBox="0 0 24 24">
             <path fill="#DDE3EB" fill-rule="evenodd"
               d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
               clip-rule="evenodd" />
           </svg>
+          }
         </div>
       </th>
 
@@ -100,7 +104,8 @@
       <td>{{leave.created_at | date:'dd/MM/yyyy'}}</td>
       <td>{{leave.updated_at | date:'dd/MM/yyyy'}}</td>
       <td>
-        <span class="badge-success" *ngIf="leave.is_active">
+        @if (leave.is_active) {
+        <span class="badge-success">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -109,7 +114,9 @@
           </svg>
           <span>Active</span>
         </span>
-        <span class="badge-danger" *ngIf="!leave.is_active">
+        }
+        @if (!leave.is_active) {
+        <span class="badge-danger">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
@@ -118,6 +125,7 @@
           </svg>
           <span>Not Active</span>
         </span>
+        }
       </td>
       <td>
         <div class="d-flex justify-content-between align-items-center w-100">
@@ -151,12 +159,11 @@
     <ng-template #noLeave>
       <tr>
         <td colspan="7" class="no-data py-4">
-          <ng-container *ngIf="searchTerm.trim(); else noLeave">
+          @if (searchTerm.trim()) {
             No Leave Type match your search.
-          </ng-container>
-          <ng-template #noLeave>
+          } @else {
             No Leave Type Added Yet.
-          </ng-template>
+          }
         </td>
       </tr>
     </ng-template>
@@ -179,7 +186,8 @@
             <option value=4>Freelance</option>
           </select>
         </div>
-        <svg *ngIf="!filterForm.get('employment_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        @if (!filterForm.get('employment_type')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -187,13 +195,16 @@
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
-        <svg *ngIf="filterForm.get('employment_type')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        }
+        @if (filterForm.get('employment_type')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
+        }
       </div>
     </div>
 
@@ -207,7 +218,8 @@
             <option value=false>Not Active</option>
           </select>
         </div>
-        <svg *ngIf="!filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        @if (!filterForm.get('status')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <path fill="#e04f5f"
             d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -215,13 +227,16 @@
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
             clip-rule="evenodd" />
         </svg>
-        <svg *ngIf="filterForm.get('status')?.value" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+        }
+        @if (filterForm.get('status')?.value) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
           viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
+        }
       </div>
     </div>
 

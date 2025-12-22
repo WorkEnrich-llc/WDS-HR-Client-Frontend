@@ -20,12 +20,11 @@ export class ArchivedOpeningsService {
             date_to?: string;
         }
     ): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/jobs-openings`;
+        const url = `${this.apiBaseUrl}recruiter/jobs-archived`;
 
         let params = new HttpParams()
             .set('page', pageNumber)
             .set('per_page', perPage)
-            .set('status', '3'); // Always filter for archived status
 
         if (filters) {
             if (filters.search) params = params.set('search', filters.search);

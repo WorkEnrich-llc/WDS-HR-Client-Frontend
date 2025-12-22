@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
@@ -10,7 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-manage-company-policy',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule],
+  imports: [RouterModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule, FormsModule],
   templateUrl: './manage-company-policy.component.html',
   styleUrls: ['./manage-company-policy.component.css'],
   encapsulation: ViewEncapsulation.None

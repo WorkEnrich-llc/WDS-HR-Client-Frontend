@@ -10,7 +10,7 @@
   
   <button class="btn btn-lg btn-success w-auto" 
     (click)="onSubmit()" 
-    [disabled]="sharedService.employeeForm.invalid || sharedService.isLoading()">
+    [disabled]="isSaveButtonDisabled()">
     @if (sharedService.isLoading()) {
       <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }

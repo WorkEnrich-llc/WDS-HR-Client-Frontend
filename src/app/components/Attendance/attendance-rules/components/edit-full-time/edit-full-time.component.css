@@ -1,20 +1,24 @@
 .page-header .parag {
     margin-top: calc(-1 * var(--spacing-48)) !important;
 }
-.nav .nav-item{
+
+.nav .nav-item {
     transition: 0.3s;
     -webkit-transition: 0.3s;
     -moz-transition: 0.3s;
     -ms-transition: 0.3s;
     -o-transition: 0.3s;
 }
-.nav .nav-item:hover{
+
+.nav .nav-item:hover {
     background-color: var(--color-primary-50) !important;
     cursor: pointer !important;
 }
-.nav .nav-item.active{
+
+.nav .nav-item.active {
     position: relative;
 }
+
 .nav .nav-item.active::after {
     content: "";
     position: absolute;
@@ -23,7 +27,7 @@
     width: 80%;
     height: 4px;
     background-color: var(--color-primary-400);
-    border-radius: 2px; 
+    border-radius: 2px;
 }
 
 .form-select.placeholder-glow {
@@ -45,6 +49,7 @@
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -61,9 +66,11 @@
     0% {
         opacity: 1;
     }
+
     50% {
         opacity: 0.4;
     }
+
     100% {
         opacity: 1;
     }
@@ -83,4 +90,369 @@
 .table td .w-100 {
     display: flex;
     flex-direction: column;
+}
+
+/* Lateness Table Styles - Matching Figma Design */
+.lateness-table-wrapper {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.lateness-table {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Table Header */
+.lateness-table-header {
+    display: flex;
+    background-color: #2d2d2d;
+    height: 48px;
+}
+
+.lateness-header-cell {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lateness-header-cell:last-child {
+    border-right: none;
+}
+
+/* Table Content */
+.lateness-table-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lateness-table-row {
+    display: flex;
+    min-height: 48px;
+    background-color: #ffffff;
+}
+
+.lateness-table-row.alt-row {
+    background-color: #f5f5f5;
+}
+
+.lateness-table-cell {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--color-secondary-500);
+}
+
+/* Occurrence Row */
+.occurrence-row {
+    background-color: #ffffff;
+}
+
+.occurrence-row.expanded {
+    background-color: #ffffff;
+}
+
+.occurrence-cell {
+    display: flex;
+    align-items: center;
+}
+
+.expand-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #2c63cc;
+    transition: transform 0.2s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.expand-toggle-btn svg {
+    transition: transform 0.2s ease;
+    color: #2c63cc;
+}
+
+.expand-toggle-btn svg.rotated {
+    transform: rotate(180deg);
+}
+
+.occurrence-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2c435d;
+}
+
+.deduction-rule-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2c435d;
+    padding-left: 0;
+    position: relative;
+}
+
+/* Visual connecting lines for tree structure - SVG-based lines */
+.expand-icon-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+/* SVG connecting lines - positioned absolutely to span the cell */
+.connecting-line-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 64px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Occurrence row vertical line - starts below the arrow and extends to connect */
+.occurrence-line {
+    top: calc(50% + 16px);
+    height: calc(50% - 16px + 8px);
+    width: 48px;
+}
+
+/* Deduction rule SVG - scale to fit row height and extend to connect seamlessly */
+.deduction-rule-row .connecting-line-svg {
+    height: calc(100% + 8px);
+    top: -4px;
+    width: 64px;
+}
+
+/* First deduction rule - extend up to connect with occurrence line */
+.deduction-rule-row:first-of-type .connecting-line-svg {
+    height: calc(100% + 8px);
+    top: -4px;
+}
+
+/* Last deduction rule - extend further down to connect with add rule row */
+.deduction-rule-row.last-rule .connecting-line-svg {
+    height: calc(100% + 12px);
+    top: -4px;
+}
+
+/* Add rule row SVG - extend from above to connect seamlessly, remove extra bottom space */
+.add-rule-row .connecting-line-svg {
+    height: 100%;
+    top: 0;
+    width: 64px;
+}
+
+/* Deduction rule rows */
+.deduction-rule-row {
+    position: relative;
+}
+
+.deduction-rule-row .expand-icon-cell {
+    position: relative;
+    overflow: visible;
+}
+
+/* Add rule row */
+.add-rule-row {
+    position: relative;
+}
+
+.add-rule-row .expand-icon-cell {
+    position: relative;
+    overflow: visible;
+}
+
+/* Ensure proper alignment of deduction rule label with Add button - moved more to the right */
+.deduction-rule-row .occurrence-cell {
+    padding-left: 24px;
+}
+
+.deduction-rule-label {
+    padding-left: 0;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.add-rule-cell {
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+/* Align button with horizontal line and deduction rules - the SVG horizontal line is at 50% (y=24 in 48px viewBox) */
+.btn-add-rule {
+    margin: 0;
+    margin-left: 12px;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Deduction Rule Row */
+.deduction-rule-row {
+    background-color: #ffffff;
+}
+
+.deduction-rule-row.alt-row {
+    background-color: #f5f5f5;
+}
+
+/* Actions Cell */
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+}
+
+.btn-icon-remove {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    color: #4a6d97;
+    transition: background-color 0.2s ease;
+}
+
+.btn-icon-remove:hover {
+    background-color: rgba(74, 109, 151, 0.1);
+}
+
+.btn-icon-remove svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Add Rule Row */
+.add-rule-row {
+    background-color: #ffffff;
+}
+
+.add-rule-cell {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+}
+
+.btn-add-rule {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c63cc;
+    transition: opacity 0.2s ease;
+}
+
+.btn-add-rule:hover {
+    opacity: 0.8;
+}
+
+.btn-add-rule svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Add Occurrence Row */
+.add-occurrence-row {
+    background-color: #ffffff;
+}
+
+.add-occurrence-cell {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    width: 100%;
+}
+
+.btn-add-occurrence {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c63cc;
+    transition: opacity 0.2s ease;
+}
+
+.btn-add-occurrence:hover {
+    opacity: 0.8;
+}
+
+.btn-add-occurrence svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Form Controls in Table */
+.lateness-table-cell .form-control,
+.lateness-table-cell .form-select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+    height: auto;
+}
+
+.lateness-table-cell .form-control:focus,
+.lateness-table-cell .form-select:focus {
+    border-color: #2c63cc;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(44, 99, 204, 0.25);
+}
+
+.lateness-table-cell .invalid-feedback {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    color: #dc3545;
+}
+
+.lateness-table-cell .form-control.is-invalid,
+.lateness-table-cell .form-select.is-invalid {
+    border-color: #dc3545;
 }

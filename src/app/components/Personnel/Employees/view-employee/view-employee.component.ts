@@ -48,6 +48,7 @@ export class ViewEmployeeComponent implements OnInit {
   private toasterMessageService = inject(ToasterMessageService);
   private customFieldsService = inject(CustomFieldsService);
   private changeDetector = inject(ChangeDetectorRef);
+  @ViewChild(ContractsTabComponent) contractsTabComponent?: ContractsTabComponent;
   employee: Employee | null = null;
   subscription: Subscription | null = null;
   loading = false;
@@ -502,7 +503,7 @@ export class ViewEmployeeComponent implements OnInit {
   devicesPerPage = 10;
   devicesTotalPages = 1;
 
-  // Documents checklist
+  // Documents checklist - now managed by documents-tab component
   documentsRequired: Array<{
     name: string;
     key: string;
@@ -518,19 +519,7 @@ export class ViewEmployeeComponent implements OnInit {
     isDeleteModalOpen?: boolean;
     isEditable?: boolean;
     isCustom?: boolean;
-  }> = [
-      { name: 'CV', key: 'cv', uploaded: false },
-      { name: 'ID', key: 'id', uploaded: false },
-      // { name: 'Access Contracts', key: 'access_contracts', uploaded: false },
-      // { name: 'Policies', key: 'policies', uploaded: false },
-      // { name: 'Official Forms', key: 'official_forms', uploaded: false },
-      // { name: 'ID Back', key: 'id_back', uploaded: false },
-      // { name: 'ID Front', key: 'id_front', uploaded: false },
-      // { name: 'Driver License', key: 'driver_license', uploaded: false },
-      // { name: '101 Medical File', key: '101_medical_file', uploaded: false },
-      // { name: 'Print Insurance', key: 'print_insurance', uploaded: false },
-      // { name: 'Background Check', key: 'background_check', uploaded: false }
-    ];
+  }> = [];
 
 
   addNewDocument() {
@@ -643,11 +632,12 @@ export class ViewEmployeeComponent implements OnInit {
   }
 
   updateChecklistItem(item: { title: string; status: boolean }): void {
-    if (!this.employee || this.loadingChecklistItemTitle) {
-      return; // Don't update if no employee or currently loading
+    // Don't update if no employee or currently loading (explicit null check)
+    if (!this.employee || this.loadingChecklistItemTitle !== null) {
+      return;
     }
 
-    // Set loading state for the clicked item
+    // Set loading state for the clicked item IMMEDIATELY to prevent other clicks
     this.loadingChecklistItemTitle = item.title;
 
     // Toggle the clicked item status, keep all others as they were
@@ -746,12 +736,25 @@ export class ViewEmployeeComponent implements OnInit {
     this.employeeService.updateEmployee(payload).subscribe({
       next: (response: any) => {
         this.toasterMessageService.showSuccess('Checklist item updated successfully');
-        // Update local onboarding list so the view reflects the change without reloading the whole page
-        if (this.employee) {
-          this.employee.onboarding_list = updatedOnboardingList;
-        }
-        // Clear loading state
-        this.loadingChecklistItemTitle = null;
+        // Reload employee data to get the updated checklist from server
+        // This ensures we have the latest data after all related APIs (department update, etc.) complete
+        this.employeeService.getEmployeeById(this.employeeId).subscribe({
+          next: (employeeResponse) => {
+            // Update employee data with fresh data from server
+            this.employee = employeeResponse.data.object_info;
+            this.changeDetector.detectChanges();
+            // Clear loading state only after employee data (including checklist) is reloaded
+            this.loadingChecklistItemTitle = null;
+          },
+          error: (reloadError) => {
+            console.error('Error reloading employee data:', reloadError);
+            // Even if reload fails, update local data and clear loading
+            if (this.employee) {
+              this.employee.onboarding_list = updatedOnboardingList;
+            }
+            this.loadingChecklistItemTitle = null;
+          }
+        });
       },
       error: (error: any) => {
         console.error('Error updating checklist item:', error);
@@ -772,7 +775,7 @@ export class ViewEmployeeComponent implements OnInit {
     });
   }
 
-  loadEmployeeData(): void {
+  loadEmployeeData(reloadContractsTab: boolean = false, keepTab: string | null = null): void {
     this.loading = true;
     this.devicesLoaded = false;
     this.devicesAttempted = false;
@@ -789,12 +792,34 @@ export class ViewEmployeeComponent implements OnInit {
         this.updateProfileImageFromResponse(response);
         this.subscription = response.data.subscription;
         this.loading = false;
+        // Restore tab if it was set before loading
+        if (keepTab) {
+          this.setCurrentTab(keepTab as any);
+        }
+        // Reload contracts tab if requested (after employee data is loaded)
+        if (reloadContractsTab && this.contractsTabComponent && this.employee?.id) {
+          this.contractsTabComponent.loadEmployeeContracts();
+        }
       },
       error: (error) => {
         console.error('Error loading employee:', error);
         this.loading = false;
+        // Restore tab even on error
+        if (keepTab) {
+          this.setCurrentTab(keepTab as any);
+        }
       }
     });
+  }
+
+  onContractsDataUpdated(): void {
+    // Keep the contracts tab open - set it before loading data
+    this.setCurrentTab('contracts');
+    // Pass true to reload contracts tab after employee data is loaded
+    // Pass 'contracts' to keepTab to ensure it stays on contracts tab after reload
+    this.loadEmployeeData(true, 'contracts');
+    // Also refresh contracts list for the summary display
+    this.loadEmployeeContracts();
   }
 
   loadCustomValues(): void {
@@ -1487,7 +1512,8 @@ export class ViewEmployeeComponent implements OnInit {
           doc.isLoading = false;
         }
         this.documentsRequired = [...this.documentsRequired];
-        this.loadEmployeeDetails();
+        // Refresh the entire employee data after deleting a document
+        this.loadEmployeeData();
         this.changeDetector.detectChanges();
       },
       error: (err) => {

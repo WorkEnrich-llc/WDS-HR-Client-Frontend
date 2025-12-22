@@ -58,7 +58,8 @@
             [class.is-invalid]="resignForm.get('noticePeriod')?.invalid && resignForm.get('noticePeriod')?.touched">
           <span class="notice-label">Days</span>
         </div>
-        <div class="invalid-feedback" *ngIf="resignForm.get('noticePeriod')?.invalid && resignForm.get('noticePeriod')?.touched">
+        @if (resignForm.get('noticePeriod')?.invalid && resignForm.get('noticePeriod')?.touched) {
+        <div class="invalid-feedback">
           Notice period is required
         </div>
       </div> -->

@@ -166,6 +166,23 @@ export interface Employee {
   };
   employee_active: string; // "Active" | "Inactive" | "Pending" | "Disabled"
   employee_status: string; // "New Employee" | "Employed" | etc.
+  current_contract?: {
+    id: number;
+    status: {
+      id: number;
+      name: string;
+    };
+    start_contract: string;
+    end_contract: string | null;
+    expired: boolean | string;
+    trial: boolean | string;
+    last_date: string | null;
+    resign_date: string | null;
+    notice_period: number | string;
+    salary: number | string;
+    reason: string | null;
+  };
+  current_contract_id?: number;
   onboarding_list?: Array<{
     title: string;
     status: boolean;

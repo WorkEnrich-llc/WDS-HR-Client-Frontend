@@ -215,15 +215,14 @@
         </div>
         <!-- prev and confirm buttons -->
         <div class="btn-fixed d-flex align-items-stretch gap-2">
-            <button class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-                [routerLink]="isUpdateMode ? ['/job-openings/update-job-openings', jobId, 'main-information'] : '/job-openings/create-job-openings/main-information'">
+            <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+                (click)="goToPrevStep()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M20 12H4m0 0l6-6m-6 6l6 6" />
                 </svg>
             </button>
-            <button type="button" class="btn btn-lg btn-primary"
-                [routerLink]="isUpdateMode ? ['/job-openings/update-job-openings', jobId, 'attachments'] : '/job-openings/create-job-openings/attachments'">
+            <button type="button" class="btn btn-lg btn-primary" (click)="goToNextStep()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />

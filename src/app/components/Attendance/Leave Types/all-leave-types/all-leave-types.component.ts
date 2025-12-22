@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -6,7 +6,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Subject, Subscription, switchMap, of, map } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -17,7 +17,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
   templateUrl: './all-leave-types.component.html',
   styleUrl: './all-leave-types.component.css'
 })
-export class AllLeaveTypesComponent {
+export class AllLeaveTypesComponent implements OnInit, OnDestroy {
 
 
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
@@ -34,13 +34,16 @@ export class AllLeaveTypesComponent {
   currentSortColumn: string = '';
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
+  private searchSubscription!: Subscription;
+  private routeParamsSubscription!: Subscription;
+  private getAllLeaveTypesSubscription!: Subscription;
   private paginationState = inject(PaginationStateService);
   private router = inject(Router)
 
 
   ngOnInit(): void {
 
-    this.route.queryParams.subscribe(params => {
+    this.routeParamsSubscription = this.route.queryParams.subscribe(params => {
       const pageFromUrl = +params['page'] || this.paginationState.getPage('leave-types/all-leave-types') || 1;
       this.currentPage = pageFromUrl;
       this.getAllJobTitles(pageFromUrl);
@@ -55,8 +58,41 @@ export class AllLeaveTypesComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
+    // Improved search with switchMap, debounce, and whitespace handling
+    this.searchSubscription = this.searchSubject.pipe(
+      // Trim leading whitespace only (keep trailing spaces if user wants them)
+      map((searchTerm: string) => searchTerm.trimStart()),
+      // Filter out null/undefined and empty/whitespace-only strings - only send request when there's actual content
+      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined && searchTerm.trim().length > 0),
+      // Debounce to avoid too many requests
+      debounceTime(300),
+      // Only proceed if the value has actually changed
+      distinctUntilChanged(),
+      // Cancel previous requests and switch to new one
+      switchMap((searchTerm: string) => {
+        // Reset to first page when searching
+        this.currentPage = 1;
+        this.loadData = true;
+        // Return the HTTP observable - switchMap will cancel previous requests
+        return this._LeaveTypeService.getAllLeavetypes(this.currentPage, this.itemsPerPage, {
+          search: searchTerm.trim()
+        });
+      })
+    ).subscribe({
+      next: (response) => {
+        this.currentPage = Number(response.data.page);
+        this.totalItems = response.data.total_items;
+        this.totalpages = response.data.total_pages;
+        this.leaveTypes = response.data.list_items;
+        this.sortDirection = 'desc';
+        this.currentSortColumn = 'id';
+        this.sortBy();
+        this.loadData = false;
+      },
+      error: (err) => {
+        console.error(err.error?.details);
+        this.loadData = false;
+      }
     });
 
     this.filterForm = this.fb.group({
@@ -67,9 +103,21 @@ export class AllLeaveTypesComponent {
   }
 
   ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions to prevent memory leaks
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+    if (this.routeParamsSubscription) {
+      this.routeParamsSubscription.unsubscribe();
+    }
+    if (this.getAllLeaveTypesSubscription) {
+      this.getAllLeaveTypesSubscription.unsubscribe();
+    }
+    // Complete the subject to clean up
+    this.searchSubject.complete();
   }
 
   sortBy() {
@@ -87,7 +135,9 @@ export class AllLeaveTypesComponent {
   }
 
   onSearchChange() {
-    this.searchSubject.next(this.searchTerm);
+    // Trim leading whitespace before sending to subject
+    const trimmedSearch = this.searchTerm.trimStart();
+    this.searchSubject.next(trimmedSearch);
   }
 
 
@@ -130,8 +180,13 @@ export class AllLeaveTypesComponent {
   status?: string;   
 }
   ) {
+    // Unsubscribe from previous call if it exists
+    if (this.getAllLeaveTypesSubscription) {
+      this.getAllLeaveTypesSubscription.unsubscribe();
+    }
+
     this.loadData = true;
-    this._LeaveTypeService.getAllLeavetypes(pageNumber, this.itemsPerPage, {
+    this.getAllLeaveTypesSubscription = this._LeaveTypeService.getAllLeavetypes(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({

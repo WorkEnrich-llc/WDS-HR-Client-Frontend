@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,7 +19,7 @@ interface CheckItem {
 
 @Component({
   selector: 'app-edit-department-checklists',
-  imports: [PageHeaderComponent, ReactiveFormsModule, CommonModule, SkelatonLoadingComponent],
+  imports: [PageHeaderComponent, ReactiveFormsModule, SkelatonLoadingComponent],
   templateUrl: './edit-department-checklists.component.html',
   styleUrl: './edit-department-checklists.component.css',
   encapsulation: ViewEncapsulation.None
