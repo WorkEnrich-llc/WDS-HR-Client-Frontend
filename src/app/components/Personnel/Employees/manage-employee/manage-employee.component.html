@@ -1,9 +1,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
-    { label: sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm?.get('name_english')?.value || '')) : 'Create New Employee' }
+    { label: sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm.get('name_english')?.value || '')) : 'Create New Employee' }
   ]"
-  [title]="sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm?.get('name_english')?.value || '')) : 'Create New Employee'"
+  [title]="sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm.get('name_english')?.value || '')) : 'Create New Employee'"
   [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
   [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
 
