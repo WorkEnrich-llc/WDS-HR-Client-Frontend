@@ -1091,6 +1091,34 @@ export class ManageEmployeeSharedService {
     return this.workSchedules().filter((w) => w.is_active);
   }
 
+  getFilteredWorkSchedules(): WorkSchedule[] {
+    const workMode = this.attendanceDetails.get('work_mode')?.value;
+    const activeSchedules = this.getActiveWorkSchedules();
+
+    if (!workMode) {
+      return activeSchedules;
+    }
+
+    // work_schedule_type: 1 = Fixed, 2 = Flexible, 3 = Remote
+    // work_mode: 1 = On site, 2 = Remote, 3 = Hybrid
+    return activeSchedules.filter(schedule => {
+      const scheduleType = schedule.system?.work_schedule_type;
+
+      // If work mode is On site (1), exclude Remote schedules (3)
+      if (workMode === 1 && scheduleType === 3) {
+        return false;
+      }
+
+      // If work mode is Remote (2), exclude Fixed schedules (1)
+      if (workMode === 2 && scheduleType === 1) {
+        return false;
+      }
+
+      // If work mode is Hybrid (3), show all
+      return true;
+    });
+  }
+
   getActiveBranches(): Branch[] {
     return this.branches().filter((b) => b.is_active);
   }

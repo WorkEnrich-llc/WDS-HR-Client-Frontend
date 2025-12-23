@@ -1,0 +1,23 @@
+.main-info-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.skeleton-input {
+    height: 40px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    animation: skeleton-loading 1.2s infinite linear alternate;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: #e0e0e0;
+    }
+
+    100% {
+        background-color: #f5f5f5;
+    }
+}

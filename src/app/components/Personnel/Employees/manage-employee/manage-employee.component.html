@@ -1,8 +1,9 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Personnel', link: '/dashboard' },
     { label: 'Employees', link: '/employees' },
-    { label: sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee' }
-  ]" [title]="sharedService.isEditMode() ? 'Edit Employee ' : 'Create New Employee'"
+    { label: sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm?.get('name_english')?.value || '')) : 'Create New Employee' }
+  ]"
+  [title]="sharedService.isEditMode() ? ('Edit Employee ' + (sharedService.employeeForm?.get('name_english')?.value || '')) : 'Create New Employee'"
   [create]="(sharedService.createdAt() | date: 'medium') ?? ''"
   [update]="(sharedService.updatedAt() | date: 'medium') ?? ''">
 
@@ -32,6 +33,10 @@
     <span>Discard Changes</span>
   </button>
 </app-page-header>
+
+@if (sharedService.isEditMode() && sharedService.isLoading()) {
+<app-employee-skeleton-loader></app-employee-skeleton-loader>
+} @else {
 <app-stepper-navigation></app-stepper-navigation>
 
 <form [formGroup]="sharedService.employeeForm" (ngSubmit)="onSubmit()">
@@ -49,6 +54,7 @@
   }
 
 </form>
+}
 
 @if (sharedService.isModalOpen()) {
 <app-popup (confirmAction)="confirmAction()" (cancelAction)="closeModal()">

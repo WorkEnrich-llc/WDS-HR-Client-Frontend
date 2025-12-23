@@ -4,12 +4,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ManageEmployeeSharedService } from '../services/manage-shared.service';
 import { Country } from '../countries-list';
 
+
+import { MainInformationSkeletonLoaderComponent } from './main-information-skeleton-loader.component';
 import { Validators } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-main-information-step',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MainInformationSkeletonLoaderComponent],
   templateUrl: './main-information-step.component.html',
   styleUrls: ['./main-information-step.component.css'],
   // removed viewProviders as using explicit [formGroup] in template

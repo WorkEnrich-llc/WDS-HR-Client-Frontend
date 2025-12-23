@@ -23,6 +23,8 @@ import { ManageEmployeeSharedService } from './services/manage-shared.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
 import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+
+import { EmployeeSkeletonLoaderComponent } from './employee-skeleton-loader.component';
 import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 
@@ -41,7 +43,8 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent,
     OnboardingChecklistComponent,
-    SystemSetupTourComponent
+    SystemSetupTourComponent,
+    EmployeeSkeletonLoaderComponent
   ],
   providers: [DatePipe],
   templateUrl: './manage-employee.component.html',

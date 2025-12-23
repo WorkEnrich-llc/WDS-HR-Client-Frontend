@@ -65,10 +65,10 @@
               (focus)="sharedService.onWorkScheduleFocus()">
               <!-- <option [value]="null" disabled hidden>Select Work Schedule</option> -->
               <option [value]="null" disabled hidden>
-                {{ sharedService.workSchedules().length > 0
+                {{ sharedService.getFilteredWorkSchedules().length > 0
                 ? 'Select Work Schedule' : 'No work schedule available'}}
               </option>
-              @for (schedule of sharedService.workSchedules(); track schedule.id) {
+              @for (schedule of sharedService.getFilteredWorkSchedules(); track schedule.id) {
               <option [ngValue]="schedule.id">{{ schedule.name }}</option>
               }
             </select>
