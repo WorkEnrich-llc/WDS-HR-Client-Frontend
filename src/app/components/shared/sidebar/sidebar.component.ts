@@ -28,7 +28,7 @@ export class SidebarComponent implements OnInit {
   private routeAccordionMap: RouteAccordionMapping = {
     'collapseOne': ['departments', 'branches', 'jobs', 'organizational-Chart', 'goals', 'dept-check'],
     'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
-    'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
+    'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance', 'summary-report'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings', 'job-board-setup'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
     'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'company-documents', 'email-settings', 'custom-field']

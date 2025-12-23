@@ -855,6 +855,20 @@ export const routes: Routes = [
             ]
           },
 
+          // Summary Report routes
+          {
+            path: 'summary-report',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Permissions_Control' },
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Attendance/summary-report/summary-report.component').then(m => m.SummaryReportComponent),
+                title: 'Summary Report',
+              }
+            ]
+          },
+
         ]
       },
 

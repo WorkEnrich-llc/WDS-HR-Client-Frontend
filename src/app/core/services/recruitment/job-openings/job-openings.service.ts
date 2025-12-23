@@ -8,6 +8,13 @@ import { Observable } from 'rxjs';
 })
 export class JobOpeningsService {
 
+    // send job offer with full payload
+    sendJobOfferFull(payload: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const body = { request_data: payload };
+        return this._HttpClient.post(url, body);
+    }
+
     private _HttpClient = inject(HttpClient);
     private apiBaseUrl: string = environment.apiBaseUrl;
 
@@ -195,7 +202,7 @@ export class JobOpeningsService {
             location: number | null;
         }
     ): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/interviews/`;
+        const url = `${this.apiBaseUrl}recruiter/interviews`;
         const body = {
             request_data: {
                 application_id: applicationId,
@@ -261,7 +268,7 @@ export class JobOpeningsService {
 
     // send job offer
     sendJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/job-offers/`;
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
         const body = { request_data: { application_id: applicationId, salary, join_date, offer_details } };
         return this._HttpClient.post(url, body);
     }

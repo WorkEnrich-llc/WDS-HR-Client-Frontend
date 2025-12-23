@@ -34,7 +34,14 @@ export class AttendanceLogComponent implements OnDestroy {
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
 
   // Action menu stubs for template
-  addLog(emp: any) { /* TODO: Implement add log */ }
+  addLog(emp: any) {
+    this.editModalType = 'log';
+    this.editModalLog = null;
+    this.editModalEmp = emp;
+    this.editCheckInValue = '';
+    this.editCheckOutValue = '';
+    this.editModalOpen = true;
+  }
   editDeduction(emp: any) { /* TODO: Implement edit deduction */ }
   // Deduction confirmation modal state
   deductionModalOpen: boolean = false;
@@ -915,25 +922,28 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   updateEditModal() {
-    if (!this.editModalLog) return;
-    const id = this.editModalLog.id ?? this.editModalLog.record_id;
-    if (!id) {
-      this.toastr.error('Attendance log ID not found.');
-      return;
-    }
     this.editModalLoading = true;
     let obs$;
-    if (this.editModalType === 'checkin') {
-      obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
-    } else if (this.editModalType === 'checkout') {
-      obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
-    } else if (this.editModalType === 'log') {
-      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+    // Always use updateLog endpoint for both add and update
+    let id;
+    if (!this.editModalLog) {
+      // For add, use employee id and date as a synthetic id (or pass 0/null if backend allows)
+      if (!this.editModalEmp || !this.editModalEmp.employee?.id || !this.editModalEmp.date) {
+        this.toastr.error('Employee or date not found.');
+        this.editModalLoading = false;
+        return;
+      }
+      // Compose a synthetic id or use a convention (e.g., 0 or '') for new log
+      id = this.editModalEmp.id || this.editModalEmp.employee.id || '';
     } else {
-      this.closeEditModal();
-      this.editModalLoading = false;
-      return;
+      id = this.editModalLog.id ?? this.editModalLog.record_id;
+      if (!id) {
+        this.toastr.error('Attendance log ID not found.');
+        this.editModalLoading = false;
+        return;
+      }
     }
+    obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
     obs$.subscribe({
       next: () => {
         this.closeEditModal();
@@ -944,10 +954,10 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success('Attendance log updated successfully');
+        this.toastr.success(this.editModalLog ? 'Attendance log updated successfully' : 'Attendance log added successfully');
       },
       error: (err) => {
-        this.toastr.error('Failed to update attendance log');
+        this.toastr.error(this.editModalLog ? 'Failed to update attendance log' : 'Failed to add attendance log');
         this.closeEditModal();
         this.editModalLoading = false;
       }

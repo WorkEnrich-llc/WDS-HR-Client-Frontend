@@ -94,7 +94,7 @@ export class AttendanceLogService {
   }
 
   updateLog(id: string | number, check_in: string, check_out: string) {
-    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in-and-out`;
     const formData = new FormData();
     formData.append('id', String(id));
     formData.append('check_in', check_in);

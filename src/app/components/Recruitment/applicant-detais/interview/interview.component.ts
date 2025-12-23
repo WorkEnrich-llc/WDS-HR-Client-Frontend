@@ -1,4 +1,3 @@
-
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 
@@ -7,10 +6,11 @@ import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/j
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-interview',
-  imports: [FormsModule, OverlayFilterBoxComponent],
+  imports: [FormsModule, OverlayFilterBoxComponent, DecimalPipe],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })
@@ -26,6 +26,8 @@ export class InterviewComponent implements OnChanges {
   interviewStatus = true;
   overlayTitle: string = 'Schedule Interview';
   interviewId?: number;
+  additionalInterviewId?: number;
+  jobOfferId?: number;
 
   private svc = inject(JobOpeningsService);
   private departmentsService = inject(DepartmentsService);
@@ -116,6 +118,16 @@ export class InterviewComponent implements OnChanges {
     offer_details?: string;
   } = {};
 
+  // Probation period checkbox for job offer
+  includeProbation: boolean = false;
+
+  // Job offer additional fields for template
+  noticePeriod: number | null = null;
+  minSalary: number = 0;
+  maxSalary: number = 0;
+  withEndDate: boolean = false;
+  contractEndDate: string = '';
+
   private statusMap: Record<number, string> = {
     0: 'Applicant',
     1: 'Candidate',
@@ -149,6 +161,10 @@ export class InterviewComponent implements OnChanges {
         this.applicationDetails?.application?.interview?.id ??
         this.applicationDetails?.interview_id ??
         undefined;
+      // Extract interview_id from additional_info if present
+      this.additionalInterviewId = this.applicationDetails?.additional_info?.interview_id ?? undefined;
+      // Extract job_offer_id from additional_info if present
+      this.jobOfferId = this.applicationDetails?.additional_info?.job_offer_id ?? undefined;
     }
   }
 
@@ -240,21 +256,14 @@ export class InterviewComponent implements OnChanges {
 
   openRescheduleOverlay(): void {
     this.resetInterviewForm(); // Reset form first
-
-    // Open overlay immediately
     this.openOverlay('Reschedule Interview', 'filter');
-
-    // Set loading state
     this.interviewDetailsLoading = true;
-
-    // Load departments and branches first (needed for the form)
     this.loadDepartments();
     this.loadBranches();
-
-    // Use applicationId to fetch interview details
-    if (this.applicationId) {
-      // Fetch interview details from API using application ID
-      this.svc.getInterviewDetails(this.applicationId).subscribe({
+    // Use additionalInterviewId if available, otherwise fall back to applicationId
+    const interviewIdToUse = this.additionalInterviewId || this.applicationId;
+    if (interviewIdToUse) {
+      this.svc.getInterviewDetails(interviewIdToUse).subscribe({
         next: (res) => {
           const interview = res?.data?.object_info ?? res?.object_info ?? res;
           const interviewDept = interview.department?.id ?? interview.department ?? null;
@@ -745,8 +754,20 @@ export class InterviewComponent implements OnChanges {
         }
       });
     } else {
-      // Create new job offer
-      this.svc.sendJobOffer(this.applicationId, this.offerSalary!, this.offerJoinDate, this.offerDetails || '').subscribe({
+      // Create new job offer with full payload
+      const payload: any = {
+        application_id: this.applicationId,
+        join_date: this.offerJoinDate,
+        salary: this.offerSalary,
+        offer_details: this.offerDetails || '',
+      };
+      if (this.withEndDate && this.contractEndDate) {
+        payload.end_contract = this.contractEndDate;
+      }
+      if (this.noticePeriod) {
+        payload.notice_period = this.noticePeriod;
+      }
+      this.svc.sendJobOfferFull(payload).subscribe({
         next: () => {
           this.submitting = false;
           this.closeAllOverlays();
@@ -829,7 +850,7 @@ export class InterviewComponent implements OnChanges {
   }
 
   openEditJobOfferOverlay(): void {
-    if (!this.applicationId) {
+    if (!this.applicationId && !this.jobOfferId) {
       return;
     }
 
@@ -843,12 +864,17 @@ export class InterviewComponent implements OnChanges {
     this.jobOfferDetailsLoading = true;
 
     // Fetch job offer details and pre-fill the form
-    this.svc.getJobOffer(this.applicationId).subscribe({
+    const jobOfferIdToUse = this.jobOfferId || this.applicationId;
+    if (!jobOfferIdToUse) {
+      this.jobOfferDetailsLoading = false;
+      return;
+    }
+    this.svc.getJobOffer(jobOfferIdToUse).subscribe({
       next: (res) => {
         const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
         // Pre-fill form fields
         this.offerSalary = jobOffer.salary ?? null;
-        this.offerJoinDate = jobOffer.join_date ? jobOffer.join_date.substring(0, 10) : ''; // Extract YYYY-MM-DD from datetime
+        this.offerJoinDate = jobOffer.join_date ? jobOffer.join_date.substring(0, 10) : '';
         this.offerDetails = jobOffer.offer_details || '';
 
         // Store original values for change tracking
