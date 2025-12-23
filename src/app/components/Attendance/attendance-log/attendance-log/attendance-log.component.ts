@@ -891,7 +891,7 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkin';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    this.editCheckInValue = '';
     this.editModalOpen = true;
   }
 
@@ -899,7 +899,7 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkout';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editCheckOutValue = '';
     this.editModalOpen = true;
   }
 
@@ -924,8 +924,8 @@ export class AttendanceLogComponent implements OnDestroy {
   updateEditModal() {
     this.editModalLoading = true;
     let obs$;
-    // Always use updateLog endpoint for both add and update
     let id;
+
     if (!this.editModalLog) {
       // For add, use employee id and date as a synthetic id (or pass 0/null if backend allows)
       if (!this.editModalEmp || !this.editModalEmp.employee?.id || !this.editModalEmp.date) {
@@ -943,7 +943,17 @@ export class AttendanceLogComponent implements OnDestroy {
         return;
       }
     }
-    obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+
+    // Call different API based on editModalType
+    if (this.editModalType === 'checkin') {
+      obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
+    } else if (this.editModalType === 'checkout') {
+      obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
+    } else {
+      // For 'log' type (add log with both check-in and check-out)
+      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+    }
+
     obs$.subscribe({
       next: () => {
         this.closeEditModal();
@@ -954,10 +964,8 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success(this.editModalLog ? 'Attendance log updated successfully' : 'Attendance log added successfully');
       },
       error: (err) => {
-        this.toastr.error(this.editModalLog ? 'Failed to update attendance log' : 'Failed to add attendance log');
         this.closeEditModal();
         this.editModalLoading = false;
       }
@@ -988,11 +996,9 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success(`Deduction ${actionText}ed successfully`);
         this.closeDeductionModal();
       },
       error: () => {
-        this.toastr.error(`Failed to ${actionText} deduction`);
         this.deductionModalLoading = false;
       }
     });
