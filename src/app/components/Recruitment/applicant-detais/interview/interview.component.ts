@@ -1,3 +1,4 @@
+
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 
@@ -728,9 +729,21 @@ export class InterviewComponent implements OnChanges {
       hasErrors = true;
     }
 
+
+    // Validate join date is present
     if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
       this.jobOfferValidationErrors.joinDate = 'Please select a join date';
       hasErrors = true;
+    } else {
+      // Validate join date is today or in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const joinDate = new Date(this.offerJoinDate);
+      joinDate.setHours(0, 0, 0, 0);
+      if (joinDate < today) {
+        this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+        hasErrors = true;
+      }
     }
 
     if (hasErrors) {
@@ -742,7 +755,8 @@ export class InterviewComponent implements OnChanges {
     // Check if we're editing or creating
     if (this.overlayTitle === 'Update Job Offer') {
       // Update existing job offer
-      this.svc.updateJobOffer(this.applicationId, this.offerSalary!, this.offerJoinDate, this.offerDetails || '').subscribe({
+      const numericSalary = typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary;
+      this.svc.updateJobOffer(this.applicationId, numericSalary!, this.offerJoinDate, this.offerDetails || '').subscribe({
         next: () => {
           this.submitting = false;
           this.closeAllOverlays();
@@ -758,7 +772,7 @@ export class InterviewComponent implements OnChanges {
       const payload: any = {
         application_id: this.applicationId,
         join_date: this.offerJoinDate,
-        salary: this.offerSalary,
+        salary: typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary,
         offer_details: this.offerDetails || '',
       };
       if (this.withEndDate && this.contractEndDate) {
@@ -901,4 +915,19 @@ export class InterviewComponent implements OnChanges {
     this.openOverlay('Job Offer', 'job');
   }
 
+  validateJoinDateField(): void {
+    // Clear previous error
+    delete this.jobOfferValidationErrors.joinDate;
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const joinDate = new Date(this.offerJoinDate);
+    joinDate.setHours(0, 0, 0, 0);
+    if (joinDate < today) {
+      this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+    }
+  }
 }

@@ -453,6 +453,7 @@
       <label for="joinDate">Join Date</label>
       <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
         placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
+        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
       @if (jobOfferValidationErrors.joinDate) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
