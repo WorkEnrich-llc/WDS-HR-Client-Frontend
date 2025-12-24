@@ -934,14 +934,14 @@ export class AttendanceLogComponent implements OnDestroy {
     let id;
 
     if (!this.editModalLog) {
-      // For add, use employee id and date as a synthetic id (or pass 0/null if backend allows)
+      // For add, use record_id if available, else fallback to employee id and date as a synthetic id (or pass 0/null if backend allows)
       if (!this.editModalEmp || !this.editModalEmp.employee?.id || !this.editModalEmp.date) {
         this.toastr.error('Employee or date not found.');
         this.editModalLoading = false;
         return;
       }
-      // Compose a synthetic id or use a convention (e.g., 0 or '') for new log
-      id = this.editModalEmp.id || this.editModalEmp.employee.id || '';
+      // Use record_id as id if present, else fallback
+      id = this.editModalEmp.record_id || this.editModalEmp.id || this.editModalEmp.employee.id || '';
     } else {
       id = this.editModalLog.id ?? this.editModalLog.record_id;
       if (!id) {
