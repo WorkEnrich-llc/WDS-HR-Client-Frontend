@@ -83,126 +83,126 @@
 <div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <h2>Main Information</h2>
-        
+
         @if (isLoadingEdit) {
-            <!-- Skeleton Loader for Edit Mode -->
-            <div class="skeleton-loader-form w-lg-50">
-                <div class="skeleton-field-group">
-                    <div class="skeleton-label"></div>
-                    <div class="skeleton-input"></div>
-                </div>
-                <div class="skeleton-field-group">
-                    <div class="skeleton-label"></div>
-                    <div class="skeleton-input"></div>
-                </div>
-                <div class="skeleton-field-group">
-                    <div class="skeleton-label"></div>
-                    <div class="skeleton-input"></div>
-                </div>
-                <div class="skeleton-field-group">
-                    <div class="skeleton-label"></div>
-                    <div class="skeleton-input"></div>
-                </div>
-                <div class="skeleton-field-group">
-                    <div class="skeleton-label"></div>
-                    <div class="skeleton-input"></div>
-                </div>
+        <!-- Skeleton Loader for Edit Mode -->
+        <div class="skeleton-loader-form w-lg-50">
+            <div class="skeleton-field-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-input"></div>
             </div>
+            <div class="skeleton-field-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-input"></div>
+            </div>
+            <div class="skeleton-field-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-input"></div>
+            </div>
+            <div class="skeleton-field-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-input"></div>
+            </div>
+            <div class="skeleton-field-group">
+                <div class="skeleton-label"></div>
+                <div class="skeleton-input"></div>
+            </div>
+        </div>
         } @else {
-            <!-- Actual Form -->
-            <form [formGroup]="bonusDeductionForm" class="w-lg-50 d-flex flex-column gap-2">
-                <div class="input">
-                    <label for="title">Title <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input formControlName="title" type="text" id="title" class="form-control custom-date-input"
-                            placeholder="Enter a Title" />
-                    </div>
-                    @if (bonusDeductionForm.get('title')?.touched && bonusDeductionForm.get('title')?.errors?.['required'])
-                    {
-                    <p class="error-msg">Title is required.</p>
-                    }
-                    @if (bonusDeductionForm.get('title')?.touched && bonusDeductionForm.get('title')?.errors?.['minlength'])
-                    {
-                    <p class="error-msg">Title must be at least 2 characters long.</p>
-                    }
+        <!-- Actual Form -->
+        <form [formGroup]="bonusDeductionForm" class="w-lg-50 d-flex flex-column gap-2">
+            <div class="input">
+                <label for="title">Title <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="title" type="text" id="title" class="form-control custom-date-input"
+                        placeholder="Enter a Title" />
                 </div>
-                <div class="input">
-                    <label for="classification">Classification <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select formControlName="classification" id="classification" class="form-control custom-date-input">
-                            <option value="" disabled selected>Bonus or Deduction</option>
-                            <option value="bonus">Bonus</option>
-                            <option value="deduction">Deduction</option>
-                        </select>
-                    </div>
-                    @if (bonusDeductionForm.get('classification')?.touched &&
-                    bonusDeductionForm.get('classification')?.errors?.['required']) {
-                    <p class="error-msg">Classification is required.</p>
-                    }
-                </div>
-                <div class="input">
-                    <label for="date">Date <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input formControlName="date" type="date" id="date" class="form-control custom-date-input"
-                            placeholder="Select date" />
-                    </div>
-                    @if (bonusDeductionForm.get('date')?.touched && bonusDeductionForm.get('date')?.errors?.['required']) {
-                    <p class="error-msg">Date is required.</p>
-                    }
-                    @if (bonusDeductionForm.get('date')?.touched &&
-                    bonusDeductionForm.get('date')?.errors?.['previousMonth']) {
-                    <p class="error-msg">Date cannot be from a previous month.</p>
-                    }
-                </div>
-                <div class="input">
-                    <label for="days">Days <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input formControlName="days" type="number" id="days" class="form-control custom-date-input"
-                            placeholder="Amount of Days" min="1" />
-                    </div>
-                    @if (bonusDeductionForm.get('days')?.touched && bonusDeductionForm.get('days')?.errors?.['required']) {
-                    <p class="error-msg">Days is required.</p>
-                    }
-                    @if (bonusDeductionForm.get('days')?.touched && bonusDeductionForm.get('days')?.errors?.['pattern']) {
-                    <p class="error-msg">Days must be a valid number.</p>
-                    }
-                </div>
-                <div class="input">
-                    <label for="salaryPortion">Salary Portion <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select formControlName="salaryPortion" id="salaryPortion" class="form-control custom-date-input">
-                            <option value="" disabled selected>Select Salary Portion</option>
-                            @if (salaryPortions?.settings?.length) {
-                            @for (sp of salaryPortions.settings; track sp.index) {
-                            <option [value]="sp.name">{{ sp.name }} ({{ sp.percentage }}%){{ sp.default ? ' - Default' : ''
-                                }}</option>
-                            }
-                            } @else {
-                            <!-- Fallback static options if API not available -->
-                            <option value="full">Full</option>
-                            <option value="half">Half</option>
-                            <option value="quarter">Quarter</option>
-                            }
-                        </select>
-                    </div>
-                    @if (bonusDeductionForm.get('salaryPortion')?.touched &&
-                    bonusDeductionForm.get('salaryPortion')?.errors?.['required']) {
-                    <p class="error-msg">Salary Portion is required.</p>
-                    }
-                </div>
-            </form>
-        }
-        
-        @if (!isLoadingEdit) {
-            <div class="btn-fixed">
-                <button class="btn btn-lg btn-primary" [disabled]="!isFormValidForNext()" (click)="goToNextTab()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                    </svg>
-                    <span>Next</span>
-                </button>
+                @if (bonusDeductionForm.get('title')?.touched && bonusDeductionForm.get('title')?.errors?.['required'])
+                {
+                <p class="error-msg">Title is required.</p>
+                }
+                @if (bonusDeductionForm.get('title')?.touched && bonusDeductionForm.get('title')?.errors?.['minlength'])
+                {
+                <p class="error-msg">Title must be at least 2 characters long.</p>
+                }
             </div>
+            <div class="input">
+                <label for="classification">Classification <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select formControlName="classification" id="classification" class="form-control custom-date-input">
+                        <option value="" disabled selected>Bonus or Deduction</option>
+                        <option value="bonus">Bonus</option>
+                        <option value="deduction">Deduction</option>
+                    </select>
+                </div>
+                @if (bonusDeductionForm.get('classification')?.touched &&
+                bonusDeductionForm.get('classification')?.errors?.['required']) {
+                <p class="error-msg">Classification is required.</p>
+                }
+            </div>
+            <div class="input">
+                <label for="date">Date <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="date" type="date" id="date" class="form-control custom-date-input"
+                        placeholder="Select date" />
+                </div>
+                @if (bonusDeductionForm.get('date')?.touched && bonusDeductionForm.get('date')?.errors?.['required']) {
+                <p class="error-msg">Date is required.</p>
+                }
+                @if (bonusDeductionForm.get('date')?.touched &&
+                bonusDeductionForm.get('date')?.errors?.['previousMonth']) {
+                <p class="error-msg">Date cannot be from a previous month.</p>
+                }
+            </div>
+            <div class="input">
+                <label for="days">Days <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <input formControlName="days" type="number" id="days" class="form-control custom-date-input"
+                        placeholder="Amount of Days" min="1" />
+                </div>
+                @if (bonusDeductionForm.get('days')?.touched && bonusDeductionForm.get('days')?.errors?.['required']) {
+                <p class="error-msg">Days is required.</p>
+                }
+                @if (bonusDeductionForm.get('days')?.touched && bonusDeductionForm.get('days')?.errors?.['pattern']) {
+                <p class="error-msg">Days must be a valid number.</p>
+                }
+            </div>
+            <div class="input">
+                <label for="salaryPortion">Salary Portion <span>*</span></label>
+                <div class="form-outline w-100 position-relative custom-date-wrapper">
+                    <select formControlName="salaryPortion" id="salaryPortion" class="form-control custom-date-input">
+                        <option value="" disabled selected>Select Salary Portion</option>
+                        @if (salaryPortions?.settings?.length) {
+                        @for (sp of salaryPortions.settings; track sp.index) {
+                        <option [value]="sp.name">{{ sp.name }} ({{ sp.percentage }}%){{ sp.default ? ' - Default' : ''
+                            }}</option>
+                        }
+                        } @else {
+                        <!-- Fallback static options if API not available -->
+                        <option value="full">Full</option>
+                        <option value="half">Half</option>
+                        <option value="quarter">Quarter</option>
+                        }
+                    </select>
+                </div>
+                @if (bonusDeductionForm.get('salaryPortion')?.touched &&
+                bonusDeductionForm.get('salaryPortion')?.errors?.['required']) {
+                <p class="error-msg">Salary Portion is required.</p>
+                }
+            </div>
+        </form>
+        }
+
+        @if (!isLoadingEdit) {
+        <div class="btn-fixed">
+            <button class="btn btn-lg btn-primary" [disabled]="!isFormValidForNext()" (click)="goToNextTab()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+                </svg>
+                <span>Next</span>
+            </button>
+        </div>
         }
     </div>
 </div>

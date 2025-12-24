@@ -26,6 +26,31 @@
 
         <!-- start table -->
 
+        @if(isLoading) {
+        <!-- Skeleton Loader -->
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="w-80">Portion Name</th>
+                        <th class="w-20">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (i of [1,2,3,4,5]; track i) {
+                    <tr>
+                        <td>
+                            <div class="skeleton-line skeleton-name"></div>
+                        </td>
+                        <td>
+                            <div class="skeleton-line skeleton-percentage"></div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        } @else {
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
@@ -52,6 +77,7 @@
                 </tbody>
             </table>
         </div>
+        }
 
     </div>
 </div>
