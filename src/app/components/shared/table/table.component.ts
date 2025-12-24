@@ -28,9 +28,9 @@ export class TableComponent {
 
   skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i, isSkeleton: true }));
 
-trackByFn(index: number, row: any): any {
-  return row?.id ?? index; 
-}
+  trackByFn(index: number, row: any): any {
+    return row?.id ?? index;
+  }
 
   onPageChanged(newPage: number) {
     this.currentPage = newPage;
@@ -40,8 +40,7 @@ trackByFn(index: number, row: any): any {
   onItemsPerPageChange() {
     this.currentPage = 1;
     this.itemsPerPageChange.emit(this.itemsPerPage);
-    this.pageChange.emit(this.currentPage);
-
+    // Do NOT emit pageChange here; parent will handle fetch and page reset
   }
   get totalPages(): number {
     return Math.ceil(this.totalItems / this.itemsPerPage);
@@ -50,7 +49,7 @@ trackByFn(index: number, row: any): any {
     return Array(count).fill(0);
   }
   indexFn(index: number, item: any) {
-    return index; 
+    return index;
   }
 
 

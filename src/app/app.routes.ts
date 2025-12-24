@@ -1037,6 +1037,41 @@ export const routes: Routes = [
             ]
           },
 
+          // Bonus & Deductions route
+          {
+            path: 'bonus-deductions',
+            providers: [PaginationStateService],
+            // canActivate: [SubscriptionGuard],
+            data: { feature: 'Payroll_Bonus_Deductions' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-bonus-deductions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-bonus-deductions',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/bonus-deductions.component').then(m => m.BonusDeductionsComponent),
+                title: 'Bonus & Deductions',
+              },
+              {
+                path: 'add-bonus-deduction',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/manage-bonus-deduction/manage-bonus-deduction.component').then(m => m.ManageBonusDeductionComponent),
+                title: 'Add Bonus or Deduction',
+              },
+              {
+                path: 'edit-bonus-deduction/:id',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/manage-bonus-deduction/manage-bonus-deduction.component').then(m => m.ManageBonusDeductionComponent),
+                title: 'Edit Bonus or Deduction',
+              },
+              {
+                path: 'view-bonus-deduction/:id',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/view-bonus-deduction/view-bonus-deduction.component').then(m => m.ViewBonusDeductionComponent),
+                title: 'Bonus/Deduction Details',
+              }
+            ]
+          },
+
           // payroll runs routes
           {
             path: 'payroll-runs',

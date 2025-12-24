@@ -460,6 +460,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
+    this.lastLoadedPage = 0; // Reset to force API request with new page size
 
     // Set flags to prevent route subscription and pageChange from interfering
     this.isUpdatingQueryParams = true;

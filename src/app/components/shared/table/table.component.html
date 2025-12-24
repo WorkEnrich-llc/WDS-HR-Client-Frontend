@@ -25,8 +25,7 @@
       </tr>
       }
       } @else {
-      @for (row of data | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems };
-      track trackByFn($index, row)) {
+      @for (row of data; track trackByFn($index, row)) {
       <tr>
         <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: row }"></ng-container>
       </tr>

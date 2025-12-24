@@ -1,0 +1,137 @@
+<!-- start page header -->
+<app-page-header [breadcrumbs]="[
+                { label: 'Payroll', link: '/payroll-components' },
+                { label: 'Bonus & Deductions' }
+        ]" title="Bonus & Deductions"></app-page-header>
+<!-- end page header -->
+
+<!-- start page content -->
+<div class="content-hug">
+    <div class="content-box d-flex flex-column gap-3">
+        <!-- start search and filter -->
+        <div
+            class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
+                <!-- Search input -->
+                <div class="form-outline w-50">
+                    <input type="text" class="form-control" placeholder="Search by title or employee"
+                        [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke-width="1.5">
+                            <circle cx="11.5" cy="11.5" r="9.5" />
+                            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+                        </g>
+                    </svg>
+                </div>
+                <button class="btn btn-lg btn-outline-primary"><svg xmlns="http://www.w3.org/2000/svg" width="18"
+                        height="18" viewBox="0 0 24 24">
+                        <path fill="none" stroke-width="1.5"
+                            d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
+                    </svg> <span>Filter</span></button>
+            </div>
+            <button class="btn btn-lg btn-primary w-50" routerLink="/bonus-deductions/add-bonus-deduction"><svg
+                    xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                    </g>
+                </svg> <span>New Bonus or Deductions</span></button>
+        </div>
+
+        <!-- start Table -->
+        <app-table [data]="paginatedList" [isLoading]="isLoading" [columnsCount]="7" [totalItems]="totalItems"
+            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="bonusTableHeader"
+            [rowTemplate]="bonusTableRow" [emptyTemplate]="noBonus"></app-table>
+
+        <ng-template #bonusTableHeader>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Classification</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </ng-template>
+
+        <ng-template #bonusTableRow let-item>
+            <td>{{ item.title }}</td>
+            <td>{{ item.date | date: 'dd MMM yyyy' }}</td>
+            <td>{{ item.classification?.name }}</td>
+            <td>{{ item.days ? (item.days + ' Days') : (item.amount ? (item.amount + ' EGP') : '') }}</td>
+            <td>
+                @if (item.status?.name === 'Applied') {
+                <span class="badge-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                        </g>
+                    </svg>
+                    <span>Applied</span>
+                </span>
+                } @else if (item.status?.name === 'Pending') {
+                <span class="badge-newjoiner">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <path stroke-linecap="round" d="M12 7v5l3 3" />
+                        </g>
+                    </svg>
+                    <span>Pending</span>
+                </span>
+                } @else {
+                <span class="badge-gray bg-gray-subtle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                        </g>
+                    </svg>
+                    <span>{{ item.status?.name || 'Unknown' }}</span>
+                </span>
+                }
+            </td>
+            <td>
+                <div class="d-flex gap-3">
+                    <a class="edit-btn" title="View" [routerLink]="['/bonus-deductions/view-bonus-deduction', item.id]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+                            </g>
+                        </svg>
+                    </a>
+                    <a class="edit-btn" title="Edit" [routerLink]="['/bonus-deductions/edit-bonus-deduction', item.id]"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75" />
+                        </svg></a>
+                    <button class="edit-btn" title="Delete" (click)="openDeleteConfirmation(item)" type="button" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                            viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M17.25 6.25V5A2.75 2.75 0 0 0 14.5 2.25h-5A2.75 2.75 0 0 0 6.75 5v1.25H3.5a.75.75 0 0 0 0 1.5h.7l1.09 13.08A3.25 3.25 0 0 0 8.53 22.25h6.94a3.25 3.25 0 0 0 3.24-3.42L19.8 6.25h.7a.75.75 0 0 0 0-1.5zm-9-1.25A1.25 1.25 0 0 1 9.5 3.25h5A1.25 1.25 0 0 1 15.75 5v1.25h-7zm9.22 15.13a1.75 1.75 0 0 1-1.28.62H8.53a1.75 1.75 0 0 1-1.74-1.84L5.7 6.25h12.6zM9.5 9.75a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0v-7a.75.75 0 0 1 .75-.75zm5 0a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0v-7a.75.75 0 0 1 .75-.75z" />
+                        </svg>
+                    </button>
+                </div>
+            </td>
+        </ng-template>
+
+        <ng-template #noBonus>
+            <tr>
+                <td colspan="7" class="no-data py-4">No Bonus or Deductions found.</td>
+            </tr>
+        </ng-template>
+    </div>
+</div>
+
+<!-- Delete Confirmation Popup -->
+<app-popup [title]="'Delete Bonus/Deduction'" [paragraph1]="'Are you sure you want to delete this bonus/deduction?'"
+    [paragraph2]="'This action cannot be undone.'" [isOpen]="showDeleteConfirmation" (close)="closeDeleteConfirmation()">
+    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
+        <span>Delete</span>
+    </button>
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteConfirmation()">
+        Cancel
+    </button>
+</app-popup>
