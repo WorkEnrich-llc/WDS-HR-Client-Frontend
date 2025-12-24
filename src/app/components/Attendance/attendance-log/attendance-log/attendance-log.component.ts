@@ -104,10 +104,10 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success('Attendance log canceled successfully');
+        // this.toastr.success('Attendance log canceled successfully');
       },
       error: () => {
-        this.toastr.error('Failed to cancel attendance log');
+        // this.toastr.error('Failed to cancel attendance log');
         this.closeCancelLogModal();
       }
     });
@@ -742,6 +742,13 @@ export class AttendanceLogComponent implements OnDestroy {
         attendance.canceled = true;
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // Refresh current page to reflect changes
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
       },
       error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
@@ -938,7 +945,7 @@ export class AttendanceLogComponent implements OnDestroy {
     } else {
       id = this.editModalLog.id ?? this.editModalLog.record_id;
       if (!id) {
-        this.toastr.error('Attendance log ID not found.');
+        // this.toastr.error('Attendance log ID not found.');
         this.editModalLoading = false;
         return;
       }

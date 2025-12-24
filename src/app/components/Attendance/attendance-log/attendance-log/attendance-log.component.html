@@ -454,25 +454,9 @@
                         </span> Edit Check Out
                       </button>
                       }
-                      <button class="action-menu-item text-danger"
-                        (click)="openCancelLogModal(log, emp); closeSubLogMenu()">
-                        <!-- Cancel Log Confirmation Modal -->
-                        <app-popup [title]="'Cancel Attendance Log'" [isOpen]="cancelModalOpen"
-                          (close)="closeCancelLogModal()">
-                          <div class="d-flex flex-column gap-2 p-2">
-                            <p>Are you sure you want to cancel this attendance log?</p>
-                            <div class="d-flex gap-2 mt-3">
-                              <button modal-btn-left type="button" class="btn btn-lg btn-danger w-100"
-                                [disabled]="cancelModalLoading" (click)="confirmCancelLog()">
-                                <span *ngIf="cancelModalLoading" class="spinner-grow spinner-grow-sm me-2" role="status"
-                                  aria-hidden="true"></span>
-                                Yes, Cancel
-                              </button>
-                              <button modal-btn-right type="button" class="btn btn-lg btn-outline-dark border-0 w-100"
-                                (click)="closeCancelLogModal()">No, Go Back</button>
-                            </div>
-                          </div>
-                        </app-popup>
+                      @if ((log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00') &&
+                      (log?.times_object?.actual_check_out && log?.times_object?.actual_check_out !== '00:00')) {
+                      <button class="action-menu-item text-danger" (click)="openModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_4140_5957)">
@@ -491,6 +475,7 @@
                           </svg>
                         </span> Cancel Log
                       </button>
+                      }
                     </div>
                     }
                   </div>
