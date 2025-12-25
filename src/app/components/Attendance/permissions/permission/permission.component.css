@@ -1,11 +1,13 @@
-app-page-header .btn-outline-dark{
+app-page-header .btn-outline-dark {
     padding-inline-start: 80px !important;
     padding-inline-end: 80px !important;
 }
+
 app-page-header .parag {
     margin-top: calc(-1 * var(--spacing-48)) !important;
 }
-.card-white{
+
+.card-white {
     background-color: var(--color-white);
     padding: var(--spacing-16);
     border-radius: var(--border-radius-16);
@@ -14,13 +16,16 @@ app-page-header .parag {
     -ms-border-radius: var(--border-radius-16);
     -o-border-radius: var(--border-radius-16);
 }
-.card-white p{
+
+.card-white p {
     color: var(--color-secondary-500);
-    font-size:var(--font-size-b3);
+    font-size: var(--font-size-b3);
 }
-.card-white label{
+
+.card-white label {
     cursor: pointer;
 }
+
 /* Skeleton Loader Styles */
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
@@ -35,6 +40,7 @@ app-page-header .parag {
     0% {
         background-position: -200px 0;
     }
+
     100% {
         background-position: calc(200px + 100%) 0;
     }
@@ -45,10 +51,12 @@ app-page-header .parag {
     width: 180px;
     margin-bottom: 8px;
 }
+
 .skeleton-btn {
     height: 36px;
     width: 90px;
 }
+
 .skeleton-info {
     height: 24px;
     margin-bottom: 12px;

@@ -109,7 +109,7 @@ export class PermissionComponent implements OnInit {
         this.isLoading = false;
         this.permissions.is_shared_minutes = this.tempIsShared;
 
-        this.toasterService.showSuccess('Settings updated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('Settings updated successfully', "Updated Successfully");
         this.filterBox.closeOverlay();
 
       },
