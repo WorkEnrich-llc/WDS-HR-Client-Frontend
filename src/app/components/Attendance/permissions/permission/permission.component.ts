@@ -30,12 +30,15 @@ export class PermissionComponent implements OnInit {
   }
 
   getPermissions() {
+    this.isLoading = true;
     this._PermissionsService.getPermissions().subscribe({
       next: (data) => {
         this.permissions = data.data.object_info;
         this.tempIsShared = this.permissions.is_shared_minutes;
+        this.isLoading = false;
       },
       error: (error) => {
+        this.isLoading = false;
         console.error('Error fetching permissions:', error);
       }
     });

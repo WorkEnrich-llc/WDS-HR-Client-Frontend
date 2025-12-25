@@ -18,6 +18,17 @@
 
 <div class="content-hug">
 
+  @if(isLoading){
+  <div class="content-box d-flex flex-column gap-3 mt-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="skeleton skeleton-title" style="width: 180px; height: 32px;"></div>
+      <div class="skeleton skeleton-btn" style="width: 90px; height: 36px;"></div>
+    </div>
+    <div class="skeleton skeleton-info" style="width: 100%; height: 24px;"></div>
+    <div class="skeleton skeleton-info" style="width: 60%; height: 24px;"></div>
+    <div class="skeleton skeleton-info" style="width: 80%; height: 24px;"></div>
+  </div>
+  }
   @if(permissions?.is_shared_minutes){
   <div class="content-box d-flex flex-column gap-3 mt-4">
     <div class="d-flex align-items-center justify-content-between">
@@ -69,7 +80,7 @@
 
   </div>
   }
-  @else{
+  <!-- @else{
   <div class="content-box d-flex flex-column gap-3">
     <div class="d-flex align-items-center justify-content-between">
 
@@ -100,13 +111,13 @@
       </span>
     </div>
 
-    <!-- <div class="info">
+    <div class="info">
           <h6>Minimum Minutes Per Request</h6>
           <span>
             {{ getTime(permissions?.late_arrive?.minutes).hours }}:
             {{ getTime(permissions?.late_arrive?.minutes).minutes | number:'2.0-0' }} hr
           </span>
-        </div> -->
+        </div>
 
 
     <div class="info">
@@ -156,13 +167,13 @@
       </span>
     </div>
 
-    <!-- <div class="info">
+    <div class="info">
           <h6>Minimum Minutes Per Request</h6>
           <span>
             {{ getTime(permissions?.early_leave?.minutes).hours }}:
             {{ getTime(permissions?.early_leave?.minutes).minutes | number:'2.0-0' }} hr
           </span>
-        </div> -->
+        </div>
 
 
     <div class="info">
@@ -171,7 +182,7 @@
     </div>
 
   </div>
-  }
+  } -->
 
 
 

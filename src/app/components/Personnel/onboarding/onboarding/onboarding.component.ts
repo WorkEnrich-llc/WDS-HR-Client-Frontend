@@ -37,8 +37,7 @@ export class OnboardingComponent {
     this.loadingData = true;
     this.onboardingService.getOnboarding().subscribe({
       next: (response) => {
-        const list = response.data.object_info.onboarding_list || [];
-
+        const list = response.data?.list_items || [];
         this.checks = list.map((item: any) => ({
           name: item.title,
           completed: false,

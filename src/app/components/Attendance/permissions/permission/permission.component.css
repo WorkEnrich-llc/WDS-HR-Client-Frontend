@@ -21,3 +21,35 @@ app-page-header .parag {
 .card-white label{
     cursor: pointer;
 }
+/* Skeleton Loader Styles */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+    border-radius: 4px;
+    min-height: 16px;
+    position: relative;
+    overflow: hidden;
+    animation: skeleton-loading 1.2s infinite linear;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-title {
+    height: 32px;
+    width: 180px;
+    margin-bottom: 8px;
+}
+.skeleton-btn {
+    height: 36px;
+    width: 90px;
+}
+.skeleton-info {
+    height: 24px;
+    margin-bottom: 12px;
+}
