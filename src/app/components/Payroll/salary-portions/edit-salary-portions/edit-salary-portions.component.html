@@ -7,7 +7,8 @@
     [update]="(salaryPortion?.updated_at | date:'dd/MM/yyyy') ?? ''">
 
 
-    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()" [disabled]="isLoading || !portionsForm.valid">
+    <button class="btn btn-lg btn-success" (click)="updateSalaryPortion()"
+        [disabled]="isLoading || !portionsForm.valid">
         @if (isLoading) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -38,6 +39,14 @@
         <h2>Salary Portions</h2>
 
         <form [formGroup]="portionsForm" class="w-lg-50 d-flex flex-column gap-2">
+
+            <div class="mb-3">
+                <input class="form-check-input" type="checkbox" formControlName="isFlexible" id="isFlexible">
+                <label class="form-check-label custom-portion" for="isFlexible">
+                    Allow custom total portions (Disable 100% restriction)
+                </label>
+            </div>
+
             <div formArrayName="portions">
                 @for(portion of portions.controls; track $index; let i = $index) { <div
                     class="w-100 d-flex align-items-start portion-row" [formGroupName]="i">
@@ -45,7 +54,8 @@
                     @if(i !== 0) {
                     <input type="checkbox" class="form-check-input m-0" formControlName="enabled" />
                     } @else {
-                    <div class="form-check-input m-0" style="width: 18px; height: 18px; visibility: hidden; pointer-events: none;"></div>
+                    <div class="form-check-input m-0"
+                        style="width: 18px; height: 18px; visibility: hidden; pointer-events: none;"></div>
                     }
 
                     <!-- Portion Input -->
@@ -75,8 +85,19 @@
                 </div>
                 }
             </div>
-            @if(portions.hasError('totalIs100')){<p class="error-msg">
+            <!-- @if(portions.hasError('totalIs100')){<p class="error-msg">
                 Total percentages must be less than 100%.
+            </p>
+            } -->
+
+            @if(portionsForm.hasError('totalIsMoreThan100') && !portionsForm.get('isFlexible')?.value){
+            <p class="error-msg">
+                Total percentages must not exceed 100%.
+            </p>
+            }
+            @if(portionsForm.hasError('totalIsNot100') && !portionsForm.get('isFlexible')?.value){
+            <p class="error-msg">
+                Total percentages must equal 100%.
             </p>
             }
         </form>

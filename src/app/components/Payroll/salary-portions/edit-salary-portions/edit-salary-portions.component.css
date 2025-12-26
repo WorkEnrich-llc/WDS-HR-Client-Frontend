@@ -1,23 +1,28 @@
 :host {
-    display: block;
+  display: block;
 }
 
 :host .portion-row {
-    gap: var(--spacing-28);
-    align-items: flex-start;
-    margin-bottom: var(--spacing-8);
+  gap: var(--spacing-28);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-8);
 }
 
 :host .portion-row:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 :host .portion-row .form-check-input {
-    margin-top: var(--spacing-28);
+  margin-top: var(--spacing-28);
 }
 
 :host .input .error-msg {
-    margin-bottom: 0;
-    color: var(--color-danger-500);
-    font-size: var(--font-size-b4);
+  margin-bottom: 0;
+  color: var(--color-danger-500);
+  font-size: var(--font-size-b4);
+}
+
+:host .custom-portion {
+  margin-top: var(--spacing-4);
+  margin-inline-start: var(--spacing-28);
 }
