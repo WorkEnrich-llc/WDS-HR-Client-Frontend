@@ -1021,8 +1021,8 @@ export class ManageEmployeeSharedService {
 
     combineLatest([department$, employmentType$]).pipe(
       filter(() => !this.suppressWatchers),
-      debounceTime(50),
-
+      debounceTime(300),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       switchMap(([departmentId, employmentType]) => {
 
         this.attendanceDetails.get('work_schedule_id')?.reset(null, { emitEvent: false });
@@ -1613,5 +1613,98 @@ export class ManageEmployeeSharedService {
 
   // Debug method to help identify validation issues
   debugFormState(): void {
+  }
+
+  // Populate form with employee create info from recruitment response
+  populateFormWithEmployeeCreateInfo(data: any): void {
+    if (!data || !data.object_info) {
+      console.warn('Invalid employee create info data');
+      return;
+    }
+
+    const info = data.object_info;
+
+    // Suppress watchers to prevent unnecessary subscriptions during form population
+    this.suppressWatchers = true;
+
+    try {
+      // Populate main information
+      const mainInfoGroup = this.employeeForm.get('main_information');
+      if (mainInfoGroup) {
+        mainInfoGroup.patchValue({
+          name_english: info.name || '',
+          personal_email: info.email || '',
+        });
+
+        const mobileGroup = mainInfoGroup.get('mobile');
+        if (mobileGroup && info.phone) {
+          // Extract phone number (remove country code if present)
+          const phoneStr = info.phone.toString();
+          const phoneNumber = phoneStr.length > 10 ? phoneStr.slice(-10) : phoneStr;
+          mobileGroup.patchValue({
+            number: phoneNumber
+          });
+        }
+      }
+
+      // Populate job details
+      const jobDetailsGroup = this.employeeForm.get('job_details');
+      if (jobDetailsGroup) {
+        if (info.branch?.id) {
+          jobDetailsGroup.patchValue({
+            branch_id: info.branch.id
+          });
+        }
+        if (info.job_title?.id) {
+          jobDetailsGroup.patchValue({
+            job_title_id: info.job_title.id
+          });
+          // Set the selected job title
+          this.selectedJobTitle.set(info.job_title);
+        }
+      }
+
+      // Populate attendance details
+      const attendanceGroup = this.employeeForm.get('attendance_details');
+      if (attendanceGroup) {
+        if (info.employment_type?.id) {
+          attendanceGroup.patchValue({
+            employment_type: info.employment_type.id
+          });
+        }
+        if (info.work_mode?.id) {
+          attendanceGroup.patchValue({
+            work_mode: info.work_mode.id
+          });
+        }
+        if (info.work_schedule?.id) {
+          attendanceGroup.patchValue({
+            work_schedule_id: info.work_schedule.id
+          });
+        }
+      }
+
+      // Populate contract details
+      const contractGroup = this.employeeForm.get('contract_details');
+      if (contractGroup && info.contract_details) {
+        contractGroup.patchValue({
+          start_contract: info.contract_details.start_contract || '',
+          contract_end_date: info.contract_details.end_contract || '',
+          notice_period: info.contract_details.notice_period || null,
+          salary: info.contract_details.salary || '',
+          probation_period: info.contract_details.probation_period || false
+        });
+      }
+
+      // Mark form as pristine after population to avoid "unsaved changes" warnings
+      setTimeout(() => {
+        this.employeeForm.markAsPristine();
+        this.suppressWatchers = false;
+      }, 100);
+
+    } catch (error) {
+      console.error('Error populating form with employee create info:', error);
+      this.suppressWatchers = false;
+    }
   }
 }

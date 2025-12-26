@@ -9,6 +9,13 @@ import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
+type EvaluationData = {
+  label: string;
+  score: number;
+  maxScore: number;
+  description: string;
+};
+
 type Applicant = {
   id: number; // table row id display (application or applicant code)
   applicantId: number; // actual applicant id
@@ -18,6 +25,12 @@ type Applicant = {
   email: string;
   status: string;
   statusAt: string;
+  evaluation?: {
+    overallFit: EvaluationData;
+    roleFit: EvaluationData;
+    marketFit: EvaluationData;
+    appliedAt: string;
+  };
 };
 
 type DynamicField = {
@@ -55,7 +68,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   isExpanded = false;
 
   // Tab functionality
-  activeTab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected' = 'all';
+  activeTab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected' = 'applicant';
 
   // Applicants data and pagination
   applicantsLoading: boolean = true;
@@ -133,13 +146,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     this.applicantsLoading = true;
     const status = this.getStatusFromTab(this.activeTab);
+    const offerStatus = this.getOfferStatusFromTab(this.activeTab);
 
     this.jobOpeningsService.getApplicantsByJobId(
       this.jobOpening.id,
       this.currentPage,
       this.itemsPerPage,
       status,
-      this.searchTerm
+      this.searchTerm,
+      offerStatus
     ).subscribe({
       next: (response) => {
         if (response.data) {
@@ -152,7 +167,29 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             phoneNumber: item.phone ? item.phone.toString() : 'N/A',
             email: item.email || 'N/A',
             status: item.status || 'N/A',
-            statusAt: item.created_at || item.updated_at || 'N/A'
+            statusAt: item.created_at || item.updated_at || 'N/A',
+            // Map evaluation data from API response
+            evaluation: item.evaluation ? {
+              overallFit: {
+                label: 'Overall Fit',
+                score: item.evaluation.average_score || 0,
+                maxScore: 100,
+                description: item.evaluation.average_description || ''
+              },
+              roleFit: {
+                label: 'Role Fit',
+                score: item.evaluation.requirements_match_score || 0,
+                maxScore: 100,
+                description: item.evaluation.requirements_match_reason || ''
+              },
+              marketFit: {
+                label: 'Market Fit',
+                score: item.evaluation.job_match_score || 0,
+                maxScore: 100,
+                description: item.evaluation.job_match_reason || ''
+              },
+              appliedAt: item.created_at || new Date().toISOString()
+            } : undefined
           }));
           this.totalItems = response.data.total_items || 0;
         }
@@ -175,24 +212,39 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   /**
    * Get status code from tab name
-   * Status mapping: 1 - Applicant, 2 - Candidate, 3 - Interviewee, 4 - Job Offer Sent, 5 - New Joiner, 6 - Rejected, 7 - Qualified
+   * Status mapping: 1 - Applicant, 2 - Candidate, 3 - Interviewee, 4 - Qualified, 5 - Job Offer Sent, 6 - Accepted, 7 - Rejected
+   * Offer status mapping: 1 - Offer Accepted, 2 - Offer Rejected
    */
   getStatusFromTab(tab: string): number | undefined {
     const statusMap: { [key: string]: number | undefined } = {
-      'all': undefined,          // No filter - show all
-      'candidates': 2,           // Candidate
-      'interviewing': 3,         // Interviewee
-      'qualified': 7,            // Qualified
-      'rejected': 6              // Rejected
+      'applicant': 1,         // New Applicants
+      'candidate': 2,         // Candidate
+      'interviewee': 3,       // Interviewee
+      'qualified': 4,         // Qualified
+      'jobOfferSent': 5,      // Job Offer Sent
+      'accepted': 6,          // Accepted
+      'rejected': 7           // Rejected
     };
     return statusMap[tab];
+  }
+
+  /**
+   * Get offer status from tab name
+   * Offer status mapping: 1 - Offer Accepted, 2 - Offer Rejected
+   */
+  getOfferStatusFromTab(tab: string): number | undefined {
+    const offerStatusMap: { [key: string]: number | undefined } = {
+      'offerAccepted': 1,    // Offer Accepted
+      'offerRejected': 2     // Offer Rejected
+    };
+    return offerStatusMap[tab];
   }
 
   toggleText() {
     this.isExpanded = !this.isExpanded;
   }
 
-  setActiveTab(tab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected') {
+  setActiveTab(tab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected') {
     this.activeTab = tab;
     this.currentPage = 1; // Reset to first page when changing tabs
     this.loadApplicants();
@@ -278,6 +330,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   applicant: Applicant[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: keyof Applicant | '' = '';
+  hoveredApplicantId: number | null = null;
+  tooltipPosition: { left: number; top: number } | null = null;
+  tooltipWidth: number = 560;
+
   sortBy(column: keyof Applicant) {
     if (this.currentSortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -288,8 +344,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     if (this.applicant && Array.isArray(this.applicant)) {
       this.applicant = [...this.applicant].sort((a, b) => {
-        const aVal = a[column]?.toString().toLowerCase();
-        const bVal = b[column]?.toString().toLowerCase();
+        const aVal = a[column]?.toString().toLowerCase() || '';
+        const bVal = b[column]?.toString().toLowerCase() || '';
 
         if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
         if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
@@ -373,7 +429,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening paused successfully','Updated Successfully');
+        this.toastr.success('Job opening paused successfully', 'Updated Successfully');
         this.closePauseModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
@@ -402,7 +458,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
     this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
       next: (response) => {
-        this.toastr.success('Job opening is now live','Updated Successfully');
+        this.toastr.success('Job opening is now live', 'Updated Successfully');
         this.closeMakeLiveModal();
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
@@ -413,6 +469,82 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.closeMakeLiveModal();
       }
     });
+  }
+
+  /**
+   * Handle hover state for applicant evaluation tooltip
+   */
+  onApplicantHover(applicantId: number): void {
+    this.hoveredApplicantId = applicantId;
+    
+    const badgeElement = document.querySelector(`[data-badge-id="${applicantId}"]`) as HTMLElement;
+    if (!badgeElement) return;
+
+    const badgeRect = badgeElement.getBoundingClientRect();
+    const gap = 12;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Calculate available space above and below
+    const spaceAbove = badgeRect.top;
+    const spaceBelow = viewportHeight - badgeRect.bottom;
+
+    // Determine tooltip dimensions based on available space
+    let tooltipWidth = 560;
+    const maxTooltipHeight = Math.min(500, Math.max(spaceAbove, spaceBelow) - gap - 40);
+
+    // If height is constrained, increase width for better readability
+    if (maxTooltipHeight < 400) {
+      tooltipWidth = Math.min(700, viewportWidth - 32);
+    }
+
+    this.tooltipWidth = tooltipWidth;
+
+    let left: number;
+    let top: number;
+
+    // Priority: Bottom first, then top
+    if (spaceBelow >= 200) {
+      top = badgeRect.bottom + gap;
+    } else {
+      top = badgeRect.top - maxTooltipHeight - gap - 20; // Extra 12px spacing from bottom when above
+    }
+
+    // Center horizontally relative to badge, but stay in viewport
+    left = badgeRect.left + badgeRect.width / 2 - tooltipWidth / 2 - 80;
+
+    // Ensure tooltip stays within viewport horizontally
+    left = Math.max(16, Math.min(left, viewportWidth - tooltipWidth - 16));
+
+    // Ensure tooltip stays within viewport vertically
+    top = Math.max(16, Math.min(top, viewportHeight - maxTooltipHeight - 16));
+
+    this.tooltipPosition = {
+      left: Math.round(left),
+      top: Math.round(top)
+    };
+  }
+
+  onApplicantHoverLeave(): void {
+    this.hoveredApplicantId = null;
+    this.tooltipPosition = null;
+  }
+
+  /**
+   * Get the hovered applicant for template
+   */
+  getHoveredApplicant(): Applicant | undefined {
+    if (this.hoveredApplicantId === null) {
+      return undefined;
+    }
+    return this.applicant.find(a => a.id === this.hoveredApplicantId);
+  }
+
+  /**
+   * Check if evaluation exists and is valid
+   */
+  hasValidEvaluation(applicant: Applicant | undefined): boolean {
+    return !!applicant?.evaluation;
   }
 
   /**

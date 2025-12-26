@@ -1,12 +1,13 @@
 
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { DecimalPipe } from '@angular/common';
 
 @Component({
@@ -19,6 +20,7 @@ export class InterviewComponent implements OnChanges {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
+  @ViewChild('editJoinDateBox') editJoinDateBox!: OverlayFilterBoxComponent;
   @Input() applicant: any;
   @Input() applicationId?: number;
   @Input() applicationDetails?: any;
@@ -34,6 +36,8 @@ export class InterviewComponent implements OnChanges {
   private departmentsService = inject(DepartmentsService);
   private branchesService = inject(BranchesService);
   private employeeService = inject(EmployeeService);
+  private toasterService = inject(ToasterMessageService);
+  private router = inject(Router);
   submitting = false;
 
   // Departments data
@@ -129,6 +133,13 @@ export class InterviewComponent implements OnChanges {
   withEndDate: boolean = false;
   contractEndDate: string = '';
 
+  // Edit join date form model
+  editJoinDateInput: string = '';
+  editJoinDateLoading: boolean = false;
+  editJoinDateValidationErrors: {
+    joinDate?: string;
+  } = {};
+
   private statusMap: Record<number, string> = {
     0: 'Applicant',
     1: 'Candidate',
@@ -137,7 +148,8 @@ export class InterviewComponent implements OnChanges {
     4: 'New Joiner',
     5: 'Rejected',
     6: 'Qualified',
-    7: 'Not Selected'
+    7: 'Not Selected',
+    8: 'Accepted'
   };
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -212,6 +224,7 @@ export class InterviewComponent implements OnChanges {
     if (norm.includes('not selected')) return 'Not Selected';
     if (norm.includes('reject')) return 'Rejected';
     if (norm.includes('qualif')) return 'Qualified';
+    if (norm.includes('accept')) return 'Accepted';
     return 'Applicant';
   }
 
@@ -851,16 +864,30 @@ export class InterviewComponent implements OnChanges {
     }
 
     this.submitting = true;
-    // Update application status to 5 (as specified by user)
-    this.svc.updateApplicationStatus(this.applicationId, 5).subscribe({
-      next: () => {
-        this.submitting = false;
-        this.applicationRefreshed.emit();
-      },
-      error: () => {
-        this.submitting = false;
-      }
-    });
+    
+    // If Job Offer Sent status (status code 3), use the new job offer accept API
+    if (this.status === 'Job Offer Sent' && this.jobOfferId) {
+      this.svc.acceptJobOffer(this.jobOfferId, this.applicationId).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.applicationRefreshed.emit();
+        },
+        error: () => {
+          this.submitting = false;
+        }
+      });
+    } else {
+      // Fallback to the old method for other statuses
+      this.svc.updateApplicationStatus(this.applicationId, 5).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.applicationRefreshed.emit();
+        },
+        error: () => {
+          this.submitting = false;
+        }
+      });
+    }
   }
 
   openEditJobOfferOverlay(): void {
@@ -929,5 +956,68 @@ export class InterviewComponent implements OnChanges {
     if (joinDate < today) {
       this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
     }
+  }
+
+  openEditJoinDateOverlay(): void {
+    // Reset form
+    this.editJoinDateInput = '';
+    this.editJoinDateValidationErrors = {};
+    this.editJoinDateBox?.openOverlay();
+  }
+
+  validateEditJoinDateField(): void {
+    // Clear previous error
+    delete this.editJoinDateValidationErrors.joinDate;
+    if (!this.editJoinDateInput || !this.editJoinDateInput.trim()) {
+      this.editJoinDateValidationErrors.joinDate = 'Please select a join date';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const joinDate = new Date(this.editJoinDateInput);
+    joinDate.setHours(0, 0, 0, 0);
+    if (joinDate < today) {
+      this.editJoinDateValidationErrors.joinDate = 'Join date must be today or in the future';
+    }
+  }
+
+  submitEditJoinDate(): void {
+    this.validateEditJoinDateField();
+    if (Object.keys(this.editJoinDateValidationErrors).length > 0) {
+      return;
+    }
+
+    if (!this.applicationId) {
+      return;
+    }
+
+    // Get job_offer_id from applicationDetails
+    const jobOfferId = this.applicationDetails?.additional_info?.job_offer_id;
+    if (!jobOfferId) {
+      console.error('Job offer ID not found');
+      return;
+    }
+
+    this.editJoinDateLoading = true;
+    this.svc.editJoinDate(jobOfferId, this.editJoinDateInput).subscribe({
+      next: () => {
+        this.editJoinDateLoading = false;
+        this.toasterService.showSuccess('Join date updated successfully', 'Success');
+        this.editJoinDateBox?.closeOverlay();
+        this.applicationRefreshed.emit();
+      },
+      error: (err) => {
+        this.editJoinDateLoading = false;
+        console.error('Failed to update join date:', err);
+      }
+    });
+  }
+
+  navigateToCreateEmployee(): void {
+    if (!this.applicationId) {
+      console.error('Application ID not found');
+      return;
+    }
+    this.router.navigate(['/employees/create-employee'], { queryParams: { application_id: this.applicationId } });
   }
 }

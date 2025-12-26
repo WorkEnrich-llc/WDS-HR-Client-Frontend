@@ -2,50 +2,45 @@
   <div class="d-flex align-items-center justify-content-between">
     <h2>Feedback</h2>
     @if (canAddFeedback) {
-      <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="overlay.openOverlay()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
-          </g>
-        </svg>
-        <span>Add Feedback</span>
-      </a>
+    <a type="button" class="view-btn add-sec d-flex align-items-center gap-1" (click)="overlay.openOverlay()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+        </g>
+      </svg>
+      <span>Add Feedback</span>
+    </a>
     }
   </div>
 
   <div class="feedbacks d-flex flex-column">
     @if (feedbacks.length) {
-      @for (f of feedbacks; track f.id) {
-        <div class="feed">
-          <div class="d-flex align-items-center gap-3">
-            @if (f?.rating != null) {
-              <div class="rate">
-                <span>{{ f?.rating }}</span>/<span>10</span>
-              </div>
-            }
-            <div class="name d-flex flex-column">
-              <h6>{{ f?.title || 'Feedback' }}</h6>
-              <h5 class="m-0">{{ f?.created_by?.name || f?.reviewer?.name || '—' }}</h5>
-            </div>
-            <div class="btns d-flex gap-2 align-items-center ms-auto">
-              <div class="date">{{ (f?.created_at | date:'dd/MM/yyyy') || '' }}</div>
-              <div class="time">{{ (f?.created_at | date:'hh:mm a') || '' }}</div>
-            </div>
-          </div>
-          <p class="m-0 mt-2">{{ f?.comment || f?.notes || '' }}</p>
+    @for (f of feedbacks; track f.id) {
+    <div class="feed">
+      <div class="d-flex align-items-center gap-3">
+        @if (f?.rating != null) {
+        <div class="rate">
+          <span>{{ f?.rating }}</span>/<span>10</span>
         </div>
-      }
+        }
+        <div class="name d-flex flex-column">
+          <h6>{{ f?.title || 'Feedback' }}</h6>
+          <h5 class="m-0">{{ f?.created_by || f?.reviewer?.name || '—' }}</h5>
+        </div>
+        <div class="btns d-flex gap-2 align-items-center ms-auto">
+          <div class="date">{{ (f?.created_at | date:'dd/MM/yyyy') || '' }}</div>
+          <div class="time">{{ (f?.created_at | date:'hh:mm a') || '' }}</div>
+        </div>
+      </div>
+      <p class="m-0 mt-2">{{ f?.comment || f?.notes || '' }}</p>
+    </div>
+    }
     } @else {
-      <div class="text-muted">No feedback yet.</div>
+    <div class="text-muted">No feedback yet.</div>
     }
   </div>
-
 </div>
-
-
-
-
 
 <!-- add feedback -->
 <app-overlay-filter-box #filterBox title="Add Feedback">
@@ -58,7 +53,8 @@
       <label for="evelouation">Candidate Evaluation</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
-          <input type="number" id="evelouation" name="rating" class="form-control" placeholder="Out of 10" [(ngModel)]="rating" min="0" max="10" step="0.1" />
+          <input type="number" id="evelouation" name="rating" class="form-control" placeholder="Out of 10"
+            [(ngModel)]="rating" min="0" max="10" step="0.1" />
         </div>
       </div>
     </div>
@@ -67,7 +63,7 @@
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
           <textarea type="text" id="feedback" name="comment" class="form-control" [(ngModel)]="comment"
-          placeholder="Enter notes and feedback"></textarea>
+            placeholder="Enter notes and feedback"></textarea>
         </div>
       </div>
     </div>
@@ -76,16 +72,15 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <path fill="currentColor"
             d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-            <path fill="currentColor" fill-rule="evenodd"
-              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-              clip-rule="evenodd" />
-            </svg>
-            <span>Add Feedback</span>
-          </button>
-          <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
-            <span>Discard Feedback</span>
-          </a>
-        </div>
-
-      </form>
-    </app-overlay-filter-box>
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Add Feedback</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Feedback</span>
+      </a>
+    </div>
+  </form>
+</app-overlay-filter-box>
