@@ -1,3 +1,45 @@
-.cursor-pointer{
+/* Skeleton loader for main information */
+.main-info-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 12px 0;
+}
+
+.skeleton-line {
+    height: 18px;
+    width: 60%;
+    background: linear-gradient(90deg, #e0e0e0 25%, #cfcfcf 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeletonMove 1.5s infinite linear;
+    border-radius: 4px;
+}
+
+.skeleton-title {
+    width: 40%;
+    height: 22px;
+}
+
+.skeleton-badge {
+    width: 90px;
+    height: 28px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #e0e0e0 25%, #cfcfcf 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: skeletonMove 1.5s infinite linear;
+    margin-top: 8px;
+}
+
+@keyframes skeletonMove {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.cursor-pointer {
     cursor: pointer !important;
 }

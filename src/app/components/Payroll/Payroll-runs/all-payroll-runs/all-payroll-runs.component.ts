@@ -1,8 +1,9 @@
-import { Component, inject, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -17,49 +18,18 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AllPayrollRunsComponent {
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private fb: FormBuilder) { }
-
-  // @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
+export class AllPayrollRunsComponent implements OnDestroy {
+  private subscriptions: Subscription[] = [];
+  private apiSub?: Subscription;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('configureBox') configureBox!: OverlayFilterBoxComponent;
   @ViewChild('importBox') importBox!: OverlayFilterBoxComponent;
-  private paginationState = inject(PaginationStateService);
-  private router = inject(Router);
-  closeOverlays(): void {
-    this.importBox?.closeOverlay();
-  }
-  closeconfigureBoxOverlays(): void {
-    this.configureBox?.closeOverlay();
-  }
+  private paginationState: PaginationStateService;
+  private router: Router;
+
   loadData: boolean = false;
   filterForm!: FormGroup;
-
-  payrollRuns = [
-    {
-      id: 1,
-      month: 'April 2025',
-      cycle: '1 March – 31 March',
-      numOfEmp: 93,
-      Status: 'Pending'
-    },
-    {
-      id: 2,
-      month: 'March 2025',
-      cycle: '1 February – 28 February',
-      numOfEmp: 93,
-      Status: 'Draft'
-    },
-    {
-      id: 3,
-      month: 'January 2025',
-      cycle: '25 January – 31 January',
-      numOfEmp: 93,
-      Status: 'Completed'
-    },
-  ];
-
+  payrollRuns: any[] = [];
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
@@ -69,33 +39,86 @@ export class AllPayrollRunsComponent {
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
 
+  constructor(
+    private route: ActivatedRoute,
+    private toasterMessageService: ToasterMessageService,
+    private toastr: ToastrService,
+    private fb: FormBuilder,
+    private payrollRunService: PayrollRunService,
+    paginationState: PaginationStateService,
+    router: Router
+  ) {
+    this.paginationState = paginationState;
+    this.router = router;
+  }
+  closeOverlays(): void {
+    this.importBox?.closeOverlay();
+  }
+  closeconfigureBoxOverlays(): void {
+    this.configureBox?.closeOverlay();
+  }
+  // ...existing code...
+
 
   ngOnInit(): void {
-    // this.route.queryParams.subscribe(params => {
-    //   // this.currentPage = +params['page'] || 1;
-    //   // this.getAllDepartment(this.currentPage);
-    // });
-
-    this.route.queryParams.subscribe(params => {
+    const sub = this.route.queryParams.subscribe(params => {
       const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-runs/payroll-runs') || 1;
       this.currentPage = pageFromUrl;
-      // this.getAllPayrollRuns(pageFromUrl);
+      this.fetchPayrollRuns();
     });
+    this.subscriptions.push(sub);
+  }
 
-
-    this.toasterSubscription = this.toasterMessageService.currentMessage$
+  ngAfterViewInit(): void {
+    const toasterSub = this.toasterMessageService.currentMessage$
       .pipe(filter(msg => !!msg && msg.trim() !== ''))
       .subscribe(msg => {
         this.toastr.clear();
         this.toastr.success(msg, '', { timeOut: 3000 });
-
         this.toasterMessageService.clearMessage();
       });
+    this.subscriptions.push(toasterSub);
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+    const searchSub = this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
       // this.getAllDepartment(this.currentPage, value);
     });
+    this.subscriptions.push(searchSub);
+  }
+  
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
+    if (this.apiSub) {
+      this.apiSub.unsubscribe();
+    }
+  }
 
+  fetchPayrollRuns() {
+    this.loadData = true;
+    if (this.apiSub) {
+      this.apiSub.unsubscribe();
+    }
+    this.apiSub = this.payrollRunService.getAllPayrollRuns(this.currentPage, this.itemsPerPage).subscribe({
+      next: (response: any) => {
+        const items = response?.data?.list_items ?? [];
+        this.payrollRuns = items.map((item: any) => ({
+          month: item.start_date ? `${item.start_date}` : '',
+          cycle: item.start_date && item.end_date ? `${item.start_date} – ${item.end_date}` : '',
+          numOfEmp: item.employees_cont ?? 0,
+          Status: item.status ?? '',
+          id: item.id
+        }));
+        this.totalItems = response?.data?.total_items ?? 0;
+        this.loadData = false;
+      },
+      error: () => {
+        this.toastr.error('Failed to load payroll runs');
+        this.loadData = false;
+      }
+    });
   }
 
   sortBy() {
@@ -146,7 +169,7 @@ export class AllPayrollRunsComponent {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
+    this.fetchPayrollRuns();
   }
   // onPageChange(page: number): void {
   //   this.currentPage = page;
@@ -161,6 +184,7 @@ export class AllPayrollRunsComponent {
       queryParams: { page },
       queryParamsHandling: 'merge'
     });
+    this.fetchPayrollRuns();
   }
 
   navigateToEdit(runsId: number): void {

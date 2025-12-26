@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink } from '@angular/router';
@@ -11,11 +14,52 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
 })
-export class ViewPayrollRunsComponent {
+@Component({
+  selector: 'app-view-payroll-runs',
+  imports: [CommonModule, PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent],
+  templateUrl: './view-payroll-runs.component.html',
+  styleUrl: './view-payroll-runs.component.css'
+})
+export class ViewPayrollRunsComponent implements OnDestroy {
+  private subscriptions: Subscription[] = [];
+  fetchEmployees() {
+    this.loadData = true;
+    const sub = this.payrollRunService.getAllSheets(this.currentPage, this.itemsPerPage).subscribe({
+      next: (data) => {
+        this.allSheetsData = data;
+        if (data && data.data && Array.isArray(data.data.list_items)) {
+          this.employees = data.data.list_items.map((item: any, idx: number) => ({
+            id: item.id,
+            name: item.name,
+            basicSalary: item.basicSalary ?? 0,
+            insurance: item.insurance ?? 0,
+            absence: item.absence ?? 0,
+            damages: item.damages ?? 0,
+            bonus: item.bonus ?? 0,
+            profitShare: item.profitShare ?? 0,
+            overtime: item.overtime ?? 0,
+            currency: item.currency ?? 'EGP'
+          }));
+        } else {
+          this.employees = [];
+        }
+        this.loadData = false;
+      },
+      error: () => { this.employees = []; this.loadData = false; }
+    });
+    this.subscriptions.push(sub);
+  }
   @ViewChild('importBox') importBox!: OverlayFilterBoxComponent;
+
   closeOverlays(): void {
     this.importBox?.closeOverlay();
   }
+  payRollRunData: any = null;
+  allSheetsData: any = null;
+
+  constructor(private route: ActivatedRoute, private payrollRunService: PayrollRunService) { }
+
+  employees: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   totalItems: number = 0;
@@ -29,38 +73,39 @@ export class ViewPayrollRunsComponent {
     numOfEmp: 93,
     Status: 'Pending'
   };
-  employees = [
-    {
-      id: 1,
-      name: 'Ahmed Ali',
-      basicSalary: 15000,
-      insurance: 1200,
-      absence: 500,
-      damages: 200,
-      bonus: 1000,
-      profitShare: 750,
-      overtime: 300,
-      currency: 'EGP'
-    },
-    {
-      id: 2,
-      name: 'Mona Hassan',
-      basicSalary: 18000,
-      insurance: 1500,
-      absence: 0,
-      damages: 0,
-      bonus: 1200,
-      profitShare: 900,
-      overtime: 400,
-      currency: '$'
+  selectedFile: File | null = null;
+
+  ngOnInit(): void {
+    this.loadData = true;
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      const sub = this.payrollRunService.getPayrollRunById(id).subscribe({
+        next: (data) => {
+          this.payRollRunData = data;
+          this.loadData = false;
+        },
+        error: () => {
+          this.loadData = false;
+        }
+      });
+      this.subscriptions.push(sub);
     }
-  ];
+    this.fetchEmployees();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
+  }
+
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.employees = this.employees.sort((a, b) => {
       const nameA = a.name.toLowerCase();
       const nameB = b.name.toLowerCase();
-
       if (this.sortDirection === 'asc') {
         return nameA > nameB ? 1 : (nameA < nameB ? -1 : 0);
       } else {
@@ -69,15 +114,12 @@ export class ViewPayrollRunsComponent {
     });
   }
 
-  selectedFile: File | null = null;
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
       const allowedExtensions = ['xls', 'xlsx'];
       const extension = file.name.split('.').pop()?.toLowerCase();
-
       if (extension && allowedExtensions.includes(extension)) {
         this.selectedFile = file;
       } else {
@@ -94,10 +136,11 @@ export class ViewPayrollRunsComponent {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    // this.getAllDepartment(this.currentPage);
+    this.fetchEmployees();
   }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    // this.getAllDepartment(this.currentPage);
+    this.fetchEmployees();
   }
 }
