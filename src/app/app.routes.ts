@@ -1076,7 +1076,7 @@ export const routes: Routes = [
           {
             path: 'payroll-runs',
             providers: [PaginationStateService],
-            canActivate: [SubscriptionGuard],
+            // canActivate: [SubscriptionGuard],
             data: { feature: 'Payroll_Runs' },
             children: [
               {

@@ -26,7 +26,9 @@ export class TableComponent {
 
   @Output() pageChange = new EventEmitter<number>();
 
-  skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i, isSkeleton: true }));
+  get skeletonRows() {
+    return Array.from({ length: this.itemsPerPage }, (_, i) => ({ id: i, isSkeleton: true }));
+  }
 
   trackByFn(index: number, row: any): any {
     return row?.id ?? index;
