@@ -96,9 +96,21 @@ export class ManageEmployeeComponent implements OnInit {
       } else {
         this.sharedService.isEditMode.set(false);
         this.sharedService.resetForm();
-        // Check for application_id in query params
+        // Check for application_id and applicant_id in query params
         this.route.queryParamMap.subscribe(queryParams => {
           const applicationId = queryParams.get('application_id');
+          const applicantId = queryParams.get('applicant_id');
+          
+          // Set employee source and applicant_id in shared service
+          if (applicationId || applicantId) {
+            this.sharedService.employeeSource = 2; // From recruitment
+            if (applicantId) {
+              this.sharedService.applicantId = +applicantId;
+            }
+          } else {
+            this.sharedService.employeeSource = 1; // Direct creation
+          }
+          
           if (applicationId) {
             this.jobOpeningsService.getEmployeeCreateInfo(+applicationId).subscribe({
               next: (data) => {

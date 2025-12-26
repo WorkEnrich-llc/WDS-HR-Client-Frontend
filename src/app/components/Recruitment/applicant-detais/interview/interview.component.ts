@@ -1018,6 +1018,16 @@ export class InterviewComponent implements OnChanges {
       console.error('Application ID not found');
       return;
     }
-    this.router.navigate(['/employees/create-employee'], { queryParams: { application_id: this.applicationId } });
+    const applicantId = this.applicant?.id;
+    if (!applicantId) {
+      console.error('Applicant ID not found');
+      return;
+    }
+    this.router.navigate(['/employees/create-employee'], {
+      queryParams: {
+        application_id: this.applicationId,
+        applicant_id: applicantId
+      }
+    });
   }
 }

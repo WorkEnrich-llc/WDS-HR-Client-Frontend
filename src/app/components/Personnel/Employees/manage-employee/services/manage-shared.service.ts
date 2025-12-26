@@ -113,6 +113,8 @@ export class ManageEmployeeSharedService {
   readonly isContractExpiring = signal<boolean>(false);
   private originalFormData: any = null;
   suppressWatchers = false;
+  applicantId: number | null = null;
+  employeeSource: number = 1; // 1 = direct creation, 2 = from recruitment
 
   constructor() {
     this.initializeForm();
@@ -1540,7 +1542,13 @@ export class ManageEmployeeSharedService {
     }
     // }
     requestData.contract_details = contractDetailsPayload;
+    
+    // Add recruitment-related data if available
     if (!this.isEditMode()) {
+      requestData.employee_source = this.employeeSource;
+      if (this.applicantId) {
+        requestData.applicant_id = this.applicantId;
+      }
       return { request_data: requestData };
     }
 
