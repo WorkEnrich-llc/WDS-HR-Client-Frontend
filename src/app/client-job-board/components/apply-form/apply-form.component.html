@@ -1,12 +1,8 @@
-<main
-  class="apply-form-container"
-  role="main"
-  [attr.aria-label]="
+<main class="apply-form-container" role="main" [attr.aria-label]="
     job
       ? 'Job application form for ' + getJobTitle(job)
       : 'Job application form'
-  "
->
+  ">
   <!-- Loading State -->
   @if (isLoading) {
   <div role="status" aria-live="polite" aria-busy="true" class="sr-only">
@@ -31,32 +27,15 @@
   <!-- Application Form -->
   @if (!isLoading && job && !errorMessage) {
   <!-- Screen Reader Announcements -->
-  <div
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-    class="sr-only"
-    [attr.aria-label]="screenReaderAnnouncement"
-  >
+  <div role="status" aria-live="polite" aria-atomic="true" class="sr-only" [attr.aria-label]="screenReaderAnnouncement">
     {{ screenReaderAnnouncement }}
   </div>
-  <div
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    class="sr-only"
-    [attr.aria-label]="formErrorsAnnouncement"
-  >
+  <div role="alert" aria-live="assertive" aria-atomic="true" class="sr-only" [attr.aria-label]="formErrorsAnnouncement">
     {{ formErrorsAnnouncement }}
   </div>
 
-  <form
-    [formGroup]="applicationForm"
-    (ngSubmit)="onSubmit()"
-    class="application-form"
-    [attr.aria-label]="'Job application form for ' + getJobTitle(job)"
-    novalidate
-  >
+  <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="application-form"
+    [attr.aria-label]="'Job application form for ' + getJobTitle(job)" novalidate>
     <!-- Job Information Header Card -->
     <article class="form-card job-header-card">
       <div class="job-tags">
@@ -74,50 +53,25 @@
 
       <div class="job-meta-info">
         <div class="job-meta-item">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path
-              opacity="0.3"
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true" focusable="false">
+            <path opacity="0.3"
               d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
-              fill="#4A6D97"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
+              fill="#4A6D97" />
+            <path fill-rule="evenodd" clip-rule="evenodd"
               d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
-              fill="#4A6D97"
-            />
+              fill="#4A6D97" />
           </svg>
           <span>{{ getJobBranch(job) }}</span>
         </div>
         <div class="job-meta-item">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-            focusable="false"
-          >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true" focusable="false">
             <path
               d="M9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5ZM9 15C5.68629 15 3 12.3137 3 9C3 5.68629 5.68629 3 9 3C12.3137 3 15 5.68629 15 9C15 12.3137 12.3137 15 9 15Z"
-              fill="#4A6D97"
-            />
-            <path
-              d="M9 5.25V9L11.25 10.5"
-              stroke="#4A6D97"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+              fill="#4A6D97" />
+            <path d="M9 5.25V9L11.25 10.5" stroke="#4A6D97" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           <span>{{ getExperienceText(job.job_level) }}</span>
         </div>
@@ -136,71 +90,30 @@
           </ul>
         </div>
         <div class="resume-upload-section">
-          <input
-            type="file"
-            id="resume-upload"
-            accept=".pdf"
-            (change)="onResumeUpload($event)"
-            [disabled]="isUploadingCV"
-            class="file-input"
-            [attr.aria-label]="
+          <input type="file" id="resume-upload" accept=".pdf" (change)="onResumeUpload($event)"
+            [disabled]="isUploadingCV" class="file-input" [attr.aria-label]="
               isUploadingCV
                 ? 'Uploading CV...'
                 : 'Upload your resume in PDF format'
-            "
-            [attr.aria-busy]="isUploadingCV"
-          />
-          <label
-            for="resume-upload"
-            class="upload-button"
-            [class.uploading]="isUploadingCV"
-            [attr.aria-disabled]="isUploadingCV"
-          >
+            " [attr.aria-busy]="isUploadingCV" />
+          <label for="resume-upload" class="upload-button" [class.uploading]="isUploadingCV"
+            [attr.aria-disabled]="isUploadingCV">
             @if (isUploadingCV) {
-            <svg
-              class="spinner"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <circle
-                cx="9"
-                cy="9"
-                r="8"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-dasharray="50.27"
-                stroke-dashoffset="25.13"
-              >
-                <animateTransform
-                  attributeName="transform"
-                  type="rotate"
-                  values="0 9 9;360 9 9"
-                  dur="1s"
-                  repeatCount="indefinite"
-                />
+            <svg class="spinner" width="18" height="18" viewBox="0 0 18 18" fill="none"
+              xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-dasharray="50.27" stroke-dashoffset="25.13">
+                <animateTransform attributeName="transform" type="rotate" values="0 9 9;360 9 9" dur="1s"
+                  repeatCount="indefinite" />
               </circle>
             </svg>
             } @else {
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_278_15)">
                 <g clip-path="url(#clip1_278_15)">
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                  <path fill-rule="evenodd" clip-rule="evenodd"
                     d="M9 0.9375C9.16421 0.9375 9.32022 1.00925 9.42708 1.13393L11.6771 3.75893C11.8793 3.9948 11.8519 4.34991 11.6161 4.55208C11.3802 4.75426 11.0251 4.72694 10.8229 4.49107L9.5625 3.02058L9.5625 11.25C9.5625 11.5607 9.31066 11.8125 9 11.8125C8.68934 11.8125 8.4375 11.5607 8.4375 11.25L8.4375 3.02058L7.17708 4.49107C6.97491 4.72694 6.6198 4.75426 6.38393 4.55208C6.14806 4.34991 6.12074 3.9948 6.32292 3.75893L8.57292 1.13393C8.67978 1.00925 8.83579 0.9375 9 0.9375ZM5.24687 6.18897C5.55753 6.18724 5.81076 6.43768 5.81249 6.74833C5.81422 7.05899 5.56379 7.31223 5.25313 7.31396C4.43301 7.31852 3.8517 7.33982 3.41051 7.42086C2.9854 7.49894 2.73935 7.62433 2.55676 7.80692C2.34919 8.01449 2.21385 8.30592 2.13986 8.85625C2.0637 9.42276 2.0625 10.1736 2.0625 11.2502V12.0002C2.0625 13.0767 2.0637 13.8276 2.13986 14.3941C2.21385 14.9444 2.34919 15.2358 2.55676 15.4434C2.76433 15.651 3.05576 15.7863 3.60609 15.8603C4.1726 15.9365 4.92344 15.9377 6 15.9377H12C13.0766 15.9377 13.8274 15.9365 14.3939 15.8603C14.9442 15.7863 15.2357 15.651 15.4432 15.4434C15.6508 15.2358 15.7861 14.9444 15.8601 14.3941C15.9363 13.8276 15.9375 13.0767 15.9375 12.0002V11.2502C15.9375 10.1736 15.9363 9.42276 15.8601 8.85625C15.7861 8.30592 15.6508 8.01449 15.4432 7.80692C15.2607 7.62433 15.0146 7.49894 14.5895 7.42086C14.1483 7.33982 13.567 7.31852 12.7469 7.31396C12.4362 7.31223 12.1858 7.05899 12.1875 6.74833C12.1892 6.43768 12.4425 6.18724 12.7531 6.18897C13.5643 6.19349 14.2403 6.2129 14.7927 6.31437C15.3612 6.4188 15.845 6.61773 16.2387 7.01142C16.6902 7.46286 16.8843 8.03127 16.9751 8.70635C17.0625 9.35657 17.0625 10.1833 17.0625 11.209V12.0413C17.0625 13.067 17.0625 13.8937 16.9751 14.544C16.8843 15.2191 16.6902 15.7875 16.2387 16.2389C15.7873 16.6903 15.2189 16.8845 14.5438 16.9753C13.8936 17.0627 13.0668 17.0627 12.0412 17.0627H5.95885C4.93316 17.0627 4.10641 17.0627 3.45619 16.9753C2.78111 16.8845 2.2127 16.6903 1.76126 16.2389C1.30983 15.7875 1.11566 15.2191 1.02489 14.544C0.937472 13.8937 0.937485 13.067 0.9375 12.0413V11.209C0.937485 10.1833 0.937472 9.35657 1.02489 8.70635C1.11566 8.03127 1.30983 7.46286 1.76126 7.01142C2.15496 6.61773 2.63877 6.4188 3.20726 6.31437C3.75969 6.2129 4.43572 6.19349 5.24687 6.18897Z"
-                    fill="#E0EBFF"
-                  />
+                    fill="#E0EBFF" />
                 </g>
               </g>
               <defs>
@@ -240,33 +153,21 @@
           @if (!isDropdownField(field)) {
           <div class="form-group">
             <label [for]="fieldKey">{{ field.name }}</label>
-            <input
-              [type]="getInputTypeForField(field)"
-              [id]="fieldKey"
-              [formControlName]="fieldKey"
-              [placeholder]="getPlaceholderForField(field)"
-              [autocomplete]="getAutocompleteForField(field)"
-              [attr.inputmode]="getInputModeForField(field)"
-              [class.error]="
+            <input [type]="getInputTypeForField(field)" [id]="fieldKey" [formControlName]="fieldKey"
+              [placeholder]="getPlaceholderForField(field)" [autocomplete]="getAutocompleteForField(field)"
+              [attr.inputmode]="getInputModeForField(field)" [class.error]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
-              "
-              [attr.aria-required]="getAriaRequired(fieldKey)"
-              [attr.aria-invalid]="getAriaInvalid(fieldKey)"
+              " [attr.aria-required]="getAriaRequired(fieldKey)" [attr.aria-invalid]="getAriaInvalid(fieldKey)"
               [attr.aria-describedby]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
                   ? getErrorId(fieldKey)
                   : null
-              "
-            />
+              " />
             @if (applicationForm.get(fieldKey)?.invalid &&
             applicationForm.get(fieldKey)?.touched) {
-            <span
-              class="error-message"
-              [id]="getErrorId(fieldKey)"
-              role="alert"
-            >
+            <span class="error-message" [id]="getErrorId(fieldKey)" role="alert">
               {{ getFieldErrorMessage(fieldKey, field) }}
             </span>
             }
@@ -275,132 +176,72 @@
 
           <!-- Dropdown Field -->
           @if (isDropdownField(field)) {
-          <div
-            class="form-group"
-            appCloseDropdown
-            (appCloseDropdown)="dropdownStates[fieldKey] = false"
-          >
+          <div class="form-group" appCloseDropdown (appCloseDropdown)="dropdownStates[fieldKey] = false">
             <label [for]="fieldKey">{{ field.name }}</label>
-            <div
-              class="custom-select"
-              [class.custom-select-open]="isDropdownOpen(fieldKey)"
-              [class.custom-select-disabled]="isUploadingCV"
-              [class.error]="
+            <div class="custom-select" [class.custom-select-open]="isDropdownOpen(fieldKey)"
+              [class.custom-select-disabled]="isUploadingCV" [class.error]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
-              "
-              (click)="!isUploadingCV && toggleDropdown(fieldKey, $event)"
-              (keydown)="!isUploadingCV && onDropdownKeyDown($event, fieldKey)"
-              role="combobox"
-              [attr.tabindex]="isUploadingCV ? '-1' : '0'"
-              [attr.aria-disabled]="isUploadingCV"
-              [attr.aria-label]="'Select ' + field.name.toLowerCase()"
-              [attr.aria-required]="getAriaRequired(fieldKey)"
-              [attr.aria-invalid]="getAriaInvalid(fieldKey)"
-              [attr.aria-expanded]="isDropdownOpen(fieldKey)"
+              " (click)="!isUploadingCV && toggleDropdown(fieldKey, $event)"
+              (keydown)="!isUploadingCV && onDropdownKeyDown($event, fieldKey)" role="combobox"
+              [attr.tabindex]="isUploadingCV ? '-1' : '0'" [attr.aria-disabled]="isUploadingCV"
+              [attr.aria-label]="'Select ' + field.name.toLowerCase()" [attr.aria-required]="getAriaRequired(fieldKey)"
+              [attr.aria-invalid]="getAriaInvalid(fieldKey)" [attr.aria-expanded]="isDropdownOpen(fieldKey)"
               [attr.aria-controls]="
                 isDropdownOpen(fieldKey) ? fieldKey + '-listbox' : null
-              "
-              [attr.aria-describedby]="
+              " [attr.aria-describedby]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
                   ? getErrorId(fieldKey)
                   : null
-              "
-              aria-haspopup="listbox"
-              [attr.aria-activedescendant]="
+              " aria-haspopup="listbox" [attr.aria-activedescendant]="
                 isDropdownOpen(fieldKey) && applicationForm.get(fieldKey)?.value
                   ? fieldKey + '-option-' + applicationForm.get(fieldKey)?.value
                   : null
-              "
-            >
-              <span
-                class="custom-select-text"
-                [class.filter-placeholder]="
+              ">
+              <span class="custom-select-text" [class.filter-placeholder]="
                   !applicationForm.get(fieldKey)?.value
-                "
-                >{{ getDisplayValue(fieldKey, field.name) }}</span
-              >
+                ">{{ getDisplayValue(fieldKey, field.name) }}</span>
             </div>
-            <svg
-              class="dropdown-icon"
-              [class.dropdown-icon-open]="isDropdownOpen(fieldKey)"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+            <svg class="dropdown-icon" [class.dropdown-icon-open]="isDropdownOpen(fieldKey)" width="18" height="18"
+              viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M3.32293 6.38393C3.5251 6.14806 3.88021 6.12074 4.11608 6.32292L9.00001 10.5091L13.8839 6.32292C14.1198 6.12074 14.4749 6.14806 14.6771 6.38393C14.8793 6.6198 14.8519 6.97491 14.6161 7.17708L9.36608 11.6771C9.15543 11.8576 8.84459 11.8576 8.63394 11.6771L3.38394 7.17708C3.14807 6.97491 3.12075 6.6198 3.32293 6.38393Z"
-                fill="#4A6D97"
-              />
+                fill="#4A6D97" />
             </svg>
             @if (isDropdownOpen(fieldKey)) {
-            <div
-              class="dropdown-menu"
-              role="listbox"
-              [attr.aria-label]="field.name + ' options'"
-              [id]="fieldKey + '-listbox'"
-            >
-              <div
-                class="dropdown-item"
-                [class.selected]="applicationForm.get(fieldKey)?.value === ''"
+            <div class="dropdown-menu" role="listbox" [attr.aria-label]="field.name + ' options'"
+              [id]="fieldKey + '-listbox'">
+              <div class="dropdown-item" [class.selected]="applicationForm.get(fieldKey)?.value === ''"
                 [class.dropdown-item-disabled]="isUploadingCV"
-                (click)="!isUploadingCV && selectOption(fieldKey, '', $event)"
-                (keydown)="
+                (click)="!isUploadingCV && selectOption(fieldKey, '', $event)" (keydown)="
                   !isUploadingCV && onDropdownItemKeyDown($event, fieldKey, '')
-                "
-                role="option"
-                [attr.aria-selected]="
+                " role="option" [attr.aria-selected]="
                   applicationForm.get(fieldKey)?.value === ''
-                "
-                [attr.aria-disabled]="isUploadingCV"
-                [id]="fieldKey + '-option-'"
-                [attr.data-dropdown]="fieldKey"
-                data-value=""
-                [attr.tabindex]="isUploadingCV ? '-1' : '0'"
-              >
+                " [attr.aria-disabled]="isUploadingCV" [id]="fieldKey + '-option-'" [attr.data-dropdown]="fieldKey"
+                data-value="" [attr.tabindex]="isUploadingCV ? '-1' : '0'">
                 Select {{ field.name.toLowerCase() }}
               </div>
               @for (option of getDropdownOptions(fieldKey); track option; let i
               = $index) {
-              <div
-                class="dropdown-item"
-                [class.selected]="
+              <div class="dropdown-item" [class.selected]="
                   applicationForm.get(fieldKey)?.value === option
-                "
-                [class.dropdown-item-disabled]="isUploadingCV"
-                (click)="
+                " [class.dropdown-item-disabled]="isUploadingCV" (click)="
                   !isUploadingCV && selectOption(fieldKey, option, $event)
-                "
-                (keydown)="
+                " (keydown)="
                   !isUploadingCV &&
                     onDropdownItemKeyDown($event, fieldKey, option)
-                "
-                role="option"
-                [attr.aria-selected]="
+                " role="option" [attr.aria-selected]="
                   applicationForm.get(fieldKey)?.value === option
-                "
-                [id]="fieldKey + '-option-' + option"
-                [attr.data-dropdown]="fieldKey"
-                [attr.data-value]="option"
-                [attr.tabindex]="i === 0 ? '0' : '-1'"
-              >
+                " [id]="fieldKey + '-option-' + option" [attr.data-dropdown]="fieldKey" [attr.data-value]="option"
+                [attr.tabindex]="i === 0 ? '0' : '-1'">
                 {{ option }}
               </div>
               }
             </div>
             } @if (applicationForm.get(fieldKey)?.invalid &&
             applicationForm.get(fieldKey)?.touched) {
-            <span
-              class="error-message"
-              [id]="getErrorId(fieldKey)"
-              role="alert"
-            >
+            <span class="error-message" [id]="getErrorId(fieldKey)" role="alert">
               {{ getFieldErrorMessage(fieldKey, field) }}
             </span>
             }
@@ -422,26 +263,17 @@
       <div class="form-row form-row-full">
         <div class="form-group">
           <label [for]="fieldKey">{{ field.name }}</label>
-          <input
-            type="url"
-            [id]="fieldKey"
-            [formControlName]="fieldKey"
-            [placeholder]="getPlaceholderForField(field)"
-            autocomplete="url"
-            inputmode="url"
-            [class.error]="
+          <input type="url" [id]="fieldKey" [formControlName]="fieldKey" [placeholder]="getPlaceholderForField(field)"
+            autocomplete="url" inputmode="url" [class.error]="
               applicationForm.get(fieldKey)?.invalid &&
               applicationForm.get(fieldKey)?.touched
-            "
-            [attr.aria-required]="getAriaRequired(fieldKey)"
-            [attr.aria-invalid]="getAriaInvalid(fieldKey)"
+            " [attr.aria-required]="getAriaRequired(fieldKey)" [attr.aria-invalid]="getAriaInvalid(fieldKey)"
             [attr.aria-describedby]="
               applicationForm.get(fieldKey)?.invalid &&
               applicationForm.get(fieldKey)?.touched
                 ? getErrorId(fieldKey) + ' ' + getHelpId(fieldKey)
                 : getHelpId(fieldKey)
-            "
-          />
+            " />
           <span class="sr-only" [id]="getHelpId(fieldKey)">
             {{ field.required ? "Required" : "Optional" }}: Enter your
             {{ field.name.toLowerCase() }} URL
@@ -468,37 +300,16 @@
         fieldKey + '-attachment';
         <div class="attachment-item">
           <span class="attachment-name">{{ field.name }}</span>
-          <input
-            type="file"
-            [id]="attachmentId"
-            (change)="onAttachmentUpload($event, field.name)"
-            class="file-input"
+          <input type="file" [id]="attachmentId" (change)="onAttachmentUpload($event, field.name)" class="file-input"
             [attr.aria-label]="
               'Upload ' + field.name.toLowerCase() + ' attachment'
-            "
-          />
-          <label
-            [for]="attachmentId"
-            class="attachment-upload-button"
-            [class.uploading]="isUploadingCV"
-            [attr.aria-disabled]="isUploadingCV"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M9 12.75V4.5M9 4.5L5.25 8.25M9 4.5L12.75 8.25M3 13.5H15"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+            " />
+          <label [for]="attachmentId" class="attachment-upload-button" [class.uploading]="isUploadingCV"
+            [attr.aria-disabled]="isUploadingCV">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true" focusable="false">
+              <path d="M9 12.75V4.5M9 4.5L5.25 8.25M9 4.5L12.75 8.25M3 13.5H15" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             Upload
           </label>
@@ -506,76 +317,32 @@
         } @for (attachment of uploadedAttachments; track $index) {
         <div class="attachment-item uploaded">
           <div class="check-icon-wrapper">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              focusable="false"
-              class="check-icon"
-            >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true" focusable="false" class="check-icon">
               <circle cx="10" cy="10" r="10" fill="#10B981" />
-              <path
-                d="M6 10L9 13L14 7"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
           </div>
           <span class="attachment-name uploaded-name">{{
             attachment.name
-          }}</span>
+            }}</span>
           <div class="attachment-actions">
-            <button
-              type="button"
-              class="icon-button download-button"
-              [attr.aria-label]="'Download ' + attachment.name"
-              (click)="downloadAttachment($index)"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                focusable="false"
-              >
+            <button type="button" class="icon-button download-button" [attr.aria-label]="'Download ' + attachment.name"
+              (click)="downloadAttachment($index)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true" focusable="false">
                 <path
                   d="M9 12.75L4.5 8.25L5.5575 7.1925L8.25 9.8775V1.5H9.75V9.8775L12.4425 7.1925L13.5 8.25L9 12.75ZM3 15.75H15V14.25H3V15.75Z"
-                  stroke="#377AFD"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
+                  stroke="#377AFD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
-            <button
-              type="button"
-              class="icon-button delete-button"
-              (click)="removeAttachment($index)"
-              [attr.aria-label]="'Remove ' + attachment.name"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  d="M4.5 4.5L13.5 13.5M13.5 4.5L4.5 13.5"
-                  stroke="#DC2626"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
+            <button type="button" class="icon-button delete-button" (click)="removeAttachment($index)"
+              [attr.aria-label]="'Remove ' + attachment.name">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true" focusable="false">
+                <path d="M4.5 4.5L13.5 13.5M13.5 4.5L4.5 13.5" stroke="#DC2626" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
           </div>
@@ -603,33 +370,21 @@
           @if (!isDropdownField(field)) {
           <div class="form-group">
             <label [for]="fieldKey">{{ field.name }}</label>
-            <input
-              [type]="getInputTypeForField(field)"
-              [id]="fieldKey"
-              [formControlName]="fieldKey"
-              [placeholder]="getPlaceholderForField(field)"
-              [autocomplete]="getAutocompleteForField(field)"
-              [attr.inputmode]="getInputModeForField(field)"
-              [class.error]="
+            <input [type]="getInputTypeForField(field)" [id]="fieldKey" [formControlName]="fieldKey"
+              [placeholder]="getPlaceholderForField(field)" [autocomplete]="getAutocompleteForField(field)"
+              [attr.inputmode]="getInputModeForField(field)" [class.error]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
-              "
-              [attr.aria-required]="getAriaRequired(fieldKey)"
-              [attr.aria-invalid]="getAriaInvalid(fieldKey)"
+              " [attr.aria-required]="getAriaRequired(fieldKey)" [attr.aria-invalid]="getAriaInvalid(fieldKey)"
               [attr.aria-describedby]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
                   ? getErrorId(fieldKey)
                   : null
-              "
-            />
+              " />
             @if (applicationForm.get(fieldKey)?.invalid &&
             applicationForm.get(fieldKey)?.touched) {
-            <span
-              class="error-message"
-              [id]="getErrorId(fieldKey)"
-              role="alert"
-            >
+            <span class="error-message" [id]="getErrorId(fieldKey)" role="alert">
               {{ getFieldErrorMessage(fieldKey, field) }}
             </span>
             }
@@ -638,132 +393,72 @@
 
           <!-- Dropdown Field -->
           @if (isDropdownField(field)) {
-          <div
-            class="form-group"
-            appCloseDropdown
-            (appCloseDropdown)="dropdownStates[fieldKey] = false"
-          >
+          <div class="form-group" appCloseDropdown (appCloseDropdown)="dropdownStates[fieldKey] = false">
             <label [for]="fieldKey">{{ field.name }}</label>
-            <div
-              class="custom-select"
-              [class.custom-select-open]="isDropdownOpen(fieldKey)"
-              [class.custom-select-disabled]="isUploadingCV"
-              [class.error]="
+            <div class="custom-select" [class.custom-select-open]="isDropdownOpen(fieldKey)"
+              [class.custom-select-disabled]="isUploadingCV" [class.error]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
-              "
-              (click)="!isUploadingCV && toggleDropdown(fieldKey, $event)"
-              (keydown)="!isUploadingCV && onDropdownKeyDown($event, fieldKey)"
-              role="combobox"
-              [attr.tabindex]="isUploadingCV ? '-1' : '0'"
-              [attr.aria-disabled]="isUploadingCV"
-              [attr.aria-label]="'Select ' + field.name.toLowerCase()"
-              [attr.aria-required]="getAriaRequired(fieldKey)"
-              [attr.aria-invalid]="getAriaInvalid(fieldKey)"
-              [attr.aria-expanded]="isDropdownOpen(fieldKey)"
+              " (click)="!isUploadingCV && toggleDropdown(fieldKey, $event)"
+              (keydown)="!isUploadingCV && onDropdownKeyDown($event, fieldKey)" role="combobox"
+              [attr.tabindex]="isUploadingCV ? '-1' : '0'" [attr.aria-disabled]="isUploadingCV"
+              [attr.aria-label]="'Select ' + field.name.toLowerCase()" [attr.aria-required]="getAriaRequired(fieldKey)"
+              [attr.aria-invalid]="getAriaInvalid(fieldKey)" [attr.aria-expanded]="isDropdownOpen(fieldKey)"
               [attr.aria-controls]="
                 isDropdownOpen(fieldKey) ? fieldKey + '-listbox' : null
-              "
-              [attr.aria-describedby]="
+              " [attr.aria-describedby]="
                 applicationForm.get(fieldKey)?.invalid &&
                 applicationForm.get(fieldKey)?.touched
                   ? getErrorId(fieldKey)
                   : null
-              "
-              aria-haspopup="listbox"
-              [attr.aria-activedescendant]="
+              " aria-haspopup="listbox" [attr.aria-activedescendant]="
                 isDropdownOpen(fieldKey) && applicationForm.get(fieldKey)?.value
                   ? fieldKey + '-option-' + applicationForm.get(fieldKey)?.value
                   : null
-              "
-            >
-              <span
-                class="custom-select-text"
-                [class.filter-placeholder]="
+              ">
+              <span class="custom-select-text" [class.filter-placeholder]="
                   !applicationForm.get(fieldKey)?.value
-                "
-                >{{ getDisplayValue(fieldKey, field.name) }}</span
-              >
+                ">{{ getDisplayValue(fieldKey, field.name) }}</span>
             </div>
-            <svg
-              class="dropdown-icon"
-              [class.dropdown-icon-open]="isDropdownOpen(fieldKey)"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+            <svg class="dropdown-icon" [class.dropdown-icon-open]="isDropdownOpen(fieldKey)" width="18" height="18"
+              viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M3.32293 6.38393C3.5251 6.14806 3.88021 6.12074 4.11608 6.32292L9.00001 10.5091L13.8839 6.32292C14.1198 6.12074 14.4749 6.14806 14.6771 6.38393C14.8793 6.6198 14.8519 6.97491 14.6161 7.17708L9.36608 11.6771C9.15543 11.8576 8.84459 11.8576 8.63394 11.6771L3.38394 7.17708C3.14807 6.97491 3.12075 6.6198 3.32293 6.38393Z"
-                fill="#4A6D97"
-              />
+                fill="#4A6D97" />
             </svg>
             @if (isDropdownOpen(fieldKey)) {
-            <div
-              class="dropdown-menu"
-              role="listbox"
-              [attr.aria-label]="field.name + ' options'"
-              [id]="fieldKey + '-listbox'"
-            >
-              <div
-                class="dropdown-item"
-                [class.selected]="applicationForm.get(fieldKey)?.value === ''"
+            <div class="dropdown-menu" role="listbox" [attr.aria-label]="field.name + ' options'"
+              [id]="fieldKey + '-listbox'">
+              <div class="dropdown-item" [class.selected]="applicationForm.get(fieldKey)?.value === ''"
                 [class.dropdown-item-disabled]="isUploadingCV"
-                (click)="!isUploadingCV && selectOption(fieldKey, '', $event)"
-                (keydown)="
+                (click)="!isUploadingCV && selectOption(fieldKey, '', $event)" (keydown)="
                   !isUploadingCV && onDropdownItemKeyDown($event, fieldKey, '')
-                "
-                role="option"
-                [attr.aria-selected]="
+                " role="option" [attr.aria-selected]="
                   applicationForm.get(fieldKey)?.value === ''
-                "
-                [attr.aria-disabled]="isUploadingCV"
-                [id]="fieldKey + '-option-'"
-                [attr.data-dropdown]="fieldKey"
-                data-value=""
-                [attr.tabindex]="isUploadingCV ? '-1' : '0'"
-              >
+                " [attr.aria-disabled]="isUploadingCV" [id]="fieldKey + '-option-'" [attr.data-dropdown]="fieldKey"
+                data-value="" [attr.tabindex]="isUploadingCV ? '-1' : '0'">
                 Select {{ field.name.toLowerCase() }}
               </div>
               @for (option of getDropdownOptions(fieldKey); track option; let i
               = $index) {
-              <div
-                class="dropdown-item"
-                [class.selected]="
+              <div class="dropdown-item" [class.selected]="
                   applicationForm.get(fieldKey)?.value === option
-                "
-                [class.dropdown-item-disabled]="isUploadingCV"
-                (click)="
+                " [class.dropdown-item-disabled]="isUploadingCV" (click)="
                   !isUploadingCV && selectOption(fieldKey, option, $event)
-                "
-                (keydown)="
+                " (keydown)="
                   !isUploadingCV &&
                     onDropdownItemKeyDown($event, fieldKey, option)
-                "
-                role="option"
-                [attr.aria-selected]="
+                " role="option" [attr.aria-selected]="
                   applicationForm.get(fieldKey)?.value === option
-                "
-                [id]="fieldKey + '-option-' + option"
-                [attr.data-dropdown]="fieldKey"
-                [attr.data-value]="option"
-                [attr.tabindex]="i === 0 ? '0' : '-1'"
-              >
+                " [id]="fieldKey + '-option-' + option" [attr.data-dropdown]="fieldKey" [attr.data-value]="option"
+                [attr.tabindex]="i === 0 ? '0' : '-1'">
                 {{ option }}
               </div>
               }
             </div>
             } @if (applicationForm.get(fieldKey)?.invalid &&
             applicationForm.get(fieldKey)?.touched) {
-            <span
-              class="error-message"
-              [id]="getErrorId(fieldKey)"
-              role="alert"
-            >
+            <span class="error-message" [id]="getErrorId(fieldKey)" role="alert">
               {{ getFieldErrorMessage(fieldKey, field) }}
             </span>
             }
@@ -778,47 +473,29 @@
 
     <!-- Action Buttons Footer -->
     <div class="form-actions">
-      <button
-        type="button"
-        class="discard-button"
-        (click)="onDiscard()"
-        [disabled]="isUploadingCV || isSubmitting"
-        aria-label="Discard application and return to job details"
-      >
+      <button type="button" class="discard-button" (click)="onDiscard()" [disabled]="isUploadingCV || isSubmitting"
+        aria-label="Discard application and return to job details">
         Discard Application
       </button>
-      <button
-        type="submit"
-        class="submit-button"
-        [disabled]="isUploadingCV || isSubmitting"
-        aria-label="Submit your job application"
-      >
+      <button type="submit" class="submit-button" [disabled]="isUploadingCV || isSubmitting"
+        aria-label="Submit your job application">
         @if (isSubmitting) {
-          <span class="loader" aria-label="Submitting" aria-live="polite"></span>
-          <span class="visually-hidden">Submitting...</span>
+        <span class="loader" aria-label="Submitting" aria-live="polite"></span>
+        <span class="visually-hidden">Submitting...</span>
         } @else {
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g clip-path="url(#clip0_278_72)">
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M10.1023 4.10225C10.3219 3.88258 10.6781 3.88258 10.8977 4.10225L15.3977 8.60225C15.6174 8.82192 15.6174 9.17808 15.3977 9.39775L10.8977 13.8977C10.6781 14.1174 10.3219 14.1174 10.1023 13.8977C9.88258 13.6781 9.88258 13.3219 10.1023 13.1023L13.642 9.5625H3C2.68934 9.5625 2.4375 9.31066 2.4375 9C2.4375 8.68934 2.68934 8.4375 3 8.4375H13.642L10.1023 4.89775C9.88258 4.67808 9.88258 4.32192 10.1023 4.10225Z"
-                fill="#E0EBFF"
-              />
-            </g>
-            <defs>
-              <clipPath id="clip0_278_72">
-                <rect width="18" height="18" fill="white" />
-              </clipPath>
-            </defs>
-          </svg>
-          <span>Submit Application</span>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_278_72)">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M10.1023 4.10225C10.3219 3.88258 10.6781 3.88258 10.8977 4.10225L15.3977 8.60225C15.6174 8.82192 15.6174 9.17808 15.3977 9.39775L10.8977 13.8977C10.6781 14.1174 10.3219 14.1174 10.1023 13.8977C9.88258 13.6781 9.88258 13.3219 10.1023 13.1023L13.642 9.5625H3C2.68934 9.5625 2.4375 9.31066 2.4375 9C2.4375 8.68934 2.68934 8.4375 3 8.4375H13.642L10.1023 4.89775C9.88258 4.67808 9.88258 4.32192 10.1023 4.10225Z"
+              fill="#E0EBFF" />
+          </g>
+          <defs>
+            <clipPath id="clip0_278_72">
+              <rect width="18" height="18" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        <span>Submit Application</span>
         }
       </button>
     </div>
@@ -826,29 +503,16 @@
   }
 
   <!-- Discard Confirmation Modal -->
-  <app-popup
-    [title]="'Discard Application'"
-    [paragraph1]="'Are you sure you want to discard your application?'"
+  <app-popup [title]="'Discard Application'" [paragraph1]="'Are you sure you want to discard your application?'"
     [paragraph2]="
       'All entered data will be lost. This action cannot be undone!'
-    "
-    [isOpen]="isDiscardModalOpen"
-    (close)="closeDiscardModal()"
-  >
-    <button
-      modal-btn-left
-      class="btn btn-lg btn-dark w-100"
-      (click)="confirmDiscard()"
-      aria-label="Confirm discard application"
-    >
+    " [isOpen]="isDiscardModalOpen" (close)="closeDiscardModal()">
+    <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmDiscard()"
+      aria-label="Confirm discard application">
       Discard Application
     </button>
-    <button
-      modal-btn-right
-      class="btn btn-lg btn-outline-dark border-0 w-100"
-      (click)="closeDiscardModal()"
-      aria-label="Cancel discard"
-    >
+    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDiscardModal()"
+      aria-label="Cancel discard">
       Cancel
     </button>
   </app-popup>
