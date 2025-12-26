@@ -84,7 +84,7 @@ export class AllPayrollRunsComponent implements OnDestroy {
     });
     this.subscriptions.push(searchSub);
   }
-  
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => {
       if (sub && typeof sub.unsubscribe === 'function') {
