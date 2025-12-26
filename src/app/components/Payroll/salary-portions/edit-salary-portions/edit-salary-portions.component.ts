@@ -6,7 +6,7 @@ import { PageHeaderComponent } from 'app/components/shared/page-header/page-head
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-import { atLeastOnePortionFilled, nonWhitespaceValidator, totalPercentageValidator } from './validator';
+import { atLeastOnePortionFilled, customTotalValidator, nonWhitespaceValidator, totalPercentageValidator } from './validator';
 import { SalaryPortion } from 'app/core/models/salary-portions';
 
 @Component({
@@ -31,15 +31,37 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.portionsForm = this.fb.group({
-      portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
-    });
+      isFlexible: [false],
+      // portions: this.fb.array([], [atLeastOnePortionFilled, totalPercentageValidator()])
+      portions: this.fb.array([], [atLeastOnePortionFilled])
+    }, { validators: customTotalValidator });
 
     this.loadSalaryPortions();
+
+    this.portionsForm.get('portions')?.valueChanges.subscribe(() => {
+      this.updateBasicPercentage();
+    });
+
+    this.portionsForm.get('isFlexible')?.valueChanges.subscribe((isFlexible: boolean) => {
+      this.onFlexibleModeChange(isFlexible);
+    });
 
     // Subscribe to form changes to update basic percentage
     this.portionsForm.valueChanges.subscribe(() => {
       this.updateBasicPercentage();
     });
+  }
+
+  private onFlexibleModeChange(isFlexible: boolean): void {
+    const basicPercentageControl = this.portions.at(0)?.get('percentage');
+
+    if (isFlexible) {
+      basicPercentageControl?.enable();
+    } else {
+      basicPercentageControl?.disable();
+      this.updateBasicPercentage();
+    }
+    this.portionsForm.updateValueAndValidity();
   }
 
 
@@ -109,7 +131,9 @@ export class EditSalaryPortionsComponent implements OnInit {
       next: (data) => {
         this.salaryPortion = data;
         this.salaryPortions = data.settings || [];
+        const isFlexibleState = data.is_flexible ?? false;
         this.portions.clear();
+
 
         if (this.salaryPortions.length > 0) {
           // Filter out 'gross' and separate default from others based on default flag
@@ -152,12 +176,15 @@ export class EditSalaryPortionsComponent implements OnInit {
             'portions',
             this.fb.array(
               returnedFormArray,
-              [atLeastOnePortionFilled, totalPercentageValidator()]
+              [atLeastOnePortionFilled]
             )
           );
 
           // Calculate initial basic percentage after form is set up
-          setTimeout(() => this.updateBasicPercentage(), 0);
+          // setTimeout(() => this.updateBasicPercentage(), 0);
+          // setTimeout(() => {
+          //   this.onFlexibleModeChange(this.portionsForm.get('isFlexible')?.value);
+          // }, 0);
         } else {
           // Default case for first time: basic + 2 open inputs
           this.portionsForm.setControl(
@@ -168,13 +195,23 @@ export class EditSalaryPortionsComponent implements OnInit {
                 this.createPortion(),
                 this.createPortion()
               ],
-              [atLeastOnePortionFilled, totalPercentageValidator()]
+              [atLeastOnePortionFilled]
             )
           );
 
           // Calculate initial basic percentage after form is set up
-          setTimeout(() => this.updateBasicPercentage(), 0);
+          // setTimeout(() => this.updateBasicPercentage(), 0);
+          // setTimeout(() => {
+          //   this.onFlexibleModeChange(this.portionsForm.get('isFlexible')?.value);
+          // }, 0);
         }
+        setTimeout(() => {
+          this.portionsForm.get('isFlexible')?.setValue(isFlexibleState);
+          if (!isFlexibleState) {
+            this.updateBasicPercentage();
+          }
+          this.portionsForm.updateValueAndValidity();
+        }, 0);
       },
       error: (err) => {
         console.error('Failed to load single salary portion', err);
@@ -187,12 +224,16 @@ export class EditSalaryPortionsComponent implements OnInit {
               this.createPortion(),
               this.createPortion()
             ],
-            [atLeastOnePortionFilled, totalPercentageValidator()]
+            [atLeastOnePortionFilled]
           )
         );
 
         // Calculate initial basic percentage after form is set up
-        setTimeout(() => this.updateBasicPercentage(), 0);
+        // setTimeout(() => this.updateBasicPercentage(), 0);
+        setTimeout(() => {
+          this.portionsForm.get('isFlexible')?.setValue(false);
+          this.updateBasicPercentage();
+        }, 0);
       }
     });
   }
@@ -212,14 +253,23 @@ export class EditSalaryPortionsComponent implements OnInit {
       this.portionsForm.markAllAsTouched();
       return;
     }
+    const isFlexible = this.portionsForm.get('isFlexible')?.value;
     const total = this.portions.controls.reduce((sum, group) => {
+
       const enabled = group.get('enabled')?.value;
-      if (!enabled) return sum;
+
+      if (!enabled && group !== this.portions.at(0)) return sum;
+
       const num = Number(group.get('percentage')?.value) || 0;
       return sum + num;
     }, 0);
 
-    if (total > 100) {
+    //   if (!enabled) return sum;
+    //   const num = Number(group.get('percentage')?.value) || 0;
+    //   return sum + num;
+    // }, 0);
+
+    if (!isFlexible && total > 100) {
       this.portionsForm.markAllAsTouched();
       return;
     }
@@ -230,10 +280,12 @@ export class EditSalaryPortionsComponent implements OnInit {
 
     // Get settings from other rows (indices 1 and 2) that are enabled
     const settings: { name: string; percentage: number }[] = [];
-    for (let i = 1; i < this.portions.length; i++) {
+    const startIndex = isFlexible ? 0 : 1;
+    for (let i = startIndex; i < this.portions.length; i++) {
       const portion = this.portions.at(i) as FormGroup;
+      const isTargetRow = (i === 0);
       const enabled = portion?.get('enabled')?.value;
-      if (enabled) {
+      if (isTargetRow || enabled) {
         const name = portion?.get('name')?.value?.trim() || '';
         const percentage = Number(portion?.get('percentage')?.value) || 0;
         if (name) {
@@ -242,15 +294,18 @@ export class EditSalaryPortionsComponent implements OnInit {
       }
     }
 
+    const isFlexibleValue = this.portionsForm.get('isFlexible')?.value;
+
     const requestPayload = {
       default_name: defaultName,
-      settings: settings
+      settings: settings,
+      is_flexible: isFlexibleValue
     };
 
     this.isLoading = true;
     this.salaryPortionService.updateSalaryPortion(requestPayload).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Salary portion updated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('Salary portion updated successfully', "Updated Successfully");
         this.router.navigate(['/salary-portions']);
         this.isLoading = false;
       },
@@ -282,6 +337,9 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   // Update basic percentage: 100 - sum of other enabled portions
   private updateBasicPercentage(): void {
+    if (this.portionsForm.get('isFlexible')?.value === true) {
+      return;
+    }
     if (!this.portions || this.portions.length === 0) return;
 
     // Basic is always the first portion (index 0)
