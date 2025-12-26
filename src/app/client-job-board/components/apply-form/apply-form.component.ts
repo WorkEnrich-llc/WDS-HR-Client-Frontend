@@ -1,3 +1,7 @@
+/**
+ * Normalize phone numbers by removing spaces
+ */
+
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -1203,6 +1207,11 @@ export class ApplyFormComponent implements OnInit {
       return this.convertDropdownValueToNumber(field.name, value);
     }
 
+    // Normalize phone numbers (remove spaces)
+    if (field.type === 'phone' || /phone/i.test(field.name)) {
+      return this.normalizePhoneNumber(value);
+    }
+
     // Convert number fields
     if (field.type === 'number') {
       const numValue = Number(value);
@@ -1409,9 +1418,6 @@ export class ApplyFormComponent implements OnInit {
           const errorMessage = error.error?.message || 'Failed to submit application. Please try again.';
           this.formErrorsAnnouncement = errorMessage;
           this.announceToScreenReader(errorMessage);
-
-          // Show error to user
-          alert(errorMessage);
         }
       });
     } else {
@@ -1452,5 +1458,9 @@ export class ApplyFormComponent implements OnInit {
         }, 100);
       }
     }
+  }
+
+  private normalizePhoneNumber(phone: string): string {
+    return typeof phone === 'string' ? phone.replace(/\s+/g, '') : phone;
   }
 }
