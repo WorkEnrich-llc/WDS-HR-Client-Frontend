@@ -1,0 +1,92 @@
+<div class="interview-action-container">
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div class="content-wrapper" role="status" aria-live="polite">
+        <div class="card-container">
+            <div class="skeleton-loader">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage && !isLoading) {
+    <div class="content-wrapper error-state" role="main">
+        <div class="card-container">
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="200" cy="150" r="100" fill="#FEE2E2" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#DC2626" />
+                    <path d="M 200 130 L 200 170 M 180 150 L 220 150" stroke="white" stroke-width="10"
+                        stroke-linecap="round" />
+                </svg>
+            </div>
+            <h1 class="main-title error-title">Something Went Wrong</h1>
+            <p class="description">{{ errorMessage }}</p>
+        </div>
+    </div>
+    }
+
+    <!-- Accepted State - Always Visible -->
+    @if (!isLoading && !errorMessage) {
+    <div class="content-wrapper success-state" role="main">
+        <div class="card-container">
+            <!-- Success SVG Illustration -->
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Interview accepted successfully">
+                    <!-- Success Circle Background -->
+                    <circle cx="200" cy="150" r="100" fill="#D1FAE5" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#10B981" />
+
+                    <!-- Large Checkmark -->
+                    <path d="M 160 150 L 185 175 L 240 120" stroke="white" stroke-width="12" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none" />
+
+                    <!-- Decorative elements -->
+                    <circle cx="120" cy="80" r="8" fill="#10B981" opacity="0.4" />
+                    <circle cx="280" cy="100" r="12" fill="#10B981" opacity="0.3" />
+                    <circle cx="100" cy="200" r="10" fill="#10B981" opacity="0.4" />
+                    <circle cx="290" cy="220" r="8" fill="#10B981" opacity="0.3" />
+
+                    <!-- Stars -->
+                    <path
+                        d="M 140 60 L 143 68 L 151 68 L 145 73 L 148 81 L 140 76 L 132 81 L 135 73 L 129 68 L 137 68 Z"
+                        fill="#10B981" opacity="0.5" />
+                    <path
+                        d="M 260 190 L 263 198 L 271 198 L 265 203 L 268 211 L 260 206 L 252 211 L 255 203 L 249 198 L 257 198 Z"
+                        fill="#10B981" opacity="0.5" />
+                </svg>
+            </div>
+
+            <!-- Success Message -->
+            <div class="text-content">
+                <h1 class="main-title success-title">Interview Accepted!</h1>
+                <p class="description">
+                    Thank you <strong>{{ applicantName }}</strong> for confirming your availability! We're thrilled to
+                    meet you.
+                    You will receive a confirmation email shortly with the interview details, including the date, time,
+                    and meeting link.
+                </p>
+                <p class="description-secondary">
+                    Please check your email inbox (and spam folder) for further instructions.
+                    We look forward to speaking with you soon!
+                </p>
+            </div>
+
+            <!-- Success Icon Badge -->
+            <div class="success-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Confirmed</span>
+            </div>
+        </div>
+    </div>
+    }
+</div>

@@ -5,6 +5,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { SubscriptionGuard } from './core/guards/subscription.guard';
 import { invitationResolver } from './core/resolver/invitation-resolver.resolver';
 import { PaginationStateService } from './core/services/pagination-state/pagination-state.service';
+import { InterviewAcceptedComponent } from './interview-accepted/interview-accepted.component';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,14 @@ export const routes: Routes = [
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+
+  // Public interview actions routes
+  { path: 'interview-accepted', loadComponent: () => import('./interview-accepted/interview-accepted.component').then(m => m.InterviewAcceptedComponent), title: 'Interview Accepted' },
+  { path: 'interview-rejected', loadComponent: () => import('./interview-rejected/interview-rejected.component').then(m => m.InterviewRejectedComponent), title: 'Interview Rejected' },
+
+  // Public offer actions routes
+  { path: 'offer-accepted', loadComponent: () => import('./offer-accepted/offer-accepted.component').then(m => m.OfferAcceptedComponent), title: 'Offer Accepted' },
+  { path: 'offer-rejected', loadComponent: () => import('./offer-rejected/offer-rejected.component').then(m => m.OfferRejectedComponent), title: 'Offer Rejected' },
 
   // Auth layout
   {

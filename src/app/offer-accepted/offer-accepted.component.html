@@ -1,0 +1,95 @@
+<div class="offer-action-container">
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div class="content-wrapper" role="status" aria-live="polite">
+        <div class="card-container">
+            <div class="skeleton-loader">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- Accepted State - Always Visible -->
+    <div class="content-wrapper success-state" role="main">
+        <div class="card-container">
+            <!-- Success SVG Illustration - Contract/Document Icon -->
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Offer accepted successfully">
+                    <!-- Success Circle Background -->
+                    <circle cx="200" cy="150" r="100" fill="#D1FAE5" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#10B981" />
+
+                    <!-- Contract/Document Icon -->
+                    <rect x="170" y="110" width="60" height="80" rx="4" fill="white" />
+                    <line x1="180" y1="125" x2="220" y2="125" stroke="#10B981" stroke-width="3"
+                        stroke-linecap="round" />
+                    <line x1="180" y1="135" x2="220" y2="135" stroke="#10B981" stroke-width="3"
+                        stroke-linecap="round" />
+                    <line x1="180" y1="145" x2="210" y2="145" stroke="#10B981" stroke-width="3"
+                        stroke-linecap="round" />
+
+                    <!-- Pen/Signature -->
+                    <path d="M 190 165 L 210 175" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" />
+                    <circle cx="212" cy="177" r="3" fill="#10B981" />
+
+                    <!-- Large Checkmark Overlay -->
+                    <circle cx="220" cy="165" r="18" fill="#10B981" />
+                    <path d="M 213 165 L 218 170 L 227 161" stroke="white" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none" />
+
+                    <!-- Decorative elements -->
+                    <circle cx="120" cy="80" r="8" fill="#10B981" opacity="0.4" />
+                    <circle cx="280" cy="100" r="12" fill="#10B981" opacity="0.3" />
+                    <circle cx="100" cy="200" r="10" fill="#10B981" opacity="0.4" />
+                    <circle cx="290" cy="220" r="8" fill="#10B981" opacity="0.3" />
+
+                    <!-- Stars -->
+                    <path
+                        d="M 140 60 L 143 68 L 151 68 L 145 73 L 148 81 L 140 76 L 132 81 L 135 73 L 129 68 L 137 68 Z"
+                        fill="#10B981" opacity="0.5" />
+                    <path
+                        d="M 260 190 L 263 198 L 271 198 L 265 203 L 268 211 L 260 206 L 252 211 L 255 203 L 249 198 L 257 198 Z"
+                        fill="#10B981" opacity="0.5" />
+
+                    <!-- Confetti -->
+                    <rect x="130" y="120" width="4" height="8" fill="#10B981" opacity="0.6"
+                        transform="rotate(20 132 124)" />
+                    <rect x="270" y="140" width="4" height="8" fill="#10B981" opacity="0.6"
+                        transform="rotate(-20 272 144)" />
+                </svg>
+            </div>
+
+            <!-- Success Message -->
+            <div class="text-content">
+                <h1 class="main-title success-title">Congratulations! 🎉</h1>
+                <p class="description">
+                    Thank you <strong>{{ applicantName }}</strong> for accepting our offer! We're excited to welcome you
+                    to our team.
+                    This is the beginning of an amazing journey together.
+                </p>
+                <p class="description-secondary">
+                    You will receive a confirmation email shortly with the next steps, including onboarding details,
+                    start date information, and required documentation.
+                    Please check your email inbox (and spam folder) for further instructions.
+                </p>
+                <p class="description-secondary">
+                    <strong>Welcome aboard! 🚀</strong>
+                </p>
+            </div>
+
+            <!-- Success Icon Badge -->
+            <div class="success-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Offer Accepted</span>
+            </div>
+        </div>
+    </div>
+</div>
