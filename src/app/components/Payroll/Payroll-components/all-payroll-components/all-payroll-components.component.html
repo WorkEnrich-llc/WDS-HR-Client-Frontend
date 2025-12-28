@@ -1,11 +1,8 @@
 <!-- start page header -->
-<app-page-header
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Component' }
-  ]"
-  title="All Payroll Components"
->
+  ]" title="All Payroll Components">
 </app-page-header>
 <!-- end page header -->
 
@@ -13,25 +10,13 @@
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
     <!-- start search and filter -->
-    <div
-      class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2"
-    >
+    <div class="d-flex flex-column flex-lg-row align-items-start align-lg-items-center justify-content-between gap-2">
       <div class="d-flex align-items-center gap-2 w-100 w-lg-50">
         <!-- Search input -->
         <div data-mdb-input-init class="form-outline w-75">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="onSearchChange()"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-          >
+          <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <circle cx="11.5" cy="11.5" r="9.5" />
               <path stroke-linecap="round" d="M18.5 18.5L22 22" />
@@ -40,36 +25,17 @@
         </div>
 
         <!-- Filter button -->
-        <button
-          class="btn btn-lg btn-outline-primary"
-          (click)="filterBox.openOverlay()"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="none"
-              stroke-width="1.5"
-              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z"
-            />
+        <button class="btn btn-lg btn-outline-primary" (click)="filterBox.openOverlay()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="none" stroke-width="1.5"
+              d="M19 3H5c-1.414 0-2.121 0-2.56.412S2 4.488 2 5.815v.69c0 1.037 0 1.556.26 1.986s.733.698 1.682 1.232l2.913 1.64c.636.358.955.537 1.183.735c.474.411.766.895.898 1.49c.064.284.064.618.064 1.285v2.67c0 .909 0 1.364.252 1.718c.252.355.7.53 1.594.88c1.879.734 2.818 1.101 3.486.683S15 19.452 15 17.542v-2.67c0-.666 0-1 .064-1.285a2.68 2.68 0 0 1 .899-1.49c.227-.197.546-.376 1.182-.735l2.913-1.64c.948-.533 1.423-.8 1.682-1.23c.26-.43.26-.95.26-1.988v-.69c0-1.326 0-1.99-.44-2.402C21.122 3 20.415 3 19 3Z" />
           </svg>
           <span>Filter</span>
         </button>
       </div>
 
-      <button
-        class="btn btn-lg btn-primary"
-        routerLink="/payroll-components/create-payroll-components"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
+      <button class="btn btn-lg btn-primary" routerLink="/payroll-components/create-payroll-components">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
@@ -81,54 +47,27 @@
 
     <!-- start Table -->
 
-    <app-table
-      [data]="components"
-      [isLoading]="loadData"
-      [columnsCount]="5"
-      [totalItems]="totalItems"
-      [itemsPerPage]="itemsPerPage"
-      [currentPage]="currentPage"
-      (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)"
-      [headerTemplate]="payrollTableHeader"
-      [rowTemplate]="payrollTableRow"
-      [emptyTemplate]="noPayroll"
-    ></app-table>
+    <app-table [data]="components" [isLoading]="loadData" [columnsCount]="5" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
+      [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
 
     <ng-template #payrollTableHeader>
       <th (click)="sortBy()" style="cursor: pointer" class="w-30">
         <div class="d-flex align-items-center justify-content-between">
           <span>Component</span>
           @if (sortDirection === 'desc') {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <g
-              fill="none"
-              stroke="#DDE3EB"
-              stroke-linecap="round"
-              stroke-width="1.5"
-            >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
               <path d="M4 8h9m-7 5h7m-5 5h5" />
               <path stroke-linejoin="round" d="M17 20V4l3 4" />
             </g>
           </svg>
           } @if (sortDirection === 'asc') {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="#DDE3EB"
-              fill-rule="evenodd"
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
               d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
           }
         </div>
@@ -144,7 +83,7 @@
       <td>
         <span class="d-block text-gray-sm">{{
           component.id.toString().padStart(4, "0")
-        }}</span>
+          }}</span>
         <span class="d-block text-truncate" style="max-width: 300px">
           {{ component.name }}
         </span>
@@ -161,38 +100,20 @@
       <td>
         @if(component.show_in_payslip){
         <div class="badge-success">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m8.5 12.5l2 2l5-5"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
           <span>{{ component.show_in_payslip_label }}</span>
         </div>
         } @else{
         <div class="badge-gray">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m8.5 12.5l2 2l5-5"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
             </g>
           </svg>
           <span>{{ component.show_in_payslip_label }}</span>
@@ -200,50 +121,24 @@
         }
       </td>
       <td>
-        <div
-          class="d-flex justify-content-start gap-4 align-items-center w-100"
-        >
-          <a
-            class="edit-btn"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="View"
-            (click)="navigateToView(component.id)"
-          >
+        <div class="d-flex justify-content-start gap-4 align-items-center w-100">
+          <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="View"
+            (click)="navigateToView(component.id)">
             <!-- [routerLink]="['/payroll-components/view-payroll-components', component.id]"> -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <path
-                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z"
-                />
+                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
                 <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
               </g>
             </svg>
           </a>
-          <a
-            class="edit-btn"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="Edit"
-            (click)="navigateToEdit(component.id)"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                fill-rule="evenodd"
+          <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+            (click)="navigateToEdit(component.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
                 d="M14.1 2.391a3.896 3.896 0 0 1 5.509 5.51l-7.594 7.594c-.428.428-.69.69-.98.917a6 6 0 0 1-1.108.684c-.334.159-.685.276-1.259.467l-2.672.891l-.642.214a1.598 1.598 0 0 1-2.022-2.022l1.105-3.314c.191-.574.308-.925.467-1.259a6 6 0 0 1 .685-1.107c.227-.291.488-.553.916-.98zM5.96 16.885l-.844-.846l.728-2.185c.212-.636.3-.895.414-1.135q.212-.443.513-.83c.164-.21.356-.404.83-.879l5.891-5.89a6.05 6.05 0 0 0 1.349 2.04a6.05 6.05 0 0 0 2.04 1.348l-5.891 5.89c-.475.475-.668.667-.878.83q-.388.302-.83.514c-.24.114-.5.202-1.136.414zm12.116-9.573a4 4 0 0 1-.455-.129a4.5 4.5 0 0 1-1.72-1.084a4.54 4.54 0 0 1-1.084-1.72a4 4 0 0 1-.13-.455l.473-.472a2.396 2.396 0 0 1 3.388 3.388zM3.25 22a.75.75 0 0 1 .75-.75h16v1.5H4a.75.75 0 0 1-.75-.75"
-                clip-rule="evenodd"
-              />
+                clip-rule="evenodd" />
             </svg>
           </a>
         </div>
@@ -263,21 +158,12 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-  <form
-    [formGroup]="filterForm"
-    (ngSubmit)="filter()"
-    class="w-100 d-flex flex-column gap-3"
-  >
+  <form [formGroup]="filterForm" (ngSubmit)="filter()" class="w-100 d-flex flex-column gap-3">
     <div class="input">
       <label for="status">Status</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select
-            formControlName="status"
-            name=""
-            id="status"
-            class="form-select"
-          >
+          <select formControlName="status" name="" id="status" class="form-select">
             <option value="" selected disabled hidden>Select</option>
             <option value="all">Any</option>
             <option value="true">Active</option>
@@ -285,37 +171,18 @@
           </select>
         </div>
         @if (!filterForm.get('status')?.value) {
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
-          />
-          <path
-            fill="#e04f5f"
-            fill-rule="evenodd"
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd"
-          />
+            clip-rule="evenodd" />
         </svg>
         } @if (filterForm.get('status')?.value) {
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m8.5 12.5l2 2l5-5"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
         }
@@ -339,58 +206,27 @@
       <label for="createdFrom">Created From</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input
-            type="date"
-            id="createdFrom"
-            class="form-control custom-date-input"
-            placeholder="Min-Max"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
+          <input type="date" id="createdFrom" class="form-control custom-date-input" placeholder="Min-Max" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
-              <path
-                stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5"
-              />
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
               <circle cx="18" cy="18" r="3" />
               <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
             </g>
           </svg>
         </div>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="#e04f5f"
-            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"
-          />
-          <path
-            fill="#e04f5f"
-            fill-rule="evenodd"
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#e04f5f"
+            d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+          <path fill="#e04f5f" fill-rule="evenodd"
             d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-            clip-rule="evenodd"
-          />
+            clip-rule="evenodd" />
         </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke="#3f9870" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m8.5 12.5l2 2l5-5"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
       </div>
@@ -398,28 +234,15 @@
 
     <div class="d-flex align-items-center gap-3">
       <button type="submit" class="btn btn-lg btn-primary w-100">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m8.5 12.5l2 2l5-5"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
           </g>
         </svg>
         <span>Apply Filter</span>
       </button>
-      <a
-        (click)="resetFilterForm()"
-        type="button"
-        class="text-danger-dark fw-bold w-100 text-center"
-      >
+      <a (click)="resetFilterForm()" type="button" class="text-danger-dark fw-bold w-100 text-center">
         <span>Clear Filters</span>
       </a>
     </div>
