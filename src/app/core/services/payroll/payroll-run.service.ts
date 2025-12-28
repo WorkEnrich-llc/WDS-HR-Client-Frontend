@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PayrollRunService {
-  private readonly url = `${environment.apiBaseUrl}payroll/payroll-run`;
+  private readonly url = `${environment.apiBaseUrl}payroll/run`;
   constructor(private http: HttpClient) { }
 
   getAllPayrollRuns(page: number = 1, per_page: number = 10): Observable<any> {
