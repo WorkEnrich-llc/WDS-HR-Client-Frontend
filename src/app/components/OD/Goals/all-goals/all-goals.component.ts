@@ -208,8 +208,10 @@ export class AllGoalsComponent implements OnInit, OnDestroy {
     let payload = value.replace(/^\s+/, '');
     // Prevent more than 2 consecutive spaces anywhere in the payload
     payload = payload.replace(/ {3,}/g, '  ');
-    // Prevent search if only whitespace or just a single space
-    if (payload.trim().length === 0) {
+    // Allow empty search to reset results, but prevent search with only whitespace
+    if (value.trim().length === 0 && payload.trim().length === 0) {
+      // Reset to first page and send empty search
+      this.searchSubject.next('');
       return;
     }
     this.searchSubject.next(payload);

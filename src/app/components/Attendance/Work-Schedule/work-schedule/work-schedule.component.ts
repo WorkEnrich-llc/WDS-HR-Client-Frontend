@@ -16,6 +16,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
 @Component({
   selector: 'app-work-schedule',
   imports: [PageHeaderComponent, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule, SystemSetupTourComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './work-schedule.component.html',
   styleUrl: './work-schedule.component.css'
 })
@@ -29,9 +30,7 @@ export class WorkScheduleComponent implements OnInit, OnDestroy {
     private _WorkSchaualeService: WorkSchaualeService,
     private toasterMessageService: ToasterMessageService,
     private toastr: ToastrService,
-    private datePipe: DatePipe,
     private fb: FormBuilder,
-    private systemSetupService: SystemSetupService
   ) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
@@ -77,7 +76,8 @@ export class WorkScheduleComponent implements OnInit, OnDestroy {
       // Trim leading whitespace only (keep trailing spaces if user wants them)
       map((searchTerm: string) => searchTerm.trimStart()),
       // Filter out null/undefined and empty/whitespace-only strings - only send request when there's actual content
-      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined && searchTerm.trim().length > 0),
+      // Allow empty string to reset results, but filter out null/undefined
+      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined),
       // Debounce to avoid too many requests
       debounceTime(300),
       // Only proceed if the value has actually changed
@@ -209,7 +209,12 @@ export class WorkScheduleComponent implements OnInit, OnDestroy {
   onSearchChange() {
     // Trim leading whitespace before sending to subject
     const trimmedSearch = this.searchTerm.trimStart();
-    this.searchSubject.next(trimmedSearch);
+    // If cleared, send empty string to trigger reset
+    if (trimmedSearch.trim().length === 0) {
+      this.searchSubject.next('');
+    } else {
+      this.searchSubject.next(trimmedSearch);
+    }
   }
 
   ngOnDestroy(): void {
