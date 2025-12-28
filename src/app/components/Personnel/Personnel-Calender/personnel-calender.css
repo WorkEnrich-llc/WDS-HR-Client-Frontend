@@ -426,6 +426,9 @@
     line-height: var(--line-height-xss);
     color: var(--color-neutral-700);
     font-weight: 600;
+    word-break: break-word;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
 
 .holiday .border {
