@@ -5,6 +5,7 @@ import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CLASSIFICATIONS, COMPONENT_TYPES } from '@app/constants';
+import { PAYROLL_COMPONENT_STATUS } from 'app/core/constants/payroll-component-status.constants';
 import { PayrollComponent } from 'app/core/models/payroll';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { firstValueFrom } from 'rxjs';
@@ -41,6 +42,7 @@ export class ManagePayrollComponentComponent implements OnInit {
   calculations: Array<KeyValue<number, string>> = calculation;
   createDate: string = '';
   updatedDate: string = '';
+  payrollComponentStatus = PAYROLL_COMPONENT_STATUS;
 
 
 
@@ -88,10 +90,12 @@ export class ManagePayrollComponentComponent implements OnInit {
     this.createPayrollForm = this.fb.group({
       code: [''],
       name: ['', [Validators.required]],
+      component_status: [1, [Validators.required]],
       component_type: ['', [Validators.required]],
       classification: ['', [Validators.required]],
-      portion: [''],
       calculation: ['', [Validators.required]],
+      portion: [''],
+      value: [null, [Validators.required, Validators.min(0)]],
       show_in_payslip: [false]
     });
   }
@@ -166,12 +170,14 @@ export class ManagePayrollComponentComponent implements OnInit {
     }
     this.isSubmitting = true;
     const formValues = this.createPayrollForm.value;
-    const formData: PayrollComponent = {
+    const formData: any = {
       ...this.createPayrollForm.value,
+      component_status: +formValues.component_status,
       component_type: +formValues.component_type,
       classification: +formValues.classification,
       portion: +formValues.portion,
-      calculation: +formValues.calculation
+      calculation: +formValues.calculation,
+      value: +formValues.value
     };
     if (this.isEditMode && this.id) {
       formData.id = String(this.id);

@@ -127,6 +127,7 @@
       [formGroup]="createPayrollForm"
       class="w-lg-50 d-flex flex-column gap-2"
     >
+
       <div class="input">
         <label for="compCode">Component Code (Optional)</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -139,6 +140,26 @@
           />
         </div>
       </div>
+
+      <div class="input">
+        <label for="componentStatus">Payroll Type <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <select
+            id="componentStatus"
+            class="form-select"
+            formControlName="component_status"
+          >
+            <option value="" disabled hidden>Select Status</option>
+            @for (status of payrollComponentStatus; track status.id) {
+              <option [value]="status.id">{{ status.name }}</option>
+            }
+          </select>
+        </div>
+        @if (createPayrollForm.get('component_status')?.touched && createPayrollForm.get('component_status')?.errors?.['required']) {
+          <p class="error-msg">Payroll Component Status is required.</p>
+        }
+      </div>
+
 
       <div class="input">
         <label for="compName">Component Name <span>*</span></label>
@@ -154,6 +175,26 @@
         @if (createPayrollForm.get('name')?.touched &&
         createPayrollForm.get('name')?.errors?.['required']) {
         <p class="error-msg">Component Name is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="value">Value <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="number"
+            id="value"
+            class="form-control custom-date-input"
+            placeholder="Enter Value"
+            formControlName="value"
+            min="0"
+          />
+        </div>
+        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['required']) {
+          <p class="error-msg">Value is required.</p>
+        }
+        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['min']) {
+          <p class="error-msg">Value must be 0 or greater.</p>
         }
       </div>
 
