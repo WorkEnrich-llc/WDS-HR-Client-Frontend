@@ -110,10 +110,10 @@ export class ManagePayrollComponentComponent implements OnInit {
         next: (data) => {
           const calculationId = data.calculation?.id ?? '';
           const portionValue = data.salary_portion ?? data.portion?.index ?? '';
-          
+
           // Store component name for header display
           this.componentName = data.name || '';
-          
+
           this.createPayrollForm.patchValue({
             code: data.code,
             name: data.name,
@@ -123,7 +123,7 @@ export class ManagePayrollComponentComponent implements OnInit {
             calculation: calculationId,
             show_in_payslip: data.show_in_payslip
           });
-          
+
           // After patching, handle the calculation logic for portion field
           const calcValue = +calculationId;
           const portionControl = this.createPayrollForm.get('portion');
@@ -137,7 +137,7 @@ export class ManagePayrollComponentComponent implements OnInit {
             portionControl?.setValidators([Validators.required]);
             portionControl?.updateValueAndValidity({ emitEvent: false });
           }
-          
+
           this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
           this.updatedDate = new Date(data.updated_at).toLocaleDateString('en-GB');
           this.isLoading = false;
@@ -185,10 +185,10 @@ export class ManagePayrollComponentComponent implements OnInit {
     try {
       if (this.isEditMode) {
         await firstValueFrom(this.payrollService.updateComponent(formData));
-        this.toasterService.showSuccess('Component updated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('Component updated successfully', "Updated Successfully");
       } else {
         await firstValueFrom(this.payrollService.createComponent(formData));
-        this.toasterService.showSuccess('Component created successfully',"Creates Successfully");
+        this.toasterService.showSuccess('Component created successfully', "Creates Successfully");
       }
       this.router.navigate(['/payroll-components/all-payroll-components']);
     } catch (err) {
