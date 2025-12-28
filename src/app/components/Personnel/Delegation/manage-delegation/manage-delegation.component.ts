@@ -17,7 +17,7 @@ import { CustomValidators } from 'app/core/validators/custom-validators';
     ReactiveFormsModule,
     PageHeaderComponent,
     PopupComponent
-],
+  ],
   providers: [DatePipe],
   templateUrl: './manage-delegation.component.html',
   styleUrl: './manage-delegation.component.css'
