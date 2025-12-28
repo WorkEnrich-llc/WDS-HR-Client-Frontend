@@ -135,6 +135,7 @@
       </th>
       <th class="w-20">Type</th>
       <th class="w-20">Classification</th>
+      <th class="w-20">Payroll Type</th>
       <th class="w-20">Show in Payslip</th>
       <th class="w-10">Actions</th>
     </ng-template>
@@ -153,6 +154,9 @@
       </td>
       <td>
         {{ component.classification }}
+      </td>
+      <td>
+        {{ component.payroll_type }}
       </td>
       <td>
         @if(component.show_in_payslip){

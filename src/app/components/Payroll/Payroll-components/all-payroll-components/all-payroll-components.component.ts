@@ -128,6 +128,7 @@ export class AllPayrollComponentsComponent implements OnInit {
           name: item.name,
           classification: item.classification.name,
           component_type: item.component_type.name,
+          payroll_type: item.component_status?.name || '-',
           show_in_payslip: item.show_in_payslip,
           show_in_payslip_label: item.show_in_payslip ? 'Shown' : 'Hidden',
           status: item.is_active ? 'Active' : 'Inactive',
