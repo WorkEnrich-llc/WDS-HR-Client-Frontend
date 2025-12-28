@@ -74,4 +74,23 @@ export class InterviewService {
 
     return this.http.post(`${this.apiBaseUrl}recruiter/offers/accept`, payload);
   }
+
+  acceptJobOffer(token: string) {
+    const payload = {
+      request_data: {
+        s: token
+      }
+    };
+    return this.http.post(`${this.apiBaseUrl}recruiter/job-offers/accept`, payload);
+  }
+
+  rejectJobOffer(token: string, reason: string) {
+    const payload = {
+      request_data: {
+        s: token,
+        note: reason
+      }
+    };
+    return this.http.post(`${this.apiBaseUrl}recruiter/job-offers/reject`, payload);
+  }
 }

@@ -48,7 +48,7 @@ export class OfferAcceptedComponent implements OnInit {
       return;
     }
 
-    this.interviewService.acceptOffer(this.token).subscribe({
+    this.interviewService.acceptJobOffer(this.token).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.toastr.success('Your offer acceptance has been confirmed!');

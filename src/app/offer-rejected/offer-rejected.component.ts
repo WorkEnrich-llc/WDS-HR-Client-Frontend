@@ -63,11 +63,10 @@ export class OfferRejectedComponent implements OnInit {
 
     const reason = this.rejectForm.value.reason;
 
-    this.interviewService.rejectOffer(this.token, reason).subscribe({
+    this.interviewService.rejectJobOffer(this.token, reason).subscribe({
       next: (response) => {
         this.isSubmitted = true;
         this.isSubmitting = false;
-        this.toastr.success('Your response has been submitted successfully');
         console.log('Offer rejected successfully:', response);
       },
       error: (error) => {
