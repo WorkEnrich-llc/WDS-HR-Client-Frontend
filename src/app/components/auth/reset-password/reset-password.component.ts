@@ -1,17 +1,16 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
 import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, FormsModule, NgOtpInputComponent, ReactiveFormsModule],
+  imports: [FormsModule, NgOtpInputComponent, ReactiveFormsModule, NgClass],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.css'
 })

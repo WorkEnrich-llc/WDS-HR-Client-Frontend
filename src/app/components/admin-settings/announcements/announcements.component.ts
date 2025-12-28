@@ -46,13 +46,13 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     { label: 'Announcements' }
   ];
 
-  private readonly recipientTypeMap: Record<string, number> = {
-    Department: 1,
-    Section: 2,
-    Employee: 3,
-    Branch: 4,
-    Company: 5
-  };
+  // private readonly recipientTypeMap: Record<string, number> = {
+  //   Department: 1,
+  //   Section: 2,
+  //   Employee: 3,
+  //   Branch: 4,
+  //   Company: 5
+  // };
 
   ngOnInit(): void {
     this.filterForm = this.formBuilder.group({

@@ -1,5 +1,5 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { CvComponent } from './cv/cv.component';
@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 @Component({
   selector: 'app-applicant-detais',
-  imports: [CommonModule, FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent],
+  imports: [FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent, DatePipe],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
 })
@@ -27,13 +27,13 @@ export class ApplicantDetaisComponent implements OnInit {
   applicationId?: number;
   feedbacks: any[] = [];
   isFeedbackLoading: boolean = false;
-  
+
   // Reject form variables
   rejectionNotes: string = '';
   rejectionMailMessage: string = '';
   isRejectSubmitting: boolean = false;
   rejectValidationErrors: { rejectionMailMessage?: string } = {};
-  
+
   // Status mapping
   private statusMap: Record<number, string> = {
     0: 'Applicant',
@@ -45,25 +45,25 @@ export class ApplicantDetaisComponent implements OnInit {
     6: 'Qualified',
     7: 'Not Selected'
   };
-  
+
   // Check if status is New Joiner
   get isNewJoiner(): boolean {
     if (!this.applicantDetails?.status) return false;
-    const status = typeof this.applicantDetails.status === 'number' 
-      ? this.statusMap[this.applicantDetails.status] 
+    const status = typeof this.applicantDetails.status === 'number'
+      ? this.statusMap[this.applicantDetails.status]
       : this.applicantDetails.status;
     return status === 'New Joiner';
   }
-  
+
   // Check if status is Rejected
   get isRejected(): boolean {
     if (!this.applicantDetails?.status) return false;
-    const status = typeof this.applicantDetails.status === 'number' 
-      ? this.statusMap[this.applicantDetails.status] 
+    const status = typeof this.applicantDetails.status === 'number'
+      ? this.statusMap[this.applicantDetails.status]
       : this.applicantDetails.status;
     return status === 'Rejected';
   }
-  
+
   // Open reject overlay
   openRejectOverlay(): void {
     this.rejectionNotes = '';
@@ -71,29 +71,29 @@ export class ApplicantDetaisComponent implements OnInit {
     this.rejectValidationErrors = {};
     this.overlay?.openOverlay();
   }
-  
+
   // Clear validation errors when user types
   onRejectFormChange(): void {
     if (this.rejectValidationErrors.rejectionMailMessage) {
       this.rejectValidationErrors.rejectionMailMessage = undefined;
     }
   }
-  
+
   // Submit reject form
   submitReject(): void {
     // Clear previous validation errors
     this.rejectValidationErrors = {};
-    
+
     // Validate rejection mail message (mandatory)
     if (!this.rejectionMailMessage || !this.rejectionMailMessage.trim()) {
       this.rejectValidationErrors.rejectionMailMessage = 'Rejection email is required';
       return;
     }
-    
+
     if (!this.applicationId) return;
-    
+
     this.isRejectSubmitting = true;
-    
+
     this.jobOpeningsService.rejectApplication(
       this.applicationId,
       this.rejectionNotes || '',
@@ -122,20 +122,20 @@ export class ApplicantDetaisComponent implements OnInit {
     if (!isNaN(applicationId)) {
       this.applicationId = applicationId;
       this.isLoading = true;
-      
+
       // Call application details API directly using application_id
       this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
         next: (appRes) => {
           this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
-          
+
           // Extract applicant details from application response
           if (this.applicationDetails) {
             const application = this.applicationDetails.application || this.applicationDetails;
             const applicant = this.applicationDetails.applicant || {};
-            
+
             // Extract name, email, phone from application_content if applicant object is empty
             const basicInfo = application.application_content?.['Personal Details']?.['Basic Info'] || [];
-            
+
             // Map applicant details from application response
             this.applicantDetails = {
               id: applicant.id,
@@ -148,7 +148,7 @@ export class ApplicantDetaisComponent implements OnInit {
               job_id: application.job || this.applicationDetails.job
             };
           }
-          
+
           this.fetchFeedbacks();
         },
         error: () => {

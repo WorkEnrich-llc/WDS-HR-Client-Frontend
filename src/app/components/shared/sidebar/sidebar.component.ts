@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
@@ -17,7 +18,7 @@ interface RouteAccordionMapping {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterLink, RouterLinkActive, OverlayFilterBoxComponent],
+  imports: [RouterLink, RouterLinkActive, OverlayFilterBoxComponent, NgClass],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })

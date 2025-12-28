@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { CommonModule } from '@angular/common';
+
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -11,10 +11,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-workflow',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule, DatePipe],
   templateUrl: './all-workflow.component.html',
   styleUrl: './all-workflow.component.css'
 })

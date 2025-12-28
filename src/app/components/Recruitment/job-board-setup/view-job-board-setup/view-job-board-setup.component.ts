@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { JobBoardSetupService } from '../../../../core/services/recruitment/job-board-setup/job-board-setup.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -13,7 +13,7 @@ interface SocialMediaLink {
 @Component({
     selector: 'app-view-job-board-setup',
     standalone: true,
-    imports: [PageHeaderComponent, RouterLink, CommonModule],
+    imports: [PageHeaderComponent, RouterLink,],
     providers: [DatePipe],
     templateUrl: './view-job-board-setup.component.html',
     styleUrl: './view-job-board-setup.component.css'

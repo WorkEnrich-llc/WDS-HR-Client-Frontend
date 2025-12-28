@@ -1,16 +1,17 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, NgOtpInputComponent, RouterLink, ReactiveFormsModule],
+  imports: [FormsModule, NgOtpInputComponent, RouterLink, ReactiveFormsModule, NgClass, DecimalPipe],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })

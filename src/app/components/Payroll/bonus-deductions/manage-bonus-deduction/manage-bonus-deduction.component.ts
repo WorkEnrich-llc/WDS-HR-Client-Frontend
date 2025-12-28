@@ -1,12 +1,11 @@
 
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { HttpClient } from '@angular/common/http';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { BranchesService } from '../../../../core/services/od/branches/branches.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
@@ -15,11 +14,12 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { BonusDeductionsService } from '../bonus-deductions.service';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-manage-bonus-deduction',
     standalone: true,
-    imports: [CommonModule, PageHeaderComponent, ReactiveFormsModule, FormsModule, TableComponent, OverlayFilterBoxComponent],
+    imports: [PageHeaderComponent, ReactiveFormsModule, FormsModule, TableComponent, OverlayFilterBoxComponent, NgClass],
     templateUrl: './manage-bonus-deduction.component.html',
     styleUrls: ['./manage-bonus-deduction.component.css']
 })
@@ -27,7 +27,6 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private formBuilder = inject(FormBuilder);
-    private http = inject(HttpClient);
     private departmentsService = inject(DepartmentsService);
     private branchesService = inject(BranchesService);
     private employeeService = inject(EmployeeService);

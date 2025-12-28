@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -13,7 +13,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-leave-types',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, DatePipe],
   templateUrl: './all-leave-types.component.html',
   styleUrl: './all-leave-types.component.css'
 })
@@ -143,9 +143,9 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
 
   resetFilterForm(): void {
     this.filterForm.reset({
-  employment_type: '',
-  status: ''   
-});
+      employment_type: '',
+      status: ''
+    });
     this.filterBox.closeOverlay();
     this.getAllJobTitles(this.currentPage);
   }
@@ -156,10 +156,10 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
 
-  const filters = {
-  employment_type: rawFilters.employment_type || undefined,
-  status: rawFilters.status || undefined   
-};
+      const filters = {
+        employment_type: rawFilters.employment_type || undefined,
+        status: rawFilters.status || undefined
+      };
 
 
       this.filterBox.closeOverlay();
@@ -175,10 +175,10 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
-   filters?: {
-  employment_type?: string;
-  status?: string;   
-}
+    filters?: {
+      employment_type?: string;
+      status?: string;
+    }
   ) {
     // Unsubscribe from previous call if it exists
     if (this.getAllLeaveTypesSubscription) {

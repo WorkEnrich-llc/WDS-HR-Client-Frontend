@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+
 import { PopupComponent } from '../../shared/popup/popup.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
@@ -26,7 +27,7 @@ interface storageInfo {
 };
 @Component({
   selector: 'app-system-cloud',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, NgxDocViewerModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxDocViewerModule, NgClass, NgStyle, DatePipe],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
@@ -34,7 +35,6 @@ interface storageInfo {
 export class SystemCloudComponent implements OnInit {
   constructor(
     private _systemCloudService: SystemCloudService,
-    private http: HttpClient,
     private toasterService: ToastrService,
     private router: Router,
     private breadcrumbService: BreadcrumbService,

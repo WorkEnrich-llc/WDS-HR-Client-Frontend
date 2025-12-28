@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
@@ -20,14 +20,14 @@ import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/c
 import { CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
 import { Contract } from 'app/core/interfaces/contract';
-
-
+import { DatePipe, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-view-employee',
   imports: [
     PageHeaderComponent,
-    CommonModule,
+    NgClass,
+    DatePipe,
     RouterLink,
     PopupComponent,
     AttendanceTabComponent,

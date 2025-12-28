@@ -7,14 +7,14 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angul
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule } from '@angular/common';
+
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 @Component({
   selector: 'app-all-job-openings',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, CommonModule, ReactiveFormsModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule, FormsModule, PopupComponent],
   templateUrl: './all-job-openings.component.html',
   styleUrl: './all-job-openings.component.css'
 })

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -15,8 +15,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
 
 @Component({
   selector: 'app-work-schedule',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule, SystemSetupTourComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, FormsModule, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule, SystemSetupTourComponent, DatePipe],
   templateUrl: './work-schedule.component.html',
   styleUrl: './work-schedule.component.css'
 })

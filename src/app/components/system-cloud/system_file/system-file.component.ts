@@ -1,14 +1,15 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, signal, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
-import { AbstractControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { SmartGridSheetComponent, TableColumn } from '../../shared/smart-grid-sheet/smart-grid-sheet.component';
 import { SystemCloudService } from '../../../core/services/system-cloud/system-cloud.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
-import { CommonModule } from '@angular/common';
+
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-import { interval, Subscription, switchMap, takeWhile, timer } from 'rxjs';
+import { Subscription, switchMap, takeWhile, timer } from 'rxjs';
+import { NgClass } from '@angular/common';
 
 
 export interface HeaderItem {
@@ -23,7 +24,7 @@ export interface HeaderItem {
 
 @Component({
   selector: 'app-system-file',
-  imports: [PageHeaderComponent, SmartGridSheetComponent, CommonModule, PopupComponent],
+  imports: [PageHeaderComponent, SmartGridSheetComponent, PopupComponent, NgClass],
   templateUrl: './system-file.component.html',
   styleUrl: './system-file.component.css',
   encapsulation: ViewEncapsulation.None

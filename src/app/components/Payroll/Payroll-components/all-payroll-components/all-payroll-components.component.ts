@@ -7,7 +7,7 @@ import { debounceTime, filter, map, Observable, Subject, Subscription } from 'rx
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { PayrollComponentsService } from 'app/core/services/payroll/payroll-components/payroll-components.service';
 import { PayrollComponent } from 'app/core/models/payroll';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -15,7 +15,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-payroll-components',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
   templateUrl: './all-payroll-components.component.html',
   styleUrl: './all-payroll-components.component.css',
   providers: [DatePipe],

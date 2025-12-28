@@ -2,17 +2,18 @@ import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PersonnelCalenderService } from './personnel-calender.service';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-personnel-calender',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, FullCalendarModule, FormsModule],
+  imports: [PageHeaderComponent, FullCalendarModule, FormsModule, NgClass],
   templateUrl: './personnel-calender.html',
   styleUrl: './personnel-calender.css'
 })

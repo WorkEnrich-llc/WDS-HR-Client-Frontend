@@ -3,10 +3,10 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ArchivedOpeningsService } from '../../../../core/services/recruitment/archived-openings/archived-openings.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, take } from 'rxjs';
+import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 type Applicant = {
@@ -31,7 +31,7 @@ type DynamicFieldSection = {
 @Component({
   selector: 'app-view-archived-opening',
   standalone: true,
-  imports: [PageHeaderComponent, TableComponent, RouterLink, CommonModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe],
   templateUrl: './view-archived-opening.component.html',
   styleUrl: './view-archived-opening.component.css'
 })
@@ -337,7 +337,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     if (this.jobOpening?.id) {
       this.archivedOpeningsService.duplicateJobOpening(this.jobOpening.id).subscribe({
         next: (response) => {
-          this.toastr.success('Job opening duplicated successfully',"Duplicated");
+          this.toastr.success('Job opening duplicated successfully', "Duplicated");
           this.closeDuplicateModal();
           // Navigate to job openings list
           this.router.navigate(['/job-openings']);
@@ -374,7 +374,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     if (this.jobOpening?.id) {
       this.archivedOpeningsService.unarchiveJobOpening(this.jobOpening.id).subscribe({
         next: (response) => {
-          this.toastr.success('Job opening unarchived successfully',"Unarchived");
+          this.toastr.success('Job opening unarchived successfully', "Unarchived");
           this.closeUnarchiveModal();
           // Navigate back to archived openings list
           this.router.navigate(['/archived-openings']);

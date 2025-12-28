@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
@@ -9,8 +9,7 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
 
 @Component({
   selector: 'app-update-leave-types',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgClass],
   templateUrl: './update-leave-types.component.html',
   styleUrl: './update-leave-types.component.css'
 })
@@ -144,7 +143,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     if (this.ageItems.length === 0) {
       this.addAgeItem();
     }
-    
+
     this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.ageItems.enable();
@@ -201,7 +200,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     if (this.serviceItems.length === 0) {
       this.addServiceItem();
     }
-    
+
     this.leaveType3.get('extra_with_service')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.serviceItems.enable();
@@ -254,7 +253,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     if (this.experienceItems.length === 0) {
       this.addExperienceItem();
     }
-    
+
     this.leaveType3.get('extra_with_experience')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.experienceItems.enable();
@@ -325,10 +324,10 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
         // Load age items from conditions array (condition.id === 1 means Age)
         this.ageItems.clear();
-        const ageConditions = this.leaveTypeData.conditions?.filter((cond: any) => 
+        const ageConditions = this.leaveTypeData.conditions?.filter((cond: any) =>
           cond.condition?.id === 1 && cond.is_active
         ) || [];
-        
+
         if (ageConditions.length > 0) {
           const isAgeChecked = this.leaveType3.get('extra_with_age')?.value;
           ageConditions.forEach((condition: any) => {
@@ -349,10 +348,10 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
         // Load service items from conditions array (condition.id === 2 means Service)
         this.serviceItems.clear();
-        const serviceConditions = this.leaveTypeData.conditions?.filter((cond: any) => 
+        const serviceConditions = this.leaveTypeData.conditions?.filter((cond: any) =>
           cond.condition?.id === 2 && cond.is_active
         ) || [];
-        
+
         if (serviceConditions.length > 0) {
           const isServiceChecked = this.leaveType3.get('extra_with_service')?.value;
           serviceConditions.forEach((condition: any) => {
@@ -373,10 +372,10 @@ export class UpdateLeaveTypesComponent implements OnInit {
 
         // Load experience items from conditions array (condition.id === 3 means Experience)
         this.experienceItems.clear();
-        const experienceConditions = this.leaveTypeData.conditions?.filter((cond: any) => 
+        const experienceConditions = this.leaveTypeData.conditions?.filter((cond: any) =>
           cond.condition?.id === 3 && cond.is_active
         ) || [];
-        
+
         if (experienceConditions.length > 0) {
           const isExperienceChecked = this.leaveType3.get('extra_with_experience')?.value;
           experienceConditions.forEach((condition: any) => {
@@ -473,7 +472,7 @@ export class UpdateLeaveTypesComponent implements OnInit {
     const current2 = this.leaveType2.getRawValue();
     const current3 = this.getLeaveType3RawValue();
 
-    this.isFormChanged = 
+    this.isFormChanged =
       JSON.stringify(current1) !== JSON.stringify(this.initialLeaveType1) ||
       JSON.stringify(current2) !== JSON.stringify(this.initialLeaveType2) ||
       JSON.stringify(current3) !== JSON.stringify(this.initialLeaveType3);
@@ -666,10 +665,10 @@ export class UpdateLeaveTypesComponent implements OnInit {
           // Existing condition - check if it changed
           const originalCondition = this.originalConditions.find((c: any) => c.id === id);
           if (originalCondition) {
-            const hasChanged = 
+            const hasChanged =
               originalCondition.value !== conditionData.value ||
               originalCondition.days !== conditionData.days;
-            
+
             if (hasChanged) {
               conditionsToUpdate.push({
                 id: id,
@@ -704,11 +703,11 @@ export class UpdateLeaveTypesComponent implements OnInit {
           // Existing condition - check if it changed
           const originalCondition = this.originalConditions.find((c: any) => c.id === id);
           if (originalCondition) {
-            const hasChanged = 
+            const hasChanged =
               originalCondition.value !== conditionData.value ||
               originalCondition.value_to !== conditionData.value_to ||
               originalCondition.days !== conditionData.days;
-            
+
             if (hasChanged) {
               conditionsToUpdate.push({
                 id: id,
@@ -743,11 +742,11 @@ export class UpdateLeaveTypesComponent implements OnInit {
           // Existing condition - check if it changed
           const originalCondition = this.originalConditions.find((c: any) => c.id === id);
           if (originalCondition) {
-            const hasChanged = 
+            const hasChanged =
               originalCondition.value !== conditionData.value ||
               originalCondition.value_to !== conditionData.value_to ||
               originalCondition.days !== conditionData.days;
-            
+
             if (hasChanged) {
               conditionsToUpdate.push({
                 id: id,
@@ -766,15 +765,15 @@ export class UpdateLeaveTypesComponent implements OnInit {
     const currentAgeIds = this.ageItems.controls
       .map(control => control.get('id')?.value)
       .filter(id => id !== null && id !== undefined);
-    
+
     const currentServiceIds = this.serviceItems.controls
       .map(control => control.get('id')?.value)
       .filter(id => id !== null && id !== undefined);
-    
+
     const currentExperienceIds = this.experienceItems.controls
       .map(control => control.get('id')?.value)
       .filter(id => id !== null && id !== undefined);
-    
+
     const allCurrentIds = [...currentAgeIds, ...currentServiceIds, ...currentExperienceIds];
 
     this.originalConditions.forEach((originalCondition: any) => {

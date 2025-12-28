@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { CommonModule } from '@angular/common';
+
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,10 +9,11 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { RestrictedService } from '../../../../core/services/attendance/restricted-days/restricted.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-restricted-days',
-  imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule, DatePipe],
   templateUrl: './all-restricted-days.component.html',
   styleUrl: './all-restricted-days.component.css'
 })

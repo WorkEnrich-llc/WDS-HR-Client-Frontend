@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -22,15 +22,14 @@ interface Department {
 
 @Component({
   selector: 'app-view-branches',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, CommonModule, PopupComponent, RouterLink, GoogleMapsModule, SkelatonLoadingComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, PopupComponent, RouterLink, GoogleMapsModule, SkelatonLoadingComponent, DatePipe],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
 })
 export class ViewBranchesComponent {
 
 
-  constructor(private _BranchesService: BranchesService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
+  constructor(private _BranchesService: BranchesService, private toasterMessageService: ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe, private subService: SubscriptionService) { }
   departments: Department[] = [];
   branchData: any = { sections: [] };
   formattedCreatedAt: string = '';
@@ -136,7 +135,7 @@ export class ViewBranchesComponent {
     this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
       next: (response) => {
         this.branchData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Branch Status Updated successfully","Status Updated");
+        this.toasterMessageService.showSuccess("Branch Status Updated successfully", "Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -162,7 +161,7 @@ export class ViewBranchesComponent {
     this._BranchesService.updateBranchStatus(this.branchData.id, deptStatus).subscribe({
       next: (response) => {
         this.branchData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Branch Status Updated successfully","Status Updated");
+        this.toasterMessageService.showSuccess("Branch Status Updated successfully", "Status Updated");
       },
       error: (err) => {
         console.error(err.error?.details);

@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ViewChild, OnDestroy } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
@@ -10,7 +11,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 
 @Component({
   selector: 'app-view-payroll-runs',
-  imports: [CommonModule, PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, DecimalPipe, DatePipe],
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
 })

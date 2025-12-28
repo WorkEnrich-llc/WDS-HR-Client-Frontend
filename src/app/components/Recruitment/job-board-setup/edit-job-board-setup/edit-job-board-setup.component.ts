@@ -1,22 +1,16 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobBoardSetupService } from '../../../../core/services/recruitment/job-board-setup/job-board-setup.service';
 import { ToastrService } from 'ngx-toastr';
 
-interface SocialMediaLink {
-    name: string;
-    url: string;
-}
-
 @Component({
     selector: 'app-edit-job-board-setup',
     standalone: true,
-    imports: [PageHeaderComponent, CommonModule, FormsModule, PopupComponent],
-    providers: [DatePipe],
+    imports: [PageHeaderComponent, FormsModule, PopupComponent, NgClass],
     templateUrl: './edit-job-board-setup.component.html',
     styleUrl: './edit-job-board-setup.component.css'
 })

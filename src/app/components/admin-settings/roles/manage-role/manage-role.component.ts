@@ -1,4 +1,5 @@
-import { CommonModule } from '@angular/common';
+
+import { DatePipe, KeyValuePipe, NgClass } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,8 +8,8 @@ import { PageHeaderComponent } from 'app/components/shared/page-header/page-head
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { Employee, EmployeesResponse } from 'app/core/interfaces/employee';
-import { ActionType, ModulePermission, Roles, RoleUser, SubModulePermission } from 'app/core/models/roles';
-import { ISearchParams, IUserApi, IUser } from 'app/core/models/users';
+import { ActionType, ModulePermission, Roles, SubModulePermission } from 'app/core/models/roles';
+import { ISearchParams, IUser } from 'app/core/models/users';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -37,7 +38,7 @@ interface FeatureData {
 
 @Component({
   selector: 'app-manage-role',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule, NgClass, KeyValuePipe, DatePipe],
   templateUrl: './manage-role.component.html',
   styleUrl: './manage-role.component.css'
 })

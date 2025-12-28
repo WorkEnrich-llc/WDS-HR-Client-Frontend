@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClientJobBoardService } from '../../services/client-job-board.service';
 import { MetaTagsService } from '../../services/meta-tags.service';
@@ -8,7 +8,7 @@ import { JobItem } from '../../models/job-listing.model';
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './job-details.component.html',
   styleUrl: './job-details.component.css'
 })

@@ -2,13 +2,14 @@ import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CalendarService } from './calendar.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
+
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 import { FormsModule } from '@angular/forms';
+import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
 
 export interface CalendarEvent {
   title: string;
@@ -26,7 +27,7 @@ export interface CalendarEvent {
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, FullCalendarModule, FormsModule],
+  imports: [PageHeaderComponent, FullCalendarModule, FormsModule, DatePipe, NgClass, TitleCasePipe],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })

@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
 import { AttendanceLogService } from 'app/core/services/attendance/attendance-log/attendance-log.service';
@@ -7,19 +7,6 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
-
-interface RawAttendanceItem {
-  emp_id: number;
-  date: string;
-  actual_check_in: string | null;
-  actual_check_out: string | null;
-  working_check_in: string | null;
-  working_check_out: string | null;
-  is_working_day: boolean;
-  missing_hrs: number | null;
-  deduction: number | null;
-  work_hours?: string | null;
-}
 
 interface AttendanceRecord {
   in: string;
@@ -33,8 +20,7 @@ interface AttendanceRecord {
 
 @Component({
   selector: 'app-attendance-tab',
-  imports: [CommonModule, PopupComponent],
-  providers: [DatePipe],
+  imports: [PopupComponent, NgClass, NgStyle, DatePipe],
   templateUrl: './attendance-tab.component.html',
   styleUrls: ['./../../../../../shared/table/table.component.css', './attendance-tab.component.css']
 })

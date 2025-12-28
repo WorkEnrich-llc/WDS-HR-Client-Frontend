@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   Component,
   inject,
@@ -33,7 +33,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
   standalone: true,
   selector: 'app-manage-employee',
   imports: [
-    CommonModule,
+    DatePipe,
     PageHeaderComponent,
     ReactiveFormsModule,
     PopupComponent,
@@ -47,7 +47,6 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
     SystemSetupTourComponent,
     EmployeeSkeletonLoaderComponent
   ],
-  providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
   styleUrls: ['./manage-employee.component.css'],
 })
@@ -100,7 +99,7 @@ export class ManageEmployeeComponent implements OnInit {
         this.route.queryParamMap.subscribe(queryParams => {
           const applicationId = queryParams.get('application_id');
           const applicantId = queryParams.get('applicant_id');
-          
+
           // Set employee source and applicant_id in shared service
           if (applicationId || applicantId) {
             this.sharedService.employeeSource = 2; // From recruitment
@@ -110,7 +109,7 @@ export class ManageEmployeeComponent implements OnInit {
           } else {
             this.sharedService.employeeSource = 1; // Direct creation
           }
-          
+
           if (applicationId) {
             this.jobOpeningsService.getEmployeeCreateInfo(+applicationId).subscribe({
               next: (data) => {

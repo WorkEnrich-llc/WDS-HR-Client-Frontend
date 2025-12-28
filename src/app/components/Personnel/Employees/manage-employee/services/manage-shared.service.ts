@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -1542,7 +1542,7 @@ export class ManageEmployeeSharedService {
     }
     // }
     requestData.contract_details = contractDetailsPayload;
-    
+
     // Add recruitment-related data if available
     if (!this.isEditMode()) {
       requestData.employee_source = this.employeeSource;

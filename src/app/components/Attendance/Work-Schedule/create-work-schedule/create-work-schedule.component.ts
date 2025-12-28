@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -13,8 +13,7 @@ import { WorkSchaualeService } from '../../../../core/services/attendance/work-s
 
 @Component({
   selector: 'app-create-work-schedule',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent, NgClass, DatePipe],
   templateUrl: './create-work-schedule.component.html',
   styleUrl: './create-work-schedule.component.css'
 })
@@ -357,7 +356,7 @@ export class CreateWorkScheduleComponent {
   }
 
   onEmploymentTypeChange(event: Event): void {
-    const selectedValue = (event.target as HTMLSelectElement).value;
+    // const selectedValue = (event.target as HTMLSelectElement).value;
 
     // Reset shift range errors when employment type changes
     const fromControl = this.workSchadule2.get('from');

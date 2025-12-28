@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { InterviewService } from '../core/services/recruitment/interview.service';
@@ -8,7 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-offer-rejected',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './offer-rejected.component.html',
   styleUrls: ['./offer-rejected.component.css']
 })
@@ -17,7 +17,7 @@ export class OfferRejectedComponent implements OnInit {
   isSubmitting = false;
   isSubmitted = false;
   errorMessage: string | null = null;
-  
+
   // URL parameters
   token: string | null = null;
   applicantName: string | null = null;
@@ -27,7 +27,7 @@ export class OfferRejectedComponent implements OnInit {
     private fb: FormBuilder,
     private interviewService: InterviewService,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Get token and applicant info from URL query params
@@ -60,7 +60,7 @@ export class OfferRejectedComponent implements OnInit {
 
     this.isSubmitting = true;
     this.errorMessage = null;
-    
+
     const reason = this.rejectForm.value.reason;
 
     this.interviewService.rejectOffer(this.token, reason).subscribe({

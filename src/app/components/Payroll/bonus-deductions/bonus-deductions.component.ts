@@ -6,7 +6,7 @@ import { BonusDeductionsService } from './bonus-deductions.service';
 import { TableComponent } from 'app/components/shared/table/table.component';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { DatePipe, CommonModule } from '@angular/common';
+import { DatePipe, } from '@angular/common';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
@@ -15,7 +15,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
     templateUrl: './bonus-deductions.component.html',
     styleUrls: ['./bonus-deductions.component.css'],
     standalone: true,
-    imports: [PageHeaderComponent, TableComponent, FormsModule, RouterLink, DatePipe, CommonModule, PopupComponent]
+    imports: [PageHeaderComponent, TableComponent, FormsModule, RouterLink, DatePipe, PopupComponent]
 })
 export class BonusDeductionsComponent implements OnInit {
     filteredList: any[] = [];

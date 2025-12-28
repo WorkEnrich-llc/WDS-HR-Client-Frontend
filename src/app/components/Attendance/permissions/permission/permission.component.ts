@@ -2,14 +2,15 @@ import { Component, inject, OnInit, ViewChild, ViewEncapsulation } from '@angula
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
 import { PermissionsService } from '../../../../core/services/attendance/permissions/permissions.service';
-import { CommonModule } from '@angular/common';
+
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-permission',
-  imports: [PageHeaderComponent, RouterLink, CommonModule, OverlayFilterBoxComponent, FormsModule,],
+  imports: [PageHeaderComponent, RouterLink, OverlayFilterBoxComponent, FormsModule, DecimalPipe],
   templateUrl: './permission.component.html',
   styleUrl: './permission.component.css',
   encapsulation: ViewEncapsulation.None

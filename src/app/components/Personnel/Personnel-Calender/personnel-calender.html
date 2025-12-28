@@ -58,16 +58,19 @@
 
         <!-- calender -->
         <div class="calendar-wrapper mt-4">
-          <ng-container *ngIf="isLoading; else calendarContent">
-            <div class="calendar-skeleton">
-              <div class="skeleton-row" *ngFor="let r of [1,2,3,4,5,6]">
-                <div class="skeleton-cell" *ngFor="let c of [1,2,3,4,5,6,7]"></div>
-              </div>
+          @if (isLoading) {
+          <div class="calendar-skeleton">
+            @for (r of [1,2,3,4,5,6]; track r) {
+            <div class="skeleton-row">
+              @for (c of [1,2,3,4,5,6,7]; track c) {
+              <div class="skeleton-cell"></div>
+              }
             </div>
-          </ng-container>
-          <ng-template #calendarContent>
-            <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
-          </ng-template>
+            }
+          </div>
+          } @else {
+          <full-calendar #calendar class="calendar-full" [options]="calendarOptions"></full-calendar>
+          }
         </div>
       </div>
 

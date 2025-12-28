@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
-import { NetworkService } from '../../../core/services/network/network.service';
+import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs';
+import { NetworkService } from '../../../core/services/network/network.service';
 
 @Component({
   selector: 'app-network-status',
   standalone: true,
-  imports: [CommonModule],
+  imports: [AsyncPipe],
   template: `
     @if (!(isOnline$ | async)) {
       <div

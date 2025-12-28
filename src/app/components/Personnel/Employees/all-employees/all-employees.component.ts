@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -7,7 +7,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { debounceTime, filter, Subject, Subscription, of } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { takeUntil, switchMap, distinctUntilChanged, map } from 'rxjs/operators';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
@@ -15,8 +15,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })
@@ -26,8 +25,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private paginationState = inject(PaginationStateService);
   private router = inject(Router);
 
-  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
-    private datePipe: DatePipe, private fb: FormBuilder) { }
+  constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService, private fb: FormBuilder) { }
 
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;

@@ -1,17 +1,17 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-import { atLeastOnePortionFilled, customTotalValidator, nonWhitespaceValidator, totalPercentageValidator } from './validator';
+import { atLeastOnePortionFilled, customTotalValidator, nonWhitespaceValidator } from './validator';
 import { SalaryPortion } from 'app/core/models/salary-portions';
 
 @Component({
   selector: 'app-edit-salary-portions',
-  imports: [PageHeaderComponent, CommonModule, ReactiveFormsModule, PopupComponent],
+  imports: [PageHeaderComponent, ReactiveFormsModule, PopupComponent, DatePipe],
   templateUrl: './edit-salary-portions.component.html',
   styleUrls: ['./edit-salary-portions.component.css']
 })
@@ -246,7 +246,6 @@ export class EditSalaryPortionsComponent implements OnInit {
 
   updateSalaryPortion(): void {
     this.attemptedSubmit = true;
-    const formValue = this.portionsForm.getRawValue();
     const invalidPortion = this.hasInvalidEnabledPortion();
 
     if (invalidPortion) {

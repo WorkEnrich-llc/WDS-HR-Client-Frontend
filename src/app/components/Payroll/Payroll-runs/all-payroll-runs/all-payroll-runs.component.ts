@@ -1,11 +1,11 @@
-import { Component, inject, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup } from '@angular/forms';
+
+import { FormGroup } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
@@ -13,7 +13,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, CommonModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent,],
   templateUrl: './all-payroll-runs.component.html',
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
@@ -37,13 +37,11 @@ export class AllPayrollRunsComponent implements OnDestroy {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
-  private toasterSubscription!: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private toasterMessageService: ToasterMessageService,
     private toastr: ToastrService,
-    private fb: FormBuilder,
     private payrollRunService: PayrollRunService,
     paginationState: PaginationStateService,
     router: Router

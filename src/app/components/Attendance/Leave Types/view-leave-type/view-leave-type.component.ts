@@ -2,20 +2,19 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-leave-type',
-  imports: [PageHeaderComponent, RouterLink, PopupComponent, CommonModule],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent, NgClass],
   templateUrl: './view-leave-type.component.html',
   styleUrl: './view-leave-type.component.css'
 })
 export class ViewLeaveTypeComponent {
-  constructor(private _LeaveTypeService: LeaveTypeService,private toasterMessageService:ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) { 
-    
+  constructor(private _LeaveTypeService: LeaveTypeService, private toasterMessageService: ToasterMessageService, private route: ActivatedRoute, private datePipe: DatePipe) {
+
   }
   leaveTypeData: any = [];
   formattedCreatedAt: string = '';
@@ -82,7 +81,7 @@ export class ViewLeaveTypeComponent {
     this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
       next: (response) => {
         this.leaveTypeData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Leave Type Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Leave Type Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);
@@ -108,7 +107,7 @@ export class ViewLeaveTypeComponent {
     this._LeaveTypeService.updateLeaveStatus(this.leaveTypeData.id, deptStatus).subscribe({
       next: (response) => {
         this.leaveTypeData = response.data.object_info;
-        this.toasterMessageService.showSuccess("Leave Type Status Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Leave Type Status Updated successfully", "Updated Successfully");
       },
       error: (err) => {
         console.error(err.error?.details);

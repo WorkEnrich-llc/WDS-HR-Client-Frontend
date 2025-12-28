@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -11,6 +11,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   styleUrls: ['./org-chart.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class OrgChartComponent{
+export class OrgChartComponent {
 
 }

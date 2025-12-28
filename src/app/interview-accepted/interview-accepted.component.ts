@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute } from '@angular/router';
 import { InterviewService } from '../core/services/recruitment/interview.service';
 import { ToastrService } from 'ngx-toastr';
@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-interview-accepted',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './interview-accepted.component.html',
   styleUrls: ['./interview-accepted.component.css']
 })
@@ -22,7 +22,7 @@ export class InterviewAcceptedComponent implements OnInit {
     private route: ActivatedRoute,
     private interviewService: InterviewService,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Get token and applicant info from URL query params
@@ -66,4 +66,3 @@ export class InterviewAcceptedComponent implements OnInit {
   }
 }
 
-    

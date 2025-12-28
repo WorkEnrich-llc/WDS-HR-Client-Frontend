@@ -8,13 +8,10 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ErrorHandlingService } from '../services/error-handling/error-handling.service';
-
 export const errorHandlingInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const errorHandlingService = inject(ErrorHandlingService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {

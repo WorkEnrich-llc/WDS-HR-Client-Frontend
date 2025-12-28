@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -17,8 +17,7 @@ import { OnboardingChecklistComponent, OnboardingListItem } from '../../../share
 @Component({
   selector: 'app-view-new-joiner',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent, OnboardingChecklistComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent, OnboardingChecklistComponent, DatePipe],
   templateUrl: './view-new-joiner.component.html',
   styleUrl: './view-new-joiner.component.css'
 })
@@ -540,10 +539,10 @@ export class ViewNewJoinerComponent implements OnInit {
       contract_id: contractIdToCancel,
     }).subscribe({
       next: (response) => {
-        const listItems =
-          response?.data?.list_items ??
-          response?.data?.list_items ??
-          [];
+        // const listItems =
+        //   response?.data?.list_items ??
+        //   response?.data?.list_items ??
+        //   [];
         // Update local data with the response
         this.loading = false;
         this.closeModal();

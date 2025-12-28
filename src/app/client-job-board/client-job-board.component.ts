@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavbarComponent, LogoData, SocialMediaLinks } from './layouts/navbar/navbar.component';
@@ -11,7 +10,7 @@ import { MetaTagsService } from './services/meta-tags.service';
 @Component({
     selector: 'app-client-job-board',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterOutlet, NavbarComponent, FooterComponent],
+    imports: [ReactiveFormsModule, RouterOutlet, NavbarComponent, FooterComponent],
     templateUrl: './client-job-board.component.html',
     styleUrls: ['./client-job-board.component.css']
 })

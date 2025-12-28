@@ -3,7 +3,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { JobOpeningsService } from '../../../../core/services/recruitment/job-openings/job-openings.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
@@ -46,7 +46,7 @@ type DynamicFieldSection = {
 @Component({
   selector: 'app-view-jop-open',
   standalone: true,
-  imports: [PageHeaderComponent, TableComponent, RouterLink, CommonModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
 })
@@ -476,7 +476,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   onApplicantHover(applicantId: number): void {
     this.hoveredApplicantId = applicantId;
-    
+
     const badgeElement = document.querySelector(`[data-badge-id="${applicantId}"]`) as HTMLElement;
     if (!badgeElement) return;
 

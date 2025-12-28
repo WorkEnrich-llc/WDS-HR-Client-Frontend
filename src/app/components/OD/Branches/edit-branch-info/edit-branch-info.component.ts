@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -34,8 +34,7 @@ interface Department {
 }
 @Component({
   selector: 'app-edit-branch-info',
-  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, NgClass],
   templateUrl: './edit-branch-info.component.html',
   styleUrl: './edit-branch-info.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -684,7 +683,7 @@ export class EditBranchInfoComponent implements OnInit {
         this.errMsg = '';
         // create success
         this.router.navigate(['/branches/all-branches']);
-        this.toasterMessageService.showSuccess("Branch Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Branch Updated successfully", "Updated Successfully");
 
       },
       error: (err) => {

@@ -14,9 +14,7 @@
         <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
       </tr>
       }
-
-      }
-      @else {
+      } @else {
       @if (data && data.length > 0) {
       @if (disablePagination) {
       @for (row of data; track trackByFn($index, row)) {
@@ -43,7 +41,6 @@
 <!-- Skeleton Template -->
 <ng-template #skeletonRowTemplate let-columnsCount="columnsCount">
   @for (i of getColumnsArray(columnsCount); track indexFn($index, i)) {
-
   <td>
     <div class="skeleton-block h-4 w-full"></div>
   </td>

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobOpeningsService } from '../../../../core/services/recruitment/job-openings/job-openings.service';
@@ -14,13 +14,12 @@ import { Subscription } from 'rxjs';
   selector: 'app-update-job-open',
   imports: [
     PageHeaderComponent,
-    CommonModule,
     PopupComponent,
     MainInfoComponent,
     RequiredDetailsComponent,
-    AttachmentsComponent
+    AttachmentsComponent,
+    NgClass
   ],
-  providers: [DatePipe],
   templateUrl: './update-job-open.component.html',
   styleUrl: './update-job-open.component.css'
 })

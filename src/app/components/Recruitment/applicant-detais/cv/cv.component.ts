@@ -1,14 +1,14 @@
 import { Component, Input, ViewChild, ViewEncapsulation } from '@angular/core';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { CommonModule } from '@angular/common';
 import { SafePipe } from 'app/core/pipe/safe.pipe';
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-cv',
   standalone: true,
-  imports: [CommonModule, OverlayFilterBoxComponent, PdfViewerModule, SafePipe],
+  imports: [OverlayFilterBoxComponent, PdfViewerModule, SafePipe, DatePipe],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',
   encapsulation: ViewEncapsulation.None
@@ -17,9 +17,7 @@ export class CvComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @Input() applicant: any;
-  private _cvUrlInput?: string;
   @Input() set cvUrl(value: string | undefined) {
-    this._cvUrlInput = value;
     if (value && typeof value === 'string' && value.trim()) {
       this.pdfUrl = value;
     }

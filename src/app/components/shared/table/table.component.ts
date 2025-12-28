@@ -1,4 +1,5 @@
-import { CommonModule } from '@angular/common';
+
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -6,7 +7,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [FormsModule, NgxPaginationModule, NgTemplateOutlet],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   encapsulation: ViewEncapsulation.None,

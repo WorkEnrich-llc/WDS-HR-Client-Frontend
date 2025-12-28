@@ -2,15 +2,14 @@
 
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncPipe, DatePipe, NgClass, NgStyle } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, distinctUntilChanged, filter, map, Observable, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
-import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
@@ -21,8 +20,7 @@ import dayjs, { Dayjs } from 'dayjs';
 @Component({
   selector: 'app-attendance-log',
   imports: [PageHeaderComponent, OverlayFilterBoxComponent,
-    CommonModule, ReactiveFormsModule, FormsModule, NgxPaginationModule, NgxDaterangepickerMd, PopupComponent],
-  providers: [DatePipe],
+    ReactiveFormsModule, FormsModule, NgxPaginationModule, NgxDaterangepickerMd, PopupComponent, NgStyle, NgClass, DatePipe, AsyncPipe],
   templateUrl: './attendance-log.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './attendance-log.component.css'],
   encapsulation: ViewEncapsulation.None,
@@ -30,7 +28,7 @@ import dayjs, { Dayjs } from 'dayjs';
 export class AttendanceLogComponent implements OnDestroy {
 
 
-  constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
+  constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
 
   // Action menu stubs for template
@@ -993,8 +991,8 @@ export class AttendanceLogComponent implements OnDestroy {
       return;
     }
     this.deductionModalLoading = true;
-    const hasDeduction = log?.hours_object?.total_deduction > 0;
-    const actionText = hasDeduction ? 'remove' : 'add';
+    // const hasDeduction = log?.hours_object?.total_deduction > 0;
+    // const actionText = hasDeduction ? 'remove' : 'add';
     this._AttendanceLogService.toggleDeduction(id).subscribe({
       next: () => {
         this.getAllAttendanceLog({

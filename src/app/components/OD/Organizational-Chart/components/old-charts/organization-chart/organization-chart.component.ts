@@ -1,11 +1,11 @@
-// import { CommonModule } from '@angular/common';
+// 
 // import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 // import { ChartsService } from 'app/core/services/od/charts/charts.service';
 // declare var OrgChart: any;
 
 // @Component({
 //   selector: 'app-organization-chart',
-//   imports: [CommonModule],
+//   imports: [],
 //   templateUrl: './organization-chart.component.html',
 //   styleUrl: './organization-chart.component.css'
 // })

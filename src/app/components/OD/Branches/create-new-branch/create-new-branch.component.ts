@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, NgZone, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,8 +17,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
 
 @Component({
   selector: 'app-create-new-branch',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, SystemSetupTourComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, SystemSetupTourComponent, NgClass],
   templateUrl: './create-new-branch.component.html',
   styleUrl: './create-new-branch.component.css',
   encapsulation: ViewEncapsulation.None,

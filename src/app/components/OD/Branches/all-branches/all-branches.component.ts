@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -13,19 +13,9 @@ import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilCh
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 
-interface Branch {
-  id: number;
-  name: string;
-  location: string;
-  maxEmployees: number;
-  createdAt: string;
-  updatedAt: string;
-  status: string;
-}
-
 @Component({
   selector: 'app-all-branches',
-  imports: [PageHeaderComponent, CommonModule, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule],
+  imports: [PageHeaderComponent, FormsModule, NgxPaginationModule, TableComponent, OverlayFilterBoxComponent, RouterLink, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './all-branches.component.html',
   styleUrls: ['./all-branches.component.css']
