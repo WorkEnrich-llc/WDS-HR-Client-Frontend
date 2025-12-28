@@ -85,7 +85,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
     const fromDate = form.get('from_date')?.value;
     const toDate = form.get('to_date')?.value;
 
-    if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
+    if (fromDate && toDate && new Date(toDate) < new Date(fromDate)) {
       return { dateRange: true };
     }
     return null;
@@ -221,7 +221,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
 
     // Check for date range error
     if (fieldName === 'to_date' && this.delegationForm.errors?.['dateRange']) {
-      return 'End date must be after start date';
+      return 'End date must be the same as or after the start date.';
     }
 
     return '';
