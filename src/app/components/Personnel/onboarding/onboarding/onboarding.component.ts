@@ -3,7 +3,6 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
-import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { OnboardingService } from 'app/core/services/personnel/onboarding/onboarding.service';
 
 interface CheckItem {
