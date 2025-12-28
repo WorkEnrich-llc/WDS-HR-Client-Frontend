@@ -14,12 +14,6 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
 })
-@Component({
-  selector: 'app-view-payroll-runs',
-  imports: [CommonModule, PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent],
-  templateUrl: './view-payroll-runs.component.html',
-  styleUrl: './view-payroll-runs.component.css'
-})
 export class ViewPayrollRunsComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
   fetchEmployees() {
