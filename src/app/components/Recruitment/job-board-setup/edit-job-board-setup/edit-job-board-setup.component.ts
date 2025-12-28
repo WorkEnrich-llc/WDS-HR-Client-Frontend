@@ -11,6 +11,7 @@ import { ToastrService } from 'ngx-toastr';
     selector: 'app-edit-job-board-setup',
     standalone: true,
     imports: [PageHeaderComponent, FormsModule, PopupComponent, NgClass],
+    providers: [DatePipe],
     templateUrl: './edit-job-board-setup.component.html',
     styleUrl: './edit-job-board-setup.component.css'
 })

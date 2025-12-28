@@ -37,6 +37,7 @@ interface Department {
   imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, NgClass],
   templateUrl: './edit-branch-info.component.html',
   styleUrl: './edit-branch-info.component.css',
+  providers: [DatePipe],
   encapsulation: ViewEncapsulation.None,
 })
 export class EditBranchInfoComponent implements OnInit {

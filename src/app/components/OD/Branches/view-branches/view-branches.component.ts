@@ -23,6 +23,7 @@ interface Department {
 @Component({
   selector: 'app-view-branches',
   imports: [PageHeaderComponent, TableComponent, PopupComponent, RouterLink, GoogleMapsModule, SkelatonLoadingComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-branches.component.html',
   styleUrls: ['./view-branches.component.css']
 })

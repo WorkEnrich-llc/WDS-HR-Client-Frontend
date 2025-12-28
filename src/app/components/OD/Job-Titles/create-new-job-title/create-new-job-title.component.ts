@@ -42,6 +42,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
   selector: 'app-create-new-job-title',
   imports: [PageHeaderComponent, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent, NgClass],
   templateUrl: './create-new-job-title.component.html',
+  providers: [DatePipe],
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']
 })
 export class CreateNewJobTitleComponent {

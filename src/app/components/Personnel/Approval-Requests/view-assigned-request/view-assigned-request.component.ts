@@ -9,6 +9,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
 @Component({
   selector: 'app-view-assigned-request',
   imports: [PageHeaderComponent, GoogleMapsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-assigned-request.component.html',
   styleUrl: './view-assigned-request.component.css',
   encapsulation: ViewEncapsulation.None

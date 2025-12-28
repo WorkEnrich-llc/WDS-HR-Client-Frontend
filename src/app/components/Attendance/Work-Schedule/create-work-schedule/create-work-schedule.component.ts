@@ -14,6 +14,7 @@ import { WorkSchaualeService } from '../../../../core/services/attendance/work-s
 @Component({
   selector: 'app-create-work-schedule',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent, NgClass, DatePipe],
+  providers: [DatePipe],
   templateUrl: './create-work-schedule.component.html',
   styleUrl: './create-work-schedule.component.css'
 })

@@ -15,6 +15,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
     templateUrl: './view-bonus-deduction.component.html',
     styleUrls: ['./view-bonus-deduction.component.css'],
     standalone: true,
+    providers: [DatePipe],
     imports: [PageHeaderComponent, FormsModule, DatePipe, TableComponent, RouterLink, PopupComponent]
 })
 export class ViewBonusDeductionComponent implements OnInit {

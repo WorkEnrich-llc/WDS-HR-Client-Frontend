@@ -20,6 +20,7 @@ import { Subscription } from 'rxjs';
     AttachmentsComponent,
     NgClass
   ],
+  providers: [DatePipe],
   templateUrl: './update-job-open.component.html',
   styleUrl: './update-job-open.component.css'
 })

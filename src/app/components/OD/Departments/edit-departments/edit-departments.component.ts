@@ -21,6 +21,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
   imports: [PageHeaderComponent, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, NgClass],
   templateUrl: './edit-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-departments.component.css'],
+  providers: [DatePipe],
   encapsulation: ViewEncapsulation.None
 })
 export class EditDepartmentsComponent implements OnInit {

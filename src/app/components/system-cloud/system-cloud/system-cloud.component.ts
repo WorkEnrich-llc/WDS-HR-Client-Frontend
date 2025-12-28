@@ -28,6 +28,7 @@ interface storageInfo {
 @Component({
   selector: 'app-system-cloud',
   imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxDocViewerModule, NgClass, NgStyle, DatePipe],
+  providers: [DatePipe],
   templateUrl: './system-cloud.component.html',
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None

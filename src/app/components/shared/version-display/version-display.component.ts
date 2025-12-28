@@ -8,6 +8,7 @@ import { DatePipe, NgClass } from '@angular/common';
   selector: 'app-version-display',
   standalone: true,
   imports: [NgClass, DatePipe],
+  providers: [DatePipe],
   template: `
     <div class="version-display" [ngClass]="{'production': versionService.isProduction(), 'staging': versionService.isStaging(), 'development': versionService.isDevelopment()}">
       <small>

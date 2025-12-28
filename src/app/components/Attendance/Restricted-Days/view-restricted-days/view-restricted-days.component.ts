@@ -10,7 +10,8 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
   selector: 'app-view-restricted-days',
   imports: [PageHeaderComponent, RouterLink, PopupComponent, DatePipe],
   templateUrl: './view-restricted-days.component.html',
-  styleUrl: './view-restricted-days.component.css'
+  styleUrl: './view-restricted-days.component.css',
+  providers: [DatePipe],
 })
 export class ViewRestrictedDaysComponent {
 

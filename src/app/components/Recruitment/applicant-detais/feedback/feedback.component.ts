@@ -8,6 +8,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-feedback',
   imports: [FormsModule, OverlayFilterBoxComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './feedback.component.html',
   styleUrl: './feedback.component.css'
 })

@@ -14,6 +14,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-edit-work-schedule',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent, NgClass, DatePipe],
+  providers: [DatePipe],
   templateUrl: './edit-work-schedule.component.html',
   styleUrl: './edit-work-schedule.component.css'
 })

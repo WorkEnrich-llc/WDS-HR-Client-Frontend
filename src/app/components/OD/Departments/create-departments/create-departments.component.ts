@@ -21,6 +21,7 @@ import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tou
   imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, SystemSetupTourComponent, NgClass],
   templateUrl: './create-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-departments.component.css'],
+  providers: [DatePipe],
   encapsulation: ViewEncapsulation.None
 })
 export class CreateDepartmentsComponent {

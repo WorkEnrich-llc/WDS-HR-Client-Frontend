@@ -14,6 +14,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 @Component({
   selector: 'app-all-leave-types',
   imports: [PageHeaderComponent, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-leave-types.component.html',
   styleUrl: './all-leave-types.component.css'
 })

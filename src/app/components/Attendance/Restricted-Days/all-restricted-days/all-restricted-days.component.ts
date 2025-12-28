@@ -14,6 +14,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-all-restricted-days',
   imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-restricted-days.component.html',
   styleUrl: './all-restricted-days.component.css'
 })

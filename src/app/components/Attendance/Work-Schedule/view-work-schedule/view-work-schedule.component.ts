@@ -10,6 +10,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-view-work-schedule',
   imports: [PageHeaderComponent, RouterLink, PopupComponent, TableComponent, NgClass],
+  providers: [DatePipe],
   templateUrl: './view-work-schedule.component.html',
   styleUrl: './view-work-schedule.component.css'
 })

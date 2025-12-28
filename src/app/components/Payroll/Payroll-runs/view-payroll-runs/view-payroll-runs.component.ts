@@ -12,6 +12,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 @Component({
   selector: 'app-view-payroll-runs',
   imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, DecimalPipe, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
 })

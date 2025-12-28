@@ -16,6 +16,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-all-workflow',
   imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-workflow.component.html',
   styleUrl: './all-workflow.component.css'
 })

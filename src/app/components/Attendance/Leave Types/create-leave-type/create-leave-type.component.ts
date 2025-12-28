@@ -10,6 +10,7 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
 @Component({
   selector: 'app-create-leave-type',
   imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgClass],
+  providers: [DatePipe],
   templateUrl: './create-leave-type.component.html',
   styleUrl: './create-leave-type.component.css'
 })

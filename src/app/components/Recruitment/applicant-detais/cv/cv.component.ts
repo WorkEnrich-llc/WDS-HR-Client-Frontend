@@ -9,6 +9,7 @@ import { DatePipe } from '@angular/common';
   selector: 'app-cv',
   standalone: true,
   imports: [OverlayFilterBoxComponent, PdfViewerModule, SafePipe, DatePipe],
+  providers: [DatePipe],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',
   encapsulation: ViewEncapsulation.None

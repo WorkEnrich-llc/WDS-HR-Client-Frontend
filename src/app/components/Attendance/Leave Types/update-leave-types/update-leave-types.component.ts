@@ -11,6 +11,7 @@ import { LeaveTypeService } from '../../../../core/services/attendance/leave-typ
   selector: 'app-update-leave-types',
   imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgClass],
   templateUrl: './update-leave-types.component.html',
+  providers: [DatePipe],
   styleUrl: './update-leave-types.component.css'
 })
 export class UpdateLeaveTypesComponent implements OnInit {

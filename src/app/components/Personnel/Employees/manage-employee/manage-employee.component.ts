@@ -47,6 +47,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
     SystemSetupTourComponent,
     EmployeeSkeletonLoaderComponent
   ],
+  providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
   styleUrls: ['./manage-employee.component.css'],
 })

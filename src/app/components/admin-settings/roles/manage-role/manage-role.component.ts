@@ -39,6 +39,7 @@ interface FeatureData {
 @Component({
   selector: 'app-manage-role',
   imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, FormsModule, NgClass, KeyValuePipe, DatePipe],
+  providers: [DatePipe],
   templateUrl: './manage-role.component.html',
   styleUrl: './manage-role.component.css'
 })

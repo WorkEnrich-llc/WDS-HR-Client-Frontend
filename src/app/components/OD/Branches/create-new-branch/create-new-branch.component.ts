@@ -19,6 +19,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
   selector: 'app-create-new-branch',
   imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, PopupComponent, ReactiveFormsModule, GoogleMapsLocationComponent, SystemSetupTourComponent, NgClass],
   templateUrl: './create-new-branch.component.html',
+  providers: [DatePipe],
   styleUrl: './create-new-branch.component.css',
   encapsulation: ViewEncapsulation.None,
 })

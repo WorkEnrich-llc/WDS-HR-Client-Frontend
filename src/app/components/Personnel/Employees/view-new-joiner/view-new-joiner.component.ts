@@ -18,6 +18,7 @@ import { OnboardingChecklistComponent, OnboardingListItem } from '../../../share
   selector: 'app-view-new-joiner',
   standalone: true,
   imports: [PageHeaderComponent, PopupComponent, OverlayFilterBoxComponent, FormsModule, ContractsTabComponent, OnboardingChecklistComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-new-joiner.component.html',
   styleUrl: './view-new-joiner.component.css'
 })

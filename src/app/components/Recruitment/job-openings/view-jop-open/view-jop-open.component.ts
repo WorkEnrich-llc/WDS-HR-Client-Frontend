@@ -47,6 +47,7 @@ type DynamicFieldSection = {
   selector: 'app-view-jop-open',
   standalone: true,
   imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass],
+  providers: [DatePipe],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
 })

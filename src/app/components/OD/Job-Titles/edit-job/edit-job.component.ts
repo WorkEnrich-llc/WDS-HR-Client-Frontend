@@ -39,6 +39,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 @Component({
   selector: 'app-edit-job',
   imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass],
+  providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
 })

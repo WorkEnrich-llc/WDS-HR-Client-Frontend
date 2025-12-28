@@ -20,6 +20,7 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
   selector: 'app-users',
   imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink, PopupComponent, DatePipe],
   templateUrl: './users.component.html',
+  providers: [DatePipe],
   styleUrl: './users.component.css',
   encapsulation: ViewEncapsulation.None
 })

@@ -28,6 +28,7 @@ export interface CalendarEvent {
   selector: 'app-calendar',
   standalone: true,
   imports: [PageHeaderComponent, FullCalendarModule, FormsModule, DatePipe, NgClass, TitleCasePipe],
+  providers: [DatePipe],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })

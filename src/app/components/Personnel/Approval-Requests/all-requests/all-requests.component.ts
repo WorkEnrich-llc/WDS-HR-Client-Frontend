@@ -17,6 +17,7 @@ import { DatePipe } from '@angular/common';
   selector: 'app-all-requests',
   imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent,
     FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink, DatePipe],
+    providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
 })

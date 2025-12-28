@@ -16,6 +16,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 @Component({
   selector: 'app-all-employees',
   imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })

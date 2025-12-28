@@ -9,6 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-view-leave-type',
   imports: [PageHeaderComponent, RouterLink, PopupComponent, NgClass],
+  providers: [DatePipe],
   templateUrl: './view-leave-type.component.html',
   styleUrl: './view-leave-type.component.css'
 })

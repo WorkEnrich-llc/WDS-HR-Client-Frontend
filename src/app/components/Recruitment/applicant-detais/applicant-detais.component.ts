@@ -12,6 +12,7 @@ import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/j
 @Component({
   selector: 'app-applicant-detais',
   imports: [FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
 })

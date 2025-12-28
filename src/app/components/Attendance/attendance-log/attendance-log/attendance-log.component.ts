@@ -24,6 +24,7 @@ import dayjs, { Dayjs } from 'dayjs';
   templateUrl: './attendance-log.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './attendance-log.component.css'],
   encapsulation: ViewEncapsulation.None,
+  providers: [DatePipe]
 })
 export class AttendanceLogComponent implements OnDestroy {
 

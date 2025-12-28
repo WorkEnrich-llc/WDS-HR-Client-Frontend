@@ -22,6 +22,7 @@ interface AttendanceRecord {
   selector: 'app-attendance-tab',
   imports: [PopupComponent, NgClass, NgStyle, DatePipe],
   templateUrl: './attendance-tab.component.html',
+  providers: [DatePipe],
   styleUrls: ['./../../../../../shared/table/table.component.css', './attendance-tab.component.css']
 })
 export class AttendanceTabComponent implements OnChanges {

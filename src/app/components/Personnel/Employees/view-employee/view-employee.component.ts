@@ -39,6 +39,7 @@ import { DatePipe, NgClass } from '@angular/common';
     TableComponent,
     OnboardingChecklistComponent
   ],
+  providers: [DatePipe],
   templateUrl: './view-employee.component.html',
   styleUrl: './view-employee.component.css'
 })

@@ -32,6 +32,7 @@ type DynamicFieldSection = {
   selector: 'app-view-archived-opening',
   standalone: true,
   imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-archived-opening.component.html',
   styleUrl: './view-archived-opening.component.css'
 })

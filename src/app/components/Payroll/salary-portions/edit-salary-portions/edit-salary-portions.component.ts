@@ -12,6 +12,7 @@ import { SalaryPortion } from 'app/core/models/salary-portions';
 @Component({
   selector: 'app-edit-salary-portions',
   imports: [PageHeaderComponent, ReactiveFormsModule, PopupComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './edit-salary-portions.component.html',
   styleUrls: ['./edit-salary-portions.component.css']
 })
