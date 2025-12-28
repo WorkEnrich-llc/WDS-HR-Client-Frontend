@@ -114,23 +114,23 @@ export class ManagePayrollComponentComponent implements OnInit {
           // Store component name for header display
           this.componentName = data.name || '';
 
-            this.createPayrollForm.patchValue({
-              code: data.code,
-              name: data.name,
-              component_type: data.component_type.id,
-              classification: data.classification.id,
-              portion: data.salary_portion ?? data.portion?.index ?? '',
-              calculation: calculationId,
-              value: data.value,
-              show_in_payslip: data.show_in_payslip
-            });
+          this.createPayrollForm.patchValue({
+            code: data.code,
+            name: data.name,
+            component_type: data.component_type.id,
+            classification: data.classification.id,
+            portion: data.salary_portion ?? data.portion?.index ?? '',
+            calculation: calculationId,
+            value: data.value,
+            show_in_payslip: data.show_in_payslip
+          });
 
-              // Ensure salary portion is set after salaryPortions are loaded
-              setTimeout(() => {
-                this.createPayrollForm.patchValue({
-                  portion: data.salary_portion ?? data.portion?.index ?? ''
-                });
-              }, 0);
+          // Ensure salary portion is set after salaryPortions are loaded
+          setTimeout(() => {
+            this.createPayrollForm.patchValue({
+              portion: data.salary_portion ?? data.portion?.index ?? ''
+            });
+          }, 0);
 
           // After patching, handle the calculation logic for portion field
           const calcValue = +calculationId;

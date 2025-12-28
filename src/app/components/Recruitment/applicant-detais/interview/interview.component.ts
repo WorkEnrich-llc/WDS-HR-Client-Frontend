@@ -1,4 +1,3 @@
-
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { Router } from '@angular/router';
@@ -864,7 +863,7 @@ export class InterviewComponent implements OnChanges {
     }
 
     this.submitting = true;
-    
+
     // If Job Offer Sent status (status code 3), use the new job offer accept API
     if (this.status === 'Job Offer Sent' && this.jobOfferId) {
       this.svc.acceptJobOffer(this.jobOfferId, this.applicationId).subscribe({
@@ -1027,6 +1026,21 @@ export class InterviewComponent implements OnChanges {
       queryParams: {
         application_id: this.applicationId,
         applicant_id: applicantId
+      }
+    });
+  }
+
+  markQualified(): void {
+    if (!this.applicationId) return;
+    this.submitting = true;
+    // Status 4 = Qualified
+    this.svc.updateApplicationStatus(this.applicationId, 4).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.applicationRefreshed.emit();
+      },
+      error: () => {
+        this.submitting = false;
       }
     });
   }
