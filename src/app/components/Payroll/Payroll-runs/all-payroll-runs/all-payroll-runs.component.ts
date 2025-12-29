@@ -5,7 +5,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
@@ -13,12 +13,13 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent,],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule],
   templateUrl: './all-payroll-runs.component.html',
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class AllPayrollRunsComponent implements OnDestroy {
+  days: number[] = Array.from({ length: 28 }, (_, i) => i + 1);
   private subscriptions: Subscription[] = [];
   private apiSub?: Subscription;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
@@ -194,5 +195,29 @@ export class AllPayrollRunsComponent implements OnDestroy {
   navigateToView(runsId: number): void {
     this.paginationState.setPage('payroll-runs/payroll-runs', this.currentPage);
     this.router.navigate(['/payroll-runs/view-payroll-run', runsId]);
+  }
+
+  selectedStartDay: number | null = null;
+
+  savePayrollConfiguration(): void {
+    if (!this.selectedStartDay) {
+      this.toastr.error('Please select a start day');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('start_in', this.selectedStartDay.toString());
+
+    this.payrollRunService.configurePayroll(formData).subscribe({
+      next: () => {
+        this.toastr.success('Payroll configuration saved successfully');
+        this.closeconfigureBoxOverlays();
+        this.selectedStartDay = null;
+        this.fetchPayrollRuns();
+      },
+      error: (error) => {
+        this.toastr.error(error?.error?.message || 'Failed to save payroll configuration');
+      }
+    });
   }
 }

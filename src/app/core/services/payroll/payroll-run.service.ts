@@ -21,4 +21,8 @@ export class PayrollRunService {
   getAllSheets(page: number = 1, per_page: number = 10): Observable<any> {
     return this.http.get(`${this.url}/all-sheets?page=${page}&per_page=${per_page}`);
   }
+
+  configurePayroll(formData: FormData): Observable<any> {
+    return this.http.put(`${environment.apiBaseUrl}payroll/configure`, formData);
+  }
 }

@@ -144,22 +144,6 @@
         }
       </div>
 
-
-
-      <div class="input">
-        <label for="value">Value <span>*</span></label>
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="number" id="value" class="form-control custom-date-input" placeholder="Enter Value"
-            formControlName="value" min="0" />
-        </div>
-        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['required']) {
-        <p class="error-msg">Value is required.</p>
-        }
-        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['min']) {
-        <p class="error-msg">Value must be 0 or greater.</p>
-        }
-      </div>
-
       <div class="input">
         <label for="type">Type <span>*</span></label>
         <div class="d-flex align-items-center gap-4">
@@ -231,6 +215,17 @@
         @if (createPayrollForm.get('portion')?.touched &&
         createPayrollForm.get('portion')?.errors?.['required']) {
         <p class="error-msg">Portion is required.</p>
+        }
+      </div>
+
+      <div class="input">
+        <label for="value">Default Value</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input type="number" id="value" class="form-control custom-date-input" placeholder="Enter Value"
+            formControlName="value" min="0" />
+        </div>
+        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['min']) {
+        <p class="error-msg">Value must be 0 or greater.</p>
         }
       </div>
 

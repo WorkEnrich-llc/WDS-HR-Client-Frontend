@@ -95,7 +95,7 @@ export class ManagePayrollComponentComponent implements OnInit {
       classification: ['', [Validators.required]],
       calculation: ['', [Validators.required]],
       portion: [''],
-      value: [null, [Validators.required, Validators.min(0)]],
+      value: [null, [Validators.min(0)]],
       show_in_payslip: [false]
     });
   }
