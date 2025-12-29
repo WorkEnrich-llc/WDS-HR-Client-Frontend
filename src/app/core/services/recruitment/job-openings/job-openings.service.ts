@@ -289,9 +289,13 @@ export class JobOpeningsService {
     }
 
     // update job offer by application ID
-    updateJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/job-offers/${applicationId}/`;
-        const body = { request_data: { salary, join_date, offer_details } };
+    updateJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string, notice_period?: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const request_data: any = { job_offer_id: applicationId, salary, join_date, offer_details };
+        if (typeof notice_period === 'number') {
+            request_data.notice_period = notice_period;
+        }
+        const body = { request_data };
         return this._HttpClient.put(url, body);
     }
 
@@ -322,7 +326,7 @@ export class JobOpeningsService {
         return this._HttpClient.put(url, body);
     }
 
-        // get employee create info by application id
+    // get employee create info by application id
     getEmployeeCreateInfo(applicationId: number): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/employee-create-info/${applicationId}/`;
         return this._HttpClient.get(url);

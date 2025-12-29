@@ -136,9 +136,10 @@
       </svg>
       <span>Reschedule Interview</span>
     </button>
-    <button class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2" (click)="markQualified()">
+    <button class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+      (click)="markQualified()">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M9.5 16.5l-4-4 1.41-1.41L9.5 13.67l7.09-7.09L18 8l-8.5 8.5z"/>
+        <path fill="currentColor" d="M9.5 16.5l-4-4 1.41-1.41L9.5 13.67l7.09-7.09L18 8l-8.5 8.5z" />
       </svg>
       <span>Qualified</span>
     </button>
@@ -146,10 +147,11 @@
   }
 
   @if (isStatus('Qualified')) {
-  <button class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2" (click)="openJobOfferOverlay()">
+  <button class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2"
+    (click)="openJobOfferOverlay()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
-        d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"/>
+        d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503" />
     </svg>
     <span>Job Offer</span>
   </button>
@@ -471,105 +473,113 @@
   [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
   <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="submitJobOffer()">
     @if (jobOfferDetailsLoading && overlayTitle === 'Update Job Offer') {
-      <!-- Skeleton loader for all fields -->
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="input placeholder-glow">
-        <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
-      </div>
-      <div class="d-flex align-items-center gap-3 mt-2">
-        <div class="btn btn-lg btn-primary w-100 disabled placeholder"></div>
-        <div class="btn btn-lg btn-outline-dark border-0 w-100 disabled placeholder"></div>
-      </div>
+    <!-- Skeleton loader for all fields -->
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <div class="btn btn-lg btn-primary w-100 disabled placeholder"></div>
+      <div class="btn btn-lg btn-outline-dark border-0 w-100 disabled placeholder"></div>
+    </div>
     } @else {
-      <div class="input">
-        <label>Email</label>
-        <input type="email" class="form-control" [value]="applicant?.email || ''" readonly
-          style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-      </div>
-      <div class="input d-flex align-items-center gap-2">
-        <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation"
-          name="includeProbation">
-        <label for="probation" class="m-0">Include Probation Period</label>
-      </div>
-      <div class="input">
-        <label for="joinDate">Join Date</label>
-        <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
-          placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
-          (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
-          style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-        @if (jobOfferValidationErrors.joinDate) {
-        <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
-        }
-      </div>
-      <div class="input d-flex align-items-center gap-2">
-        <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate">
-        <label for="withEndDate" class="m-0">With end date</label>
-      </div>
-      @if (withEndDate){
-      <div class="input">
-        <label for="contractEndDate">Contract End Date</label>
-        <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
-          style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-      </div>
+    <div class="input">
+      <label>Email</label>
+      <input type="email" class="form-control" [value]="applicant?.email || ''" readonly
+        style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation"
+        name="includeProbation">
+      <label for="probation" class="m-0">Include Probation Period</label>
+    </div>
+    <div class="input">
+      <label for="joinDate">Join Date</label>
+      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
+        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
+        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.joinDate) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
       }
-      <div class="input">
-        <label for="noticePeriod">Notice Period (in Days)</label>
-        <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
-          placeholder="Enter number of days"
-          style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-      </div>
-      @if (overlayTitle === 'Update Job Offer') {
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <span class="text-muted">Min. Salary<br><span class="fw-bold">{{ minSalary | number:'1.0-0' }} EGP</span></span>
-        <span class="text-muted">Max. Salary<br><span class="fw-bold">{{ maxSalary | number:'1.0-0' }} EGP</span></span>
-      </div>
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate">
+      <label for="withEndDate" class="m-0">With end date</label>
+    </div>
+    @if (withEndDate){
+    <div class="input">
+      <label for="contractEndDate">Contract End Date</label>
+      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    <div class="input">
+      <label for="noticePeriod">Notice Period (in Days)</label>
+      <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
+        placeholder="Enter number of days" [class.is-invalid]="jobOfferValidationErrors.noticePeriod"
+        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.noticePeriod) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.noticePeriod }}</div>
       }
-      <div class="input">
-        <label for="salary">Salary</label>
-        <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
-          [class.is-invalid]="jobOfferValidationErrors.salary"
-          style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
-        @if (jobOfferValidationErrors.salary) {
-        <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
-        }
-      </div>
-      <div class="input">
-        <label for="offerDetails">Offer Details</label>
-        <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
-          placeholder="Enter Offer Details"
-          style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
-      </div>
-      <div class="d-flex align-items-center gap-3 mt-2">
-        <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="submitting || !applicationId">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-          </svg>
-          <span>Send Job Offer</span>
-        </button>
-        <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
-          <span>Discard Job Offer</span>
-        </a>
-      </div>
+    </div>
+    @if (overlayTitle === 'Update Job Offer') {
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <span class="text-muted">Min. Salary<br><span class="fw-bold">{{ minSalary | number:'1.0-0' }} EGP</span></span>
+      <span class="text-muted">Max. Salary<br><span class="fw-bold">{{ maxSalary | number:'1.0-0' }} EGP</span></span>
+    </div>
+    }
+    <div class="input">
+      <label for="salary">Salary</label>
+      <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
+        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.salary) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
+      }
+    </div>
+    <div class="input">
+      <label for="offerDetails">Offer Details</label>
+      <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
+        placeholder="Enter Offer Details" [class.is-invalid]="jobOfferValidationErrors.offerDetails"
+        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
+      @if (jobOfferValidationErrors.offerDetails && (jobOfferFormSubmitted)) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.offerDetails }}</div>
+      }
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="submitting || !applicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Send Job Offer</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Job Offer</span>
+      </a>
+    </div>
     }
   </form>
 </app-overlay-filter-box>
