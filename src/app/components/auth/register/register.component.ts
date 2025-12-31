@@ -364,9 +364,10 @@ export class RegisterComponent implements OnDestroy, OnInit {
       next: (response) => {
         this.isLoading = false;
 
-        const session = response?.data?.session;
-        const companyInfo = response?.data?.company_info;
-        const userInfo = response?.data?.user_info;
+        // Check both root level and data level for response structure
+        const session = response?.session || response?.data?.session;
+        const companyInfo = response?.company_info || response?.data?.company_info;
+        const userInfo = response?.user_info || response?.data?.user_info;
         const authToken = session?.auth_token;
         const session_token = session?.session_token;
         const domain = companyInfo?.domain;
