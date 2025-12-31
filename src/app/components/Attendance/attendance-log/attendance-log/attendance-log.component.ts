@@ -346,6 +346,19 @@ export class AttendanceLogComponent implements OnDestroy {
       map((res: any) => res?.data?.list_items ?? [])
     );
 
+    // Add outside click listener to close dropdown menu
+    this.outsideClickListener = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const actionMenuBtn = target.closest('.action-menu-btn');
+      const actionMenuDropdown = target.closest('.action-menu-dropdown');
+
+      if (!actionMenuBtn && !actionMenuDropdown && this.openSubMenu) {
+        this.closeSubLogMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', this.outsideClickListener);
+
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
@@ -459,6 +472,20 @@ export class AttendanceLogComponent implements OnDestroy {
     return list?.find(item => item.main_record === true);
   }
 
+  // Check if a record has check-in
+  hasCheckIn(record: any): boolean {
+    return record?.times_object?.actual_check_in && record?.times_object?.actual_check_in !== '00:00';
+  }
+
+  // Check if a record has check-out
+  hasCheckOut(record: any): boolean {
+    return record?.times_object?.actual_check_out && record?.times_object?.actual_check_out !== '00:00';
+  }
+
+  // Check if a record has both check-in and check-out
+  hasBothCheckInAndOut(record: any): boolean {
+    return this.hasCheckIn(record) && this.hasCheckOut(record);
+  }
 
   onSearchChange() {
     // Emit the search term to the subject for debounced processing
@@ -735,7 +762,7 @@ export class AttendanceLogComponent implements OnDestroy {
 
   cancelLog(attendance: any): void {
     this.isLoading = true;
-    const id = attendance.id ?? attendance.record_id;
+    const id = attendance.record_id ?? attendance.id;
     if (!id) {
       this.toasterService.showError('Attendance log ID not found.');
       this.isLoading = false;
@@ -902,7 +929,7 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkin';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = '';
+    this.editCheckInValue = log?.times_object?.actual_check_in || '';
     this.editModalOpen = true;
   }
 
@@ -947,7 +974,8 @@ export class AttendanceLogComponent implements OnDestroy {
       // Use record_id as id if present, else fallback
       id = this.editModalEmp.record_id || this.editModalEmp.id || this.editModalEmp.employee.id || '';
     } else {
-      id = this.editModalLog.id ?? this.editModalLog.record_id;
+      // Prioritize record_id over id for edit operations
+      id = this.editModalLog.record_id ?? this.editModalLog.id;
       if (!id) {
         // this.toastr.error('Attendance log ID not found.');
         this.editModalLoading = false;
@@ -986,7 +1014,7 @@ export class AttendanceLogComponent implements OnDestroy {
   handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
     // Debug: log the object to help diagnose missing id
     console.log('Deduction toggle log object:', log);
-    const id = log?.id ?? log?.record_id ?? log?.recordID ?? log?.attendance_id;
+    const id = log?.record_id ?? log?.id ?? log?.recordID ?? log?.attendance_id;
     if (!id) {
       this.toastr.error('Attendance log ID not found. Please contact support.');
       console.error('Deduction toggle error: log object missing id/record_id:', log);
