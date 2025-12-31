@@ -29,7 +29,7 @@ export class RegisterComponent implements OnDestroy, OnInit {
       this.startCountdown();
     }
     // Clear any existing error messages when leaving the verification step
-    if (value !== 3) {
+    if (value !== 3) { 
       this.errMsg = '';
     }
   }
