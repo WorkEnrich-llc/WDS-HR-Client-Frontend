@@ -420,27 +420,16 @@
 
     </app-overlay-filter-box>
 
-<!-- Start Payroll Run confirmation popup -->
-<app-popup
-  [title]="'Start Payroll Run'"
-  [paragraph1]="'Are you sure you want to start the payroll run with the selected sheet?'"
-  [paragraph2]="'Selected Sheet: ' + getSelectedSheetName()"
-  [isOpen]="showConfirmation"
-  (close)="cancelStartPayroll()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-primary w-100"
-    (click)="confirmStartPayroll()"
-    [disabled]="isStartingPayroll"
-  >
-    {{ isStartingPayroll ? 'Processing...' : 'Start Payroll Run' }}
-  </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="cancelStartPayroll()"
-  >
-    Cancel
-  </button>
-</app-popup>
+    <!-- Start Payroll Run confirmation popup -->
+    <app-popup [title]="'Start Payroll Run'"
+        [paragraph1]="'Are you sure you want to start the payroll run with the selected sheet?'"
+        [paragraph2]="'Selected Sheet: ' + getSelectedSheetName()" [isOpen]="showConfirmation"
+        (close)="cancelStartPayroll()">
+        <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="confirmStartPayroll()"
+            [disabled]="isStartingPayroll">
+            {{ isStartingPayroll ? 'Processing...' : 'Start Payroll Run' }}
+        </button>
+        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelStartPayroll()">
+            Cancel
+        </button>
+    </app-popup>
