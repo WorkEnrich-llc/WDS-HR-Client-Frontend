@@ -9,6 +9,8 @@ import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { TableComponent } from '../../../shared/table/table.component';
 import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/leave-balance.service';
 import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/core/models/leave-balance';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
+import { LeaveTypeService } from 'app/core/services/attendance/leave-type/leave-type.service';
 
 @Component({
     selector: 'app-leave-balance',
@@ -29,6 +31,8 @@ export class LeaveBalanceComponent {
     @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
     @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
     private leaveBalanceService = inject(LeaveBalanceService);
+    private employeeService = inject(EmployeeService);
+    private leaveTypeService = inject(LeaveTypeService);
     private toasterService = inject(ToasterMessageService);
     filterForm!: FormGroup;
     searchTerm: string = '';
@@ -37,6 +41,12 @@ export class LeaveBalanceComponent {
     private searchSubject = new Subject<string>();
     private toasterSubscription!: Subscription;
     isLoading: boolean = false;
+
+    // Filter overlay loading states
+    isLoadingEmployees: boolean = false;
+    isLoadingLeaveTypes: boolean = false;
+    employees: any[] = [];
+    leaveTypes: any[] = [];
 
     loadData: boolean = false;
 
@@ -80,6 +90,50 @@ export class LeaveBalanceComponent {
             employee_id: [''],
             leave_id: [''],
             // status: ['']
+        });
+    }
+
+    // Load employees and leave types when filter overlay opens
+    loadFilterData(): void {
+        this.loadEmployeesData();
+        this.loadLeaveTypesData();
+    }
+
+    private loadEmployeesData(): void {
+        this.isLoadingEmployees = true;
+        this.employeeService.getEmployees(1, 1000).subscribe({
+            next: (res: any) => {
+                const rawEmployees = res.data?.list_items || res.data || res;
+                // Extract employee data from object_info if it exists
+                this.employees = rawEmployees.map((emp: any) => ({
+                    id: emp.object_info?.id || emp.id,
+                    name: emp.object_info?.contact_info?.name || emp.name || 'N/A'
+                })).sort((a:any, b:any) => a.name.localeCompare(b.name));
+                this.isLoadingEmployees = false;
+            },
+            error: (err) => {
+                console.error('Error loading employees:', err);
+                this.isLoadingEmployees = false;
+            }
+        });
+    }
+
+    private loadLeaveTypesData(): void {
+        this.isLoadingLeaveTypes = true;
+        this.leaveTypeService.getAllLeavetypes(1, 1000).subscribe({
+            next: (res: any) => {
+                const rawLeaveTypes = res.data?.list_items || res.data || res;
+                // Ensure we have properly formatted leave type data
+                this.leaveTypes = rawLeaveTypes.map((leave: any) => ({
+                    id: leave.id,
+                    name: leave.name || 'N/A'
+                }));
+                this.isLoadingLeaveTypes = false;
+            },
+            error: (err) => {
+                console.error('Error loading leave types:', err);
+                this.isLoadingLeaveTypes = false;
+            }
         });
     }
 
@@ -189,7 +243,7 @@ export class LeaveBalanceComponent {
                 this.isLoading = false;
                 this.editBox.closeOverlay();
                 this.selectedBalance.total = this.editTotal;
-                this.toasterService.showSuccess('Leave balance updated successfully',"Updated Successfully");
+                this.toasterService.showSuccess('Leave balance updated successfully', "Updated Successfully");
                 this.getAllLLeaveBalances(this.currentPage);
             },
             error: (err) => {
