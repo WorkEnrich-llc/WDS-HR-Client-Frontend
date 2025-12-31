@@ -1,8 +1,9 @@
 @media (min-width:991px) {
-    .width-fix{
+    .width-fix {
         width: 350px !important;
-    }    
-    .w-lg-50{
+    }
+
+    .w-lg-50 {
         width: 50% !important;
     }
 }
@@ -11,6 +12,7 @@
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
