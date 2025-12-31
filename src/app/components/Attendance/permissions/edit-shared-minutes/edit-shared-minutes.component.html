@@ -57,51 +57,50 @@
             </label>
             <div class="form-outline w-100 position-relative custom-date-wrapper">
                <input type="number" id="minutes" class="form-control custom-date-input" placeholder="Per month"
-                  [disabled]="!allowPermission" [(ngModel)]="minutes" name="minutes" [required]="allowPermission"
-                  min="0" [max]="maxMinutes" />
+                  [disabled]="!allowPermission" [(ngModel)]="minutes" (input)="sanitizeMinutesInput()"
+                  (keydown)="onMinutesKeyDown($event)" name="minutes"
+                  [required]="allowPermission" min="1" [max]="maxMinutes" [class.is-invalid]="isMinutesInvalid()" />
             </div>
+            @if (invalidCharacterWarning) {
+            <div class="text-warning mt-2" role="alert">
+               {{ invalidCharacterWarning }}
+            </div>
+            }
+            @if (getMinutesErrorMessage()) {
+            <div class="text-danger mt-2" role="alert">
+               {{ getMinutesErrorMessage() }}
+            </div>
+            }
          </div>
 
-         <!-- Validation message for invalid minutes (e.g., negative) -->
-         @if(allowPermission && minutes !== null && minutes !== undefined && minutes < 0) { <div
-            class="text-danger mt-1"> Maximum Requested Minutes *
-   </div>}
 
-   <!-- Validation message for exceeding maximum allowed minutes -->
-   @if (allowPermission && minutes !== null && minutes !== undefined && minutes > maxMinutes) {
-   <div class="text-danger mt-1">
-      Maximum allowed time is {{ maxHoursLabel }}. Please enter a smaller value.
+         <!-- Notes textarea -->
+         <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
+            <label for="note">Notes (Optional)</label>
+            <div class="form-outline w-100 position-relative custom-date-wrapper">
+               <textarea id="note" class="form-control" placeholder="Add additional Notes" [disabled]="!allowPermission"
+                  [(ngModel)]="note" name="note"></textarea>
+            </div>
+         </div>
+         @if (errMsg) {
+         <div class="alert alert-danger mb-0 mt-3" role="alert">
+            {{errMsg}}
+         </div>
+         }
+      </form>
+
    </div>
-   }
-
-
-   <!-- Notes textarea -->
-   <div class="input" [style.opacity]="allowPermission ? 1 : 0.5">
-      <label for="note">Notes (Optional)</label>
-      <div class="form-outline w-100 position-relative custom-date-wrapper">
-         <textarea id="note" class="form-control" placeholder="Add additional Notes" [disabled]="!allowPermission"
-            [(ngModel)]="note" name="note"></textarea>
-      </div>
-   </div>
-   @if (errMsg) {
-   <div class="alert alert-danger mb-0 mt-3" role="alert">
-      {{errMsg}}
-   </div>
-   }
-   </form>
-
-</div>
 
 
 
-<!-- Discard popup  -->
-<app-popup [title]="'Discard Changes'"
-   [paragraph1]="'Are you sure you want to discard all changes done to the Shared Minutes permission?'"
-   [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
-   <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
-      Discard Changes
-   </button>
-   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
-      Keep Editing
-   </button>
-</app-popup>
+   <!-- Discard popup  -->
+   <app-popup [title]="'Discard Changes'"
+      [paragraph1]="'Are you sure you want to discard all changes done to the Shared Minutes permission?'"
+      [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+      <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
+         Discard Changes
+      </button>
+      <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
+         Keep Editing
+      </button>
+   </app-popup>

@@ -33,6 +33,7 @@ export class EditLateArriveComponent {
   minutes: number | null = null;
   note: string = '';
   errMsg: string = '';
+  invalidCharacterWarning: string = '';
 
   originalData: any;
 
@@ -86,6 +87,88 @@ export class EditLateArriveComponent {
     );
   }
 
+  // Prevent non-numeric characters from being typed
+  onMinutesKeyDown(event: KeyboardEvent): void {
+    const char = event.key;
+    // Allow: backspace, delete, tab, escape, enter
+    if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(char)) {
+      return;
+    }
+    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+    if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(char.toLowerCase())) {
+      return;
+    }
+    // Prevent: non-numeric characters
+    if (!/^[0-9]$/.test(char)) {
+      event.preventDefault();
+    }
+  }
+
+  // Sanitize minutes input - remove non-numeric characters and validate
+  sanitizeMinutesInput(): void {
+    if (this.minutes === null || this.minutes === undefined) {
+      this.invalidCharacterWarning = '';
+      return;
+    }
+
+    // Convert to string, remove all non-numeric characters
+    const stringValue = String(this.minutes);
+    const sanitized = stringValue.replace(/[^0-9]/g, '');
+
+    // Check if invalid characters were present
+    if (sanitized.length < stringValue.length) {
+      this.invalidCharacterWarning = 'Only numbers are allowed';
+    } else {
+      this.invalidCharacterWarning = '';
+    }
+
+    // If empty after sanitization, set to null
+    if (sanitized === '') {
+      this.minutes = null;
+      return;
+    }
+
+    // Convert to number and enforce constraints
+    let numValue = parseInt(sanitized, 10);
+
+    // Ensure positive number
+    if (numValue < 0) {
+      numValue = 0;
+    }
+
+    // Enforce max limit
+    if (numValue > this.maxMinutes) {
+      numValue = this.maxMinutes;
+    }
+
+    this.minutes = numValue;
+  }
+
+  // Validate minutes field
+  isMinutesInvalid(): boolean {
+    if (!this.allowPermission || this.minutes === null || this.minutes === undefined) {
+      return false;
+    }
+    return this.minutes < 1 || this.minutes > this.maxMinutes;
+  }
+
+  // Get validation error message
+  getMinutesErrorMessage(): string {
+    if (!this.allowPermission || this.minutes === null || this.minutes === undefined) {
+      return '';
+    }
+
+    if (this.minutes < 1) {
+      return 'Maximum Requested Minutes must be at least 1';
+    }
+
+    if (this.minutes > this.maxMinutes) {
+      return `Maximum allowed time is ${this.formatHours(this.maxMinutes)}. Please enter a smaller value.`;
+    }
+
+    return '';
+  }
+
   saveChanges() {
     this.isLoading = true;
     if (!this.isChanged) {
@@ -93,10 +176,14 @@ export class EditLateArriveComponent {
       return;
     }
 
-    // Validation: minutes must not be negative when permission is allowed
-    if (this.allowPermission && this.minutes !== null && this.minutes !== undefined && this.minutes < 0) {
-      // field-level validation is displayed in template; stop submission
+    // Sanitize input first
+    this.sanitizeMinutesInput();
+
+    // Validation: minutes must be valid when permission is allowed
+    if (this.allowPermission && (this.minutes === null || this.minutes === undefined || this.minutes < 1)) {
       this.isLoading = false;
+      this.errMsg = 'Maximum Requested Minutes must be at least 1';
+      this.toasterService.showError(this.errMsg);
       return;
     }
 
