@@ -25,4 +25,8 @@ export class PayrollRunService {
   configurePayroll(formData: FormData): Observable<any> {
     return this.http.put(`${environment.apiBaseUrl}payroll/configure`, formData);
   }
+
+  startPayrollRun(formData: FormData): Observable<any> {
+    return this.http.post(`${this.url}`, formData);
+  }
 }
