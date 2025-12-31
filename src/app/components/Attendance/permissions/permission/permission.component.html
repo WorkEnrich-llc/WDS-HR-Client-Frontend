@@ -2,7 +2,7 @@
 <app-page-header [breadcrumbs]="[
    { label: 'Attendance', link: '/attendance' },
     { label: 'Permissions' }
-  ]" title="Permissions - Late arrive & Early leave & Shared Minutes">
+  ]" [title]="permissions?.is_shared_minutes ? 'Permissions - Shared Minutes' : 'Permissions - Late arrive & Early leave & Split Minutes'">
   <button (click)="overlay.openOverlay()" class="btn btn-lg btn-outline-dark w-auto">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
