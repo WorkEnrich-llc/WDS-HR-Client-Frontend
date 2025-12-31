@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -11,14 +11,15 @@ import { LeaveBalanceService } from 'app/core/services/attendance/leave-balance/
 import { ILeaveBalance, ILeaveBalanceFilters, ILeaveBalanceResponse } from 'app/core/models/leave-balance';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { LeaveTypeService } from 'app/core/services/attendance/leave-type/leave-type.service';
+import { NgxPaginationModule } from "ngx-pagination";
 
 @Component({
     selector: 'app-leave-balance',
-    imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+    imports: [PageHeaderComponent, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
     templateUrl: './leave-balance.component.html',
     styleUrls: ['./leave-balance.component.css']
 })
-export class LeaveBalanceComponent {
+export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
     constructor(
         private route: ActivatedRoute,
@@ -40,6 +41,13 @@ export class LeaveBalanceComponent {
     currentSortColumn: string = '';
     private searchSubject = new Subject<string>();
     private toasterSubscription!: Subscription;
+    private routeQueryParamsSubscription!: Subscription;
+    private searchSubscription!: Subscription;
+    private employeesSubscription!: Subscription;
+    private leaveTypesSubscription!: Subscription;
+    private leaveBalancesSubscription!: Subscription;
+    private updateLeaveBalanceSubscription!: Subscription;
+    private destroy$ = new Subject<void>();
     isLoading: boolean = false;
 
     // Filter overlay loading states
@@ -58,7 +66,7 @@ export class LeaveBalanceComponent {
     itemsPerPage = 10;
 
     ngOnInit(): void {
-        this.route.queryParams.subscribe(params => {
+        this.routeQueryParamsSubscription = this.route.queryParams.subscribe(params => {
             this.currentPage = +params['page'] || 1;
             this.getAllLLeaveBalances(this.currentPage);
         });
@@ -71,18 +79,41 @@ export class LeaveBalanceComponent {
                 this.toasterMessageService.clearMessage();
             });
 
-        this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+        this.searchSubscription = this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
             this.getAllLLeaveBalances(this.currentPage, value);
         });
 
         this.initializeFilterForm();
     }
 
+
     ngOnDestroy(): void {
+        // Unsubscribe from all subscriptions
+        if (this.routeQueryParamsSubscription) {
+            this.routeQueryParamsSubscription.unsubscribe();
+        }
         if (this.toasterSubscription) {
             this.toasterSubscription.unsubscribe();
         }
+        if (this.searchSubscription) {
+            this.searchSubscription.unsubscribe();
+        }
+        if (this.employeesSubscription) {
+            this.employeesSubscription.unsubscribe();
+        }
+        if (this.leaveTypesSubscription) {
+            this.leaveTypesSubscription.unsubscribe();
+        }
+        if (this.leaveBalancesSubscription) {
+            this.leaveBalancesSubscription.unsubscribe();
+        }
+        if (this.updateLeaveBalanceSubscription) {
+            this.updateLeaveBalanceSubscription.unsubscribe();
+        }
+        // Complete subjects
         this.searchSubject.complete();
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     initializeFilterForm(): void {
@@ -101,7 +132,7 @@ export class LeaveBalanceComponent {
 
     private loadEmployeesData(): void {
         this.isLoadingEmployees = true;
-        this.employeeService.getEmployees(1, 1000).subscribe({
+        this.employeesSubscription = this.employeeService.getEmployees(1, 1000).subscribe({
             next: (res: any) => {
                 const rawEmployees = res.data?.list_items || res.data || res;
                 // Extract employee data from object_info if it exists
@@ -120,7 +151,7 @@ export class LeaveBalanceComponent {
 
     private loadLeaveTypesData(): void {
         this.isLoadingLeaveTypes = true;
-        this.leaveTypeService.getAllLeavetypes(1, 1000).subscribe({
+        this.leaveTypesSubscription = this.leaveTypeService.getAllLeavetypes(1, 1000).subscribe({
             next: (res: any) => {
                 const rawLeaveTypes = res.data?.list_items || res.data || res;
                 // Ensure we have properly formatted leave type data
@@ -141,7 +172,7 @@ export class LeaveBalanceComponent {
 
     getAllLLeaveBalances(pageNumber: number, searchTerm: string = '', filters?: ILeaveBalanceFilters): void {
         this.loadData = true;
-        this.leaveBalanceService.getAllLeaveBalance({
+        this.leaveBalancesSubscription = this.leaveBalanceService.getAllLeaveBalance({
             page: pageNumber,
             per_page: this.itemsPerPage,
             search: searchTerm || undefined,
@@ -238,7 +269,7 @@ export class LeaveBalanceComponent {
             leave_id: this.selectedBalance.leave.id,
             total: this.editTotal ?? this.selectedBalance.total
         };
-        this.leaveBalanceService.updateLeaveBalance(data).subscribe({
+        this.updateLeaveBalanceSubscription = this.leaveBalanceService.updateLeaveBalance(data).subscribe({
             next: () => {
                 this.isLoading = false;
                 this.editBox.closeOverlay();
@@ -258,5 +289,4 @@ export class LeaveBalanceComponent {
         this.selectedBalance = null;
         this.editBox.closeOverlay();
     }
-
 }

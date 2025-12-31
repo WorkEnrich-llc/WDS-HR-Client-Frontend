@@ -33,6 +33,7 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
+  private currentFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
   private searchSubscription!: Subscription;
@@ -152,7 +153,9 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
       employment_type: '',
       status: ''
     });
+    this.currentFilters = {};
     this.filterBox.closeOverlay();
+    this.currentPage = 1;
     this.getAllJobTitles(this.currentPage);
   }
 
@@ -167,8 +170,10 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
         status: rawFilters.status || undefined
       };
 
-
+      // Store the active filters
+      this.currentFilters = filters;
       this.filterBox.closeOverlay();
+      this.currentPage = 1;
       this.getAllJobTitles(this.currentPage, '', filters);
     }
   }
@@ -217,7 +222,7 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.getAllJobTitles(this.currentPage);
+    this.getAllJobTitles(this.currentPage, '', this.currentFilters);
   }
   // onPageChange(page: number): void {
   //   this.currentPage = page;
@@ -226,7 +231,8 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('...', page);
+    this.paginationState.setPage('leave-types/all-leave-types', page);
+    this.getAllJobTitles(page, this.searchTerm, this.currentFilters);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },
