@@ -30,12 +30,14 @@ export class AllJobTitlesComponent {
   constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder, private subService: SubscriptionService) { }
   departments: any[] = [];
+  isLoadingDepartments: boolean = false;
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
   private getAllJobTitlesSub?: Subscription;
+  private getAllDepartmentsSub?: Subscription;
   private toasterSubscription!: Subscription;
   currentFilters: any = {};
   currentSearchTerm: string = '';
@@ -55,7 +57,7 @@ export class AllJobTitlesComponent {
     });
 
 
-    this.getAllDepartment(1);
+    // Remove the automatic department loading - will be called on filter overlay open
     // this.route.queryParams.subscribe(params => {
     //   this.currentPage = +params['page'] || 1;
     //   this.getAllJobTitles(this.currentPage);
@@ -135,12 +137,22 @@ export class AllJobTitlesComponent {
     this.getAllJobTitles(this.currentPage);
   }
 
+  loadFilterData(): void {
+    // Load departments data only when filter overlay is opened
+    if (this.departments.length === 0) {
+      this.getAllDepartment(1);
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
     if (this.getAllJobTitlesSub) {
       this.getAllJobTitlesSub.unsubscribe();
+    }
+    if (this.getAllDepartmentsSub) {
+      this.getAllDepartmentsSub.unsubscribe();
     }
     if (this.jobTitleSub && typeof this.jobTitleSub.unsubscribe === 'function') {
       this.jobTitleSub.unsubscribe();
@@ -260,7 +272,13 @@ export class AllJobTitlesComponent {
       created_to?: string;
     }
   ) {
-    this._DepartmentsService.getAllDepartment(1, 10000, {
+    // Unsubscribe from previous call if it exists
+    if (this.getAllDepartmentsSub) {
+      this.getAllDepartmentsSub.unsubscribe();
+    }
+
+    this.isLoadingDepartments = true;
+    this.getAllDepartmentsSub = this._DepartmentsService.getAllDepartment(1, 10000, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
@@ -268,16 +286,20 @@ export class AllJobTitlesComponent {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-        }));
+        this.departments = response.data.list_items
+          .filter((item: any) => item.is_active === true)
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+          }));
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.isLoadingDepartments = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingDepartments = false;
       }
     });
   }
