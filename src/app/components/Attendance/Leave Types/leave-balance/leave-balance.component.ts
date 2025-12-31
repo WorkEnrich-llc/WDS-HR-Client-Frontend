@@ -108,7 +108,7 @@ export class LeaveBalanceComponent {
                 this.employees = rawEmployees.map((emp: any) => ({
                     id: emp.object_info?.id || emp.id,
                     name: emp.object_info?.contact_info?.name || emp.name || 'N/A'
-                })).sort((a:any, b:any) => a.name.localeCompare(b.name));
+                })).sort((a: any, b: any) => a.name.localeCompare(b.name));
                 this.isLoadingEmployees = false;
             },
             error: (err) => {
