@@ -201,7 +201,7 @@ export class EditEarlyLeaveComponent {
 
     const late_arrive_status =
       (lateFromApi.minutes && lateFromApi.minutes !== 0) ||
-      (lateFromApi.note && lateFromApi.note.trim() !== '')
+        (lateFromApi.note && lateFromApi.note.trim() !== '')
         ? 'true'
         : 'false';
 
@@ -254,21 +254,21 @@ export class EditEarlyLeaveComponent {
     });
   }
 
-  
+
   // discard popup
   isModalOpen = false;
-  
+
   openModal() {
     this.isModalOpen = true;
   }
-  
+
   closeModal() {
     this.isModalOpen = false;
   }
-  
+
   confirmAction() {
     this.isModalOpen = false;
     this.router.navigate(['/permissions']);
   }
-  }
+}
 

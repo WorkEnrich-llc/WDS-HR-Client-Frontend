@@ -56,9 +56,8 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <input type="number" id="minutes" class="form-control custom-date-input" placeholder="Per month"
                         [disabled]="!allowPermission" [(ngModel)]="minutes" (input)="sanitizeMinutesInput()"
-                        (keydown)="onMinutesKeyDown($event)"
-                        name="minutes" [required]="allowPermission" min="1" [max]="maxMinutes"
-                        [class.is-invalid]="isMinutesInvalid()" />
+                        (keydown)="onMinutesKeyDown($event)" name="minutes" [required]="allowPermission" min="1"
+                        [max]="maxMinutes" [class.is-invalid]="isMinutesInvalid()" />
                 </div>
                 @if (invalidCharacterWarning) {
                 <div class="text-warning mt-2" role="alert">
