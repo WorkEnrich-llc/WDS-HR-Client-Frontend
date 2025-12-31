@@ -94,8 +94,8 @@ export class EditSharedMinutesComponent {
     if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(char.toLowerCase())) {
       return;
     }
-    // Prevent: non-numeric characters
-    if (!/^[0-9]$/.test(char)) {
+    // Prevent: non-numeric characters except decimal point
+    if (!/^[0-9.]$/.test(char)) {
       event.preventDefault();
     }
   }
@@ -107,25 +107,31 @@ export class EditSharedMinutesComponent {
       return;
     }
 
-    // Convert to string, remove all non-numeric characters
+    // Convert to string, remove all non-numeric characters except decimal point
     const stringValue = String(this.minutes);
-    const sanitized = stringValue.replace(/[^0-9]/g, '');
+    const sanitized = stringValue.replace(/[^0-9.]/g, '');
 
     // Check if invalid characters were present
     if (sanitized.length < stringValue.length) {
-      this.invalidCharacterWarning = 'Only numbers are allowed';
+      this.invalidCharacterWarning = 'Only numbers and decimal point are allowed';
     } else {
       this.invalidCharacterWarning = '';
     }
 
     // If empty after sanitization, set to null
-    if (sanitized === '') {
+    if (sanitized === '' || sanitized === '.') {
       this.minutes = null;
       return;
     }
 
     // Convert to number and enforce constraints
-    let numValue = parseInt(sanitized, 10);
+    let numValue = parseFloat(sanitized);
+
+    // Handle NaN
+    if (isNaN(numValue)) {
+      this.minutes = null;
+      return;
+    }
 
     // Ensure positive number
     if (numValue < 0) {
