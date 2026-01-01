@@ -40,12 +40,12 @@
 
         <form [formGroup]="portionsForm" class="w-lg-50 d-flex flex-column gap-2">
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <input class="form-check-input" type="checkbox" formControlName="isFlexible" id="isFlexible">
                 <label class="form-check-label custom-portion" for="isFlexible">
                     Allow custom total portions (Disable 100% restriction)
                 </label>
-            </div>
+            </div> -->
 
             <div formArrayName="portions">
                 @for(portion of portions.controls; track $index; let i = $index) { <div
