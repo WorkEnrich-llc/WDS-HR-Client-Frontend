@@ -1,5 +1,19 @@
 /* View Job Board Setup Styles */
 
+.logo-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(44, 67, 93, 0.08));
+}
+
 .description-content {
     font-size: 14px;
     line-height: 16px;

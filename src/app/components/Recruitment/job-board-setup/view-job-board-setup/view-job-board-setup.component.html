@@ -110,6 +110,13 @@
     <!-- Left Card: Description -->
     <div class="col-lg-8">
       <div class="content-box d-flex flex-column gap-3 h-100">
+        <!-- Logo -->
+        @if (logoUrl) {
+        <div class="logo-container">
+          <img [src]="logoUrl" alt="Job Board Logo" class="logo-image">
+        </div>
+        }
+        
         <h2>Where talent meets opportunity</h2>
 
         <div class="d-flex flex-column gap-2">

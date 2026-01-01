@@ -32,6 +32,7 @@ export class ViewJobBoardSetupComponent implements OnInit {
     jobsLandingPageUrl: string = '';
     createdAt: string = '';
     updatedAt: string = '';
+    logoUrl: string = '';
 
     // UI state
     isDescriptionExpanded: boolean = false;
@@ -61,6 +62,9 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
                 // Extract description
                 this.description = data.description || '';
+
+                // Extract logo from company_logo object
+                this.logoUrl = data.company_logo?.generate_signed_url || data.company_logo?.image_url || '';
 
                 // Extract social media links
                 this.socialMediaLinks = this.extractSocialMediaLinks(data);
