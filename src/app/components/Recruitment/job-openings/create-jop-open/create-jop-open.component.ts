@@ -43,6 +43,9 @@ export class CreateJopOpenComponent implements OnInit {
   ngOnInit() {
     // Always start from main-information tab
     this.activeTab = 'main-information';
+    
+    // Clear any previous data from service (when coming from update mode)
+    this.jobCreationDataService.clearData();
   }
 
   isActive(path: string): boolean {
