@@ -5,6 +5,7 @@ export interface JobCreationData {
     main_information: {
         job_title_id?: number;
         employment_type?: number;
+        work_mode?: number;
         work_schedule_id?: number;
         days_on_site?: number;
         branch_id?: number;

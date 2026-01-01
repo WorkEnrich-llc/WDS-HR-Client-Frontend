@@ -99,6 +99,7 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
           this.jobCreationDataService.updateMainInformation({
             job_title_id: jobData.job_title?.id,
             employment_type: jobData.employment_type?.id,
+            work_mode: jobData.work_mode?.id,
             work_schedule_id: jobData.work_schedule?.id,
             days_on_site: jobData.days_on_site,
             branch_id: jobData.branch?.id,
