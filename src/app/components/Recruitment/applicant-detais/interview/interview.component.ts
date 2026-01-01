@@ -1,6 +1,7 @@
 
 import { Component, ViewChild, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
@@ -12,7 +13,7 @@ import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-interview',
-  imports: [FormsModule, OverlayFilterBoxComponent, DecimalPipe],
+  imports: [FormsModule, OverlayFilterBoxComponent, PopupComponent, DecimalPipe],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })
@@ -39,6 +40,9 @@ export class InterviewComponent implements OnChanges {
   private toasterService = inject(ToasterMessageService);
   private router = inject(Router);
   submitting = false;
+
+  // Revert modal
+  isRevertModalOpen = false;
 
   // Departments data
   departments: Array<{ id: number; name: string; code: string }> = [];
@@ -1134,6 +1138,30 @@ export class InterviewComponent implements OnChanges {
     this.svc.updateApplicationStatus(this.applicationId, 4).subscribe({
       next: () => {
         this.submitting = false;
+        this.applicationRefreshed.emit();
+      },
+      error: () => {
+        this.submitting = false;
+      }
+    });
+  }
+
+  revertToJobOffer(): void {
+    this.isRevertModalOpen = true;
+  }
+
+  closeRevertModal(): void {
+    this.isRevertModalOpen = false;
+  }
+
+  confirmRevert(): void {
+    if (!this.applicationId) return;
+    this.submitting = true;
+    // Status 5 = Job Offer Sent
+    this.svc.updateApplicationStatus(this.applicationId, 5).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.isRevertModalOpen = false;
         this.applicationRefreshed.emit();
       },
       error: () => {
