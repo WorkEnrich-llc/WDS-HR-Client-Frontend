@@ -13,13 +13,8 @@
     <div class="col-lg-8">
       <div class="content-box h-100">
         <!-- calendar with shared component -->
-        <app-calendar 
-          [isLoading]="isLoading" 
-          [calendarDays]="calendarDays" 
-          [currentDate]="currentDate" 
-          [events]="events"
-          (monthChanged)="onMonthChanged($event)"
-          (daySelected)="onDaySelected($event)"
+        <app-calendar [isLoading]="isLoading" [calendarDays]="calendarDays" [currentDate]="currentDate"
+          [events]="events" (monthChanged)="onMonthChanged($event)" (daySelected)="onDaySelected($event)"
           (todayClicked)="onTodayClicked()">
         </app-calendar>
       </div>
