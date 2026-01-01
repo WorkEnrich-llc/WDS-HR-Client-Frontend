@@ -147,7 +147,8 @@ export class ApplicantDetaisComponent implements OnInit {
               status: application.status,
               created_at: application.created_at,
               application_id: application.id,
-              job_id: application.job || this.applicationDetails.job
+              job_id: application.job || this.applicationDetails.job,
+              evaluation: applicant.evaluation
             };
 
             // Fetch applications for this applicant
