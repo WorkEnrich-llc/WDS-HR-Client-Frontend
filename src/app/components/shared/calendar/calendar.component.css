@@ -25,13 +25,13 @@
 .dropdown-body select {
     padding: 0.5rem 1rem 0.5rem 0.75rem;
     border-radius: 0.6rem;
-    border: 1.5px solid #e0e0e0;
-    background: #fafbfc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23666" d="M6 9L1 4h10z"/></svg>') right 0.75rem center no-repeat;
+    border: 1.5px solid var(--color-neutral-200);
+    background: #fafbfc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23a3a3a3" d="M6 9L1 4h10z"/></svg>') right 0.75rem center no-repeat;
     background-size: 12px;
     padding-right: 2.5rem;
     font-size: 0.95rem;
     font-weight: 500;
-    color: #333;
+    color: var(--color-neutral-600);
     outline: none;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -42,7 +42,7 @@
 
 .dropdown-body select:focus {
     border: 1.5px solid var(--color-primary-500, #1976d2);
-    background-color: #fff;
+    background-color: var(--color-white);
     box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
 }
 
@@ -143,7 +143,7 @@
     min-height: 150px;
     max-height: 150px;
     padding: var(--spacing-12) 0 0 0;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--color-neutral-100);
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s, transform 0.15s ease;
     display: flex;
@@ -154,17 +154,17 @@
 }
 
 .calendar-day:hover {
-    background: #fafafa;
+    background: var(--color-neutral-100);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
 }
 
 .calendar-day.other-month {
-    background-color: var(--color-neutral-500);
+    background-color: var(--color-neutral-400);
 }
 
 .calendar-day.other-month .day-number {
-    opacity: 0.6;
+    color: var(--color-neutral-200);
 }
 
 .calendar-day.today .day-number {
@@ -292,7 +292,7 @@
 
 .more-events {
     font-size: 12px;
-    color: #666;
+    color: var(--color-neutral-400);
     padding: 2px 0;
     font-weight: 500;
 }
