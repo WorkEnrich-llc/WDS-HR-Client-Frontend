@@ -28,7 +28,7 @@ export class NavbarComponent {
   websiteUrl = input<string | null>(null);
   showVisitWebsite = input<boolean>(true);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   navigateToCareers(): void {
     this.router.navigate(['/careers']);
