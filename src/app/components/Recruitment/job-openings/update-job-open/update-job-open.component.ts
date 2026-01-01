@@ -36,6 +36,7 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   activeTab: 'main-information' | 'required-details' | 'attachments' = 'main-information';
   jobId: number = 0;
+  jobTitle: string = '';
   hasChanges: boolean = false;
 
   // Store initial form data for comparison
@@ -94,6 +95,9 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
         if (response.data && response.data.object_info) {
           // Pre-populate the service with existing job data from object_info
           const jobData = response.data.object_info;
+
+          // Set job title for header
+          this.jobTitle = jobData.job_title?.name || '';
 
           // Update main information
           this.jobCreationDataService.updateMainInformation({

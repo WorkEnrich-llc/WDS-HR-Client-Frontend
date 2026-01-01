@@ -5,7 +5,7 @@
     { label: 'Job Openings', link: '/job-openings' },
     { label: 'Update Job' }
   ]"
-  title="Update Job - Job ID {{ jobId }}"
+  title="Update Job - {{ jobTitle || 'Loading...' }}"
   [create]="todayFormatted"
 >
   @if (!isLoading) {

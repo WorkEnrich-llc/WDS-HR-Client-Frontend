@@ -3,7 +3,7 @@
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
     { label: 'Applicants' }
-  ]" title="Opening {{ jobOpening?.id || 'Loading...' }} - Applicants"
+  ]" title="{{ jobOpening?.job_title?.name || 'Loading...' }} - Applicants"
   create="{{ jobOpening?.created_at | date : 'dd/MM/yyyy' }}"
   update="{{ jobOpening?.updated_at | date : 'dd/MM/yyyy' }}">
   <button class="btn btn-lg btn-primary" [routerLink]="['/job-openings/update-job-openings', jobOpening?.id]">
