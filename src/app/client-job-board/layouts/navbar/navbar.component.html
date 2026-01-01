@@ -2,7 +2,7 @@
   <div class="navbar-content">
     <!-- Left Section: Logo and Company Info -->
     @if (logo().icon || logo().companyName || logo().tagline) {
-    <div class="navbar-left">
+    <div class="navbar-left" (click)="navigateToCareers()" style="cursor: pointer;">
       @if (logo().icon) {
       <img
         [src]="logo().icon"
