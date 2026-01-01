@@ -136,12 +136,12 @@ export class RequiredDetailsComponent implements OnInit {
     Object.keys(dynamicFields).forEach(categoryName => {
       const categoryData = dynamicFields[categoryName];
       const category = this.categories.find(c => c.name === categoryName);
-      
+
       if (category) {
         Object.keys(categoryData).forEach(subCategoryName => {
           const subCategoryData = categoryData[subCategoryName];
           const subCategory = category.subCategories.find(sc => sc.name === subCategoryName);
-          
+
           if (subCategory && Array.isArray(subCategoryData)) {
             // Update existing fields
             subCategoryData.forEach((fieldData: any) => {
@@ -173,7 +173,7 @@ export class RequiredDetailsComponent implements OnInit {
   }
 
   toggleSubCategory(categoryIndex: number, subCategoryIndex: number): void {
-    this.categories[categoryIndex].subCategories[subCategoryIndex].collapsed = 
+    this.categories[categoryIndex].subCategories[subCategoryIndex].collapsed =
       !this.categories[categoryIndex].subCategories[subCategoryIndex].collapsed;
   }
 
@@ -207,7 +207,7 @@ export class RequiredDetailsComponent implements OnInit {
   addCustomField(): void {
     if (this.newFieldName.trim() && this.currentCategoryIndex >= 0 && this.currentSubCategoryIndex >= 0) {
       const subCategory = this.categories[this.currentCategoryIndex].subCategories[this.currentSubCategoryIndex];
-      
+
       // Check if field name already exists
       const exists = subCategory.fields.some(f => f.name.toLowerCase() === this.newFieldName.trim().toLowerCase());
       if (!exists) {
@@ -219,11 +219,11 @@ export class RequiredDetailsComponent implements OnInit {
           required: false,
           enabled: true
         });
-        
+
         this.updateDynamicFields();
       }
     }
-    
+
     this.closeAddFieldModal();
   }
 
@@ -240,7 +240,7 @@ export class RequiredDetailsComponent implements OnInit {
 
     this.categories.forEach(category => {
       dynamicFields[category.name] = {};
-      
+
       category.subCategories.forEach(subCategory => {
         const enabledFields = subCategory.fields
           .filter(f => f.enabled)
@@ -251,7 +251,7 @@ export class RequiredDetailsComponent implements OnInit {
             value: f.value,
             required: f.required
           }));
-        
+
         if (enabledFields.length > 0) {
           dynamicFields[category.name][subCategory.name] = enabledFields;
         }
