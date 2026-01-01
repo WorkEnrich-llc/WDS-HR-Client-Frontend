@@ -146,7 +146,7 @@
         <h3 class="section-subheading">{{ subsection.name }}</h3>
         @for (row of groupFieldsIntoRows(subsection.fields); track $index) {
         <div class="form-row" [class.form-row-full]="row.length === 1">
-          @for (field of row; track field.name) { @let fieldKey =
+          @for (field of row; track $index) { @let fieldKey =
           getFieldKeyFromName(field.name);
 
           <!-- Regular Input Field -->
@@ -258,7 +258,7 @@
     @if (getAttachmentLinks().length > 0) {
     <section class="form-card links-card">
       <h2 class="card-heading">Links</h2>
-      @for (field of getAttachmentLinks(); track field.name) { @let fieldKey =
+      @for (field of getAttachmentLinks(); track $index) { @let fieldKey =
       getFieldKeyFromName(field.name);
       <div class="form-row form-row-full">
         <div class="form-group">
@@ -363,7 +363,7 @@
         <h3 class="section-subheading">{{ subsection.name }}</h3>
         @for (row of groupFieldsIntoRows(subsection.fields); track $index) {
         <div class="form-row" [class.form-row-full]="row.length === 1">
-          @for (field of row; track field.name) { @let fieldKey =
+          @for (field of row; track $index) { @let fieldKey =
           getFieldKeyFromName(field.name);
 
           <!-- Regular Input Field -->

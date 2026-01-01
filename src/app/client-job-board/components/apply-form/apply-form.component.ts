@@ -10,6 +10,7 @@ import { MetaTagsService } from '../../services/meta-tags.service';
 import { JobItem, JobFields, JobField } from '../../models/job-listing.model';
 import { CloseDropdownDirective } from '../../../core/directives/close-dropdown.directive';
 import { PopupComponent } from '../../../components/shared/popup/popup.component';
+import { ToasterMessageService } from '../../../core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-apply-form',
@@ -24,6 +25,7 @@ export class ApplyFormComponent implements OnInit {
   private jobBoardService = inject(ClientJobBoardService);
   private metaTagsService = inject(MetaTagsService);
   private fb = inject(FormBuilder);
+  private toasterMessageService = inject(ToasterMessageService);
 
   jobId: string | null = null;
   job: JobItem | null = null;
@@ -351,8 +353,6 @@ export class ApplyFormComponent implements OnInit {
 
             // Populate form with data from CV parsing
             if (response?.data?.application_content) {
-              console.log('CV upload response:', response);
-              console.log('Application content:', response.data.application_content);
               this.populateFormFromCV(response.data.application_content);
             }
 
@@ -711,7 +711,6 @@ export class ApplyFormComponent implements OnInit {
 
       control.setValue(formValue);
       control.markAsTouched();
-      console.log(`Populated field: ${field.name} (${fieldKey}) = ${formValue}`);
     } else {
       console.warn(`Form control not found for field: ${field.name} (${fieldKey})`);
     }
@@ -1371,6 +1370,25 @@ export class ApplyFormComponent implements OnInit {
   }
 
   /**
+   * Clear the form and reset all form-related state
+   */
+  private clearForm(): void {
+    // Reset form
+    this.applicationForm.reset();
+
+    // Clear file uploads
+    this.resumeFile = null;
+    this.cvUploadedFileName = null;
+    this.uploadedAttachments = [];
+    this.uploadedEvaluationId = null;
+
+    // Reset error messages
+    this.errorMessage = '';
+    this.formErrorsAnnouncement = '';
+    this.screenReaderAnnouncement = '';
+  }
+
+  /**
    * Handle form submission with accessibility
    */
   onSubmit(): void {
@@ -1396,7 +1414,6 @@ export class ApplyFormComponent implements OnInit {
       this.applicationForm.disable();
 
       const requestData = this.buildRequestData();
-      console.log('Submitting application with data:', requestData);
 
       this.jobBoardService.submitApplication(requestData).subscribe({
         next: (response) => {
@@ -1404,9 +1421,8 @@ export class ApplyFormComponent implements OnInit {
           this.applicationForm.enable();
           this.announceToScreenReader('Application submitted successfully');
 
-          // Navigate to success page or show success message
-          console.log('Application submitted successfully:', response);
-
+          // Clear the form and uploaded files (interceptor will show success message)
+          this.clearForm();
           // TODO: Navigate to success page or show success modal
           // this.router.navigate(['/careers/application-success']);
         },
@@ -1418,6 +1434,7 @@ export class ApplyFormComponent implements OnInit {
           const errorMessage = error.error?.message || 'Failed to submit application. Please try again.';
           this.formErrorsAnnouncement = errorMessage;
           this.announceToScreenReader(errorMessage);
+          // Interceptor will handle showing the error message, so don't show it twice
         }
       });
     } else {

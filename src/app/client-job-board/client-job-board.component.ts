@@ -90,7 +90,6 @@ export class ClientJobBoardComponent implements OnInit {
 
                     // Apply theme color dynamically
                     if (objectInfo.theme_color) {
-                        console.log('Setting theme color from API:', objectInfo.theme_color);
                         this.themeService.setThemeColor(objectInfo.theme_color);
                     } else {
                         console.warn('No theme_color found in API response');
@@ -149,8 +148,6 @@ export class ClientJobBoardComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
             const file = input.files[0];
-            // Handle file upload logic here
-            console.log('File uploaded:', file.name, fileType);
         }
     }
 
@@ -160,7 +157,6 @@ export class ClientJobBoardComponent implements OnInit {
 
     onSubmit(): void {
         if (this.applicationForm.valid) {
-            console.log('Form submitted:', this.applicationForm.value);
             // Handle form submission
         } else {
             console.log('Form is invalid');
