@@ -93,14 +93,159 @@
     <div class="col-lg-8">
       <app-cv [applicant]="applicantDetails" [cvUrl]="getCvUrlFromApplication()"></app-cv>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-4 d-flex flex-column gap-4">
       <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
         [applicationDetails]="applicationDetails" (applicationRefreshed)="refreshApplication()"></app-interview>
     </div>
   </div>
 
   <div class="row g-4">
-    <div class="col-lg-4">
+    <div class="col-lg-4 d-flex flex-column gap-4">
+      <!-- Previous Applications Section -->
+      @if (isLoading) {
+      <div class="content-box d-flex flex-column gap-3">
+        <h2>Previous Applications</h2>
+        @for (i of [1,2,3]; track i) {
+        <div class="placeholder-glow">
+          <div class="info">
+            <h6 class="placeholder col-6"></h6>
+            <span class="placeholder col-8 mt-2"></span>
+          </div>
+        </div>
+        }
+      </div>
+      } @else if (applicantApplications.length > 0) {
+      <div class="content-box d-flex flex-column gap-3">
+        <h2>Previous Applications</h2>
+
+        @for (app of applicantApplications; track app.application.id) {
+        <div class="previous-app-item">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0" style="font-size: 16px; font-weight: 600; color: #2c435d">
+              {{ app.job_title?.name || 'N/A' }}
+            </h6>
+            <div class="d-flex align-items-center gap-2">
+              <span style="font-size: 12px; color: #8091a7">
+                {{ app.application.created_at | date:'dd/MM/yyyy' }}
+              </span>
+              <a [routerLink]="['/job-openings/view-job-openings', app.application.job]" class="text-primary"
+                style="cursor: pointer" title="View Job Opening">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_1271_19239)">
+                    <path
+                      d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
+                      fill="#377AFD" />
+                    <path
+                      d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
+                      fill="#377AFD" />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_1271_19239">
+                      <rect width="18" height="18" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            @switch (app.application.status) {
+              @case ('Applicant') {
+                <div class="badge-gray">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Applicant</span>
+                </div>
+              }
+              @case ('Candidate') {
+                <div class="badge-newjoiner">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0" clip-rule="evenodd"/>
+                    <path fill="currentColor" d="M18.856 16.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 1 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016"/>
+                    <path fill="currentColor" fill-rule="evenodd" d="M13.91 21.608c-.61.093-1.251.142-1.91.142c-2.04 0-3.922-.47-5.322-1.27C5.3 19.692 4.25 18.49 4.25 17s1.05-2.692 2.428-3.48c1.4-.8 3.283-1.27 5.322-1.27c1.805 0 3.483.368 4.812 1.004q.093-.004.188-.004a4.75 4.75 0 1 1-3.09 8.358M13.75 18a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m.668-3.987A4.75 4.75 0 0 0 12.25 18c0 .803.2 1.56.55 2.222q-.393.028-.8.028c-1.827 0-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17s.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073c.861 0 1.677.094 2.418.263" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Candidate</span>
+                </div>
+              }
+              @case ('Interviewee') {
+                <div class="badge-newemployee">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/>
+                      <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5"/>
+                      <circle cx="16.5" cy="16.5" r="1.5"/>
+                      <path stroke-linecap="round" d="M2.5 9h19"/>
+                    </g>
+                  </svg>
+                  <span>Interviewee</span>
+                </div>
+              }
+              @case ('Job Offer Sent') {
+                <div class="badge-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Job Offer Sent</span>
+                </div>
+              }
+              @case ('New Joiner') {
+                <div class="badge-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z"/>
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0" clip-rule="evenodd"/>
+                  </svg>
+                  <span>New Joiner</span>
+                </div>
+              }
+              @case ('Accepted') {
+                <div class="badge-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z"/>
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Accepted</span>
+                </div>
+              }
+              @case ('Rejected') {
+                <div class="badge-danger">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z"/>
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Rejected</span>
+                </div>
+              }
+              @case ('Not Selected') {
+                <div class="badge-gray">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27" clip-rule="evenodd"/>
+                  </svg>
+                  <span>Not Selected</span>
+                </div>
+              }
+              @default {
+                <div class="badge-gray">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27" clip-rule="evenodd"/>
+                  </svg>
+                  <span>{{ app.application.status || 'Applicant' }}</span>
+                </div>
+              }
+            }
+
+            @if (app.applicant?.evaluation?.average_score) {
+            <div class="score-badge">
+              <span>{{ app.applicant.evaluation.average_score }}/100</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      }
+
       <app-attachment-and-info [applicant]="applicantDetails"
         [application]="applicationDetails"></app-attachment-and-info>
     </div>

@@ -1,0 +1,44 @@
+.previous-app-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e7eaf0;
+}
+
+.previous-app-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.score-badge {
+    padding: 8px 16px;
+    background: #e0ebff;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #377afd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-gray,
+.badge-newjoiner,
+.badge-newemployee,
+.badge-success,
+.badge-danger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.badge-gray svg,
+.badge-newjoiner svg,
+.badge-newemployee svg,
+.badge-success svg,
+.badge-danger svg {
+    width: 18px;
+    height: 18px;
+}

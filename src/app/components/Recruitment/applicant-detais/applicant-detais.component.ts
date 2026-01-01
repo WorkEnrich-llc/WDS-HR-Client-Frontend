@@ -7,11 +7,11 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { InterviewComponent } from './interview/interview.component';
 import { AttachmentAndInfoComponent } from './attachment-and-info/attachment-and-info.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 @Component({
   selector: 'app-applicant-detais',
-  imports: [FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent, DatePipe],
+  imports: [FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent, DatePipe, RouterLink],
   providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
@@ -28,6 +28,7 @@ export class ApplicantDetaisComponent implements OnInit {
   applicationId?: number;
   feedbacks: any[] = [];
   isFeedbackLoading: boolean = false;
+  applicantApplications: any[] = [];
 
   // Reject form variables
   rejectionNotes: string = '';
@@ -148,6 +149,11 @@ export class ApplicantDetaisComponent implements OnInit {
               application_id: application.id,
               job_id: application.job || this.applicationDetails.job
             };
+
+            // Fetch applications for this applicant
+            if (applicant.id) {
+              this.fetchApplicantApplications(applicant.id);
+            }
           }
 
           this.fetchFeedbacks();
@@ -202,5 +208,56 @@ export class ApplicantDetaisComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private fetchApplicantApplications(applicantId: number): void {
+    this.jobOpeningsService.getApplicationsByApplicantId(applicantId).subscribe({
+      next: (res) => {
+        const applications = res?.data?.list_items ?? res?.list_items ?? [];
+        this.applicantApplications = Array.isArray(applications) ? applications : [];
+      },
+      error: () => {
+        this.applicantApplications = [];
+      }
+    });
+  }
+
+  getStatusBadgeForApp(status: string): { class: string; label: string } {
+    const statusBadges: Record<string, { class: string; label: string }> = {
+      'Applicant': {
+        class: 'badge-gray',
+        label: 'Applicant'
+      },
+      'Candidate': {
+        class: 'badge-newjoiner',
+        label: 'Candidate'
+      },
+      'Interviewee': {
+        class: 'badge-newemployee',
+        label: 'Interviewee'
+      },
+      'Job Offer Sent': {
+        class: 'badge-success',
+        label: 'Job Offer Sent'
+      },
+      'New Joiner': {
+        class: 'badge-success',
+        label: 'New Joiner'
+      },
+      'Accepted': {
+        class: 'badge-success',
+        label: 'Accepted'
+      },
+      'Rejected': {
+        class: 'badge-danger',
+        label: 'Rejected'
+      },
+      'Not Selected': {
+        class: 'badge-gray',
+        label: 'Not Selected'
+      }
+    };
+
+    return statusBadges[status] || statusBadges['Applicant'];
   }
 }

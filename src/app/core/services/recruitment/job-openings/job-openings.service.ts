@@ -331,4 +331,11 @@ export class JobOpeningsService {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/employee-create-info/${applicationId}/`;
         return this._HttpClient.get(url);
     }
+
+    // get applications by applicant_id
+    getApplicationsByApplicantId(applicantId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications`;
+        const params = new HttpParams().set('applicant_id', applicantId.toString());
+        return this._HttpClient.get(url, { params });
+    }
 }
