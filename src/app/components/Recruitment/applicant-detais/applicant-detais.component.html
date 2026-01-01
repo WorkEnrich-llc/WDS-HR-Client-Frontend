@@ -2,7 +2,7 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
-    { label: ('Opening ' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
+    { label: ('Opening ' + (applicationDetails?.job_title?.name || applicationDetails?.application?.job_title?.name || applicationDetails?.application?.job ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
     {  label: 'View Applicant'}
   ]" title="Applicant {{ applicantDetails?.name || '...' }}" [isApplied]="true"
   create="{{ applicantDetails?.created_at | date:'dd/MM/yyyy' }}"
