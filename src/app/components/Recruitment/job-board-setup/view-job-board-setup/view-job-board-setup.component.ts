@@ -29,6 +29,7 @@ export class ViewJobBoardSetupComponent implements OnInit {
     // Job board setup data
     description: string = '';
     socialMediaLinks: SocialMediaLink[] = [];
+    jobsLandingPageUrl: string = '';
     createdAt: string = '';
     updatedAt: string = '';
 
@@ -39,6 +40,14 @@ export class ViewJobBoardSetupComponent implements OnInit {
     ngOnInit(): void {
         // Load job board setup data
         this.loadJobBoardSetup();
+        // Set the jobs landing page URL
+        this.setJobsLandingPageUrl();
+    }
+
+    private setJobsLandingPageUrl(): void {
+        // Get the base URL and append the /careers path
+        const baseUrl = window.location.origin;
+        this.jobsLandingPageUrl = `${baseUrl}/careers`;
     }
 
     loadJobBoardSetup(): void {
