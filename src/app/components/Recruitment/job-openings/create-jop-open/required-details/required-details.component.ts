@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
-import { CommonModule } from '@angular/common';
+import { PopupComponent } from '../../../../shared/popup/popup.component';
 
 interface DynamicField {
   name: string;
@@ -26,7 +26,8 @@ interface MainCategory {
 
 @Component({
   selector: 'app-required-details',
-  imports: [FormsModule, CommonModule],
+  standalone: true,
+  imports: [FormsModule, PopupComponent],
   templateUrl: './required-details.component.html',
   styleUrl: './required-details.component.css'
 })
@@ -49,6 +50,14 @@ export class RequiredDetailsComponent implements OnInit {
   newFieldName = '';
   newFieldType = 'text';
   fieldTypes = ['text', 'email', 'phone', 'number'];
+
+  // Delete confirmation modal state
+  showDeleteConfirmModal = false;
+  deleteFieldIndex = -1;
+  deleteFieldCategoryIndex = -1;
+  deleteFieldSubCategoryIndex = -1;
+  deleteFieldName = '';
+  deleteMessage = '';
 
   ngOnInit(): void {
     // Initialize default structure
@@ -230,9 +239,30 @@ export class RequiredDetailsComponent implements OnInit {
   removeCustomField(categoryIndex: number, subCategoryIndex: number, fieldIndex: number): void {
     const field = this.categories[categoryIndex].subCategories[subCategoryIndex].fields[fieldIndex];
     if (!field.system) {
-      this.categories[categoryIndex].subCategories[subCategoryIndex].fields.splice(fieldIndex, 1);
+      this.deleteFieldIndex = fieldIndex;
+      this.deleteFieldCategoryIndex = categoryIndex;
+      this.deleteFieldSubCategoryIndex = subCategoryIndex;
+      this.deleteFieldName = field.name;
+      this.deleteMessage = `Are you sure you want to delete the field "${field.name}"?`;
+      this.showDeleteConfirmModal = true;
+    }
+  }
+
+  closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+    this.deleteFieldIndex = -1;
+    this.deleteFieldCategoryIndex = -1;
+    this.deleteFieldSubCategoryIndex = -1;
+    this.deleteFieldName = '';
+    this.deleteMessage = '';
+  }
+
+  confirmDeleteField(): void {
+    if (this.deleteFieldIndex >= 0 && this.deleteFieldCategoryIndex >= 0 && this.deleteFieldSubCategoryIndex >= 0) {
+      this.categories[this.deleteFieldCategoryIndex].subCategories[this.deleteFieldSubCategoryIndex].fields.splice(this.deleteFieldIndex, 1);
       this.updateDynamicFields();
     }
+    this.closeDeleteConfirmModal();
   }
 
   updateDynamicFields(): void {
