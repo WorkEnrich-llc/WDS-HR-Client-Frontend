@@ -26,13 +26,13 @@ export class CvComponent {
   }
   pdfUrl = `${window.location.origin}/assets/cv.pdf`;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer) { }
 
 
   downloadCv() {
     const url = this.pdfUrl;
     if (!url) return;
-    
+
     fetch(url)
       .then(response => response.blob())
       .then(blob => {
