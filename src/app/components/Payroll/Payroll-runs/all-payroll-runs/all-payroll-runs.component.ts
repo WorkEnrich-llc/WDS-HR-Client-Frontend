@@ -10,10 +10,11 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, DatePipe],
   templateUrl: './all-payroll-runs.component.html',
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
@@ -38,6 +39,9 @@ export class AllPayrollRunsComponent implements OnDestroy {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   private searchSubject = new Subject<string>();
+  currentPayrollEndDate: string = '';
+  selectedStartDay: number | null = null;
+  isConfiguring: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -197,26 +201,34 @@ export class AllPayrollRunsComponent implements OnDestroy {
     this.router.navigate(['/payroll-runs/view-payroll-run', runsId]);
   }
 
-  selectedStartDay: number | null = null;
-
   savePayrollConfiguration(): void {
     if (!this.selectedStartDay) {
       this.toastr.error('Please select a start day');
       return;
     }
 
+    this.isConfiguring = true;
     const formData = new FormData();
     formData.append('start_in', this.selectedStartDay.toString());
 
     this.payrollRunService.configurePayroll(formData).subscribe({
-      next: () => {
-        this.toastr.success('Payroll configuration saved successfully');
-        this.closeconfigureBoxOverlays();
-        this.selectedStartDay = null;
+      next: (response) => {
+        this.toasterMessageService.showSuccess('Payroll configuration saved successfully');
+
+        // Extract end date from response details
+        if (response?.details && response.details.length > 0) {
+          this.currentPayrollEndDate = response.details[1]?.end_date || response.details[0]?.end_date || '';
+        }
+
+        // Don't close the modal - let user close it manually
+        // Reset the form but keep modal open
         this.fetchPayrollRuns();
+        this.isConfiguring = false;
       },
       error: (error) => {
-        this.toastr.error(error?.error?.message || 'Failed to save payroll configuration');
+        console.error('Error saving payroll configuration:', error);
+        this.toasterMessageService.showError(error?.error?.message || 'Failed to save payroll configuration');
+        this.isConfiguring = false;
       }
     });
   }

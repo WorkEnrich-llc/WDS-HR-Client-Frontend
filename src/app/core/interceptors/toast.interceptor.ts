@@ -152,11 +152,17 @@ export const toastInterceptor: HttpInterceptorFn = (
               message = responseBody.data;
             }
 
-            if (!message || message.trim() === '') {
+            // Safely handle message - convert to string if needed
+            if (!message) {
               return;
             }
 
-            toasterService.showSuccess(message);
+            const messageStr = typeof message === 'string' ? message.trim() : '';
+            if (!messageStr) {
+              return;
+            }
+
+            toasterService.showSuccess(messageStr);
           }
         }
       },

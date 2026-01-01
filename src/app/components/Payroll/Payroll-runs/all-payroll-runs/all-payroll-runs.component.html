@@ -15,9 +15,6 @@
 </app-page-header>
 <!-- end page header -->
 
-
-
-
 <!-- start page content -->
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
@@ -316,7 +313,9 @@
       </div>
     </div>
 
-    <p class="text-primary">The current Payroll will end on 30 January</p>
+    @if (currentPayrollEndDate) {
+    <p class="text-primary">The current Payroll will end on {{ currentPayrollEndDate | date: 'dd MMMM' }}</p>
+    }
 
 
 
@@ -326,7 +325,11 @@
 
 
     <div class="d-flex align-items-center gap-3">
-      <button type="submit" class="btn btn-lg btn-primary w-100">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isConfiguring">
+        @if (isConfiguring) {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span>Saving...</span>
+        } @else {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -334,6 +337,7 @@
           </g>
         </svg>
         <span>Save Changes</span>
+        }
       </button>
       <a type="button" (click)="closeconfigureBoxOverlays()" class="btn btn-lg btn-outline-dark border-0 w-100">
         <span>Discard Changes</span>
