@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -334,6 +334,23 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   hoveredApplicantId: number | null = null;
   tooltipPosition: { left: number; top: number } | null = null;
   tooltipWidth: number = 560;
+  copiedSectionId: string | null = null;
+
+  /**
+   * Copy text to clipboard with visual feedback
+   */
+  copyToClipboard(text: string, sectionId: string): void {
+    navigator.clipboard.writeText(text).then(() => {
+      // Show copied feedback
+      this.copiedSectionId = sectionId;
+      // Auto hide after 2 seconds
+      setTimeout(() => {
+        this.copiedSectionId = null;
+      }, 2000);
+    }).catch(() => {
+      console.error('Failed to copy to clipboard');
+    });
+  }
 
   sortBy(column: keyof Applicant) {
     if (this.currentSortColumn === column) {
@@ -473,9 +490,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle hover state for applicant evaluation tooltip
+   * Handle click on applicant badge to show evaluation tooltip
    */
-  onApplicantHover(applicantId: number): void {
+  onApplicantClick(applicantId: number): void {
+    // If clicking the same applicant, close the tooltip
+    if (this.hoveredApplicantId === applicantId) {
+      this.closeTooltip();
+      return;
+    }
+
     this.hoveredApplicantId = applicantId;
 
     const badgeElement = document.querySelector(`[data-badge-id="${applicantId}"]`) as HTMLElement;
@@ -526,9 +549,41 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     };
   }
 
-  onApplicantHoverLeave(): void {
+  /**
+   * Close the tooltip
+   */
+  closeTooltip(): void {
     this.hoveredApplicantId = null;
     this.tooltipPosition = null;
+  }
+
+  /**
+   * Close tooltip when clicking outside
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const tooltip = document.querySelector('[data-tooltip-id]');
+    const badgeContainers = document.querySelectorAll('[data-badge-id]');
+    const target = event.target as HTMLElement;
+
+    // Check if click is on tooltip or badge
+    const isTooltipClick = tooltip && tooltip.contains(target);
+    const isBadgeClick = Array.from(badgeContainers).some(container => container.contains(target));
+
+    // Close tooltip if clicking outside both
+    if (!isTooltipClick && !isBadgeClick && this.hoveredApplicantId !== null) {
+      this.closeTooltip();
+    }
+  }
+
+  /**
+   * Close tooltip when scrolling
+   */
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (this.hoveredApplicantId !== null) {
+      this.closeTooltip();
+    }
   }
 
   /**
