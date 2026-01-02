@@ -34,8 +34,8 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   selectedEmploymentType: string = '';
   selectedWorkMode: string = '';
   selectedOnsiteDays: string = '';
-  timeLimit: number = 5;
-  cvLimit: number = 20;
+  timeLimit: number | undefined;
+  cvLimit: number | undefined;
 
   // Work Mode options
   workModes = [
