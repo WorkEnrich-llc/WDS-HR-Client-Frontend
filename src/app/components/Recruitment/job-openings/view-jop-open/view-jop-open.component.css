@@ -10,9 +10,9 @@
 
 :host {
     /* Active tab/icon color (requested: #377AFD) */
-    --active-tab-color: #377AFD;
+    --active-tab-color: var(--color-primary-500);
     /* Non-active tab/icon color (requested: #4A6D97) */
-    --inactive-tab-color: #4A6D97;
+    --inactive-tab-color: var(--color-secondary-500);
 }
 
 /* Tab Navigation Styles - Matching Image Design */
@@ -44,6 +44,42 @@
     cursor: pointer;
     white-space: nowrap;
     min-height: 40px;
+}
+
+/* Applicant Count Tab Styles */
+.applicant-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+}
+
+.applicant-tab__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-8);
+}
+
+.applicant-tab__count {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-primary-600);
+}
+
+.applicant-tab__count--danger {
+    color: var(--color-danger-500);
+}
+
+.applicant-tab__separator {
+    color: var(--color-neutral-400);
+}
+
+.applicant-tab__icon-success {
+    color: var(--color-success-500);
+}
+
+.applicant-tab__icon-danger {
+    color: var(--color-danger-500);
 }
 
 .nav-tabs .nav-item>svg {
@@ -87,32 +123,122 @@
 
 /* Active tab icon styling */
 .nav-tabs .nav-item.active>svg {
-    color: #377AFD !important;
+    color: var(--color-primary-500) !important;
 }
 
 .nav-tabs .nav-item.active>svg path,
 .nav-tabs .nav-item.active>svg circle:not([fill="white"]),
 .nav-tabs .nav-item.active>svg rect:not([fill="white"]),
 .nav-tabs .nav-item.active>svg g {
-    fill: #377AFD !important;
-    stroke: #377AFD !important;
+    fill: var(--color-primary-500) !important;
+    stroke: var(--color-primary-500) !important;
 }
 
 /* Non-active tab icon styling */
 .nav-tabs .nav-item:not(.active)>svg {
-    color: #4A6D97 !important;
+    color: var(--color-neutral-400) !important;
 }
 
 .nav-tabs .nav-item:not(.active)>svg path,
 .nav-tabs .nav-item:not(.active)>svg circle:not([fill="white"]),
 .nav-tabs .nav-item:not(.active)>svg rect:not([fill="white"]),
 .nav-tabs .nav-item:not(.active)>svg g {
-    fill: #4A6D97 !important;
-    stroke: #4A6D97 !important;
+    fill: var(--color-neutral-400) !important;
+    stroke: var(--color-neutral-400) !important;
 }
 
 .nav-tabs .nav-item:not(.active) .nav-link {
-    color: #6b7280;
+    color: var(--color-neutral-400);
+}
+
+/* Tab link wrapper - flex column layout */
+.nav-link-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Tab header - flex row layout */
+.tab-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Tab count container with spacing */
+.tab-count {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-primary-500);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Individual count item with icon and spacing */
+.count-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Inactive tab count color */
+.nav-tabs .nav-item:not(.active) .tab-count {
+    color: var(--color-neutral-400);
+}
+
+/* Tab separator color */
+.tab-separator {
+    color: var(--color-neutral-400);
+}
+
+/* Job Offer tab color variations */
+.offer-sent {
+    color: var(--color-primary-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-sent-grey {
+    color: var(--color-neutral-400);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-accepted {
+    color: var(--color-success-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-rejected {
+    color: var(--color-danger-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.interview-accepted {
+    color: var(--color-success-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-icon {
+    flex-shrink: 0;
+    color: var(--color-neutral-400);
+}
+
+.offer-accepted .offer-icon {
+    color: var(--color-success-500);
+}
+
+.offer-rejected .offer-icon {
+    color: var(--color-danger-500);
+}
+
+.interview-accepted .offer-icon {
+    color: var(--color-success-500);
 }
 
 /* Skeleton loader styles to match actual content height */

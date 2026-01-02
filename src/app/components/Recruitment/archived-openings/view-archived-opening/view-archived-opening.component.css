@@ -10,9 +10,288 @@
 
 :host {
     /* Active tab/icon color (requested: #377AFD) */
-    --active-tab-color: #377AFD;
+    --active-tab-color: var(--color-primary-500);
     /* Non-active tab/icon color (requested: #4A6D97) */
-    --inactive-tab-color: #4A6D97;
+    --inactive-tab-color: var(--color-secondary-500);
+}
+
+/* Tab Navigation Styles - Matching Image Design */
+.nav-tabs {
+    border-bottom: none;
+    gap: 0;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.nav-tabs .nav-item .nav-link {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 40px;
+}
+
+/* Applicant Count Tab Styles */
+.applicant-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+}
+
+.applicant-tab__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-8);
+}
+
+.applicant-tab__count {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-primary-600);
+}
+
+.applicant-tab__count--danger {
+    color: var(--color-danger-500);
+}
+
+.applicant-tab__separator {
+    color: var(--color-neutral-400);
+}
+
+.applicant-tab__icon-success {
+    color: var(--color-success-500);
+}
+
+.applicant-tab__icon-danger {
+    color: var(--color-danger-500);
+}
+
+.nav-tabs .nav-item>svg {
+    transition: all 0.2s ease;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.nav-tabs .nav-item.active .nav-link {
+    background: transparent;
+    color: var(--active-tab-color);
+    box-shadow: none;
+    border-bottom: 3px solid var(--active-tab-color);
+    border-radius: 0;
+}
+
+.nav-tabs .nav-item.active>svg {
+    color: var(--active-tab-color);
+}
+
+.nav-tabs .nav-item:not(.active):hover .nav-link {
+    background: transparent;
+    color: #374151;
+}
+
+.nav-tabs .nav-item:not(.active):hover>svg {
+    color: #374151;
+}
+
+/* Ensure tabs are evenly distributed - split into 6 parts */
+.nav-tabs .nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.nav-tabs .nav-item:nth-child(6) {
+    flex: 1;
+    /* Empty 6th tab - maintains spacing */
+}
+
+/* Active tab icon styling */
+.nav-tabs .nav-item.active>svg {
+    color: var(--color-primary-500) !important;
+}
+
+.nav-tabs .nav-item.active>svg path,
+.nav-tabs .nav-item.active>svg circle:not([fill="white"]),
+.nav-tabs .nav-item.active>svg rect:not([fill="white"]),
+.nav-tabs .nav-item.active>svg g {
+    fill: var(--color-primary-500) !important;
+    stroke: var(--color-primary-500) !important;
+}
+
+/* Non-active tab icon styling */
+.nav-tabs .nav-item:not(.active)>svg {
+    color: var(--color-neutral-400) !important;
+}
+
+.nav-tabs .nav-item:not(.active)>svg path,
+.nav-tabs .nav-item:not(.active)>svg circle:not([fill="white"]),
+.nav-tabs .nav-item:not(.active)>svg rect:not([fill="white"]),
+.nav-tabs .nav-item:not(.active)>svg g {
+    fill: var(--color-neutral-400) !important;
+    stroke: var(--color-neutral-400) !important;
+}
+
+.nav-tabs .nav-item:not(.active) .nav-link {
+    color: var(--color-neutral-400);
+}
+
+/* Tab link wrapper - flex column layout */
+.nav-link-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Tab header - flex row layout */
+.tab-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Tab count container with spacing */
+.tab-count {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-primary-500);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Individual count item with icon and spacing */
+.count-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Inactive tab count color */
+.nav-tabs .nav-item:not(.active) .tab-count {
+    color: var(--color-neutral-400);
+}
+
+/* Tab separator color */
+.tab-separator {
+    color: var(--color-neutral-400);
+}
+
+/* Job Offer tab color variations */
+.offer-sent {
+    color: var(--color-primary-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-sent-grey {
+    color: var(--color-neutral-400);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-accepted {
+    color: var(--color-success-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-rejected {
+    color: var(--color-danger-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.interview-accepted {
+    color: var(--color-success-500);
+    display: inline-flex;
+    align-items: center;
+}
+
+.offer-icon {
+    flex-shrink: 0;
+    color: var(--color-neutral-400);
+}
+
+.offer-accepted .offer-icon {
+    color: var(--color-success-500);
+}
+
+.offer-rejected .offer-icon {
+    color: var(--color-danger-500);
+}
+
+.interview-accepted .offer-icon {
+    color: var(--color-success-500);
+}
+
+/* Skeleton loader styles to match actual content height */
+.placeholder-glow .info {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.placeholder-glow .info h6.placeholder {
+    height: 20px;
+    margin-bottom: 0;
+}
+
+.placeholder-glow .info span.placeholder {
+    height: 24px;
+    margin-bottom: 0;
+}
+
+/* Smooth Animation for Tooltip */
+@keyframes slideInFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideOutFadeDown {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(12px) scale(0.95);
+    }
+}
+
+/* Apply animation to tooltip */
+[data-tooltip-id] {
+    animation: slideInFadeUp 0.3s ease-out forwards;
+}
+
+/* Smooth copy button transition */
+button[title="Copy description"] {
+    transition: all 0.2s ease;
 }
 
 /* Tab Navigation Styles - Matching Image Design */

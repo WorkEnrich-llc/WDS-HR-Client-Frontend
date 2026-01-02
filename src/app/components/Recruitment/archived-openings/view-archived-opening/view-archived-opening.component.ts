@@ -78,6 +78,20 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 10;
   totalItems: number = 0;
 
+  // Applicant counts from job opening details
+  applicantCounts: any = {
+    newApplicants: 0,
+    candidates: 0,
+    interviewsUpcoming: 0,
+    interviewsPrevious: 0,
+    qualifiers: 0,
+    jobOffersSent: 0,
+    offersAccepted: 0,
+    offersRejected: 0,
+    accepted: 0,
+    rejected: 0
+  };
+
   // Search functionality
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
@@ -124,6 +138,23 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Use object_info from the response as it contains the actual job opening data
         this.jobOpening = response.data.object_info;
+
+        // Extract applicant counts from the response
+        if (response.data.object_info.applicants_counts) {
+          const counts = response.data.object_info.applicants_counts;
+          this.applicantCounts = {
+            newApplicants: counts['New Applicants'] || 0,
+            candidates: counts['Candidates'] || 0,
+            interviewsUpcoming: counts['Interviews']?.upcoming || 0,
+            interviewsPrevious: counts['Interviews']?.previous || 0,
+            qualifiers: counts['Qualifiers'] || 0,
+            jobOffersSent: counts['Job Offers']?.['offer sent'] || 0,
+            offersAccepted: counts['Job Offers']?.['accepted'] || 0,
+            offersRejected: counts['Job Offers']?.['rejected'] || 0,
+            accepted: counts['Accepted'] || 0,
+            rejected: counts['Rejected'] || 0
+          };
+        }
 
         // Set all loading states to false when data is loaded
         this.jobDetailsLoading = false;
