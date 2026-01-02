@@ -894,7 +894,6 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
             next: (response: any) => {
-                this.toastr.success('Logo uploaded successfully', 'Success');
                 this.isSavingLogo = false;
                 this.selectedLogoFile = null;
 
@@ -924,7 +923,6 @@ export class EditJobBoardSetupComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error uploading logo:', error);
-                this.toastr.error(error.error?.details || 'Failed to upload logo', 'Error');
                 this.isSavingLogo = false;
             }
         });
