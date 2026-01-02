@@ -156,21 +156,21 @@ export const toastInterceptor: HttpInterceptorFn = (
             if (!message) {
               // Check if request body contains 'request_data' - indicates an update operation
               const isUpdateOperation = req.body && typeof req.body === 'object' && 'request_data' in req.body;
-              
+
               // Check if it's a delete operation
               let isDeleteOperation = false;
               if (req.method === 'DELETE') {
                 isDeleteOperation = true;
               } else if (req.body instanceof FormData) {
                 // Check FormData for delete indicators
-                isDeleteOperation = req.body.get('is_remove') === 'true' || 
-                                   req.body.get('is_delete') === 'true' ||
-                                   req.body.get('action') === 'delete';
+                isDeleteOperation = req.body.get('is_remove') === 'true' ||
+                  req.body.get('is_delete') === 'true' ||
+                  req.body.get('action') === 'delete';
               } else if (req.body && typeof req.body === 'object') {
                 // Check JSON body for delete indicators
-                isDeleteOperation = req.body.is_remove === true || 
-                                   req.body.is_delete === true ||
-                                   req.body.action === 'delete';
+                isDeleteOperation = req.body.is_remove === true ||
+                  req.body.is_delete === true ||
+                  req.body.action === 'delete';
               }
 
               if (isDeleteOperation) {
