@@ -188,7 +188,6 @@ export class EditJobBoardSetupComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error loading job board setup:', error);
-                this.toastr.error('Failed to load job board setup', 'Error');
                 this.isLoading = false;
             }
         });
@@ -314,13 +313,13 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateJobBoardSetup(updateData).subscribe({
             next: () => {
-                this.toastr.success('Job board setup updated successfully', 'Success');
                 this.isSaving = false;
-                this.router.navigate(['/job-board-setup']);
+                setTimeout(() => {
+                    this.router.navigate(['/job-board-setup']);
+                }, 500);
             },
             error: (error: any) => {
                 console.error('Error updating job board setup:', error);
-                this.toastr.error(error.error?.details || 'Failed to update job board setup', 'Error');
                 this.isSaving = false;
             }
         });
@@ -953,7 +952,6 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
             next: () => {
-                this.toastr.success('Logo deleted successfully', 'Success');
                 this.isDeletingLogo = false;
                 this.companyLogoUrl = null;
                 this.selectedLogoFile = null;
@@ -970,7 +968,6 @@ export class EditJobBoardSetupComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error deleting logo:', error);
-                this.toastr.error(error.error?.details || 'Failed to delete logo', 'Error');
                 this.isDeletingLogo = false;
             }
         });
