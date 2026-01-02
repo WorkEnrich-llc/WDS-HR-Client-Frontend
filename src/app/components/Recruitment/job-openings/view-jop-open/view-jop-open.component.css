@@ -297,3 +297,55 @@ button[title="Copy description"] {
 button[title="Copy description"]:hover {
     opacity: 0.8 !important;
 }
+
+/* Copy Icon Button Styles */
+.copy-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+    border-radius: 4px;
+}
+
+.copy-icon-btn:hover {
+    opacity: 1;
+    background-color: rgba(55, 122, 253, 0.08);
+}
+
+.copy-icon-btn.copied {
+    opacity: 1;
+}
+
+.copy-icon-btn svg {
+    width: 15px;
+    height: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.copy-icon-btn.copied svg {
+    animation: checkmarkPulse 0.5s ease;
+}
+
+@keyframes checkmarkPulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

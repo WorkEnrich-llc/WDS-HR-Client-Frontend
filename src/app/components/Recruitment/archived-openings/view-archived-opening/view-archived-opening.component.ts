@@ -104,6 +104,9 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
   // Unarchive confirmation modal
   isUnarchiveModalOpen: boolean = false;
 
+  // Copy to clipboard feedback
+  copiedSectionId: string | null = null;
+
   ngOnInit(): void {
     // Load job opening from route
     this.route.params.subscribe(params => {
@@ -464,6 +467,22 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  /**
+   * Copy text to clipboard with visual feedback
+   */
+  copyToClipboard(text: string, sectionId: string): void {
+    navigator.clipboard.writeText(text).then(() => {
+      // Show copied feedback
+      this.copiedSectionId = sectionId;
+      // Auto hide after 2 seconds
+      setTimeout(() => {
+        this.copiedSectionId = null;
+      }, 2000);
+    }).catch(() => {
+      console.error('Failed to copy to clipboard');
+    });
   }
 
   ngOnDestroy(): void {
