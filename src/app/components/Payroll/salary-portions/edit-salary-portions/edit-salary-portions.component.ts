@@ -18,7 +18,7 @@ import { SalaryPortion } from 'app/core/models/salary-portions';
 })
 export class EditSalaryPortionsComponent implements OnInit {
   portionsForm!: FormGroup;
-  isLoading = false;
+  isLoading = true;
   private salaryPortionService = inject(SalaryPortionsService);
   private toasterService = inject(ToasterMessageService);
   salaryPortions: SalaryPortion[] = [];
@@ -128,8 +128,10 @@ export class EditSalaryPortionsComponent implements OnInit {
 
 
   private loadSalaryPortions(): void {
+    this.isLoading = true;
     this.salaryPortionService.single().subscribe({
       next: (data) => {
+        this.isLoading = false;
         this.salaryPortion = data;
         this.salaryPortions = data.settings || [];
         const isFlexibleState = data.is_flexible ?? false;
@@ -216,6 +218,7 @@ export class EditSalaryPortionsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load single salary portion', err);
+        this.isLoading = false;
         // Default case: basic + 2 open inputs
         this.portionsForm.setControl(
           'portions',
