@@ -1,13 +1,17 @@
-import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { JobOpeningsService } from '../../../../core/services/recruitment/job-openings/job-openings.service';
-import { DatePipe, NgClass } from '@angular/common';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { BranchesService } from '../../../../core/services/od/branches/branches.service';
+import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { DatePipe, NgClass, DecimalPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 
 type EvaluationData = {
   label: string;
@@ -46,14 +50,22 @@ type DynamicFieldSection = {
 @Component({
   selector: 'app-view-jop-open',
   standalone: true,
-  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass, OverlayFilterBoxComponent, DecimalPipe],
   providers: [DatePipe],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
 })
 export class ViewJopOpenComponent implements OnInit, OnDestroy {
+  @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
+  @ViewChild('feedbackBox') feedbackBox!: OverlayFilterBoxComponent;
+  
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
+  private departmentsService = inject(DepartmentsService);
+  private branchesService = inject(BranchesService);
+  private employeeService = inject(EmployeeService);
   private toastr = inject(ToastrService);
 
   // Job opening data
@@ -98,6 +110,68 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Status change confirmation modals
   isPauseModalOpen: boolean = false;
   isMakeLiveModalOpen: boolean = false;
+
+  // Action confirmation modals
+  isCandidateModalOpen: boolean = false;
+  isQualifiedModalOpen: boolean = false;
+  isAcceptOfferModalOpen: boolean = false;
+
+  // Store current applicant data for job offer component
+  currentJobOfferApplicant: any = null;
+  currentJobOfferApplicationId: number | undefined = undefined;
+
+  // Store selected applicant for confirmation
+  selectedApplicant: Applicant | null = null;
+
+  // Store current applicant data for interview component
+  currentInterviewApplicant: any = null;
+  currentApplicationId: number | undefined = undefined;
+  currentApplicationDetails: any = null;
+
+  // Interview form properties
+  overlayTitle: string = 'Schedule Interview';
+  interviewTitle: string = '';
+  department: any = '';
+  section: any = '';
+  interviewer: any = '';
+  date: string = '';
+  time_from: string = '';
+  time_to: string = '';
+  interview_type: number = 1;
+  location: any = '';
+  departments: Array<{ id: number; name: string; code: string }> = [];
+  sections: Array<{ id: number; name: string }> = [];
+  employees: Array<{ id: number; name: string }> = [];
+  branches: Array<{ id: number; name: string }> = [];
+  departmentsLoading = false;
+  sectionsLoading = false;
+  employeesLoading = false;
+  branchesLoading = false;
+  interviewDetailsLoading = false;
+  isRescheduleLoading = false;
+  submitting = false;
+  validationErrors: any = {};
+
+  // Job Offer form properties
+  jobOfferApplicant: any = null;
+  includeProbation: boolean = false;
+  offerJoinDate: string = '';
+  withEndDate: boolean = false;
+  contractEndDate: string = '';
+  noticePeriod: number | null = null;
+  offerSalary: string | null = null;
+  offerDetails: string = '';
+  jobOfferValidationErrors: any = {};
+  jobOfferDetailsLoading = false;
+  jobOfferFormSubmitted = false;
+  minSalary: number = 0;
+  maxSalary: number = 0;
+
+  // Feedback form properties
+  feedbackRating: number | null = null;
+  feedbackComment: string = '';
+  feedbackSubmitting = false;
+  feedbackValidationErrors: { [key: string]: string } = {};
 
   ngOnInit(): void {
     this.loadJobOpeningFromRoute();
@@ -610,7 +684,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   /**
    * Close tooltip when scrolling
    */
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onWindowScroll(): void {
     if (this.hoveredApplicantId !== null) {
       this.closeTooltip();
@@ -646,6 +720,771 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   isJobPaused(): boolean {
     return this.jobOpening?.status === 'Pause';
+  }
+
+  // =====================================================
+  // Action Methods for Applicant Status Changes
+  // =====================================================
+  
+  /**
+   * Check if applicant has job offer sent status
+   */
+  isJobOfferSent(status: string): boolean {
+    const normalizedStatus = status?.toLowerCase() || '';
+    return normalizedStatus === 'job offer sent' || normalizedStatus.includes('offer sent');
+  }
+
+  /**
+   * Check if applicant has offer rejected status
+   */
+  isOfferRejected(status: string): boolean {
+    const normalizedStatus = status?.toLowerCase() || '';
+    return normalizedStatus === 'offer rejected' || normalizedStatus.includes('rejected');
+  }
+
+  /**
+   * Check if applicant has offer accepted status
+   */
+  isOfferAccepted(status: string): boolean {
+    const normalizedStatus = status?.toLowerCase() || '';
+    return normalizedStatus === 'offer accepted' || normalizedStatus.includes('accepted');
+  }
+
+  /**
+   * Open candidate confirmation modal
+   */
+  openCandidateConfirmation(applicant: Applicant): void {
+    this.selectedApplicant = applicant;
+    this.isCandidateModalOpen = true;
+  }
+
+  /**
+   * Close candidate confirmation modal
+   */
+  closeCandidateModal(): void {
+    this.isCandidateModalOpen = false;
+    this.selectedApplicant = null;
+  }
+
+  /**
+   * Confirm and move applicant to Candidate status
+   */
+  confirmMakeCandidate(): void {
+    if (!this.selectedApplicant?.applicationId) return;
+    
+    // Status 2 = Candidate
+    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 2).subscribe({
+      next: () => {
+        this.closeCandidateModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        console.error('Error moving applicant to candidate:', error);
+        this.closeCandidateModal();
+      }
+    });
+  }
+  /**
+   * Open interview modal to schedule interview (no confirmation modal)
+   */
+  openInterviewModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    
+    // Reset form
+    this.resetInterviewForm();
+    this.overlayTitle = 'Schedule Interview';
+    
+    // Set application data
+    this.currentApplicationId = applicant.applicationId;
+    this.currentApplicationDetails = { application: { job: this.jobOpening?.id } };
+    
+    // Load departments and branches
+    this.loadDepartments();
+    this.loadBranches();
+    
+    // Open the overlay
+    if (this.filterBox) {
+      this.filterBox.openOverlay();
+    }
+  }
+
+  /**
+   * Reset interview form
+   */
+  resetInterviewForm(): void {
+    this.interviewTitle = '';
+    this.department = '';
+    this.section = '';
+    this.interviewer = '';
+    this.date = '';
+    this.time_from = '';
+    this.time_to = '';
+    this.interview_type = 1;
+    this.location = '';
+    this.validationErrors = {};
+  }
+
+  /**
+   * Load departments
+   */
+  loadDepartments(): void {
+    this.departmentsLoading = true;
+    this.departmentsService.getAllDepartment(1, 10000).subscribe({
+      next: (res) => {
+        const items = res?.data?.list_items ?? res?.list_items ?? [];
+        this.departments = Array.isArray(items)
+          ? items.map((dept: any) => ({
+            id: dept?.id ?? 0,
+            name: dept?.name ?? '—',
+            code: dept?.code ?? ''
+          }))
+          : [];
+        this.departmentsLoading = false;
+      },
+      error: () => {
+        this.departments = [];
+        this.departmentsLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Load branches
+   */
+  loadBranches(): void {
+    this.branchesLoading = true;
+    this.branchesService.getAllBranches(1, 10000).subscribe({
+      next: (res) => {
+        const items = res?.data?.list_items ?? res?.list_items ?? [];
+        this.branches = Array.isArray(items)
+          ? items.map((branch: any) => ({
+            id: branch?.id ?? 0,
+            name: branch?.name ?? '—',
+            code: branch?.code ?? ''
+          }))
+          : [];
+        this.branchesLoading = false;
+      },
+      error: () => {
+        this.branches = [];
+        this.branchesLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Load sections for a department
+   */
+  private loadSectionsForDepartment(deptId: number): void {
+    this.sectionsLoading = true;
+    this.departmentsService.showDepartment(deptId).subscribe({
+      next: (deptRes) => {
+        const deptInfo = deptRes?.data?.object_info ?? deptRes?.object_info ?? {};
+        const sectionsList = deptInfo?.sections ?? [];
+        this.sections = Array.isArray(sectionsList)
+          ? sectionsList.map((sec: any) => ({
+            id: sec?.id ?? 0,
+            name: sec?.name ?? '—',
+            code: sec?.code ?? ''
+          }))
+          : [];
+        this.sectionsLoading = false;
+      },
+      error: () => {
+        this.sections = [];
+        this.sectionsLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Load employees for a section
+   */
+  private loadEmployeesForSection(sectionId: number): void {
+    this.employeesLoading = true;
+    this.employeeService.getEmployees(1, 10000, '', { section: sectionId }).subscribe({
+      next: (empRes) => {
+        const items = empRes?.data?.list_items ?? [];
+        this.employees = Array.isArray(items)
+          ? items.map((emp: any) => {
+            const empInfo = emp?.object_info ?? emp;
+            return {
+              id: empInfo?.id ?? 0,
+              name: empInfo?.contact_info?.name ?? '—'
+            };
+          })
+          : [];
+        this.employeesLoading = false;
+      },
+      error: () => {
+        this.employees = [];
+        this.employeesLoading = false;
+      }
+    });
+  }
+
+  /**
+   * On department change
+   */
+  onDepartmentChange(): void {
+    this.section = '';
+    this.interviewer = '';
+    this.sections = [];
+    this.employees = [];
+
+    if (!this.department) {
+      return;
+    }
+
+    this.loadSectionsForDepartment(this.department);
+  }
+
+  /**
+   * On section change
+   */
+  onSectionChange(): void {
+    this.interviewer = '';
+    this.employees = [];
+
+    if (!this.section) {
+      return;
+    }
+
+    this.loadEmployeesForSection(this.section);
+  }
+
+  /**
+   * On interview type change
+   */
+  onInterviewTypeChange(): void {
+    // Clear location when switching to online
+    if (this.interview_type === 2) {
+      this.location = '';
+      this.clearValidationError('location');
+    }
+  }
+
+  /**
+   * On interview form change
+   */
+  onInterviewFormChange(): void {
+    // Clear form errors when user modifies fields
+  }
+
+  /**
+   * Clear validation error
+   */
+  clearValidationError(field: string): void {
+    delete this.validationErrors[field];
+  }
+
+  /**
+   * Submit interview
+   */
+  submitInterview(): void {
+    // Reset validation errors
+    this.validationErrors = {};
+
+    // Validate required fields
+    let hasErrors = false;
+
+    if (!this.currentApplicationId) {
+      return;
+    }
+
+    if (!this.interviewer) {
+      this.validationErrors.interviewer = 'Please select an interviewer';
+      hasErrors = true;
+    }
+
+    if (!this.date || !this.date.trim()) {
+      this.validationErrors.date = 'Please select a date';
+      hasErrors = true;
+    }
+
+    if (!this.time_from || !this.time_from.trim()) {
+      this.validationErrors.time_from = 'Please enter start time';
+      hasErrors = true;
+    }
+
+    if (!this.time_to || !this.time_to.trim()) {
+      this.validationErrors.time_to = 'Please enter end time';
+      hasErrors = true;
+    }
+
+    // Only require location for offline interviews
+    if (this.interview_type === 1 && !this.location) {
+      this.validationErrors.location = 'Please select a location';
+      hasErrors = true;
+    }
+
+    // Validate time logic
+    if (this.time_from && this.time_to && this.time_from >= this.time_to) {
+      this.validationErrors.time_to = 'End time must be after start time';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
+    this.submitting = true;
+
+    const payload = {
+      title: this.interviewTitle || 'Interview',
+      interviewer: this.interviewer!,
+      department: this.department,
+      section: this.section,
+      date: this.date,
+      time_from: this.time_from,
+      time_to: this.time_to,
+      interview_type: this.interview_type,
+      location: this.interview_type === 2 ? null : this.location!,
+    };
+
+    // Create new interview
+    this.jobOpeningsService.createInterview(this.currentApplicationId!, payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.closeAllOverlays();
+        this.resetInterviewForm();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: () => {
+        this.submitting = false;
+      }
+    });
+  }
+
+  /**
+   * Close all overlays
+   */
+  closeAllOverlays(): void {
+    if (this.filterBox) {
+      this.filterBox.closeOverlay();
+    }
+    if (this.jobBox) {
+      this.jobBox.closeOverlay();
+    }
+    if (this.feedbackBox) {
+      this.feedbackBox.closeOverlay();
+    }
+  }
+
+  /**
+   * Open feedback modal
+   */
+  openFeedbackModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.currentApplicationId = applicant.applicationId;
+    this.resetFeedbackForm();
+    this.feedbackBox?.openOverlay();
+  }
+
+  /**
+   * Reset feedback form
+   */
+  resetFeedbackForm(): void {
+    this.feedbackRating = null;
+    this.feedbackComment = '';
+    this.feedbackValidationErrors = {};
+  }
+
+  /**
+   * Submit feedback
+   */
+  submitFeedback(): void {
+    this.feedbackValidationErrors = {};
+    let hasErrors = false;
+
+    // Validate rating
+    if (
+      this.feedbackRating == null ||
+      this.feedbackRating < 0 ||
+      this.feedbackRating > 10
+    ) {
+      this.feedbackValidationErrors['rating'] =
+        'Please provide a rating between 0 and 10';
+      hasErrors = true;
+    }
+
+    // Validate comment
+    if (!this.feedbackComment || this.feedbackComment.trim() === '') {
+      this.feedbackValidationErrors['comment'] = 'Please provide your feedback';
+      hasErrors = true;
+    }
+
+    if (hasErrors || !this.currentApplicationId) return;
+
+    this.feedbackSubmitting = true;
+    this.jobOpeningsService
+      .addApplicationFeedback(
+        this.currentApplicationId,
+        this.feedbackRating!,
+        this.feedbackComment || ''
+      )
+      .subscribe({
+        next: () => {
+          this.feedbackSubmitting = false;
+          this.toastr.success('Feedback submitted successfully');
+          this.closeFeedbackOverlay();
+          this.resetFeedbackForm();
+          this.loadApplicants();
+        },
+        error: (error) => {
+          this.feedbackSubmitting = false;
+          this.toastr.error(
+            error.error?.message || 'Failed to submit feedback'
+          );
+        },
+      });
+  }
+
+  /**
+   * Close feedback overlay
+   */
+  closeFeedbackOverlay(): void {
+    this.feedbackBox?.closeOverlay();
+  }
+
+  /**
+   * Clear feedback validation error
+   */
+  clearFeedbackError(field: string): void {
+    delete this.feedbackValidationErrors[field];
+  }
+
+  /**
+   * Open qualified confirmation modal
+   */
+  openQualifiedConfirmation(applicant: Applicant): void {
+    this.selectedApplicant = applicant;
+    this.isQualifiedModalOpen = true;
+  }
+
+  /**
+   * Close qualified confirmation modal
+   */
+  closeQualifiedModal(): void {
+    this.isQualifiedModalOpen = false;
+    this.selectedApplicant = null;
+  }
+
+  /**
+   * Confirm and mark applicant as qualified
+   */
+  confirmMarkQualified(): void {
+    if (!this.selectedApplicant?.applicationId) return;
+    
+    // Status 4 = Qualified
+    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 4).subscribe({
+      next: () => {
+        this.closeQualifiedModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        console.error('Error marking applicant as qualified:', error);
+        this.closeQualifiedModal();
+      }
+    });
+  }
+
+  /**
+   * Open job offer modal directly (no confirmation modal)
+   */
+  openJobOfferModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    
+    // Reset job offer form
+    this.resetJobOfferForm();
+    this.overlayTitle = 'Job Offer';
+    
+    // Set applicant data
+    this.currentApplicationId = applicant.applicationId;
+    this.jobOfferApplicant = applicant;
+    
+    // Open the overlay
+    if (this.jobBox) {
+      this.jobBox.openOverlay();
+    }
+  }
+
+  /**
+   * Reset job offer form
+   */
+  resetJobOfferForm(): void {
+    this.offerSalary = null;
+    this.offerJoinDate = '';
+    this.offerDetails = '';
+    this.withEndDate = false;
+    this.contractEndDate = '';
+    this.noticePeriod = null;
+    this.includeProbation = false;
+    this.jobOfferValidationErrors = {};
+    this.jobOfferFormSubmitted = false;
+  }
+
+  /**
+   * Submit job offer
+   */
+  submitJobOffer(): void {
+    // Mark form as touched/submitted
+    this.jobOfferFormSubmitted = true;
+
+    // Reset validation errors
+    this.jobOfferValidationErrors = {};
+
+    // Validate required fields
+    let hasErrors = false;
+
+    if (!this.currentApplicationId) {
+      return;
+    }
+
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+      hasErrors = true;
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+      hasErrors = true;
+    }
+
+    // Notice period required
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+      hasErrors = true;
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+      hasErrors = true;
+    }
+
+    // Validate join date is present
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      hasErrors = true;
+    } else {
+      // Validate join date is today or in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const joinDate = new Date(this.offerJoinDate);
+      joinDate.setHours(0, 0, 0, 0);
+      if (joinDate < today) {
+        this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+        hasErrors = true;
+      }
+    }
+
+    // Validate offer details
+    if (!this.offerDetails || !this.offerDetails.trim()) {
+      this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
+    this.submitting = true;
+
+    // Create new job offer with full payload
+    const payload: any = {
+      application_id: this.currentApplicationId,
+      join_date: this.offerJoinDate,
+      salary: typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary,
+      offer_details: this.offerDetails,
+    };
+    if (this.withEndDate && this.contractEndDate) {
+      payload.end_contract = this.contractEndDate;
+    }
+    if (this.noticePeriod) {
+      payload.notice_period = this.noticePeriod;
+    }
+    this.jobOpeningsService.sendJobOfferFull(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.closeAllOverlays();
+        this.resetJobOfferForm();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: () => {
+        this.submitting = false;
+      }
+    });
+  }
+
+  /**
+   * Validate join date field
+   */
+  validateJoinDateField(): void {
+    // Clear previous error
+    delete this.jobOfferValidationErrors.joinDate;
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const joinDate = new Date(this.offerJoinDate);
+    joinDate.setHours(0, 0, 0, 0);
+    if (joinDate < today) {
+      this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+    }
+  }
+
+  /**
+   * Validate notice period field
+   */
+  validateNoticePeriodField(): void {
+    // Show error if invalid, clear if valid
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.noticePeriod) {
+        delete this.jobOfferValidationErrors.noticePeriod;
+      }
+    }
+  }
+
+  /**
+   * Validate salary field
+   */
+  validateSalaryField(): void {
+    // Show error if invalid, clear if valid
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.salary) {
+        delete this.jobOfferValidationErrors.salary;
+      }
+    }
+  }
+
+  /**
+   * On salary focus
+   */
+  onSalaryFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.salary) {
+      delete this.jobOfferValidationErrors.salary;
+    }
+  }
+
+  /**
+   * On offer details focus
+   */
+  onOfferDetailsFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.offerDetails) {
+      delete this.jobOfferValidationErrors.offerDetails;
+    }
+  }
+
+  /**
+   * On notice period focus
+   */
+  onNoticePeriodFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.noticePeriod) {
+      delete this.jobOfferValidationErrors.noticePeriod;
+    }
+  }
+
+  /**
+   * Validate offer details field
+   */
+  validateOfferDetailsField(): void {
+    // Show error if invalid for new job offers
+    if (!this.offerDetails || !this.offerDetails.trim()) {
+      this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+    } else {
+      if (this.jobOfferValidationErrors.offerDetails) {
+        delete this.jobOfferValidationErrors.offerDetails;
+      }
+    }
+  }
+
+  /**
+   * Open accept offer confirmation modal
+   */
+  openAcceptOfferConfirmation(applicant: Applicant): void {
+    this.selectedApplicant = applicant;
+    this.isAcceptOfferModalOpen = true;
+  }
+
+  /**
+   * Close accept offer confirmation modal
+   */
+  closeAcceptOfferModal(): void {
+    this.isAcceptOfferModalOpen = false;
+    this.selectedApplicant = null;
+  }
+
+  /**
+   * Confirm and accept job offer (move to New Joiner status)
+   */
+  confirmAcceptOffer(): void {
+    if (!this.selectedApplicant?.applicationId) return;
+    
+    // Status 6 = Accepted / New Joiner
+    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 6).subscribe({
+      next: () => {
+        this.closeAcceptOfferModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        console.error('Error accepting job offer:', error);
+        this.closeAcceptOfferModal();
+      }
+    });
+  }
+
+  /**
+   * Handle application refresh after interview/feedback/job offer actions
+   */
+  onApplicationRefreshed(): void {
+    this.loadApplicants();
+    if (this.jobOpening?.id) {
+      this.getJobOpeningDetails(this.jobOpening.id);
+    }
+  }
+
+  /**
+   * Handle feedback added event
+   */
+  onFeedbackAdded(): void {
+    this.loadApplicants();
+    if (this.jobOpening?.id) {
+      this.getJobOpeningDetails(this.jobOpening.id);
+    }
   }
 
   ngOnDestroy(): void {

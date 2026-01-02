@@ -349,3 +349,8 @@ button[title="Copy description"]:hover {
         opacity: 1;
     }
 }
+
+/* Primary color text for action buttons */
+.text-primary {
+    color: var(--color-primary-500) !important;
+}
