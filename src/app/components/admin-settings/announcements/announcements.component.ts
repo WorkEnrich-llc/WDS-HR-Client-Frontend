@@ -58,7 +58,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     this.filterForm = this.formBuilder.group({
       recipient_type: ['']
     });
-    
+
     // Setup debounced search with automatic request cancellation
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
@@ -69,7 +69,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
         return this.fetchAnnouncementsObservable();
       })
     ).subscribe();
-    
+
     this.fetchAnnouncements();
   }
 
@@ -167,7 +167,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
   /**
    * Group recipients by type and format their names with 60 char truncation
    */
-  groupRecipients(recipients: any[]): Array<{type: string; names: string}> {
+  groupRecipients(recipients: any[]): Array<{ type: string; names: string }> {
     if (!recipients || recipients.length === 0) return [];
 
     // Group by recipient_type
@@ -185,8 +185,8 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
     // Convert to array format with 60 character truncation
     return Object.entries(grouped).map(([type, names]: [string, any]) => {
       const fullNames = names.join(', ');
-      const truncatedNames = fullNames.length > 60 
-        ? fullNames.substring(0, 60) + '...' 
+      const truncatedNames = fullNames.length > 60
+        ? fullNames.substring(0, 60) + '...'
         : fullNames;
       return {
         type,
