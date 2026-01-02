@@ -3,7 +3,7 @@
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Archived Openings', link: '/archived-openings' },
     {  label: 'Applicants'}
-  ]" title="Opening {{jobOpening?.id || 'Loading...'}} - Applicants"
+  ]" title="Opening {{jobOpening?.job_title?.name || 'Loading...'}} - Applicants"
   create="{{jobOpening?.created_at | date:'dd/MM/yyyy'}}" update="{{jobOpening?.updated_at | date:'dd/MM/yyyy'}}">
 
   <button class="btn btn-lg btn-success" (click)="openUnarchiveModal()">
@@ -38,20 +38,19 @@
       <div class="content-box d-flex flex-column gap-3 w-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Main Information</h2>
-          <button (click)="toggleText()"
-            class="edit-btn d-flex align-items-center justify-content-center gap-1">
+          <button (click)="toggleText()" class="edit-btn d-flex align-items-center justify-content-center gap-1">
             @if (isExpanded) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path fill="currentColor" fill-rule="evenodd"
-                  d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
-                  clip-rule="evenodd" />
-              </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
+                d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                clip-rule="evenodd" />
+            </svg>
             }
             @if (!isExpanded) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                  stroke-width="1.5" d="m19 15l-7-6l-7 6" />
-              </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="m19 15l-7-6l-7 6" />
+            </svg>
             }
             <span>{{ isExpanded ? 'Show' : 'Hide' }}</span>
           </button>
@@ -59,65 +58,65 @@
 
         <!-- Loading skeleton for Main Information -->
         @if (mainInfoLoading) {
-          <div class="d-flex flex-column gap-3">
-            @for (item of [1,2,3,4,5,6,7,8,9]; track item) {
-              <div class="placeholder-glow">
-                <div class="info">
-                  <h6 class="placeholder col-4"></h6>
-                  <span class="placeholder col-6"></span>
-                </div>
-              </div>
-            }
+        <div class="d-flex flex-column gap-3">
+          @for (item of [1,2,3,4,5,6,7,8,9]; track item) {
+          <div class="placeholder-glow">
+            <div class="info">
+              <h6 class="placeholder col-4"></h6>
+              <span class="placeholder col-6"></span>
+            </div>
           </div>
+          }
+        </div>
         }
 
         @if (!mainInfoLoading && !isExpanded) {
-          <div class="d-flex flex-column gap-3">
-            <div class="info">
-              <h6>Opening ID</h6>
-              <span>{{jobOpening.id?.toString().padStart(4, '0') || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Opening Name</h6>
-              <span>{{jobOpening.job_title?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Branch</h6>
-              <span>{{jobOpening.branch?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>CV Limit</h6>
-              <span>{{jobOpening.cv_limit || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Time Limit</h6>
-              <span>{{jobOpening.time_limit || 'N/A'}} Days</span>
-            </div>
-            <div class="info">
-              <h6>Work Schedule</h6>
-              <span>{{jobOpening.work_schedule?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Days on Site</h6>
-              <span>{{jobOpening.days_on_site || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Employment Type</h6>
-              <span>{{jobOpening.employment_type?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Status</h6>
-              <span class="badge bg-warning">{{jobOpening.status || 'Archived'}}</span>
-            </div>
-            <div class="info">
-              <h6>Created By</h6>
-              <span>{{jobOpening.created_by?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Updated By</h6>
-              <span>{{jobOpening.updated_by?.name || 'N/A'}}</span>
-            </div>
+        <div class="d-flex flex-column gap-3">
+          <div class="info">
+            <h6>Opening ID</h6>
+            <span>{{jobOpening.id?.toString().padStart(4, '0') || 'N/A'}}</span>
           </div>
+          <div class="info">
+            <h6>Opening Name</h6>
+            <span>{{jobOpening.job_title?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Branch</h6>
+            <span>{{jobOpening.branch?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>CV Limit</h6>
+            <span>{{jobOpening.cv_limit || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Time Limit</h6>
+            <span>{{jobOpening.time_limit || 'N/A'}} Days</span>
+          </div>
+          <div class="info">
+            <h6>Work Schedule</h6>
+            <span>{{jobOpening.work_schedule?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Days on Site</h6>
+            <span>{{jobOpening.days_on_site || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Employment Type</h6>
+            <span>{{jobOpening.employment_type?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Status</h6>
+            <span class="badge bg-warning">{{jobOpening.status || 'Archived'}}</span>
+          </div>
+          <div class="info">
+            <h6>Created By</h6>
+            <span>{{jobOpening.created_by?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Updated By</h6>
+            <span>{{jobOpening.updated_by?.name || 'N/A'}}</span>
+          </div>
+        </div>
         }
 
       </div>
@@ -140,49 +139,49 @@
 
         <!-- Loading skeleton for Job Details -->
         @if (jobDetailsInfoLoading) {
-          <div class="d-flex flex-column gap-3">
-            @for (item of [1,2,3,4,5,6,7]; track item) {
-              <div class="placeholder-glow">
-                <div class="info">
-                  <h6 class="placeholder col-4"></h6>
-                  <span class="placeholder col-7"></span>
-                </div>
-              </div>
-            }
+        <div class="d-flex flex-column gap-3">
+          @for (item of [1,2,3,4,5,6,7]; track item) {
+          <div class="placeholder-glow">
+            <div class="info">
+              <h6 class="placeholder col-4"></h6>
+              <span class="placeholder col-7"></span>
+            </div>
           </div>
+          }
+        </div>
         }
 
         @if (!jobDetailsInfoLoading && !isExpanded) {
-          <div class="d-flex flex-column gap-3">
-            <div class="info">
-              <h6>Job ID</h6>
-              <span>{{jobOpening.job_title?.id?.toString().padStart(4, '0') || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Job title</h6>
-              <span>{{jobOpening.job_title?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Company</h6>
-              <span>{{jobOpening.company?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Employment Type</h6>
-              <span>{{jobOpening.employment_type?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Work Schedule</h6>
-              <span>{{jobOpening.work_schedule?.name || 'N/A'}}</span>
-            </div>
-            <div class="info">
-              <h6>Job type</h6>
-              <span>Full time</span>
-            </div>
-            <div class="info">
-              <h6>Average Salary</h6>
-              <span>14.000-18.000</span>
-            </div>
+        <div class="d-flex flex-column gap-3">
+          <div class="info">
+            <h6>Job ID</h6>
+            <span>{{jobOpening.job_title?.id?.toString().padStart(4, '0') || 'N/A'}}</span>
           </div>
+          <div class="info">
+            <h6>Job title</h6>
+            <span>{{jobOpening.job_title?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Company</h6>
+            <span>{{jobOpening.company?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Employment Type</h6>
+            <span>{{jobOpening.employment_type?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Work Schedule</h6>
+            <span>{{jobOpening.work_schedule?.name || 'N/A'}}</span>
+          </div>
+          <div class="info">
+            <h6>Job type</h6>
+            <span>Full time</span>
+          </div>
+          <div class="info">
+            <h6>Average Salary</h6>
+            <span>14.000-18.000</span>
+          </div>
+        </div>
         }
 
       </div>
@@ -210,7 +209,7 @@
 
     <!-- Tab Navigation -->
     <ul class="nav d-flex align-items-center nav-tabs bg-white p-0 px-3 mb-3">
-      <li class="nav-item" [class.active]="activeTab === 'all'" (click)="setActiveTab('all')">
+      <li class="nav-item" [class.active]="activeTab === 'new'" (click)="setActiveTab('new')">
         <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1087_19391)">
             <circle cx="9.16699" cy="4.5" r="3" fill="currentColor" />
@@ -225,10 +224,10 @@
           </defs>
         </svg>
 
-        <span class="nav-link">All Applicants</span>
+        <span class="nav-link">New Applicants</span>
       </li>
 
-      <li class="nav-item" [class.active]="activeTab === 'candidates'" (click)="setActiveTab('candidates')">
+      <li class="nav-item" [class.active]="activeTab === 'candidate'" (click)="setActiveTab('candidate')">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z"
@@ -241,10 +240,10 @@
             fill="currentColor" />
         </svg>
 
-        <span class="nav-link">Candidates</span>
+        <span class="nav-link">Candidate</span>
       </li>
 
-      <li class="nav-item" [class.active]="activeTab === 'interviewing'" (click)="setActiveTab('interviewing')">
+      <li class="nav-item" [class.active]="activeTab === 'interviewee'" (click)="setActiveTab('interviewee')">
         <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1087_19404)">
             <path
@@ -264,7 +263,7 @@
           </defs>
         </svg>
 
-        <span class="nav-link">Interviewing</span>
+        <span class="nav-link">Interviewee</span>
       </li>
 
       <li class="nav-item" [class.active]="activeTab === 'qualified'" (click)="setActiveTab('qualified')">
@@ -293,7 +292,7 @@
         <span class="nav-link">Qualified</span>
       </li>
 
-      <li class="nav-item" [class.active]="activeTab === 'rejected'" (click)="setActiveTab('rejected')">
+      <li class="nav-item" [class.active]="activeTab === 'offerRejected'" (click)="setActiveTab('offerRejected')">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1087_19421)">
             <path opacity="0.3"
@@ -313,40 +312,64 @@
           </defs>
         </svg>
 
-        <span class="nav-link">Rejected</span>
+        <span class="nav-link">Offer Rejected</span>
       </li>
 
-      <!-- Empty 6th tab for spacing -->
-      <li class="nav-item">
-        <span class="nav-link" style="visibility: hidden;">&nbsp;</span>
+      <li class="nav-item" [class.active]="activeTab === 'offerSent'" (click)="setActiveTab('offerSent')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z"
+            fill="currentColor" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM13.851 13.3094C14.0219 13.1385 14.0219 12.8615 13.851 12.6906C13.6802 12.5198 13.4032 12.5198 13.2323 12.6906L11.7917 14.1313L11.5177 13.8573C11.3468 13.6865 11.0698 13.6865 10.899 13.8573C10.7281 14.0282 10.7281 14.3052 10.899 14.476L11.4823 15.0594C11.6532 15.2302 11.9302 15.2302 12.101 15.0594L13.851 13.3094Z"
+            fill="currentColor" />
+          <path opacity="0.3"
+            d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z"
+            fill="currentColor" />
+        </svg>
+        <span class="nav-link">Offer Sent</span>
+      </li>
+
+      <li class="nav-item" [class.active]="activeTab === 'offerAccepted'" (click)="setActiveTab('offerAccepted')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z"
+            fill="currentColor" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM13.851 13.3094C14.0219 13.1385 14.0219 12.8615 13.851 12.6906C13.6802 12.5198 13.4032 12.5198 13.2323 12.6906L11.7917 14.1313L11.5177 13.8573C11.3468 13.6865 11.0698 13.6865 10.899 13.8573C10.7281 14.0282 10.7281 14.3052 10.899 14.476L11.4823 15.0594C11.6532 15.2302 11.9302 15.2302 12.101 15.0594L13.851 13.3094Z"
+            fill="currentColor" />
+          <path opacity="0.3"
+            d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z"
+            fill="currentColor" />
+        </svg>
+        <span class="nav-link">Offer Accepted</span>
       </li>
     </ul>
 
 
     <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="5"
-      [headerTemplate]="applicantTableHeader" [rowTemplate]="applicantTableRow"
-    [emptyTemplate]="noApplicants"></app-table>
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="5" [headerTemplate]="applicantTableHeader"
+      [rowTemplate]="applicantTableRow" [emptyTemplate]="noApplicants"></app-table>
 
     <ng-template #applicantTableHeader>
       <th (click)="sortBy('name')" style="cursor: pointer;">
         <div class="d-flex align-items-center justify-content-between">
           <span>Name</span>
           @if (sortDirection === 'desc') {
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
-                <path d="M4 8h9m-7 5h7m-5 5h5" />
-                <path stroke-linejoin="round" d="M17 20V4l3 4" />
-              </g>
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 8h9m-7 5h7m-5 5h5" />
+              <path stroke-linejoin="round" d="M17 20V4l3 4" />
+            </g>
+          </svg>
           }
           @if (sortDirection === 'asc') {
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="#DDE3EB" fill-rule="evenodd"
-                d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-                clip-rule="evenodd" />
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
+              d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
+              clip-rule="evenodd" />
+          </svg>
           }
         </div>
       </th>
@@ -395,8 +418,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" class="mb-3">
               <g fill="none" stroke="#9CA3AF" stroke-width="1.5">
                 <circle cx="12" cy="6" r="4" />
-                <path d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z"
-                  opacity="0.5" />
+                <path d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z" opacity="0.5" />
               </g>
             </svg>
             <h5 class="text-muted mb-2">No Applicants Found</h5>

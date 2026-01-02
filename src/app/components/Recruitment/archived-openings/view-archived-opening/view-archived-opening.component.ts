@@ -9,13 +9,28 @@ import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
+type EvaluationData = {
+  label: string;
+  score: number;
+  maxScore: number;
+  description: string;
+};
+
 type Applicant = {
-  id: number;
+  id: number; // table row id display (application or applicant code)
+  applicantId: number; // actual applicant id
+  applicationId: number; // application id to be used in routing/API
   name: string;
   phoneNumber: string;
   email: string;
   status: string;
   statusAt: string;
+  evaluation?: {
+    overallFit: EvaluationData;
+    roleFit: EvaluationData;
+    marketFit: EvaluationData;
+    appliedAt: string;
+  };
 };
 
 type DynamicField = {
@@ -55,7 +70,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
   isExpanded = false;
 
   // Tab functionality
-  activeTab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected' = 'all';
+  activeTab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'offerSent' | 'offerAccepted' | 'offerRejected' = 'new';
 
   // Applicants data and pagination
   applicantsLoading: boolean = false;
@@ -142,24 +157,50 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
 
     this.applicantsLoading = true;
     const status = this.getStatusFromTab(this.activeTab);
+    const offerStatus = this.getOfferStatusFromTab(this.activeTab);
 
-    this.archivedOpeningsService.getJobApplications(
+    this.archivedOpeningsService.getApplicantsByJobId(
+      this.jobOpening.id,
       this.currentPage,
       this.itemsPerPage,
-      this.jobOpening.id,
       status,
-      this.searchTerm
+      this.searchTerm,
+      offerStatus
     ).subscribe({
       next: (response) => {
         if (response.data) {
           // Transform API response to match table format
-          this.applicant = response.data.list_items.map((app: any) => ({
-            id: app.id,
-            name: app.applicant?.name || 'N/A',
-            phoneNumber: app.applicant?.phone || 'N/A',
-            email: app.applicant?.email || 'N/A',
-            status: app.status || 'N/A',
-            statusAt: app.created_at || 'N/A'
+          this.applicant = response.data.list_items.map((item: any) => ({
+            id: item.application_id ?? item.id ?? 0, // For display in table
+            applicantId: item.id ?? 0, // Actual applicant id
+            applicationId: item.application_id ?? 0, // Application id for navigation
+            name: item.name || 'N/A',
+            phoneNumber: item.phone ? item.phone.toString() : 'N/A',
+            email: item.email || 'N/A',
+            status: item.status || 'N/A',
+            statusAt: item.created_at || item.updated_at || 'N/A',
+            // Map evaluation data from API response
+            evaluation: item.evaluation ? {
+              overallFit: {
+                label: 'Overall Fit',
+                score: item.evaluation.average_score || 0,
+                maxScore: 100,
+                description: item.evaluation.average_description || ''
+              },
+              roleFit: {
+                label: 'Role Fit',
+                score: item.evaluation.requirements_match_score || 0,
+                maxScore: 100,
+                description: item.evaluation.requirements_match_reason || ''
+              },
+              marketFit: {
+                label: 'Market Fit',
+                score: item.evaluation.job_match_score || 0,
+                maxScore: 100,
+                description: item.evaluation.job_match_reason || ''
+              },
+              appliedAt: item.created_at || new Date().toISOString()
+            } : undefined
           }));
           this.totalItems = response.data.total_items || 0;
         }
@@ -186,20 +227,32 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
    */
   getStatusFromTab(tab: string): number | undefined {
     const statusMap: { [key: string]: number | undefined } = {
-      'all': undefined,          // No filter - show all
-      'candidates': 1,           // Candidate
-      'interviewing': 2,         // Interviewee
-      'qualified': 6,            // Qualified
-      'rejected': 5              // Rejected
+      'new': 1,              // New Applicants
+      'candidate': 2,        // Candidate
+      'interviewee': 3,      // Interviewee
+      'qualified': 4,        // Qualified
+      'offerSent': 5         // Job Offer Sent
     };
     return statusMap[tab];
+  }
+
+  /**
+   * Get offer status from tab name
+   * Offer status mapping: 1 - Offer Accepted, 2 - Offer Rejected
+   */
+  getOfferStatusFromTab(tab: string): number | undefined {
+    const offerStatusMap: { [key: string]: number | undefined } = {
+      'offerAccepted': 1,    // Offer Accepted
+      'offerRejected': 2     // Offer Rejected
+    };
+    return offerStatusMap[tab];
   }
 
   toggleText() {
     this.isExpanded = !this.isExpanded;
   }
 
-  setActiveTab(tab: 'all' | 'candidates' | 'interviewing' | 'qualified' | 'rejected') {
+  setActiveTab(tab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'offerSent' | 'offerAccepted' | 'offerRejected') {
     this.activeTab = tab;
     this.currentPage = 1; // Reset to first page when changing tabs
     this.loadApplicants();
@@ -283,16 +336,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     return sections;
   }
 
-  applicant: Applicant[] = [
-    {
-      id: 11,
-      name: 'Ahmed Mohamed',
-      phoneNumber: '+2 0122 233 244',
-      email: 'ahmed@email.com',
-      status: 'Applied at',
-      statusAt: '28/12/2025 8:30 PM',
-    }
-  ];
+  applicant: Applicant[] = [];
 
   sortDirection: string = 'asc';
   currentSortColumn: keyof Applicant | '' = '';
@@ -310,8 +354,10 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
         const aVal = a[column]?.toString().toLowerCase();
         const bVal = b[column]?.toString().toLowerCase();
 
-        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+        if (aVal && bVal) {
+          if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+          if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+        }
         return 0;
       });
     }

@@ -1,7 +1,6 @@
 import { Component, Input, ViewChild, ViewEncapsulation } from '@angular/core';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
-import { SafePipe } from 'app/core/pipe/safe.pipe';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -9,7 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 @Component({
   selector: 'app-cv',
   standalone: true,
-  imports: [OverlayFilterBoxComponent, NgxDocViewerModule, SafePipe, DatePipe, DecimalPipe],
+  imports: [OverlayFilterBoxComponent, NgxDocViewerModule, DatePipe, DecimalPipe],
   providers: [DatePipe,],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',

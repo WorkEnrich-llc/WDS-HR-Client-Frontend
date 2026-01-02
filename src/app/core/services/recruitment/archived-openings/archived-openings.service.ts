@@ -82,4 +82,45 @@ export class ArchivedOpeningsService {
 
         return this._HttpClient.get(url, { params });
     }
+
+    // Get applicants by job ID (same as JobOpeningsService for consistency)
+    getApplicantsByJobId(
+        jobId: number,
+        pageNumber?: number,
+        perPage?: number,
+        status?: number,
+        search?: string,
+        offerStatus?: number
+    ): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applicants`;
+
+        let params = new HttpParams()
+            .set('job_id', jobId.toString());
+
+        // Add pagination if provided
+        if (pageNumber !== undefined && pageNumber !== null) {
+            params = params.set('page', pageNumber.toString());
+        }
+
+        if (perPage !== undefined && perPage !== null) {
+            params = params.set('per_page', perPage.toString());
+        }
+
+        // Add status if provided
+        if (status !== undefined && status !== null) {
+            params = params.set('status', status.toString());
+        }
+
+        // Add offer_status if provided
+        if (offerStatus !== undefined && offerStatus !== null) {
+            params = params.set('offer_status', offerStatus.toString());
+        }
+
+        // Add search if provided
+        if (search && search.trim()) {
+            params = params.set('search', search.trim());
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
 }
