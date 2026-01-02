@@ -122,6 +122,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
         this.announcements = (data?.list_items || []).map((item: any) => ({
           id: item.id,
           recipients: item.recipients || [],
+          recipientGroups: this.groupRecipients(item.recipients || []),
           title: item.title,
           createdAt: this.formatDate(item.created_at)
         }));
@@ -161,6 +162,37 @@ export class AnnouncementsComponent implements OnInit, OnDestroy {
 
     const types = [...new Set(recipients.map(r => r.recipient_type).filter(Boolean))];
     return types.join(', ');
+  }
+
+  /**
+   * Group recipients by type and format their names with 60 char truncation
+   */
+  groupRecipients(recipients: any[]): Array<{type: string; names: string}> {
+    if (!recipients || recipients.length === 0) return [];
+
+    // Group by recipient_type
+    const grouped = recipients.reduce((acc: any, recipient: any) => {
+      const type = recipient.recipient_type || 'Unknown';
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      // Get the name, use recipient_name if available, otherwise use id as fallback
+      const name = recipient.recipient_name || '';
+      acc[type].push(name);
+      return acc;
+    }, {});
+
+    // Convert to array format with 60 character truncation
+    return Object.entries(grouped).map(([type, names]: [string, any]) => {
+      const fullNames = names.join(', ');
+      const truncatedNames = fullNames.length > 60 
+        ? fullNames.substring(0, 60) + '...' 
+        : fullNames;
+      return {
+        type,
+        names: truncatedNames
+      };
+    });
   }
 
   onSearchChange(): void {
