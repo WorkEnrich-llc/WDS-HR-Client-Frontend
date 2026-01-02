@@ -172,16 +172,10 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <select formControlName="salaryPortion" id="salaryPortion" class="form-control custom-date-input">
                         <option value="" disabled selected>Select Salary Portion</option>
-                        @if (salaryPortions?.settings?.length) {
                         @for (sp of salaryPortions.settings; track sp.index) {
-                        <option [value]="sp.name">{{ sp.name }} ({{ sp.percentage }}%){{ sp.default ? ' - Default' : ''
+                        <option [value]="sp.name">{{ sp.name }} {{ sp.percentage }}{{ sp.percentage !== '' ? ' (%)' : ''
+                            }}{{ sp.default ? ' - Default' : ''
                             }}</option>
-                        }
-                        } @else {
-                        <!-- Fallback static options if API not available -->
-                        <option value="full">Full</option>
-                        <option value="half">Half</option>
-                        <option value="quarter">Quarter</option>
                         }
                     </select>
                 </div>

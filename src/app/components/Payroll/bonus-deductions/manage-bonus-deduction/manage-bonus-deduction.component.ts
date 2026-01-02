@@ -12,7 +12,7 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { SalaryPortionsService } from '../../../../core/services/payroll/salary-portions/salary-portions.service';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, finalize } from 'rxjs/operators';
 import { BonusDeductionsService } from '../bonus-deductions.service';
 import { NgClass } from '@angular/common';
 
@@ -73,6 +73,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
     // Search debouncing
     private searchSubject = new Subject<string>();
     private searchSubscription?: Subscription;
+    private destroy$ = new Subject<void>();
 
     // Selected table pagination
     tableCurrentPage: number = 1;
@@ -82,6 +83,8 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
 
     // Salary portions config fetched on start
     salaryPortions: any = null;
+    salaryPortionsLoading: boolean = false;
+    salaryPortionsRequestInFlight: boolean = false;
 
     // Edit mode
     isEditMode: boolean = false;
@@ -324,7 +327,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                 title: ['', [Validators.required, Validators.minLength(2)]],
                 classification: ['', [Validators.required]],
                 date: ['', [Validators.required, this.notPreviousMonthValidator()]],
-                days: [1, [Validators.required, Validators.pattern(/^\d+$/)]],
+                days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
         }
@@ -417,25 +420,50 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Fetch salary portions config
+     * Fetch salary portions config with request_in parameter
      */
     private loadSalaryPortions(): void {
-        this.salaryPortionsService.single().subscribe({
+        if (this.salaryPortionsRequestInFlight) {
+            return;
+        }
+        this.salaryPortionsRequestInFlight = true;
+        this.salaryPortionsLoading = true;
+        this.salaryPortionsService.single({ request_in: 'attendance-rules' }).pipe(
+            takeUntil(this.destroy$),
+            finalize(() => {
+                this.salaryPortionsLoading = false;
+                this.salaryPortionsRequestInFlight = false;
+            })
+        ).subscribe({
             next: (res: any) => {
-                this.salaryPortions = res;
+                if (res && res.data?.object_info?.settings && Array.isArray(res.data.object_info.settings)) {
+                    this.salaryPortions = {
+                        settings: res.data.object_info.settings
+                    };
+                } else if (res && res.settings && Array.isArray(res.settings)) {
+                    this.salaryPortions = {
+                        settings: res.settings
+                    };
+                } else {
+                    this.salaryPortions = { settings: [] };
+                }
                 // Set default selection if provided
                 const def = this.salaryPortions?.settings?.find((s: any) => s.default);
                 if (def) {
                     this.bonusDeductionForm.get('salaryPortion')?.setValue(def.name, { emitEvent: false });
                 }
             },
-            error: () => {
-                // Silently ignore for now; UI uses static options
+            error: (error) => {
+                console.error('Error loading salary portions:', error);
+                this.salaryPortions = { settings: [] };
+                // UI uses static options as fallback
             }
         });
     }
 
     ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
         if (this.searchSubscription) {
             this.searchSubscription.unsubscribe();
         }

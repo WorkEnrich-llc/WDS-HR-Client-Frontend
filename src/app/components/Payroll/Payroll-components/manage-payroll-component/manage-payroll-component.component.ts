@@ -163,7 +163,7 @@ export class ManagePayrollComponentComponent implements OnInit {
   }
 
   private loadSalaryPortions(): void {
-    this.salaryPortionService.single().subscribe({
+    this.salaryPortionService.single({ request_in: 'payroll-components' }).subscribe({
       next: (data) => {
         this.salaryPortions = data.settings
       },
