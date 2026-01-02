@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
 import { FormsModule } from '@angular/forms';
 import { NgClass, CommonModule } from '@angular/common';
 import { CalendarComponent, CalendarDay } from '../../shared/calendar/calendar.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-personnel-calender',
@@ -22,7 +23,7 @@ export class PersonnelCalenderComponent {
   currentDate: Date = new Date();
   selectedDate: Date = new Date();
 
-  constructor(private cdr: ChangeDetectorRef, private calenderService: PersonnelCalenderService, private ngZone: NgZone) { }
+  constructor(private cdr: ChangeDetectorRef, private calenderService: PersonnelCalenderService, private ngZone: NgZone, private router: Router) { }
 
   ngOnInit() {
     this.generateCalendar();
@@ -37,7 +38,7 @@ export class PersonnelCalenderComponent {
     this.calendarSub = this.calenderService.getCalendar(year, month).subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
-          const events: { title: string; date: string; type: string }[] = [];
+          const events: { title: string; date: string; type: string; employeeId?: number; employeeName?: string }[] = [];
           response.data.list_items.forEach((item: any) => {
             item.items.forEach((event: any) => {
               let title = event.type;
@@ -54,7 +55,9 @@ export class PersonnelCalenderComponent {
               events.push({
                 title,
                 date: item.date,
-                type: event.type
+                type: event.type,
+                employeeId: event.id,
+                employeeName: event.name_en || event.name_ar
               });
             });
           });
@@ -233,7 +236,7 @@ export class PersonnelCalenderComponent {
   }
 
   selectedDateFormatted: string = '';
-  eventsDay: { title: string; date: string; type: string }[] = [];
+  eventsDay: { title: string; date: string; type: string; employeeId?: number; employeeName?: string }[] = [];
   events = [
     // Multiple events on June 12
     { title: 'Holiday - Eid', date: '2025-06-12', type: 'Holiday' },
@@ -258,6 +261,15 @@ export class PersonnelCalenderComponent {
   ngOnDestroy() {
     if (this.calendarSub) {
       this.calendarSub.unsubscribe();
+    }
+  }
+
+  /**
+   * Navigate to employee detail page
+   */
+  navigateToEmployee(employeeId?: number): void {
+    if (employeeId) {
+      this.router.navigate(['/employees', 'view-employee', employeeId]);
     }
   }
 }
