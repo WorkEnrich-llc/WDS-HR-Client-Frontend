@@ -36,6 +36,7 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
     // UI state
     isDescriptionExpanded: boolean = false;
+    logoLoadFailed: boolean = false;
     private readonly DESCRIPTION_PREVIEW_LENGTH = 300; // Characters to show in preview
 
     ngOnInit(): void {
@@ -163,6 +164,10 @@ export class ViewJobBoardSetupComponent implements OnInit {
         if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
         }
+    }
+
+    handleLogoError(): void {
+        this.logoLoadFailed = true;
     }
 }
 
