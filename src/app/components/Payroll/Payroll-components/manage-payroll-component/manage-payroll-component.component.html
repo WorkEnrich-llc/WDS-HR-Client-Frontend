@@ -206,7 +206,7 @@
               <option value="" disabled hidden>Select Portion</option>
               @for (p of salaryPortions; track p.index) {
               <option [value]="p.index">
-                {{ p.name }}
+                {{ p.name }} ({{ p.percentage }}%){{ p.default ? ' - Default' : '' }}
               </option>
               }
             </select>
