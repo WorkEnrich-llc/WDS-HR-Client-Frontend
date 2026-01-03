@@ -1,17 +1,28 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
-import { CvComponent } from './cv/cv.component';
-import { FeedbackComponent } from './feedback/feedback.component';
 import { InterviewComponent } from './interview/interview.component';
 import { AttachmentAndInfoComponent } from './attachment-and-info/attachment-and-info.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
+import { NgxDocViewerModule } from 'ngx-doc-viewer';
+
 @Component({
   selector: 'app-applicant-detais',
-  imports: [FormsModule, PageHeaderComponent, CvComponent, FeedbackComponent, InterviewComponent, AttachmentAndInfoComponent, OverlayFilterBoxComponent, DatePipe, RouterLink],
+  imports: [
+    FormsModule, 
+    PageHeaderComponent,
+    InterviewComponent,
+    AttachmentAndInfoComponent, 
+    OverlayFilterBoxComponent, 
+    DatePipe, 
+    DecimalPipe,
+    NgClass,
+    RouterLink,
+    NgxDocViewerModule
+  ],
   providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
   styleUrl: './applicant-detais.component.css'
@@ -19,6 +30,7 @@ import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/j
 export class ApplicantDetaisComponent implements OnInit {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
+  @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
   private route = inject(ActivatedRoute);
   private jobOpeningsService = inject(JobOpeningsService);
 
@@ -29,6 +41,14 @@ export class ApplicantDetaisComponent implements OnInit {
   feedbacks: any[] = [];
   isFeedbackLoading: boolean = false;
   applicantApplications: any[] = [];
+
+  // Tab management
+  currentTab: string = 'cv';
+
+  // Feedback form variables
+  feedbackRating: number = 0;
+  feedbackComment: string = '';
+  isFeedbackSubmitting: boolean = false;
 
   // Reject form variables
   rejectionNotes: string = '';
@@ -47,6 +67,81 @@ export class ApplicantDetaisComponent implements OnInit {
     6: 'Qualified',
     7: 'Not Selected'
   };
+
+  // Set current tab
+  setCurrentTab(tab: string): void {
+    this.currentTab = tab;
+  }
+
+  // Get evaluation score
+  getEvaluationScore(): number {
+    return this.applicantDetails?.evaluation?.average_score ?? 0;
+  }
+
+  // Get max score (always 10)
+  getMaxScore(): number {
+    return 10;
+  }
+
+  // Get status label
+  getStatusLabel(): string {
+    if (!this.applicantDetails?.status) return 'Applicant';
+    const status = typeof this.applicantDetails.status === 'number'
+      ? this.statusMap[this.applicantDetails.status]
+      : this.applicantDetails.status;
+    return status || 'Applicant';
+  }
+
+  // Check if user can add feedback
+  canAddFeedback(): boolean {
+    // You can add your permission logic here
+    return !this.isNewJoiner && !this.isRejected;
+  }
+
+  // Download CV
+  downloadCv() {
+    const url = this.getCvUrlFromApplication();
+    if (!url) return;
+
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${this.applicantDetails?.name || 'cv'}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(error => {
+        alert('An error occurred while downloading the CV.');
+        console.error('Download error:', error);
+      });
+  }
+
+  // Submit feedback
+  submitFeedback(): void {
+    if (!this.applicationId) return;
+
+    this.isFeedbackSubmitting = true;
+
+    this.jobOpeningsService.addApplicationFeedback(
+      this.applicationId,
+      this.feedbackRating,
+      this.feedbackComment
+    ).subscribe({
+      next: () => {
+        this.isFeedbackSubmitting = false;
+        this.feedbackOverlay?.closeOverlay();
+        this.feedbackRating = 0;
+        this.feedbackComment = '';
+        this.fetchFeedbacks();
+      },
+      error: () => {
+        this.isFeedbackSubmitting = false;
+      }
+    });
+  }
 
   // Check if status is New Joiner
   get isNewJoiner(): boolean {
