@@ -193,14 +193,18 @@
             <h6>Work Schedule</h6>
             <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
           </div>
+          @if (jobOpening.job_title?.employment_type) {
           <div class="info">
             <h6>Job type</h6>
-            <span>Full time</span>
+            <span>{{ jobOpening.job_title.employment_type }}</span>
           </div>
+          }
+          @if (jobOpening.job_title?.salary_ranges) {
           <div class="info">
             <h6>Average Salary</h6>
-            <span>14.000-18.000</span>
+            <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{ jobOpening.job_title.salary_ranges.currency }}</span>
           </div>
+          }
         </div>
         }
       </div>
