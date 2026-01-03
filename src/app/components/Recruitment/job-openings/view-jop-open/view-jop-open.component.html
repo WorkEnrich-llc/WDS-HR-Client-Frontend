@@ -202,7 +202,8 @@
           @if (jobOpening.job_title?.salary_ranges) {
           <div class="info">
             <h6>Average Salary</h6>
-            <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{ jobOpening.job_title.salary_ranges.currency }}</span>
+            <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{
+              jobOpening.job_title.salary_ranges.currency }}</span>
           </div>
           }
         </div>
