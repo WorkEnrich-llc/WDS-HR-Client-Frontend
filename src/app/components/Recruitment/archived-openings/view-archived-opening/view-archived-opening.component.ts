@@ -1,13 +1,14 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ArchivedOpeningsService } from '../../../../core/services/recruitment/archived-openings/archived-openings.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 
 type EvaluationData = {
   label: string;
@@ -46,12 +47,14 @@ type DynamicFieldSection = {
 @Component({
   selector: 'app-view-archived-opening',
   standalone: true,
-  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, DecimalPipe, OverlayFilterBoxComponent],
   providers: [DatePipe],
   templateUrl: './view-archived-opening.component.html',
   styleUrl: './view-archived-opening.component.css'
 })
 export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
+  @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private archivedOpeningsService = inject(ArchivedOpeningsService);
@@ -70,7 +73,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
   isExpanded = false;
 
   // Tab functionality
-  activeTab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'offerSent' | 'offerAccepted' | 'offerRejected' = 'new';
+  activeTab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'offerSent' | 'offerAccepted' | 'offerRejected' = 'new';
 
   // Applicants data and pagination
   applicantsLoading: boolean = false;
@@ -106,6 +109,28 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
 
   // Copy to clipboard feedback
   copiedSectionId: string | null = null;
+
+  // Job Offer form properties
+  jobOfferApplicant: any = null;
+  overlayTitle: string = '';
+  offerSalary: number | null = null;
+  offerJoinDate: string = '';
+  offerDetails: string = '';
+  withEndDate: boolean = false;
+  contractEndDate: string = '';
+  noticePeriod: number | null = null;
+  includeProbation: boolean = false;
+  minSalary: number = 0;
+  maxSalary: number = 0;
+  submitting: boolean = false;
+  jobOfferValidationErrors: any = {};
+  jobOfferDetailsLoading = false;
+  jobOfferFormSubmitted = false;
+  currentJobOfferApplicant: any = null;
+  currentJobOfferApplicationId: number | undefined = undefined;
+
+  // Store selected applicant for confirmation
+  selectedApplicant: Applicant | null = null;
 
   ngOnInit(): void {
     // Load job opening from route
@@ -265,7 +290,8 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
       'candidate': 2,        // Candidate
       'interviewee': 3,      // Interviewee
       'qualified': 4,        // Qualified
-      'offerSent': 5         // Job Offer Sent
+      'jobOfferSent': 5,     // Job Offer Sent
+      'accepted': 6          // Accepted
     };
     return statusMap[tab];
   }
@@ -286,7 +312,7 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
     this.isExpanded = !this.isExpanded;
   }
 
-  setActiveTab(tab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'offerSent' | 'offerAccepted' | 'offerRejected') {
+  setActiveTab(tab: 'new' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'offerSent' | 'offerAccepted' | 'offerRejected') {
     this.activeTab = tab;
     this.currentPage = 1; // Reset to first page when changing tabs
     this.loadApplicants();
@@ -482,6 +508,290 @@ export class ViewArchivedOpeningComponent implements OnInit, OnDestroy {
       }, 2000);
     }).catch(() => {
       console.error('Failed to copy to clipboard');
+    });
+  }
+
+  /**
+   * Check if applicant has job offer sent status
+   */
+  isJobOfferSent(status: string): boolean {
+    const normalizedStatus = status?.toLowerCase().trim() || '';
+    return normalizedStatus === 'job offer sent' || normalizedStatus.includes('offer sent');
+  }
+
+  /**
+   * Check if applicant has offer rejected status
+   */
+  isOfferRejected(status: string): boolean {
+    const normalizedStatus = status?.toLowerCase().trim() || '';
+    return normalizedStatus === 'offer rejected' || normalizedStatus.includes('rejected');
+  }
+
+  /**
+   * Open job offer modal directly (no confirmation modal)
+   */
+  openJobOfferModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+
+    // Reset job offer form
+    this.resetJobOfferForm();
+    this.overlayTitle = 'Job Offer';
+
+    // Set applicant data
+    this.currentJobOfferApplicationId = applicant.applicationId;
+    this.jobOfferApplicant = applicant;
+
+    // Open the overlay
+    if (this.jobBox) {
+      this.jobBox.openOverlay();
+    }
+  }
+
+  /**
+   * Reset job offer form
+   */
+  resetJobOfferForm(): void {
+    this.offerSalary = null;
+    this.offerJoinDate = '';
+    this.offerDetails = '';
+    this.withEndDate = false;
+    this.contractEndDate = '';
+    this.noticePeriod = null;
+    this.includeProbation = false;
+    this.jobOfferValidationErrors = {};
+    this.jobOfferFormSubmitted = false;
+  }
+
+  /**
+   * Submit job offer
+   */
+  submitJobOffer(): void {
+    // Mark form as touched/submitted
+    this.jobOfferFormSubmitted = true;
+
+    // Reset validation errors
+    this.jobOfferValidationErrors = {};
+
+    // Validate required fields
+    let hasErrors = false;
+
+    if (!this.currentJobOfferApplicationId) {
+      return;
+    }
+
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+      hasErrors = true;
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+      hasErrors = true;
+    }
+
+    // Notice period required
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+      hasErrors = true;
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+      hasErrors = true;
+    }
+
+    // Validate join date is present
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      hasErrors = true;
+    } else {
+      // Validate join date is today or in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const joinDate = new Date(this.offerJoinDate);
+      joinDate.setHours(0, 0, 0, 0);
+      if (joinDate < today) {
+        this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+        hasErrors = true;
+      }
+    }
+
+    // Validate offer details
+    if (!this.offerDetails || !this.offerDetails.trim()) {
+      this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
+    this.submitting = true;
+
+    // Create new job offer with full payload
+    const payload: any = {
+      application_id: this.currentJobOfferApplicationId,
+      join_date: this.offerJoinDate,
+      salary: typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary,
+      offer_details: this.offerDetails,
+    };
+    if (this.withEndDate && this.contractEndDate) {
+      payload.end_contract = this.contractEndDate;
+    }
+    if (this.noticePeriod) {
+      payload.notice_period = this.noticePeriod;
+    }
+    this.archivedOpeningsService.sendJobOfferFull(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.closeAllOverlays();
+        this.resetJobOfferForm();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: () => {
+        this.submitting = false;
+      }
+    });
+  }
+
+  /**
+   * Validate join date field
+   */
+  validateJoinDateField(): void {
+    // Clear previous error
+    delete this.jobOfferValidationErrors.joinDate;
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const joinDate = new Date(this.offerJoinDate);
+    joinDate.setHours(0, 0, 0, 0);
+    if (joinDate < today) {
+      this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+    }
+  }
+
+  /**
+   * Validate notice period field
+   */
+  validateNoticePeriodField(): void {
+    // Show error if invalid, clear if valid
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.noticePeriod) {
+        delete this.jobOfferValidationErrors.noticePeriod;
+      }
+    }
+  }
+
+  /**
+   * Validate salary field
+   */
+  validateSalaryField(): void {
+    // Show error if invalid, clear if valid
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.salary) {
+        delete this.jobOfferValidationErrors.salary;
+      }
+    }
+  }
+
+  /**
+   * On salary focus
+   */
+  onSalaryFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.salary) {
+      delete this.jobOfferValidationErrors.salary;
+    }
+  }
+
+  /**
+   * On offer details focus
+   */
+  onOfferDetailsFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.offerDetails) {
+      delete this.jobOfferValidationErrors.offerDetails;
+    }
+  }
+
+  /**
+   * On notice period focus
+   */
+  onNoticePeriodFocus(): void {
+    // Clear error on focus
+    if (this.jobOfferValidationErrors.noticePeriod) {
+      delete this.jobOfferValidationErrors.noticePeriod;
+    }
+  }
+
+  /**
+   * Validate offer details field
+   */
+  validateOfferDetailsField(): void {
+    // Show error if invalid for new job offers
+    if (!this.offerDetails || !this.offerDetails.trim()) {
+      this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+    } else {
+      if (this.jobOfferValidationErrors.offerDetails) {
+        delete this.jobOfferValidationErrors.offerDetails;
+      }
+    }
+  }
+
+  /**
+   * Close all overlays
+   */
+  closeAllOverlays(): void {
+    if (this.jobBox) {
+      this.jobBox.closeOverlay();
+    }
+  }
+
+  /**
+   * Navigate to create employee with application and applicant IDs
+   */
+  navigateToCreateEmployee(applicant: any): void {
+    if (!applicant?.applicationId) {
+      console.error('Application ID not found');
+      return;
+    }
+    if (!applicant?.applicantId) {
+      console.error('Applicant ID not found');
+      return;
+    }
+    this.router.navigate(['/employees/create-employee'], {
+      queryParams: {
+        application_id: applicant.applicationId,
+        applicant_id: applicant.applicantId
+      }
     });
   }
 

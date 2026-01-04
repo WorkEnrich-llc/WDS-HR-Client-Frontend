@@ -116,7 +116,6 @@ export class ManageEmployeeComponent implements OnInit {
               next: (data) => {
                 // Populate form with the fetched employee create info
                 this.sharedService.populateFormWithEmployeeCreateInfo(data.data);
-                this.toasterMessageService.showSuccess('Employee data loaded successfully');
               },
               error: (err) => {
                 console.error('Failed to fetch employee create info:', err);

@@ -59,7 +59,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackBox') feedbackBox!: OverlayFilterBoxComponent;
-  
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
@@ -725,7 +725,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // =====================================================
   // Action Methods for Applicant Status Changes
   // =====================================================
-  
+
   /**
    * Check if applicant has job offer sent status
    */
@@ -771,7 +771,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   confirmMakeCandidate(): void {
     if (!this.selectedApplicant?.applicationId) return;
-    
+
     // Status 2 = Candidate
     this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 2).subscribe({
       next: () => {
@@ -790,19 +790,19 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   openInterviewModal(applicant: Applicant): void {
     if (!applicant?.applicationId) return;
-    
+
     // Reset form
     this.resetInterviewForm();
     this.overlayTitle = 'Schedule Interview';
-    
+
     // Set application data
     this.currentApplicationId = applicant.applicationId;
     this.currentApplicationDetails = { application: { job: this.jobOpening?.id } };
-    
+
     // Load departments and branches
     this.loadDepartments();
     this.loadBranches();
-    
+
     // Open the overlay
     if (this.filterBox) {
       this.filterBox.openOverlay();
@@ -1177,7 +1177,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   confirmMarkQualified(): void {
     if (!this.selectedApplicant?.applicationId) return;
-    
+
     // Status 4 = Qualified
     this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 4).subscribe({
       next: () => {
@@ -1197,15 +1197,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   openJobOfferModal(applicant: Applicant): void {
     if (!applicant?.applicationId) return;
-    
+
     // Reset job offer form
     this.resetJobOfferForm();
     this.overlayTitle = 'Job Offer';
-    
+
     // Set applicant data
     this.currentApplicationId = applicant.applicationId;
     this.jobOfferApplicant = applicant;
-    
+
     // Open the overlay
     if (this.jobBox) {
       this.jobBox.openOverlay();
@@ -1452,7 +1452,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   confirmAcceptOffer(): void {
     if (!this.selectedApplicant?.applicationId) return;
-    
+
     // Status 6 = Accepted / New Joiner
     this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 6).subscribe({
       next: () => {
@@ -1485,6 +1485,26 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     if (this.jobOpening?.id) {
       this.getJobOpeningDetails(this.jobOpening.id);
     }
+  }
+
+  /**
+   * Navigate to create employee with application and applicant IDs
+   */
+  navigateToCreateEmployee(applicant: any): void {
+    if (!applicant?.applicationId) {
+      console.error('Application ID not found');
+      return;
+    }
+    if (!applicant?.applicantId) {
+      console.error('Applicant ID not found');
+      return;
+    }
+    this.router.navigate(['/employees/create-employee'], {
+      queryParams: {
+        application_id: applicant.applicationId,
+        applicant_id: applicant.applicantId
+      }
+    });
   }
 
   ngOnDestroy(): void {

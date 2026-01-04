@@ -356,6 +356,73 @@
         </span>
       </li>
 
+      <li class="nav-item" [class.active]="activeTab === 'jobOfferSent'" (click)="setActiveTab('jobOfferSent')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.1838 5.82011L16.0625 1.94141L16.0605 1.93947C15.1701 1.04901 13.4832 1.61131 10.1094 2.73591L6.2474 4.02324C3.52443 4.9309 2.16294 5.38473 1.77604 6.05024C1.40799 6.68334 1.40799 7.46527 1.77604 8.09837C2.16294 8.76388 3.52443 9.21771 6.2474 10.1254C6.58486 10.2379 6.96451 10.1575 7.2172 9.90719L11.3464 5.81622C11.5787 5.58606 11.9536 5.58781 12.1838 5.82011Z"
+                fill="#4A6D97" />
+              <path opacity="0.3"
+                d="M13.9768 11.7521L15.2642 7.8901C16.388 4.51878 16.9503 2.83188 16.0626 1.94092L12.1839 5.81962C12.414 6.05192 12.4123 6.42682 12.18 6.65697L8.11743 10.6819C7.83891 10.9578 7.75074 11.3802 7.87472 11.7521C8.78237 14.4751 9.23621 15.8366 9.90171 16.2235C10.5348 16.5915 11.3167 16.5915 11.9499 16.2235C12.6154 15.8366 13.0692 14.4751 13.9768 11.7521Z"
+                fill="#4A6D97" />
+            </svg>
+
+            Job Offer
+          </span>
+          <span class="tab-count">
+            <span class="offer-sent-grey count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.jobOffersSent }}
+            </span>
+            <span class="offer-accepted count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+                fill="none">
+                <path
+                  d="M10.6872 5.97982C10.8825 6.17508 10.8825 6.49167 10.6872 6.68693L7.35388 10.0203C7.15862 10.2155 6.84203 10.2155 6.64677 10.0203L5.31344 8.68693C5.11818 8.49167 5.11818 8.17508 5.31344 7.97982C5.5087 7.78456 5.82528 7.78456 6.02055 7.97982L7.00033 8.9596L8.49022 7.46971L9.98011 5.97982C10.1754 5.78456 10.492 5.78456 10.6872 5.97982Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersAccepted }}
+            </span>
+            <span class="offer-rejected count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"
+                fill="none">
+                <path
+                  d="M0.146447 0.146447C0.341709 -0.0488155 0.658291 -0.0488155 0.853553 0.146447L2.16667 1.45957L3.47978 0.14646C3.67504 -0.0488019 3.99162 -0.0488018 4.18689 0.14646C4.38215 0.341722 4.38215 0.658305 4.18689 0.853567L2.87378 2.16667L4.18687 3.47977C4.38213 3.67503 4.38213 3.99161 4.18687 4.18687C3.99161 4.38214 3.67503 4.38214 3.47977 4.18687L2.16667 2.87378L0.853568 4.18689C0.658306 4.38215 0.341723 4.38215 0.146461 4.18689C-0.0488012 3.99162 -0.0488012 3.67504 0.146461 3.47978L1.45957 2.16667L0.146447 0.853553C-0.0488155 0.658291 -0.0488155 0.341709 0.146447 0.146447Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersRejected }}
+            </span>
+          </span>
+        </span>
+      </li>
+
+      <li class="nav-item" [class.active]="activeTab === 'accepted'" (click)="setActiveTab('accepted')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM11.5177 12.399C11.3468 12.2281 11.0698 12.2281 10.899 12.399C10.7281 12.5698 10.7281 12.8468 10.899 13.0177L11.7563 13.875L10.899 14.7323C10.7281 14.9032 10.7281 15.1802 10.899 15.351C11.0698 15.5219 11.3468 15.5219 11.5177 15.351L12.375 14.4937L13.2323 15.351C13.4032 15.5219 13.6802 15.5219 13.851 15.351C14.0219 15.1802 14.0219 14.9032 13.851 14.7323L12.9937 13.875L13.851 13.0177C14.0219 12.8468 14.0219 12.5698 13.851 12.399C13.6802 12.2281 13.4032 12.2281 13.2323 12.399L12.375 13.2563L11.5177 12.399Z" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z" />
+            </svg>
+            Accepted
+          </span>
+          <span class="tab-count">
+            <span class="offer-accepted count-item">
+              {{ applicantCounts.accepted }}
+            </span>
+          </span>
+        </span>
+      </li>
+
       <li class="nav-item" [class.active]="activeTab === 'offerRejected'" (click)="setActiveTab('offerRejected')">
         <span class="nav-link nav-link-wrapper">
           <span class="tab-header">
@@ -570,6 +637,63 @@
           </svg>
           <span>View</span>
         </a>
+
+        <!-- Job Offer button for Qualified -->
+        @if (activeTab === 'qualified') {
+        <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+          (click)="openJobOfferModal(application)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="currentColor" fill-rule="evenodd"
+              d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Job Offer</span>
+        </button>
+        }
+
+        <!-- Conditional buttons based on status for Job Offer Sent -->
+        @if (activeTab === 'accepted') {
+        <!-- Accepted applicant - Add as Employee button -->
+        <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+          (click)="navigateToCreateEmployee(application)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M9.0001 0.9375C7.03259 0.9375 5.4376 2.53249 5.4376 4.5C5.4376 6.46751 7.03259 8.0625 9.0001 8.0625C10.9676 8.0625 12.5626 6.46751 12.5626 4.5C12.5626 2.53249 10.9676 0.9375 9.0001 0.9375ZM6.5626 4.5C6.5626 3.15381 7.65391 2.0625 9.0001 2.0625C10.3463 2.0625 11.4376 3.15381 11.4376 4.5C11.4376 5.84619 10.3463 6.9375 9.0001 6.9375C7.65391 6.9375 6.5626 5.84619 6.5626 4.5Z"
+              fill="#377AFD" />
+            <path
+              d="M14.8917 10.9297C15.1147 11.146 15.12 11.5022 14.9036 11.7251L13.5288 13.1418C13.4177 13.2562 13.2632 13.3181 13.1038 13.3121C12.9445 13.3061 12.7951 13.2327 12.693 13.1101L12.0679 12.3601C11.869 12.1215 11.9012 11.7668 12.1398 11.5679C12.3785 11.369 12.7332 11.4012 12.9321 11.6399L13.1569 11.9096L14.0963 10.9416C14.3127 10.7187 14.6688 10.7133 14.8917 10.9297Z"
+              fill="#377AFD" />
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M11.0811 9.38468C10.4265 9.25654 9.72644 9.1875 9.0001 9.1875C7.26494 9.1875 5.66629 9.58191 4.48169 10.2483C3.31471 10.9047 2.4376 11.8995 2.4376 13.125L2.43755 13.2015C2.4367 14.0729 2.43564 15.1665 3.39491 15.9477C3.86701 16.3321 4.52746 16.6055 5.41976 16.7861C6.31455 16.9672 7.48077 17.0625 9.0001 17.0625C11.1512 17.0625 12.6075 16.8721 13.5898 16.5064C14.474 16.1772 14.998 15.695 15.2779 15.0879C16.3446 14.4724 17.0626 13.3201 17.0626 12C17.0626 10.0325 15.4676 8.4375 13.5001 8.4375C12.5663 8.4375 11.7164 8.79679 11.0811 9.38468ZM11.0626 12C11.0626 10.6538 12.1539 9.5625 13.5001 9.5625C14.8463 9.5625 15.9376 10.6538 15.9376 12C15.9376 13.3462 14.8463 14.4375 13.5001 14.4375C12.1539 14.4375 11.0626 13.3462 11.0626 12ZM10.3169 10.3987C10.0742 10.8801 9.9376 11.4241 9.9376 12C9.9376 13.792 11.2607 15.2749 12.9832 15.5253C12.1802 15.7775 10.9336 15.9375 9.0001 15.9375C7.51943 15.9375 6.43565 15.8439 5.64294 15.6835C4.84774 15.5225 4.38319 15.3016 4.10529 15.0753C3.59284 14.658 3.5626 14.1059 3.5626 13.125C3.5626 12.4865 4.02863 11.7939 5.03323 11.2288C6.0202 10.6736 7.42156 10.3125 9.0001 10.3125C9.45464 10.3125 9.89557 10.3425 10.3169 10.3987Z"
+              fill="#377AFD" />
+          </svg>
+          <span>Create Employee</span>
+        </button>
+        } @else if (activeTab === 'jobOfferSent') {
+        @if (isJobOfferSent(application.status)) {
+        <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="var(--color-primary-500)" fill-rule="evenodd"
+              d="M10.6872 5.97982C10.8825 6.17508 10.8825 6.49167 10.6872 6.68693L7.35388 10.0203C7.15862 10.2155 6.84203 10.2155 6.64677 10.0203L5.31344 8.68693C5.11818 8.49167 5.11818 8.17508 5.31344 7.97982C5.5087 7.78456 5.82528 7.78456 6.02055 7.97982L7.00033 8.9596L8.49022 7.46971L9.98011 5.97982C10.1754 5.78456 10.492 5.78456 10.6872 5.97982Z"
+              fill="var(--color-primary-500)" />
+            <path fill="var(--color-primary-500)" fill-rule="evenodd"
+              d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Accepted</span>
+        </button>
+        } @else if (isOfferRejected(application.status)) {
+        <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+          (click)="openJobOfferModal(application)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+            <path fill="var(--color-primary-500)" fill-rule="evenodd"
+              d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+              clip-rule="evenodd" />
+          </svg>
+          <span>New Offer</span>
+        </button>
+        }
+        }
       </td>
     </ng-template>
 
@@ -616,3 +740,120 @@
     Cancel
   </button>
 </app-popup>
+
+<!-- job offer -->
+<app-overlay-filter-box #jobBox
+  [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
+  <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="submitJobOffer()">
+    @if (jobOfferDetailsLoading && overlayTitle === 'Update Job Offer') {
+    <!-- Skeleton loader for all fields -->
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <div class="btn btn-lg btn-primary w-100 disabled placeholder"></div>
+      <div class="btn btn-lg btn-outline-dark border-0 w-100 disabled placeholder"></div>
+    </div>
+    } @else {
+    <div class="input">
+      <label>Email</label>
+      <input type="email" class="form-control" [value]="jobOfferApplicant?.email || ''" readonly
+        style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation"
+        name="includeProbation">
+      <label for="probation" class="m-0">Include Probation Period</label>
+    </div>
+    <div class="input">
+      <label for="joinDate">Join Date</label>
+      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
+        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
+        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.joinDate) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
+      }
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate">
+      <label for="withEndDate" class="m-0">With end date</label>
+    </div>
+    @if (withEndDate){
+    <div class="input">
+      <label for="contractEndDate">Contract End Date</label>
+      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    <div class="input">
+      <label for="noticePeriod">Notice Period (in Days)</label>
+      <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
+        placeholder="Enter number of days" [class.is-invalid]="jobOfferValidationErrors.noticePeriod"
+        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.noticePeriod) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.noticePeriod }}</div>
+      }
+    </div>
+    @if (overlayTitle === 'Update Job Offer') {
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <span class="text-muted">Min. Salary<br><span class="fw-bold">{{ minSalary | number:'1.0-0' }} EGP</span></span>
+      <span class="text-muted">Max. Salary<br><span class="fw-bold">{{ maxSalary | number:'1.0-0' }} EGP</span></span>
+    </div>
+    }
+    <div class="input">
+      <label for="salary">Salary</label>
+      <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
+        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.salary) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
+      }
+    </div>
+    <div class="input">
+      <label for="offerDetails">Offer Details</label>
+      <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
+        placeholder="Enter Offer Details" [class.is-invalid]="jobOfferValidationErrors.offerDetails"
+        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
+      @if (jobOfferValidationErrors.offerDetails && (jobOfferFormSubmitted)) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.offerDetails }}</div>
+      }
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="submit" class="btn btn-lg btn-primary w-100"
+        [disabled]="submitting || !currentJobOfferApplicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Send Job Offer</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Job Offer</span>
+      </a>
+    </div>
+    }
+  </form>
+</app-overlay-filter-box>

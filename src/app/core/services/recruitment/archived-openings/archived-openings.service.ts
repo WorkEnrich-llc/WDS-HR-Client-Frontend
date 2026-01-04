@@ -10,6 +10,13 @@ export class ArchivedOpeningsService {
     private _HttpClient = inject(HttpClient);
     private apiBaseUrl = environment.apiBaseUrl;
 
+    // Send job offer with full payload
+    sendJobOfferFull(payload: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const body = { request_data: payload };
+        return this._HttpClient.post(url, body);
+    }
+
     // Get all archived job openings with pagination and filters
     getAllArchivedOpenings(
         pageNumber: number,
