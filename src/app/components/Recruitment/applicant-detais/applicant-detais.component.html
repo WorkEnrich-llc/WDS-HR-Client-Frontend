@@ -19,14 +19,23 @@
     <span>Reject</span>
   </button>
   }
-  <!-- <button class="btn btn-lg btn-dark">
+  <button class="btn btn-lg btn-dark" (click)="goToNextApplication()" [disabled]="isNextApplicationLoading">
+    @if (isNextApplicationLoading) {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" class="spinner">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" opacity="0.2" />
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+        stroke="currentColor" stroke-width="2" fill="none" />
+    </svg>
+    } @else {
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
         d="M13.47 5.47a.75.75 0 0 1 1.06 0l6 6a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 1 1-1.06-1.06l4.72-4.72H4a.75.75 0 0 1 0-1.5h14.19l-4.72-4.72a.75.75 0 0 1 0-1.06"
         clip-rule="evenodd" />
     </svg>
+    }
     <span>Next</span>
-  </button> -->
+  </button>
 </app-page-header>
 <!-- end page header -->
 

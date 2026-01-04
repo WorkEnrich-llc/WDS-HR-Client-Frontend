@@ -166,6 +166,13 @@ export class JobOpeningsService {
         return this._HttpClient.get(url);
     }
 
+    // get next application
+    getNextApplication(currentApplicationId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/next`;
+        const params = new HttpParams().set('current_application_id', currentApplicationId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
     // get feedbacks for application id with pagination
     getApplicationFeedbacks(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/feedbacks`;

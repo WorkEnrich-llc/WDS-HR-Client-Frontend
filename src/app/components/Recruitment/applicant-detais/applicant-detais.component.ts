@@ -5,8 +5,9 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
 import { InterviewComponent } from './interview/interview.component';
 import { AttachmentAndInfoComponent } from './attachment-and-info/attachment-and-info.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
 
 @Component({
@@ -32,9 +33,12 @@ export class ApplicantDetaisComponent implements OnInit {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
+  private toasterService = inject(ToasterMessageService);
 
   isLoading: boolean = false;
+  isNextApplicationLoading: boolean = false;
   applicantDetails: any = null;
   applicationDetails: any = null;
   applicationId?: number;
@@ -227,54 +231,56 @@ export class ApplicantDetaisComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // read applicationId from route params
-    const applicationIdParam = this.route.snapshot.paramMap.get('applicationId');
-    const applicationId = applicationIdParam ? parseInt(applicationIdParam, 10) : NaN;
+    // Subscribe to route param changes to load applicant data when ID changes
+    this.route.paramMap.subscribe((params) => {
+      const applicationIdParam = params.get('applicationId');
+      const applicationId = applicationIdParam ? parseInt(applicationIdParam, 10) : NaN;
 
-    if (!isNaN(applicationId)) {
-      this.applicationId = applicationId;
-      this.isLoading = true;
+      if (!isNaN(applicationId)) {
+        this.applicationId = applicationId;
+        this.isLoading = true;
 
-      // Call application details API directly using application_id
-      this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
-        next: (appRes) => {
-          this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
+        // Call application details API directly using application_id
+        this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
+          next: (appRes) => {
+            this.applicationDetails = appRes?.data?.object_info ?? appRes?.object_info ?? appRes;
 
-          // Extract applicant details from application response
-          if (this.applicationDetails) {
-            const application = this.applicationDetails.application || this.applicationDetails;
-            const applicant = this.applicationDetails.applicant || {};
+            // Extract applicant details from application response
+            if (this.applicationDetails) {
+              const application = this.applicationDetails.application || this.applicationDetails;
+              const applicant = this.applicationDetails.applicant || {};
 
-            // Extract name, email, phone from application_content if applicant object is empty
-            const basicInfo = application.application_content?.['Personal Details']?.['Basic Info'] || [];
+              // Extract name, email, phone from application_content if applicant object is empty
+              const basicInfo = application.application_content?.['Personal Details']?.['Basic Info'] || [];
 
-            // Map applicant details from application response
-            this.applicantDetails = {
-              id: applicant.id,
-              name: applicant.name || basicInfo.find((f: any) => f.name === 'Name')?.value || 'N/A',
-              email: applicant.email || basicInfo.find((f: any) => f.name === 'Email')?.value || 'N/A',
-              phone: applicant.phone || basicInfo.find((f: any) => f.name === 'Phone Number')?.value || 'N/A',
-              status: application.status,
-              created_at: application.created_at,
-              application_id: application.id,
-              job_id: application.job || this.applicationDetails.job,
-              evaluation: applicant.evaluation
-            };
+              // Map applicant details from application response
+              this.applicantDetails = {
+                id: applicant.id,
+                name: applicant.name || basicInfo.find((f: any) => f.name === 'Name')?.value || 'N/A',
+                email: applicant.email || basicInfo.find((f: any) => f.name === 'Email')?.value || 'N/A',
+                phone: applicant.phone || basicInfo.find((f: any) => f.name === 'Phone Number')?.value || 'N/A',
+                status: application.status,
+                created_at: application.created_at,
+                application_id: application.id,
+                job_id: application.job || this.applicationDetails.job,
+                evaluation: applicant.evaluation
+              };
 
-            // Fetch applications for this applicant
-            if (applicant.id) {
-              // Store applicant ID for later use
-              this.applicantDetails.applicantId = applicant.id;
+              // Fetch applications for this applicant
+              if (applicant.id) {
+                // Store applicant ID for later use
+                this.applicantDetails.applicantId = applicant.id;
+              }
             }
-          }
 
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        }
-      });
-    }
+            this.isLoading = false;
+          },
+          error: () => {
+            this.isLoading = false;
+          }
+        });
+      }
+    });
   }
 
   getCvUrlFromApplication(): string | undefined {
@@ -404,4 +410,48 @@ export class ApplicantDetaisComponent implements OnInit {
 
     return statusBadges[status] || statusBadges['Applicant'];
   }
+
+  // Navigate to next application
+  goToNextApplication(): void {
+    // Prevent multiple calls
+    if (this.isNextApplicationLoading || !this.applicationId) {
+      return;
+    }
+
+    this.isNextApplicationLoading = true;
+
+    this.jobOpeningsService.getNextApplication(this.applicationId).subscribe({
+      next: (response) => {
+        this.isNextApplicationLoading = false;
+
+        // Check if there's a details message (no next application)
+        if (response?.details) {
+          this.toasterService.showInfo(response.details);
+          return;
+        }
+
+        // Get the next application ID from the response
+        const nextApplicationId = response?.data?.object_info?.application?.id ||
+          response?.data?.object_info?.id ||
+          response?.data?.id;
+
+        if (nextApplicationId) {
+          // Navigate to the next application without page refresh
+          this.router.navigate(['/job-openings/view-applicant-details', nextApplicationId]);
+        } else {
+          this.toasterService.showWarning('Unable to navigate to next application');
+        }
+      },
+      error: (error) => {
+        this.isNextApplicationLoading = false;
+
+        // Check if error response has a details message
+        const errorDetails = error?.error?.details || error?.details;
+        if (errorDetails) {
+          this.toasterService.showError(errorDetails);
+        }
+      }
+    });
+  }
 }
+

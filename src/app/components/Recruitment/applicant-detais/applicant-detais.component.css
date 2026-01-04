@@ -233,3 +233,19 @@
     font-size: var(--font-size-b2);
     line-height: var(--line-height-xss);
 }
+
+/* Spinner animation for loading state */
+.spinner {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
