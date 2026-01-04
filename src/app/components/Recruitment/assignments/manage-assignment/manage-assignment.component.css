@@ -23,6 +23,16 @@
     border-bottom-color: #0d6efd;
 }
 
+.nav-tabs .nav-item.completed {
+    color: #4CA883 !important;
+    border-bottom-color: #4CA883 !important;
+}
+
+.nav-tabs .nav-item.active.completed {
+    color: #4CA883 !important;
+    border-bottom-color: #4CA883 !important;
+}
+
 .nav-tabs .nav-link {
     border: 0;
     color: inherit;
