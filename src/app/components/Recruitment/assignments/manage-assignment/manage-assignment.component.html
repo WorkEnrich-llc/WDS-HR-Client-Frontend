@@ -1,5 +1,7 @@
 <!-- page header -->
-<app-page-header [breadcrumbs]="breadcrumbs" [title]="isEditMode && assignmentForm.get('name')?.value ? 'Edit Assignment - ' + assignmentForm.get('name')?.value : pageTitle" [create]="todayFormatted">
+<app-page-header [breadcrumbs]="breadcrumbs"
+    [title]="isEditMode && assignmentForm.get('name')?.value ? 'Edit Assignment - ' + assignmentForm.get('name')?.value : pageTitle"
+    [create]="todayFormatted">
     <button class="btn btn-lg btn-primary w-auto"
         [disabled]="isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null" (click)="onSubmit()">
         @if (isSubmitting) {

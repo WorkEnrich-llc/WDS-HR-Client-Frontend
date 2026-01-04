@@ -462,10 +462,10 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     private mapApiQuestionTypeToDropdownValue(questionType: any): string | null {
         // Handle both API response format: { id: number, name: string }
         if (!questionType) return null;
-        
+
         const typeId = questionType.id;
         const typeName = questionType.name?.toLowerCase() || '';
-        
+
         // Map by ID (from API)
         switch (typeId) {
             case 1:
@@ -585,7 +585,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         duplicated.id = null;
         duplicated.touched = false;
         duplicated.questionTextTouched = false;
-        
+
         // Reset media IDs since these are new media items in the duplicated question
         if (duplicated.media && duplicated.media.length > 0) {
             duplicated.media = duplicated.media.map((media: any) => ({
@@ -593,7 +593,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 id: null // Reset ID since this is a new duplicate media item
             }));
         }
-        
+
         if (duplicated.answers) {
             duplicated.answers.forEach((a: any) => {
                 a.touched = false;
