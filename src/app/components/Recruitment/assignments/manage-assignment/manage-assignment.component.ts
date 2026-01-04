@@ -358,7 +358,6 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 if (question.correct_answer === null || question.correct_answer === undefined) {
                     this.currentTab = 'questions';
                     this.expandedQuestion = i;
-                    this.toaster.showError('Please select the correct answer', 'Validation Error');
                     return;
                 }
             }
