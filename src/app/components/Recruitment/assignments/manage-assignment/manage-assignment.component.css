@@ -467,12 +467,6 @@
         width: 100%;
     }
 
-    .media-preview {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
     .upload-prompt {
         flex-direction: column;
         align-items: flex-start;

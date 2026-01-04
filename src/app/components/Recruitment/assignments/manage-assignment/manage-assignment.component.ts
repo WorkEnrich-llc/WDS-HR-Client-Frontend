@@ -31,6 +31,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
     // Media upload states
     mediaUploadingIndex: number | null = null;
+    mediaEditingIndex: number | null = null; // Track which media item is being replaced
 
     // Tab navigation
     currentTab: 'main-info' | 'questions' = 'main-info';
@@ -59,8 +60,9 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     showDeleteMediaConfirmation: boolean = false;
     showDeleteQuestionConfirmation: boolean = false;
     showDiscardConfirmation: boolean = false;
-    pendingDeleteMediaIndex: number | null = null;
     pendingDeleteQuestionIndex: number | null = null;
+    pendingDeleteMediaQuestionIndex: number | null = null;
+    pendingDeleteMediaIndex: number | null = null;
 
     private destroy$ = new Subject<void>();
 
@@ -136,7 +138,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     this.questions = (assignmentData.questions || []).map((q: any) => ({
                         id: q.id,
                         question_text: q.question_text,
-                        question_type: q.question_type?.name?.toLowerCase() || null,
+                        question_type: this.mapApiQuestionTypeToDropdownValue(q.question_type),
                         points: q.points || 0,
                         is_required: q.is_required || false,
                         media: (q.media || []).map((m: any) => ({
@@ -145,7 +147,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             size: this.formatFileSizeKB(m.document_url?.info?.file_size_kb),
                             url: m.document_url?.generate_signed_url,
                             type: m.media_type?.name,
-                            file: null
+                            file: null,
+                            document_url: m.document_url // Store original API response for unchanged media
                         })),
                         answers: (q.answers || []).map((a: any) => ({
                             id: a.id,
@@ -404,7 +407,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         // Map questions to API format with proper media handling
         const questionsPayload = this.questions.map((question, index) => ({
             id: question.id || undefined,
-            record_type: question.id ? 'update' : 'create',
+            // In create mode, always use 'create'. In edit mode, check if question has ID
+            record_type: !this.isEditMode ? 'create' : (question.id ? 'update' : 'create'),
             question_type: this.getQuestionTypeCode(question.question_type),
             question_text: question.question_text,
             points: question.points,
@@ -418,11 +422,16 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 media_type: this.getMediaTypeCode(media.type),
                 // File data comes from the upload-file API response
                 // This structure ensures the server receives all necessary URLs and metadata
+                // Use newly uploaded file data, or fallback to original API response for unchanged media
                 file: media.file ? {
                     image_url: media.file.image_url, // URL where file is stored
                     generate_signed_url: media.file.generate_signed_url, // Signed URL for access
                     info: media.file.info // File metadata (name, size, extension, type)
-                } : undefined,
+                } : (media.document_url ? {
+                    image_url: media.document_url.image_url,
+                    generate_signed_url: media.document_url.generate_signed_url,
+                    info: media.document_url.info
+                } : undefined),
                 order: mediaIndex + 1
             })).filter((m: any) => m.file || m.id), // Only include media with files or existing records
             answers: question.answers.map((answer: any, answerIndex: number) => ({
@@ -448,6 +457,36 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         }
 
         return payload;
+    }
+
+    private mapApiQuestionTypeToDropdownValue(questionType: any): string | null {
+        // Handle both API response format: { id: number, name: string }
+        if (!questionType) return null;
+        
+        const typeId = questionType.id;
+        const typeName = questionType.name?.toLowerCase() || '';
+        
+        // Map by ID (from API)
+        switch (typeId) {
+            case 1:
+                return 'mcq';
+            case 2:
+                return 'truefalse';
+            case 3:
+                return 'essay';
+            default:
+                // Fallback: map by name
+                if (typeName.includes('mcq') || typeName.includes('multiple')) {
+                    return 'mcq';
+                }
+                if (typeName.includes('true') || typeName.includes('false')) {
+                    return 'truefalse';
+                }
+                if (typeName.includes('essay') || typeName.includes('text')) {
+                    return 'essay';
+                }
+                return null;
+        }
     }
 
     private getQuestionTypeCode(typeLabel: string): number {
@@ -546,9 +585,19 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         duplicated.id = null;
         duplicated.touched = false;
         duplicated.questionTextTouched = false;
+        
+        // Reset media IDs since these are new media items in the duplicated question
+        if (duplicated.media && duplicated.media.length > 0) {
+            duplicated.media = duplicated.media.map((media: any) => ({
+                ...media,
+                id: null // Reset ID since this is a new duplicate media item
+            }));
+        }
+        
         if (duplicated.answers) {
             duplicated.answers.forEach((a: any) => {
                 a.touched = false;
+                a.id = null; // Reset answer IDs for duplicated answers
             });
         }
         this.questions.splice(index + 1, 0, duplicated);
@@ -595,7 +644,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         return null;
     }
 
-    onMediaSelect(event: any, questionIndex: number): void {
+    onMediaSelect(event: any, questionIndex: number, mediaIndex: number | null = null): void {
         const files = event.target.files;
         if (files && files.length > 0) {
             const file = files[0];
@@ -609,6 +658,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
             // Set loading state
             this.mediaUploadingIndex = questionIndex;
+            this.mediaEditingIndex = mediaIndex; // Track which media is being replaced
 
             // Upload file to server
             this.jobOpeningsService.uploadAssignmentMedia(file)
@@ -616,6 +666,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     takeUntil(this.destroy$),
                     finalize(() => {
                         this.mediaUploadingIndex = null;
+                        this.mediaEditingIndex = null;
                         event.target.value = '';
                     })
                 )
@@ -647,24 +698,26 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             fileInfo
                         );
 
-                        // Revoke old blob URL if exists to prevent memory leaks
-                        const oldMedia = this.questions[questionIndex].media?.[0];
-                        if (oldMedia && oldMedia.url && oldMedia.url.startsWith('blob:')) {
-                            URL.revokeObjectURL(oldMedia.url);
+                        // Initialize media array if it doesn't exist
+                        if (!this.questions[questionIndex].media) {
+                            this.questions[questionIndex].media = [];
                         }
 
-                        // Force complete replacement - create new question object
-                        const updatedQuestion = {
-                            ...this.questions[questionIndex],
-                            media: [mediaItem]
-                        };
-
-                        // Replace the entire questions array with a new one
-                        this.questions = [
-                            ...this.questions.slice(0, questionIndex),
-                            updatedQuestion,
-                            ...this.questions.slice(questionIndex + 1)
-                        ];
+                        // If mediaIndex is provided, replace the existing media
+                        if (mediaIndex !== null && mediaIndex >= 0) {
+                            // Revoke old blob URL to prevent memory leaks
+                            const oldMedia = this.questions[questionIndex].media[mediaIndex];
+                            if (oldMedia && oldMedia.url && oldMedia.url.startsWith('blob:')) {
+                                URL.revokeObjectURL(oldMedia.url);
+                            }
+                            // Replace the media at the specific index
+                            this.questions[questionIndex].media[mediaIndex] = mediaItem;
+                            this.toaster.showSuccess('Media replaced successfully', 'Success');
+                        } else {
+                            // Append new media to the array (support multiple media)
+                            this.questions[questionIndex].media.push(mediaItem);
+                            this.toaster.showSuccess('Media uploaded successfully', 'Success');
+                        }
                     },
                     error: (error) => {
                         this.toaster.showError('Failed to upload media', 'Upload Error');
@@ -723,32 +776,42 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         };
     }
 
-    openDeleteMediaConfirmation(questionIndex: number): void {
-        this.pendingDeleteMediaIndex = questionIndex;
+    openDeleteMediaConfirmation(questionIndex: number, mediaIndex: number): void {
+        this.pendingDeleteMediaQuestionIndex = questionIndex;
+        this.pendingDeleteMediaIndex = mediaIndex;
         this.showDeleteMediaConfirmation = true;
     }
 
     closeDeleteMediaConfirmation(): void {
         this.showDeleteMediaConfirmation = false;
+        this.pendingDeleteMediaQuestionIndex = null;
         this.pendingDeleteMediaIndex = null;
     }
 
     confirmDeleteMedia(): void {
-        if (this.pendingDeleteMediaIndex !== null) {
+        if (this.pendingDeleteMediaQuestionIndex !== null && this.pendingDeleteMediaIndex !== null) {
             // Revoke blob URL if exists to prevent memory leaks
-            const media = this.questions[this.pendingDeleteMediaIndex].media?.[0];
+            const media = this.questions[this.pendingDeleteMediaQuestionIndex].media[this.pendingDeleteMediaIndex];
             if (media && media.url && media.url.startsWith('blob:')) {
                 URL.revokeObjectURL(media.url);
             }
-            this.questions[this.pendingDeleteMediaIndex].media = [];
+            // Remove the specific media item from the array
+            this.questions[this.pendingDeleteMediaQuestionIndex].media.splice(this.pendingDeleteMediaIndex, 1);
             this.toaster.showSuccess('Media deleted successfully', 'Deleted');
         }
         this.closeDeleteMediaConfirmation();
     }
 
-    removeMedia(questionIndex: number): void {
+    removeMedia(questionIndex: number, mediaIndex: number): void {
         // Open confirmation popup
-        this.openDeleteMediaConfirmation(questionIndex);
+        this.openDeleteMediaConfirmation(questionIndex, mediaIndex);
+    }
+
+    triggerMediaUpload(questionIndex: number): void {
+        const fileInput = document.getElementById(`media-upload-${questionIndex}`) as HTMLInputElement;
+        if (fileInput) {
+            fileInput.click();
+        }
     }
 
     setCorrectAnswer(questionIndex: number, answerIndex: number): void {

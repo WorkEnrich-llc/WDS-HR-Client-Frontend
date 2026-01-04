@@ -1,5 +1,5 @@
 <!-- page header -->
-<app-page-header [breadcrumbs]="breadcrumbs" [title]="pageTitle" [create]="todayFormatted">
+<app-page-header [breadcrumbs]="breadcrumbs" [title]="isEditMode && assignmentForm.get('name')?.value ? 'Edit Assignment - ' + assignmentForm.get('name')?.value : pageTitle" [create]="todayFormatted">
     <button class="btn btn-lg btn-primary w-auto"
         [disabled]="isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null" (click)="onSubmit()">
         @if (isSubmitting) {
@@ -28,7 +28,8 @@
 
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" [ngClass]="{ 'active': currentTab === 'main-info', 'completed': assignmentForm.valid }" (click)="setCurrentTab('main-info')">
+    <li class="nav-item" [ngClass]="{ 'active': currentTab === 'main-info', 'completed': assignmentForm.valid }"
+        (click)="setCurrentTab('main-info')">
         <span class="nav-link d-flex align-items-center gap-1">
             @if (!assignmentForm.valid) {
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -311,8 +312,9 @@
 
             <!-- Media Upload -->
             <div class="media-upload-section mb-3">
+                <!-- No media - show upload prompt -->
+                @if (!question.media || question.media.length === 0) {
                 <div class="upload-prompt">
-                    @if (!question.media || question.media.length === 0) {
                     <svg width="89" height="48" viewBox="0 0 89 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M62.4375 0V0.5H65C66.2966 0.5 67.4789 0.500444 68.5635 0.506836L68.5654 0.0078125C71.5718 0.0255226 73.8332 0.0932854 75.6777 0.344727L75.6113 0.837891C76.9026 1.01396 77.9667 1.28001 78.9316 1.67969C79.8767 2.07113 80.7732 2.55228 81.6113 3.1123L81.8887 2.69629C83.6354 3.86336 85.1355 5.36374 86.3027 7.11035L85.8877 7.38867C86.4477 8.22678 86.9289 9.12334 87.3203 10.0684C87.72 11.0333 87.986 12.0974 88.1621 13.3887L88.6543 13.3213C88.9058 15.1658 88.9735 17.4271 88.9912 20.4336L88.4932 20.4365C88.4996 21.5211 88.5 22.7034 88.5 24C88.5 25.2966 88.4996 26.4789 88.4932 27.5635L88.9912 27.5654C88.9735 30.5719 88.9058 32.8332 88.6543 34.6777L88.1621 34.6113C88.0081 35.741 87.7849 36.6968 87.4639 37.5645L87.3203 37.9316C86.9289 38.8767 86.4477 39.7732 85.8877 40.6113L86.3027 40.8887C85.1356 42.6354 83.6354 44.1356 81.8887 45.3027L81.6113 44.8877C80.8779 45.3778 80.0995 45.807 79.2832 46.1689L78.9316 46.3203C77.9667 46.72 76.9026 46.986 75.6113 47.1621L75.6777 47.6543C73.8332 47.9058 71.5719 47.9735 68.5654 47.9912L68.5635 47.4932C67.4789 47.4996 66.2966 47.5 65 47.5H62.4375V48H57.3125V47.5H52.1875V48H47.0625V47.5H41.9375V48H36.8125V47.5H31.6875V48H26.5625V47.5H24C22.7034 47.5 21.5211 47.4996 20.4365 47.4932L20.4336 47.9912C17.4271 47.9735 15.1658 47.9058 13.3213 47.6543L13.3887 47.1621C12.0974 46.986 11.0333 46.72 10.0684 46.3203L9.7168 46.1689C8.90051 45.807 8.12211 45.3778 7.38867 44.8877L7.11035 45.3027C5.36374 44.1355 3.86336 42.6354 2.69629 40.8887L3.1123 40.6113C2.55228 39.7732 2.07113 38.8767 1.67969 37.9316L1.53613 37.5645C1.21507 36.6968 0.991928 35.741 0.837891 34.6113L0.344727 34.6777C0.0932857 32.8332 0.0255225 30.5718 0.0078125 27.5654L0.506836 27.5635C0.500444 26.4789 0.5 25.2966 0.5 24C0.5 22.7034 0.500444 21.5211 0.506836 20.4365L0.0078125 20.4336C0.0255343 17.4272 0.0932053 15.1658 0.344727 13.3213L0.837891 13.3887C1.01396 12.0974 1.28002 11.0333 1.67969 10.0684C2.07113 9.12334 2.55228 8.22678 3.1123 7.38867L2.69629 7.11035C3.8634 5.36377 5.36377 3.8634 7.11035 2.69629L7.38867 3.1123C8.22678 2.55228 9.12334 2.07113 10.0684 1.67969C11.0333 1.28002 12.0974 1.01396 13.3887 0.837891L13.3213 0.344727C15.1658 0.0932053 17.4272 0.0255343 20.4336 0.0078125L20.4365 0.506836C21.5211 0.500444 22.7034 0.5 24 0.5H26.5625V0H31.6875V0.5H36.8125V0H41.9375V0.5H47.0625V0H52.1875V0.5H57.3125V0H62.4375Z"
@@ -353,33 +355,40 @@
                             </defs>
                         </svg>
                         }
-                        <input type="file" class="d-none" (change)="onMediaSelect($event, i)" accept="image/*,video/*"
-                            [disabled]="mediaUploadingIndex === i" />
+                        <input type="file" [id]="'media-upload-' + i" class="d-none" (change)="onMediaSelect($event, i)"
+                            accept="image/*,video/*" [disabled]="mediaUploadingIndex === i" />
                     </label>
-                    } @else {
-                    <!-- Image Preview -->
-                    @if (question.media[0].url && question.media[0].type?.toLowerCase() === 'image') {
-                    <div class="media-preview">
-                        <img [src]="question.media[0].url" [alt]="question.media[0].name" />
-                    </div>
-                    }
-                    @if (question.media[0].url && question.media[0].type?.toLowerCase() === 'video') {
-                    <div class="media-preview">
-                        <video [src]="question.media[0].url" controls>
+                </div>
+                }
+
+                <!-- Media items list -->
+                @if (question.media && question.media.length > 0) {
+                @for (media of question.media; track media.timestamp || $index; let mediaIdx = $index) {
+                <div class="media-preview" style="margin-top: 0.75rem;">
+                    <!-- Media File Info -->
+                    <div class="media-file-info">
+
+                        <!-- Media Preview -->
+                        @if (media.url && media.type?.toLowerCase() === 'image') {
+                        <img [src]="media.url" [alt]="media.name" />
+                        }
+                        @if (media.url && media.type?.toLowerCase() === 'video') {
+                        <video [src]="media.url" controls>
                             Your browser does not support the video tag.
                         </video>
-                    </div>
-                    }
+                        }
 
-                    <div class="media-file-info">
+                        <!-- File Details -->
                         <div class="file-details">
-                            <span class="file-name">{{ question.media[0].name }}</span>
-                            <span class="file-size">{{ question.media[0].size }}</span>
+                            <span class="file-name">{{ media.name }}</span>
+                            <span class="file-size">{{ media.size }}</span>
                         </div>
                     </div>
+
+                    <!-- Media Actions -->
                     <div class="media-actions">
                         <label class="btn-icon" type="button" title="Replace">
-                            @if (mediaUploadingIndex === i) {
+                            @if (mediaUploadingIndex === i && mediaEditingIndex === mediaIdx) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                                 style="animation: spin 1s linear infinite;">
                                 <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"
@@ -393,11 +402,12 @@
                                     fill="#4A6D97" />
                             </svg>
                             }
-                            <input type="file" class="d-none" (change)="onMediaSelect($event, i)"
-                                accept="image/*,video/*" [disabled]="mediaUploadingIndex === i" />
+                            <input type="file" class="d-none" (change)="onMediaSelect($event, i, mediaIdx)"
+                                accept="image/*,video/*"
+                                [disabled]="mediaUploadingIndex === i && mediaEditingIndex === mediaIdx" />
                         </label>
-                        <button class="btn-icon delete" (click)="removeMedia(i)" type="button" title="Delete"
-                            [disabled]="mediaUploadingIndex === i">
+                        <button class="btn-icon delete" (click)="removeMedia(i, mediaIdx)" type="button" title="Delete"
+                            [disabled]="mediaUploadingIndex === i && mediaEditingIndex === mediaIdx">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15"
                                 fill="none">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -415,169 +425,194 @@
                             </svg>
                         </button>
                     </div>
-                    }
                 </div>
-            </div>
-        </div>
-
-        <!-- Question Type and Score -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="input">
-                    <label for="qtype">Question type <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <select id="qtype" class="form-control custom-date-input" [(ngModel)]="question.question_type"
-                            (change)="onQuestionTypeChange(i, question.question_type)" (blur)="question.touched = true">
-                            <option value="">Select Type</option>
-                            <option value="essay">Essay</option>
-                            <option value="mcq">MCQ</option>
-                            <option value="truefalse">True & False</option>
-                        </select>
-                    </div>
-                    @if (!question.question_type && (question.touched || formSubmitted) && expandedQuestion === i) {
-                    <p class="error-msg">Please select a question type</p>
-                    }
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="input">
-                    <label for="qscore">Question score <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="number" id="qscore" class="form-control custom-date-input"
-                            [(ngModel)]="question.points" (blur)="question.touched = true" placeholder="40" />
-                    </div>
-                    @if ((!question.points || question.points <= 0) && (question.touched || formSubmitted) &&
-                        expandedQuestion===i) { <p class="error-msg">Points must be greater than 0</p>
-                        }
-                </div>
-            </div>
-        </div>
-
-        <!-- Answers Section (for MCQ) -->
-        @if (question.question_type === 'mcq') {
-        <div class="answers-section">
-            <h6 class="answers-title">Answers</h6>
-            @for (answer of question.answers || []; let ansIndex = $index; track ansIndex) {
-            <div>
-                <div class="answer-row">
-                    <span class="answer-label">{{ ['A', 'B', 'C', 'D'][ansIndex] }}</span>
-                    <div style="flex: 1;">
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <input type="text" class="form-control custom-date-input" [(ngModel)]="answer.text"
-                                (ngModelChange)="clearAnswerError(answer)" (blur)="answer.touched = true"
-                                placeholder="Answer Text" />
-                        </div>
-                    </div>
-                    <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== ansIndex"
-                        [class.btn-primary]="question.correct_answer === ansIndex"
-                        (click)="setCorrectAnswer(i, ansIndex)" type="button">
-                        @if (question.correct_answer === ansIndex) {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                <circle cx="12" cy="12" r="10" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                            </g>
-                        </svg>
-                        Correct Answer
-                        } @else {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
-                        </svg>
-                        Mark as Correct
-                        }
-                    </button>
-                </div>
-                @if (answer.error && (answer.touched || formSubmitted)) {
-                <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
                 }
-            </div>
-            }
-            <div class="answer-row">
-                <span class="answer-label"></span>
-                <button class="btn btn-lg btn-outline-primary form-control custom-date-input" (click)="addAnswer(i)"
-                    type="button" style="width: 81%;">
+                }
+
+                <!-- Add Media Button -->
+                <button class="btn btn-lg btn-outline-primary form-control custom-date-input mt-3" type="button"
+                    (click)="triggerMediaUpload(i)" [disabled]="mediaUploadingIndex === i">
+                    @if (mediaUploadingIndex === i) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        style="animation: spin 1s linear infinite;">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-dasharray="15.7 47.1" />
+                    </svg>
+                    } @else {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
                             <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
                         </g>
                     </svg>
-                    Add answer
+                    }
+                    Add media
                 </button>
+                <!-- Hidden file input for programmatic triggering -->
+                <input type="file" [id]="'media-upload-' + i" class="d-none" (change)="onMediaSelect($event, i)"
+                    accept="image/*,video/*" [disabled]="mediaUploadingIndex === i" />
             </div>
-        </div>
-        }
 
-        <!-- Answers Section (for True/False) -->
-        @if (question.question_type === 'truefalse') {
-        <div class="answers-section">
-            <h6 class="answers-title">Answers</h6>
-            <div>
-                <div class="answer-row">
-                    <span class="answer-label">True</span>
-                    <div style="flex: 1;">
+            <!-- Question Type and Score -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input">
+                        <label for="qtype">Question type <span>*</span></label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <input type="text" class="form-control custom-date-input"
-                                [(ngModel)]="question.answers[0].text"
-                                (ngModelChange)="clearAnswerError(question.answers[0])"
-                                (blur)="question.answers[0].touched = true" placeholder="True Answer" />
+                            <select id="qtype" class="form-control custom-date-input"
+                                [(ngModel)]="question.question_type"
+                                (change)="onQuestionTypeChange(i, question.question_type)"
+                                (blur)="question.touched = true">
+                                <option value="">Select Type</option>
+                                <option value="essay">Essay</option>
+                                <option value="mcq">MCQ</option>
+                                <option value="truefalse">True & False</option>
+                            </select>
                         </div>
+                        @if (!question.question_type && (question.touched || formSubmitted) && expandedQuestion === i) {
+                        <p class="error-msg">Please select a question type</p>
+                        }
                     </div>
                 </div>
-                @if (question.answers[0].error && (question.answers[0].touched || formSubmitted)) {
-                <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-                }
-            </div>
-            <div>
-                <div class="answer-row">
-                    <span class="answer-label">False</span>
-                    <div style="flex: 1;">
+                <div class="col-md-6">
+                    <div class="input">
+                        <label for="qscore">Question score <span>*</span></label>
                         <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <input type="text" class="form-control custom-date-input"
-                                [(ngModel)]="question.answers[1].text"
-                                (ngModelChange)="clearAnswerError(question.answers[1])"
-                                (blur)="question.answers[1].touched = true" placeholder="False Answer" />
+                            <input type="number" id="qscore" class="form-control custom-date-input"
+                                [(ngModel)]="question.points" (blur)="question.touched = true" placeholder="40" />
                         </div>
+                        @if ((!question.points || question.points <= 0) && (question.touched || formSubmitted) &&
+                            expandedQuestion===i) { <p class="error-msg">Points must be greater than 0</p>
+                            }
                     </div>
                 </div>
-                @if (question.answers[1].error && (question.answers[1].touched || formSubmitted)) {
-                <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-                }
             </div>
+
+            <!-- Answers Section (for MCQ) -->
+            @if (question.question_type === 'mcq') {
+            <div class="answers-section">
+                <h6 class="answers-title">Answers</h6>
+                @for (answer of question.answers || []; let ansIndex = $index; track ansIndex) {
+                <div>
+                    <div class="answer-row">
+                        <span class="answer-label">{{ ['A', 'B', 'C', 'D'][ansIndex] }}</span>
+                        <div style="flex: 1;">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="text" class="form-control custom-date-input" [(ngModel)]="answer.text"
+                                    (ngModelChange)="clearAnswerError(answer)" (blur)="answer.touched = true"
+                                    placeholder="Answer Text" />
+                            </div>
+                        </div>
+                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== ansIndex"
+                            [class.btn-primary]="question.correct_answer === ansIndex"
+                            (click)="setCorrectAnswer(i, ansIndex)" type="button">
+                            @if (question.correct_answer === ansIndex) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                            </svg>
+                            Correct Answer
+                            } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
+                            Mark as Correct
+                            }
+                        </button>
+                    </div>
+                    @if (answer.error && (answer.touched || formSubmitted)) {
+                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+                    }
+                </div>
+                }
+                <div class="answer-row">
+                    <span class="answer-label"></span>
+                    <button class="btn btn-lg btn-outline-primary form-control custom-date-input" (click)="addAnswer(i)"
+                        type="button" style="width: 81%;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
+                            </g>
+                        </svg>
+                        Add answer
+                    </button>
+                </div>
+            </div>
+            }
+
+            <!-- Answers Section (for True/False) -->
+            @if (question.question_type === 'truefalse') {
+            <div class="answers-section">
+                <h6 class="answers-title">Answers</h6>
+                <div>
+                    <div class="answer-row">
+                        <span class="answer-label">True</span>
+                        <div style="flex: 1;">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="text" class="form-control custom-date-input"
+                                    [(ngModel)]="question.answers[0].text"
+                                    (ngModelChange)="clearAnswerError(question.answers[0])"
+                                    (blur)="question.answers[0].touched = true" placeholder="True Answer" />
+                            </div>
+                        </div>
+                    </div>
+                    @if (question.answers[0].error && (question.answers[0].touched || formSubmitted)) {
+                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+                    }
+                </div>
+                <div>
+                    <div class="answer-row">
+                        <span class="answer-label">False</span>
+                        <div style="flex: 1;">
+                            <div class="form-outline w-100 position-relative custom-date-wrapper">
+                                <input type="text" class="form-control custom-date-input"
+                                    [(ngModel)]="question.answers[1].text"
+                                    (ngModelChange)="clearAnswerError(question.answers[1])"
+                                    (blur)="question.answers[1].touched = true" placeholder="False Answer" />
+                            </div>
+                        </div>
+                    </div>
+                    @if (question.answers[1].error && (question.answers[1].touched || formSubmitted)) {
+                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+                    }
+                </div>
+            </div>
+            }
         </div>
-        }
         }
     </div>
     }
     }
-
-    <!-- Summary Footer -->
-    <div class="content-box">
-        <div class="assignment-summary d-flex gap-2">
-            <div class="stat-item">
-                <span class="stat-label">Total Questions</span>
-                <span class="stat-value">{{ questions.length }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Full Score</span>
-                <span class="stat-value">{{ getTotalScore() }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total Time</span>
-                <span class="stat-value">{{ assignmentForm.get('duration_minutes')?.value || 0 }} mins</span>
-            </div>
-            <button class="btn btn-lg btn-outline-primary" (click)="addQuestion()" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
-                    </g>
-                </svg>
-                Add Question
-            </button>
-        </div>
-    </div>
     }
+</div>
+<!-- Summary Footer -->
+<div class="content-box">
+    <div class="assignment-summary d-flex gap-2">
+        <div class="stat-item">
+            <span class="stat-label">Total Questions</span>
+            <span class="stat-value">{{ questions.length }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Full Score</span>
+            <span class="stat-value">{{ getTotalScore() }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Time</span>
+            <span class="stat-value">{{ assignmentForm.get('duration_minutes')?.value || 0 }} mins</span>
+        </div>
+        <button class="btn btn-lg btn-outline-primary" (click)="addQuestion()" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
+                </g>
+            </svg>
+            Add Question
+        </button>
+    </div>
 </div>
 }
 
