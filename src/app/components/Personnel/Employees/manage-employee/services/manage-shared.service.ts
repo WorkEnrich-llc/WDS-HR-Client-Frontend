@@ -111,6 +111,7 @@ export class ManageEmployeeSharedService {
   currentDate = new Date().toISOString().split('T')[0];
   readonly isEditMode = signal<boolean>(false);
   readonly isContractExpiring = signal<boolean>(false);
+  readonly isLoadingJobDetails = signal<boolean>(false);
   private originalFormData: any = null;
   suppressWatchers = false;
   applicantId: number | null = null;
@@ -189,17 +190,17 @@ export class ManageEmployeeSharedService {
       ? this.branches()[0]
       : null;
 
-    this.isLoading.set(true);
+    this.isLoadingJobDetails.set(true);
     this.branchesService.getAllBranches(1, 1000).subscribe({
       next: (res) => {
         let fullList = res.data.list_items || [];
         fullList = this.mergeItemIntoList(fullList, currentItem);
         this.branches.set(fullList);
-        this.isLoading.set(false);
+        this.isLoadingJobDetails.set(false);
       },
       error: (err) => {
         console.error('Failed to load initial branches', err);
-        this.isLoading.set(false);
+        this.isLoadingJobDetails.set(false);
       }
     });
   }
@@ -668,6 +669,7 @@ export class ManageEmployeeSharedService {
       status: true
     };
 
+    this.isLoadingJobDetails.set(true);
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
       next: (res) => {
         if (this.jobDetails.get('management_level')?.value?.toString() === management) {
@@ -685,11 +687,13 @@ export class ManageEmployeeSharedService {
             controlToEnable?.disable();
           }
         }
+        this.isLoadingJobDetails.set(false);
       },
       error: (err) => {
         console.error('Error loading job titles for management', err);
         this.jobTitles.set([]);
         controlToEnable?.disable();
+        this.isLoadingJobDetails.set(false);
       }
     });
   }
