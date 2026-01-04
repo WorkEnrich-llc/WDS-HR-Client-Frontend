@@ -18,6 +18,12 @@ type EvaluationData = {
   score: number;
   maxScore: number;
   description: string;
+  reason?: string | null;
+};
+
+type RecommendationInfo = {
+  range: string;
+  label: string;
 };
 
 type Applicant = {
@@ -30,9 +36,11 @@ type Applicant = {
   status: string;
   statusAt: string;
   evaluation?: {
-    overallFit: EvaluationData;
+    applicantEvaluation: EvaluationData;
     roleFit: EvaluationData;
     marketFit: EvaluationData;
+    cvReview: EvaluationData;
+    recommendationInfo: RecommendationInfo[];
     appliedAt: string;
   };
 };
@@ -280,24 +288,34 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             statusAt: item.created_at || item.updated_at || 'N/A',
             // Map evaluation data from API response
             evaluation: item.evaluation ? {
-              overallFit: {
-                label: 'Overall Fit',
-                score: item.evaluation.average_score || 0,
-                maxScore: 100,
-                description: item.evaluation.average_description || ''
+              applicantEvaluation: {
+                label: 'Applicant Evaluation',
+                score: item.evaluation.applicant_evaluation?.score || 0,
+                maxScore: item.evaluation.applicant_evaluation?.max_score || 10,
+                description: item.evaluation.applicant_evaluation?.description || ''
               },
               roleFit: {
                 label: 'Role Fit',
-                score: item.evaluation.requirements_match_score || 0,
-                maxScore: 100,
-                description: item.evaluation.requirements_match_reason || ''
+                score: item.evaluation.role_fit?.score || 0,
+                maxScore: item.evaluation.role_fit?.max_score || 10,
+                description: item.evaluation.role_fit?.description || '',
+                reason: item.evaluation.role_fit?.reason
               },
               marketFit: {
                 label: 'Market Fit',
-                score: item.evaluation.job_match_score || 0,
-                maxScore: 100,
-                description: item.evaluation.job_match_reason || ''
+                score: item.evaluation.market_fit?.score || 0,
+                maxScore: item.evaluation.market_fit?.max_score || 10,
+                description: item.evaluation.market_fit?.description || '',
+                reason: item.evaluation.market_fit?.reason
               },
+              cvReview: {
+                label: 'CV Review',
+                score: item.evaluation.cv_review?.score || 0,
+                maxScore: item.evaluation.cv_review?.max_score || 10,
+                description: item.evaluation.cv_review?.description || '',
+                reason: item.evaluation.cv_review?.reason
+              },
+              recommendationInfo: item.evaluation.recommendation_info || [],
               appliedAt: item.created_at || new Date().toISOString()
             } : undefined
           }));

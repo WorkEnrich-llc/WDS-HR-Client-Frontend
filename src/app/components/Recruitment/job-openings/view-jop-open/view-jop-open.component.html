@@ -650,8 +650,8 @@
           style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;"
           (click)="onApplicantClick(application.id)" #badgeContainer [attr.data-badge-id]="application.id">
           <span class="badge-newjoiner" style="margin-top: 4px;">
-            {{ application.evaluation?.overallFit.score.toFixed(0)
-            || '-' }}/{{ application.evaluation?.overallFit.maxScore || '-' }}
+            {{ application.evaluation?.applicantEvaluation.score.toFixed(0)
+            || '-' }}/{{ application.evaluation?.applicantEvaluation.maxScore || '-' }}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M7.99967 11.8334C8.27582 11.8334 8.49967 11.6095 8.49967 11.3334V7.33337C8.49967 7.05723 8.27582 6.83337 7.99967 6.83337C7.72353 6.83337 7.49967 7.05723 7.49967 7.33337V11.3334C7.49967 11.6095 7.72353 11.8334 7.99967 11.8334Z"
@@ -813,104 +813,134 @@
 @let hoveredApplicant = getHoveredApplicant();
 @if (hoveredApplicant && hoveredApplicant.evaluation) {
 <div
-  style="position: fixed; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.16); padding: 24px 32px; z-index: 10000;"
-  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" [style.width.px]="tooltipWidth"
-  data-tooltip-id>
+  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; overflow: hidden; width: 660px;"
+  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" data-tooltip-id>
 
-  <!-- Header with Title -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
-    <h2 style="margin: 0; font-size: 24px; font-weight: 700; color: #0052cc;">Employee Evaluation</h2>
-    <div style="font-size: 12px; color: #999; font-weight: 500;">A.I Powered</div>
-  </div>
-
-  <!-- Overall Fit -->
-  <div style="margin-bottom: 24px;">
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h5 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937;">Overall Fit</h5>
-        <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.overallFit?.description || '', 'overall')"
-          class="copy-icon-btn" [class.copied]="copiedSectionId === 'overall'" title="Copy description">
-          @if (copiedSectionId === 'overall') {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
-              fill="#4A6D97" />
-          </svg>
-          }
-        </button>
-      </div>
-      <div
-        style="background: #d4f4dd; padding:  8px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #0d6e3e;">
-        {{ hoveredApplicant?.evaluation?.overallFit?.score?.toFixed(1) || '-' }}/{{
-        hoveredApplicant?.evaluation?.overallFit?.maxScore || '-' }}
+  <!-- Employee Evaluation Header -->
+  <div style="background: linear-gradient(135deg, #D4F4DD 0%, #B8ECC7 100%); padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Employee Evaluation</h2>
+      <div style="font-size: 24px; font-weight: 700; color: #1F2937; line-height: 1;">
+        {{ hoveredApplicant?.evaluation?.applicantEvaluation?.score?.toFixed(1) || '-' }}<span
+          style="font-size: 16px; color: #6B7280;">/{{
+          hoveredApplicant?.evaluation?.applicantEvaluation?.maxScore || '-' }}</span>
       </div>
     </div>
-    <div style="font-size: 13px; color: #6b7280; line-height: 1.5;">{{
-      hoveredApplicant?.evaluation?.overallFit?.description }}</div>
+    <p style="margin: 0; font-size: 13px; color: #4B5563; line-height: 1.5;">{{
+      hoveredApplicant?.evaluation?.applicantEvaluation?.description }}</p>
+    <div style="margin-top: 12px;">
+      <span style="font-size: 11px; color: #6B7280; font-weight: 500;">A.I Powered</span>
+    </div>
   </div>
 
-  <!-- Role Fit -->
-  <div style="margin-bottom: 24px;">
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h5 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937;">Role Fit</h5>
-        <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.roleFit?.description || '', 'role')"
-          class="copy-icon-btn" [class.copied]="copiedSectionId === 'role'" title="Copy description">
-          @if (copiedSectionId === 'role') {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
-              fill="#4A6D97" />
-          </svg>
-          }
-        </button>
+  <!-- Evaluation Sections -->
+  <div style="padding: 20px 24px 20px 24px;">
+    <!-- Role Fit -->
+    <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">Role Fit</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.roleFit?.description || '', 'role')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'role'" title="Copy description">
+            @if (copiedSectionId === 'role') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div style="background: #DBEAFE; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #1E40AF;">
+          {{ hoveredApplicant?.evaluation?.roleFit?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #1E40AF;">/{{
+            hoveredApplicant?.evaluation?.roleFit?.maxScore || '-' }}</span>
+        </div>
       </div>
-      <div
-        style="background: #dbeafe; padding:  8px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #1e40af;">
-        {{ hoveredApplicant?.evaluation?.roleFit?.score?.toFixed(1) || '-' }}/{{
-        hoveredApplicant?.evaluation?.roleFit?.maxScore || '-' }}
-      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.roleFit?.description }}</p>
     </div>
-    <div style="font-size: 13px; color: #6b7280; line-height: 1.5;">{{
-      hoveredApplicant?.evaluation?.roleFit?.description }}</div>
-  </div>
 
-  <!-- Market Fit -->
-  <div>
-    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h5 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937;">Market Fit</h5>
-        <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.marketFit?.description || '', 'market')"
-          class="copy-icon-btn" [class.copied]="copiedSectionId === 'market'" title="Copy description">
-          @if (copiedSectionId === 'market') {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
-          </svg>
-          } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
-              fill="#4A6D97" />
-          </svg>
-          }
-        </button>
+    <!-- Market Fit -->
+    <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">Market Fit</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.marketFit?.description || '', 'market')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'market'" title="Copy description">
+            @if (copiedSectionId === 'market') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div style="background: #FED7AA; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #9A3412;">
+          {{ hoveredApplicant?.evaluation?.marketFit?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #9A3412;">/{{
+            hoveredApplicant?.evaluation?.marketFit?.maxScore || '-' }}</span>
+        </div>
       </div>
-      <div
-        style="background: #fed7aa; padding:  8px; border-radius: 8px; font-weight: 600; font-size: 14px; color: #b45309;">
-        {{ hoveredApplicant?.evaluation?.marketFit?.score?.toFixed(1) || '-' }}/{{
-        hoveredApplicant?.evaluation?.marketFit?.maxScore || '-' }}
-      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.marketFit?.description }}</p>
     </div>
-    <div style="font-size: 13px; color: #6b7280; line-height: 1.5;">{{
-      hoveredApplicant?.evaluation?.marketFit?.description }}</div>
+
+    <!-- CV Review -->
+    <div style="padding: 16px 0; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">CV Review</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.cvReview?.description || '', 'cvreview')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'cvreview'" title="Copy description">
+            @if (copiedSectionId === 'cvreview') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div style="background: #FED7AA; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #9A3412;">
+          {{ hoveredApplicant?.evaluation?.cvReview?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #9A3412;">/{{
+            hoveredApplicant?.evaluation?.cvReview?.maxScore || '-' }}</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.cvReview?.description }}</p>
+    </div>
+
+    <!-- Recommendation Legend -->
+    @if (hoveredApplicant?.evaluation?.recommendationInfo && hoveredApplicant.evaluation.recommendationInfo.length > 0)
+    {
+    <div
+      style="background: #E5E7EB; border-radius: 12px; padding: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+      @for (rec of hoveredApplicant.evaluation.recommendationInfo; track rec.range) {
+      <div style="text-align: center;">
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;"
+          [style.color]="rec.label === 'Most Recommended' ? '#2563EB' : rec.label === 'Highly Recommended' ? '#059669' : rec.label === 'Mildly Recommended' ? '#D97706' : '#DC2626'">
+          {{ rec.range }}
+        </div>
+        <div style="font-size: 11px; color: #6B7280; line-height: 1.2;">{{ rec.label }}</div>
+      </div>
+      }
+    </div>
+    }
   </div>
 </div>
 }
