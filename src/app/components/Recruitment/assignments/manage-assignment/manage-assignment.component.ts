@@ -407,8 +407,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         // Map questions to API format with proper media handling
         const questionsPayload = this.questions.map((question, index) => ({
             id: question.id || undefined,
-            // In create mode, always use 'create'. In edit mode, check if question has ID
-            record_type: !this.isEditMode ? 'create' : (question.id ? 'update' : 'create'),
+            // Use the question's record_type if set (e.g., 'delete'), otherwise determine based on mode
+            record_type: question.record_type || (!this.isEditMode ? 'create' : (question.id ? 'update' : 'create')),
             question_type: this.getQuestionTypeCode(question.question_type),
             question_text: question.question_text,
             points: question.points,
@@ -545,16 +545,20 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
     confirmDeleteQuestion(): void {
         if (this.pendingDeleteQuestionIndex !== null) {
+            const question = this.questions[this.pendingDeleteQuestionIndex];
+
             // Clean up media blob URL if exists
-            const media = this.questions[this.pendingDeleteQuestionIndex].media?.[0];
+            const media = question.media?.[0];
             if (media && media.url && media.url.startsWith('blob:')) {
                 URL.revokeObjectURL(media.url);
             }
-            this.questions.splice(this.pendingDeleteQuestionIndex, 1);
+
+            // Mark question as deleted instead of removing it
+            question.record_type = 'delete';
+
             if (this.expandedQuestion === this.pendingDeleteQuestionIndex) {
                 this.expandedQuestion = null;
             }
-            this.toaster.showSuccess('Question deleted successfully', 'Deleted');
         }
         this.closeDeleteQuestionConfirmation();
     }

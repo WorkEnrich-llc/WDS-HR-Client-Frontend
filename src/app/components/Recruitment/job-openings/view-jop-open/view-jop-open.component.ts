@@ -205,7 +205,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Use object_info from the response as it contains the actual job opening data
         this.jobOpening = response.data.object_info;
-        
+
         // Extract job URL from response
         this.jobUrl = this.jobOpening.job_url || '';
 
