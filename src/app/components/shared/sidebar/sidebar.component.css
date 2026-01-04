@@ -95,7 +95,7 @@
 
 .logo-inner {
     /* padding: var(--spacing-8) 0 var(--spacing-20); */
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     overflow: visible;
@@ -108,15 +108,28 @@
 .logo {
     width: var(--spacing-36);
     height: var(--spacing-36);
-    margin-inline-end: var(--spacing-4);
     border-radius: 5px;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .logo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.logo-text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-8);
+}
+
+.logo-text img {
+    max-width: 100%;
+    height: auto;
 }
 
 .logo-container button {
@@ -128,6 +141,7 @@
 .logo-container button.close {
     width: 50px;
     height: 50px;
+    flex-shrink: 0;
 }
 
 .logo-container button.close:hover svg {
@@ -364,7 +378,7 @@
 }
 
 .notification.danger .icon svg path {
-fill: var(--color-danger-500);
+    fill: var(--color-danger-500);
 }
 
 .notification .noti-content {

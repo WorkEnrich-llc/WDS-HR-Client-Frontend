@@ -914,6 +914,9 @@ export class EditJobBoardSetupComponent implements OnInit {
 
                 this.logoPreviewUrl = null;
 
+                // Update logo in local storage
+                this.updateLogoInLocalStorage(this.companyLogoUrl);
+
                 // Reset file input
                 const fileInput = document.getElementById('logoInput') as HTMLInputElement;
                 if (fileInput) {
@@ -923,6 +926,7 @@ export class EditJobBoardSetupComponent implements OnInit {
             error: (error: any) => {
                 console.error('Error uploading logo:', error);
                 this.isSavingLogo = false;
+                this.toastr.error('Error uploading logo');
             }
         });
     }
@@ -957,11 +961,17 @@ export class EditJobBoardSetupComponent implements OnInit {
                 this.selectedLogoFile = null;
                 this.logoPreviewUrl = null;
 
+                // Remove logo from local storage
+                this.removeLogoFromLocalStorage();
+
                 // Reset file input
                 const fileInput = document.getElementById('logoInput') as HTMLInputElement;
                 if (fileInput) {
                     fileInput.value = '';
                 }
+
+                // Show success toast
+                this.toastr.success('Logo deleted successfully!');
 
                 // Reload job board setup to get updated data
                 this.loadJobBoardSetup();
@@ -969,8 +979,63 @@ export class EditJobBoardSetupComponent implements OnInit {
             error: (error: any) => {
                 console.error('Error deleting logo:', error);
                 this.isDeletingLogo = false;
+                this.toastr.error('Error deleting logo');
             }
         });
+    }
+
+    /**
+     * Update the logo URL in local storage company_info object
+     */
+    private updateLogoInLocalStorage(logoUrl: string | null): void {
+        try {
+            const storedData = localStorage.getItem('company_info');
+            if (storedData) {
+                const companyInfo = JSON.parse(storedData);
+                if (logoUrl) {
+                    companyInfo.logo = logoUrl;
+                } else {
+                    delete companyInfo.logo;
+                }
+                localStorage.setItem('company_info', JSON.stringify(companyInfo));
+                // Dispatch custom event to notify other components of the change
+                this.dispatchStorageChangeEvent();
+            }
+        } catch (error) {
+            console.error('Error updating logo in local storage:', error);
+        }
+    }
+
+    /**
+     * Remove the logo from local storage company_info object
+     */
+    private removeLogoFromLocalStorage(): void {
+        try {
+            const storedData = localStorage.getItem('company_info');
+            if (storedData) {
+                const companyInfo = JSON.parse(storedData);
+                if (companyInfo.logo) {
+                    delete companyInfo.logo;
+                    localStorage.setItem('company_info', JSON.stringify(companyInfo));
+                    // Dispatch custom event to notify other components of the change
+                    this.dispatchStorageChangeEvent();
+                }
+            }
+        } catch (error) {
+            console.error('Error removing logo from local storage:', error);
+        }
+    }
+
+    /**
+     * Dispatch a custom event to notify components about storage changes
+     */
+    private dispatchStorageChangeEvent(): void {
+        // Create and dispatch a custom event for local component communication
+        const storageEvent = new StorageEvent('storage', {
+            key: 'company_info',
+            newValue: localStorage.getItem('company_info')
+        });
+        window.dispatchEvent(storageEvent);
     }
 }
 

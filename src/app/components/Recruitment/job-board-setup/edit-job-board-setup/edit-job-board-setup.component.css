@@ -538,3 +538,7 @@
     color: #fff;
     transform: scale(1.1);
 }
+
+.btn-outline-danger:hover svg path {
+    fill: white !important;
+}
