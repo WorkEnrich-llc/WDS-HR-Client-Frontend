@@ -98,9 +98,7 @@ export const toastInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthenticationService);
 
   const skipToastMethods = ['GET'];
-  const skipToastEndpoints = ['upload-file'];
-  const shouldSkipEndpoint = skipToastEndpoints.some(endpoint => req.url.includes(endpoint));
-  const shouldShowToast = !skipToastMethods.includes(req.method) && !shouldSkipEndpoint;
+  const shouldShowToast = !skipToastMethods.includes(req.method);
 
   const performLogout = () => {
     const deviceToken = localStorage.getItem('device_token');
@@ -154,57 +152,11 @@ export const toastInterceptor: HttpInterceptorFn = (
               message = responseBody.data;
             }
 
-            // If no message found, use default message based on HTTP method
-            if (!message) {
-              // Check if request body contains 'request_data' - indicates an update operation
-              const isUpdateOperation = req.body && typeof req.body === 'object' && 'request_data' in req.body;
-
-              // Check if it's a delete operation
-              let isDeleteOperation = false;
-              if (req.method === 'DELETE') {
-                isDeleteOperation = true;
-              } else if (req.body instanceof FormData) {
-                // Check FormData for delete indicators
-                isDeleteOperation = req.body.get('is_remove') === 'true' ||
-                  req.body.get('is_delete') === 'true' ||
-                  req.body.get('action') === 'delete';
-              } else if (req.body && typeof req.body === 'object') {
-                // Check JSON body for delete indicators
-                isDeleteOperation = req.body.is_remove === true ||
-                  req.body.is_delete === true ||
-                  req.body.action === 'delete';
-              }
-
-              if (isDeleteOperation) {
-                message = 'Deleted successfully';
-              } else if (isUpdateOperation) {
-                message = 'Updated successfully';
-              } else {
-                switch (req.method) {
-                  case 'POST':
-                    message = 'Created successfully';
-                    break;
-                  case 'PUT':
-                  case 'PATCH':
-                    message = 'Updated successfully';
-                    break;
-                  default:
-                    message = 'Operation completed successfully';
-                }
-              }
-            }
-
-            // Safely handle message - convert to string if needed
-            if (!message) {
+            if (!message || message.trim() === '') {
               return;
             }
 
-            const messageStr = typeof message === 'string' ? message.trim() : '';
-            if (!messageStr) {
-              return;
-            }
-
-            toasterService.showSuccess(messageStr);
+            toasterService.showSuccess(message);
           }
         }
       },

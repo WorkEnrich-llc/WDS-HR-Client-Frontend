@@ -149,11 +149,14 @@
 
             <!-- Instructions -->
             <div class="input">
-                <label for="instructions">Instructions (Optional)</label>
+                <label for="instructions">Instructions <span>*</span></label>
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <textarea formControlName="instructions" id="instructions" class="form-control custom-date-input"
                         rows="4" placeholder="Add instructions for the assignment..."></textarea>
                 </div>
+                @if (assignmentForm.get('instructions')?.touched && assignmentForm.get('instructions')?.errors?.['required']) {
+                <p class="error-msg">Instructions are required</p>
+                }
             </div>
         </form>
         }

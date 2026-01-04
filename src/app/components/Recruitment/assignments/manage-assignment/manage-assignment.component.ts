@@ -75,7 +75,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             code: ['', [Validators.required]],
             name: ['', [Validators.required]],
             duration_minutes: ['', [Validators.required, Validators.min(1)]],
-            instructions: ['', []]
+            instructions: ['', [Validators.required]]
         });
     }
 
@@ -292,6 +292,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         // Validate questions
         if (this.questions.length === 0) {
+            this.currentTab = 'questions';
+            this.toaster.showError('Please add at least one question', 'Validation Error');
             return;
         }
 
@@ -299,25 +301,30 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.questions.length; i++) {
             const question = this.questions[i];
             if (!question.question_text || question.question_text.trim() === '') {
+                this.currentTab = 'questions';
                 this.expandedQuestion = i;
                 return;
             }
             if (!question.question_type) {
+                this.currentTab = 'questions';
                 this.expandedQuestion = i;
                 return;
             }
             if (!question.points || question.points <= 0) {
+                this.currentTab = 'questions';
                 this.expandedQuestion = i;
                 return;
             }
             if (question.question_type === 'mcq') {
                 if (!question.answers || question.answers.length === 0) {
+                    this.currentTab = 'questions';
                     this.expandedQuestion = i;
                     return;
                 }
                 for (let j = 0; j < question.answers.length; j++) {
                     if (!question.answers[j].text || question.answers[j].text.trim() === '') {
                         question.answers[j].error = true;
+                        this.currentTab = 'questions';
                         this.expandedQuestion = i;
                         return;
                     } else {
@@ -325,26 +332,33 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     }
                 }
                 if (question.correct_answer === null || question.correct_answer === undefined) {
+                    this.currentTab = 'questions';
                     this.expandedQuestion = i;
                     return;
                 }
             }
             if (question.question_type === 'truefalse') {
                 if (!question.answers || question.answers.length < 2) {
+                    this.currentTab = 'questions';
                     this.expandedQuestion = i;
+                    this.toaster.showError('Please add both true and false answers', 'Validation Error');
                     return;
                 }
                 for (let j = 0; j < question.answers.length; j++) {
                     if (!question.answers[j].text || question.answers[j].text.trim() === '') {
                         question.answers[j].error = true;
+                        this.currentTab = 'questions';
                         this.expandedQuestion = i;
+                        this.toaster.showError('Please fill in all answer options', 'Validation Error');
                         return;
                     } else {
                         question.answers[j].error = false;
                     }
                 }
                 if (question.correct_answer === null || question.correct_answer === undefined) {
+                    this.currentTab = 'questions';
                     this.expandedQuestion = i;
+                    this.toaster.showError('Please select the correct answer', 'Validation Error');
                     return;
                 }
             }
