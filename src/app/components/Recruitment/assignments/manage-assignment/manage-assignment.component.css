@@ -1,0 +1,480 @@
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-tabs .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.nav-tabs .nav-item:hover {
+    color: #0d6efd;
+}
+
+.nav-tabs .nav-item.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+}
+
+.nav-tabs .nav-link {
+    border: 0;
+    color: inherit;
+    font-weight: inherit;
+    padding: 0;
+}
+
+.w-lg-50 {
+    max-width: 50%;
+}
+
+/* Skeleton Loaders */
+.skeleton-loader-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.skeleton-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skeleton-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Enhanced Skeleton Animation */
+.skeleton-loader-form .placeholder,
+.skeleton-input-group .placeholder {
+    background: linear-gradient(90deg,
+            #e9ecef 0%,
+            #f5f6f7 50%,
+            #e9ecef 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite, pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .w-lg-50 {
+        max-width: 100%;
+    }
+
+    .nav-item {
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-fixed {
+        padding: 1rem;
+    }
+}
+
+/* Navigation button styles */
+.btn-fixed {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    border: 0;
+    padding: 0;
+    z-index: 1000;
+}
+
+.back-square-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #4a6d97;
+}
+
+.back-square-btn:hover {
+    background: #f8f9fa;
+    border-color: #9ca3af;
+}
+
+.back-square-btn:active {
+    transform: translateY(1px);
+}
+
+/* Question Editor Styles */
+.question-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    cursor: pointer;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+}
+
+.question-number {
+    color: #1e2e40;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: Poppins, sans-serif;
+}
+
+.hide-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    color: #6c757d;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.hide-btn:hover {
+    color: #377afd;
+}
+
+.hide-btn svg {
+    transition: transform 0.2s;
+}
+
+.question-details {
+    padding-top: 1.5rem;
+}
+
+/* Media Upload Section */
+.media-upload-section {
+    background-color: transparent;
+    border: 1.5px solid #d6dce6;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.upload-prompt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.upload-prompt svg {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.upload-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.upload-label {
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.upload-size {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.upload-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    flex-shrink: 0;
+}
+
+.upload-icon-btn:hover {
+    background-color: #f0f4ff;
+}
+
+.upload-icon-btn svg {
+    color: #377afd;
+}
+
+.media-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background-color: #fff;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+    border: 1px solid #e9ecef;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.media-file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.file-badge {
+    background-color: #1e2e40;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.file-name {
+    color: #1e2e40;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.file-size {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.media-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    padding: 0;
+    color: #377afd;
+}
+
+.btn-icon:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-icon.delete {
+    color: #dc3545;
+}
+
+.btn-icon.delete:hover {
+    background-color: #fee;
+}
+
+/* Answers Section */
+.answers-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.answers-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e2e40;
+    margin-bottom: 1rem;
+}
+
+.answer-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.answer-label {
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #4a6d97;
+    font-size: 14px;
+}
+
+.answer-row .btn {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Correct Answer Button Styling */
+.answer-row .btn-primary {
+    background-color: #E8F0FE !important;
+    border-color: #E8F0FE !important;
+    color: #377AFD !important;
+}
+
+.answer-row .btn-primary:hover {
+    background-color: #D4E1FB !important;
+    border-color: #D4E1FB !important;
+    color: #377AFD !important;
+}
+
+.answer-row .btn-primary:active,
+.answer-row .btn-primary:focus {
+    background-color: #E8F0FE !important;
+    border-color: #E8F0FE !important;
+    color: #377AFD !important;
+}
+
+/* Summary Footer */
+.assignment-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    background-color: #fff;
+    border-radius: 16px;
+    border: 1px solid #dde3eb;
+    flex: 0 0 25%;
+}
+
+.stat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.stat-value {
+    color: #1e2e40;
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.assignment-summary .btn {
+    flex: 0 0 25%;
+    white-space: nowrap;
+}
+
+/* Input field with error styling */
+.input.error-field .form-control {
+    border-color: #E04F5F !important;
+    background-color: #FFF5F5;
+}
+
+.input.error-field .form-control:focus {
+    border-color: #E04F5F !important;
+    box-shadow: 0 0 0 0.2rem rgba(224, 79, 95, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .assignment-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .summary-stats {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .stat-item {
+        width: 100%;
+    }
+
+    .answer-row {
+        flex-wrap: wrap;
+    }
+
+    .answer-row .btn {
+        width: 100%;
+    }
+
+    .media-preview {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .upload-prompt {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

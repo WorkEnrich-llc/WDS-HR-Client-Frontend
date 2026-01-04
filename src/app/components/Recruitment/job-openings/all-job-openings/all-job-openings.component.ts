@@ -102,7 +102,7 @@ export class AllJobOpeningsComponent implements OnDestroy {
             numApply: job?.candidates ?? 0,
             numSchadule: job?.interviewees ?? 0,
             numRejected: job?.rejected ?? 0,
-            numAccepted: job?.new_joiners ?? 0,
+            numAccepted: job?.accepted ?? 0,
             status: job?.status ?? 'N/A',
             created_at: job?.created_at ?? '',
             updated_at: job?.updated_at ?? ''

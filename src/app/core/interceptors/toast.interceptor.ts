@@ -98,7 +98,9 @@ export const toastInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthenticationService);
 
   const skipToastMethods = ['GET'];
-  const shouldShowToast = !skipToastMethods.includes(req.method);
+  const skipToastEndpoints = ['upload-file'];
+  const shouldSkipEndpoint = skipToastEndpoints.some(endpoint => req.url.includes(endpoint));
+  const shouldShowToast = !skipToastMethods.includes(req.method) && !shouldSkipEndpoint;
 
   const performLogout = () => {
     const deviceToken = localStorage.getItem('device_token');

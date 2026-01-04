@@ -176,6 +176,16 @@ export class JobOpeningsService {
         return this._HttpClient.get(url, { params });
     }
 
+    // get applicant assignments for application id with pagination
+    getApplicantAssignments(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments`;
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString())
+            .set('application_id', applicationId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
     // add feedback for application
     addApplicationFeedback(applicationId: number, rating: number, comment: string): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/feedbacks`;
@@ -337,5 +347,53 @@ export class JobOpeningsService {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications`;
         const params = new HttpParams().set('applicant_id', applicantId.toString());
         return this._HttpClient.get(url, { params });
+    }
+
+    // get all assignments with pagination and search
+    getAllAssignments(page: number = 1, perPage: number = 10, search: string = ''): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+
+        if (search && search.trim() !== '') {
+            params = params.set('search', search.trim());
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get assignment details by id
+    getAssignmentDetails(id: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/${id}/`;
+        return this._HttpClient.get(url);
+    }
+
+    // update assignment status (activate/deactivate)
+    updateAssignmentStatus(id: number, statusData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/${id}/`;
+        return this._HttpClient.patch(url, statusData);
+    }
+
+    // upload assignment media file (image or video)
+    uploadAssignmentMedia(file: File): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/upload-file`;
+        const formData = new FormData();
+        formData.append('file', file);
+        return this._HttpClient.post(url, formData);
+    }
+
+    // create a new assignment
+    createAssignment(assignmentData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        const body = { request_data: assignmentData };
+        return this._HttpClient.post(url, body);
+    }
+
+    // update existing assignment
+    updateAssignment(assignmentData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        const body = { request_data: assignmentData };
+        return this._HttpClient.put(url, body);
     }
 }

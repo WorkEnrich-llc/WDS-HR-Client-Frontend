@@ -267,10 +267,37 @@
               }
             </div>
 
+            @if (isFeedbackLoading) {
+            <!-- Skeleton loader while feedback is loading -->
+            <div class="feedbacks d-flex flex-column gap-4">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow" style="padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <div style="min-width: 60px;">
+                    <span class="placeholder"
+                      style="width: 35px; height: 28px; display: inline-block; margin-right: 2px; border-radius: 6px;"></span><span
+                      class="placeholder"
+                      style="width: 25px; height: 28px; display: inline-block; border-radius: 6px;"></span>
+                  </div>
+                  <div style="flex: 1;">
+                    <h6 class="placeholder col-3 mb-2"></h6>
+                    <h5 class="placeholder col-5"></h5>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 ms-auto" style="white-space: nowrap;">
+                    <span class="placeholder col-4" style="height: 16px;"></span>
+                    <span class="placeholder col-3" style="height: 16px;"></span>
+                  </div>
+                </div>
+                <p class="placeholder col-12" style="height: 20px;"></p>
+                <p class="placeholder col-10" style="height: 20px;"></p>
+              </div>
+              }
+            </div>
+            } @else {
             <div class="feedbacks d-flex flex-column gap-4">
               @if (feedbacks.length) {
               @for (f of feedbacks; track f.id) {
-              <div class="feed">
+              <div class="feed" style="padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
                 <div class="d-flex align-items-center gap-3 mb-2">
                   @if (f?.rating != null) {
                   <div class="rate">
@@ -297,22 +324,86 @@
               <div class="text-muted">No feedback yet.</div>
               }
             </div>
+            }
           </div>
           }
 
           @if (currentTab === 'assignments') {
           <div class="assignments-tab">
             <h2 class="m-0 mb-3" style="font-size: 24px; font-weight: 500; color: #1d2433;">Assignments</h2>
+
+            @if (isAssignmentsLoading) {
+            <!-- Skeleton loader while assignments are loading -->
+            <div class="d-flex flex-column gap-3">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow" style="padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div style="flex: 1;">
+                    <h6 class="placeholder col-4 mb-2"></h6>
+                    <p class="placeholder col-6" style="height: 16px;"></p>
+                  </div>
+                  <span class="placeholder col-3" style="height: 24px;"></span>
+                </div>
+                <p class="placeholder col-12" style="height: 16px;"></p>
+              </div>
+              }
+            </div>
+            } @else if (assignments.length > 0) {
+            <div class="d-flex flex-column gap-3">
+              @for (assignment of assignments; track assignment.id) {
+              <div style="padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div>
+                    <h6 class="mb-1" style="font-size: 16px; font-weight: 600; color: #1d2433;">
+                      {{ assignment.title || 'Assignment' }}
+                    </h6>
+                    <p class="m-0" style="font-size: 14px; color: #8091a7;">
+                      Assigned by {{ assignment.assigned_by || '—' }}
+                    </p>
+                  </div>
+                  <div style="font-size: 12px; color: #8091a7; white-space: nowrap;">
+                    {{ assignment.created_at | date:'dd/MM/yyyy' }}
+                  </div>
+                </div>
+                @if (assignment.description) {
+                <p class="m-0" style="font-size: 14px; color: #4a5568; margin-top: 12px;">
+                  {{ assignment.description }}
+                </p>
+                }
+              </div>
+              }
+            </div>
+            } @else {
             <div class="text-muted text-center py-5">
               No assignments available yet.
             </div>
+            }
           </div>
           }
 
           @if (currentTab === 'previous-applications') {
           <div class="previous-applications-tab">
             <h2 class="m-0 mb-3" style="font-size: 24px; font-weight: 500; color: #1d2433;">Previous Applications</h2>
-            @if (applicantApplications.length > 0) {
+
+            @if (isApplicationsLoading) {
+            <!-- Skeleton loader while applications are loading -->
+            <div class="d-flex flex-column gap-3">
+              @for (i of [1,2,3]; track i) {
+              <div class="previous-app-item placeholder-glow">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <h6 class="placeholder col-4"></h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="placeholder col-3" style="height: 16px;"></span>
+                    <span class="placeholder col-1" style="width: 24px; height: 24px;"></span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="placeholder col-3" style="height: 32px; border-radius: 6px;"></span>
+                </div>
+              </div>
+              }
+            </div>
+            } @else if (applicantApplications.length > 0) {
             <div class="d-flex flex-column gap-3">
               @for (app of applicantApplications; track app.application.id) {
               <div class="previous-app-item">
@@ -321,9 +412,12 @@
                     {{ app.job_title?.name || 'N/A' }}
                   </h6>
                   <div class="d-flex align-items-center gap-2">
-                    <span style="font-size: 12px; color: #8091a7">
-                      {{ app.application.created_at | date:'dd/MM/yyyy' }}
-                    </span>
+                    <div class="d-flex align-items-center gap-1" style="white-space: nowrap;">
+                      <span style="font-size: 16px; color: #1d2433;">{{ (app.application.created_at | date:'dd/MM/yyyy')
+                        || '' }}</span>
+                      <span style="font-size: 16px; color: #8091a7;">{{ (app.application.created_at | date:'h:mm a') ||
+                        '' }}</span>
+                    </div>
                     <a [routerLink]="['/job-openings/view-job-openings', app.application.job]" class="text-primary"
                       style="cursor: pointer" title="View Job Opening">
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">

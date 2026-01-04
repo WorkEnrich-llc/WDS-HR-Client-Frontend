@@ -949,6 +949,41 @@ export const routes: Routes = [
             ]
           },
 
+          // Assignments route
+          {
+            path: 'assignments',
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Recruitment/assignments/assignments.component').then(m => m.AssignmentsComponent),
+                title: 'Assignments',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings' }
+              },
+              {
+                path: 'add',
+                loadComponent: () => import('./components/Recruitment/assignments/manage-assignment/manage-assignment.component').then(m => m.ManageAssignmentComponent),
+                title: 'Create Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Assignments', action: 'create' }
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () => import('./components/Recruitment/assignments/manage-assignment/manage-assignment.component').then(m => m.ManageAssignmentComponent),
+                title: 'Edit Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Assignments', action: 'update' }
+              },
+              {
+                path: ':id',
+                loadComponent: () => import('./components/Recruitment/assignments/view-assignment/view-assignment.component').then(m => m.ViewAssignmentComponent),
+                title: 'View Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings' }
+              }
+            ]
+          },
+
           // Archived Openings routes
           {
             path: 'archived-openings',

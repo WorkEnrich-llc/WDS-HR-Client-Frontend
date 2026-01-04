@@ -12,12 +12,12 @@ import { NgxDocViewerModule } from 'ngx-doc-viewer';
 @Component({
   selector: 'app-applicant-detais',
   imports: [
-    FormsModule, 
+    FormsModule,
     PageHeaderComponent,
     InterviewComponent,
-    AttachmentAndInfoComponent, 
-    OverlayFilterBoxComponent, 
-    DatePipe, 
+    AttachmentAndInfoComponent,
+    OverlayFilterBoxComponent,
+    DatePipe,
     DecimalPipe,
     NgClass,
     RouterLink,
@@ -41,6 +41,9 @@ export class ApplicantDetaisComponent implements OnInit {
   feedbacks: any[] = [];
   isFeedbackLoading: boolean = false;
   applicantApplications: any[] = [];
+  isApplicationsLoading: boolean = false;
+  assignments: any[] = [];
+  isAssignmentsLoading: boolean = false;
 
   // Tab management
   currentTab: string = 'cv';
@@ -71,6 +74,18 @@ export class ApplicantDetaisComponent implements OnInit {
   // Set current tab
   setCurrentTab(tab: string): void {
     this.currentTab = tab;
+    // Lazy load feedback when feedback tab is opened
+    if (tab === 'feedback' && this.feedbacks.length === 0 && !this.isFeedbackLoading) {
+      this.fetchFeedbacks();
+    }
+    // Lazy load previous applications when tab is opened
+    if (tab === 'previous-applications' && this.applicantApplications.length === 0 && !this.isApplicationsLoading) {
+      this.fetchPreviousApplications();
+    }
+    // Lazy load assignments when tab is opened
+    if (tab === 'assignments' && this.assignments.length === 0 && !this.isAssignmentsLoading) {
+      this.fetchAssignments();
+    }
   }
 
   // Get evaluation score
@@ -248,11 +263,12 @@ export class ApplicantDetaisComponent implements OnInit {
 
             // Fetch applications for this applicant
             if (applicant.id) {
-              this.fetchApplicantApplications(applicant.id);
+              // Store applicant ID for later use
+              this.applicantDetails.applicantId = applicant.id;
             }
           }
 
-          this.fetchFeedbacks();
+          this.isLoading = false;
         },
         error: () => {
           this.isLoading = false;
@@ -314,6 +330,38 @@ export class ApplicantDetaisComponent implements OnInit {
       },
       error: () => {
         this.applicantApplications = [];
+      }
+    });
+  }
+
+  fetchPreviousApplications(): void {
+    if (!this.applicantDetails?.applicantId) { return; }
+    this.isApplicationsLoading = true;
+    this.jobOpeningsService.getApplicationsByApplicantId(this.applicantDetails.applicantId).subscribe({
+      next: (res) => {
+        const applications = res?.data?.list_items ?? res?.list_items ?? [];
+        this.applicantApplications = Array.isArray(applications) ? applications : [];
+        this.isApplicationsLoading = false;
+      },
+      error: () => {
+        this.applicantApplications = [];
+        this.isApplicationsLoading = false;
+      }
+    });
+  }
+
+  fetchAssignments(): void {
+    if (!this.applicationId) { return; }
+    this.isAssignmentsLoading = true;
+    this.jobOpeningsService.getApplicantAssignments(this.applicationId, 1, 10).subscribe({
+      next: (res) => {
+        const assignmentsList = res?.data?.list_items ?? res?.list_items ?? [];
+        this.assignments = Array.isArray(assignmentsList) ? assignmentsList : [];
+        this.isAssignmentsLoading = false;
+      },
+      error: () => {
+        this.assignments = [];
+        this.isAssignmentsLoading = false;
       }
     });
   }
