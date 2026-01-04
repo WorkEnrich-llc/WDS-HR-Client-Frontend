@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
 import { InterviewComponent } from './interview/interview.component';
 import { AttachmentAndInfoComponent } from './attachment-and-info/attachment-and-info.component';
 import { OverlayFilterBoxComponent } from '../../shared/overlay-filter-box/overlay-filter-box.component';
+import { TableComponent } from '../../shared/table/table.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -18,6 +19,7 @@ import { NgxDocViewerModule } from 'ngx-doc-viewer';
     InterviewComponent,
     AttachmentAndInfoComponent,
     OverlayFilterBoxComponent,
+    TableComponent,
     DatePipe,
     DecimalPipe,
     NgClass,
@@ -32,10 +34,14 @@ export class ApplicantDetaisComponent implements OnInit {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
   private toasterService = inject(ToasterMessageService);
+
+  // Math reference for template
+  Math = Math;
 
   isLoading: boolean = false;
   isNextApplicationLoading: boolean = false;
@@ -48,6 +54,16 @@ export class ApplicantDetaisComponent implements OnInit {
   isApplicationsLoading: boolean = false;
   assignments: any[] = [];
   isAssignmentsLoading: boolean = false;
+
+  // Assignment Selection
+  availableAssignments: any[] = [];
+  availableAssignmentsLoading: boolean = false;
+  selectedAssignmentId: number | null = null;
+  assignmentSearchTerm: string = '';
+  assignmentCurrentPage: number = 1;
+  assignmentPageSize: number = 10;
+  assignmentTotalCount: number = 0;
+  isAssignmentSubmitting: boolean = false;
 
   // Tab management
   currentTab: string = 'cv';
@@ -452,6 +468,117 @@ export class ApplicantDetaisComponent implements OnInit {
         }
       }
     });
+  }
+
+  // Open assignment selection overlay
+  openAssignmentSelection(): void {
+    this.selectedAssignmentId = null;
+    this.assignmentSearchTerm = '';
+    this.assignmentCurrentPage = 1;
+    this.fetchAvailableAssignments();
+    this.assignmentSelectionOverlay?.openOverlay();
+  }
+
+  // Fetch available assignments
+  fetchAvailableAssignments(): void {
+    this.availableAssignmentsLoading = true;
+    this.jobOpeningsService.getAssignmentsForSelection(
+      this.assignmentCurrentPage,
+      this.assignmentPageSize,
+      this.assignmentSearchTerm
+    ).subscribe({
+      next: (res) => {
+        const list = res?.data?.list_items ?? res?.list_items ?? [];
+        this.availableAssignments = Array.isArray(list) ? list : [];
+        this.assignmentTotalCount = res?.data?.total_items ?? res?.total_items ?? 0;
+        this.availableAssignmentsLoading = false;
+      },
+      error: () => {
+        this.availableAssignments = [];
+        this.availableAssignmentsLoading = false;
+      }
+    });
+  }
+
+  // Handle assignment search
+  onAssignmentSearchInput(): void {
+    this.assignmentCurrentPage = 1;
+    this.fetchAvailableAssignments();
+  }
+
+  // Toggle assignment selection (radio button single select)
+  toggleAssignmentSelection(assignmentId: number): void {
+    // If clicking the same assignment, deselect it
+    if (this.selectedAssignmentId === assignmentId) {
+      this.selectedAssignmentId = null;
+    } else {
+      // If clicking a different assignment, select it (exclusive)
+      this.selectedAssignmentId = assignmentId;
+    }
+  }
+
+  // Check if assignment is selected
+  isAssignmentSelected(assignmentId: number): boolean {
+    return this.selectedAssignmentId === assignmentId;
+  }
+
+  // Get total pages for assignments
+  getAssignmentTotalPages(): number {
+    return Math.ceil(this.assignmentTotalCount / this.assignmentPageSize);
+  }
+
+  // Change assignment page
+  changeAssignmentPage(page: number): void {
+    if (page >= 1 && page <= this.getAssignmentTotalPages()) {
+      this.assignmentCurrentPage = page;
+      this.fetchAvailableAssignments();
+    }
+  }
+
+  // Confirm assignment selection
+  confirmAssignmentSelection(): void {
+    if (!this.selectedAssignmentId) {
+      this.toasterService.showWarning('Please select an assignment');
+      return;
+    }
+
+    if (!this.applicationId) {
+      this.toasterService.showWarning('Application ID not found');
+      return;
+    }
+
+    this.isAssignmentSubmitting = true;
+
+    // Calculate expiration date (default to 3 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 3);
+    const formattedDate = expirationDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    this.jobOpeningsService.assignAssignmentToApplicant(
+      this.selectedAssignmentId,
+      this.applicationId,
+      formattedDate
+    ).subscribe({
+      next: () => {
+        this.isAssignmentSubmitting = false;
+        this.assignmentSelectionOverlay?.closeOverlay();
+        this.toasterService.showSuccess('Assignment sent successfully');
+        this.fetchAssignments();
+      },
+      error: () => {
+        this.isAssignmentSubmitting = false;
+        this.toasterService.showError('Failed to send assignment');
+      }
+    });
+  }
+
+  // Get pagination info for display
+  getPaginationInfo(): string {
+    if (this.availableAssignments.length === 0) {
+      return '0 from 0';
+    }
+    const startItem = (this.assignmentCurrentPage - 1) * this.assignmentPageSize + 1;
+    return `${startItem} from ${this.assignmentTotalCount}`;
   }
 }
 

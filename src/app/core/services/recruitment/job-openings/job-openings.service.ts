@@ -403,4 +403,32 @@ export class JobOpeningsService {
         const body = { request_data: assignmentData };
         return this._HttpClient.put(url, body);
     }
+
+    // get assignments for selection
+    getAssignmentsForSelection(page: number = 1, perPage: number = 10, search: string = ''): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+
+        let params = new HttpParams()
+            .set('page', page)
+            .set('per_page', perPage);
+
+        if (search) {
+            params = params.set('search', search);
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // assign assignment to applicant
+    assignAssignmentToApplicant(assignmentId: number, applicationId: number, expirationDate: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments`;
+        const body = {
+            request_data: {
+                assignment_id: assignmentId,
+                application_id: applicationId,
+                expiration_date: expirationDate
+            }
+        };
+        return this._HttpClient.post(url, body);
+    }
 }

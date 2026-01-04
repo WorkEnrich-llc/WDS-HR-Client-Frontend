@@ -392,18 +392,18 @@
 /* Picker container for relative positioning */
 .month-year-picker-horizontal {
     display: flex;
-    align-items: start;
-    justify-content: flex-start !important;
+    align-items: center;
+    justify-content: flex-start;
     text-align: left;
     background: #fff;
     border-radius: 1rem;
     border: 1px solid #d0d0d0;
-    padding: 0.5rem 1.5rem;
+    padding: 0.8rem 2rem;
     gap: 1.5rem;
     min-width: 220px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     position: relative;
-    width: 50%;
+    width: fit-content;
 }
 
 .picker-arrow {
