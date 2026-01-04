@@ -70,6 +70,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   // Job opening data
   jobOpening: any = null;
+  jobUrl: string = '';
 
   // Separate loading states for different sections
   jobDetailsLoading: boolean = true;
@@ -204,6 +205,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Use object_info from the response as it contains the actual job opening data
         this.jobOpening = response.data.object_info;
+        
+        // Extract job URL from response
+        this.jobUrl = this.jobOpening.job_url || '';
 
         // Extract applicant counts from the response
         if (response.data.object_info.applicants_counts) {
@@ -1505,6 +1509,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         applicant_id: applicant.applicantId
       }
     });
+  }
+
+  /**
+   * Open external link in new tab
+   */
+  openExternalLink(url: string): void {
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
 
   ngOnDestroy(): void {
