@@ -7,7 +7,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AdminRolesService } from 'app/core/services/admin-settings/roles/admin-roles.service';
 import { RolesService } from 'app/core/services/roles/roles.service';
 import { ModulePermission, Roles } from 'app/core/models/roles';
@@ -16,7 +16,7 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-roles',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, RouterLink, ReactiveFormsModule],
   providers: [DatePipe],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.css'

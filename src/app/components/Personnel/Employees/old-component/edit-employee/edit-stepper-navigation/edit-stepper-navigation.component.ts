@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { EditEmployeeSharedService } from '../services/edit-employee-shared.service';
 
 @Component({
   standalone: true,
   selector: 'app-edit-stepper-navigation',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './edit-stepper-navigation.component.html',
   styleUrl: './edit-stepper-navigation.component.css'
 })

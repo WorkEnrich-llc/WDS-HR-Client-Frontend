@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobCreationDataService } from '../../../../core/services/recruitment/job-openings/job-creation-data.service';
@@ -12,7 +12,7 @@ import { AttachmentsComponent } from './attachments/attachments.component';
   selector: 'app-create-jop-open',
   imports: [
     PageHeaderComponent,
-    CommonModule,
+    NgClass,
     PopupComponent,
     MainInfoComponent,
     RequiredDetailsComponent,
@@ -43,6 +43,9 @@ export class CreateJopOpenComponent implements OnInit {
   ngOnInit() {
     // Always start from main-information tab
     this.activeTab = 'main-information';
+
+    // Clear any previous data from service (when coming from update mode)
+    this.jobCreationDataService.clearData();
   }
 
   isActive(path: string): boolean {

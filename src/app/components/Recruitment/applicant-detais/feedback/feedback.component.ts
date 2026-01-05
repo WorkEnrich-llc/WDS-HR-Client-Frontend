@@ -1,12 +1,14 @@
 import { Component, ViewChild, Input, Output, EventEmitter, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-feedback',
-  imports: [CommonModule, FormsModule, OverlayFilterBoxComponent],
+  imports: [FormsModule, OverlayFilterBoxComponent, DatePipe],
+  providers: [DatePipe],
   templateUrl: './feedback.component.html',
   styleUrl: './feedback.component.css'
 })
@@ -18,7 +20,7 @@ export class FeedbackComponent {
   @Input() applicationId?: number;
   @Input() applicationStatus?: string;
   @Output() feedbackAdded = new EventEmitter<void>();
-  
+
   // Status mapping for checking if status allows feedback
   private statusMap: Record<number, string> = {
     0: 'Applicant',
@@ -30,16 +32,16 @@ export class FeedbackComponent {
     6: 'Qualified',
     7: 'Not Selected'
   };
-  
+
   // Check if status allows adding feedback (Interviewee and after)
   get canAddFeedback(): boolean {
     if (!this.applicationStatus) return false;
-    
+
     // Normalize status to string
-    const status = typeof this.applicationStatus === 'number' 
-      ? this.statusMap[this.applicationStatus] 
+    const status = typeof this.applicationStatus === 'number'
+      ? this.statusMap[this.applicationStatus]
       : this.applicationStatus;
-    
+
     // Statuses that allow feedback: Interviewee (2) and after
     const allowedStatuses = ['Interviewee', 'Job Offer Sent', 'New Joiner', 'Qualified'];
     return allowedStatuses.includes(status);

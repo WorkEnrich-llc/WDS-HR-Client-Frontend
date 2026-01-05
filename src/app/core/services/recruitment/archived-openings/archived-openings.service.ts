@@ -10,6 +10,13 @@ export class ArchivedOpeningsService {
     private _HttpClient = inject(HttpClient);
     private apiBaseUrl = environment.apiBaseUrl;
 
+    // Send job offer with full payload
+    sendJobOfferFull(payload: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const body = { request_data: payload };
+        return this._HttpClient.post(url, body);
+    }
+
     // Get all archived job openings with pagination and filters
     getAllArchivedOpenings(
         pageNumber: number,
@@ -78,6 +85,47 @@ export class ArchivedOpeningsService {
         }
         if (search) {
             params = params.set('search', search);
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // Get applicants by job ID (same as JobOpeningsService for consistency)
+    getApplicantsByJobId(
+        jobId: number,
+        pageNumber?: number,
+        perPage?: number,
+        status?: number,
+        search?: string,
+        offerStatus?: number
+    ): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applicants`;
+
+        let params = new HttpParams()
+            .set('job_id', jobId.toString());
+
+        // Add pagination if provided
+        if (pageNumber !== undefined && pageNumber !== null) {
+            params = params.set('page', pageNumber.toString());
+        }
+
+        if (perPage !== undefined && perPage !== null) {
+            params = params.set('per_page', perPage.toString());
+        }
+
+        // Add status if provided
+        if (status !== undefined && status !== null) {
+            params = params.set('status', status.toString());
+        }
+
+        // Add offer_status if provided
+        if (offerStatus !== undefined && offerStatus !== null) {
+            params = params.set('offer_status', offerStatus.toString());
+        }
+
+        // Add search if provided
+        if (search && search.trim()) {
+            params = params.set('search', search.trim());
         }
 
         return this._HttpClient.get(url, { params });

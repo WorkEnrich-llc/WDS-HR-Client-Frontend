@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
@@ -10,6 +10,7 @@ import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData } from '../../models/attendance-rules.interface';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
+import { NgClass } from '@angular/common';
 
 // Interfaces for lateness structure
 interface LatenessDeductionRule {
@@ -25,7 +26,7 @@ interface LatenessOccurrence {
 
 @Component({
   selector: 'app-edit-full-time',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, FormsModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, NgClass],
   templateUrl: './edit-full-time.component.html',
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-full-time.component.css'],
   encapsulation: ViewEncapsulation.None

@@ -1,14 +1,14 @@
 import { Component, ViewEncapsulation, OnInit, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { ApprovalRequestsService } from '../service/approval-requests.service';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ApprovalRequestItem } from '../../../../core/interfaces/approval-request';
 import { ActivatedRoute } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
   selector: 'app-view-assigned-request',
-  imports: [PageHeaderComponent, CommonModule, GoogleMapsModule],
+  imports: [PageHeaderComponent, GoogleMapsModule, DatePipe],
   providers: [DatePipe],
   templateUrl: './view-assigned-request.component.html',
   styleUrl: './view-assigned-request.component.css',

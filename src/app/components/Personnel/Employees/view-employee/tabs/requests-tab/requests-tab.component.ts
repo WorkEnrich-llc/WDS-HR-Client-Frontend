@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { ApprovalRequestsService } from '../../../../../../core/services/personnel/approval-requests/approval-requests.service';
 import { ApprovalRequestItem } from '../../../../../../core/interfaces/approval-request';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-requests-tab',
-  imports: [CommonModule, RouterLink, TableComponent],
+  imports: [RouterLink, TableComponent, NgClass],
   templateUrl: './requests-tab.component.html',
   styleUrls: ['./requests-tab.component.css']
 })

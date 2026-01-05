@@ -1,14 +1,46 @@
-.page-header button{
+.page-header button {
     margin-top: -3rem;
 }
+
 @media (min-width:991px) {
-    .width-fix{
+    .width-fix {
         width: 450px !important;
-    }    
-    .w-lg-50{
+    }
+
+    .w-lg-50 {
         width: 50% !important;
     }
 }
-tbody td{
+
+tbody td {
     padding: var(--spacing-20) !important;
+}
+
+/* Skeleton Loader Styles */
+.skeleton-line {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    height: 20px;
+}
+
+.skeleton-name {
+    width: 60%;
+    max-width: 150px;
+}
+
+.skeleton-percentage {
+    width: 40%;
+    max-width: 80px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }

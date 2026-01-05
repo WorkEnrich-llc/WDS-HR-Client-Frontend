@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -17,7 +17,7 @@ import { CustomValidators } from 'app/core/validators/custom-validators';
     ReactiveFormsModule,
     PageHeaderComponent,
     PopupComponent
-],
+  ],
   providers: [DatePipe],
   templateUrl: './manage-delegation.component.html',
   styleUrl: './manage-delegation.component.css'
@@ -27,6 +27,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
   isEditMode = false;
   delegationId: number | null = null;
   isLoading = false;
+  isEmployeesLoading = false;
   isSubmitting = false;
   isModalOpen = false;
   isSuccessModalOpen = false;
@@ -45,6 +46,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+  private cdr = inject(ChangeDetectorRef);
 
 
   constructor(
@@ -65,6 +67,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.isEmployeesLoading = true;
     this.loadEmployees();
   }
 
@@ -85,7 +88,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
     const fromDate = form.get('from_date')?.value;
     const toDate = form.get('to_date')?.value;
 
-    if (fromDate && toDate && new Date(fromDate) >= new Date(toDate)) {
+    if (fromDate && toDate && new Date(toDate) < new Date(fromDate)) {
       return { dateRange: true };
     }
     return null;
@@ -93,19 +96,28 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
 
   loadEmployees(): void {
     this.employeeService.getEmployees(1, 100).subscribe({
-      next: (response) => {
-        this.employees = response.data.list_items.map(employee => ({
-          id: employee.id,
-          name: employee.contact_info.name
-        }));
+      next: (response: any) => {
+        this.employees = response.data.list_items
+          .filter((item: any) => item.object_info && item.object_info.contact_info && item.object_info.contact_info.name)
+          .map((item: any) => ({
+            id: item.object_info.id,
+            name: item.object_info.contact_info.name
+          }));
         this.delegatorList = [...this.employees];
         this.delegateList = [...this.employees];
         this.setupDelegationFilters();
+        console.log('Employees loaded:', this.employees);
+        console.log('Employees loaded, setting isEmployeesLoading to false');
+        this.isEmployeesLoading = false;
+        this.cdr.markForCheck();
       },
 
       error: (error) => {
         console.error('Error loading employees:', error);
         this.toastr.error('Failed to load employees', 'Error');
+        console.log('Error loading employees, setting isEmployeesLoading to false');
+        this.isEmployeesLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -221,7 +233,7 @@ export class ManageDelegationComponent implements OnInit, OnDestroy {
 
     // Check for date range error
     if (fieldName === 'to_date' && this.delegationForm.errors?.['dateRange']) {
-      return 'End date must be after start date';
+      return 'End date must be the same as or after the start date.';
     }
 
     return '';

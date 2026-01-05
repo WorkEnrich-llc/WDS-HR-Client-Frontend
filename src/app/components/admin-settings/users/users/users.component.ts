@@ -1,9 +1,9 @@
 import { Component, inject, ViewChild, ViewEncapsulation } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, filter, Observable, Subject } from 'rxjs';
+import { debounceTime, filter, Subject } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -18,9 +18,9 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-users',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink, PopupComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, RouterLink, PopupComponent, DatePipe],
   templateUrl: './users.component.html',
+  providers: [DatePipe],
   styleUrl: './users.component.css',
   encapsulation: ViewEncapsulation.None
 })
@@ -223,7 +223,7 @@ export class UsersComponent {
       next: () => {
         this.lastInvitationTimes.set(emailToResend, now);
         this.saveInvitationTimes();
-        this.toasterService.showSuccess('Invitation resent successfully',"Sent Successfully");
+        this.toasterService.showSuccess('Invitation resent successfully', "Sent Successfully");
         this.isLoading = false;
         this.closeResendModal();
         this.getAllUsers(this.currentPage);
@@ -320,7 +320,7 @@ export class UsersComponent {
 
     this.userService.deleteRole(emailToDelete).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Deleted successfully',"Deleted");
+        this.toasterService.showSuccess('Deleted successfully', "Deleted");
         this.isLoading = false;
         this.closeDeleteModal();
         this.getAllUsers(this.currentPage);

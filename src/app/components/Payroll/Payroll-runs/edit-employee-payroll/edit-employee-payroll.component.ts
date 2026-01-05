@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe, NgClass } from '@angular/common';
 type Employee = {
   id: number;
   name: string;
@@ -18,15 +19,15 @@ type Employee = {
 
 @Component({
   selector: 'app-edit-employee-payroll',
-  imports: [PageHeaderComponent, CommonModule, FormsModule],
+  imports: [PageHeaderComponent, FormsModule, NgClass, DecimalPipe],
   templateUrl: './edit-employee-payroll.component.html',
-  styleUrls: ['./../../../shared/table/table.component.css','./edit-employee-payroll.component.css']
+  styleUrls: ['./../../../shared/table/table.component.css', './edit-employee-payroll.component.css']
 })
 export class EditEmployeePayrollComponent {
 
   ngOnInit() {
-  this.validateAll();
-}
+    this.validateAll();
+  }
   editableFields: (keyof Employee)[] = [
     'insurance',
     'absence',
@@ -35,38 +36,38 @@ export class EditEmployeePayrollComponent {
     'profitShare',
     'overtime',
   ];
- errors: { [key: number]: Partial<Record<keyof Employee, boolean>> } = {};
+  errors: { [key: number]: Partial<Record<keyof Employee, boolean>> } = {};
 
-validatePositive(index: number, field: keyof Employee) {
-  const emp = this.employees[index];
-  if (!emp) return;
+  validatePositive(index: number, field: keyof Employee) {
+    const emp = this.employees[index];
+    if (!emp) return;
 
-  const value = emp[field];
-  const numericValue = Number(value);
+    const value = emp[field];
+    const numericValue = Number(value);
 
-  const hasError = value === '' || isNaN(numericValue) || numericValue < 0;
+    const hasError = value === '' || isNaN(numericValue) || numericValue < 0;
 
-  const currentErrors = this.errors[index] ?? {};
-  currentErrors[field] = hasError;
+    const currentErrors = this.errors[index] ?? {};
+    currentErrors[field] = hasError;
 
-  this.errors = {
-    ...this.errors,
-    [index]: currentErrors
-  };
-}
+    this.errors = {
+      ...this.errors,
+      [index]: currentErrors
+    };
+  }
 
-hasError(index: number, field: keyof Employee): boolean {
-  return !!(this.errors[index]?.[field]);
-}
+  hasError(index: number, field: keyof Employee): boolean {
+    return !!(this.errors[index]?.[field]);
+  }
 
 
-validateAll() {
-  this.employees.forEach((emp, index) => {
-    this.editableFields.forEach((field) => {
-      this.validatePositive(index, field);
+  validateAll() {
+    this.employees.forEach((emp, index) => {
+      this.editableFields.forEach((field) => {
+        this.validatePositive(index, field);
+      });
     });
-  });
-}
+  }
 
 
   sortDirection: string = 'asc';

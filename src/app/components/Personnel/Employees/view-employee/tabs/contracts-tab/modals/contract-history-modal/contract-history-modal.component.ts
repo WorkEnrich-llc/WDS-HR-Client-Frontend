@@ -1,14 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 import { Contract, ContractHistory } from '../../../../../../../../core/interfaces/contract';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { TableComponent } from '../../../../../../../shared/table/table.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-contract-history-modal',
-  imports: [CommonModule, OverlayFilterBoxComponent, TableComponent],
+  imports: [OverlayFilterBoxComponent, TableComponent, NgTemplateOutlet],
   templateUrl: './contract-history-modal.component.html',
   styleUrl: './contract-history-modal.component.css'
 })

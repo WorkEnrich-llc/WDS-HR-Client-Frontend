@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { JobBoardSetupService } from '../../../../core/services/recruitment/job-board-setup/job-board-setup.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -13,7 +13,7 @@ interface SocialMediaLink {
 @Component({
     selector: 'app-view-job-board-setup',
     standalone: true,
-    imports: [PageHeaderComponent, RouterLink, CommonModule],
+    imports: [PageHeaderComponent, RouterLink,],
     providers: [DatePipe],
     templateUrl: './view-job-board-setup.component.html',
     styleUrl: './view-job-board-setup.component.css'
@@ -29,16 +29,27 @@ export class ViewJobBoardSetupComponent implements OnInit {
     // Job board setup data
     description: string = '';
     socialMediaLinks: SocialMediaLink[] = [];
+    jobsLandingPageUrl: string = '';
     createdAt: string = '';
     updatedAt: string = '';
+    logoUrl: string = '';
 
     // UI state
     isDescriptionExpanded: boolean = false;
+    logoLoadFailed: boolean = false;
     private readonly DESCRIPTION_PREVIEW_LENGTH = 300; // Characters to show in preview
 
     ngOnInit(): void {
         // Load job board setup data
         this.loadJobBoardSetup();
+        // Set the jobs landing page URL
+        this.setJobsLandingPageUrl();
+    }
+
+    private setJobsLandingPageUrl(): void {
+        // Get the base URL and append the /careers path
+        const baseUrl = window.location.origin;
+        this.jobsLandingPageUrl = `${baseUrl}/careers`;
     }
 
     loadJobBoardSetup(): void {
@@ -52,6 +63,9 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
                 // Extract description
                 this.description = data.description || '';
+
+                // Extract logo from company_logo object
+                this.logoUrl = data.company_logo?.generate_signed_url || data.company_logo?.image_url || '';
 
                 // Extract social media links
                 this.socialMediaLinks = this.extractSocialMediaLinks(data);
@@ -150,6 +164,10 @@ export class ViewJobBoardSetupComponent implements OnInit {
         if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
         }
+    }
+
+    handleLogoError(): void {
+        this.logoLoadFailed = true;
     }
 }
 

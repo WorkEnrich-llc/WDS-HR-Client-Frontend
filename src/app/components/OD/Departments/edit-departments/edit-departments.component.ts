@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -18,10 +18,10 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-departments',
-  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, SkelatonLoadingComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, NgClass],
   templateUrl: './edit-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-departments.component.css'],
+  providers: [DatePipe],
   encapsulation: ViewEncapsulation.None
 })
 export class EditDepartmentsComponent implements OnInit {

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { TableComponent } from '../../../shared/table/table.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -38,7 +38,7 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-edit-job',
-  imports: [PageHeaderComponent, CommonModule, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent],
+  imports: [PageHeaderComponent, SkelatonLoadingComponent, TableComponent, ReactiveFormsModule, FormsModule, PopupComponent, NgClass],
   providers: [DatePipe],
   templateUrl: './edit-job.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './edit-job.component.css']
@@ -673,7 +673,7 @@ export class EditJobComponent {
   }
 
 
- 
+
   // step 2 salary ranges
   jobStep2: FormGroup = new FormGroup({
     fullTime_minimum: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
@@ -1082,7 +1082,7 @@ export class EditJobComponent {
         this.errMsg = '';
         // create success
         this.router.navigate(['/jobs/all-job-titles']);
-        this.toasterMessageService.showSuccess("Job Title Updated successfully","Updated Successfully");
+        this.toasterMessageService.showSuccess("Job Title Updated successfully", "Updated Successfully");
 
       },
       error: (err) => {

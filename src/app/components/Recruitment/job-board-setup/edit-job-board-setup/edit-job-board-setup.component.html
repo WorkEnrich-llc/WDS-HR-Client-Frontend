@@ -1,39 +1,17 @@
 <!-- page header -->
-<app-page-header
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Admin Settings', link: '/admin-settings' },
     { label: 'Job Board Setup', link: '/job-board-setup' },
     { label: 'Edit Job Board' }
-  ]"
-  title="Edit Job board"
-  [create]="createdAt"
-  [update]="updatedAt"
->
-  <button
-    class="btn btn-lg btn-success w-auto"
-    [disabled]="isSaving || !hasChanges"
-    (click)="onSaveClick()"
-  >
+  ]" title="Edit Job board" [create]="createdAt" [update]="updatedAt">
+  <button class="btn btn-lg btn-success w-auto" [disabled]="isSaving || !hasChanges" (click)="onSaveClick()">
     @if (isSaving) {
-    <span
-      class="spinner-grow spinner-grow-sm me-2"
-      role="status"
-      aria-hidden="true"
-    ></span>
+    <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
     } @if (!isSaving) {
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m8.5 12.5l2 2l5-5"
-        />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
       </g>
     </svg>
     }
@@ -41,12 +19,7 @@
   </button>
 
   <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="12" r="10" />
         <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
@@ -115,71 +88,39 @@
 <!-- Tabs navigation -->
 @if (!isLoading) {
 <ul class="nav d-flex align-items-center nav-tabs bg-white">
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: isActive('about-company')
-    }"
-  >
+    }">
     <span class="nav-link" (click)="handleTabClick('about-company')">
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path opacity="0.3" fill-rule="evenodd" clip-rule="evenodd"
+          d="M2.4375 16.5C2.4375 16.1893 2.68934 15.9375 3 15.9375H15C15.3107 15.9375 15.5625 16.1893 15.5625 16.5C15.5625 16.8107 15.3107 17.0625 15 17.0625H3C2.68934 17.0625 2.4375 16.8107 2.4375 16.5Z" />
+        <path opacity="0.3"
+          d="M14.3105 5.52872C15.2321 4.60709 15.2321 3.11284 14.3105 2.19122C13.3889 1.26959 11.8946 1.26959 10.973 2.19122L10.4407 2.72356C10.448 2.74557 10.4555 2.76789 10.4634 2.7905C10.6585 3.3529 11.0266 4.09017 11.7192 4.78273C12.4118 5.47529 13.149 5.84345 13.7114 6.03857C13.7339 6.04637 13.7562 6.0539 13.7781 6.06116L14.3105 5.52872Z" />
         <path
-          opacity="0.3"
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M2.4375 16.5C2.4375 16.1893 2.68934 15.9375 3 15.9375H15C15.3107 15.9375 15.5625 16.1893 15.5625 16.5C15.5625 16.8107 15.3107 17.0625 15 17.0625H3C2.68934 17.0625 2.4375 16.8107 2.4375 16.5Z"
-        />
-        <path
-          opacity="0.3"
-          d="M14.3105 5.52872C15.2321 4.60709 15.2321 3.11284 14.3105 2.19122C13.3889 1.26959 11.8946 1.26959 10.973 2.19122L10.4407 2.72356C10.448 2.74557 10.4555 2.76789 10.4634 2.7905C10.6585 3.3529 11.0266 4.09017 11.7192 4.78273C12.4118 5.47529 13.149 5.84345 13.7114 6.03857C13.7339 6.04637 13.7562 6.0539 13.7781 6.06116L14.3105 5.52872Z"
-        />
-        <path
-          d="M10.4633 2.69971L10.4404 2.72263C10.4477 2.74464 10.4553 2.76696 10.4631 2.78957C10.6582 3.35197 11.0264 4.08924 11.7189 4.7818C12.4115 5.47436 13.1488 5.84251 13.7112 6.03764C13.7335 6.04538 13.7555 6.05284 13.7772 6.06004L8.63984 11.1974C8.29348 11.5438 8.12027 11.717 7.92932 11.8659C7.70406 12.0416 7.46033 12.1923 7.20244 12.3152C6.98383 12.4194 6.75147 12.4968 6.28677 12.6517L3.83622 13.4686C3.60754 13.5448 3.35541 13.4853 3.18495 13.3148C3.0145 13.1444 2.95498 12.8922 3.03121 12.6636L3.84806 10.213C4.00296 9.7483 4.08041 9.51595 4.1846 9.29733C4.3075 9.03945 4.45814 8.79572 4.63383 8.57046C4.78277 8.37951 4.95595 8.20632 5.30229 7.85999L10.4633 2.69971Z"
-        />
+          d="M10.4633 2.69971L10.4404 2.72263C10.4477 2.74464 10.4553 2.76696 10.4631 2.78957C10.6582 3.35197 11.0264 4.08924 11.7189 4.7818C12.4115 5.47436 13.1488 5.84251 13.7112 6.03764C13.7335 6.04538 13.7555 6.05284 13.7772 6.06004L8.63984 11.1974C8.29348 11.5438 8.12027 11.717 7.92932 11.8659C7.70406 12.0416 7.46033 12.1923 7.20244 12.3152C6.98383 12.4194 6.75147 12.4968 6.28677 12.6517L3.83622 13.4686C3.60754 13.5448 3.35541 13.4853 3.18495 13.3148C3.0145 13.1444 2.95498 12.8922 3.03121 12.6636L3.84806 10.213C4.00296 9.7483 4.08041 9.51595 4.1846 9.29733C4.3075 9.03945 4.45814 8.79572 4.63383 8.57046C4.78277 8.37951 4.95595 8.20632 5.30229 7.85999L10.4633 2.69971Z" />
       </svg>
 
       About company
     </span>
   </li>
 
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: isActive('social-media')
-    }"
-  >
+    }">
     <span class="nav-link" (click)="handleTabClick('social-media')">
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M1.52087 8.4375C1.80852 4.55809 5.04718 1.5 9.0001 1.5C8.37695 1.5 7.82213 1.77316 7.3657 2.19085C6.91156 2.60644 6.52778 3.18658 6.21737 3.87236C5.90514 4.56219 5.6626 5.36901 5.49844 6.24459C5.36685 6.94646 5.28677 7.68639 5.26008 8.4375H1.52087ZM1.52087 9.5625H5.26008C5.28677 10.3136 5.36685 11.0535 5.49844 11.7554C5.6626 12.631 5.90514 13.4378 6.21737 14.1276C6.52778 14.8134 6.91156 15.3936 7.3657 15.8092C7.82213 16.2268 8.37695 16.5 9.0001 16.5C5.04718 16.5 1.80852 13.4419 1.52087 9.5625Z" />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M1.52087 8.4375C1.80852 4.55809 5.04718 1.5 9.0001 1.5C8.37695 1.5 7.82213 1.77316 7.3657 2.19085C6.91156 2.60644 6.52778 3.18658 6.21737 3.87236C5.90514 4.56219 5.6626 5.36901 5.49844 6.24459C5.36685 6.94646 5.28677 7.68639 5.26008 8.4375H1.52087ZM1.52087 9.5625H5.26008C5.28677 10.3136 5.36685 11.0535 5.49844 11.7554C5.6626 12.631 5.90514 13.4378 6.21737 14.1276C6.52778 14.8134 6.91156 15.3936 7.3657 15.8092C7.82213 16.2268 8.37695 16.5 9.0001 16.5C5.04718 16.5 1.80852 13.4419 1.52087 9.5625Z"
-        />
+          d="M9.0001 1.5C9.62324 1.5 10.1781 1.77316 10.6345 2.19085C11.0886 2.60644 11.4724 3.18658 11.7828 3.87237C12.0951 4.56219 12.3376 5.36901 12.5018 6.24459C12.6333 6.94646 12.7134 7.68639 12.7401 8.4375H16.4793C16.1917 4.55809 12.953 1.5 9.0001 1.5Z" />
         <path
-          d="M9.0001 1.5C9.62324 1.5 10.1781 1.77316 10.6345 2.19085C11.0886 2.60644 11.4724 3.18658 11.7828 3.87237C12.0951 4.56219 12.3376 5.36901 12.5018 6.24459C12.6333 6.94646 12.7134 7.68639 12.7401 8.4375H16.4793C16.1917 4.55809 12.953 1.5 9.0001 1.5Z"
-        />
-        <path
-          d="M12.5018 11.7554C12.3376 12.631 12.0951 13.4378 11.7828 14.1276C11.4724 14.8134 11.0886 15.3936 10.6345 15.8092C10.1781 16.2268 9.62324 16.5 9.0001 16.5C12.953 16.5 16.1917 13.4419 16.4793 9.5625H12.7401C12.7134 10.3136 12.6333 11.0535 12.5018 11.7554Z"
-        />
+          d="M12.5018 11.7554C12.3376 12.631 12.0951 13.4378 11.7828 14.1276C11.4724 14.8134 11.0886 15.3936 10.6345 15.8092C10.1781 16.2268 9.62324 16.5 9.0001 16.5C12.953 16.5 16.1917 13.4419 16.4793 9.5625H12.7401C12.7134 10.3136 12.6333 11.0535 12.5018 11.7554Z" />
         <g opacity="0.3">
           <path
-            d="M9.00014 2.54663C8.79388 2.54663 8.52743 2.63439 8.21759 2.91793C7.90546 3.20356 7.59299 3.65123 7.31692 4.26115C7.04269 4.86702 6.82 5.59842 6.66676 6.41576C6.54608 7.05943 6.47122 7.74176 6.44495 8.43762H11.5553C11.5291 7.74176 11.4542 7.05943 11.3335 6.41577C11.1803 5.59842 10.9576 4.86702 10.6833 4.26115C10.4073 3.65123 10.0948 3.20357 9.78269 2.91793C9.47285 2.63439 9.20639 2.54663 9.00014 2.54663Z"
-          />
+            d="M9.00014 2.54663C8.79388 2.54663 8.52743 2.63439 8.21759 2.91793C7.90546 3.20356 7.59299 3.65123 7.31692 4.26115C7.04269 4.86702 6.82 5.59842 6.66676 6.41576C6.54608 7.05943 6.47122 7.74176 6.44495 8.43762H11.5553C11.5291 7.74176 11.4542 7.05943 11.3335 6.41577C11.1803 5.59842 10.9576 4.86702 10.6833 4.26115C10.4073 3.65123 10.0948 3.20357 9.78269 2.91793C9.47285 2.63439 9.20639 2.54663 9.00014 2.54663Z" />
           <path
-            d="M6.66676 11.5845C6.82 12.4018 7.04269 13.1332 7.31692 13.7391C7.59299 14.349 7.90546 14.7967 8.21759 15.0823C8.52743 15.3658 8.79388 15.4536 9.00014 15.4536C9.20639 15.4536 9.47285 15.3658 9.78268 15.0823C10.0948 14.7967 10.4073 14.349 10.6833 13.7391C10.9576 13.1332 11.1803 12.4018 11.3335 11.5845C11.4542 10.9408 11.5291 10.2585 11.5553 9.56262H6.44495C6.47122 10.2585 6.54608 10.9408 6.66676 11.5845Z"
-          />
+            d="M6.66676 11.5845C6.82 12.4018 7.04269 13.1332 7.31692 13.7391C7.59299 14.349 7.90546 14.7967 8.21759 15.0823C8.52743 15.3658 8.79388 15.4536 9.00014 15.4536C9.20639 15.4536 9.47285 15.3658 9.78268 15.0823C10.0948 14.7967 10.4073 14.349 10.6833 13.7391C10.9576 13.1332 11.1803 12.4018 11.3335 11.5845C11.4542 10.9408 11.5291 10.2585 11.5553 9.56262H6.44495C6.47122 10.2585 6.54608 10.9408 6.66676 11.5845Z" />
         </g>
       </svg>
 
@@ -187,34 +128,19 @@
     </span>
   </li>
 
-  <li
-    class="nav-item"
-    [ngClass]="{
+  <li class="nav-item" [ngClass]="{
       active: isActive('theme-selection')
-    }"
-  >
+    }">
     <span class="nav-link" (click)="handleTabClick('theme-selection')">
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 18 18"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
-          d="M5.25 13.5C5.25 13.9142 4.91421 14.25 4.5 14.25C4.08579 14.25 3.75 13.9142 3.75 13.5C3.75 13.0858 4.08579 12.75 4.5 12.75C4.91421 12.75 5.25 13.0858 5.25 13.5Z"
-        />
+          d="M5.25 13.5C5.25 13.9142 4.91421 14.25 4.5 14.25C4.08579 14.25 3.75 13.9142 3.75 13.5C3.75 13.0858 4.08579 12.75 4.5 12.75C4.91421 12.75 5.25 13.0858 5.25 13.5Z" />
+        <path opacity="0.4"
+          d="M7.5 4.5V13.5C7.5 15.1569 6.15685 16.5 4.5 16.5C2.84315 16.5 1.5 15.1569 1.5 13.5V4.5C1.5 2.84315 2.84315 1.5 4.5 1.5C6.15685 1.5 7.5 2.84315 7.5 4.5Z" />
+        <path opacity="0.7"
+          d="M6.93567 15.2518L9.91639 12.2711L14.295 7.70393C15.4364 6.51329 15.4166 4.62854 14.2502 3.46223C13.0663 2.27831 11.1468 2.27831 9.96288 3.46223L7.5 5.92512V13.5C7.5 14.1539 7.2908 14.7589 6.93567 15.2518Z" />
         <path
-          opacity="0.4"
-          d="M7.5 4.5V13.5C7.5 15.1569 6.15685 16.5 4.5 16.5C2.84315 16.5 1.5 15.1569 1.5 13.5V4.5C1.5 2.84315 2.84315 1.5 4.5 1.5C6.15685 1.5 7.5 2.84315 7.5 4.5Z"
-        />
-        <path
-          opacity="0.7"
-          d="M6.93567 15.2518L9.91639 12.2711L14.295 7.70393C15.4364 6.51329 15.4166 4.62854 14.2502 3.46223C13.0663 2.27831 11.1468 2.27831 9.96288 3.46223L7.5 5.92512V13.5C7.5 14.1539 7.2908 14.7589 6.93567 15.2518Z"
-        />
-        <path
-          d="M9.91639 12.2713L6.93567 15.252C7.2901 14.7601 7.49918 14.1564 7.5 13.504C7.49784 15.159 6.15552 16.5 4.5 16.5H13.4246C15.0814 16.5 16.4246 15.1569 16.4246 13.5C16.4246 11.8431 15.0814 10.5 13.4246 10.5H11.6145L9.91639 12.2713Z"
-        />
+          d="M9.91639 12.2713L6.93567 15.252C7.2901 14.7601 7.49918 14.1564 7.5 13.504C7.49784 15.159 6.15552 16.5 4.5 16.5H13.4246C15.0814 16.5 16.4246 15.1569 16.4246 13.5C16.4246 11.8431 15.0814 10.5 13.4246 10.5H11.6145L9.91639 12.2713Z" />
       </svg>
 
       Theme Selection
@@ -229,15 +155,9 @@
   <div class="content-box d-flex flex-column gap-3">
     <div class="d-flex flex-column gap-2">
       <label class="form-label">Title</label>
-      <input
-        type="text"
-        class="form-control"
-        [class.is-invalid]="isFieldInvalid('title')"
-        [(ngModel)]="jobBoardSetup.title"
-        (blur)="onFieldBlur('title')"
-        (input)="onFieldInput('title')"
-        placeholder="Enter job board title"
-      />
+      <input type="text" class="form-control" [class.is-invalid]="isFieldInvalid('title')"
+        [(ngModel)]="jobBoardSetup.title" (blur)="onFieldBlur('title')" (input)="onFieldInput('title')"
+        placeholder="Enter job board title" />
       @if (isFieldInvalid('title')) {
       <div class="text-danger small mt-1">
         {{ getValidationError("title") }}
@@ -247,15 +167,9 @@
 
     <div class="d-flex flex-column gap-2">
       <label class="form-label">Description</label>
-      <textarea
-        class="form-control"
-        [class.is-invalid]="isFieldInvalid('description')"
-        rows="10"
-        [(ngModel)]="jobBoardSetup.description"
-        (blur)="onFieldBlur('description')"
-        (input)="onFieldInput('description')"
-        placeholder="Enter company description"
-      ></textarea>
+      <textarea class="form-control" [class.is-invalid]="isFieldInvalid('description')" rows="10"
+        [(ngModel)]="jobBoardSetup.description" (blur)="onFieldBlur('description')"
+        (input)="onFieldInput('description')" placeholder="Enter company description"></textarea>
       @if (isFieldInvalid('description')) {
       <div class="text-danger small mt-1">
         {{ getValidationError("description") }}
@@ -267,70 +181,28 @@
     <div class="d-flex flex-column gap-2">
       <label class="form-label">Logo</label>
       <div class="image-upload-container">
-        <input
-          type="file"
-          id="logoInput"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
-          (change)="onLogoFileSelected($event)"
-          class="image-input"
-          #logoInput
-        />
-        <div
-          class="image-upload-area"
-          (click)="openLogoPicker($event)"
-          [class.has-image]="logoPreviewUrl || companyLogoUrl"
-        >
+        <input type="file" id="logoInput" accept="image/jpeg,image/jpg,image/png,image/webp"
+          (change)="onLogoFileSelected($event)" class="image-input" #logoInput />
+        <div class="image-upload-area" (click)="openLogoPicker($event)"
+          [class.has-image]="logoPreviewUrl || companyLogoUrl">
           @if (!logoPreviewUrl && !companyLogoUrl) {
           <div class="upload-placeholder">
             <div class="upload-icon-wrapper">
               <div class="upload-cloud">
                 <!-- Cloud base -->
-                <svg
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M6.5 18H17.5C19.433 18 21 16.433 21 14.5C21 12.744 19.764 11.291 18.074 11.038C17.613 8.718 15.612 7 13.25 7C11.903 7 10.676 7.57 9.806 8.5C9.531 8.462 9.258 8.444 8.98 8.444C6.78 8.444 5 10.224 5 12.424C5 14.459 6.507 16.154 8.5 16.39"
-                    stroke="#9CA3AF"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+                    stroke="#9CA3AF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <!-- Small upload badge -->
                 <div class="upload-cloud-badge">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      x="3"
-                      y="3"
-                      width="18"
-                      height="18"
-                      rx="5"
-                      fill="white"
-                    />
-                    <path
-                      d="M12 16V8"
-                      stroke="#2563EB"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9 11L12 8L15 11"
-                      stroke="#2563EB"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="18" height="18" rx="5" fill="white" />
+                    <path d="M12 16V8" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M9 11L12 8L15 11" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"
+                      stroke-linejoin="round" />
                   </svg>
                 </div>
               </div>
@@ -343,66 +215,23 @@
           </div>
           } @else {
           <div class="image-preview">
-            <img
-              [src]="logoPreviewUrl || companyLogoUrl"
-              alt="Logo preview"
-              class="preview-image"
-            />
+            <img [src]="logoPreviewUrl || companyLogoUrl" alt="Logo preview" class="preview-image" />
             <div class="image-overlay">
-              <button
-                type="button"
-                class="remove-image-btn"
-                (click)="removeLogo($event)"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M18 6L6 18M6 6L18 18"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+              <button type="button" class="remove-image-btn" (click)="removeLogo($event)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
                 </svg>
               </button>
-              <button
-                type="button"
-                class="change-image-btn"
-                (click)="openLogoPicker($event)"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+              <button type="button" class="change-image-btn" (click)="openLogoPicker($event)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M17 8L12 3L7 8"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M12 3V15"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
                 </svg>
               </button>
             </div>
@@ -414,60 +243,51 @@
         }
       </div>
       <div class="d-flex align-items-center gap-3 mt-3">
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="saveLogo()"
-          [disabled]="!selectedLogoFile || isSavingLogo"
-        >
+        <button type="button" class="btn btn-lg btn-primary" (click)="saveLogo()"
+          [disabled]="!selectedLogoFile || isSavingLogo">
           @if (isSavingLogo) {
-          <span
-            class="spinner-grow spinner-grow-sm me-2"
-            role="status"
-            aria-hidden="true"
-          ></span>
+          <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
           }
           <span>Save Logo</span>
         </button>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          (click)="openDeleteLogoModal()"
-          [disabled]="(!companyLogoUrl && !selectedLogoFile) || isDeletingLogo"
-        >
+        <button type="button" class="btn btn-lg btn-outline-danger" (click)="openDeleteLogoModal()"
+          [disabled]="(!companyLogoUrl && !selectedLogoFile) || isDeletingLogo">
           @if (isDeletingLogo) {
-          <span
-            class="spinner-grow spinner-grow-sm me-2"
-            role="status"
-            aria-hidden="true"
-          ></span>
+          <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
           }
-          <span>Delete</span>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1666_1562)">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M7.73196 1.68751H10.268C10.4303 1.68741 10.5717 1.68732 10.7052 1.70864C11.2327 1.79287 11.6892 2.12186 11.9359 2.59563C11.9983 2.71555 12.0429 2.84971 12.0942 3.00371L12.1779 3.25488C12.1921 3.2974 12.1961 3.30943 12.1995 3.31891C12.3309 3.682 12.6714 3.92745 13.0574 3.93723C13.0675 3.93748 13.08 3.93753 13.125 3.93753H15.375C15.6857 3.93753 15.9375 4.18937 15.9375 4.50003C15.9375 4.81069 15.6857 5.06253 15.375 5.06253H2.62494C2.31428 5.06253 2.06244 4.81069 2.06244 4.50003C2.06244 4.18937 2.31428 3.93753 2.62494 3.93753H4.875C4.92004 3.93753 4.93247 3.93749 4.94261 3.93723C5.3286 3.92745 5.66912 3.68202 5.80046 3.31893C5.80391 3.30938 5.80788 3.29761 5.82212 3.25488L5.90583 3.00372C5.95705 2.84973 6.00168 2.71555 6.06413 2.59563C6.31084 2.12186 6.76729 1.79287 7.29476 1.70864C7.42827 1.68732 7.56967 1.68741 7.73196 1.68751ZM6.75605 3.93753C6.79468 3.86176 6.82892 3.78303 6.85837 3.70161C6.86731 3.67689 6.87609 3.65057 6.88735 3.61675L6.96221 3.39219C7.03058 3.18706 7.04633 3.14522 7.06195 3.11523C7.14418 2.95731 7.29633 2.84764 7.47216 2.81957C7.50555 2.81423 7.55021 2.81253 7.76645 2.81253H10.2336C10.4498 2.81253 10.4945 2.81423 10.5278 2.81957C10.7037 2.84764 10.8558 2.95731 10.9381 3.11523C10.9537 3.14522 10.9694 3.18705 11.0378 3.39219L11.1126 3.61662L11.1416 3.70163C11.1711 3.78304 11.2053 3.86177 11.244 3.93753H6.75605Z"
+                fill="#E04F5F" />
+              <path
+                d="M4.43626 6.33761C4.41559 6.02764 4.14756 5.79311 3.83759 5.81377C3.52761 5.83444 3.29308 6.10247 3.31375 6.41245L3.66133 11.6262C3.72546 12.5883 3.77725 13.3654 3.89873 13.9752C4.02503 14.6092 4.23984 15.1387 4.68354 15.5538C5.12724 15.9689 5.6699 16.1481 6.31089 16.2319C6.92741 16.3126 7.70622 16.3125 8.67039 16.3125H9.32956C10.2937 16.3125 11.0726 16.3126 11.6891 16.2319C12.3301 16.1481 12.8728 15.9689 13.3165 15.5538C13.7602 15.1387 13.975 14.6092 14.1013 13.9752C14.2228 13.3654 14.2745 12.5883 14.3387 11.6263L14.6863 6.41245C14.7069 6.10247 14.4724 5.83444 14.1624 5.81377C13.8524 5.79311 13.5844 6.02764 13.5637 6.33761L13.2188 11.5119C13.1514 12.5228 13.1034 13.2262 12.998 13.7554C12.8957 14.2688 12.7529 14.5405 12.5479 14.7323C12.3428 14.9242 12.0622 15.0485 11.5432 15.1164C11.0081 15.1864 10.3031 15.1875 9.29001 15.1875H8.70999C7.69686 15.1875 6.99185 15.1864 6.4568 15.1164C5.9378 15.0485 5.65718 14.9242 5.45212 14.7323C5.24706 14.5405 5.10431 14.2687 5.00205 13.7554C4.89663 13.2262 4.8486 12.5228 4.78121 11.5119L4.43626 6.33761Z"
+                fill="#E04F5F" />
+              <path
+                d="M7.06904 7.69032C7.37816 7.65941 7.6538 7.88494 7.68472 8.19406L8.05972 11.9441C8.09063 12.2532 7.8651 12.5288 7.55598 12.5597C7.24686 12.5906 6.97121 12.3651 6.9403 12.056L6.5653 8.306C6.53439 7.99688 6.75992 7.72123 7.06904 7.69032Z"
+                fill="#E04F5F" />
+              <path
+                d="M10.931 7.69032C11.2401 7.72123 11.4656 7.99688 11.4347 8.306L11.0597 12.056C11.0288 12.3651 10.7532 12.5906 10.444 12.5597C10.1349 12.5288 9.90939 12.2532 9.9403 11.9441L10.3153 8.19406C10.3462 7.88494 10.6219 7.65941 10.931 7.69032Z"
+                fill="#E04F5F" />
+            </g>
+            <defs>
+              <clipPath id="clip0_1666_1562">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+
+          <span>Delete Logo</span>
         </button>
       </div>
     </div>
 
     <!-- Next button -->
     <div class="btn-fixed">
-      <button
-        type="button"
-        class="btn btn-lg btn-primary"
-        (click)="goToNextTab()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6"
-          />
+      <button type="button" class="btn btn-lg btn-primary" (click)="goToNextTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
         <span>Next (1/3)</span>
       </button>
@@ -483,26 +303,16 @@
     <div class="social-media-row">
       <div class="social-media-label-group">
         <label class="social-media-checkbox">
-          <input
-            type="checkbox"
-            [checked]="isSocialMediaEnabled('website')"
-            (change)="toggleSocialMedia('website')"
-          />
+          <input type="checkbox" [checked]="isSocialMediaEnabled('website')" (change)="toggleSocialMedia('website')" />
           <span class="checkmark"></span>
         </label>
         <span class="social-media-label">Website</span>
       </div>
       <div class="social-media-input-wrapper">
-        <input
-          type="url"
-          class="form-control social-media-input"
-          [class.is-invalid]="isSocialMediaFieldInvalid('website')"
-          [disabled]="!isSocialMediaEnabled('website')"
-          [(ngModel)]="jobBoardSetup.social_links.website"
-          (blur)="onSocialMediaFieldBlur('website')"
-          (input)="onSocialMediaFieldInput('website')"
-          placeholder="https://www.companyname.com"
-        />
+        <input type="url" class="form-control social-media-input"
+          [class.is-invalid]="isSocialMediaFieldInvalid('website')" [disabled]="!isSocialMediaEnabled('website')"
+          [(ngModel)]="jobBoardSetup.social_links.website" (blur)="onSocialMediaFieldBlur('website')"
+          (input)="onSocialMediaFieldInput('website')" placeholder="https://www.companyname.com" />
         @if (isSocialMediaFieldInvalid('website')) {
         <div class="text-danger small mt-1">
           {{ getSocialMediaValidationError("website") }}
@@ -515,26 +325,17 @@
     <div class="social-media-row">
       <div class="social-media-label-group">
         <label class="social-media-checkbox">
-          <input
-            type="checkbox"
-            [checked]="isSocialMediaEnabled('linkedin')"
-            (change)="toggleSocialMedia('linkedin')"
-          />
+          <input type="checkbox" [checked]="isSocialMediaEnabled('linkedin')"
+            (change)="toggleSocialMedia('linkedin')" />
           <span class="checkmark"></span>
         </label>
         <span class="social-media-label">LinkedIn</span>
       </div>
       <div class="social-media-input-wrapper">
-        <input
-          type="url"
-          class="form-control social-media-input"
-          [class.is-invalid]="isSocialMediaFieldInvalid('linkedin')"
-          [disabled]="!isSocialMediaEnabled('linkedin')"
-          [(ngModel)]="jobBoardSetup.social_links.linkedin"
-          (blur)="onSocialMediaFieldBlur('linkedin')"
-          (input)="onSocialMediaFieldInput('linkedin')"
-          placeholder="https://www.linkedin.com/company..."
-        />
+        <input type="url" class="form-control social-media-input"
+          [class.is-invalid]="isSocialMediaFieldInvalid('linkedin')" [disabled]="!isSocialMediaEnabled('linkedin')"
+          [(ngModel)]="jobBoardSetup.social_links.linkedin" (blur)="onSocialMediaFieldBlur('linkedin')"
+          (input)="onSocialMediaFieldInput('linkedin')" placeholder="https://www.linkedin.com/company..." />
         @if (isSocialMediaFieldInvalid('linkedin')) {
         <div class="text-danger small mt-1">
           {{ getSocialMediaValidationError("linkedin") }}
@@ -547,26 +348,17 @@
     <div class="social-media-row">
       <div class="social-media-label-group">
         <label class="social-media-checkbox">
-          <input
-            type="checkbox"
-            [checked]="isSocialMediaEnabled('facebook')"
-            (change)="toggleSocialMedia('facebook')"
-          />
+          <input type="checkbox" [checked]="isSocialMediaEnabled('facebook')"
+            (change)="toggleSocialMedia('facebook')" />
           <span class="checkmark"></span>
         </label>
         <span class="social-media-label">Facebook</span>
       </div>
       <div class="social-media-input-wrapper">
-        <input
-          type="url"
-          class="form-control social-media-input"
-          [class.is-invalid]="isSocialMediaFieldInvalid('facebook')"
-          [disabled]="!isSocialMediaEnabled('facebook')"
-          [(ngModel)]="jobBoardSetup.social_links.facebook"
-          (blur)="onSocialMediaFieldBlur('facebook')"
-          (input)="onSocialMediaFieldInput('facebook')"
-          placeholder="https://www.facebook.com/company..."
-        />
+        <input type="url" class="form-control social-media-input"
+          [class.is-invalid]="isSocialMediaFieldInvalid('facebook')" [disabled]="!isSocialMediaEnabled('facebook')"
+          [(ngModel)]="jobBoardSetup.social_links.facebook" (blur)="onSocialMediaFieldBlur('facebook')"
+          (input)="onSocialMediaFieldInput('facebook')" placeholder="https://www.facebook.com/company..." />
         @if (isSocialMediaFieldInvalid('facebook')) {
         <div class="text-danger small mt-1">
           {{ getSocialMediaValidationError("facebook") }}
@@ -579,26 +371,17 @@
     <div class="social-media-row">
       <div class="social-media-label-group">
         <label class="social-media-checkbox">
-          <input
-            type="checkbox"
-            [checked]="isSocialMediaEnabled('instagram')"
-            (change)="toggleSocialMedia('instagram')"
-          />
+          <input type="checkbox" [checked]="isSocialMediaEnabled('instagram')"
+            (change)="toggleSocialMedia('instagram')" />
           <span class="checkmark"></span>
         </label>
         <span class="social-media-label">Instagram</span>
       </div>
       <div class="social-media-input-wrapper">
-        <input
-          type="url"
-          class="form-control social-media-input"
-          [class.is-invalid]="isSocialMediaFieldInvalid('instagram')"
-          [disabled]="!isSocialMediaEnabled('instagram')"
-          [(ngModel)]="jobBoardSetup.social_links.instagram"
-          (blur)="onSocialMediaFieldBlur('instagram')"
-          (input)="onSocialMediaFieldInput('instagram')"
-          placeholder="https://www.Instagram.com/company..."
-        />
+        <input type="url" class="form-control social-media-input"
+          [class.is-invalid]="isSocialMediaFieldInvalid('instagram')" [disabled]="!isSocialMediaEnabled('instagram')"
+          [(ngModel)]="jobBoardSetup.social_links.instagram" (blur)="onSocialMediaFieldBlur('instagram')"
+          (input)="onSocialMediaFieldInput('instagram')" placeholder="https://www.Instagram.com/company..." />
         @if (isSocialMediaFieldInvalid('instagram')) {
         <div class="text-danger small mt-1">
           {{ getSocialMediaValidationError("instagram") }}
@@ -611,26 +394,16 @@
     <div class="social-media-row">
       <div class="social-media-label-group">
         <label class="social-media-checkbox">
-          <input
-            type="checkbox"
-            [checked]="isSocialMediaEnabled('x')"
-            (change)="toggleSocialMedia('x')"
-          />
+          <input type="checkbox" [checked]="isSocialMediaEnabled('x')" (change)="toggleSocialMedia('x')" />
           <span class="checkmark"></span>
         </label>
         <span class="social-media-label">X (Twitter)</span>
       </div>
       <div class="social-media-input-wrapper">
-        <input
-          type="url"
-          class="form-control social-media-input"
-          [class.is-invalid]="isSocialMediaFieldInvalid('x')"
-          [disabled]="!isSocialMediaEnabled('x')"
-          [(ngModel)]="jobBoardSetup.social_links.x"
-          (blur)="onSocialMediaFieldBlur('x')"
-          (input)="onSocialMediaFieldInput('x')"
-          placeholder="https://www.Twitter.com/company..."
-        />
+        <input type="url" class="form-control social-media-input" [class.is-invalid]="isSocialMediaFieldInvalid('x')"
+          [disabled]="!isSocialMediaEnabled('x')" [(ngModel)]="jobBoardSetup.social_links.x"
+          (blur)="onSocialMediaFieldBlur('x')" (input)="onSocialMediaFieldInput('x')"
+          placeholder="https://www.Twitter.com/company..." />
         @if (isSocialMediaFieldInvalid('x')) {
         <div class="text-danger small mt-1">
           {{ getSocialMediaValidationError("x") }}
@@ -641,46 +414,17 @@
 
     <!-- Back and Next buttons -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button
-        type="button"
-        class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-        (click)="goToPrevTab()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M20 12H4m0 0l6-6m-6 6l6 6"
-          />
+      <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goToPrevTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
-      <button
-        type="button"
-        class="btn btn-lg btn-primary"
-        (click)="goToNextTab()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M4 12h16m0 0l-6-6m6 6l-6 6"
-          />
+      <button type="button" class="btn btn-lg btn-primary" (click)="goToNextTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
         </svg>
         <span>Next (2/3)</span>
       </button>
@@ -694,53 +438,27 @@
 
     <div class="theme-buttons-container">
       @for (theme of themes; track theme.id) {
-      <button
-        type="button"
-        class="theme-button"
-        [class.selected]="isThemeSelected(theme.id)"
-        [style.--theme-color]="getThemeColor(theme)"
-        [style.--theme-color-rgb]="getThemeColorRgb(theme)"
-        (click)="selectTheme(theme.id)"
-      >
-        <span
-          class="theme-color-circle"
-          [style.background-color]="getThemeColor(theme)"
-        ></span>
+      <button type="button" class="theme-button" [class.selected]="isThemeSelected(theme.id)"
+        [style.--theme-color]="getThemeColor(theme)" [style.--theme-color-rgb]="getThemeColorRgb(theme)"
+        (click)="selectTheme(theme.id)">
+        <span class="theme-color-circle" [style.background-color]="getThemeColor(theme)"></span>
         <span class="theme-name">{{ theme.name }}</span>
       </button>
       }
     </div>
 
     <div class="theme-preview">
-      <img
-        src="assets/images/jop-board.png"
-        alt="Theme Preview"
-        class="preview-image"
-        [style.filter]="getImageFilter()"
-      />
+      <img src="assets/images/jop-board.png" alt="Theme Preview" class="preview-image"
+        [style.filter]="getImageFilter()" />
     </div>
 
     <!-- Back button -->
     <div class="btn-fixed d-flex align-items-stretch gap-2">
-      <button
-        type="button"
-        class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
-        (click)="goToPrevTab()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M20 12H4m0 0l6-6m-6 6l6 6"
-          />
+      <button type="button" class="btn btn-outline-success bg-white d-flex justify-content-center align-items-center"
+        (click)="goToPrevTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 12H4m0 0l6-6m-6 6l6 6" />
         </svg>
       </button>
     </div>
@@ -749,75 +467,36 @@
 }
 
 <!-- Save confirmation popup -->
-<app-popup
-  [title]="'Confirm Save'"
-  [paragraph1]="'Are you sure you want to save the changes to Job Board Setup?'"
-  [paragraph2]="'This action will update all your changes.'"
-  [isOpen]="isSaveConfirmModalOpen"
-  (close)="closeSaveConfirmModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-success w-100"
-    (click)="confirmSave()"
-  >
+<app-popup [title]="'Confirm Save'" [paragraph1]="'Are you sure you want to save the changes to Job Board Setup?'"
+  [paragraph2]="'This action will update all your changes.'" [isOpen]="isSaveConfirmModalOpen"
+  (close)="closeSaveConfirmModal()">
+  <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmSave()">
     Save Changes
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closeSaveConfirmModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeSaveConfirmModal()">
     Cancel
   </button>
 </app-popup>
 
 <!-- Cancel confirmation popup -->
-<app-popup
-  [title]="'Discard Changes'"
-  [paragraph1]="
+<app-popup [title]="'Discard Changes'" [paragraph1]="
     'Are you sure you want to discard all changes done to the Job Board Setup?'
-  "
-  [paragraph2]="'This action cannot be undone!'"
-  [isOpen]="isModalOpen"
-  (close)="closeModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-dark w-100"
-    (click)="confirmAction()"
-  >
+  " [paragraph2]="'This action cannot be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmAction()">
     Discard Changes
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closeModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModal()">
     Continue Editing
   </button>
 </app-popup>
 
 <!-- Delete Logo confirmation popup -->
-<app-popup
-  [title]="'Delete Logo'"
-  [paragraph1]="'Are you sure you want to delete the company logo?'"
-  [paragraph2]="'This action cannot be undone!'"
-  [isOpen]="isDeleteLogoModalOpen"
-  (close)="closeDeleteLogoModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-danger w-100"
-    (click)="confirmDeleteLogo()"
-  >
+<app-popup [title]="'Delete Logo'" [paragraph1]="'Are you sure you want to delete the company logo?'"
+  [paragraph2]="'This action cannot be undone!'" [isOpen]="isDeleteLogoModalOpen" (close)="closeDeleteLogoModal()">
+  <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeleteLogo()">
     Delete Logo
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closeDeleteLogoModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteLogoModal()">
     Cancel
   </button>
 </app-popup>

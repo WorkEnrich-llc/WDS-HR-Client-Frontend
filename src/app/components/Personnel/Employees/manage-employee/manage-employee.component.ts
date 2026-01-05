@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   Component,
   inject,
@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 // import { CreateEmployeeRequest, CreateEmployeeResponse } from '../../../../core/interfaces/employee';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { StepperNavigationComponent } from './stepper-navigation/stepper-navigation.component';
@@ -23,6 +24,8 @@ import { ManageEmployeeSharedService } from './services/manage-shared.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { OnboardingChecklistComponent, OnboardingListItem } from 'app/components/shared/onboarding-checklist/onboarding-checklist.component';
 import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tour/system-setup-tour.component';
+
+import { EmployeeSkeletonLoaderComponent } from './employee-skeleton-loader.component';
 import { SystemSetupService } from 'app/core/services/main/system-setup.service';
 
 
@@ -30,7 +33,7 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
   standalone: true,
   selector: 'app-manage-employee',
   imports: [
-    CommonModule,
+    DatePipe,
     PageHeaderComponent,
     ReactiveFormsModule,
     PopupComponent,
@@ -41,7 +44,8 @@ import { SystemSetupService } from 'app/core/services/main/system-setup.service'
     AttendanceDetailsStepComponent,
     InsuranceDetailsStepComponent,
     OnboardingChecklistComponent,
-    SystemSetupTourComponent
+    SystemSetupTourComponent,
+    EmployeeSkeletonLoaderComponent
   ],
   providers: [DatePipe],
   templateUrl: './manage-employee.component.html',
@@ -55,6 +59,7 @@ export class ManageEmployeeComponent implements OnInit {
   private datePipe = inject(DatePipe);
   private toasterMessageService = inject(ToasterMessageService);
   private employeeService = inject(EmployeeService);
+  private jobOpeningsService = inject(JobOpeningsService);
   public sharedService = inject(ManageEmployeeSharedService);
   private paginationState = inject(PaginationStateService);
   private systemSetupService = inject(SystemSetupService);
@@ -78,9 +83,9 @@ export class ManageEmployeeComponent implements OnInit {
     this.todayFormatted.set(this.datePipe.transform(today, 'dd/MM/yyyy')!);
   }
 
+
   ngOnInit(): void {
     // Reset the form when component initializes
-    // this.sharedService.loadInitialData();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       this.sharedService.resetForm();
@@ -91,9 +96,36 @@ export class ManageEmployeeComponent implements OnInit {
       } else {
         this.sharedService.isEditMode.set(false);
         this.sharedService.resetForm();
+        // Check for application_id and applicant_id in query params
+        this.route.queryParamMap.subscribe(queryParams => {
+          const applicationId = queryParams.get('application_id');
+          const applicantId = queryParams.get('applicant_id');
+
+          // Set employee source and applicant_id in shared service
+          if (applicationId || applicantId) {
+            this.sharedService.employeeSource = 2; // From recruitment
+            if (applicantId) {
+              this.sharedService.applicantId = +applicantId;
+            }
+          } else {
+            this.sharedService.employeeSource = 1; // Direct creation
+          }
+
+          if (applicationId) {
+            this.jobOpeningsService.getEmployeeCreateInfo(+applicationId).subscribe({
+              next: (data) => {
+                // Populate form with the fetched employee create info
+                this.sharedService.populateFormWithEmployeeCreateInfo(data.data);
+              },
+              error: (err) => {
+                console.error('Failed to fetch employee create info:', err);
+                this.toasterMessageService.showError('Failed to load employee data');
+              }
+            });
+          }
+        });
       }
     });
-
   }
 
 

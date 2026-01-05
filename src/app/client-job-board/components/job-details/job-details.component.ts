@@ -1,22 +1,29 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, HostListener, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClientJobBoardService } from '../../services/client-job-board.service';
 import { MetaTagsService } from '../../services/meta-tags.service';
+import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
+import { ToastrService } from 'ngx-toastr';
+import { OverlayFilterBoxComponent } from '../../../components/shared/overlay-filter-box/overlay-filter-box.component';
 import { JobItem } from '../../models/job-listing.model';
 
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink, FormsModule, OverlayFilterBoxComponent],
   templateUrl: './job-details.component.html',
   styleUrl: './job-details.component.css'
 })
 export class JobDetailsComponent implements OnInit {
+  @ViewChild('feedbackBox') feedbackBox!: OverlayFilterBoxComponent;
+
   private route = inject(ActivatedRoute);
   router = inject(Router);
   private jobBoardService = inject(ClientJobBoardService);
   private metaTagsService = inject(MetaTagsService);
+  private jobOpeningsService = inject(JobOpeningsService);
+  private toastr = inject(ToastrService);
 
   jobId: string | null = null;
   job: JobItem | null = null;
@@ -25,6 +32,12 @@ export class JobDetailsComponent implements OnInit {
   jobTitle: string = '';
   relatedJobs: JobItem[] = [];
   isLoadingRelated: boolean = false;
+
+  // Feedback form properties
+  rating: number | null = null;
+  comment: string = '';
+  submitting = false;
+  feedbackValidationErrors: { [key: string]: string } = {};
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -258,5 +271,72 @@ export class JobDetailsComponent implements OnInit {
         this.metaTagsService.updateJobMetaTags(null, jobTitle, job.job_description, job.id);
       }
     });
+  }
+
+  /**
+   * Open feedback modal
+   */
+  openFeedbackModal(): void {
+    this.resetFeedbackForm();
+    this.feedbackBox.openOverlay();
+  }
+
+  /**
+   * Reset feedback form
+   */
+  resetFeedbackForm(): void {
+    this.rating = null;
+    this.comment = '';
+    this.feedbackValidationErrors = {};
+  }
+
+  /**
+   * Submit feedback
+   */
+  submitFeedback(): void {
+    this.feedbackValidationErrors = {};
+    let hasErrors = false;
+
+    if (this.rating == null || this.rating < 0 || this.rating > 10) {
+      this.feedbackValidationErrors['rating'] = 'Please provide a rating between 0 and 10';
+      hasErrors = true;
+    }
+
+    if (!this.comment || this.comment.trim() === '') {
+      this.feedbackValidationErrors['comment'] = 'Please provide your feedback';
+      hasErrors = true;
+    }
+
+    if (hasErrors || !this.job?.id) {
+      return;
+    }
+
+    this.submitting = true;
+    this.jobOpeningsService.addApplicationFeedback(this.job.id, this.rating!, this.comment || '').subscribe({
+      next: () => {
+        this.submitting = false;
+        this.toastr.success('Feedback submitted successfully');
+        this.closeFeedbackOverlay();
+        this.resetFeedbackForm();
+      },
+      error: (error) => {
+        this.submitting = false;
+        this.toastr.error(error.error?.message || 'Failed to submit feedback');
+      }
+    });
+  }
+
+  /**
+   * Close feedback overlay
+   */
+  closeFeedbackOverlay(): void {
+    this.feedbackBox?.closeOverlay();
+  }
+
+  /**
+   * Clear validation error
+   */
+  clearFeedbackValidationError(field: string): void {
+    delete this.feedbackValidationErrors[field];
   }
 }

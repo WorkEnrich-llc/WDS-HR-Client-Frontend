@@ -12,19 +12,19 @@ To display the network status banner across your entire application, add the `Ne
 
 ```typescript
 // app.component.ts
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NetworkStatusComponent } from './components/shared/network-status/network-status.component';
+import { Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
+import { NetworkStatusComponent } from "./components/shared/network-status/network-status.component";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [RouterOutlet, NetworkStatusComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {
-  title = 'WDS-HR-Client-Frontend';
+  title = "WDS-HR-Client-Frontend";
 }
 ```
 
@@ -65,7 +65,7 @@ import { ErrorHandlingDemoComponent } from './components/shared/error-handling-d
 
 @Component({
   // ...
-  imports: [CommonModule, ErrorHandlingDemoComponent],
+  imports: [ErrorHandlingDemoComponent],
   // ...
 })
 ```

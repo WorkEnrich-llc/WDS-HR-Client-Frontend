@@ -2,29 +2,38 @@
 <app-page-header [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
-    { label: ('Opening ' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
+    { label: ('Opening ' + ((applicationDetails?.job_title?.name || applicationDetails?.application?.job_title?.name || applicationDetails?.application?.job) ?? applicationDetails?.job ?? '')), link: ('/job-openings/view-job-openings/' + (applicationDetails?.application?.job ?? applicationDetails?.job ?? '')) },
     {  label: 'View Applicant'}
   ]" title="Applicant {{ applicantDetails?.name || '...' }}" [isApplied]="true"
   create="{{ applicantDetails?.created_at | date:'dd/MM/yyyy' }}"
   update="{{ applicantDetails?.updated_at | date:'dd/MM/yyyy' }}">
   @if (!isNewJoiner && !isRejected) {
-    <button class="btn btn-lg btn-outline-danger" (click)="openRejectOverlay()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path fill="currentColor" fill-rule="evenodd"
-          d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-        <path fill="currentColor" fill-rule="evenodd" fill-rule="evenodd"
-          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-          clip-rule="evenodd" />
-      </svg>
-      <span>Reject</span>
-    </button>
+  <button class="btn btn-lg btn-outline-danger" (click)="openRejectOverlay()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor" fill-rule="evenodd"
+        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+      <path fill="currentColor" fill-rule="evenodd" fill-rule="evenodd"
+        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+        clip-rule="evenodd" />
+    </svg>
+    <span>Reject</span>
+  </button>
   }
-  <button class="btn btn-lg btn-dark">
+  <button class="btn btn-lg btn-dark" (click)="goToNextApplication()" [disabled]="isNextApplicationLoading">
+    @if (isNextApplicationLoading) {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" class="spinner">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" opacity="0.2" />
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+        stroke="currentColor" stroke-width="2" fill="none" />
+    </svg>
+    } @else {
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor" fill-rule="evenodd"
         d="M13.47 5.47a.75.75 0 0 1 1.06 0l6 6a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 1 1-1.06-1.06l4.72-4.72H4a.75.75 0 0 1 0-1.5h14.19l-4.72-4.72a.75.75 0 0 1 0-1.06"
         clip-rule="evenodd" />
     </svg>
+    }
     <span>Next</span>
   </button>
 </app-page-header>
@@ -33,86 +42,670 @@
 <!-- page content -->
 <div class="content-hug d-flex flex-column gap-4">
   @if (isLoading) {
-    <!-- Skeletons while applicant details are loading -->
-    <div class="row g-4">
-      <div class="col-lg-8">
-        <div class="content-box d-flex flex-column gap-3">
-          @for (i of [1,2,3,4,5,6,7,8]; track i) {
-            <div class="placeholder-glow">
-              <div class="info">
-                <h6 class="placeholder col-4"></h6>
-                <span class="placeholder col-8"></span>
-              </div>
-            </div>
-          }
+  <!-- Skeletons while applicant details are loading -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="content-box d-flex flex-column gap-3">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="placeholder-glow">
+          <div class="info">
+            <h6 class="placeholder col-4"></h6>
+            <span class="placeholder col-8"></span>
+          </div>
         </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="content-box d-flex flex-column gap-3">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="placeholder-glow">
-              <div class="info">
-                <h6 class="placeholder col-5"></h6>
-                <span class="placeholder col-7"></span>
-              </div>
-            </div>
-          }
-        </div>
+        }
       </div>
     </div>
+    <div class="col-lg-4">
+      <div class="content-box d-flex flex-column gap-3">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="placeholder-glow">
+          <div class="info">
+            <h6 class="placeholder col-5"></h6>
+            <span class="placeholder col-7"></span>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
 
-    <div class="row g-4">
-      <div class="col-lg-4">
-        <div class="content-box d-flex flex-column gap-3">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="placeholder-glow">
-              <div class="info">
-                <h6 class="placeholder col-6"></h6>
-                <span class="placeholder col-6"></span>
-              </div>
-            </div>
-          }
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="content-box d-flex flex-column gap-3">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="placeholder-glow">
+          <div class="info">
+            <h6 class="placeholder col-6"></h6>
+            <span class="placeholder col-6"></span>
+          </div>
         </div>
-      </div>
-      <div class="col-lg-8">
-        <div class="content-box d-flex flex-column gap-3">
-          @for (i of [1,2,3,4,5,6]; track i) {
-            <div class="placeholder-glow">
-              <div class="info">
-                <h6 class="placeholder col-3"></h6>
-                <span class="placeholder col-9"></span>
-              </div>
-            </div>
-          }
-        </div>
+        }
       </div>
     </div>
+    <div class="col-lg-8">
+      <div class="content-box d-flex flex-column gap-3">
+        @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="placeholder-glow">
+          <div class="info">
+            <h6 class="placeholder col-3"></h6>
+            <span class="placeholder col-9"></span>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
   } @else {
-    <!-- Actual content once loaded -->
-    <div class="row g-4">
-      <div class="col-lg-8">
-        <app-cv [applicant]="applicantDetails" [cvUrl]="getCvUrlFromApplication()"></app-cv>
+  <!-- Actual content once loaded -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Applicant Card -->
+      <div class="content-box d-flex flex-column gap-3 w-100 h-100">
+        <h2>Applicant</h2>
+        <div class="d-flex align-items-center gap-3">
+          <div class="rate">
+            <span>{{ getEvaluationScore() | number: '1.1-1' }}</span>/<span>{{ getMaxScore() }}</span>
+          </div>
+          <div class="name d-flex flex-column">
+            <h4>{{ applicantDetails?.name || '...' }}</h4>
+            <h6>Applied at <span>{{ applicantDetails?.created_at | date:'dd/MM/yyyy' }}</span></h6>
+          </div>
+
+        </div>
       </div>
-      <div class="col-lg-4">
-        <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
+    </div>
+    <div class="col-lg-4 d-flex flex-column gap-4">
+      <app-interview [applicant]="applicantDetails" [applicationId]="applicationId"
         [applicationDetails]="applicationDetails" (applicationRefreshed)="refreshApplication()"></app-interview>
-      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4 d-flex flex-column gap-4">
+      <app-attachment-and-info [applicant]="applicantDetails"
+        [application]="applicationDetails"></app-attachment-and-info>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-4">
-        <app-attachment-and-info [applicant]="applicantDetails"
-        [application]="applicationDetails"></app-attachment-and-info>
-      </div>
-      <div class="col-lg-8">
-        <app-feedback [applicant]="applicantDetails" [feedbacks]="feedbacks" [applicationId]="applicationId"
-        [applicationStatus]="applicantDetails?.status" (feedbackAdded)="fetchFeedbacks()"></app-feedback>
+    <div class="col-lg-8">
+      <!-- Tabs Section -->
+      <div class="content-box d-flex flex-column w-100" style="padding-top: 0 !important;">
+        <!-- Tab Navigation -->
+        <ul class="nav d-flex align-items-center nav-tabs bg-white"
+          style="margin-left: -20px; margin-right: -20px; margin-bottom: 24px; border-radius: 1.56rem 1.56rem 0 0;">
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'cv' }" (click)="setCurrentTab('cv')"
+            style="border-radius: 1.56rem 0 0 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path opacity="0.3"
+                d="M2.25 7.5C2.25 4.67157 2.25 3.25736 3.12868 2.37868C4.00736 1.5 5.42157 1.5 8.25 1.5H9.75C12.5784 1.5 13.9926 1.5 14.8713 2.37868C15.75 3.25736 15.75 4.67157 15.75 7.5V10.5C15.75 13.3284 15.75 14.7426 14.8713 15.6213C13.9926 16.5 12.5784 16.5 9.75 16.5H8.25C5.42157 16.5 4.00736 16.5 3.12868 15.6213C2.25 14.7426 2.25 13.3284 2.25 10.5V7.5Z"
+                fill="#4A6D97" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M5.4375 9C5.4375 8.68934 5.68934 8.4375 6 8.4375H12C12.3107 8.4375 12.5625 8.68934 12.5625 9C12.5625 9.31066 12.3107 9.5625 12 9.5625H6C5.68934 9.5625 5.4375 9.31066 5.4375 9Z"
+                fill="#4A6D97" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M5.4375 6C5.4375 5.68934 5.68934 5.4375 6 5.4375H12C12.3107 5.4375 12.5625 5.68934 12.5625 6C12.5625 6.31066 12.3107 6.5625 12 6.5625H6C5.68934 6.5625 5.4375 6.31066 5.4375 6Z"
+                fill="#4A6D97" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M5.4375 12C5.4375 11.6893 5.68934 11.4375 6 11.4375H9.75C10.0607 11.4375 10.3125 11.6893 10.3125 12C10.3125 12.3107 10.0607 12.5625 9.75 12.5625H6C5.68934 12.5625 5.4375 12.3107 5.4375 12Z"
+                fill="#4A6D97" />
+            </svg>
+            <span class="nav-link">CV</span>
+          </li>
+
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'feedback' }" (click)="setCurrentTab('feedback')">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_1574_10217)">
+                <path opacity="0.3"
+                  d="M15.75 11.9987V7.4987C15.75 5.37738 15.75 4.31672 15.091 3.65771C14.5147 3.08142 13.6313 3.00908 12 3H6C4.36873 3.00908 3.4853 3.08142 2.90901 3.65771C2.25 4.31672 2.25 5.37738 2.25 7.4987V11.9987C2.25 14.12 2.25 15.1807 2.90901 15.8397C3.56802 16.4987 4.62868 16.4987 6.75 16.4987H11.25C13.3713 16.4987 14.432 16.4987 15.091 15.8397C15.75 15.1807 15.75 14.12 15.75 11.9987Z"
+                  fill="#377AFD" />
+                <path
+                  d="M6 2.625C6 2.00368 6.50368 1.5 7.125 1.5H10.875C11.4963 1.5 12 2.00368 12 2.625V3.375C12 3.99632 11.4963 4.5 10.875 4.5H7.125C6.50368 4.5 6 3.99632 6 3.375V2.625Z"
+                  fill="#377AFD" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M4.6875 7.875C4.6875 7.56434 4.93934 7.3125 5.25 7.3125H12.75C13.0607 7.3125 13.3125 7.56434 13.3125 7.875C13.3125 8.18566 13.0607 8.4375 12.75 8.4375H5.25C4.93934 8.4375 4.6875 8.18566 4.6875 7.875ZM5.4375 10.5C5.4375 10.1893 5.68934 9.9375 6 9.9375H12C12.3107 9.9375 12.5625 10.1893 12.5625 10.5C12.5625 10.8107 12.3107 11.0625 12 11.0625H6C5.68934 11.0625 5.4375 10.8107 5.4375 10.5ZM6.1875 13.125C6.1875 12.8143 6.43934 12.5625 6.75 12.5625H11.25C11.5607 12.5625 11.8125 12.8143 11.8125 13.125C11.8125 13.4357 11.5607 13.6875 11.25 13.6875H6.75C6.43934 13.6875 6.1875 13.4357 6.1875 13.125Z"
+                  fill="#377AFD" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1574_10217">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span class="nav-link">Feedback</span>
+          </li>
+
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'assignments' }"
+            (click)="setCurrentTab('assignments')">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_1574_10225)">
+                <path opacity="0.3"
+                  d="M9 3.91046C8.48721 3.91046 8.20696 3.78948 7.71169 3.65658C6.70358 3.38606 6.03691 2.82322 5.25 2.61557C4.58512 2.44012 3.71908 2.35116 2.9868 2.30615C2.16473 2.25563 1.5 2.92471 1.5 3.74834V12.1077C1.5 12.9409 2.17953 13.6151 3.01114 13.6671C3.73821 13.7126 4.59247 13.8015 5.25 13.975C5.61447 14.0712 6.16212 14.2984 6.65471 14.5194C7.40814 14.8575 8.0354 15.2944 9 15.2944C9.9646 15.2944 10.5919 14.8575 11.3453 14.5194C11.8379 14.2984 12.3855 14.0712 12.75 13.975C13.4075 13.8015 14.2618 13.7126 14.9889 13.6671C15.8205 13.6151 16.5 12.9409 16.5 12.1077V3.74834C16.5 2.92471 15.8353 2.25563 15.0132 2.30615C14.2809 2.35116 13.4149 2.44012 12.75 2.61557C11.9631 2.82322 11.2964 3.38606 10.2883 3.65658C9.79304 3.78948 9.51279 3.91046 9 3.91046Z"
+                  fill="#4A6D97" />
+                <path
+                  d="M3.20443 9.61371C3.27977 9.31232 3.58517 9.12908 3.88656 9.20443L6.88656 9.95443C7.18794 10.0298 7.37118 10.3352 7.29584 10.6366C7.22049 10.9379 6.91509 11.1212 6.61371 11.0458L3.61371 10.2958C3.31232 10.2205 3.12908 9.91509 3.20443 9.61371Z"
+                  fill="#4A6D97" />
+                <path
+                  d="M3.88656 6.20443C3.58517 6.12908 3.27977 6.31232 3.20443 6.61371C3.12908 6.91509 3.31232 7.22049 3.61371 7.29584L6.61371 8.04584C6.91509 8.12118 7.22049 7.93794 7.29584 7.63656C7.37118 7.33517 7.18794 7.02977 6.88656 6.95443L3.88656 6.20443Z"
+                  fill="#4A6D97" />
+                <path
+                  d="M14.7956 9.61371C14.7202 9.31232 14.4148 9.12908 14.1134 9.20443L11.1134 9.95443C10.8121 10.0298 10.6288 10.3352 10.7042 10.6366C10.7795 10.9379 11.0849 11.1212 11.3863 11.0458L14.3863 10.2958C14.6877 10.2205 14.8709 9.91509 14.7956 9.61371Z"
+                  fill="#4A6D97" />
+                <path
+                  d="M14.1134 6.20443C14.4148 6.12908 14.7202 6.31232 14.7956 6.61371C14.8709 6.91509 14.6877 7.22049 14.3863 7.29584L11.3863 8.04584C11.0849 8.12118 10.7795 7.93794 10.7042 7.63656C10.6288 7.33517 10.8121 7.02977 11.1134 6.95443L14.1134 6.20443Z"
+                  fill="#4A6D97" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1574_10225">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span class="nav-link">Assignments</span>
+          </li>
+
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'previous-applications' }"
+            (click)="setCurrentTab('previous-applications')">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_1574_10232)">
+                <path opacity="0.3"
+                  d="M9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5Z"
+                  fill="#4A6D97" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M9 5.4375C9.31066 5.4375 9.5625 5.68934 9.5625 6V8.767L11.2727 10.4773C11.4924 10.6969 11.4924 11.0531 11.2727 11.2727C11.0531 11.4924 10.6969 11.4924 10.4773 11.2727L8.60225 9.39775C8.49676 9.29226 8.4375 9.14918 8.4375 9V6C8.4375 5.68934 8.68934 5.4375 9 5.4375Z"
+                  fill="#4A6D97" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1574_10232">
+                  <rect width="18" height="18" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span class="nav-link">Previous Applications</span>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          @if (currentTab === 'cv') {
+          <div class="cv-tab">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="m-0" style="font-size: 24px; font-weight: 500; color: #1d2433;">CV</h2>
+              <div class="btns d-flex gap-2 align-items-center ms-auto">
+                <button class="btn btn-lg btn-outline-dark border-0 w-auto" (click)="downloadCv()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path fill="currentColor" fill-rule="evenodd"
+                      d="M12 1.25a.75.75 0 0 1 .75.75v10.973l1.68-1.961a.75.75 0 1 1 1.14.976l-3 3.5a.75.75 0 0 1-1.14 0l-3-3.5a.75.75 0 1 1 1.14-.976l1.68 1.96V2a.75.75 0 0 1 .75-.75M6.996 8.252a.75.75 0 0 1 .008 1.5c-1.093.006-1.868.034-2.457.142c-.566.105-.895.272-1.138.515c-.277.277-.457.666-.556 1.4c-.101.755-.103 1.756-.103 3.191v1c0 1.436.002 2.437.103 3.192c.099.734.28 1.122.556 1.4c.277.276.665.456 1.4.555c.754.102 1.756.103 3.191.103h8c1.435 0 2.436-.001 3.192-.103c.734-.099 1.122-.279 1.399-.556s.457-.665.556-1.399c.101-.755.103-1.756.103-3.192v-1c0-1.435-.002-2.436-.103-3.192c-.099-.733-.28-1.122-.556-1.399c-.244-.243-.572-.41-1.138-.515c-.589-.108-1.364-.136-2.457-.142a.75.75 0 1 1 .008-1.5c1.082.006 1.983.032 2.72.167c.758.14 1.403.405 1.928.93c.602.601.86 1.36.982 2.26c.116.866.116 1.969.116 3.336v1.11c0 1.368 0 2.47-.116 3.337c-.122.9-.38 1.658-.982 2.26s-1.36.86-2.26.982c-.867.116-1.97.116-3.337.116h-8.11c-1.367 0-2.47 0-3.337-.116c-.9-.121-1.658-.38-2.26-.982s-.86-1.36-.981-2.26c-.117-.867-.117-1.97-.117-3.337v-1.11c0-1.367 0-2.47.117-3.337c.12-.9.38-1.658.981-2.26c.525-.524 1.17-.79 1.928-.929c.737-.135 1.638-.161 2.72-.167"
+                      clip-rule="evenodd" />
+                  </svg>
+                  <span>Download CV</span>
+                </button>
+              </div>
+            </div>
+            @if (getCvUrlFromApplication()) {
+            <div style="height: 580px;" class="pdf-scrollbar">
+              <ngx-doc-viewer [url]="getCvUrlFromApplication()!" viewer="google" style="height:100%;width:100%">
+              </ngx-doc-viewer>
+            </div>
+            } @else {
+            <div class="d-flex align-items-center justify-content-center text-muted py-5">
+              <span>No CV available.</span>
+            </div>
+            }
+          </div>
+          }
+
+          @if (currentTab === 'feedback') {
+          <div class="feedback-tab">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="m-0" style="font-size: 24px; font-weight: 500; color: #1d2433;">Feedback</h2>
+              @if (canAddFeedback()) {
+              <a type="button" class="d-flex align-items-center gap-2"
+                style="color: #377afd; cursor: pointer; font-weight: 500; font-size: 16px; text-decoration: none;"
+                (click)="feedbackOverlay.openOverlay()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                  </g>
+                </svg>
+                <span>Add Feedback</span>
+              </a>
+              }
+            </div>
+
+            @if (isFeedbackLoading) {
+            <!-- Skeleton loader while feedback is loading -->
+            <div class="feedbacks d-flex flex-column gap-4">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow" style="padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <div style="min-width: 60px;">
+                    <span class="placeholder"
+                      style="width: 35px; height: 28px; display: inline-block; margin-right: 2px; border-radius: 6px;"></span><span
+                      class="placeholder"
+                      style="width: 25px; height: 28px; display: inline-block; border-radius: 6px;"></span>
+                  </div>
+                  <div style="flex: 1;">
+                    <h6 class="placeholder col-3 mb-2"></h6>
+                    <h5 class="placeholder col-5"></h5>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 ms-auto" style="white-space: nowrap;">
+                    <span class="placeholder col-4" style="height: 16px;"></span>
+                    <span class="placeholder col-3" style="height: 16px;"></span>
+                  </div>
+                </div>
+                <p class="placeholder col-12" style="height: 20px;"></p>
+                <p class="placeholder col-10" style="height: 20px;"></p>
+              </div>
+              }
+            </div>
+            } @else {
+            <div class="feedbacks d-flex flex-column gap-4">
+              @if (feedbacks.length) {
+              @for (f of feedbacks; track f.id) {
+              <div class="feed" style="padding-bottom: 24px; border-bottom: 1px solid #e2e8f0;">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  @if (f?.rating != null) {
+                  <div class="rate">
+                    <span>{{ f?.rating | number: '1.1-1' }}</span>/<span>{{ getMaxScore() }}</span>
+                  </div>
+                  }
+                  <div>
+                    <h6 class="mb-1" style="font-size: 16px; font-weight: 400; color: #4a5568; margin: 0 0 4px 0;">{{
+                      f?.title || 'Feedback' }}</h6>
+                    <h5 class="m-0" style="font-size: 18px; font-weight: 600; color: #1d2433;">{{ f?.created_by ||
+                      f?.reviewer?.name || '—' }}</h5>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 ms-auto" style="white-space: nowrap;">
+                    <span style="font-size: 16px; color: #1d2433;">{{ (f?.created_at | date:'dd/MM/yyyy') || ''
+                      }}</span>
+                    <span style="font-size: 16px; color: #8091a7;">{{ (f?.created_at | date:'h:mm a') || '' }}</span>
+                  </div>
+                </div>
+                <p class="m-0" style="font-size: 16px; color: #4a5568; line-height: 1.8;">{{ f?.comment || f?.notes ||
+                  '' }}</p>
+              </div>
+              }
+              } @else {
+              <div class="text-muted">No feedback yet.</div>
+              }
+            </div>
+            }
+          </div>
+          }
+
+          @if (currentTab === 'assignments') {
+          <div class="assignments-tab">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="m-0" style="font-size: 24px; font-weight: 500; color: #1d2433;">Assignments</h2>
+              <a type="button" class="d-flex align-items-center gap-2"
+                style="color: #377afd; cursor: pointer; font-weight: 500; font-size: 16px; text-decoration: none;"
+                (click)="openAssignmentSelection()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                  </g>
+                </svg>
+                <span>New Assignment</span>
+              </a>
+            </div>
+
+            @if (isAssignmentsLoading) {
+            <!-- Skeleton loader while assignments are loading -->
+            <div class="d-flex flex-column">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow assignment-card">
+                <div class="d-flex align-items-start justify-content-between">
+                  <div class="assignment-left-content">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <span class="placeholder col-6" style="height: 22px; border-radius: 6px;"></span>
+                      <span class="placeholder" style="width: 17px; height: 17px; border-radius: 4px;"></span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <span class="placeholder" style="width: 16px; height: 16px; border-radius: 50%;"></span>
+                      <span class="placeholder col-5" style="height: 16px; border-radius: 4px;"></span>
+                    </div>
+                    <span class="placeholder col-4" style="height: 14px; border-radius: 4px;"></span>
+                  </div>
+                  <div class="assignment-right-content">
+                    <span class="placeholder" style="width: 120px; height: 16px; border-radius: 4px;"></span>
+                    <span class="placeholder" style="width: 100px; height: 36px; border-radius: 6px;"></span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            } @else if (assignments.length > 0) {
+            <div class="d-flex flex-column gap-3">
+              @for (item of assignments; track item.id) {
+              <div class="assignment-card">
+                <div class="d-flex align-items-start justify-content-between">
+                  <div class="assignment-left-content">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <h3 class="assignment-title">{{ item.assignment?.name || 'Assignment' }}</h3>
+                      <a [routerLink]="['/assignments', item.assignment?.id]" class="assignment-link-icon">
+                        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M8.0625 1.58656e-07H8.01947C6.28817 -9.4973e-06 4.93139 -1.71438e-05 3.87278 0.14231C2.78923 0.28799 1.93421 0.591995 1.2631 1.2631C0.591995 1.93421 0.28799 2.78923 0.14231 3.87278C-1.71438e-05 4.93139 -9.4973e-06 6.28817 1.58654e-07 8.01947V8.10553C-9.4973e-06 9.83683 -1.71438e-05 11.1936 0.14231 12.2522C0.28799 13.3358 0.591995 14.1908 1.2631 14.8619C1.93421 15.533 2.78923 15.837 3.87278 15.9827C4.9314 16.125 6.28817 16.125 8.01947 16.125H8.10553C9.83683 16.125 11.1936 16.125 12.2522 15.9827C13.3358 15.837 14.1908 15.533 14.8619 14.8619C15.533 14.1908 15.837 13.3358 15.9827 12.2522C16.125 11.1936 16.125 9.83683 16.125 8.10553V8.0625C16.125 7.75184 15.8732 7.5 15.5625 7.5C15.2518 7.5 15 7.75184 15 8.0625C15 9.84617 14.9988 11.1273 14.8677 12.1023C14.7388 13.0611 14.4936 13.6392 14.0664 14.0664C13.6392 14.4936 13.0611 14.7388 12.1023 14.8677C11.1273 14.9988 9.84617 15 8.0625 15C6.27883 15 4.99767 14.9988 4.02268 14.8677C3.06388 14.7388 2.48584 14.4936 2.0586 14.0664C1.63136 13.6392 1.38619 13.0611 1.25728 12.1023C1.12619 11.1273 1.125 9.84617 1.125 8.0625C1.125 6.27883 1.12619 4.99767 1.25728 4.02268C1.38619 3.06388 1.63136 2.48584 2.0586 2.0586C2.48584 1.63136 3.06388 1.38619 4.02268 1.25728C4.99767 1.12619 6.27883 1.125 8.0625 1.125C8.37316 1.125 8.625 0.87316 8.625 0.5625C8.625 0.25184 8.37316 1.58656e-07 8.0625 1.58656e-07Z"
+                            fill="#377AFD" />
+                          <path
+                            d="M8.41475 6.91475C8.19508 7.13442 8.19508 7.49058 8.41475 7.71025C8.63442 7.92992 8.99058 7.92992 9.21025 7.71025L15 1.9205V4.57031C15 4.88097 15.2518 5.13281 15.5625 5.13281C15.8732 5.13281 16.125 4.88097 16.125 4.57031V0.5625C16.125 0.25184 15.8732 1.58656e-07 15.5625 1.58656e-07H11.5547C11.244 1.58656e-07 10.9922 0.25184 10.9922 0.5625C10.9922 0.87316 11.244 1.125 11.5547 1.125H14.2045L8.41475 6.91475Z"
+                            fill="#377AFD" />
+                        </svg>
+
+                      </a>
+                    </div>
+
+                    @if (item.status === 'Pending' && !item.submitted_at) {
+                    <div class="d-flex align-items-center gap-2 assignment-status-row mt-4">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+                          fill="#4A6D97" />
+                      </svg>
+
+                      <span class="assignment-status-text">Assignment sent to Applicant</span>
+                    </div>
+                    } @else if (item.submitted_at && item.total_score === 0) {
+                    <div class="d-flex align-items-center gap-2 assignment-status-row">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 6v6l4 2"></path>
+                      </svg>
+                      <span class="assignment-status-pending">Pending Review</span>
+                    </div>
+                    <div class="assignment-questions-count">
+                      {{ item.applicant_answers?.length || 0 }} Questions
+                    </div>
+                    } @else if (item.submitted_at && item.total_score > 0) {
+                    <div class="d-flex align-items-center gap-2 assignment-status-row">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                      <span class="assignment-status-reviewed">Assignment Reviewed</span>
+                    </div>
+                    <div class="assignment-score">
+                      {{ item.total_score }}/{{ item.max_score }}
+                    </div>
+                    }
+                  </div>
+
+                  <div class="assignment-right-content">
+                    <div class="assignment-date">{{ item.assigned_at | date:'dd/MM/yyyy h:mm a' }}</div>
+
+                    @if (item.status === 'Pending' && !item.submitted_at) {
+                    <button type="button" class="btn btn-outline-secondary">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+                          fill="#4A6D97" />
+                      </svg>
+
+                      Resend Mail
+                    </button>
+                    } @else if (item.submitted_at) {
+                    <button type="button" class="btn btn-review">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                      Review Answers
+                    </button>
+                    }
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            } @else {
+            <div class="text-muted text-center py-5">
+              No assignments available yet.
+            </div>
+            }
+          </div>
+          }
+
+          @if (currentTab === 'previous-applications') {
+          <div class="previous-applications-tab">
+            <h2 class="m-0 mb-3" style="font-size: 24px; font-weight: 500; color: #1d2433;">Previous Applications</h2>
+
+            @if (isApplicationsLoading) {
+            <!-- Skeleton loader while applications are loading -->
+            <div class="d-flex flex-column gap-3">
+              @for (i of [1,2,3]; track i) {
+              <div class="previous-app-item placeholder-glow">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <h6 class="placeholder col-4"></h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="placeholder col-3" style="height: 16px;"></span>
+                    <span class="placeholder col-1" style="width: 24px; height: 24px;"></span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="placeholder col-3" style="height: 32px; border-radius: 6px;"></span>
+                </div>
+              </div>
+              }
+            </div>
+            } @else if (applicantApplications.length > 0) {
+            <div class="d-flex flex-column gap-3">
+              @for (app of applicantApplications; track app.application.id) {
+              <div class="previous-app-item">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <h6 class="mb-0" style="font-size: 16px; font-weight: 600; color: #2c435d">
+                    {{ app.job_title?.name || 'N/A' }}
+                  </h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-1" style="white-space: nowrap;">
+                      <span style="font-size: 16px; color: #1d2433;">{{ (app.application.created_at | date:'dd/MM/yyyy')
+                        || '' }}</span>
+                      <span style="font-size: 16px; color: #8091a7;">{{ (app.application.created_at | date:'h:mm a') ||
+                        '' }}</span>
+                    </div>
+                    @if (app.application.id !== applicationId) {
+                    <a [routerLink]="['/job-openings/view-applicant-details', app.application.id]" class="text-primary"
+                      style="cursor: pointer" title="View Application">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_1271_19239)">
+                          <path
+                            d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
+                            fill="#377AFD" />
+                          <path
+                            d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
+                            fill="#377AFD" />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_1271_19239">
+                            <rect width="18" height="18" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </a>
+                    }
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                  @switch (app.application.status) {
+                  @case ('Applicant') {
+                  <div class="badge-gray">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Applicant</span>
+                  </div>
+                  }
+                  @case ('Candidate') {
+                  <div class="badge-newjoiner">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
+                        clip-rule="evenodd" />
+                      <path fill="currentColor"
+                        d="M18.856 16.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 1 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016" />
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M13.91 21.608c-.61.093-1.251.142-1.91.142c-2.04 0-3.922-.47-5.322-1.27C5.3 19.692 4.25 18.49 4.25 17s1.05-2.692 2.428-3.48c1.4-.8 3.283-1.27 5.322-1.27c1.805 0 3.483.368 4.812 1.004q.093-.004.188-.004a4.75 4.75 0 1 1-3.09 8.358M13.75 18a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m.668-3.987A4.75 4.75 0 0 0 12.25 18c0 .803.2 1.56.55 2.222q-.393.028-.8.028c-1.827 0-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17s.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073c.861 0 1.677.094 2.418.263"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Candidate</span>
+                  </div>
+                  }
+                  @case ('Interviewee') {
+                  <div class="badge-newemployee">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path
+                          d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                        <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                        <circle cx="16.5" cy="16.5" r="1.5" />
+                        <path stroke-linecap="round" d="M2.5 9h19" />
+                      </g>
+                    </svg>
+                    <span>Interviewee</span>
+                  </div>
+                  }
+                  @case ('Job Offer Sent') {
+                  <div class="badge-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Job Offer Sent</span>
+                  </div>
+                  }
+                  @case ('New Joiner') {
+                  <div class="badge-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor"
+                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>New Joiner</span>
+                  </div>
+                  }
+                  @case ('Accepted') {
+                  <div class="badge-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor"
+                        d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Accepted</span>
+                  </div>
+                  }
+                  @case ('Rejected') {
+                  <div class="badge-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Rejected</span>
+                  </div>
+                  }
+                  @case ('Not Selected') {
+                  <div class="badge-gray">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>Not Selected</span>
+                  </div>
+                  }
+                  @default {
+                  <div class="badge-gray">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                      <path fill="currentColor" fill-rule="evenodd"
+                        d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <span>{{ app.application.status || 'Applicant' }}</span>
+                  </div>
+                  }
+                  }
+
+                  @if (app.applicant?.evaluation?.average_score) {
+                  <div class="score-badge">
+                    <span>{{ app.applicant.evaluation.average_score }}/10</span>
+                  </div>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+            } @else {
+            <div class="text-muted text-center py-4">
+              No previous applications found.
+            </div>
+            }
+          </div>
+          }
+        </div>
       </div>
     </div>
+  </div>
   }
 </div>
 
 
+
+<!-- add feedback modal -->
+<app-overlay-filter-box #feedbackOverlay title="Add Feedback">
+  <form class="w-100 d-flex flex-column gap-2" (ngSubmit)="submitFeedback()">
+    <div class="info feedback">
+      <h6 class="text-muted small">Overall Evaluation</h6>
+      <span><span>{{ feedbackRating || 0 }}</span> Out of 10</span>
+    </div>
+    <div class="input">
+      <label for="evelouation">Candidate Evaluation</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="evelouation" name="rating" class="form-control" placeholder="Out of 10"
+            [(ngModel)]="feedbackRating" min="0" max="10" step="0.1" />
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="feedback">The Feedback</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <textarea type="text" id="feedback" name="comment" class="form-control" [(ngModel)]="feedbackComment"
+            placeholder="Enter notes and feedback"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isFeedbackSubmitting || !applicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Add Feedback</span>
+      </button>
+    </div>
+  </form>
+</app-overlay-filter-box>
 
 <!-- Reject Applicant form -->
 <app-overlay-filter-box #filterBox title="Reject Applicant">
@@ -123,9 +716,8 @@
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
           <textarea type="text" id="notes" name="rejectionNotes" class="form-control"
-            placeholder="Enter notes for internal use"
-            [(ngModel)]="rejectionNotes"
-          (input)="onRejectFormChange()"></textarea>
+            placeholder="Enter notes for internal use" [(ngModel)]="rejectionNotes"
+            (input)="onRejectFormChange()"></textarea>
         </div>
       </div>
     </div>
@@ -134,19 +726,17 @@
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative">
           <textarea type="text" id="mail" name="rejectionMailMessage" class="form-control"
-            placeholder="Enter a message to be sent in mail"
-            [(ngModel)]="rejectionMailMessage"
-          (input)="onRejectFormChange()"></textarea>
+            placeholder="Enter a message to be sent in mail" [(ngModel)]="rejectionMailMessage"
+            (input)="onRejectFormChange()"></textarea>
         </div>
       </div>
       @if (rejectValidationErrors.rejectionMailMessage) {
-        <small class="text-danger">{{ rejectValidationErrors.rejectionMailMessage }}</small>
+      <small class="text-danger">{{ rejectValidationErrors.rejectionMailMessage }}</small>
       }
     </div>
     <div class="d-flex flex-column gap-2 mt-3">
       <div class="d-flex align-items-center gap-3">
-        <button type="submit" class="btn btn-lg btn-danger w-100"
-          [disabled]="isRejectSubmitting || !applicationId">
+        <button type="submit" class="btn btn-lg btn-danger w-100" [disabled]="isRejectSubmitting || !applicationId">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="currentColor"
               d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -163,4 +753,124 @@
     </div>
 
   </form>
+</app-overlay-filter-box>
+
+
+<!-- Assignment Selection Overlay -->
+<app-overlay-filter-box #assignmentSelectionOverlay title="Select Assignment">
+  <div class="w-100 d-flex flex-column gap-3">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="form-outline position-relative w-100">
+        <input type="text" class="form-control custom-date-input" placeholder="Search"
+          [(ngModel)]="assignmentSearchTerm" (input)="onAssignmentSearchInput()">
+        @if (assignmentSearchTerm) {
+        <!-- Clear search button -->
+        <button type="button" class="btn btn-sm btn-outline-secondary clear-search-btn"
+          (click)="assignmentSearchTerm = ''; onAssignmentSearchInput()" title="Clear search">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="11.5" cy="11.5" r="9.5" />
+            <path stroke-linecap="round" d="M18.5 18.5L22 22" />
+          </g>
+        </svg>
+        }
+      </div>
+    </div>
+
+    <!-- Assignments Table using shared component -->
+    <app-table [data]="availableAssignments" [totalItems]="assignmentTotalCount" [currentPage]="assignmentCurrentPage"
+      [itemsPerPage]="assignmentPageSize" [isLoading]="availableAssignmentsLoading" [columnsCount]="1"
+      [headerTemplate]="assignmentHeaderTemplate" [rowTemplate]="assignmentRowTemplate"
+      [emptyTemplate]="assignmentEmptyTemplate" [disablePagination]="true" (pageChange)="changeAssignmentPage($event)">
+    </app-table>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="text-muted">Showing {{ getPaginationInfo() }}</span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="assignmentCurrentPage === 1"
+          (click)="changeAssignmentPage(assignmentCurrentPage - 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15,18 9,12 15,6"></polyline>
+          </svg>
+        </button>
+        <button class="btn btn-sm btn-primary">{{ assignmentCurrentPage }}</button>
+        <button class="btn btn-sm btn-outline-secondary"
+          [disabled]="assignmentCurrentPage === getAssignmentTotalPages()"
+          (click)="changeAssignmentPage(assignmentCurrentPage + 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9,18 15,12 9,6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex align-items-center gap-3 mt-4">
+      <button type="button" class="btn btn-lg btn-primary w-100"
+        [disabled]="!selectedAssignmentId || isAssignmentSubmitting" (click)="confirmAssignmentSelection()">
+        @if (!isAssignmentSubmitting) {
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92563C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+            fill="#E0EBFF" />
+        </svg>
+        <span>Send Assignment</span>
+        }
+        @if (isAssignmentSubmitting) {
+        <div class="d-flex align-items-center gap-2">
+          <div class="loading-bubble"></div>
+          <div class="loading-bubble"></div>
+          <div class="loading-bubble"></div>
+        </div>
+        <span>Sending</span>
+        }
+      </button>
+      <button type="button" class="btn btn-lg btn-outline-dark border-0 w-100" [disabled]="isAssignmentSubmitting"
+        (click)="assignmentSelectionOverlay.closeOverlay()">
+        <span>Cancel</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Assignment table templates -->
+  <ng-template #assignmentHeaderTemplate>
+    <th colspan="1" class="assignment-header">
+      <div class="assignment-header-inner">
+        <span>Assignments</span>
+      </div>
+    </th>
+  </ng-template>
+
+  <ng-template #assignmentRowTemplate let-assignment>
+    <td colspan="1">
+      <div class="assignment-row d-flex align-items-start gap-3" (click)="toggleAssignmentSelection(assignment.id)">
+        <input type="radio" class="assignment-square-checkbox mt-1" [checked]="isAssignmentSelected(assignment.id)"
+          (click)="$event.stopPropagation(); toggleAssignmentSelection(assignment.id)">
+        <div class="d-flex flex-column">
+          <span class="assignment-id-label">{{ assignment?.id }}</span>
+          <span class="assignment-name-label">{{ assignment?.title || assignment?.name || 'N/A' }}</span>
+        </div>
+      </div>
+    </td>
+  </ng-template>
+
+  <ng-template #assignmentEmptyTemplate>
+    <tr>
+      <td colspan="1" class="text-center py-4">
+        <div class="empty-state">
+          <p class="text-muted mb-0">No assignments available.</p>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
 </app-overlay-filter-box>

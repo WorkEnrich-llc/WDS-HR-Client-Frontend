@@ -11,6 +11,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 @Component({
   selector: 'app-view-payroll-component',
   imports: [PageHeaderComponent, PopupComponent, RouterLink, DatePipe],
+  providers: [DatePipe],
   templateUrl: './view-payroll-component.component.html',
   styleUrl: './view-payroll-component.component.css'
 })

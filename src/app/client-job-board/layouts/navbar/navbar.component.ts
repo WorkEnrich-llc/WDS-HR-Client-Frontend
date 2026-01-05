@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { Router } from '@angular/router';
 
 export interface SocialMediaLinks {
   facebook?: string;
@@ -26,6 +27,12 @@ export class NavbarComponent {
   socialMediaLinks = input<SocialMediaLinks>({});
   websiteUrl = input<string | null>(null);
   showVisitWebsite = input<boolean>(true);
+
+  constructor(private router: Router) { }
+
+  navigateToCareers(): void {
+    this.router.navigate(['/careers']);
+  }
 
   hasSocialMedia(): boolean {
     const links = this.socialMediaLinks();

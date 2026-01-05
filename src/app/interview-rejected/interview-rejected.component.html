@@ -1,0 +1,155 @@
+<div class="interview-action-container">
+    <!-- Error Banner - If API Error -->
+    @if (errorMessage && !isSubmitted) {
+    <div class="error-banner" role="alert">
+        <svg class="error-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+        <span>{{ errorMessage }}</span>
+    </div>
+    }
+
+    <!-- Form State - Before Submission -->
+    @if (!isSubmitted) {
+    <div class="content-wrapper" role="main">
+        <div class="card-container">
+            <!-- Info SVG Illustration -->
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Interview declined">
+                    <!-- Info Circle Background -->
+                    <circle cx="200" cy="150" r="100" fill="#FEF3C7" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#F59E0B" />
+
+                    <!-- Info Icon -->
+                    <circle cx="200" cy="130" r="6" fill="white" />
+                    <rect x="197" y="145" width="6" height="35" rx="3" fill="white" />
+
+                    <!-- Decorative elements -->
+                    <circle cx="120" cy="80" r="8" fill="#F59E0B" opacity="0.4" />
+                    <circle cx="280" cy="100" r="12" fill="#F59E0B" opacity="0.3" />
+                    <circle cx="100" cy="200" r="10" fill="#F59E0B" opacity="0.4" />
+                    <circle cx="290" cy="220" r="8" fill="#F59E0B" opacity="0.3" />
+                </svg>
+            </div>
+
+            <!-- Title and Description -->
+            <div class="text-content">
+                <h1 class="main-title">Interview Declined</h1>
+                <p class="description">
+                    Hello <strong>{{ applicantName }}</strong>, we're sorry to hear you won't be able to attend the
+                    interview.
+                </p>
+                <p class="description-secondary">
+                    Could you please share your reason for declining? Your feedback helps us improve our recruitment
+                    process.
+                </p>
+            </div>
+
+            <!-- Rejection Reason Form -->
+            <form [formGroup]="rejectForm" (ngSubmit)="onSubmit()" class="reject-form">
+                <div class="form-group">
+                    <label for="reason" class="form-label">
+                        Reason for declining <span class="required">*</span>
+                    </label>
+                    <textarea id="reason" formControlName="reason" class="form-textarea"
+                        placeholder="Please provide a brief explanation (minimum 10 characters)..." rows="5"
+                        [class.error]="reason?.invalid && reason?.touched" aria-required="true"></textarea>
+
+                    @if (reason?.invalid && reason?.touched) {
+                    <div class="error-message">
+                        @if (reason?.errors?.['required']) {
+                        <small>Reason is required</small>
+                        }
+                        @if (reason?.errors?.['minlength']) {
+                        <small>Please provide at least 10 characters ({{ reason?.value?.length || 0 }}/10)</small>
+                        }
+                    </div>
+                    }
+
+                    @if (reason?.valid && reason?.value?.length >= 10) {
+                    <small class="text-success">
+                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Thank you for your feedback
+                    </small>
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-submit" [disabled]="isSubmitting || rejectForm.invalid"
+                    aria-label="Submit rejection reason">
+                    @if (isSubmitting) {
+                    <span class="loader"></span>
+                    <span>Submitting...</span>
+                    } @else {
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Submit Response</span>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+    }
+
+    <!-- Success State - After Submission -->
+    @if (isSubmitted) {
+    <div class="content-wrapper success-state" role="main">
+        <div class="card-container">
+            <!-- Success SVG Illustration -->
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Response submitted successfully">
+                    <!-- Success Circle Background -->
+                    <circle cx="200" cy="150" r="100" fill="#DBEAFE" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#3B82F6" />
+
+                    <!-- Large Checkmark -->
+                    <path d="M 160 150 L 185 175 L 240 120" stroke="white" stroke-width="12" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none" />
+
+                    <!-- Decorative elements -->
+                    <circle cx="120" cy="80" r="8" fill="#3B82F6" opacity="0.4" />
+                    <circle cx="280" cy="100" r="12" fill="#3B82F6" opacity="0.3" />
+                    <circle cx="100" cy="200" r="10" fill="#3B82F6" opacity="0.4" />
+                    <circle cx="290" cy="220" r="8" fill="#3B82F6" opacity="0.3" />
+
+                    <!-- Stars -->
+                    <path
+                        d="M 140 60 L 143 68 L 151 68 L 145 73 L 148 81 L 140 76 L 132 81 L 135 73 L 129 68 L 137 68 Z"
+                        fill="#3B82F6" opacity="0.5" />
+                    <path
+                        d="M 260 190 L 263 198 L 271 198 L 265 203 L 268 211 L 260 206 L 252 211 L 255 203 L 249 198 L 257 198 Z"
+                        fill="#3B82F6" opacity="0.5" />
+                </svg>
+            </div>
+
+            <!-- Success Message -->
+            <div class="text-content">
+                <h1 class="main-title success-title">Thank You for Your Response</h1>
+                <p class="description">
+                    We appreciate you taking the time to let us know and sharing your feedback with us.
+                </p>
+                <p class="description-secondary">
+                    Your input is valuable and helps us improve our recruitment process.
+                    We hope to have the opportunity to connect with you in the future. Best wishes in your job search!
+                </p>
+            </div>
+
+            <!-- Success Icon Badge -->
+            <div class="success-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Response Submitted</span>
+            </div>
+        </div>
+    </div>
+    }
+</div>

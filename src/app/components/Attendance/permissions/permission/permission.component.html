@@ -2,7 +2,8 @@
 <app-page-header [breadcrumbs]="[
    { label: 'Attendance', link: '/attendance' },
     { label: 'Permissions' }
-  ]" title="Permissions - Late arrive & Early leave & Shared Minutes">
+  ]"
+  [title]="permissions?.is_shared_minutes ? 'Permissions - Shared Minutes' : 'Permissions - Split Minutes (Early Leave & Late Arrive)'">
   <button (click)="overlay.openOverlay()" class="btn btn-lg btn-outline-dark w-auto">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -18,7 +19,17 @@
 
 <div class="content-hug">
 
-  @if(permissions?.is_shared_minutes){
+  @if(isLoading){
+  <div class="content-box d-flex flex-column gap-3 mt-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="skeleton skeleton-title" style="width: 180px; height: 32px;"></div>
+      <div class="skeleton skeleton-btn" style="width: 90px; height: 36px;"></div>
+    </div>
+    <div class="skeleton skeleton-info" style="width: 100%; height: 24px;"></div>
+    <div class="skeleton skeleton-info" style="width: 60%; height: 24px;"></div>
+    <div class="skeleton skeleton-info" style="width: 80%; height: 24px;"></div>
+  </div>
+  } @else if(permissions?.is_shared_minutes){
   <div class="content-box d-flex flex-column gap-3 mt-4">
     <div class="d-flex align-items-center justify-content-between">
 
@@ -68,8 +79,7 @@
     </div>
 
   </div>
-  }
-  @else{
+  } @else{
   <div class="content-box d-flex flex-column gap-3">
     <div class="d-flex align-items-center justify-content-between">
 
@@ -100,13 +110,13 @@
       </span>
     </div>
 
-    <!-- <div class="info">
-          <h6>Minimum Minutes Per Request</h6>
-          <span>
-            {{ getTime(permissions?.late_arrive?.minutes).hours }}:
-            {{ getTime(permissions?.late_arrive?.minutes).minutes | number:'2.0-0' }} hr
-          </span>
-        </div> -->
+    <div class="info">
+      <h6>Minimum Minutes Per Request</h6>
+      <span>
+        {{ getTime(permissions?.late_arrive?.minutes).hours }}:
+        {{ getTime(permissions?.late_arrive?.minutes).minutes | number:'2.0-0' }} hr
+      </span>
+    </div>
 
 
     <div class="info">
@@ -156,13 +166,13 @@
       </span>
     </div>
 
-    <!-- <div class="info">
-          <h6>Minimum Minutes Per Request</h6>
-          <span>
-            {{ getTime(permissions?.early_leave?.minutes).hours }}:
-            {{ getTime(permissions?.early_leave?.minutes).minutes | number:'2.0-0' }} hr
-          </span>
-        </div> -->
+    <div class="info">
+      <h6>Minimum Minutes Per Request</h6>
+      <span>
+        {{ getTime(permissions?.early_leave?.minutes).hours }}:
+        {{ getTime(permissions?.early_leave?.minutes).minutes | number:'2.0-0' }} hr
+      </span>
+    </div>
 
 
     <div class="info">
@@ -218,51 +228,52 @@
       <span>{{permissions?.early_leave?.note || 'No notes available.'}}</span>
     </div>
 
-  </div> -->
+  </div>
+  }
 
 
 </div>
 
 
 <!-- box -->
-<app-overlay-filter-box #filterBox [title]="'Permission Settings'">
+  <app-overlay-filter-box #filterBox [title]="'Permission Settings'">
 
-  <div class="card-white mb-3">
-    <h5>Minutes Count</h5>
-    <p>You can select whether you'd like minutes to be split between Early Leave & Late Arrive permissions or shared
-      between them.</p>
+    <div class="card-white mb-3">
+      <h5>Minutes Count</h5>
+      <p>You can select whether you'd like minutes to be split between Early Leave & Late Arrive permissions or shared
+        between them.</p>
 
 
-    <div class="d-flex align-items-center gap-2 mb-3">
-      <input type="radio" id="sharedMinutes" name="minutesType" [value]="true" [(ngModel)]="tempIsShared"
-        class="form-check-input radio">
-      <label for="sharedMinutes">Shared Minutes</label>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <input type="radio" id="sharedMinutes" name="minutesType" [value]="true" [(ngModel)]="tempIsShared"
+          class="form-check-input radio">
+        <label for="sharedMinutes">Shared Minutes</label>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <input type="radio" id="splitMinutes" name="minutesType" [value]="false" [(ngModel)]="tempIsShared"
+          class="form-check-input radio">
+        <label for="splitMinutes">Split Minutes (Early Leave & Late Arrive)</label>
+      </div>
+
     </div>
 
-    <div class="d-flex align-items-center gap-2">
-      <input type="radio" id="splitMinutes" name="minutesType" [value]="false" [(ngModel)]="tempIsShared"
-        class="form-check-input radio">
-      <label for="splitMinutes">Split Minutes (Early Leave & Late Arrive)</label>
+
+
+
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-lg btn-primary w-100" (click)="saveSettings()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Save Changes</span>
+      </button>
+      <button (click)="discardChanges()" type="button" class="btn btn-lg btn-outline-dark border-0 w-100 h-100">
+        <span>Discarded Changes</span>
+      </button>
     </div>
 
-  </div>
-
-
-
-
-  <div class="d-flex align-items-center gap-3">
-    <button class="btn btn-lg btn-primary w-100" (click)="saveSettings()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-        <g fill="none" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
-      <span>Save Changes</span>
-    </button>
-    <button (click)="discardChanges()" type="button" class="btn btn-lg btn-outline-dark border-0 w-100 h-100">
-      <span>Discarded Changes</span>
-    </button>
-  </div>
-
-</app-overlay-filter-box>
+  </app-overlay-filter-box>

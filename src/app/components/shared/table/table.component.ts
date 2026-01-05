@@ -1,4 +1,5 @@
-import { CommonModule } from '@angular/common';
+
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -6,7 +7,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxPaginationModule],
+  imports: [FormsModule, NgxPaginationModule, NgTemplateOutlet],
   templateUrl: './table.component.html',
   styleUrl: './table.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -26,11 +27,13 @@ export class TableComponent {
 
   @Output() pageChange = new EventEmitter<number>();
 
-  skeletonRows = Array.from({ length: 5 }, (_, i) => ({ id: i, isSkeleton: true }));
+  get skeletonRows() {
+    return Array.from({ length: this.itemsPerPage }, (_, i) => ({ id: i, isSkeleton: true }));
+  }
 
-trackByFn(index: number, row: any): any {
-  return row?.id ?? index; 
-}
+  trackByFn(index: number, row: any): any {
+    return row?.id ?? index;
+  }
 
   onPageChanged(newPage: number) {
     this.currentPage = newPage;
@@ -40,8 +43,7 @@ trackByFn(index: number, row: any): any {
   onItemsPerPageChange() {
     this.currentPage = 1;
     this.itemsPerPageChange.emit(this.itemsPerPage);
-    this.pageChange.emit(this.currentPage);
-
+    // Do NOT emit pageChange here; parent will handle fetch and page reset
   }
   get totalPages(): number {
     return Math.ceil(this.totalItems / this.itemsPerPage);
@@ -50,7 +52,7 @@ trackByFn(index: number, row: any): any {
     return Array(count).fill(0);
   }
   indexFn(index: number, item: any) {
-    return index; 
+    return index;
   }
 
 

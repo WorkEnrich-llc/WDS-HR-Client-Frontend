@@ -7,13 +7,13 @@ import { ToasterMessageService } from '../../../../core/services/tostermessage/t
 import { ToastrService } from 'ngx-toastr';
 import { TableComponent } from '../../../shared/table/table.component';
 import { debounceTime, filter, Subject, Subscription, take } from 'rxjs';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ArchivedOpeningsService } from '../../../../core/services/recruitment/archived-openings/archived-openings.service';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 
 @Component({
   selector: 'app-all-archived-openings',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, PopupComponent],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, PopupComponent],
   providers: [DatePipe],
   templateUrl: './all-archived-openings.component.html',
   styleUrl: './all-archived-openings.component.css'

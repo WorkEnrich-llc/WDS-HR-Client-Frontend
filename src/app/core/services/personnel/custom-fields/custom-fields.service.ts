@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { CreateFieldRequest, CustomField, CustomFieldDetailResponse, CustomFieldFilters, CustomFieldObject, CustomFieldValuesParams, CustomFieldValuesResponse, TargetModelItem, TargetModelResponse, UpdateCustomValueRequest, UpdateFieldRequest, UpdateStatusRequest } from 'app/core/models/custom-field';
+import { CreateFieldRequest,CustomFieldDetailResponse, CustomFieldFilters, CustomFieldObject, CustomFieldValuesParams, CustomFieldValuesResponse, TargetModelItem, TargetModelResponse, UpdateCustomValueRequest, UpdateFieldRequest, UpdateStatusRequest } from 'app/core/models/custom-field';
 import { environment } from 'environments/environment';
 import { map, Observable } from 'rxjs';
 
