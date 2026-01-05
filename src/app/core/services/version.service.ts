@@ -58,11 +58,11 @@ export class VersionService {
   }
 
   private displayVersionInfo(): void {
-    const styles = {
-      title: 'color: #2196F3; font-size: 16px; font-weight: bold;',
-      info: 'color: #4CAF50; font-size: 12px;',
-      value: 'color: #FF9800; font-size: 12px; font-weight: bold;'
-    };
+    // const styles = {
+    //   title: 'color: #2196F3; font-size: 16px; font-weight: bold;',
+    //   info: 'color: #4CAF50; font-size: 12px;',
+    //   value: 'color: #FF9800; font-size: 12px; font-weight: bold;'
+    // };
 
     // console.group('%c🚀 WDS HR Client - Version Info', styles.title);
     // console.log('%c📦 Version:', styles.info, '%c' + (this.version.version ?? 'unknown'), styles.value);
@@ -79,19 +79,16 @@ export class VersionService {
 
     if (this.version.buildDate) {
       try {
-        const d = new Date(this.version.buildDate);
         // console.log('📅 Build Date:', styles.info, '%c' + d.toLocaleString(), styles.value);
       } catch (e) {
         // console.log('📅 Build Date:', styles.info, '%c' + this.version.buildDate, styles.value);
       }
     } else if (this.version.buildTimestamp) {
-      const d = new Date(Number(this.version.buildTimestamp));
+      // const d = new Date(Number(this.version.buildTimestamp));
       // console.log('📅 Build Timestamp:', styles.info, '%c' + (isNaN(d.getTime()) ? String(this.version.buildTimestamp) : d.toLocaleString()), styles.value);
     } else {
       // console.log('� Build Date:', styles.info, '%cunknown', styles.value);
     }
-
-    const envLabel = this.version.branch ? (this.version.branch === 'main' ? 'Production' : this.version.branch) : 'unknown';
     // console.log('💻 Environment:', styles.info, '%c' + envLabel, styles.value);
     console.groupEnd();
 

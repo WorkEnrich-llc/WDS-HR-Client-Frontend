@@ -1,23 +1,79 @@
 :host {
-    display: block;
+  display: block;
 }
 
 :host .portion-row {
-    gap: var(--spacing-28);
-    align-items: flex-start;
-    margin-bottom: var(--spacing-8);
+  gap: var(--spacing-28);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-8);
 }
 
 :host .portion-row:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 :host .portion-row .form-check-input {
-    margin-top: var(--spacing-28);
+  margin-top: var(--spacing-28);
 }
 
 :host .input .error-msg {
-    margin-bottom: 0;
-    color: var(--color-danger-500);
-    font-size: var(--font-size-b4);
+  margin-bottom: 0;
+  color: var(--color-danger-500);
+  font-size: var(--font-size-b4);
+}
+
+:host .custom-portion {
+  margin-top: var(--spacing-4);
+  margin-inline-start: var(--spacing-28);
+}
+
+/* Skeleton Loader Styles */
+.skeleton-checkbox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 0.375rem;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.skeleton-label {
+  height: 12px;
+  min-width: 80px;
+  max-width: 120px;
+  border-radius: 0.375rem;
+  display: inline-block;
+}
+
+.skeleton-input {
+  height: 38px;
+  border-radius: 0.375rem;
+  display: block;
+  min-height: 38px;
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 0.375rem;
+  display: block;
+}
+
+/* Enhanced shimmer effect for skeleton loaders */
+:host .placeholder-glow .placeholder {
+  background: linear-gradient(90deg,
+      #f0f0f0 25%,
+      #e0e0e0 50%,
+      #f0f0f0 75%);
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -2000px 0;
+  }
+
+  100% {
+    background-position: calc(2000px + 100%) 0;
+  }
 }

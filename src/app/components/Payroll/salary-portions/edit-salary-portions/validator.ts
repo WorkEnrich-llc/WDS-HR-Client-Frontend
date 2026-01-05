@@ -43,3 +43,29 @@ export function nonWhitespaceValidator(control: AbstractControl): ValidationErro
   return null;
 }
 
+
+export function customTotalValidator(control: AbstractControl): ValidationErrors | null {
+  const isFlexible = control.get('isFlexible')?.value;
+  const portions = control.get('portions') as FormArray;
+
+  if (isFlexible) {
+    return null;
+  }
+
+  const total = portions.controls.reduce((sum, group) => {
+    const enabled = group.get('enabled')?.value || (group === portions.at(0));
+    if (!enabled) return sum;
+    const num = Number(group.get('percentage')?.value) || 0;
+    return sum + num;
+  }, 0);
+
+  if (total > 100) {
+    return { totalIsMoreThan100: true };
+  }
+
+  if (total !== 100) {
+    return { totalIsNot100: true };
+  }
+
+  return null;
+};

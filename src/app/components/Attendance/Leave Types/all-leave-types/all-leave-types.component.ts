@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -13,7 +13,8 @@ import { PaginationStateService } from 'app/core/services/pagination-state/pagin
 
 @Component({
   selector: 'app-all-leave-types',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, RouterLink, OverlayFilterBoxComponent, TableComponent, FormsModule, ReactiveFormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-leave-types.component.html',
   styleUrl: './all-leave-types.component.css'
 })
@@ -32,6 +33,7 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
+  private currentFilters: any = {};
   private searchSubject = new Subject<string>();
   private toasterSubscription!: Subscription;
   private searchSubscription!: Subscription;
@@ -62,8 +64,8 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
     this.searchSubscription = this.searchSubject.pipe(
       // Trim leading whitespace only (keep trailing spaces if user wants them)
       map((searchTerm: string) => searchTerm.trimStart()),
-      // Filter out null/undefined and empty/whitespace-only strings - only send request when there's actual content
-      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined && searchTerm.trim().length > 0),
+      // Allow empty string to reset results, but filter out null/undefined
+      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined),
       // Debounce to avoid too many requests
       debounceTime(300),
       // Only proceed if the value has actually changed
@@ -137,16 +139,23 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   onSearchChange() {
     // Trim leading whitespace before sending to subject
     const trimmedSearch = this.searchTerm.trimStart();
-    this.searchSubject.next(trimmedSearch);
+    // If cleared, send empty string to trigger reset
+    if (trimmedSearch.trim().length === 0) {
+      this.searchSubject.next('');
+    } else {
+      this.searchSubject.next(trimmedSearch);
+    }
   }
 
 
   resetFilterForm(): void {
     this.filterForm.reset({
-  employment_type: '',
-  status: ''   
-});
+      employment_type: '',
+      status: ''
+    });
+    this.currentFilters = {};
     this.filterBox.closeOverlay();
+    this.currentPage = 1;
     this.getAllJobTitles(this.currentPage);
   }
 
@@ -156,13 +165,15 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
     if (this.filterForm.valid) {
       const rawFilters = this.filterForm.value;
 
-  const filters = {
-  employment_type: rawFilters.employment_type || undefined,
-  status: rawFilters.status || undefined   
-};
+      const filters = {
+        employment_type: rawFilters.employment_type || undefined,
+        status: rawFilters.status || undefined
+      };
 
-
+      // Store the active filters
+      this.currentFilters = filters;
       this.filterBox.closeOverlay();
+      this.currentPage = 1;
       this.getAllJobTitles(this.currentPage, '', filters);
     }
   }
@@ -175,10 +186,10 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   getAllJobTitles(
     pageNumber: number,
     searchTerm: string = '',
-   filters?: {
-  employment_type?: string;
-  status?: string;   
-}
+    filters?: {
+      employment_type?: string;
+      status?: string;
+    }
   ) {
     // Unsubscribe from previous call if it exists
     if (this.getAllLeaveTypesSubscription) {
@@ -211,7 +222,7 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
   onItemsPerPageChange(newItemsPerPage: number) {
     this.itemsPerPage = newItemsPerPage;
     this.currentPage = 1;
-    this.getAllJobTitles(this.currentPage);
+    this.getAllJobTitles(this.currentPage, '', this.currentFilters);
   }
   // onPageChange(page: number): void {
   //   this.currentPage = page;
@@ -220,7 +231,8 @@ export class AllLeaveTypesComponent implements OnInit, OnDestroy {
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.paginationState.setPage('...', page);
+    this.paginationState.setPage('leave-types/all-leave-types', page);
+    this.getAllJobTitles(page, this.searchTerm, this.currentFilters);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { page },

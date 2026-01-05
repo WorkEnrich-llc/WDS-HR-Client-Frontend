@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobOpeningsService } from '../../../../core/services/recruitment/job-openings/job-openings.service';
@@ -14,11 +14,11 @@ import { Subscription } from 'rxjs';
   selector: 'app-update-job-open',
   imports: [
     PageHeaderComponent,
-    CommonModule,
     PopupComponent,
     MainInfoComponent,
     RequiredDetailsComponent,
-    AttachmentsComponent
+    AttachmentsComponent,
+    NgClass
   ],
   providers: [DatePipe],
   templateUrl: './update-job-open.component.html',
@@ -36,6 +36,7 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   activeTab: 'main-information' | 'required-details' | 'attachments' = 'main-information';
   jobId: number = 0;
+  jobTitle: string = '';
   hasChanges: boolean = false;
 
   // Store initial form data for comparison
@@ -95,10 +96,14 @@ export class UpdateJobOpenComponent implements OnInit, OnDestroy {
           // Pre-populate the service with existing job data from object_info
           const jobData = response.data.object_info;
 
+          // Set job title for header
+          this.jobTitle = jobData.job_title?.name || '';
+
           // Update main information
           this.jobCreationDataService.updateMainInformation({
             job_title_id: jobData.job_title?.id,
             employment_type: jobData.employment_type?.id,
+            work_mode: jobData.work_mode?.id,
             work_schedule_id: jobData.work_schedule?.id,
             days_on_site: jobData.days_on_site,
             branch_id: jobData.branch?.id,

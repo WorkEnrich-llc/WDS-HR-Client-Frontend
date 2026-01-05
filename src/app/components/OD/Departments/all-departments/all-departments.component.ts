@@ -7,7 +7,7 @@ import { DatePipe } from '@angular/common';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -40,6 +40,7 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
   currentSortColumn: string = '';
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private getAllDepartmentSub?: Subscription;
   private toasterSubscription!: Subscription;
   currentFilters: any = {};
   currentSearchTerm: string = '';
@@ -80,10 +81,42 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllDepartment(this.currentPage, value);
-    });
-
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          this.currentPage = 1;
+          this.currentSearchTerm = term;
+          this.loadData = true;
+          return this._DepartmentsService.getAllDepartment(this.currentPage, this.itemsPerPage, {
+            search: term || undefined,
+            ...this.currentFilters
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.currentPage = Number(response.data.page);
+          this.totalItems = response.data.total_items;
+          this.totalpages = response.data.total_pages;
+          this.departments = response.data.list_items.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            createdAt: this.datePipe.transform(item.created_at, 'dd/MM/yyyy'),
+            updatedAt: this.datePipe.transform(item.updated_at, 'dd/MM/yyyy'),
+            status: item.is_active ? 'Active' : 'Inactive',
+          }));
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+          this.loadData = false;
+        },
+        error: (err) => {
+          console.error(err.error?.details);
+          this.loadData = false;
+        }
+      });
 
     this.filterForm = this.fb.group({
       status: [''],
@@ -111,6 +144,15 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
     }
+    if (this.getAllDepartmentSub) {
+      this.getAllDepartmentSub.unsubscribe();
+    }
+    if (this.departmentsSub && typeof this.departmentsSub.unsubscribe === 'function') {
+      this.departmentsSub.unsubscribe();
+    }
+    if (this.searchSubject) {
+      this.searchSubject.complete();
+    }
   }
 
   sortBy() {
@@ -129,8 +171,18 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
 
 
   onSearchChange() {
-    this.currentSearchTerm = this.searchTerm;
-    this.searchSubject.next(this.searchTerm);
+    let value = this.searchTerm || '';
+    // Remove leading spaces for the payload only (do not change input)
+    let payload = value.replace(/^\s+/, '');
+    // Prevent more than 2 consecutive spaces anywhere in the payload
+    payload = payload.replace(/ {3,}/g, '  ');
+    // Allow empty search to reset results, but prevent search with only whitespace
+    if (value.trim().length === 0 && payload.trim().length === 0) {
+      // Reset to first page and send empty search
+      this.searchSubject.next('');
+      return;
+    }
+    this.searchSubject.next(payload);
   }
 
   filter(): void {
@@ -172,7 +224,10 @@ export class AllDepartmentsComponent implements OnInit, OnDestroy {
     }
   ) {
     this.loadData = true;
-    this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
+    if (this.getAllDepartmentSub) {
+      this.getAllDepartmentSub.unsubscribe();
+    }
+    this.getAllDepartmentSub = this._DepartmentsService.getAllDepartment(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({

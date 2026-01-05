@@ -2,7 +2,7 @@
 
 import { Component, ElementRef, OnDestroy, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -17,6 +17,10 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import dayjs, { Dayjs } from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+
+// Extend dayjs with isoWeek plugin - required for ngx-daterangepicker-material
+dayjs.extend(isoWeek);
 
 @Component({
   selector: 'app-attendance-log',
@@ -34,7 +38,14 @@ export class AttendanceLogComponent implements OnDestroy {
     private datePipe: DatePipe, private fb: FormBuilder, private router: Router) { }
 
   // Action menu stubs for template
-  addLog(emp: any) { /* TODO: Implement add log */ }
+  addLog(emp: any) {
+    this.editModalType = 'log';
+    this.editModalLog = null;
+    this.editModalEmp = emp;
+    this.editCheckInValue = '';
+    this.editCheckOutValue = '';
+    this.editModalOpen = true;
+  }
   editDeduction(emp: any) { /* TODO: Implement edit deduction */ }
   // Deduction confirmation modal state
   deductionModalOpen: boolean = false;
@@ -97,10 +108,10 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success('Attendance log canceled successfully');
+        // this.toastr.success('Attendance log canceled successfully');
       },
       error: () => {
-        this.toastr.error('Failed to cancel attendance log');
+        // this.toastr.error('Failed to cancel attendance log');
         this.closeCancelLogModal();
       }
     });
@@ -335,6 +346,19 @@ export class AttendanceLogComponent implements OnDestroy {
       map((res: any) => res?.data?.list_items ?? [])
     );
 
+    // Add outside click listener to close dropdown menu
+    this.outsideClickListener = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const actionMenuBtn = target.closest('.action-menu-btn');
+      const actionMenuDropdown = target.closest('.action-menu-dropdown');
+
+      if (!actionMenuBtn && !actionMenuDropdown && this.openSubMenu) {
+        this.closeSubLogMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', this.outsideClickListener);
+
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
@@ -448,6 +472,20 @@ export class AttendanceLogComponent implements OnDestroy {
     return list?.find(item => item.main_record === true);
   }
 
+  // Check if a record has check-in
+  hasCheckIn(record: any): boolean {
+    return record?.times_object?.actual_check_in && record?.times_object?.actual_check_in !== '00:00';
+  }
+
+  // Check if a record has check-out
+  hasCheckOut(record: any): boolean {
+    return record?.times_object?.actual_check_out && record?.times_object?.actual_check_out !== '00:00';
+  }
+
+  // Check if a record has both check-in and check-out
+  hasBothCheckInAndOut(record: any): boolean {
+    return this.hasCheckIn(record) && this.hasCheckOut(record);
+  }
 
   onSearchChange() {
     // Emit the search term to the subject for debounced processing
@@ -724,7 +762,7 @@ export class AttendanceLogComponent implements OnDestroy {
 
   cancelLog(attendance: any): void {
     this.isLoading = true;
-    const id = attendance.id ?? attendance.record_id;
+    const id = attendance.record_id ?? attendance.id;
     if (!id) {
       this.toasterService.showError('Attendance log ID not found.');
       this.isLoading = false;
@@ -735,6 +773,13 @@ export class AttendanceLogComponent implements OnDestroy {
         attendance.canceled = true;
         this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // Refresh current page to reflect changes
+        this.getAllAttendanceLog({
+          page: this.currentPage,
+          per_page: this.itemsPerPage,
+          from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
+          to_date: ''
+        });
       },
       error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
@@ -892,7 +937,7 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkout';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    this.editCheckOutValue = '';
     this.editModalOpen = true;
   }
 
@@ -915,25 +960,39 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   updateEditModal() {
-    if (!this.editModalLog) return;
-    const id = this.editModalLog.id ?? this.editModalLog.record_id;
-    if (!id) {
-      this.toastr.error('Attendance log ID not found.');
-      return;
-    }
     this.editModalLoading = true;
     let obs$;
+    let id;
+
+    if (!this.editModalLog) {
+      // For add, use record_id if available, else fallback to employee id and date as a synthetic id (or pass 0/null if backend allows)
+      if (!this.editModalEmp || !this.editModalEmp.employee?.id || !this.editModalEmp.date) {
+        this.toastr.error('Employee or date not found.');
+        this.editModalLoading = false;
+        return;
+      }
+      // Use record_id as id if present, else fallback
+      id = this.editModalEmp.record_id || this.editModalEmp.id || this.editModalEmp.employee.id || '';
+    } else {
+      // Prioritize record_id over id for edit operations
+      id = this.editModalLog.record_id ?? this.editModalLog.id;
+      if (!id) {
+        // this.toastr.error('Attendance log ID not found.');
+        this.editModalLoading = false;
+        return;
+      }
+    }
+
+    // Call different API based on editModalType
     if (this.editModalType === 'checkin') {
       obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
     } else if (this.editModalType === 'checkout') {
       obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
-    } else if (this.editModalType === 'log') {
-      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
     } else {
-      this.closeEditModal();
-      this.editModalLoading = false;
-      return;
+      // For 'log' type (add log with both check-in and check-out)
+      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
     }
+
     obs$.subscribe({
       next: () => {
         this.closeEditModal();
@@ -944,10 +1003,8 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success('Attendance log updated successfully');
       },
       error: (err) => {
-        this.toastr.error('Failed to update attendance log');
         this.closeEditModal();
         this.editModalLoading = false;
       }
@@ -957,7 +1014,7 @@ export class AttendanceLogComponent implements OnDestroy {
   handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
     // Debug: log the object to help diagnose missing id
     console.log('Deduction toggle log object:', log);
-    const id = log?.id ?? log?.record_id ?? log?.recordID ?? log?.attendance_id;
+    const id = log?.record_id ?? log?.id ?? log?.recordID ?? log?.attendance_id;
     if (!id) {
       this.toastr.error('Attendance log ID not found. Please contact support.');
       console.error('Deduction toggle error: log object missing id/record_id:', log);
@@ -978,11 +1035,9 @@ export class AttendanceLogComponent implements OnDestroy {
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
           to_date: ''
         });
-        this.toastr.success(`Deduction ${actionText}ed successfully`);
         this.closeDeductionModal();
       },
       error: () => {
-        this.toastr.error(`Failed to ${actionText} deduction`);
         this.deductionModalLoading = false;
       }
     });

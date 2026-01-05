@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Contract, ContractHistory } from '../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../core/interfaces/employee';
@@ -14,12 +14,13 @@ import { ContractTerminatedViewModalComponent } from './modals/contract-terminat
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { finalize } from 'rxjs';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-contracts-tab',
   imports: [
-    CommonModule,
+    NgClass,
     TableComponent,
     ContractFormModalComponent,
     ContractCancelModalComponent,
@@ -42,7 +43,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
   private upcomingContractId: number | null = null;
 
   @Output() contractsDataUpdated = new EventEmitter<void>();
-  private upcomingContract: number | null = null;
+  // private upcomingContract: number | null = null;
 
   private toasterService = inject(ToasterMessageService);
   historyContract: Contract | null = null;
@@ -555,7 +556,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
         this.toasterService.showSuccess('contract terminated successfully');
         this.loadEmployeeContracts();
-        
+
         // Emit event to parent component to refresh entire employee data
         this.contractsDataUpdated.emit();
       },
@@ -618,7 +619,7 @@ export class ContractsTabComponent implements OnInit, OnChanges {
 
         this.toasterService.showSuccess('contract resignation processed successfully');
         this.loadEmployeeContracts();
-        
+
         // Emit event to parent component to refresh entire employee data
         this.contractsDataUpdated.emit();
       },

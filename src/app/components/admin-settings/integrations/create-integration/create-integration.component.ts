@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -16,7 +16,17 @@ import { catchError, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-create-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
+    imports: [
+        NgClass,
+        PageHeaderComponent,
+        SkelatonLoadingComponent,
+        OverlayFilterBoxComponent,
+        TableComponent,
+        PopupComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        NgxPaginationModule
+    ],
     templateUrl: './create-integration.component.html',
     styleUrls: ['./create-integration.component.css']
 })
@@ -190,7 +200,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         // Compare dates
         const start = new Date(startDate);
         const expiry = new Date(expiryDate);
-        
+
         // Set time to midnight for accurate date comparison
         start.setHours(0, 0, 0, 0);
         expiry.setHours(0, 0, 0, 0);
@@ -232,7 +242,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
         // Compare dates
         const start = new Date(startDate);
         const expiry = new Date(expiryDate);
-        
+
         // Set time to midnight for accurate date comparison
         start.setHours(0, 0, 0, 0);
         expiry.setHours(0, 0, 0, 0);
@@ -1034,7 +1044,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
 
             this.createSubscription = this.integrationsService.createIntegration(requestBody).subscribe({
                 next: () => {
-                    this.toasterService.showSuccess('Integration created successfully.',"Created Successfully");
+                    this.toasterService.showSuccess('Integration created successfully.', "Created Successfully");
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {
@@ -1097,7 +1107,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     onStartDateChange(): void {
         const startDateControl = this.integrationForm.get('startDate');
         const expiryDateControl = this.integrationForm.get('expiryDate');
-        
+
         // Update validators to re-check date range
         startDateControl?.updateValueAndValidity({ emitEvent: false });
         expiryDateControl?.updateValueAndValidity({ emitEvent: false });
@@ -1109,7 +1119,7 @@ export class CreateIntegrationComponent implements OnInit, OnDestroy {
     onExpiryDateInputChange(): void {
         const startDateControl = this.integrationForm.get('startDate');
         const expiryDateControl = this.integrationForm.get('expiryDate');
-        
+
         // Update validators to re-check date range
         startDateControl?.updateValueAndValidity({ emitEvent: false });
         expiryDateControl?.updateValueAndValidity({ emitEvent: false });

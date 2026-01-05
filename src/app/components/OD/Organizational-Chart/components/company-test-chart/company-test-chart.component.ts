@@ -1,10 +1,11 @@
-import { CommonModule } from '@angular/common';
+
+import { NgClass } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ChartsService } from 'app/core/services/od/charts/charts.service';
 
 @Component({
   selector: 'app-company-chart',
-  imports: [CommonModule],
+  imports: [NgClass],
   templateUrl: './company-test-chart.component.html',
   styleUrl: './company-test-chart.component.css'
 })

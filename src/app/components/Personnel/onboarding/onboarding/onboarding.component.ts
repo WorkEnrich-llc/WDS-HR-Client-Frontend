@@ -3,7 +3,6 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
-import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { OnboardingService } from 'app/core/services/personnel/onboarding/onboarding.service';
 
 interface CheckItem {
@@ -37,8 +36,7 @@ export class OnboardingComponent {
     this.loadingData = true;
     this.onboardingService.getOnboarding().subscribe({
       next: (response) => {
-        const list = response.data.object_info.onboarding_list || [];
-
+        const list = response.data?.list_items || [];
         this.checks = list.map((item: any) => ({
           name: item.title,
           completed: false,

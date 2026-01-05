@@ -2,7 +2,7 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -13,7 +13,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-edit-work-schedule',
-  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, CommonModule, TableComponent, FormsModule, OverlayFilterBoxComponent],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, TableComponent, FormsModule, OverlayFilterBoxComponent, NgClass, DatePipe],
   providers: [DatePipe],
   templateUrl: './edit-work-schedule.component.html',
   styleUrl: './edit-work-schedule.component.css'

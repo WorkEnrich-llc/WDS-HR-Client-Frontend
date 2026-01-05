@@ -1,21 +1,16 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { JobBoardSetupService } from '../../../../core/services/recruitment/job-board-setup/job-board-setup.service';
 import { ToastrService } from 'ngx-toastr';
 
-interface SocialMediaLink {
-    name: string;
-    url: string;
-}
-
 @Component({
     selector: 'app-edit-job-board-setup',
     standalone: true,
-    imports: [PageHeaderComponent, CommonModule, FormsModule, PopupComponent],
+    imports: [PageHeaderComponent, FormsModule, PopupComponent, NgClass],
     providers: [DatePipe],
     templateUrl: './edit-job-board-setup.component.html',
     styleUrl: './edit-job-board-setup.component.css'
@@ -193,7 +188,6 @@ export class EditJobBoardSetupComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error loading job board setup:', error);
-                this.toastr.error('Failed to load job board setup', 'Error');
                 this.isLoading = false;
             }
         });
@@ -319,13 +313,13 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateJobBoardSetup(updateData).subscribe({
             next: () => {
-                this.toastr.success('Job board setup updated successfully', 'Success');
                 this.isSaving = false;
-                this.router.navigate(['/job-board-setup']);
+                setTimeout(() => {
+                    this.router.navigate(['/job-board-setup']);
+                }, 500);
             },
             error: (error: any) => {
                 console.error('Error updating job board setup:', error);
-                this.toastr.error(error.error?.details || 'Failed to update job board setup', 'Error');
                 this.isSaving = false;
             }
         });
@@ -899,7 +893,6 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
             next: (response: any) => {
-                this.toastr.success('Logo uploaded successfully', 'Success');
                 this.isSavingLogo = false;
                 this.selectedLogoFile = null;
 
@@ -921,6 +914,9 @@ export class EditJobBoardSetupComponent implements OnInit {
 
                 this.logoPreviewUrl = null;
 
+                // Update logo in local storage
+                this.updateLogoInLocalStorage(this.companyLogoUrl);
+
                 // Reset file input
                 const fileInput = document.getElementById('logoInput') as HTMLInputElement;
                 if (fileInput) {
@@ -929,8 +925,8 @@ export class EditJobBoardSetupComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error uploading logo:', error);
-                this.toastr.error(error.error?.details || 'Failed to upload logo', 'Error');
                 this.isSavingLogo = false;
+                this.toastr.error('Error uploading logo');
             }
         });
     }
@@ -960,11 +956,13 @@ export class EditJobBoardSetupComponent implements OnInit {
 
         this.jobBoardSetupService.updateCompanyLogo(formData).subscribe({
             next: () => {
-                this.toastr.success('Logo deleted successfully', 'Success');
                 this.isDeletingLogo = false;
                 this.companyLogoUrl = null;
                 this.selectedLogoFile = null;
                 this.logoPreviewUrl = null;
+
+                // Remove logo from local storage
+                this.removeLogoFromLocalStorage();
 
                 // Reset file input
                 const fileInput = document.getElementById('logoInput') as HTMLInputElement;
@@ -972,15 +970,72 @@ export class EditJobBoardSetupComponent implements OnInit {
                     fileInput.value = '';
                 }
 
+                // Show success toast
+                this.toastr.success('Logo deleted successfully!');
+
                 // Reload job board setup to get updated data
                 this.loadJobBoardSetup();
             },
             error: (error: any) => {
                 console.error('Error deleting logo:', error);
-                this.toastr.error(error.error?.details || 'Failed to delete logo', 'Error');
                 this.isDeletingLogo = false;
+                this.toastr.error('Error deleting logo');
             }
         });
+    }
+
+    /**
+     * Update the logo URL in local storage company_info object
+     */
+    private updateLogoInLocalStorage(logoUrl: string | null): void {
+        try {
+            const storedData = localStorage.getItem('company_info');
+            if (storedData) {
+                const companyInfo = JSON.parse(storedData);
+                if (logoUrl) {
+                    companyInfo.logo = logoUrl;
+                } else {
+                    delete companyInfo.logo;
+                }
+                localStorage.setItem('company_info', JSON.stringify(companyInfo));
+                // Dispatch custom event to notify other components of the change
+                this.dispatchStorageChangeEvent();
+            }
+        } catch (error) {
+            console.error('Error updating logo in local storage:', error);
+        }
+    }
+
+    /**
+     * Remove the logo from local storage company_info object
+     */
+    private removeLogoFromLocalStorage(): void {
+        try {
+            const storedData = localStorage.getItem('company_info');
+            if (storedData) {
+                const companyInfo = JSON.parse(storedData);
+                if (companyInfo.logo) {
+                    delete companyInfo.logo;
+                    localStorage.setItem('company_info', JSON.stringify(companyInfo));
+                    // Dispatch custom event to notify other components of the change
+                    this.dispatchStorageChangeEvent();
+                }
+            }
+        } catch (error) {
+            console.error('Error removing logo from local storage:', error);
+        }
+    }
+
+    /**
+     * Dispatch a custom event to notify components about storage changes
+     */
+    private dispatchStorageChangeEvent(): void {
+        // Create and dispatch a custom event for local component communication
+        const storageEvent = new StorageEvent('storage', {
+            key: 'company_info',
+            newValue: localStorage.getItem('company_info')
+        });
+        window.dispatchEvent(storageEvent);
     }
 }
 

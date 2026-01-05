@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
@@ -12,11 +12,12 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { AnnouncementsService } from '../../../../core/services/admin-settings/announcements/announcements.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-create-announcement',
     standalone: true,
-    imports: [CommonModule, PageHeaderComponent, ReactiveFormsModule, FormsModule, TableComponent, OverlayFilterBoxComponent],
+    imports: [PageHeaderComponent, ReactiveFormsModule, FormsModule, TableComponent, OverlayFilterBoxComponent, NgClass],
     templateUrl: './create-announcement.component.html',
     styleUrls: ['./create-announcement.component.css']
 })

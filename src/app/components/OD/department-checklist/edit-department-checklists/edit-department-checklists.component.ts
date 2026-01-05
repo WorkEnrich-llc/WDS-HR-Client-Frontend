@@ -1,7 +1,6 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
 import { DepartmentChecklistService } from 'app/core/services/od/departmentChecklist/department-checklist.service';
@@ -35,7 +34,6 @@ export class EditDepartmentChecklistsComponent {
   private operationQueue$ = new Subject<void>();
 
   constructor(
-    private router: Router,
     private fb: FormBuilder,
     private departmentChecklistService: DepartmentChecklistService
   ) {
@@ -84,16 +82,16 @@ export class EditDepartmentChecklistsComponent {
 
   }
 
-  private toCheckItem(item: any): CheckItem {
-    return {
-      id: item.id,
-      name: item.name,
-      points: item.points,
-      ranking: item.ranking,
-      record_type: 'update',
-      editing: false
-    };
-  }
+  // private toCheckItem(item: any): CheckItem {
+  //   return {
+  //     id: item.id,
+  //     name: item.name,
+  //     points: item.points,
+  //     ranking: item.ranking,
+  //     record_type: 'update',
+  //     editing: false
+  //   };
+  // }
 
 
   noWhitespaceValidator(control: FormControl) {

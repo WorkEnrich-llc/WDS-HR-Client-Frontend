@@ -24,16 +24,10 @@ export class AttachmentsComponent implements OnInit, OnDestroy {
   @Input() jobId: number | null = null;
 
   links: Array<{ value: string | null }> = [
-    { value: 'Portfolio' },
-    { value: 'Git' },
-    { value: 'Previous' },
     { value: null }
   ];
   Documents: Array<{ value: string | null }> = [
-    { value: 'CV' },
-    { value: null },
-    { value: null },
-    { value: null }
+    { value: 'CV' }
   ];
 
   // Validation state

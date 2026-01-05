@@ -4,10 +4,9 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { TableComponent } from '../../../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { ActivatedRoute } from '@angular/router';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { finalize } from 'rxjs';
-import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+
 
 interface LeaveBalanceRecord {
   id: number;
@@ -30,7 +29,6 @@ export class LeaveBalanceTabComponent implements OnChanges {
   @Input() isEmployeeActive: boolean = false;
   @ViewChild('editBox') editBox!: OverlayFilterBoxComponent;
   private employeeService = inject(EmployeeService);
-  private toasterService = inject(ToasterMessageService);
   employeeId!: number;
   records: LeaveBalanceRecord[] = [];
   loading = false;

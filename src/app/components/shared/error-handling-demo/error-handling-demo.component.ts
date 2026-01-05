@@ -1,15 +1,16 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlingService } from '../../../core/services/error-handling/error-handling.service';
 import { NetworkService } from '../../../core/services/network/network.service';
 import { ApiHelperService } from '../../../core/services/api-helper/api-helper.service';
 import { Observable, throwError } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-error-handling-demo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [AsyncPipe],
   template: `
     <div class="demo-container">
       <h3>Error Handling Demo</h3>
@@ -162,11 +163,11 @@ export class ErrorHandlingDemoComponent {
   async checkConnectivity() {
     this.checkingConnectivity = true;
     this.clearMessages();
-    
+
     try {
       const isConnected = await this.networkService.checkConnectivity();
-      this.successMessage = isConnected ? 
-        'Connection test successful!' : 
+      this.successMessage = isConnected ?
+        'Connection test successful!' :
         'Connection test failed - no internet access';
     } catch (error) {
       this.errorMessage = 'Failed to check connectivity';
@@ -177,14 +178,14 @@ export class ErrorHandlingDemoComponent {
 
   simulateNetworkError() {
     this.clearMessages();
-    
+
     if (!this.networkService.isOnline()) {
       this.errorMessage = 'No internet connection. Please check your connection and try again.';
       return;
     }
 
     this.isLoading = true;
-    
+
     // Simulate a network timeout
     const networkError = new HttpErrorResponse({
       status: 0,

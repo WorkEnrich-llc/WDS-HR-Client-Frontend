@@ -16,6 +16,7 @@ export enum Classification {
 export const calculation: Array<KeyValue<number, string>> = [
    { key: 1, value: 'Raw Value' },
    { key: 2, value: 'Days' },
+   { key: 3, value: 'Percentage' }
 ];
 
 

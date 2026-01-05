@@ -8,13 +8,13 @@ import { ViewportScroller } from '@angular/common';
 import { filter, interval, Subscription } from 'rxjs';
 import { NetworkStatusComponent } from './components/shared/network-status/network-status.component';
 import { VersionService } from './core/services/version.service';
-import { VersionDisplayComponent } from './components/shared/version-display/version-display.component';
+
 import { SubscriptionService } from './core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslateModule, RouterOutlet, RouterModule, NetworkStatusComponent, VersionDisplayComponent],
+  imports: [TranslateModule, RouterOutlet, RouterModule, NetworkStatusComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

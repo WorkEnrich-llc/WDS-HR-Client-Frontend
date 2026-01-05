@@ -1,4 +1,4 @@
-import { ActionType, ApiSubModule, IUserRole, ModulePermission, Roles, SubModulePermission } from "../models/roles";
+import { ActionType, ModulePermission, Roles, SubModulePermission } from "../models/roles";
 import { IUser } from "../models/users";
 
 

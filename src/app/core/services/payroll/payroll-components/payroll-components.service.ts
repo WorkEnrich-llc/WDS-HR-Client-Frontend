@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { PayrollComponent } from 'app/core/models/payroll';
 import { environment } from 'environments/environment';
@@ -32,13 +32,10 @@ export class PayrollComponentsService {
     return this.http.get<PayrollComponent[]>(this.url);
   }
 
-
   updateComponentStatus(id: number, status: any): Observable<any> {
     const url = `${this.url}/${id}/`;
     return this.http.patch(url, status);
   }
-
-
 
   getComponentById(id: number) {
     return this.http.get<PayrollComponent>(`${this.url}/${id}`).pipe(
@@ -77,13 +74,4 @@ export class PayrollComponentsService {
 
     return this.http.get(this.url, { params });
   }
-
-
-
-
-
-
-
 }
-
-

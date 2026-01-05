@@ -1,10 +1,33 @@
 import { Component, inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobCreationDataService } from '../../../../../core/services/recruitment/job-openings/job-creation-data.service';
+import { PopupComponent } from '../../../../shared/popup/popup.component';
+
+interface DynamicField {
+  name: string;
+  type: string;
+  system: boolean;
+  value: any;
+  required: boolean;
+  enabled: boolean;
+}
+
+interface SubCategory {
+  name: string;
+  fields: DynamicField[];
+  collapsed: boolean;
+}
+
+interface MainCategory {
+  name: string;
+  subCategories: SubCategory[];
+  collapsed: boolean;
+}
 
 @Component({
   selector: 'app-required-details',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [FormsModule, PopupComponent],
   templateUrl: './required-details.component.html',
   styleUrl: './required-details.component.css'
 })
@@ -17,175 +40,260 @@ export class RequiredDetailsComponent implements OnInit {
   @Output() prevTab = new EventEmitter<void>();
   @Output() nextTab = new EventEmitter<void>();
 
-  // Personal Details - Basic Info
-  basicInfo = {
-    name: true,
-    email: true,
-    phone: true,
-    gender: false,
-    age: false
-  };
+  categories: MainCategory[] = [];
 
-  // Personal Details - Education Details
-  educationDetails = {
-    university: false,
-    college: false,
-    department: false,
-    major: false,
-    graduation: false
-  };
+  // Add field modal state
+  showAddFieldModal = false;
+  currentCategoryIndex = -1;
+  currentSubCategoryIndex = -1;
+  currentCategoryName = '';
+  newFieldName = '';
+  newFieldType = 'text';
+  fieldTypes = ['text', 'email', 'phone', 'number'];
 
-  // Personal Details - Address Information
-  addressInfo = {
-    country: false,
-    city: false,
-    state: false
-  };
-
-  // Professional Details - Current Job Information
-  currentJobInfo = {
-    currentCompany: false,
-    currentJobTitle: false,
-    jobLevel: false,
-    yearsOfExperience: false
-  };
-
-  // Professional Details - Salary Information
-  salaryInfo = {
-    currentSalary: false,
-    expectedSalary: false
-  };
+  // Delete confirmation modal state
+  showDeleteConfirmModal = false;
+  deleteFieldIndex = -1;
+  deleteFieldCategoryIndex = -1;
+  deleteFieldSubCategoryIndex = -1;
+  deleteFieldName = '';
+  deleteMessage = '';
 
   ngOnInit(): void {
+    // Initialize default structure
+    this.initializeDefaultCategories();
+
     // Subscribe to service data to pre-fill form (for update mode)
     this.jobCreationDataService.jobData$.subscribe(data => {
       if (data.recruiter_dynamic_fields) {
-        this.loadExistingSelections(data.recruiter_dynamic_fields);
+        this.loadExistingData(data.recruiter_dynamic_fields);
       }
     });
 
-    // Initialize with default values for Name, Email, and Phone
+    // Update service with initial data
     this.updateDynamicFields();
   }
 
-  loadExistingSelections(dynamicFields: any): void {
-    // Load Personal Details - Basic Info
-    if (dynamicFields['Personal Details']?.['Basic Info']) {
-      const basicInfo = dynamicFields['Personal Details']['Basic Info'];
-      basicInfo.forEach((field: any) => {
-        if (field.name === 'Name') this.basicInfo.name = true;
-        if (field.name === 'Email') this.basicInfo.email = true;
-        if (field.name === 'Phone Number') this.basicInfo.phone = true;
-        if (field.name === 'Gender') this.basicInfo.gender = true;
-        if (field.name === 'Age') this.basicInfo.age = true;
-      });
+  initializeDefaultCategories(): void {
+    this.categories = [
+      {
+        name: 'Personal Details',
+        collapsed: false,
+        subCategories: [
+          {
+            name: 'Basic Info',
+            collapsed: false,
+            fields: [
+              { name: 'Name', type: 'text', system: true, value: null, required: true, enabled: true },
+              { name: 'Email', type: 'email', system: true, value: null, required: true, enabled: true },
+              { name: 'Phone Number', type: 'phone', system: true, value: null, required: true, enabled: true },
+              { name: 'Gender', type: 'number', system: true, value: null, required: false, enabled: false },
+              { name: 'Age', type: 'number', system: true, value: null, required: false, enabled: false }
+            ]
+          },
+          {
+            name: 'Education Details',
+            collapsed: false,
+            fields: [
+              { name: 'University Name', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'College Name', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Department', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Major', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Graduation Year', type: 'number', system: true, value: null, required: false, enabled: false }
+            ]
+          },
+          {
+            name: 'Address Information',
+            collapsed: false,
+            fields: [
+              { name: 'Country', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'City', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'State/Province', type: 'text', system: true, value: null, required: false, enabled: false }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Professional Details',
+        collapsed: false,
+        subCategories: [
+          {
+            name: 'Current Job Information',
+            collapsed: false,
+            fields: [
+              { name: 'Current Company', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Current Job Title', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Job Level', type: 'text', system: true, value: null, required: false, enabled: false },
+              { name: 'Years of Experience', type: 'number', system: true, value: null, required: false, enabled: false }
+            ]
+          },
+          {
+            name: 'Salary Information',
+            collapsed: false,
+            fields: [
+              { name: 'Current Salary', type: 'number', system: true, value: null, required: false, enabled: false },
+              { name: 'Expected Salary', type: 'number', system: true, value: null, required: false, enabled: false }
+            ]
+          }
+        ]
+      }
+    ];
+  }
+
+  loadExistingData(dynamicFields: any): void {
+    // Loop through the categories and match with existing data
+    Object.keys(dynamicFields).forEach(categoryName => {
+      const categoryData = dynamicFields[categoryName];
+      const category = this.categories.find(c => c.name === categoryName);
+
+      if (category) {
+        Object.keys(categoryData).forEach(subCategoryName => {
+          const subCategoryData = categoryData[subCategoryName];
+          const subCategory = category.subCategories.find(sc => sc.name === subCategoryName);
+
+          if (subCategory && Array.isArray(subCategoryData)) {
+            // Update existing fields
+            subCategoryData.forEach((fieldData: any) => {
+              const existingField = subCategory.fields.find(f => f.name === fieldData.name);
+              if (existingField) {
+                existingField.enabled = true;
+                existingField.required = fieldData.required || false;
+                existingField.value = fieldData.value;
+              } else {
+                // Add custom field that doesn't exist in defaults
+                subCategory.fields.push({
+                  name: fieldData.name,
+                  type: fieldData.type || 'text',
+                  system: false,
+                  value: fieldData.value,
+                  required: fieldData.required || false,
+                  enabled: true
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  toggleCategory(categoryIndex: number): void {
+    this.categories[categoryIndex].collapsed = !this.categories[categoryIndex].collapsed;
+  }
+
+  toggleSubCategory(categoryIndex: number, subCategoryIndex: number): void {
+    this.categories[categoryIndex].subCategories[subCategoryIndex].collapsed =
+      !this.categories[categoryIndex].subCategories[subCategoryIndex].collapsed;
+  }
+
+  getEnabledFieldsCount(fields: DynamicField[]): number {
+    return fields.filter(f => f.enabled).length;
+  }
+
+  toggleFieldEnabled(field: DynamicField): void {
+    this.updateDynamicFields();
+  }
+
+  toggleFieldRequired(field: DynamicField): void {
+    this.updateDynamicFields();
+  }
+
+  openAddFieldModal(categoryIndex: number, subCategoryIndex: number): void {
+    this.currentCategoryIndex = categoryIndex;
+    this.currentSubCategoryIndex = subCategoryIndex;
+    this.currentCategoryName = this.categories[categoryIndex].name;
+    this.newFieldName = '';
+    this.newFieldType = 'text';
+    this.showAddFieldModal = true;
+  }
+
+  closeAddFieldModal(): void {
+    this.showAddFieldModal = false;
+    this.currentCategoryIndex = -1;
+    this.currentSubCategoryIndex = -1;
+  }
+
+  addCustomField(): void {
+    if (this.newFieldName.trim() && this.currentCategoryIndex >= 0 && this.currentSubCategoryIndex >= 0) {
+      const subCategory = this.categories[this.currentCategoryIndex].subCategories[this.currentSubCategoryIndex];
+
+      // Check if field name already exists
+      const exists = subCategory.fields.some(f => f.name.toLowerCase() === this.newFieldName.trim().toLowerCase());
+      if (!exists) {
+        subCategory.fields.push({
+          name: this.newFieldName.trim(),
+          type: this.newFieldType,
+          system: false,
+          value: null,
+          required: false,
+          enabled: true
+        });
+
+        this.updateDynamicFields();
+      }
     }
 
-    // Load Education Details
-    if (dynamicFields['Personal Details']?.['Education Details']) {
-      const educationDetails = dynamicFields['Personal Details']['Education Details'];
-      educationDetails.forEach((field: any) => {
-        if (field.name === 'University Name') this.educationDetails.university = true;
-        if (field.name === 'College Name') this.educationDetails.college = true;
-        if (field.name === 'Department') this.educationDetails.department = true;
-        if (field.name === 'Major') this.educationDetails.major = true;
-        if (field.name === 'Graduation Year') this.educationDetails.graduation = true;
-      });
-    }
+    this.closeAddFieldModal();
+  }
 
-    // Load Address Information
-    if (dynamicFields['Personal Details']?.['Address Information']) {
-      const addressInfo = dynamicFields['Personal Details']['Address Information'];
-      addressInfo.forEach((field: any) => {
-        if (field.name === 'Country') this.addressInfo.country = true;
-        if (field.name === 'City') this.addressInfo.city = true;
-        if (field.name === 'State/Province') this.addressInfo.state = true;
-      });
-    }
-
-    // Load Current Job Information
-    if (dynamicFields['Professional Details']?.['Current Job Information']) {
-      const currentJobInfo = dynamicFields['Professional Details']['Current Job Information'];
-      currentJobInfo.forEach((field: any) => {
-        if (field.name === 'Current Company') this.currentJobInfo.currentCompany = true;
-        if (field.name === 'Current Job Title') this.currentJobInfo.currentJobTitle = true;
-        if (field.name === 'Job Level') this.currentJobInfo.jobLevel = true;
-        if (field.name === 'Years of Experience') this.currentJobInfo.yearsOfExperience = true;
-      });
-    }
-
-    // Load Salary Information
-    if (dynamicFields['Professional Details']?.['Salary Information']) {
-      const salaryInfo = dynamicFields['Professional Details']['Salary Information'];
-      salaryInfo.forEach((field: any) => {
-        if (field.name === 'Current Salary') this.salaryInfo.currentSalary = true;
-        if (field.name === 'Expected Salary') this.salaryInfo.expectedSalary = true;
-      });
+  removeCustomField(categoryIndex: number, subCategoryIndex: number, fieldIndex: number): void {
+    const field = this.categories[categoryIndex].subCategories[subCategoryIndex].fields[fieldIndex];
+    if (!field.system) {
+      this.deleteFieldIndex = fieldIndex;
+      this.deleteFieldCategoryIndex = categoryIndex;
+      this.deleteFieldSubCategoryIndex = subCategoryIndex;
+      this.deleteFieldName = field.name;
+      this.deleteMessage = `Are you sure you want to delete the field "${field.name}"?`;
+      this.showDeleteConfirmModal = true;
     }
   }
 
+  closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+    this.deleteFieldIndex = -1;
+    this.deleteFieldCategoryIndex = -1;
+    this.deleteFieldSubCategoryIndex = -1;
+    this.deleteFieldName = '';
+    this.deleteMessage = '';
+  }
+
+  confirmDeleteField(): void {
+    if (this.deleteFieldIndex >= 0 && this.deleteFieldCategoryIndex >= 0 && this.deleteFieldSubCategoryIndex >= 0) {
+      this.categories[this.deleteFieldCategoryIndex].subCategories[this.deleteFieldSubCategoryIndex].fields.splice(this.deleteFieldIndex, 1);
+      this.updateDynamicFields();
+    }
+    this.closeDeleteConfirmModal();
+  }
+
   updateDynamicFields(): void {
-    const dynamicFields: any = {
-      'Personal Details': {},
-      'Professional Details': {}
-    };
+    const dynamicFields: any = {};
 
-    // Build Basic Info array (only selected fields)
-    const basicInfoArray: any[] = [];
-    if (this.basicInfo.name) basicInfoArray.push({ name: 'Name', type: 'text', system: true, value: null, required: false });
-    if (this.basicInfo.email) basicInfoArray.push({ name: 'Email', type: 'email', system: true, value: null, required: false });
-    if (this.basicInfo.phone) basicInfoArray.push({ name: 'Phone Number', type: 'phone', system: true, value: null, required: false });
-    if (this.basicInfo.gender) basicInfoArray.push({ name: 'Gender', type: 'number', system: true, value: null, required: false });
-    if (this.basicInfo.age) basicInfoArray.push({ name: 'Age', type: 'number', system: true, value: null, required: false });
+    this.categories.forEach(category => {
+      dynamicFields[category.name] = {};
 
-    if (basicInfoArray.length > 0) {
-      dynamicFields['Personal Details']['Basic Info'] = basicInfoArray;
-    }
+      category.subCategories.forEach(subCategory => {
+        const enabledFields = subCategory.fields
+          .filter(f => f.enabled)
+          .map(f => ({
+            name: f.name,
+            type: f.type,
+            system: f.system,
+            value: f.value,
+            required: f.required
+          }));
 
-    // Build Education Details array (only selected fields)
-    const educationDetailsArray: any[] = [];
-    if (this.educationDetails.university) educationDetailsArray.push({ name: 'University Name', type: 'text', system: true, value: null, required: false });
-    if (this.educationDetails.college) educationDetailsArray.push({ name: 'College Name', type: 'text', system: true, value: null, required: false });
-    if (this.educationDetails.department) educationDetailsArray.push({ name: 'Department', type: 'text', system: true, value: null, required: false });
-    if (this.educationDetails.major) educationDetailsArray.push({ name: 'Major', type: 'text', system: true, value: null, required: false });
-    if (this.educationDetails.graduation) educationDetailsArray.push({ name: 'Graduation Year', type: 'number', system: true, value: null, required: false });
-
-    if (educationDetailsArray.length > 0) {
-      dynamicFields['Personal Details']['Education Details'] = educationDetailsArray;
-    }
-
-    // Build Address Information array (only selected fields)
-    const addressInfoArray: any[] = [];
-    if (this.addressInfo.country) addressInfoArray.push({ name: 'Country', type: 'text', system: true, value: null, required: false });
-    if (this.addressInfo.city) addressInfoArray.push({ name: 'City', type: 'text', system: true, value: null, required: false });
-    if (this.addressInfo.state) addressInfoArray.push({ name: 'State/Province', type: 'text', system: true, value: null, required: false });
-
-    if (addressInfoArray.length > 0) {
-      dynamicFields['Personal Details']['Address Information'] = addressInfoArray;
-    }
-
-    // Build Current Job Information array (only selected fields)
-    const currentJobInfoArray: any[] = [];
-    if (this.currentJobInfo.currentCompany) currentJobInfoArray.push({ name: 'Current Company', type: 'text', system: true, value: null, required: false });
-    if (this.currentJobInfo.currentJobTitle) currentJobInfoArray.push({ name: 'Current Job Title', type: 'text', system: true, value: null, required: false });
-    if (this.currentJobInfo.jobLevel) currentJobInfoArray.push({ name: 'Job Level', type: 'text', system: true, value: null, required: false });
-    if (this.currentJobInfo.yearsOfExperience) currentJobInfoArray.push({ name: 'Years of Experience', type: 'number', system: true, value: null, required: false });
-
-    if (currentJobInfoArray.length > 0) {
-      dynamicFields['Professional Details']['Current Job Information'] = currentJobInfoArray;
-    }
-
-    // Build Salary Information array (only selected fields)
-    const salaryInfoArray: any[] = [];
-    if (this.salaryInfo.currentSalary) salaryInfoArray.push({ name: 'Current Salary', type: 'number', system: true, value: null, required: false });
-    if (this.salaryInfo.expectedSalary) salaryInfoArray.push({ name: 'Expected Salary', type: 'number', system: true, value: null, required: false });
-
-    if (salaryInfoArray.length > 0) {
-      dynamicFields['Professional Details']['Salary Information'] = salaryInfoArray;
-    }
+        if (enabledFields.length > 0) {
+          dynamicFields[category.name][subCategory.name] = enabledFields;
+        }
+      });
+    });
 
     // Update the service
     this.jobCreationDataService.updateDynamicFields(dynamicFields);
+  }
+
+  loadExistingSelections(dynamicFields: any): void {
+    // This method is kept for backward compatibility but actual loading is done in loadExistingData
   }
 
   /**

@@ -32,7 +32,7 @@ import { InsuranceDetailsStepComponent } from './insurance-details/insurance-det
     JobDetailsStepComponent,
     ContractDetailsStepComponent,
     AttendanceDetailsStepComponent,
-    InsuranceDetailsStepComponent
+    InsuranceDetailsStepComponent,
   ],
   providers: [DatePipe],
   templateUrl: './create-employee.component.html',

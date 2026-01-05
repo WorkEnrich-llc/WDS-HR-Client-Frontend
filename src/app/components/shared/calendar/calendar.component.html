@@ -1,0 +1,83 @@
+<!-- Modern Horizontal Month/Year Picker -->
+<div class="month-year-picker-horizontal">
+    <button class="picker-arrow" (click)="prevMonth()" title="Previous Month">
+        &lt;
+    </button>
+    <button class="picker-label" (click)="toggleMonthYearPicker()">
+        {{ selectedMonthYear }}
+    </button>
+    <button class="picker-arrow" (click)="nextMonth()" title="Next Month">
+        &gt;
+    </button>
+    <button class="picker-today-btn" (click)="goToToday()" title="Go to Today">Today</button>
+    @if (showMonthYearPicker){
+    <div class="month-year-dropdown">
+        <div class="dropdown-header">Select Month & Year</div>
+        <div class="dropdown-body">
+            <div class="dropdown-inputs">
+                <select [(ngModel)]="pickerMonth">
+                    <option *ngFor="let m of months; let i = index" [value]="i">{{ m }}</option>
+                </select>
+                <select [(ngModel)]="pickerYear">
+                    <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" (click)="setMonthYear()">Set</button>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Calendar Container -->
+<div class="calendar-wrapper mt-4">
+    @if (isLoading) {
+    <div class="calendar-skeleton">
+        @for (r of [1,2,3,4,5,6]; track r) {
+        <div class="skeleton-row">
+            @for (c of [1,2,3,4,5,6,7]; track c) {
+            <div class="skeleton-cell"></div>
+            }
+        </div>
+        }
+    </div>
+    } @else {
+    <!-- Native Calendar -->
+    <div class="native-calendar">
+        <!-- Calendar Header -->
+        <div class="calendar-header">
+            @for (weekDay of weekDays; track weekDay) {
+            <div class="calendar-header-cell">{{weekDay}}</div>
+            }
+        </div>
+
+        <!-- Calendar Body -->
+        <div class="calendar-body">
+            @for (day of calendarDays; track day.date) {
+            <div class="calendar-day" [class.other-month]="!day.isCurrentMonth" [class.today]="day.isToday"
+                [class.selected]="day.isSelected" (click)="onDayClick(day)">
+                <div class="day-number-container">
+                    <div class="day-number">
+                        {{day.day}}
+                    </div>
+                    @if (getTotalEventCount(day.events) > 0) {
+                    <span class="event-badge"
+                        [class.high-event]="getTotalEventCount(day.events) >= 5">{{getTotalEventCount(day.events)}}</span>
+                    }
+                </div>
+                <div class="day-events">
+                    @for (event of getVisibleEvents(day.events); track event.title + event.date) {
+                    <div class="calendar-event" [ngClass]="getEventClass(event.type)">
+                        <span class="event-dot">●</span>
+                        <span class="event-text">{{event.title}}</span>
+                    </div>
+                    }
+                    @if (getRemainingEventsCount(day.events) > 0) {
+                    <div class="more-events">+{{getRemainingEventsCount(day.events)}} more</div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+</div>

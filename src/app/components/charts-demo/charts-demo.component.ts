@@ -1,6 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-
-import { Chart, ChartConfiguration, ChartType, ChartData, registerables } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 // Register Chart.js components
 Chart.register(...registerables);

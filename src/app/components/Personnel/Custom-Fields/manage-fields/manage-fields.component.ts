@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,18 +10,16 @@ import { CreateFieldRequest, DataType, InputOption, RequestData, TargetModelItem
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-
-
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-manage-fields',
-  imports: [CommonModule, PageHeaderComponent, PopupComponent, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, ReactiveFormsModule, AsyncPipe],
   templateUrl: './manage-fields.component.html',
   styleUrl: './manage-fields.component.css'
 })
+
 export class ManageFieldsComponent {
-
-
   readonly dataTypes: DataType[] = [
     { name: 'text', value: 'text' },
     { name: 'number', value: 'number' },
@@ -129,7 +127,7 @@ export class ManageFieldsComponent {
     if (!this.isEditMode || !this.initialFormValues) {
       return false;
     }
-    
+
     const currentValues = this.customFieldForm.value;
     return JSON.stringify(this.initialFormValues) !== JSON.stringify(currentValues);
   }
@@ -161,7 +159,7 @@ export class ManageFieldsComponent {
         allowed_extensions: []
       }
     };
-    
+
     try {
       if (this.isEditMode) {
         // Update request - includes id

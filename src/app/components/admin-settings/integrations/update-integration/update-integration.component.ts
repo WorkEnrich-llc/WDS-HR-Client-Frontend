@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { SkelatonLoadingComponent } from '../../../shared/skelaton-loading/skelaton-loading.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
@@ -13,10 +13,11 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 import { IntegrationFeaturesFacadeService, FeatureItem } from '../../../../core/services/admin-settings/integrations/integration-features.facade.service';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { switchMap, map, catchError } from 'rxjs/operators';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-update-integration',
-    imports: [CommonModule, PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule],
+    imports: [PageHeaderComponent, SkelatonLoadingComponent, OverlayFilterBoxComponent, TableComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgxPaginationModule, NgClass],
     templateUrl: '../create-integration/create-integration.component.html',
     styleUrls: ['../create-integration/create-integration.component.css']
 })
@@ -95,7 +96,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     private originalFormData: any = null;
     private originalSelectedServices: any[] = [];
     private isOriginalDataStored: boolean = false;
-    
+
     // Cached change detection result
     private _hasChanges: boolean = false;
 
@@ -206,7 +207,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         // Compare dates
         const start = new Date(startDate);
         const expiry = new Date(expiryDate);
-        
+
         // Set time to midnight for accurate date comparison
         start.setHours(0, 0, 0, 0);
         expiry.setHours(0, 0, 0, 0);
@@ -248,7 +249,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         // Compare dates
         const start = new Date(startDate);
         const expiry = new Date(expiryDate);
-        
+
         // Set time to midnight for accurate date comparison
         start.setHours(0, 0, 0, 0);
         expiry.setHours(0, 0, 0, 0);
@@ -315,10 +316,10 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     openServiceFilter(): void {
         // Reset search terms
         this.featureSearchTerm = '';
-        
+
         // Initialize selectedServicesForFirstOverlay with currently selected services
         this.selectedServicesForFirstOverlay = this.selectedServices.map(s => s.feature);
-        
+
         this.serviceFilterBox.openOverlay();
         this.loadIntegrationFeatures();
     }
@@ -372,7 +373,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         // Remove services that were deselected
-        this.selectedServices = this.selectedServices.filter(s => 
+        this.selectedServices = this.selectedServices.filter(s =>
             this.selectedServicesForFirstOverlay.some(f => f.name === s.feature.name)
         );
 
@@ -380,10 +381,10 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         if (this.selectedServices.length > 0) {
             this.showServiceError = false;
         }
-        
+
         // Check for changes after service selection
         this.checkForChanges();
-        
+
         this.serviceFilterBox.closeOverlay();
     }
 
@@ -393,13 +394,13 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     openItemsSelection(service: any): void {
         this.editingService = service;
         this.currentViewingFeature = service.feature;
-        
+
         // Reset search terms and pagination
         this.itemsSearchTerm = '';
         this.departmentsSearchTerm = '';
         this.sectionsSearchTerm = '';
         this.itemsCurrentPage = 1;
-        
+
         // Restore existing selections
         if (service.feature.name === 'Sections') {
             this.selectedDepartment = service.department || null;
@@ -411,20 +412,20 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             }
         } else {
             // Save the selected item IDs (might be stored as IDs only from prefill)
-            const selectedItemIds = (service.items || []).map((item: any) => 
+            const selectedItemIds = (service.items || []).map((item: any) =>
                 typeof item === 'object' && item !== null ? item.id : item
             ).filter((id: any) => id !== null && id !== undefined);
-            
+
             // Store IDs for restoration after loading
             this.selectedItems = [];
             if (selectedItemIds.length > 0) {
                 // Create temporary items with just IDs - will be replaced after loading
                 this.selectedItems = selectedItemIds.map((id: number) => ({ id } as FeatureItem));
             }
-            
+
             this.loadFeatureItems(service.feature.name);
         }
-        
+
         this.itemsFilterBox.openOverlay();
     }
 
@@ -450,7 +451,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
      */
     confirmItemsSelection(): void {
         if (!this.editingService) return;
-        
+
         // Save current selections to the editing service
         if (this.editingService.feature.name === 'Sections') {
             if (this.selectedSections.length > 0 && this.selectedDepartment) {
@@ -475,7 +476,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 this.editingService.isAllSelected = true;
             }
         }
-        
+
         // Update selectedServices with the editing service
         const existingIndex = this.selectedServices.findIndex(s => s.feature.name === this.editingService.feature.name);
         if (existingIndex >= 0) {
@@ -483,10 +484,10 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         } else {
             this.selectedServices.push({ ...this.editingService });
         }
-        
+
         // Check for changes after items/sections selection
         this.checkForChanges();
-        
+
         this.closeItemsFilter();
     }
 
@@ -560,7 +561,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         // Set as current viewing feature and remember it
         this.currentViewingFeature = feature;
         this.lastViewedFeature = feature;
-        
+
         // Clear current viewing state (will be restored if exists)
         this.selectedItems = [];
         this.featureItems = [];
@@ -575,7 +576,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
             if (feature.name === 'Sections') {
                 this.selectedDepartment = existingService.department || null;
                 const isAllSelected = existingService.isAllSelected || false;
-                
+
                 if (isAllSelected) {
                     // Will select all sections after loading
                     this.selectedSections = [];
@@ -583,7 +584,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     // Restore specific selected sections
                     this.selectedSections = [...(existingService.sections || [])];
                 }
-                
+
                 if (this.selectedDepartment) {
                     // Load sections for the department
                     this.loadSectionsForDepartment(this.selectedDepartment.id);
@@ -595,7 +596,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 // Restore selected items - if isAllSelected is true, we'll select all after loading
                 const existingItems = existingService.items || [];
                 const isAllSelected = existingService.isAllSelected || false;
-                
+
                 if (isAllSelected) {
                     // Will select all items after loading
                     this.selectedItems = [];
@@ -629,7 +630,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     getFeatureSelectionCount(featureName: string): number {
         const service = this.selectedServices.find(s => s.feature.name === featureName);
         if (!service) return 0;
-        
+
         if (featureName === 'Sections') {
             return (service.sections || []).length;
         } else {
@@ -723,18 +724,18 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                 this.itemsTotalPages = Number(result.totalPages) || 1;
                 this.itemsCurrentPage = Number(result.currentPage) || 1;
                 this.isLoadingItems = false;
-                
+
                 // If isAllSelected is true, don't pre-select any items (keep them unmarked)
                 // User will manually select items if needed, which will set is_all to false
-                const existingService = this.selectedServices.find(s => 
+                const existingService = this.selectedServices.find(s =>
                     s.feature.name === featureName && s.isAllSelected === true
                 );
-                
+
                 if (existingService && existingService.isAllSelected) {
                     // If isAllSelected is true, don't pre-select items - keep them unmarked
                     // But preserve items from other pages
                     const currentPageItemIds = this.featureItems.map(item => item.id);
-                    this.selectedItems = this.selectedItems.filter(item => 
+                    this.selectedItems = this.selectedItems.filter(item =>
                         !currentPageItemIds.includes(item.id)
                     );
                 } else {
@@ -747,7 +748,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     // Get item IDs from editingService if available
                     let editingServiceItemIds: any[] = [];
                     if (this.editingService && this.editingService.items && this.editingService.items.length > 0) {
-                        editingServiceItemIds = this.editingService.items.map((item: any) => 
+                        editingServiceItemIds = this.editingService.items.map((item: any) =>
                             typeof item === 'object' && item !== null ? item.id : item
                         ).filter((id: any) => id !== null && id !== undefined);
                     }
@@ -756,7 +757,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     const allSelectedIds = [...new Set([...selectedItemIds, ...editingServiceItemIds])];
 
                     // For items on current page that are selected, update them with full object data
-                    const currentPageSelectedItems = this.featureItems.filter((item: FeatureItem) => 
+                    const currentPageSelectedItems = this.featureItems.filter((item: FeatureItem) =>
                         allSelectedIds.includes(item.id)
                     );
 
@@ -769,7 +770,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     // Combine: items from other pages + items from current page
                     this.selectedItems = [...otherPageSelectedItems, ...currentPageSelectedItems];
                 }
-                
+
                 // Don't save in real-time - only update on confirm
             },
             error: (error) => {
@@ -823,16 +824,16 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         }
 
         this.isLoadingSections = true;
-                this.sectionsSubscription = this.featuresFacade.loadSectionsForDepartment(departmentId).subscribe({
+        this.sectionsSubscription = this.featuresFacade.loadSectionsForDepartment(departmentId).subscribe({
             next: (items) => {
                 this.sections = items;
                 this.isLoadingSections = false;
-                
+
                 // Check if this feature has isAllSelected set to true
-                const existingService = this.selectedServices.find(s => 
+                const existingService = this.selectedServices.find(s =>
                     s.feature.name === 'Sections' && s.isAllSelected === true && s.department?.id === departmentId
                 );
-                
+
                 if (existingService && existingService.isAllSelected) {
                     // If isAllSelected is true, select all sections
                     this.selectedSections = [...items];
@@ -842,7 +843,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
                     const validSectionIds = new Set(items.map((item: FeatureItem) => item.id));
                     this.selectedSections = this.selectedSections.filter(section => validSectionIds.has(section.id));
                 }
-                
+
                 // Don't save in real-time - only update on confirm
             },
             error: (error) => {
@@ -1081,7 +1082,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
             this.updateSubscription = this.integrationsService.updateIntegrationEntry(requestBody).subscribe({
                 next: () => {
-                    this.toasterService.showSuccess('Integration updated successfully.',"Updated Successful");
+                    this.toasterService.showSuccess('Integration updated successfully.', "Updated Successful");
                     this.router.navigate(['/integrations']);
                 },
                 error: (error) => {
@@ -1140,7 +1141,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     onStartDateChange(): void {
         const startDateControl = this.integrationForm.get('startDate');
         const expiryDateControl = this.integrationForm.get('expiryDate');
-        
+
         // Update validators to re-check date range
         startDateControl?.updateValueAndValidity({ emitEvent: false });
         expiryDateControl?.updateValueAndValidity({ emitEvent: false });
@@ -1152,7 +1153,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
     onExpiryDateInputChange(): void {
         const startDateControl = this.integrationForm.get('startDate');
         const expiryDateControl = this.integrationForm.get('expiryDate');
-        
+
         // Update validators to re-check date range
         startDateControl?.updateValueAndValidity({ emitEvent: false });
         expiryDateControl?.updateValueAndValidity({ emitEvent: false });
@@ -1195,22 +1196,22 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
         if (this.itemsCurrentPage === page) {
             return;
         }
-        
+
         // Prevent requests while loading
         if (this.isLoadingItems) {
             return;
         }
-        
+
         // Ensure page is at least 1
         if (page < 1) {
             return;
         }
-        
+
         // Only check upper bound if we have total pages data
         if (this.itemsTotalPages > 0 && page > this.itemsTotalPages) {
             return;
         }
-        
+
         // Update page and load data
         this.itemsCurrentPage = page;
         if (this.currentViewingFeature && this.currentViewingFeature.name !== 'Sections') {
@@ -1564,7 +1565,7 @@ export class UpdateIntegrationComponent implements OnInit, OnDestroy {
 
         // Check if form values changed
         const currentForm = this.integrationForm.getRawValue();
-        const formChanged = 
+        const formChanged =
             (currentForm.name?.trim() || currentForm.name || '') !== this.originalFormData.name ||
             (currentForm.startDate || '') !== this.originalFormData.startDate ||
             (currentForm.hasExpiryDate || false) !== this.originalFormData.hasExpiryDate ||
