@@ -292,7 +292,7 @@ export class LoginComponent implements OnInit {
     // Check if current URL has dev- prefix and preserve it
     let finalSubDomain = subDomain.trim();
     const currentSubdomain = parts.length > 2 ? parts[0] : '';
-    
+
     // If current subdomain starts with 'dev-' and the backend subdomain doesn't, add it
     if (currentSubdomain.startsWith('dev-') && !finalSubDomain.startsWith('dev-')) {
       finalSubDomain = `dev-${finalSubDomain}`;
