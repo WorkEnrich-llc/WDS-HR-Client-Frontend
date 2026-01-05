@@ -61,17 +61,20 @@
         <label for="work_schedule_id">Work Schedule <span>*</span></label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
+            @if (workScheduleLoading) {
+            <div class="skeleton-loader skeleton-select"></div>
+            } @else {
             <select id="work_schedule_id" formControlName="work_schedule_id" class="form-select"
               (focus)="sharedService.onWorkScheduleFocus()">
-              <!-- <option [value]="null" disabled hidden>Select Work Schedule</option> -->
               <option [value]="null" disabled hidden>
-                {{ sharedService.workSchedules().length > 0
+                {{ sharedService.getFilteredWorkSchedules().length > 0
                 ? 'Select Work Schedule' : 'No work schedule available'}}
               </option>
-              @for (schedule of sharedService.workSchedules(); track schedule.id) {
+              @for (schedule of sharedService.getFilteredWorkSchedules(); track schedule.id) {
               <option [ngValue]="schedule.id">{{ schedule.name }}</option>
               }
             </select>
+            }
           </div>
         </div>
         @if (sharedService.isFieldInvalid('work_schedule_id', sharedService.attendanceDetails)) {

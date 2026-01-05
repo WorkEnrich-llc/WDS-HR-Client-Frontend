@@ -1,32 +1,17 @@
 <!-- start page header -->
-<app-page-header
-  [breadcrumbs]="[
+<app-page-header [breadcrumbs]="[
     { label: 'Recruitment', link: '/calendar' },
     { label: 'Job Openings', link: '/job-openings' },
     { label: 'Applicants' }
-  ]"
-  title="Opening {{ jobOpening?.id || 'Loading...' }} - Applicants"
+  ]" title="{{ jobOpening?.job_title?.name || 'Loading...' }} - Applicants"
   create="{{ jobOpening?.created_at | date : 'dd/MM/yyyy' }}"
-  update="{{ jobOpening?.updated_at | date : 'dd/MM/yyyy' }}"
->
-  <button
-    class="btn btn-lg btn-primary"
-    [routerLink]="['/job-openings/update-job-openings', jobOpening?.id]"
-  >
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+  update="{{ jobOpening?.updated_at | date : 'dd/MM/yyyy' }}">
+  <button class="btn btn-lg btn-primary" [routerLink]="['/job-openings/update-job-openings', jobOpening?.id]">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clip-path="url(#clip0_1271_19665)">
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+        <path fill-rule="evenodd" clip-rule="evenodd"
           d="M8.95697 0.9375L10.125 0.9375C10.4357 0.9375 10.6875 1.18934 10.6875 1.5C10.6875 1.81066 10.4357 2.0625 10.125 2.0625H9C7.21633 2.0625 5.93517 2.06369 4.96018 2.19478C4.00138 2.32369 3.42334 2.56886 2.9961 2.9961C2.56886 3.42334 2.32369 4.00138 2.19478 4.96018C2.06369 5.93517 2.0625 7.21633 2.0625 9C2.0625 10.7837 2.06369 12.0648 2.19478 13.0398C2.32369 13.9986 2.56886 14.5767 2.9961 15.0039C3.42334 15.4311 4.00138 15.6763 4.96018 15.8052C5.93517 15.9363 7.21633 15.9375 9 15.9375C10.7837 15.9375 12.0648 15.9363 13.0398 15.8052C13.9986 15.6763 14.5767 15.4311 15.0039 15.0039C15.4311 14.5767 15.6763 13.9986 15.8052 13.0398C15.9363 12.0648 15.9375 10.7837 15.9375 9V7.875C15.9375 7.56434 16.1893 7.3125 16.5 7.3125C16.8107 7.3125 17.0625 7.56434 17.0625 7.875V9.04303C17.0625 10.7743 17.0625 12.1311 16.9202 13.1897C16.7745 14.2733 16.4705 15.1283 15.7994 15.7994C15.1283 16.4705 14.2733 16.7745 13.1897 16.9202C12.1311 17.0625 10.7743 17.0625 9.04303 17.0625H8.95697C7.22567 17.0625 5.8689 17.0625 4.81028 16.9202C3.72673 16.7745 2.87171 16.4705 2.2006 15.7994C1.5295 15.1283 1.22549 14.2733 1.07981 13.1897C0.937483 12.1311 0.937491 10.7743 0.9375 9.04303V8.95697C0.937491 7.22567 0.937483 5.86889 1.07981 4.81028C1.22549 3.72673 1.5295 2.87171 2.2006 2.2006C2.87171 1.5295 3.72673 1.22549 4.81028 1.07981C5.86889 0.937483 7.22567 0.937491 8.95697 0.9375ZM12.5779 1.70694C13.6038 0.681022 15.2671 0.681022 16.2931 1.70694C17.319 2.73285 17.319 4.39619 16.2931 5.4221L11.307 10.4082C11.0285 10.6867 10.8541 10.8611 10.6594 11.013C10.4302 11.1918 10.1821 11.3451 9.91961 11.4702C9.69676 11.5764 9.46271 11.6544 9.08909 11.7789L6.9107 12.505C6.50851 12.6391 6.0651 12.5344 5.76533 12.2347C5.46556 11.9349 5.36089 11.4915 5.49495 11.0893L6.22108 8.91092C6.34559 8.53729 6.42359 8.30324 6.5298 8.08039C6.65489 7.81791 6.80821 7.56984 6.98703 7.34056C7.13887 7.1459 7.31333 6.97147 7.59183 6.693L12.5779 1.70694ZM15.4976 2.50243C14.911 1.91586 13.96 1.91586 13.3734 2.50243L13.0909 2.7849C13.108 2.85679 13.1318 2.94245 13.1649 3.038C13.2724 3.34779 13.4758 3.75579 13.86 4.14C14.2442 4.5242 14.6522 4.7276 14.962 4.83508C15.0575 4.86823 15.1432 4.89205 15.2151 4.90907L15.4976 4.62661C16.0841 4.04003 16.0841 3.08901 15.4976 2.50243ZM14.3289 5.79532C13.9419 5.6289 13.4911 5.36209 13.0645 4.93549C12.6379 4.50889 12.3711 4.05812 12.2047 3.67114L8.41313 7.46269C8.10075 7.77508 7.97823 7.89897 7.87411 8.03246C7.74553 8.19731 7.6353 8.37567 7.54536 8.56439C7.47252 8.71722 7.41651 8.8822 7.2768 9.30131L6.95288 10.2731L7.72693 11.0471L8.69869 10.7232C9.1178 10.5835 9.28278 10.5275 9.43561 10.4546C9.62433 10.3647 9.80269 10.2545 9.96754 10.1259C10.101 10.0218 10.2249 9.89926 10.5373 9.58687L14.3289 5.79532Z"
-          fill="#E0EBFF"
-        />
+          fill="#E0EBFF" />
       </g>
       <defs>
         <clipPath id="clip0_1271_19665">
@@ -41,18 +26,10 @@
   <!-- Pause button - shown when job is Live -->
   @if (isJobLive()) {
   <button (click)="openPauseModal()" class="btn btn-lg btn-outline-warning">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="currentColor"
-        fill-rule="evenodd"
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor" fill-rule="evenodd"
         d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m8.228-4.75h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.428.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013A8 8 0 0 0 9.5 8.75c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012m5.577-1.52h.044c.214 0 .41 0 .576.011c.178.012.373.04.572.122c.429.178.77.519.947.947c.082.199.11.394.122.572c.011.165.011.362.011.576v5.044c0 .214 0 .41-.011.576c-.012.178-.04.373-.122.572a1.75 1.75 0 0 1-.947.947c-.199.082-.394.11-.572.122c-.165.011-.362.011-.576.011h-.044c-.214 0-.41 0-.576-.011a1.8 1.8 0 0 1-.572-.122a1.75 1.75 0 0 1-.947-.947a1.8 1.8 0 0 1-.122-.572c-.011-.165-.011-.362-.011-.576V9.478c0-.214 0-.41.011-.576c.012-.178.04-.373.122-.572a1.75 1.75 0 0 1 .947-.947c.199-.082.394-.11.572-.122c.165-.011.362-.011.576-.011m-.577 1.52a.25.25 0 0 0-.13.131a1 1 0 0 0-.013.103a8 8 0 0 0-.008.496v5c0 .243 0 .388.008.496c.004.067.01.095.012.103a.25.25 0 0 0 .131.13a1 1 0 0 0 .103.013c.108.008.253.008.496.008s.388 0 .496-.008a1 1 0 0 0 .103-.012a.25.25 0 0 0 .13-.131a1 1 0 0 0 .013-.103c.008-.108.008-.253.008-.496v-5c0-.243 0-.388-.008-.496a1 1 0 0 0-.012-.103a.25.25 0 0 0-.131-.13a1 1 0 0 0-.103-.013a8 8 0 0 0-.496-.008c-.243 0-.388 0-.496.008a1 1 0 0 0-.103.012"
-        clip-rule="evenodd"
-      />
+        clip-rule="evenodd" />
     </svg>
     <span>Pause</span>
   </button>
@@ -61,18 +38,10 @@
   <!-- Play/Live button - shown when job is Paused or other status -->
   @if (!isJobLive()) {
   <button (click)="openMakeLiveModal()" class="btn btn-lg btn-outline-success">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="currentColor"
-        fill-rule="evenodd"
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path fill="currentColor" fill-rule="evenodd"
         d="M12 2.75a9.25 9.25 0 1 0 0 18.5a9.25 9.25 0 0 0 0-18.5M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12m9.44-4.44c-.347-.201-.737-.31-1.135-.31c-1.286 0-2.305 1.04-2.305 2.313v4.874c0 1.272 1.019 2.313 2.305 2.313c.398 0 .788-.109 1.134-.31l3.97-2.31c.72-.418 1.091-1.262 1.091-2.127s-.371-1.71-1.09-2.127z"
-        clip-rule="evenodd"
-      />
+        clip-rule="evenodd" />
     </svg>
     <span>Make Live</span>
   </button>
@@ -87,39 +56,17 @@
       <div class="content-box d-flex flex-column gap-3 w-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Main Information</h2>
-          <button
-            (click)="toggleText()"
-            class="edit-btn d-flex align-items-center justify-content-center gap-1"
-          >
+          <button (click)="toggleText()" class="edit-btn d-flex align-items-center justify-content-center gap-1">
             @if (isExpanded) {
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                fill-rule="evenodd"
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="currentColor" fill-rule="evenodd"
                 d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
-                clip-rule="evenodd"
-              />
+                clip-rule="evenodd" />
             </svg>
             } @if (!isExpanded) {
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="m19 15l-7-6l-7 6"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="m19 15l-7-6l-7 6" />
             </svg>
             }
             <span>{{ isExpanded ? "Show" : "Hide" }}</span>
@@ -144,7 +91,7 @@
             <h6>Opening ID</h6>
             <span>{{
               jobOpening.id?.toString().padStart(4, "0") || "N/A"
-            }}</span>
+              }}</span>
           </div>
           <div class="info">
             <h6>Opening Name</h6>
@@ -168,7 +115,7 @@
           </div>
           <div class="info">
             <h6>Days on Site</h6>
-            <span>{{ jobOpening.days_on_site || "N/A" }}</span>
+            <span>{{ jobOpening.days_on_site ?? "N/A" }}</span>
           </div>
           <div class="info">
             <h6>Employment Type</h6>
@@ -176,15 +123,11 @@
           </div>
           <div class="info">
             <h6>Status</h6>
-            <span
-              class="badge"
-              [ngClass]="{
+            <span class="badge" [ngClass]="{
                 'bg-success': jobOpening.status === 'Live',
                 'bg-warning': jobOpening.status === 'Draft',
                 'bg-secondary': jobOpening.status === 'Closed'
-              }"
-              >{{ jobOpening.status || "N/A" }}</span
-            >
+              }">{{ jobOpening.status || "N/A" }}</span>
           </div>
           <div class="info">
             <h6>Created By</h6>
@@ -202,30 +145,6 @@
       <div class="content-box d-flex flex-column gap-3 w-100">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Job details</h2>
-          <a class="view-btn h-100 d-flex align-items-center gap-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
-              <g
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="1.5"
-              >
-                <path
-                  stroke-linejoin="round"
-                  d="m13 11l9-9m0 0h-5.344M22 2v5.344"
-                />
-                <path
-                  d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2"
-                />
-              </g>
-            </svg>
-            <span>View</span>
-          </a>
         </div>
 
         <!-- Loading skeleton for Job Details -->
@@ -242,11 +161,45 @@
         </div>
         } @if (!jobDetailsInfoLoading && !isExpanded) {
         <div class="d-flex flex-column gap-3">
+          <!-- Job URL Section -->
+          <div class="job-url-item position-relative pb-3 border-bottom">
+            <h4 style="font-size: 14px; font-weight: 600; color: #2c435d;" class="mb-2">Job URL</h4>
+            <p class="mb-0" style="font-size: 14px; color: #2c435d; word-break: break-all">
+              {{ jobUrl || "N/A" }}
+            </p>
+            @if (jobUrl) {
+            <button type="button" class="btn btn-link p-0 position-absolute top-0 end-0 text-decoration-none"
+              (click)="openExternalLink(jobUrl)" style="
+                width: 34px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              " title="Open Job URL">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_1271_19239)">
+                  <path
+                    d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
+                    fill="#377AFD" />
+                  <path
+                    d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
+                    fill="#377AFD" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_1271_19239">
+                    <rect width="18" height="18" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+            }
+          </div>
+
           <div class="info">
             <h6>Job ID</h6>
             <span>{{
               jobOpening.job_title?.id?.toString().padStart(4, "0") || "N/A"
-            }}</span>
+              }}</span>
           </div>
           <div class="info">
             <h6>Job title</h6>
@@ -264,14 +217,19 @@
             <h6>Work Schedule</h6>
             <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
           </div>
+          @if (jobOpening.job_title?.employment_type) {
           <div class="info">
             <h6>Job type</h6>
-            <span>Full time</span>
+            <span>{{ jobOpening.job_title.employment_type }}</span>
           </div>
+          }
+          @if (jobOpening.job_title?.salary_ranges) {
           <div class="info">
             <h6>Average Salary</h6>
-            <span>14.000-18.000</span>
+            <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{
+              jobOpening.job_title.salary_ranges.currency }}</span>
           </div>
+          }
         </div>
         }
       </div>
@@ -285,19 +243,9 @@
     <!-- Search Bar -->
     <div class="mb-3">
       <div data-mdb-input-init class="form-outline w-25">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search for an employee"
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()"
-        />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-        >
+        <input type="text" class="form-control" placeholder="Search for an employee" [(ngModel)]="searchTerm"
+          (input)="onSearchChange()" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="11.5" cy="11.5" r="9.5" />
             <path stroke-linecap="round" d="M18.5 18.5L22 22" />
@@ -308,254 +256,315 @@
 
     <!-- Tab Navigation -->
     <ul class="nav d-flex align-items-center nav-tabs bg-white p-0 px-3 mb-3">
-      <li
-        class="nav-item"
-        [class.active]="activeTab === 'all'"
-        (click)="setActiveTab('all')"
-      >
-        <svg
-          width="19"
-          height="18"
-          viewBox="0 0 19 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_1087_19391)">
-            <circle cx="9.16699" cy="4.5" r="3" fill="currentColor" />
-            <path
-              opacity="0.3"
-              d="M15.167 13.125C15.167 14.989 15.167 16.5 9.16699 16.5C3.16699 16.5 3.16699 14.989 3.16699 13.125C3.16699 11.261 5.85328 9.75 9.16699 9.75C12.4807 9.75 15.167 11.261 15.167 13.125Z"
-              fill="currentColor"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_1087_19391">
-              <rect
-                width="18"
-                height="18"
-                fill="white"
-                transform="translate(0.166992)"
-              />
-            </clipPath>
-          </defs>
-        </svg>
-
-        <span class="nav-link">All Applicants</span>
+      <li class="nav-item" [class.active]="activeTab === 'applicant'" (click)="setActiveTab('applicant')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_1087_19391)">
+                <circle cx="9.16699" cy="4.5" r="3" fill="currentColor" />
+                <path opacity="0.3"
+                  d="M15.167 13.125C15.167 14.989 15.167 16.5 9.16699 16.5C3.16699 16.5 3.16699 14.989 3.16699 13.125C3.16699 11.261 5.85328 9.75 9.16699 9.75C12.4807 9.75 15.167 11.261 15.167 13.125Z"
+                  fill="currentColor" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1087_19391">
+                  <rect width="18" height="18" fill="white" transform="translate(0.166992)" />
+                </clipPath>
+              </defs>
+            </svg>
+            New Applicants
+          </span>
+          <span class="tab-count">
+            <span class="count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.newApplicants }}
+            </span>
+          </span>
+        </span>
+      </li>
+      <li class="nav-item" [class.active]="activeTab === 'candidate'" (click)="setActiveTab('candidate')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z"
+                fill="currentColor" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM13.851 13.3094C14.0219 13.1385 14.0219 12.8615 13.851 12.6906C13.6802 12.5198 13.4032 12.5198 13.2323 12.6906L11.7917 14.1313L11.5177 13.8573C11.3468 13.6865 11.0698 13.6865 10.899 13.8573C10.7281 14.0282 10.7281 14.3052 10.899 14.476L11.4823 15.0594C11.6532 15.2302 11.9302 15.2302 12.101 15.0594L13.851 13.3094Z"
+                fill="currentColor" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z"
+                fill="currentColor" />
+            </svg>
+            Candidate
+          </span>
+          <span class="tab-count">
+            <span class="count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.candidates }}
+            </span>
+          </span>
+        </span>
+      </li>
+      <li class="nav-item" [class.active]="activeTab === 'interviewee'" (click)="setActiveTab('interviewee')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_1087_19404)">
+                <path
+                  d="M6.05305 1.5C6.36619 1.5 6.62004 1.73247 6.62004 2.01923V3.06662C7.12298 3.05769 7.68672 3.05769 8.32102 3.05769H11.345C11.9793 3.05769 12.543 3.05769 13.046 3.06662V2.01923C13.046 1.73247 13.2998 1.5 13.613 1.5C13.9261 1.5 14.18 1.73247 14.18 2.01923V3.11256C15.2681 3.19236 15.9824 3.38818 16.5072 3.86878C17.032 4.34938 17.2459 5.00354 17.333 6V6.75H2.33301V6C2.42014 5.00354 2.63398 4.34938 3.15879 3.86878C3.6836 3.38818 4.39793 3.19236 5.48606 3.11256V2.01923C5.48606 1.73247 5.73991 1.5 6.05305 1.5Z"
+                  fill="currentColor" />
+                <path opacity="0.3"
+                  d="M17.333 10.5V9C17.333 8.37072 17.3235 7.24895 17.3138 6.75H2.3374C2.32773 7.24895 2.33724 8.37072 2.33724 9V10.5C2.33724 13.3284 2.33724 14.7426 3.21567 15.6213C4.0941 16.5 5.50792 16.5 8.33555 16.5H11.3347C14.1623 16.5 15.5761 16.5 16.4546 15.6213C17.333 14.7426 17.333 13.3284 17.333 10.5Z"
+                  fill="currentColor" />
+                <path
+                  d="M14.333 12.375C14.333 12.9963 13.8293 13.5 13.208 13.5C12.5867 13.5 12.083 12.9963 12.083 12.375C12.083 11.7537 12.5867 11.25 13.208 11.25C13.8293 11.25 14.333 11.7537 14.333 12.375Z"
+                  fill="currentColor" />
+              </g>
+              <defs>
+                <clipPath id="clip0_1087_19404">
+                  <rect width="18" height="18" fill="white" transform="translate(0.833008)" />
+                </clipPath>
+              </defs>
+            </svg>
+            Interview
+          </span>
+          <span class="tab-count">
+            <span class="count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.interviewsUpcoming }}
+            </span>
+            <span class="count-item interview-accepted">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+                fill="none">
+                <path
+                  d="M10.6872 5.97982C10.8825 6.17508 10.8825 6.49167 10.6872 6.68693L7.35388 10.0203C7.15862 10.2155 6.84203 10.2155 6.64677 10.0203L5.31344 8.68693C5.11818 8.49167 5.11818 8.17508 5.31344 7.97982C5.5087 7.78456 5.82528 7.78456 6.02055 7.97982L7.00033 8.9596L8.49022 7.46971L9.98011 5.97982C10.1754 5.78456 10.492 5.78456 10.6872 5.97982Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.interviewsPrevious }}
+            </span>
+          </span>
+        </span>
+      </li>
+      <li class="nav-item" [class.active]="activeTab === 'qualified'" (click)="setActiveTab('qualified')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path opacity="0.3"
+                d="M9.6665 12C5.34654 12 4.58126 7.69466 4.44568 4.27985C4.40797 3.32998 4.38912 2.85505 4.74591 2.41562C5.10269 1.9762 5.52972 1.90415 6.38377 1.76006C7.22681 1.61782 8.32884 1.5 9.6665 1.5C11.0042 1.5 12.1062 1.61782 12.9492 1.76006C13.8033 1.90415 14.2303 1.9762 14.5871 2.41562C14.9439 2.85505 14.925 3.32998 14.8873 4.27985C14.7517 7.69466 13.9865 12 9.6665 12Z"
+                fill="currentColor" />
+              <path
+                d="M13.8968 9.31652L16.0092 8.14293C16.5735 7.82942 16.8556 7.67266 17.011 7.40857C17.1664 7.14448 17.1664 6.82171 17.1665 6.17615L17.1665 6.12175C17.1665 5.33905 17.1665 4.94769 16.9541 4.65306C16.7418 4.35843 16.3705 4.23467 15.628 3.98716L14.9165 3.75L14.9038 3.81348C14.9003 3.95543 14.8942 4.11005 14.8874 4.27984C14.8212 5.94813 14.6047 7.82899 13.8968 9.31652Z"
+                fill="currentColor" />
+              <path
+                d="M4.44581 4.27985C4.51204 5.94822 4.72859 7.82916 5.43657 9.31672L3.32379 8.14293C2.75948 7.82942 2.47732 7.67266 2.32192 7.40857C2.16653 7.14448 2.16652 6.82171 2.16651 6.17615L2.1665 6.12175C2.16648 5.33905 2.16647 4.94769 2.37883 4.65306C2.59118 4.35843 2.96245 4.23467 3.70499 3.98716L4.41646 3.75L4.42947 3.81503C4.43297 3.95656 4.43909 4.11067 4.44581 4.27985Z"
+                fill="currentColor" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M4.604 16.5C4.604 16.1893 4.85584 15.9375 5.1665 15.9375H14.1665C14.4772 15.9375 14.729 16.1893 14.729 16.5C14.729 16.8107 14.4772 17.0625 14.1665 17.0625H5.1665C4.85584 17.0625 4.604 16.8107 4.604 16.5Z"
+                fill="currentColor" />
+              <path opacity="0.3"
+                d="M12.2596 15.9375H7.07324L7.29585 14.6251C7.36597 14.2746 7.67378 14.0222 8.03129 14.0222H11.3016C11.6591 14.0222 11.9669 14.2746 12.037 14.6251L12.2596 15.9375Z"
+                fill="currentColor" />
+              <path
+                d="M9.66662 12.0001C9.47195 12.0001 9.2845 11.9914 9.104 11.9744V14.0222H10.229V11.9744C10.0486 11.9914 9.8612 12.0001 9.66662 12.0001Z"
+                fill="currentColor" />
+            </svg>
+            Qualified
+          </span>
+          <span class="tab-count">
+            <span class="count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.qualifiers }}
+            </span>
+          </span>
+        </span>
       </li>
 
-      <li
-        class="nav-item"
-        [class.active]="activeTab === 'candidates'"
-        (click)="setActiveTab('candidates')"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z"
-            fill="currentColor"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM13.851 13.3094C14.0219 13.1385 14.0219 12.8615 13.851 12.6906C13.6802 12.5198 13.4032 12.5198 13.2323 12.6906L11.7917 14.1313L11.5177 13.8573C11.3468 13.6865 11.0698 13.6865 10.899 13.8573C10.7281 14.0282 10.7281 14.3052 10.899 14.476L11.4823 15.0594C11.6532 15.2302 11.9302 15.2302 12.101 15.0594L13.851 13.3094Z"
-            fill="currentColor"
-          />
-          <path
-            opacity="0.3"
-            d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z"
-            fill="currentColor"
-          />
-        </svg>
+      <li class="nav-item" [class.active]="activeTab === 'jobOfferSent'" (click)="setActiveTab('jobOfferSent')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.1838 5.82011L16.0625 1.94141L16.0605 1.93947C15.1701 1.04901 13.4832 1.61131 10.1094 2.73591L6.2474 4.02324C3.52443 4.9309 2.16294 5.38473 1.77604 6.05024C1.40799 6.68334 1.40799 7.46527 1.77604 8.09837C2.16294 8.76388 3.52443 9.21771 6.2474 10.1254C6.58486 10.2379 6.96451 10.1575 7.2172 9.90719L11.3464 5.81622C11.5787 5.58606 11.9536 5.58781 12.1838 5.82011Z"
+                fill="#4A6D97" />
+              <path opacity="0.3"
+                d="M13.9768 11.7521L15.2642 7.8901C16.388 4.51878 16.9503 2.83188 16.0626 1.94092L12.1839 5.81962C12.414 6.05192 12.4123 6.42682 12.18 6.65697L8.11743 10.6819C7.83891 10.9578 7.75074 11.3802 7.87472 11.7521C8.78237 14.4751 9.23621 15.8366 9.90171 16.2235C10.5348 16.5915 11.3167 16.5915 11.9499 16.2235C12.6154 15.8366 13.0692 14.4751 13.9768 11.7521Z"
+                fill="#4A6D97" />
+            </svg>
 
-        <span class="nav-link">Candidates</span>
+            Job Offer
+          </span>
+          <span class="tab-count">
+            <span class="offer-sent-grey count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.jobOffersSent }}
+            </span>
+            <span class="offer-accepted count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+                fill="none">
+                <path
+                  d="M10.6872 5.97982C10.8825 6.17508 10.8825 6.49167 10.6872 6.68693L7.35388 10.0203C7.15862 10.2155 6.84203 10.2155 6.64677 10.0203L5.31344 8.68693C5.11818 8.49167 5.11818 8.17508 5.31344 7.97982C5.5087 7.78456 5.82528 7.78456 6.02055 7.97982L7.00033 8.9596L8.49022 7.46971L9.98011 5.97982C10.1754 5.78456 10.492 5.78456 10.6872 5.97982Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersAccepted }}
+            </span>
+            <span class="offer-rejected count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"
+                fill="none">
+                <path
+                  d="M0.146447 0.146447C0.341709 -0.0488155 0.658291 -0.0488155 0.853553 0.146447L2.16667 1.45957L3.47978 0.14646C3.67504 -0.0488019 3.99162 -0.0488018 4.18689 0.14646C4.38215 0.341722 4.38215 0.658305 4.18689 0.853567L2.87378 2.16667L4.18687 3.47977C4.38213 3.67503 4.38213 3.99161 4.18687 4.18687C3.99161 4.38214 3.67503 4.38214 3.47977 4.18687L2.16667 2.87378L0.853568 4.18689C0.658306 4.38215 0.341723 4.38215 0.146461 4.18689C-0.0488012 3.99162 -0.0488012 3.67504 0.146461 3.47978L1.45957 2.16667L0.146447 0.853553C-0.0488155 0.658291 -0.0488155 0.341709 0.146447 0.146447Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersRejected }}
+            </span>
+          </span>
+        </span>
       </li>
-
-      <li
-        class="nav-item"
-        [class.active]="activeTab === 'interviewing'"
-        (click)="setActiveTab('interviewing')"
-      >
-        <svg
-          width="19"
-          height="18"
-          viewBox="0 0 19 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_1087_19404)">
-            <path
-              d="M6.05305 1.5C6.36619 1.5 6.62004 1.73247 6.62004 2.01923V3.06662C7.12298 3.05769 7.68672 3.05769 8.32102 3.05769H11.345C11.9793 3.05769 12.543 3.05769 13.046 3.06662V2.01923C13.046 1.73247 13.2998 1.5 13.613 1.5C13.9261 1.5 14.18 1.73247 14.18 2.01923V3.11256C15.2681 3.19236 15.9824 3.38818 16.5072 3.86878C17.032 4.34938 17.2459 5.00354 17.333 6V6.75H2.33301V6C2.42014 5.00354 2.63398 4.34938 3.15879 3.86878C3.6836 3.38818 4.39793 3.19236 5.48606 3.11256V2.01923C5.48606 1.73247 5.73991 1.5 6.05305 1.5Z"
-              fill="currentColor"
-            />
-            <path
-              opacity="0.3"
-              d="M17.333 10.5V9C17.333 8.37072 17.3235 7.24895 17.3138 6.75H2.3374C2.32773 7.24895 2.33724 8.37072 2.33724 9V10.5C2.33724 13.3284 2.33724 14.7426 3.21567 15.6213C4.0941 16.5 5.50792 16.5 8.33555 16.5H11.3347C14.1623 16.5 15.5761 16.5 16.4546 15.6213C17.333 14.7426 17.333 13.3284 17.333 10.5Z"
-              fill="currentColor"
-            />
-            <path
-              d="M14.333 12.375C14.333 12.9963 13.8293 13.5 13.208 13.5C12.5867 13.5 12.083 12.9963 12.083 12.375C12.083 11.7537 12.5867 11.25 13.208 11.25C13.8293 11.25 14.333 11.7537 14.333 12.375Z"
-              fill="currentColor"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_1087_19404">
-              <rect
-                width="18"
-                height="18"
-                fill="white"
-                transform="translate(0.833008)"
-              />
-            </clipPath>
-          </defs>
-        </svg>
-
-        <span class="nav-link">Interviewing</span>
+      <!-- <li class="nav-item" [class.active]="activeTab === 'offerAccepted'" (click)="setActiveTab('offerAccepted')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM11.5177 12.399C11.3468 12.2281 11.0698 12.2281 10.899 12.399C10.7281 12.5698 10.7281 12.8468 10.899 13.0177L11.7563 13.875L10.899 14.7323C10.7281 14.9032 10.7281 15.1802 10.899 15.351C11.0698 15.5219 11.3468 15.5219 11.5177 15.351L12.375 14.4937L13.2323 15.351C13.4032 15.5219 13.6802 15.5219 13.851 15.351C14.0219 15.1802 14.0219 14.9032 13.851 14.7323L12.9937 13.875L13.851 13.0177C14.0219 12.8468 14.0219 12.5698 13.851 12.399C13.6802 12.2281 13.4032 12.2281 13.2323 12.399L12.375 13.2563L11.5177 12.399Z" />
+            </svg>
+            Offer Accepted
+          </span>
+          <span class="tab-count">
+            <span class="count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"
+                fill="none">
+                <path
+                  d="M6 3C6 4.65685 4.65685 6 3 6C1.34315 6 0 4.65685 0 3C0 1.34315 1.34315 0 3 0C4.65685 0 6 1.34315 6 3Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersAccepted }}
+            </span>
+          </span>
+        </span>
       </li>
-
-      <li
-        class="nav-item"
-        [class.active]="activeTab === 'qualified'"
-        (click)="setActiveTab('qualified')"
-      >
-        <svg
-          width="19"
-          height="18"
-          viewBox="0 0 19 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            opacity="0.3"
-            d="M9.6665 12C5.34654 12 4.58126 7.69466 4.44568 4.27985C4.40797 3.32998 4.38912 2.85505 4.74591 2.41562C5.10269 1.9762 5.52972 1.90415 6.38377 1.76006C7.22681 1.61782 8.32884 1.5 9.6665 1.5C11.0042 1.5 12.1062 1.61782 12.9492 1.76006C13.8033 1.90415 14.2303 1.9762 14.5871 2.41562C14.9439 2.85505 14.925 3.32998 14.8873 4.27985C14.7517 7.69466 13.9865 12 9.6665 12Z"
-            fill="currentColor"
-          />
-          <path
-            d="M13.8968 9.31652L16.0092 8.14293C16.5735 7.82942 16.8556 7.67266 17.011 7.40857C17.1664 7.14448 17.1664 6.82171 17.1665 6.17615L17.1665 6.12175C17.1665 5.33905 17.1665 4.94769 16.9541 4.65306C16.7418 4.35843 16.3705 4.23467 15.628 3.98716L14.9165 3.75L14.9038 3.81348C14.9003 3.95543 14.8942 4.11005 14.8874 4.27984C14.8212 5.94813 14.6047 7.82899 13.8968 9.31652Z"
-            fill="currentColor"
-          />
-          <path
-            d="M4.44581 4.27985C4.51204 5.94822 4.72859 7.82916 5.43657 9.31672L3.32379 8.14293C2.75948 7.82942 2.47732 7.67266 2.32192 7.40857C2.16653 7.14448 2.16652 6.82171 2.16651 6.17615L2.1665 6.12175C2.16648 5.33905 2.16647 4.94769 2.37883 4.65306C2.59118 4.35843 2.96245 4.23467 3.70499 3.98716L4.41646 3.75L4.42947 3.81503C4.43297 3.95656 4.43909 4.11067 4.44581 4.27985Z"
-            fill="currentColor"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M4.604 16.5C4.604 16.1893 4.85584 15.9375 5.1665 15.9375H14.1665C14.4772 15.9375 14.729 16.1893 14.729 16.5C14.729 16.8107 14.4772 17.0625 14.1665 17.0625H5.1665C4.85584 17.0625 4.604 16.8107 4.604 16.5Z"
-            fill="currentColor"
-          />
-          <path
-            opacity="0.3"
-            d="M12.2596 15.9375H7.07324L7.29585 14.6251C7.36597 14.2746 7.67378 14.0222 8.03129 14.0222H11.3016C11.6591 14.0222 11.9669 14.2746 12.037 14.6251L12.2596 15.9375Z"
-            fill="currentColor"
-          />
-          <path
-            d="M9.66662 12.0001C9.47195 12.0001 9.2845 11.9914 9.104 11.9744V14.0222H10.229V11.9744C10.0486 11.9914 9.8612 12.0001 9.66662 12.0001Z"
-            fill="currentColor"
-          />
-        </svg>
-
-        <span class="nav-link">Qualified</span>
+      <li class="nav-item" [class.active]="activeTab === 'offerRejected'" (click)="setActiveTab('offerRejected')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM11.5177 12.399C11.3468 12.2281 11.0698 12.2281 10.899 12.399C10.7281 12.5698 10.7281 12.8468 10.899 13.0177L11.7563 13.875L10.899 14.7323C10.7281 14.9032 10.7281 15.1802 10.899 15.351C11.0698 15.5219 11.3468 15.5219 11.5177 15.351L12.375 14.4937L13.2323 15.351C13.4032 15.5219 13.6802 15.5219 13.851 15.351C14.0219 15.1802 14.0219 14.9032 13.851 14.7323L12.9937 13.875L13.851 13.0177C14.0219 12.8468 14.0219 12.5698 13.851 12.399C13.6802 12.2281 13.4032 12.2281 13.2323 12.399L12.375 13.2563L11.5177 12.399Z" />
+            </svg>
+            Offer Rejected
+          </span>
+          <span class="tab-count">
+            <span class="offer-rejected count-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5" fill="none">
+                <path
+                  d="M0.146447 0.146447C0.341709 -0.0488155 0.658291 -0.0488155 0.853553 0.146447L2.16667 1.45957L3.47978 0.14646C3.67504 -0.0488019 3.99162 -0.0488018 4.18689 0.14646C4.38215 0.341722 4.38215 0.658305 4.18689 0.853567L2.87378 2.16667L4.18687 3.47977C4.38213 3.67503 4.38213 3.99161 4.18687 4.18687C3.99161 4.38214 3.67503 4.38214 3.47977 4.18687L2.16667 2.87378L0.853568 4.18689C0.658306 4.38215 0.341723 4.38215 0.146461 4.18689C-0.0488012 3.99162 -0.0488012 3.67504 0.146461 3.47978L1.45957 2.16667L0.146447 0.853553C-0.0488155 0.658291 -0.0488155 0.341709 0.146447 0.146447Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.offersRejected }}
+            </span>
+          </span>
+        </span>
+      </li> -->
+      <li class="nav-item" [class.active]="activeTab === 'accepted'" (click)="setActiveTab('accepted')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM11.5177 12.399C11.3468 12.2281 11.0698 12.2281 10.899 12.399C10.7281 12.5698 10.7281 12.8468 10.899 13.0177L11.7563 13.875L10.899 14.7323C10.7281 14.9032 10.7281 15.1802 10.899 15.351C11.0698 15.5219 11.3468 15.5219 11.5177 15.351L12.375 14.4937L13.2323 15.351C13.4032 15.5219 13.6802 15.5219 13.851 15.351C14.0219 15.1802 14.0219 14.9032 13.851 14.7323L12.9937 13.875L13.851 13.0177C14.0219 12.8468 14.0219 12.5698 13.851 12.399C13.6802 12.2281 13.4032 12.2281 13.2323 12.399L12.375 13.2563L11.5177 12.399Z" />
+            </svg>
+            Accepted
+          </span>
+          <span class="tab-count">
+            <span class="offer-accepted count-item">
+              {{ applicantCounts.accepted }}
+            </span>
+          </span>
+        </span>
       </li>
-
-      <li
-        class="nav-item"
-        [class.active]="activeTab === 'rejected'"
-        (click)="setActiveTab('rejected')"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_1087_19421)">
-            <path
-              opacity="0.3"
-              d="M7.92051 1.6875C7.83538 1.68749 7.76912 1.68748 7.70643 1.69128C6.9111 1.73944 6.21466 2.24141 5.91746 2.98069C5.89351 3.04027 5.87222 3.10397 5.84375 3.18938C5.78124 3.35763 5.63779 3.54899 5.43691 3.70189C5.41454 3.71892 5.39209 3.73499 5.36963 3.75013L6.82613 3.75C6.84777 3.70533 6.86773 3.65991 6.88585 3.61381L6.88701 3.61119L6.89013 3.60376L6.89379 3.59467L6.89723 3.5857L6.89995 3.57824L6.90129 3.57448L6.90447 3.5653L6.90734 3.55683L6.90891 3.55213L6.91096 3.54587L6.91264 3.5406L6.91398 3.53626C6.9431 3.44904 6.95261 3.42185 6.96127 3.40032C7.09636 3.06428 7.41292 2.83611 7.77444 2.81422C7.79863 2.81275 7.82829 2.8125 7.93582 2.8125H10.0641C10.1717 2.8125 10.2013 2.81275 10.2255 2.81422C10.587 2.83611 10.9036 3.06428 11.0387 3.40032C11.0472 3.42153 11.0563 3.44773 11.0858 3.53624L11.0871 3.54053L11.0888 3.54584L11.0909 3.5521L11.0924 3.5568L11.0953 3.56525L11.0985 3.57441L11.0998 3.57817L11.1025 3.58561L11.1059 3.59453L11.1096 3.60354L11.1126 3.61087L11.1138 3.61358C11.132 3.65976 11.152 3.70525 11.1736 3.75L12.63 3.75013C12.6076 3.735 12.5852 3.71893 12.5628 3.70192C12.362 3.54904 12.2186 3.35769 12.156 3.18941L12.1538 3.1826C12.1269 3.10185 12.1059 3.03895 12.0825 2.98069C11.7853 2.24141 11.0888 1.73944 10.2935 1.69128C10.2308 1.68748 10.1646 1.68749 10.0794 1.6875H7.92051Z"
-              fill="currentColor"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M12.8943 3.75H5.10574C3.84021 3.75 3.20744 3.75 2.72451 3.99729C2.30432 4.21244 1.96244 4.55432 1.74729 4.97451C1.5 5.45744 1.5 6.09021 1.5 7.35574C1.5 7.67747 1.5 7.83833 1.55502 7.97395C1.60307 8.09238 1.68059 8.19657 1.78022 8.27662C1.89431 8.36829 2.04839 8.41452 2.35655 8.50696L6.375 9.7125V10.622C6.375 11.1962 6.71954 11.7256 7.26512 11.9472L7.68519 12.1179C8.52891 12.4607 9.47109 12.4607 10.3148 12.1179L10.7349 11.9472C11.2805 11.7256 11.625 11.1962 11.625 10.622V9.7125L15.6435 8.50696C15.9516 8.41452 16.1057 8.36829 16.2198 8.27662C16.3194 8.19657 16.3969 8.09238 16.445 7.97395C16.5 7.83833 16.5 7.67747 16.5 7.35574C16.5 6.09021 16.5 5.45744 16.2527 4.97451C16.0376 4.55432 15.6957 4.21244 15.2755 3.99729C14.7926 3.75 14.1598 3.75 12.8943 3.75ZM10.2 9H7.8C7.63431 9 7.5 9.13643 7.5 9.30472V10.622C7.5 10.7466 7.57469 10.8587 7.68858 10.905L8.10866 11.0756C8.68085 11.3081 9.31915 11.3081 9.89134 11.0756L10.3114 10.905C10.4253 10.8587 10.5 10.7466 10.5 10.622V9.30472C10.5 9.13643 10.3657 9 10.2 9Z"
-              fill="currentColor"
-            />
-            <path
-              opacity="0.3"
-              d="M2.25 8.47491C2.28334 8.48502 2.31879 8.49566 2.35655 8.50698L6.375 9.71252V10.6221C6.375 11.1962 6.71954 11.7256 7.26512 11.9472L7.68519 12.1179C8.52891 12.4607 9.47109 12.4607 10.3148 12.1179L10.7349 11.9472C11.2805 11.7256 11.625 11.1962 11.625 10.6221V9.71252L15.6435 8.50698C15.6812 8.49566 15.7166 8.48503 15.75 8.47493V9.22497C15.7493 11.9814 15.7238 14.766 14.7615 15.6214C13.773 16.5001 12.182 16.5001 8.99998 16.5001C5.818 16.5001 4.22701 16.5001 3.2385 15.6214C2.27617 14.766 2.25068 11.9814 2.25 9.22497V8.47491Z"
-              fill="currentColor"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_1087_19421">
-              <rect width="18" height="18" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
-
-        <span class="nav-link">Rejected</span>
-      </li>
-
-      <!-- Empty 6th tab for spacing -->
-      <li class="nav-item">
-        <span class="nav-link" style="visibility: hidden">&nbsp;</span>
+      <li class="nav-item" [class.active]="activeTab === 'rejected'" (click)="setActiveTab('rejected')">
+        <span class="nav-link nav-link-wrapper">
+          <span class="tab-header">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 4.5C12 6.15685 10.6569 7.5 9 7.5C7.34315 7.5 6 6.15685 6 4.5C6 2.84315 7.34315 1.5 9 1.5C10.6569 1.5 12 2.84315 12 4.5Z" />
+              <path opacity="0.3"
+                d="M10.858 16.4406C10.3134 16.4796 9.69723 16.5 9 16.5C3 16.5 3 14.989 3 13.125C3 11.261 5.68629 9.75 9 9.75C11.1604 9.75 13.0542 10.3923 14.1107 11.3559C13.7235 11.25 13.1803 11.25 12.375 11.25C11.1376 11.25 10.5188 11.25 10.1344 11.6344C9.75 12.0188 9.75 12.6376 9.75 13.875C9.75 15.1124 9.75 15.7312 10.1344 16.1156C10.3126 16.2937 10.541 16.3893 10.858 16.4406Z" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.375 16.5C11.1376 16.5 10.5188 16.5 10.1344 16.1156C9.75 15.7312 9.75 15.1124 9.75 13.875C9.75 12.6376 9.75 12.0188 10.1344 11.6344C10.5188 11.25 11.1376 11.25 12.375 11.25C13.6124 11.25 14.2312 11.25 14.6156 11.6344C15 12.0188 15 12.6376 15 13.875C15 15.1124 15 15.7312 14.6156 16.1156C14.2312 16.5 13.6124 16.5 12.375 16.5ZM11.5177 12.399C11.3468 12.2281 11.0698 12.2281 10.899 12.399C10.7281 12.5698 10.7281 12.8468 10.899 13.0177L11.7563 13.875L10.899 14.7323C10.7281 14.9032 10.7281 15.1802 10.899 15.351C11.0698 15.5219 11.3468 15.5219 11.5177 15.351L12.375 14.4937L13.2323 15.351C13.4032 15.5219 13.6802 15.5219 13.851 15.351C14.0219 15.1802 14.0219 14.9032 13.851 14.7323L12.9937 13.875L13.851 13.0177C14.0219 12.8468 14.0219 12.5698 13.851 12.399C13.6802 12.2281 13.4032 12.2281 13.2323 12.399L12.375 13.2563L11.5177 12.399Z" />
+            </svg>
+            Rejected
+          </span>
+          <span class="tab-count">
+            <span class="offer-rejected count-item">
+              <svg class="offer-icon" xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"
+                fill="none">
+                <path
+                  d="M0.146447 0.146447C0.341709 -0.0488155 0.658291 -0.0488155 0.853553 0.146447L2.16667 1.45957L3.47978 0.14646C3.67504 -0.0488019 3.99162 -0.0488018 4.18689 0.14646C4.38215 0.341722 4.38215 0.658305 4.18689 0.853567L2.87378 2.16667L4.18687 3.47977C4.38213 3.67503 4.38213 3.99161 4.18687 4.18687C3.99161 4.38214 3.67503 4.38214 3.47977 4.18687L2.16667 2.87378L0.853568 4.18689C0.658306 4.38215 0.341723 4.38215 0.146461 4.18689C-0.0488012 3.99162 -0.0488012 3.67504 0.146461 3.47978L1.45957 2.16667L0.146447 0.853553C-0.0488155 0.658291 -0.0488155 0.341709 0.146447 0.146447Z"
+                  fill="currentColor" />
+              </svg>
+              {{ applicantCounts.rejected }}
+            </span>
+          </span>
+        </span>
       </li>
     </ul>
 
-    <app-table
-      [data]="applicant"
-      [isLoading]="applicantsLoading"
-      [totalItems]="totalItems"
-      [itemsPerPage]="itemsPerPage"
-      [currentPage]="currentPage"
-      (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)"
-      [columnsCount]="5"
-      [headerTemplate]="applicantTableHeader"
-      [rowTemplate]="applicantTableRow"
-      [emptyTemplate]="noApplicants"
-    ></app-table>
+    <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="6" [headerTemplate]="applicantTableHeader"
+      [rowTemplate]="applicantTableRow" [emptyTemplate]="noApplicants"></app-table>
 
     <ng-template #applicantTableHeader>
       <th (click)="sortBy('name')" style="cursor: pointer">
         <div class="d-flex align-items-center justify-content-between">
           <span>Name</span>
           @if (sortDirection === 'desc') {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <g
-              fill="none"
-              stroke="#DDE3EB"
-              stroke-linecap="round"
-              stroke-width="1.5"
-            >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
               <path d="M4 8h9m-7 5h7m-5 5h5" />
               <path stroke-linejoin="round" d="M17 20V4l3 4" />
             </g>
           </svg>
           } @if (sortDirection === 'asc') {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="#DDE3EB"
-              fill-rule="evenodd"
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#DDE3EB" fill-rule="evenodd"
               d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
           }
         </div>
@@ -564,6 +573,12 @@
       <th>Phone number</th>
       <th>Email</th>
       <th>Status</th>
+      <th><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M5.50177 2.53701C5.94849 1.40433 7.55151 1.40433 7.99823 2.53701L8.80225 4.57561C8.82428 4.63149 8.86851 4.67572 8.92439 4.69775L10.963 5.50177C12.0957 5.94849 12.0957 7.55151 10.963 7.99823L8.92439 8.80225C8.86851 8.82428 8.82428 8.86851 8.80225 8.92439L7.99823 10.963C7.55151 12.0957 5.94849 12.0957 5.50177 10.963L4.69775 8.92439C4.67572 8.86851 4.63149 8.82428 4.57561 8.80225L2.53701 7.99823C1.40433 7.55151 1.40433 5.94849 2.53701 5.50177L4.57561 4.69775C4.63149 4.67572 4.67572 4.63149 4.69775 4.57561L5.50177 2.53701ZM6.95168 2.94976C6.8795 2.76675 6.6205 2.76675 6.54832 2.94976L5.7443 4.98837C5.60792 5.33418 5.33418 5.60791 4.98837 5.7443L2.94976 6.54832C2.76675 6.6205 2.76675 6.8795 2.94976 6.95168L4.98837 7.7557C5.33418 7.89208 5.60791 8.16582 5.7443 8.51163L6.54832 10.5502C6.6205 10.7333 6.8795 10.7333 6.95168 10.5502L7.7557 8.51163C7.89209 8.16582 8.16582 7.89209 8.51163 7.7557L10.5502 6.95168C10.7333 6.8795 10.7333 6.6205 10.5502 6.54832L8.51163 5.7443C8.16582 5.60791 7.89209 5.33418 7.7557 4.98837L6.95168 2.94976ZM11.8431 9.80472C12.1677 8.98176 13.3323 8.98176 13.6569 9.80472L14.2335 11.2665L15.6953 11.8431C16.5182 12.1677 16.5182 13.3323 15.6953 13.6569L14.2335 14.2335L13.6569 15.6953C13.3323 16.5182 12.1677 16.5182 11.8431 15.6953L11.2665 14.2335L9.80472 13.6569C8.98176 13.3323 8.98176 12.1677 9.80472 11.8431L11.2665 11.2665L11.8431 9.80472ZM12.75 10.5715L12.2892 11.7399C12.1901 11.9912 11.9912 12.1901 11.7399 12.2892L10.5715 12.75L11.7399 13.2108C11.9912 13.3099 12.1901 13.5088 12.2892 13.7601L12.75 14.9285L13.2108 13.7601C13.3099 13.5088 13.5088 13.3099 13.7601 13.2108L14.9285 12.75L13.7601 12.2892C13.5088 12.1901 13.3099 11.9912 13.2108 11.7399L12.75 10.5715Z"
+            fill="#DDE3EB" />
+        </svg>
+      </th>
       <th>Action</th>
     </ng-template>
 
@@ -571,64 +586,205 @@
       <td>
         <span class="d-block text-gray-sm">{{
           application.id.toString().padStart(4, "0")
-        }}</span>
+          }}</span>
         <span class="d-block text-truncate" style="max-width: 200px">
           {{ application.name }}
         </span>
       </td>
-      <td>{{ application.phoneNumber }}</td>
-      <td>{{ application.email }}</td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <span>{{ application.phoneNumber }}</span>
+          <button (click)="copyToClipboard(application.phoneNumber, 'phone-' + application.id)" class="copy-icon-btn"
+            [attr.title]="'Copy phone number'" [class.copied]="copiedSectionId === 'phone-' + application.id">
+            @if (copiedSectionId === 'phone-' + application.id) {
+            <svg width="15" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+      </td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <span>{{ application.email }}</span>
+          <button (click)="copyToClipboard(application.email, 'email-' + application.id)" class="copy-icon-btn"
+            [attr.title]="'Copy email'" [class.copied]="copiedSectionId === 'email-' + application.id">
+            @if (copiedSectionId === 'email-' + application.id) {
+            <svg width="15" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+      </td>
       <td>
         <span class="d-block text-gray-sm">{{ application.status }}</span>
         <span class="d-block text-truncate" style="max-width: 200px">
           {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
         </span>
       </td>
-      <td>
-        <a
-          class="edit-btn h-100 d-flex align-items-center gap-1 w-auto me-2"
-          [routerLink]="[
-            '/job-openings/view-applicant-details',
-            application.applicationId
-          ]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
+      <td style="position: relative;">
+        <div
+          style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;"
+          (click)="onApplicantClick(application.id)" #badgeContainer [attr.data-badge-id]="application.id">
+          <span class="badge-newjoiner" style="margin-top: 4px;">
+            {{ application.evaluation?.applicantEvaluation.score.toFixed(0)
+            || '-' }}/{{ application.evaluation?.applicantEvaluation.maxScore || '-' }}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
-                d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z"
-              />
-              <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
-            </g>
-          </svg>
-          <span>View</span>
-        </a>
+                d="M7.99967 11.8334C8.27582 11.8334 8.49967 11.6095 8.49967 11.3334V7.33337C8.49967 7.05723 8.27582 6.83337 7.99967 6.83337C7.72353 6.83337 7.49967 7.05723 7.49967 7.33337V11.3334C7.49967 11.6095 7.72353 11.8334 7.99967 11.8334Z"
+                fill="#377AFD" />
+              <path
+                d="M7.99967 4.66671C8.36786 4.66671 8.66634 4.96518 8.66634 5.33337C8.66634 5.70156 8.36786 6.00004 7.99967 6.00004C7.63148 6.00004 7.33301 5.70156 7.33301 5.33337C7.33301 4.96518 7.63148 4.66671 7.99967 4.66671Z"
+                fill="#377AFD" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M0.833008 8.00004C0.833008 4.042 4.04163 0.833374 7.99967 0.833374C11.9577 0.833374 15.1663 4.042 15.1663 8.00004C15.1663 11.9581 11.9577 15.1667 7.99967 15.1667C4.04163 15.1667 0.833008 11.9581 0.833008 8.00004ZM7.99967 1.83337C4.59392 1.83337 1.83301 4.59428 1.83301 8.00004C1.83301 11.4058 4.59392 14.1667 7.99967 14.1667C11.4054 14.1667 14.1663 11.4058 14.1663 8.00004C14.1663 4.59428 11.4054 1.83337 7.99967 1.83337Z"
+                fill="#377AFD" />
+            </svg></span>
+        </div>
+      </td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <a class="edit-btn h-100 d-flex align-items-center gap-1 w-auto" [routerLink]="[
+              '/job-openings/view-applicant-details',
+              application.applicationId
+            ]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M3.275 15.296C2.425 14.192 2 13.639 2 12c0-1.64.425-2.191 1.275-3.296C4.972 6.5 7.818 4 12 4s7.028 2.5 8.725 4.704C21.575 9.81 22 10.361 22 12c0 1.64-.425 2.191-1.275 3.296C19.028 17.5 16.182 20 12 20s-7.028-2.5-8.725-4.704Z" />
+                <path d="M15 12a3 3 0 1 1-6 0a3 3 0 0 1 6 0Z" />
+              </g>
+            </svg>
+            <span>View</span>
+          </a>
+
+          <!-- Action button based on active tab -->
+          @if (activeTab === 'applicant') {
+          <!-- Candidate button for New Applicants -->
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openCandidateConfirmation(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="var(--color-primary-500)" fill-rule="evenodd"
+                d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0"
+                clip-rule="evenodd" />
+              <path fill="var(--color-primary-500)"
+                d="M18.856 16.573a.75.75 0 0 1 .015 1.06l-1.833 1.89a.75.75 0 0 1-1.114-.043l-.834-1a.75.75 0 1 1 1.153-.96l.3.36l1.252-1.291a.75.75 0 0 1 1.06-.016" />
+              <path fill="var(--color-primary-500)" fill-rule="evenodd"
+                d="M13.91 21.608c-.61.093-1.251.142-1.91.142c-2.04 0-3.922-.47-5.322-1.27C5.3 19.692 4.25 18.49 4.25 17s1.05-2.692 2.428-3.48c1.4-.8 3.283-1.27 5.322-1.27c1.805 0 3.483.368 4.812 1.004q.093-.004.188-.004a4.75 4.75 0 1 1-3.09 8.358M13.75 18a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0m.668-3.987A4.75 4.75 0 0 0 12.25 18c0 .803.2 1.56.55 2.222q-.393.028-.8.028c-1.827 0-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17s.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073c.861 0 1.677.094 2.418.263"
+                clip-rule="evenodd" />
+            </svg>
+            <span>Candidate</span>
+          </button>
+          }
+          @if (activeTab === 'candidate') {
+          <!-- Interview button for Candidates -->
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openInterviewModal(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <g fill="none" stroke="var(--color-primary-500)" stroke-width="1.5">
+                <path
+                  d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                <circle cx="16.5" cy="16.5" r="1.5" />
+                <path stroke-linecap="round" d="M2.5 9h19" />
+              </g>
+            </svg>
+            <span>Interview</span>
+          </button>
+          }
+          @if (activeTab === 'interviewee') {
+          <!-- Feedback button for Interviewees -->
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openFeedbackModal(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M5.44695 2.44534C5.53664 1.59783 6.25371 0.9375 7.125 0.9375H10.875C11.7463 0.9375 12.4634 1.59783 12.5531 2.44534C13.1254 2.45699 13.6202 2.4866 14.0427 2.56421C14.6112 2.66863 15.095 2.86756 15.4887 3.26126C15.9402 3.7127 16.1343 4.28111 16.2251 4.95619C16.3125 5.60641 16.3125 6.43315 16.3125 7.45885V12.0412C16.3125 13.0668 16.3125 13.8936 16.2251 14.5438C16.1343 15.2189 15.9402 15.7873 15.4887 16.2387C15.0373 16.6902 14.4689 16.8843 13.7938 16.9751C13.1436 17.0625 12.3168 17.0625 11.2912 17.0625H6.70885C5.68316 17.0625 4.85641 17.0625 4.20619 16.9751C3.53111 16.8843 2.9627 16.6902 2.51126 16.2387C2.05983 15.7873 1.86566 15.2189 1.77489 14.5438C1.68747 13.8936 1.68748 13.0668 1.6875 12.0412V7.45884C1.68748 6.43315 1.68747 5.60641 1.77489 4.95619C1.86566 4.28111 2.05983 3.7127 2.51126 3.26126C2.90496 2.86756 3.38877 2.66863 3.95726 2.56421C4.37979 2.4866 4.87464 2.45699 5.44695 2.44534ZM5.44872 3.57065C4.91009 3.58215 4.49502 3.60925 4.16051 3.6707C3.7354 3.74878 3.48935 3.87417 3.30676 4.05676C3.09919 4.26433 2.96385 4.55576 2.88986 5.10609C2.8137 5.6726 2.8125 6.42344 2.8125 7.5V12C2.8125 13.0766 2.8137 13.8274 2.88986 14.3939C2.96385 14.9442 3.09919 15.2357 3.30676 15.4432C3.51433 15.6508 3.80576 15.7861 4.35609 15.8601C4.9226 15.9363 5.67344 15.9375 6.75 15.9375H11.25C12.3266 15.9375 13.0774 15.9363 13.6439 15.8601C14.1942 15.7861 14.4857 15.6508 14.6932 15.4432C14.9008 15.2357 15.0361 14.9442 15.1101 14.3939C15.1863 13.8274 15.1875 13.0766 15.1875 12V7.5C15.1875 6.42344 15.1863 5.6726 15.1101 5.10609C15.0361 4.55576 14.9008 4.26433 14.6932 4.05676C14.5107 3.87417 14.2646 3.74878 13.8395 3.6707C13.505 3.60925 13.0899 3.58215 12.5513 3.57065C12.4543 4.41046 11.7408 5.0625 10.875 5.0625H7.125C6.2592 5.0625 5.54568 4.41046 5.44872 3.57065ZM7.125 2.0625C6.81434 2.0625 6.5625 2.31434 6.5625 2.625V3.375C6.5625 3.68566 6.81434 3.9375 7.125 3.9375H10.875C11.1857 3.9375 11.4375 3.68566 11.4375 3.375V2.625C11.4375 2.31434 11.1857 2.0625 10.875 2.0625H7.125ZM4.6875 7.875C4.6875 7.56434 4.93934 7.3125 5.25 7.3125H5.625C5.93566 7.3125 6.1875 7.56434 6.1875 7.875C6.1875 8.18566 5.93566 8.4375 5.625 8.4375H5.25C4.93934 8.4375 4.6875 8.18566 4.6875 7.875ZM7.3125 7.875C7.3125 7.56434 7.56434 7.3125 7.875 7.3125H12.75C13.0607 7.3125 13.3125 7.56434 13.3125 7.875C13.3125 8.18566 13.0607 8.4375 12.75 8.4375H7.875C7.56434 8.4375 7.3125 8.18566 7.3125 7.875ZM4.6875 10.5C4.6875 10.1893 4.93934 9.9375 5.25 9.9375H5.625C5.93566 9.9375 6.1875 10.1893 6.1875 10.5C6.1875 10.8107 5.93566 11.0625 5.625 11.0625H5.25C4.93934 11.0625 4.6875 10.8107 4.6875 10.5ZM7.3125 10.5C7.3125 10.1893 7.56434 9.9375 7.875 9.9375H12.75C13.0607 9.9375 13.3125 10.1893 13.3125 10.5C13.3125 10.8107 13.0607 11.0625 12.75 11.0625H7.875C7.56434 11.0625 7.3125 10.8107 7.3125 10.5ZM4.6875 13.125C4.6875 12.8143 4.93934 12.5625 5.25 12.5625H5.625C5.93566 12.5625 6.1875 12.8143 6.1875 13.125C6.1875 13.4357 5.93566 13.6875 5.625 13.6875H5.25C4.93934 13.6875 4.6875 13.4357 4.6875 13.125ZM7.3125 13.125C7.3125 12.8143 7.56434 12.5625 7.875 12.5625H12.75C13.0607 12.5625 13.3125 12.8143 13.3125 13.125C13.3125 13.4357 13.0607 13.6875 12.75 13.6875H7.875C7.56434 13.6875 7.3125 13.4357 7.3125 13.125Z"
+                fill="#377AFD" />
+            </svg>
+            <span>Feedback</span>
+          </button>
+          }
+          @if (activeTab === 'qualified') {
+          <!-- Job Offer button for Qualified -->
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openJobOfferModal(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+                fill="#377AFD" />
+            </svg>
+            <span>Job Offer</span>
+          </button>
+          }
+          @if (activeTab === 'accepted') {
+          <!-- Accepted applicant - Add as Employee button -->
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="navigateToCreateEmployee(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.0001 0.9375C7.03259 0.9375 5.4376 2.53249 5.4376 4.5C5.4376 6.46751 7.03259 8.0625 9.0001 8.0625C10.9676 8.0625 12.5626 6.46751 12.5626 4.5C12.5626 2.53249 10.9676 0.9375 9.0001 0.9375ZM6.5626 4.5C6.5626 3.15381 7.65391 2.0625 9.0001 2.0625C10.3463 2.0625 11.4376 3.15381 11.4376 4.5C11.4376 5.84619 10.3463 6.9375 9.0001 6.9375C7.65391 6.9375 6.5626 5.84619 6.5626 4.5Z"
+                fill="#377AFD" />
+              <path
+                d="M14.8917 10.9297C15.1147 11.146 15.12 11.5022 14.9036 11.7251L13.5288 13.1418C13.4177 13.2562 13.2632 13.3181 13.1038 13.3121C12.9445 13.3061 12.7951 13.2327 12.693 13.1101L12.0679 12.3601C11.869 12.1215 11.9012 11.7668 12.1398 11.5679C12.3785 11.369 12.7332 11.4012 12.9321 11.6399L13.1569 11.9096L14.0963 10.9416C14.3127 10.7187 14.6688 10.7133 14.8917 10.9297Z"
+                fill="#377AFD" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M11.0811 9.38468C10.4265 9.25654 9.72644 9.1875 9.0001 9.1875C7.26494 9.1875 5.66629 9.58191 4.48169 10.2483C3.31471 10.9047 2.4376 11.8995 2.4376 13.125L2.43755 13.2015C2.4367 14.0729 2.43564 15.1665 3.39491 15.9477C3.86701 16.3321 4.52746 16.6055 5.41976 16.7861C6.31455 16.9672 7.48077 17.0625 9.0001 17.0625C11.1512 17.0625 12.6075 16.8721 13.5898 16.5064C14.474 16.1772 14.998 15.695 15.2779 15.0879C16.3446 14.4724 17.0626 13.3201 17.0626 12C17.0626 10.0325 15.4676 8.4375 13.5001 8.4375C12.5663 8.4375 11.7164 8.79679 11.0811 9.38468ZM11.0626 12C11.0626 10.6538 12.1539 9.5625 13.5001 9.5625C14.8463 9.5625 15.9376 10.6538 15.9376 12C15.9376 13.3462 14.8463 14.4375 13.5001 14.4375C12.1539 14.4375 11.0626 13.3462 11.0626 12ZM10.3169 10.3987C10.0742 10.8801 9.9376 11.4241 9.9376 12C9.9376 13.792 11.2607 15.2749 12.9832 15.5253C12.1802 15.7775 10.9336 15.9375 9.0001 15.9375C7.51943 15.9375 6.43565 15.8439 5.64294 15.6835C4.84774 15.5225 4.38319 15.3016 4.10529 15.0753C3.59284 14.658 3.5626 14.1059 3.5626 13.125C3.5626 12.4865 4.02863 11.7939 5.03323 11.2288C6.0202 10.6736 7.42156 10.3125 9.0001 10.3125C9.45464 10.3125 9.89557 10.3425 10.3169 10.3987Z"
+                fill="#377AFD" />
+            </svg>
+            <span>Create Employee</span>
+          </button>
+          } @else if (activeTab === 'jobOfferSent') {
+          <!-- Conditional buttons based on status for Job Offer Sent -->
+          @if (isJobOfferSent(application.status)) {
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openAcceptOfferConfirmation(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="var(--color-primary-500)" fill-rule="evenodd"
+                d="M10.6872 5.97982C10.8825 6.17508 10.8825 6.49167 10.6872 6.68693L7.35388 10.0203C7.15862 10.2155 6.84203 10.2155 6.64677 10.0203L5.31344 8.68693C5.11818 8.49167 5.11818 8.17508 5.31344 7.97982C5.5087 7.78456 5.82528 7.78456 6.02055 7.97982L7.00033 8.9596L8.49022 7.46971L9.98011 5.97982C10.1754 5.78456 10.492 5.78456 10.6872 5.97982Z"
+                fill="var(--color-primary-500)" />
+              <path fill="var(--color-primary-500)" fill-rule="evenodd"
+                d="M12 1.25a4.75 4.75 0 1 0 0 9.5a4.75 4.75 0 0 0 0-9.5M8.75 6a3.25 3.25 0 1 1 6.5 0a3.25 3.25 0 0 1-6.5 0M12 12.25c-2.04 0-3.922.47-5.322 1.27C5.3 14.308 4.25 15.51 4.25 17s1.05 2.692 2.428 3.48c1.4.8 3.283 1.27 5.322 1.27s3.922-.47 5.322-1.27c1.378-.788 2.428-1.99 2.428-3.48s-1.05-2.692-2.428-3.48c-1.4-.8-3.283-1.27-5.322-1.27M5.75 17c0-.72.517-1.517 1.672-2.177c1.134-.648 2.751-1.073 4.578-1.073s3.444.425 4.578 1.073c1.155.66 1.672 1.458 1.672 2.177s-.517 1.517-1.672 2.177c-1.134.648-2.751 1.073-4.578 1.073s-3.444-.425-4.578-1.073C6.267 18.517 5.75 17.72 5.75 17"
+                clip-rule="evenodd" />
+            </svg>
+            <span>Accepted</span>
+          </button>
+          } @else if (isOfferRejected(application.status)) {
+          <button class="edit-btn h-100 d-flex align-items-center gap-1 w-auto text-primary"
+            (click)="openJobOfferModal(application)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path fill="var(--color-primary-500)" fill-rule="evenodd"
+                d="M18.144 3.63c-1.17.209-2.748.733-4.961 1.47L8.17 6.77c-1.78.594-3.069 1.025-3.98 1.412c-.952.405-1.29.687-1.4.876a1.88 1.88 0 0 0 0 1.886c.11.189.448.471 1.4.876c.911.387 2.2.818 3.98 1.411l.084.028c.38.126.693.23.967.374l5.323-5.265a.768.768 0 1 1 1.08 1.093l-5.3 5.241c.166.292.278.628.416 1.043l.028.084c.593 1.78 1.024 3.069 1.41 3.98c.406.952.688 1.29.877 1.4a1.88 1.88 0 0 0 1.886 0c.189-.11.471-.448.876-1.4c.387-.911.818-2.2 1.411-3.98l1.67-5.012c.738-2.213 1.262-3.79 1.47-4.96c.21-1.176.05-1.676-.25-1.976s-.8-.46-1.975-.25m-.27-1.512c1.303-.232 2.476-.179 3.331.677c.856.855.909 2.028.677 3.33c-.23 1.295-.792 2.98-1.503 5.112l-1.705 5.115c-.578 1.735-1.027 3.083-1.442 4.058c-.4.94-.844 1.736-1.518 2.128a3.41 3.41 0 0 1-3.43 0c-.674-.392-1.118-1.188-1.518-2.128c-.415-.975-.864-2.323-1.443-4.058l-.012-.038c-.203-.607-.264-.772-.352-.903a1.4 1.4 0 0 0-.37-.37c-.13-.088-.296-.15-.904-.352l-.037-.012c-1.735-.579-3.083-1.028-4.058-1.443c-.94-.4-1.736-.844-2.128-1.518a3.41 3.41 0 0 1 0-3.43c.392-.674 1.188-1.118 2.128-1.518c.975-.415 2.323-.864 4.059-1.442l5.114-1.705c2.133-.711 3.817-1.273 5.112-1.503"
+                clip-rule="evenodd" />
+            </svg>
+            <span>New Offer</span>
+          </button>
+          }
+          }
+        </div>
       </td>
     </ng-template>
 
     <ng-template #noApplicants>
       <tr>
-        <td colspan="5" class="text-center py-5">
-          <div
-            class="d-flex flex-column align-items-center justify-content-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="80"
-              height="80"
-              viewBox="0 0 24 24"
-              class="mb-3"
-            >
+        <td colspan="6" class="text-center py-5">
+          <div class="d-flex flex-column align-items-center justify-content-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" class="mb-3">
               <g fill="none" stroke="#9CA3AF" stroke-width="1.5">
                 <circle cx="12" cy="6" r="4" />
-                <path
-                  d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z"
-                  opacity="0.5"
-                />
+                <path d="M20 17.5c0 2.485 0 4.5-8 4.5s-8-2.015-8-4.5S7.582 13 12 13s8 2.015 8 4.5Z" opacity="0.5" />
               </g>
             </svg>
             <h5 class="text-muted mb-2">No Applicants Found</h5>
@@ -642,54 +798,630 @@
   </div>
 </div>
 
+<!-- Floating Evaluation Tooltip -->
+@if (hoveredApplicantId !== null) {
+@let hoveredApplicant = getHoveredApplicant();
+@if (hoveredApplicant && hoveredApplicant.evaluation) {
+<div
+  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; overflow: hidden; width: 660px;"
+  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" data-tooltip-id>
+
+  <!-- Employee Evaluation Header -->
+  <div style="background: linear-gradient(135deg, #D4F4DD 0%, #B8ECC7 100%); padding: 20px 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Applicant  Evaluation</h2>
+      <div style="font-size: 24px; font-weight: 700; color: #1F2937; line-height: 1;">
+        {{ hoveredApplicant?.evaluation?.applicantEvaluation?.score?.toFixed(1) || '-' }}<span
+          style="font-size: 16px; color: #6B7280;">/{{
+          hoveredApplicant?.evaluation?.applicantEvaluation?.maxScore || '-' }}</span>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #4B5563; line-height: 1.5;">{{
+      hoveredApplicant?.evaluation?.applicantEvaluation?.description }}</p>
+    <div style="margin-top: 12px;">
+      <span style="font-size: 11px; color: #6B7280; font-weight: 500;">A.I Powered</span>
+    </div>
+  </div>
+
+  <!-- Evaluation Sections -->
+  <div style="padding: 20px 24px 20px 24px;">
+    <!-- Role Fit -->
+    <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">Role Fit</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.roleFit?.reason || '', 'role')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'role'" title="Copy description">
+            @if (copiedSectionId === 'role') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div
+          style="background: #DBEAFE; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #1E40AF;">
+          {{ hoveredApplicant?.evaluation?.roleFit?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #1E40AF;">/{{
+            hoveredApplicant?.evaluation?.roleFit?.maxScore || '-' }}</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.roleFit?.reason }}</p>
+    </div>
+
+    <!-- Market Fit -->
+    <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">Market Fit</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.marketFit?.reason || '', 'market')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'market'" title="Copy description">
+            @if (copiedSectionId === 'market') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div
+          style="background: #FED7AA; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #9A3412;">
+          {{ hoveredApplicant?.evaluation?.marketFit?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #9A3412;">/{{
+            hoveredApplicant?.evaluation?.marketFit?.maxScore || '-' }}</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.marketFit?.reason }}</p>
+    </div>
+
+    <!-- CV Review -->
+    <div style="padding: 16px 0; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 600; color: #1F2937;">CV Review</h3>
+          <button (click)="copyToClipboard(hoveredApplicant?.evaluation?.cvReview?.reason || '', 'cvreview')"
+            class="copy-icon-btn" [class.copied]="copiedSectionId === 'cvreview'" title="Copy description">
+            @if (copiedSectionId === 'cvreview') {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#10b981" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11639 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3487 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3487 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97" />
+            </svg>
+            }
+          </button>
+        </div>
+        <div
+          style="background: #FED7AA; padding: 6px 12px; border-radius: 20px; font-size: 16px; font-weight: 700; color: #9A3412;">
+          {{ hoveredApplicant?.evaluation?.cvReview?.score?.toFixed(1) || '-' }}<span
+            style="font-size: 14px; color: #9A3412;">/{{
+            hoveredApplicant?.evaluation?.cvReview?.maxScore || '-' }}</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5;">{{
+        hoveredApplicant?.evaluation?.cvReview?.reason }}</p>
+    </div>
+
+    <!-- Recommendation Legend -->
+    @if (hoveredApplicant?.evaluation?.recommendationInfo && hoveredApplicant.evaluation.recommendationInfo.length > 0)
+    {
+    <div
+      style="background: #E5E7EB; border-radius: 12px; padding: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+      @for (rec of hoveredApplicant.evaluation.recommendationInfo; track rec.range) {
+      <div style="text-align: center;">
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 4px;"
+          [style.color]="rec.label === 'Most Recommended' ? '#2563EB' : rec.label === 'Highly Recommended' ? '#059669' : rec.label === 'Mildly Recommended' ? '#D97706' : '#DC2626'">
+          {{ rec.range }}
+        </div>
+        <div style="font-size: 11px; color: #6B7280; line-height: 1.2;">{{ rec.label }}</div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+}
+}
+
 <!-- Pause confirmation popup -->
-<app-popup
-  [title]="'Pause Job Opening'"
-  [paragraph1]="'Are you sure you want to pause this job opening?'"
-  [paragraph2]="
+<app-popup [title]="'Pause Job Opening'" [paragraph1]="'Are you sure you want to pause this job opening?'" [paragraph2]="
     'The job opening will no longer be visible to applicants until you make it live again.'
-  "
-  [isOpen]="isPauseModalOpen"
-  (close)="closePauseModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-warning w-100"
-    (click)="confirmPause()"
-  >
+  " [isOpen]="isPauseModalOpen" (close)="closePauseModal()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmPause()">
     Confirm Pause
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closePauseModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closePauseModal()">
     Cancel
   </button>
 </app-popup>
 
 <!-- Make Live confirmation popup -->
-<app-popup
-  [title]="'Make Job Opening Live'"
-  [paragraph1]="'Are you sure you want to make this job opening live?'"
+<app-popup [title]="'Make Job Opening Live'" [paragraph1]="'Are you sure you want to make this job opening live?'"
   [paragraph2]="
     'The job opening will be visible to applicants and they will be able to apply.'
-  "
-  [isOpen]="isMakeLiveModalOpen"
-  (close)="closeMakeLiveModal()"
->
-  <button
-    modal-btn-left
-    class="btn btn-lg btn-success w-100"
-    (click)="confirmMakeLive()"
-  >
+  " [isOpen]="isMakeLiveModalOpen" (close)="closeMakeLiveModal()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmMakeLive()">
     Confirm Make Live
   </button>
-  <button
-    modal-btn-right
-    class="btn btn-lg btn-outline-dark border-0 w-100"
-    (click)="closeMakeLiveModal()"
-  >
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeMakeLiveModal()">
     Cancel
   </button>
 </app-popup>
+
+<!-- Candidate confirmation popup -->
+<app-popup [title]="'Move to Candidate'"
+  [paragraph1]="'Are you sure you want to move this applicant to the Candidate stage?'"
+  [paragraph2]="'This action will update the applicant status and they will appear in the Candidate tab.'"
+  [isOpen]="isCandidateModalOpen" (close)="closeCandidateModal()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmMakeCandidate()">
+    Confirm
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeCandidateModal()">
+    Cancel
+  </button>
+</app-popup>
+
+
+
+<!-- Qualified confirmation popup -->
+<app-popup [title]="'Mark as Qualified'" [paragraph1]="'Are you sure you want to mark this applicant as qualified?'"
+  [paragraph2]="'This action will move them to the Qualified stage, ready for a job offer.'"
+  [isOpen]="isQualifiedModalOpen" (close)="closeQualifiedModal()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmMarkQualified()">
+    Confirm
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeQualifiedModal()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Accept Offer confirmation popup -->
+<app-popup [title]="'Accept Job Offer'" [paragraph1]="'Are you sure you want to mark this job offer as accepted?'"
+  [paragraph2]="'This action will finalize the hiring process for this applicant.'" [isOpen]="isAcceptOfferModalOpen"
+  (close)="closeAcceptOfferModal()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmAcceptOffer()">
+    Confirm
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAcceptOfferModal()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Interview and Job Offer Overlays -->
+<!-- Add interview -->
+<app-overlay-filter-box #filterBox [title]="overlayTitle">
+  <form class="w-100 d-flex flex-column gap-1" (ngSubmit)="submitInterview()">
+    <div class="input">
+      <label for="title">Interview Title</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+          <div class="placeholder-glow w-100">
+            <input type="text" class="form-control placeholder" disabled style="height: 38px;" />
+          </div>
+          } @else {
+          <input type="text" id="title" class="form-control" placeholder="Enter Title" [(ngModel)]="interviewTitle"
+            name="title" (input)="onInterviewFormChange()" />
+          }
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Department">Department</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (departmentsLoading) {
+          <div class="placeholder-glow w-100">
+            <div class="form-select placeholder w-100" style="height: 38px;"></div>
+          </div>
+          } @else {
+          <select id="Department" class="form-select" [(ngModel)]="department" name="department"
+            (change)="onDepartmentChange(); onInterviewFormChange()">
+            <option value="" selected disabled hidden>Select Department</option>
+            @for (dept of departments; track dept.id) {
+            <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="Section">Section</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (!department) {
+          <select id="Section" class="form-select" disabled>
+            <option value="" selected>Please select a department first</option>
+          </select>
+          } @else if (sectionsLoading) {
+          <div class="placeholder-glow w-100">
+            <div class="form-select placeholder w-100" style="height: 38px;"></div>
+          </div>
+          } @else {
+          <select id="Section" class="form-select" [(ngModel)]="section" name="section"
+            (change)="onSectionChange(); onInterviewFormChange()">
+            <option value="" selected disabled hidden>Select Section</option>
+            @for (sec of sections; track sec.id) {
+            <option [value]="sec.id">{{ sec.name }}</option>
+            }
+          </select>
+          }
+        </div>
+      </div>
+      @if (!department) {
+      <small class="text-muted mt-1 d-block">Please select a department first to view available sections</small>
+      }
+    </div>
+    <div class="input">
+      <label for="Interviewer">Interviewer</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (!section) {
+          <select id="Interviewer" class="form-select" disabled>
+            <option value="" selected>Please select a section first</option>
+          </select>
+          } @else if (employeesLoading) {
+          <div class="placeholder-glow w-100">
+            <div class="form-select placeholder w-100" style="height: 38px;"></div>
+          </div>
+          } @else if (employees.length === 0) {
+          <select id="Interviewer" class="form-select" disabled>
+            <option value="" selected>No employees in this section</option>
+          </select>
+          } @else {
+          <select id="Interviewer" class="form-select" [(ngModel)]="interviewer" name="interviewer"
+            [class.is-invalid]="validationErrors.interviewer"
+            (change)="clearValidationError('interviewer'); onInterviewFormChange()">
+            <option value="" selected disabled hidden>Select Interviewer</option>
+            @for (emp of employees; track emp.id) {
+            <option [value]="emp.id">{{ emp.name }}</option>
+            }
+          </select>
+          }
+        </div>
+      </div>
+      @if (!section) {
+      <small class="text-muted mt-1 d-block">Please select a section first to view available employees</small>
+      }
+      @if (validationErrors.interviewer) {
+      <small class="text-danger mt-1 d-block">{{ validationErrors.interviewer }}</small>
+      }
+    </div>
+    <div class="input">
+      <label for="Date">Date</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+          <div class="placeholder-glow w-100">
+            <input type="date" class="form-control custom-date-input placeholder" disabled style="height: 38px;" />
+          </div>
+          } @else {
+          <input type="date" id="Date" class="form-control custom-date-input" [class.is-invalid]="validationErrors.date"
+            placeholder="Min-Max" [(ngModel)]="date" name="date"
+            (change)="clearValidationError('date'); onInterviewFormChange()" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <path stroke-linecap="round"
+                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
+              <circle cx="18" cy="18" r="3" />
+              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
+            </g>
+          </svg>
+          }
+        </div>
+      </div>
+      @if (validationErrors.date) {
+      <small class="text-danger mt-1 d-block">{{ validationErrors.date }}</small>
+      }
+    </div>
+    <div class="input">
+      <label for="Time">Time</label>
+      <div class="d-flex align-items-start justify-content-between gap-3">
+        <div class="w-100">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+            <div class="placeholder-glow w-100">
+              <input type="text" class="form-control custom-date-input placeholder" disabled style="height: 38px;" />
+            </div>
+            } @else {
+            <input type="text" id="TimeFrom" class="form-control custom-date-input"
+              [class.is-invalid]="validationErrors.time_from" placeholder="From" [(ngModel)]="time_from"
+              name="time_from" pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'"
+              (change)="clearValidationError('time_from'); onInterviewFormChange()"
+              (input)="clearValidationError('time_from'); onInterviewFormChange()" />
+            }
+          </div>
+          @if (validationErrors.time_from) {
+          <small class="text-danger mt-1 d-block">{{ validationErrors.time_from }}</small>
+          }
+        </div>
+        <div class="w-100">
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+            <div class="placeholder-glow w-100">
+              <input type="text" class="form-control custom-date-input placeholder" disabled style="height: 38px;" />
+            </div>
+            } @else {
+            <input type="text" id="TimeTo" class="form-control custom-date-input"
+              [class.is-invalid]="validationErrors.time_to" placeholder="To" [(ngModel)]="time_to" name="time_to"
+              pattern="[0-9]{2}:[0-9]{2}" onfocus="this.type='time'"
+              (change)="clearValidationError('time_to'); onInterviewFormChange()"
+              (input)="clearValidationError('time_to'); onInterviewFormChange()" />
+            }
+          </div>
+          @if (validationErrors.time_to) {
+          <small class="text-danger mt-1 d-block">{{ validationErrors.time_to }}</small>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="input mb-1">
+      <label for="type">Interview Type</label>
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+        <div class="placeholder-glow w-100">
+          <div class="d-flex align-items-center gap-2">
+            <div class="placeholder" style="width: 20px; height: 20px; border-radius: 50%;"></div>
+            <div class="placeholder col-4"></div>
+          </div>
+        </div>
+        <div class="placeholder-glow w-100">
+          <div class="d-flex align-items-center gap-2">
+            <div class="placeholder" style="width: 20px; height: 20px; border-radius: 50%;"></div>
+            <div class="placeholder col-4"></div>
+          </div>
+        </div>
+        } @else {
+        <div class="d-flex align-items-center gap-2 w-100">
+          <input class="form-check-input radio" type="radio" name="type" id="Online" [checked]="interview_type===2"
+            (change)="interview_type=2; onInterviewTypeChange(); onInterviewFormChange()">
+          <label for="Online" class="m-0">
+            Online
+          </label>
+        </div>
+        <div class="d-flex align-items-center gap-2 w-100">
+          <input class="form-check-input radio" type="radio" name="type" id="Offline" [checked]="interview_type===1"
+            (change)="interview_type=1; onInterviewTypeChange(); onInterviewFormChange()">
+          <label for="Offline" class="m-0">
+            Offline
+          </label>
+        </div>
+        }
+      </div>
+    </div>
+
+    @if (interview_type === 1 || overlayTitle === 'Reschedule Interview' || (interviewDetailsLoading && overlayTitle ===
+    'Reschedule Interview')) {
+    <div class="input">
+      <label for="Branch">Interview Location</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          @if (branchesLoading || (interviewDetailsLoading && overlayTitle === 'Reschedule Interview')) {
+          <div class="placeholder-glow w-100">
+            <div class="form-select placeholder w-100" style="height: 38px;"></div>
+          </div>
+          } @else {
+          <select id="Branch" class="form-select" [(ngModel)]="location" name="location"
+            [class.is-invalid]="validationErrors.location"
+            (change)="clearValidationError('location'); onInterviewFormChange()">
+            <option value="" selected disabled hidden>Select Branch</option>
+            @for (branch of branches; track branch.id) {
+            <option [value]="branch.id">{{ branch.name }}</option>
+            }
+          </select>
+          }
+        </div>
+      </div>
+      @if (validationErrors.location) {
+      <small class="text-danger mt-1 d-block">{{ validationErrors.location }}</small>
+      }
+    </div>
+    }
+
+    <div class="d-flex flex-column gap-2 mt-2">
+      <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-lg btn-primary w-100"
+          [disabled]="submitting || !currentApplicationId || isRescheduleLoading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g fill="none" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            </g>
+          </svg>
+          <span>{{ overlayTitle }}</span>
+        </button>
+        <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+          <span>Discard Invitation</span>
+        </a>
+      </div>
+      @if (validationErrors.noChanges) {
+      <small class="text-danger text-center w-100">{{ validationErrors.noChanges }}</small>
+      }
+    </div>
+
+  </form>
+</app-overlay-filter-box>
+
+
+<!-- job offer -->
+<app-overlay-filter-box #jobBox
+  [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
+  <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="submitJobOffer()">
+    @if (jobOfferDetailsLoading && overlayTitle === 'Update Job Offer') {
+    <!-- Skeleton loader for all fields -->
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <div class="btn btn-lg btn-primary w-100 disabled placeholder"></div>
+      <div class="btn btn-lg btn-outline-dark border-0 w-100 disabled placeholder"></div>
+    </div>
+    } @else {
+    <div class="input">
+      <label>Email</label>
+      <input type="email" class="form-control" [value]="jobOfferApplicant?.email || ''" readonly
+        style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation"
+        name="includeProbation">
+      <label for="probation" class="m-0">Include Probation Period</label>
+    </div>
+    <div class="input">
+      <label for="joinDate">Join Date</label>
+      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
+        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
+        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.joinDate) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
+      }
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate">
+      <label for="withEndDate" class="m-0">With end date</label>
+    </div>
+    @if (withEndDate){
+    <div class="input">
+      <label for="contractEndDate">Contract End Date</label>
+      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    <div class="input">
+      <label for="noticePeriod">Notice Period (in Days)</label>
+      <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
+        placeholder="Enter number of days" [class.is-invalid]="jobOfferValidationErrors.noticePeriod"
+        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.noticePeriod) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.noticePeriod }}</div>
+      }
+    </div>
+    @if (overlayTitle === 'Update Job Offer') {
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <span class="text-muted">Min. Salary<br><span class="fw-bold">{{ minSalary | number:'1.0-0' }} EGP</span></span>
+      <span class="text-muted">Max. Salary<br><span class="fw-bold">{{ maxSalary | number:'1.0-0' }} EGP</span></span>
+    </div>
+    }
+    <div class="input">
+      <label for="salary">Salary</label>
+      <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
+        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.salary) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
+      }
+    </div>
+    <div class="input">
+      <label for="offerDetails">Offer Details</label>
+      <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
+        placeholder="Enter Offer Details" [class.is-invalid]="jobOfferValidationErrors.offerDetails"
+        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
+      @if (jobOfferValidationErrors.offerDetails && (jobOfferFormSubmitted)) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.offerDetails }}</div>
+      }
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="submitting || !currentApplicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Send Job Offer</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Job Offer</span>
+      </a>
+    </div>
+    }
+  </form>
+</app-overlay-filter-box>
+
+<!-- Feedback Overlay -->
+<app-overlay-filter-box #feedbackBox title="Add Feedback">
+  <form class="w-100 d-flex flex-column gap-2" (ngSubmit)="submitFeedback()">
+    <div class="info feedback">
+      <h6 class="text-muted small">Overall Evaluation</h6>
+      <span><span>{{ feedbackRating || 0 }}</span> Out of 10</span>
+    </div>
+    <div class="input">
+      <label for="feedbackRating">Candidate Evaluation</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <input type="number" id="feedbackRating" name="rating" class="form-control" placeholder="Out of 10"
+            [(ngModel)]="feedbackRating" min="0" max="10" step="0.1" (focus)="clearFeedbackError('rating')" />
+          @if (feedbackValidationErrors['rating']) {
+          <div class="text-danger small mt-2">{{ feedbackValidationErrors['rating'] }}</div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="input">
+      <label for="feedbackComment">The Feedback</label>
+      <div class="d-flex align-items-center gap-4">
+        <div class="form-outline w-100 position-relative">
+          <textarea id="feedbackComment" name="comment" class="form-control" [(ngModel)]="feedbackComment"
+            placeholder="Enter notes and feedback" (focus)="clearFeedbackError('comment')"></textarea>
+          @if (feedbackValidationErrors['comment']) {
+          <div class="text-danger small mt-2">{{ feedbackValidationErrors['comment'] }}</div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-lg btn-primary w-100"
+        [disabled]="feedbackSubmitting || !currentApplicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+          <path fill="currentColor" fill-rule="evenodd"
+            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+            clip-rule="evenodd" />
+        </svg>
+        <span>Add Feedback</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeFeedbackOverlay()">
+        <span>Discard Feedback</span>
+      </a>
+    </div>
+  </form>
+</app-overlay-filter-box>

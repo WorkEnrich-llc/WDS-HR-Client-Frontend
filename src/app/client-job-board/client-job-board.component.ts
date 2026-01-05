@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NavbarComponent, LogoData, SocialMediaLinks } from './layouts/navbar/navbar.component';
@@ -11,7 +10,7 @@ import { MetaTagsService } from './services/meta-tags.service';
 @Component({
     selector: 'app-client-job-board',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterOutlet, NavbarComponent, FooterComponent],
+    imports: [ReactiveFormsModule, RouterOutlet, NavbarComponent, FooterComponent],
     templateUrl: './client-job-board.component.html',
     styleUrls: ['./client-job-board.component.css']
 })
@@ -91,7 +90,6 @@ export class ClientJobBoardComponent implements OnInit {
 
                     // Apply theme color dynamically
                     if (objectInfo.theme_color) {
-                        console.log('Setting theme color from API:', objectInfo.theme_color);
                         this.themeService.setThemeColor(objectInfo.theme_color);
                     } else {
                         console.warn('No theme_color found in API response');
@@ -150,8 +148,6 @@ export class ClientJobBoardComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
             const file = input.files[0];
-            // Handle file upload logic here
-            console.log('File uploaded:', file.name, fileType);
         }
     }
 
@@ -161,7 +157,6 @@ export class ClientJobBoardComponent implements OnInit {
 
     onSubmit(): void {
         if (this.applicationForm.valid) {
-            console.log('Form submitted:', this.applicationForm.value);
             // Handle form submission
         } else {
             console.log('Form is invalid');

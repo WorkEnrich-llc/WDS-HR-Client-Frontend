@@ -1,14 +1,15 @@
 import { Component, Input, ViewChild, ViewEncapsulation } from '@angular/core';
 import { OverlayFilterBoxComponent } from './../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { CommonModule } from '@angular/common';
-import { SafePipe } from 'app/core/pipe/safe.pipe';
+import { NgxDocViewerModule } from 'ngx-doc-viewer';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 @Component({
   selector: 'app-cv',
   standalone: true,
-  imports: [CommonModule, OverlayFilterBoxComponent, PdfViewerModule, SafePipe],
+  imports: [OverlayFilterBoxComponent, NgxDocViewerModule, DatePipe, DecimalPipe],
+  providers: [DatePipe,],
   templateUrl: './cv.component.html',
   styleUrl: './cv.component.css',
   encapsulation: ViewEncapsulation.None
@@ -17,49 +18,50 @@ export class CvComponent {
   @ViewChild(OverlayFilterBoxComponent) overlay!: OverlayFilterBoxComponent;
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @Input() applicant: any;
-  private _cvUrlInput?: string;
   @Input() set cvUrl(value: string | undefined) {
-    this._cvUrlInput = value;
     if (value && typeof value === 'string' && value.trim()) {
       this.pdfUrl = value;
     }
   }
   pdfUrl = `${window.location.origin}/assets/cv.pdf`;
 
-  totalPages: number | null = null;
+  constructor(private sanitizer: DomSanitizer) { }
 
-  onPdfLoad(pdf: any) {
-    this.totalPages = pdf.numPages;
-  }
-  zoom = 0.9;
-
-  zoomIn() {
-    this.zoom = Math.min(this.zoom + 0.1, 3);
-  }
-
-  zoomOut() {
-    this.zoom = Math.max(this.zoom - 0.1, 0.5);
-  }
 
   downloadCv() {
     const url = this.pdfUrl;
     if (!url) return;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'cv.pdf';
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${this.applicant?.name || 'cv'}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(error => {
+        alert('An error occurred while downloading the CV.');
+        console.error('Download error:', error);
+      });
   }
 
-  get viewerUrl(): string {
-    if (!this.pdfUrl) return '';
-    try {
-      return `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(this.pdfUrl)}`;
-    } catch {
-      return this.pdfUrl;
-    }
+  /**
+   * Get the average evaluation score for the applicant
+   */
+  getEvaluationScore(): number {
+    return this.applicant?.evaluation?.average_score ?? 0;
   }
+
+  /**
+   * Get max score (always 100)
+   */
+  getMaxScore(): number {
+    return 100;
+  }
+
+
 
 }

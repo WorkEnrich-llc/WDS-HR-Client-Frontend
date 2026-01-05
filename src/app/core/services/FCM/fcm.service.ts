@@ -1,8 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Messaging } from '@angular/fire/messaging';
 import { getMessaging, getToken } from 'firebase/messaging';
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { initializeApp } from 'firebase/app';
 
@@ -15,7 +14,7 @@ export class FcmService {
   private vapidKey: string = 'BAZJR-lUBhT5aY0HsiJOszKuU6U9ifiAkgOIGzaY59oe4WO9Wm_ISlnNfolCg2FMuMbMIKOAcOGjz2XcVeQiW9A';
 
 
-  constructor(private messaging: Messaging, private _HttpClient: HttpClient) {
+  constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 

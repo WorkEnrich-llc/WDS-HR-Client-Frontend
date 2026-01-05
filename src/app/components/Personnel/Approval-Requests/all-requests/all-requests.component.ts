@@ -1,23 +1,23 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { debounceTime, filter, skip, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription } from 'rxjs';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { CommonModule, DatePipe } from '@angular/common';
 import { ApprovalRequestsService } from '../service/approval-requests.service';
 import { ApprovalRequestItem, ApprovalRequestFilters } from '../../../../core/interfaces/approval-request';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-requests',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, OverlayFilterBoxComponent,
-    FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent,
+    FormsModule, ReactiveFormsModule, NgxDaterangepickerMd, RouterLink, DatePipe],
+    providers: [DatePipe],
   templateUrl: './all-requests.component.html',
   styleUrl: './all-requests.component.css'
 })

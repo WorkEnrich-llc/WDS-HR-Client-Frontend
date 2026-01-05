@@ -1,14 +1,11 @@
-import { ChangeDetectorRef, Component, ViewChild, NgZone } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CalendarService } from './calendar.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule } from '@angular/common';
-import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import { CalendarComponent as SharedCalendarComponent, CalendarDay } from '../../../shared/calendar/calendar.component';
 
 import { FormsModule } from '@angular/forms';
+import { DatePipe, NgClass, CommonModule } from '@angular/common';
 
 export interface CalendarEvent {
   title: string;
@@ -24,66 +21,33 @@ export interface CalendarEvent {
 }
 
 @Component({
-  selector: 'app-calendar',
+  selector: 'app-recruitment-calendar',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, FullCalendarModule, FormsModule],
+  imports: [PageHeaderComponent, SharedCalendarComponent, FormsModule, DatePipe, NgClass, CommonModule],
+  providers: [DatePipe],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
 
-export class CalendarComponent {
+export class CalendarComponent implements OnInit, OnDestroy {
   private calendarSub?: Subscription;
   isLoading = false;
-  showMonthYearPicker = false;
-  pickerMonth: number = new Date().getMonth();
-  pickerYear: number = new Date().getFullYear();
-  months: string[] = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  years: number[] = Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i);
+  currentDate: Date = new Date();
+  calendarDays: CalendarDay[] = [];
+  selectedDate: Date = new Date();
+  selectedDateFormatted: string = '';
+  eventsDay: CalendarEvent[] = [];
+  events: CalendarEvent[] = [];
+
+  get selectedMonthYear(): string {
+    return this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  }
 
   eventTrackBy(index: number, event: CalendarEvent) {
     return event.id || (event.date + '-' + event.title + '-' + event.type);
   }
 
-  toggleMonthYearPicker() {
-    this.showMonthYearPicker = !this.showMonthYearPicker;
-    if (this.showMonthYearPicker) {
-      setTimeout(() => {
-        this.pickerMonth = this.currentDate.getMonth();
-        this.pickerYear = this.currentDate.getFullYear();
-      });
-    }
-    this.cdr.detectChanges();
-  }
-
-  @ViewChild('calendar') calendarComponent: FullCalendarComponent | undefined;
-  constructor(private cdr: ChangeDetectorRef, private calendarService: CalendarService, private ngZone: NgZone) { }
-
-  currentDate: Date = new Date();
-  get selectedMonthYear(): string {
-    return this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-  }
-  prevMonth() {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
-    this.cdr.detectChanges();
-    this.fetchCalendarForCurrentDate();
-    this.updateCalendarMonth();
-  }
-  nextMonth() {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
-    this.cdr.detectChanges();
-    this.fetchCalendarForCurrentDate();
-    this.updateCalendarMonth();
-  }
-  setMonthYear() {
-    this.currentDate = new Date(this.pickerYear, this.pickerMonth, 1);
-    this.showMonthYearPicker = false;
-    this.cdr.detectChanges();
-    this.fetchCalendarForCurrentDate();
-    this.updateCalendarMonth();
-  }
+  constructor(private cdr: ChangeDetectorRef, private calendarService: CalendarService) { }
   fetchCalendarForCurrentDate() {
     this.isLoading = true;
     const year = this.currentDate.getFullYear();
@@ -94,24 +58,19 @@ export class CalendarComponent {
     this.calendarSub = this.calendarService.getCalendar(year, month).subscribe({
       next: (response) => {
         if (response?.data?.list_items) {
-          // Map each event with all details for calendar and day details
           const events: CalendarEvent[] = [];
           response.data.list_items.forEach((item: any) => {
             item.items.forEach((event: any) => {
               events.push({
                 ...event,
                 date: item.date,
-                // For FullCalendar display
                 title: event.title || event.type,
                 type: event.type
               });
             });
           });
           this.events = events;
-          this.calendarOptions = {
-            ...this.calendarOptions,
-            events: this.events
-          };
+          this.generateCalendar();
           this.cdr.detectChanges();
         }
         setTimeout(() => {
@@ -129,67 +88,81 @@ export class CalendarComponent {
     });
   }
 
-  updateCalendarMonth() {
-    const calendarApi = this.calendarComponent?.getApi();
-    if (calendarApi) {
-      calendarApi.gotoDate(this.currentDate);
+  generateCalendar() {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+    const calendarDays: CalendarDay[] = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= lastDay || calendarDays.length % 7 !== 0) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayEvents = this.events.filter(e => e.date === dateStr);
+
+      calendarDays.push({
+        date: new Date(currentDate),
+        day: currentDate.getDate(),
+        isCurrentMonth: currentDate.getMonth() === month,
+        isToday: this.isSameDay(currentDate, new Date()),
+        isSelected: this.isSameDay(currentDate, this.selectedDate),
+        events: dayEvents.map(e => ({
+          title: e.title,
+          date: e.date,
+          type: e.type
+        }))
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
+
+    this.calendarDays = calendarDays;
+  }
+
+  isSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
+
+  onMonthChanged(date: Date) {
+    this.currentDate = date;
+    this.fetchCalendarForCurrentDate();
+  }
+
+  onDaySelected(day: CalendarDay) {
+    this.selectedDate = day.date;
+    const dateStr = day.date.toISOString().split('T')[0];
+    this.selectedDateFormatted = day.date.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+    this.eventsDay = this.events.filter(e => e.date === dateStr);
+    this.generateCalendar();
     this.cdr.detectChanges();
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.isLoading = true;
-      this.cdr.detectChanges();
-
-      const today = new Date();
-      const dateStr = today.toISOString().split('T')[0];
-      this.handleDateClick({ dateStr });
-
-      const calendarApi = this.calendarComponent?.getApi();
-      calendarApi?.select(today);
-
-      this.fetchCalendarForCurrentDate();
-    });
+  onTodayClicked() {
+    this.currentDate = new Date();
+    this.selectedDate = new Date();
+    this.fetchCalendarForCurrentDate();
   }
 
-  selectedDateFormatted: string = '';
-  eventsDay: CalendarEvent[] = [];
-  events: CalendarEvent[] = [];
-  calendarOptions: CalendarOptions = {
-    initialView: 'dayGridMonth',
-    plugins: [dayGridPlugin, interactionPlugin],
-    fixedWeekCount: false,
-    selectable: true,
-    events: [],
-    dayMaxEvents: 4,
-    height: 'auto',
-    eventClassNames: (arg) => {
-      const eventType = (arg.event.extendedProps as any).type?.toLowerCase();
-      return [`event-${eventType}`];
-    },
-    dateClick: this.handleDateClick.bind(this),
-    eventClick: (arg) => {
-      // arg.event.startStr is the date string for the event
-      this.handleDateClick({ dateStr: arg.event.startStr });
-    }
-  };
-
-  handleDateClick(arg: any) {
-    this.ngZone.run(() => {
-      const clickedDate = arg.dateStr;
-      const dateObj = new Date(clickedDate);
-
-      this.selectedDateFormatted = dateObj.toLocaleDateString('en-GB', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
-
-      // Show all events for the selected date
-      this.eventsDay = this.events.filter(e => e.date === clickedDate);
-      this.cdr.detectChanges();
+  ngOnInit() {
+    this.fetchCalendarForCurrentDate();
+    const today = new Date();
+    this.selectedDateFormatted = today.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
     });
   }
 

@@ -4,12 +4,13 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../../shared/popup/popup.component';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { AttendanceRulesService } from '../../service/attendance-rules.service';
 import { AttendanceRulesData } from '../../models/attendance-rules.interface';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions/salary-portions.service';
+import { NgClass } from '@angular/common';
 
 // Interfaces for lateness structure
 interface LatenessDeductionRule {
@@ -25,7 +26,7 @@ interface LatenessOccurrence {
 
 @Component({
   selector: 'app-edit-part-time',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, FormsModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, NgClass],
   templateUrl: './edit-part-time.component.html',
   styleUrls: ['./../../../../shared/table/table.component.css', './edit-part-time.component.css'],
 })
@@ -141,7 +142,7 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
                   : null
               }))
             : [];
-          
+
           return {
             isExpanded: occurrenceIndex === 0, // Expand first occurrence by default
             deductionRules: rules.length > 0 ? rules : [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
@@ -185,10 +186,10 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
         .sort((a: any, b: any) => (a?.index ?? 0) - (b?.index ?? 0))
         .map((occurrence: any) => {
           // Take the first rule from the list for each occurrence
-          const firstRule = occurrence.list && occurrence.list.length > 0 
-            ? occurrence.list[0] 
+          const firstRule = occurrence.list && occurrence.list.length > 0
+            ? occurrence.list[0]
             : null;
-          
+
           return {
             deduction: firstRule && firstRule.value !== null && firstRule.value !== undefined
               ? Number(firstRule.value)
@@ -771,29 +772,29 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
             // Preserve existing full_time structure (same as part_time - occurrences with lists)
             lateness: existingFullTimeSettings.lateness && Array.isArray(existingFullTimeSettings.lateness)
               ? existingFullTimeSettings.lateness.map((occurrence: any) => ({
-                  index: occurrence.index,
-                  list: occurrence.list && Array.isArray(occurrence.list)
-                    ? occurrence.list.map((rule: any) => ({
-                        index: rule.index,
-                        minutes: rule.minutes,
-                        value: rule.value,
-                        salary_portion_index: rule.salary_portion_index
-                      }))
-                    : []
-                }))
+                index: occurrence.index,
+                list: occurrence.list && Array.isArray(occurrence.list)
+                  ? occurrence.list.map((rule: any) => ({
+                    index: rule.index,
+                    minutes: rule.minutes,
+                    value: rule.value,
+                    salary_portion_index: rule.salary_portion_index
+                  }))
+                  : []
+              }))
               : [],
             early_leave: existingFullTimeSettings.early_leave && Array.isArray(existingFullTimeSettings.early_leave)
               ? existingFullTimeSettings.early_leave.map((occurrence: any) => ({
-                  index: occurrence.index,
-                  list: occurrence.list && Array.isArray(occurrence.list)
-                    ? occurrence.list.map((rule: any) => ({
-                        index: rule.index,
-                        minutes: rule.minutes,
-                        value: rule.value,
-                        salary_portion_index: rule.salary_portion_index
-                      }))
-                    : []
-                }))
+                index: occurrence.index,
+                list: occurrence.list && Array.isArray(occurrence.list)
+                  ? occurrence.list.map((rule: any) => ({
+                    index: rule.index,
+                    minutes: rule.minutes,
+                    value: rule.value,
+                    salary_portion_index: rule.salary_portion_index
+                  }))
+                  : []
+              }))
               : [],
             absence: (existingFullTimeSettings.absence || []).map((item: any) => ({
               index: item.index || 0,
@@ -840,12 +841,12 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
           part_time: {
             lateness: this.latenessOccurrences.map((occurrence, occurrenceIndex) => {
               // Filter out empty rules (where all fields are null)
-              const validRules = occurrence.deductionRules.filter(rule => 
+              const validRules = occurrence.deductionRules.filter(rule =>
                 rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
                 rule.deductionValue !== null && rule.deductionValue !== undefined &&
                 rule.deductionBase !== null && rule.deductionBase !== undefined
               );
-              
+
               return {
                 index: occurrenceIndex + 1,
                 list: validRules.map((rule, ruleIndex) => ({
@@ -856,40 +857,40 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
                 }))
               };
             }).filter(occurrence => occurrence.list.length > 0),
-            early_leave: this.sameAsLateness 
+            early_leave: this.sameAsLateness
               ? this.latenessOccurrences.map((occurrence, occurrenceIndex) => {
-                  // If same as lateness, use lateness structure
-                  const validRules = occurrence.deductionRules.filter(rule => 
-                    rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
-                    rule.deductionValue !== null && rule.deductionValue !== undefined &&
-                    rule.deductionBase !== null && rule.deductionBase !== undefined
-                  );
-                  
-                  return {
-                    index: occurrenceIndex + 1,
-                    list: validRules.map((rule, ruleIndex) => ({
-                      index: ruleIndex + 1,
-                      minutes: rule.thresholdTime,
-                      value: rule.deductionValue,
-                      salary_portion_index: rule.deductionBase
-                    }))
-                  };
-                }).filter(occurrence => occurrence.list.length > 0)
+                // If same as lateness, use lateness structure
+                const validRules = occurrence.deductionRules.filter(rule =>
+                  rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+                  rule.deductionValue !== null && rule.deductionValue !== undefined &&
+                  rule.deductionBase !== null && rule.deductionBase !== undefined
+                );
+
+                return {
+                  index: occurrenceIndex + 1,
+                  list: validRules.map((rule, ruleIndex) => ({
+                    index: ruleIndex + 1,
+                    minutes: rule.thresholdTime,
+                    value: rule.deductionValue,
+                    salary_portion_index: rule.deductionBase
+                  }))
+                };
+              }).filter(occurrence => occurrence.list.length > 0)
               : this.earlyLeaveRows.map((row, index) => {
-                  // Structure early leave as occurrences with lists
-                  // Each row becomes an occurrence with a single item in the list
-                  return {
-                    index: index + 1,
-                    list: [{
-                      index: 1,
-                      minutes: 0, // Early leave doesn't have minutes in current UI, using 0 as placeholder
-                      value: row.deduction || 0,
-                      salary_portion_index: row.salaryPortionIndex !== null && row.salaryPortionIndex !== undefined
-                        ? Number(row.salaryPortionIndex)
-                        : 0
-                    }]
-                  };
-                }).filter(occurrence => occurrence.list[0].value !== null && occurrence.list[0].value !== undefined),
+                // Structure early leave as occurrences with lists
+                // Each row becomes an occurrence with a single item in the list
+                return {
+                  index: index + 1,
+                  list: [{
+                    index: 1,
+                    minutes: 0, // Early leave doesn't have minutes in current UI, using 0 as placeholder
+                    value: row.deduction || 0,
+                    salary_portion_index: row.salaryPortionIndex !== null && row.salaryPortionIndex !== undefined
+                      ? Number(row.salaryPortionIndex)
+                      : 0
+                  }]
+                };
+              }).filter(occurrence => occurrence.list[0].value !== null && occurrence.list[0].value !== undefined),
             absence: this.absenceEntries.map((entry, index) => ({
               index: index + 1,
               value: entry.value || 0,

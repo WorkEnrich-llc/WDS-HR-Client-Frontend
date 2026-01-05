@@ -1,16 +1,17 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { AbstractControl, FormControl, FormControlOptions, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgOtpInputComponent } from 'ng-otp-input';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
-import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, NgOtpInputComponent, RouterLink, ReactiveFormsModule],
+  imports: [FormsModule, NgOtpInputComponent, RouterLink, ReactiveFormsModule, NgClass, DecimalPipe],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -363,9 +364,10 @@ export class RegisterComponent implements OnDestroy, OnInit {
       next: (response) => {
         this.isLoading = false;
 
-        const session = response?.data?.session;
-        const companyInfo = response?.data?.company_info;
-        const userInfo = response?.data?.user_info;
+        // Check both root level and data level for response structure
+        const session = response?.session || response?.data?.session;
+        const companyInfo = response?.company_info || response?.data?.company_info;
+        const userInfo = response?.user_info || response?.data?.user_info;
         const authToken = session?.auth_token;
         const session_token = session?.session_token;
         const domain = companyInfo?.domain;
@@ -389,52 +391,44 @@ export class RegisterComponent implements OnDestroy, OnInit {
           const subDomain = companyInfo?.sub_domain;
           const redirectUrl = this.constructSubdomainUrl(subDomain);
 
-          // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
-          const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
-          const hasSLT = session?.s_l_t?.nonce && session?.s_l_t?.ciphertext;
-
-          if (hasSLC && hasSLT) {
-            const requestData = {
-              request_data: {
-                s_l_c: {
-                  nonce: session.s_l_c.nonce,
-                  ciphertext: session.s_l_c.ciphertext
-                },
-                s_l_t: {
-                  nonce: session.s_l_t.nonce,
-                  ciphertext: session.s_l_t.ciphertext
-                }
-              }
-            };
-
-            this._AuthenticationService.sessionLogin(requestData).subscribe({
-              next: () => {
-                // S-L API call successful, now call subscription status
-                this.subService.getSubscription().subscribe({
-                  next: (sub) => {
-                    if (sub) {
-                      this.subService.setSubscription(sub);
-                    }
-                    // Redirect to subdomain URL
-                    this.redirectToSubdomain(redirectUrl);
-                  },
-                  error: (err) => {
-                    console.error('Subscription load error:', err);
-                    // Redirect even if subscription fails
-                    this.redirectToSubdomain(redirectUrl);
-                  }
-                });
+          // Call S-L API directly after successful account creation
+          const requestData = {
+            request_data: {
+              s_l_c: {
+                nonce: session.s_l_c?.nonce,
+                ciphertext: session.s_l_c?.ciphertext
               },
-              error: (err) => {
-                console.error('S-L API call error:', err);
-                // If S-L fails, redirect directly
-                this.redirectToSubdomain(redirectUrl);
+              s_l_t: {
+                nonce: session.s_l_t?.nonce,
+                ciphertext: session.s_l_t?.ciphertext
               }
-            });
-          } else {
-            // Missing session data, redirect directly without S-L or subscription
-            this.redirectToSubdomain(redirectUrl);
-          }
+            }
+          };
+
+          this._AuthenticationService.sessionLogin(requestData).subscribe({
+            next: () => {
+              // S-L API call successful, now call subscription status
+              this.subService.getSubscription().subscribe({
+                next: (sub) => {
+                  if (sub) {
+                    this.subService.setSubscription(sub);
+                  }
+                  // Redirect to subdomain URL
+                  this.redirectToSubdomain(redirectUrl);
+                },
+                error: (err) => {
+                  console.error('Subscription load error:', err);
+                  // Redirect even if subscription fails
+                  this.redirectToSubdomain(redirectUrl);
+                }
+              });
+            },
+            error: (err) => {
+              console.error('S-L API call error:', err);
+              // If S-L fails, redirect directly
+              this.redirectToSubdomain(redirectUrl);
+            }
+          });
         } else {
           this.errMsg = 'Invalid response from server.';
         }

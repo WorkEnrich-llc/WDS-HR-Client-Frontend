@@ -7,7 +7,7 @@ import { WorkSchedule } from '../../../../../core/interfaces/work-schedule';
 import { COUNTRIES, Country } from '../countries-list';
 import { Employee } from 'app/core/interfaces/employee';
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
-import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, debounceTime, distinctUntilChanged, filter, map, Observable, of, pairwise, startWith, switchMap } from 'rxjs';
 import { BranchesService } from 'app/core/services/od/branches/branches.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
 import { JobsService } from 'app/core/services/od/jobs/jobs.service';
@@ -111,8 +111,11 @@ export class ManageEmployeeSharedService {
   currentDate = new Date().toISOString().split('T')[0];
   readonly isEditMode = signal<boolean>(false);
   readonly isContractExpiring = signal<boolean>(false);
+  readonly isLoadingJobDetails = signal<boolean>(false);
   private originalFormData: any = null;
   suppressWatchers = false;
+  applicantId: number | null = null;
+  employeeSource: number = 1; // 1 = direct creation, 2 = from recruitment
 
   constructor() {
     this.initializeForm();
@@ -187,17 +190,17 @@ export class ManageEmployeeSharedService {
       ? this.branches()[0]
       : null;
 
-    this.isLoading.set(true);
+    this.isLoadingJobDetails.set(true);
     this.branchesService.getAllBranches(1, 1000).subscribe({
       next: (res) => {
         let fullList = res.data.list_items || [];
         fullList = this.mergeItemIntoList(fullList, currentItem);
         this.branches.set(fullList);
-        this.isLoading.set(false);
+        this.isLoadingJobDetails.set(false);
       },
       error: (err) => {
         console.error('Failed to load initial branches', err);
-        this.isLoading.set(false);
+        this.isLoadingJobDetails.set(false);
       }
     });
   }
@@ -666,6 +669,7 @@ export class ManageEmployeeSharedService {
       status: true
     };
 
+    this.isLoadingJobDetails.set(true);
     this.jobsService.getAllJobTitles(1, 100, params).subscribe({
       next: (res) => {
         if (this.jobDetails.get('management_level')?.value?.toString() === management) {
@@ -683,11 +687,13 @@ export class ManageEmployeeSharedService {
             controlToEnable?.disable();
           }
         }
+        this.isLoadingJobDetails.set(false);
       },
       error: (err) => {
         console.error('Error loading job titles for management', err);
         this.jobTitles.set([]);
         controlToEnable?.disable();
+        this.isLoadingJobDetails.set(false);
       }
     });
   }
@@ -1021,8 +1027,8 @@ export class ManageEmployeeSharedService {
 
     combineLatest([department$, employmentType$]).pipe(
       filter(() => !this.suppressWatchers),
-      debounceTime(50),
-
+      debounceTime(300),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       switchMap(([departmentId, employmentType]) => {
 
         this.attendanceDetails.get('work_schedule_id')?.reset(null, { emitEvent: false });
@@ -1089,6 +1095,34 @@ export class ManageEmployeeSharedService {
 
   getActiveWorkSchedules(): WorkSchedule[] {
     return this.workSchedules().filter((w) => w.is_active);
+  }
+
+  getFilteredWorkSchedules(): WorkSchedule[] {
+    const workMode = this.attendanceDetails.get('work_mode')?.value;
+    const activeSchedules = this.getActiveWorkSchedules();
+
+    if (!workMode) {
+      return activeSchedules;
+    }
+
+    // work_schedule_type: 1 = Fixed, 2 = Flexible, 3 = Remote
+    // work_mode: 1 = On site, 2 = Remote, 3 = Hybrid
+    return activeSchedules.filter(schedule => {
+      const scheduleType = schedule.system?.work_schedule_type;
+
+      // If work mode is On site (1), exclude Remote schedules (3)
+      if (workMode === 1 && scheduleType === 3) {
+        return false;
+      }
+
+      // If work mode is Remote (2), exclude Fixed schedules (1)
+      if (workMode === 2 && scheduleType === 1) {
+        return false;
+      }
+
+      // If work mode is Hybrid (3), show all
+      return true;
+    });
   }
 
   getActiveBranches(): Branch[] {
@@ -1512,7 +1546,13 @@ export class ManageEmployeeSharedService {
     }
     // }
     requestData.contract_details = contractDetailsPayload;
+
+    // Add recruitment-related data if available
     if (!this.isEditMode()) {
+      requestData.employee_source = this.employeeSource;
+      if (this.applicantId) {
+        requestData.applicant_id = this.applicantId;
+      }
       return { request_data: requestData };
     }
 
@@ -1585,5 +1625,98 @@ export class ManageEmployeeSharedService {
 
   // Debug method to help identify validation issues
   debugFormState(): void {
+  }
+
+  // Populate form with employee create info from recruitment response
+  populateFormWithEmployeeCreateInfo(data: any): void {
+    if (!data || !data.object_info) {
+      console.warn('Invalid employee create info data');
+      return;
+    }
+
+    const info = data.object_info;
+
+    // Suppress watchers to prevent unnecessary subscriptions during form population
+    this.suppressWatchers = true;
+
+    try {
+      // Populate main information
+      const mainInfoGroup = this.employeeForm.get('main_information');
+      if (mainInfoGroup) {
+        mainInfoGroup.patchValue({
+          name_english: info.name || '',
+          personal_email: info.email || '',
+        });
+
+        const mobileGroup = mainInfoGroup.get('mobile');
+        if (mobileGroup && info.phone) {
+          // Extract phone number (remove country code if present)
+          const phoneStr = info.phone.toString();
+          const phoneNumber = phoneStr.length > 10 ? phoneStr.slice(-10) : phoneStr;
+          mobileGroup.patchValue({
+            number: phoneNumber
+          });
+        }
+      }
+
+      // Populate job details
+      const jobDetailsGroup = this.employeeForm.get('job_details');
+      if (jobDetailsGroup) {
+        if (info.branch?.id) {
+          jobDetailsGroup.patchValue({
+            branch_id: info.branch.id
+          });
+        }
+        if (info.job_title?.id) {
+          jobDetailsGroup.patchValue({
+            job_title_id: info.job_title.id
+          });
+          // Set the selected job title
+          this.selectedJobTitle.set(info.job_title);
+        }
+      }
+
+      // Populate attendance details
+      const attendanceGroup = this.employeeForm.get('attendance_details');
+      if (attendanceGroup) {
+        if (info.employment_type?.id) {
+          attendanceGroup.patchValue({
+            employment_type: info.employment_type.id
+          });
+        }
+        if (info.work_mode?.id) {
+          attendanceGroup.patchValue({
+            work_mode: info.work_mode.id
+          });
+        }
+        if (info.work_schedule?.id) {
+          attendanceGroup.patchValue({
+            work_schedule_id: info.work_schedule.id
+          });
+        }
+      }
+
+      // Populate contract details
+      const contractGroup = this.employeeForm.get('contract_details');
+      if (contractGroup && info.contract_details) {
+        contractGroup.patchValue({
+          start_contract: info.contract_details.start_contract || '',
+          contract_end_date: info.contract_details.end_contract || '',
+          notice_period: info.contract_details.notice_period || null,
+          salary: info.contract_details.salary || '',
+          probation_period: info.contract_details.probation_period || false
+        });
+      }
+
+      // Mark form as pristine after population to avoid "unsaved changes" warnings
+      setTimeout(() => {
+        this.employeeForm.markAsPristine();
+        this.suppressWatchers = false;
+      }, 100);
+
+    } catch (error) {
+      console.error('Error populating form with employee create info:', error);
+      this.suppressWatchers = false;
+    }
   }
 }

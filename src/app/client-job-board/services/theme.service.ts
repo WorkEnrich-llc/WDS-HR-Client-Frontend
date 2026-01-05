@@ -66,7 +66,6 @@ export class ThemeService {
     const mappedColor = THEME_COLOR_MAP[normalizedName] || THEME_COLOR_MAP[normalizedName.charAt(0).toUpperCase() + normalizedName.slice(1).toLowerCase()];
 
     if (mappedColor) {
-      console.log('Theme color mapped:', normalizedName, '->', mappedColor);
       return mappedColor;
     }
 
@@ -108,12 +107,6 @@ export class ThemeService {
 
       root.style.setProperty('--client-job-board-primary-light', lighterColor);
       root.style.setProperty('--client-job-board-primary-dark', darkerColor);
-
-      console.log('Theme applied to document root:', {
-        primary: hexColor,
-        light: lighterColor,
-        dark: darkerColor
-      });
     }
   }
 

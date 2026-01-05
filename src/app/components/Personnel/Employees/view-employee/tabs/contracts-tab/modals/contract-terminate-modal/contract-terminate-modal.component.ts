@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';

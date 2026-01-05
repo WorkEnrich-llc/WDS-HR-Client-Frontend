@@ -1,7 +1,7 @@
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
@@ -18,10 +18,10 @@ import { SystemSetupTourComponent } from 'app/components/shared/system-setup-tou
 
 @Component({
   selector: 'app-create-departments',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, SystemSetupTourComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, TableComponent, OnboardingChecklistComponent, SystemSetupTourComponent, NgClass],
   templateUrl: './create-departments.component.html',
   styleUrls: ['./../../../shared/table/table.component.css', './create-departments.component.css'],
+  providers: [DatePipe],
   encapsulation: ViewEncapsulation.None
 })
 export class CreateDepartmentsComponent {

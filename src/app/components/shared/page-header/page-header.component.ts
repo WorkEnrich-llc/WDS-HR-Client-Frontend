@@ -1,5 +1,5 @@
 
-import { AfterContentInit, Component, ContentChild, Input, TemplateRef, OnInit, ViewEncapsulation, ContentChildren, ElementRef, QueryList } from '@angular/core';
+import { Component, Input, ViewEncapsulation, ContentChildren, ElementRef, QueryList } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SkelatonLoadingComponent } from '../skelaton-loading/skelaton-loading.component';
 
@@ -13,7 +13,7 @@ import { SkelatonLoadingComponent } from '../skelaton-loading/skelaton-loading.c
 })
 export class PageHeaderComponent {
 
- @Input() breadcrumbs: { label: string; link?: string }[] = [];
+  @Input() breadcrumbs: { label: string; link?: string }[] = [];
   @Input() title: string = '';
   @Input() create?: string;
   @Input() update?: string;

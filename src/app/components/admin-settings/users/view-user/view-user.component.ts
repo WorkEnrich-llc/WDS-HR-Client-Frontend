@@ -1,18 +1,19 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AdminUsersService } from 'app/core/services/admin-settings/users/admin-users.service';
-import { IUser } from 'app/core/models/users';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { UserStatus } from '@app/enums';
 import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-view-user',
-  imports: [PageHeaderComponent, PopupComponent, CommonModule, RouterLink],
+  imports: [PageHeaderComponent, PopupComponent, RouterLink,DatePipe],
   templateUrl: './view-user.component.html',
+  providers: [DatePipe],
   styleUrl: './view-user.component.css'
 })
 export class ViewUserComponent implements OnInit {
@@ -126,7 +127,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User deactivated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('User deactivated successfully', "Updated Successfully");
         this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
@@ -150,7 +151,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User activated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('User activated successfully', "Updated Successfully");
         this.refreshUserDetails();
       },
       error: (err) => console.error('Failed to update status', err)
@@ -161,7 +162,7 @@ export class ViewUserComponent implements OnInit {
   resendInvitation(): void {
     this.usersService.searchUser(this.userInfo?.email).subscribe({
       next: (res) => {
-        this.toasterService.showSuccess('Invitation resent successfully (search done)',"Sent Successfully");
+        this.toasterService.showSuccess('Invitation resent successfully (search done)', "Sent Successfully");
       },
       error: (err) => {
         console.error('Failed to search user', err);
@@ -191,7 +192,7 @@ export class ViewUserComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('User removed successfully',"Removed");
+        this.toasterService.showSuccess('User removed successfully', "Removed");
         this.router.navigate(['/users']);
       },
       error: (err) => {

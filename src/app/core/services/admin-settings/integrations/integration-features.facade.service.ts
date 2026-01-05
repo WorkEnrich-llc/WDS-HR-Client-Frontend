@@ -156,10 +156,10 @@ export class IntegrationFeaturesFacadeService {
                 const currentPage = response?.data?.page || page;
                 return {
                     items: items.map((item: any) => ({
-                        id: item.id,
-                        name: item.contact_info?.name || 'Unknown',
-                        code: item.code,
-                        email: item.contact_info?.email
+                        id: item.object_info?.id,
+                        name: item.object_info?.contact_info?.name || 'Unknown',
+                        code: item.object_info?.code,
+                        email: item.object_info?.contact_info?.email
                     })),
                     totalItems,
                     totalPages,

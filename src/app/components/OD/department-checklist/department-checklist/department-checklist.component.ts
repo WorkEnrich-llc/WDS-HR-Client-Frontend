@@ -1,7 +1,7 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { SkelatonLoadingComponent } from 'app/components/shared/skelaton-loading/skelaton-loading.component';
@@ -23,7 +23,6 @@ export class DepartmentChecklistComponent {
   checks: CheckItem[] = [];
   checkForm: FormGroup;
   constructor(
-    private router: Router,
     private fb: FormBuilder,
     private departmentChecklistService: DepartmentChecklistService,
     private subService: SubscriptionService
@@ -88,13 +87,11 @@ export class DepartmentChecklistComponent {
   confirmDeactivate() {
     this.deactivateOpen = false;
 
-    const deptStatus = {
-      request_data: {
-        status: false
-      }
-    };
-
-
+    // const deptStatus = {
+    //   request_data: {
+    //     status: false
+    //   }
+    // };
   }
 
   openActivate() {
@@ -106,11 +103,11 @@ export class DepartmentChecklistComponent {
   }
   confirmActivate() {
     this.activateOpen = false;
-    const deptStatus = {
-      request_data: {
-        status: true
-      }
-    };
+    // const deptStatus = {
+    //   request_data: {
+    //     status: true
+    //   }
+    // };
 
 
   }

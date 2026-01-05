@@ -15,9 +15,6 @@
 </app-page-header>
 <!-- end page header -->
 
-
-
-
 <!-- start page content -->
 <div class="content-hug">
   <div class="content-box d-flex flex-column gap-3">
@@ -43,7 +40,22 @@
           </svg>
           <span>Filter</span>
         </button>
+      </div>
 
+      <!-- Off-Cycle Payroll button aligned right -->
+      <div class="d-flex justify-content-end w-100 mt-2 mt-lg-0">
+        <button class="btn btn-lg btn-primary" style="min-width: 300px;">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M9.5625 6.75C9.5625 6.43934 9.31066 6.1875 9 6.1875C8.68934 6.1875 8.4375 6.43934 8.4375 6.75L8.4375 8.43752H6.75C6.43934 8.43752 6.1875 8.68936 6.1875 9.00002C6.1875 9.31068 6.43934 9.56252 6.75 9.56252H8.4375V11.25C8.4375 11.5607 8.68934 11.8125 9 11.8125C9.31066 11.8125 9.5625 11.5607 9.5625 11.25L9.5625 9.56252H11.25C11.5607 9.56252 11.8125 9.31068 11.8125 9.00002C11.8125 8.68936 11.5607 8.43752 11.25 8.43752H9.5625V6.75Z"
+              fill="#E0EBFF" />
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M9 0.9375C4.5472 0.9375 0.9375 4.5472 0.9375 9C0.9375 13.4528 4.5472 17.0625 9 17.0625C13.4528 17.0625 17.0625 13.4528 17.0625 9C17.0625 4.5472 13.4528 0.9375 9 0.9375ZM2.0625 9C2.0625 5.16852 5.16852 2.0625 9 2.0625C12.8315 2.0625 15.9375 5.16852 15.9375 9C15.9375 12.8315 12.8315 15.9375 9 15.9375C5.16852 15.9375 2.0625 12.8315 2.0625 9Z"
+              fill="#E0EBFF" />
+          </svg>
+
+          Off-Cycle Payroll
+        </button>
       </div>
 
 
@@ -61,8 +73,7 @@
         <div class="d-flex align-items-center justify-content-between">
           <span>Month</span>
           @if (sortDirection === 'desc') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-            viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke="#DDE3EB" stroke-linecap="round" stroke-width="1.5">
               <path d="M4 8h9m-7 5h7m-5 5h5" />
               <path stroke-linejoin="round" d="M17 20V4l3 4" />
@@ -70,8 +81,7 @@
           </svg>
           }
           @if (sortDirection === 'asc') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-            viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path fill="#DDE3EB" fill-rule="evenodd"
               d="M17 3.25a.75.75 0 0 1 .75.75v13.75l1.65-2.2a.75.75 0 1 1 1.2.9l-3 4a.75.75 0 0 1-1.35-.45V4a.75.75 0 0 1 .75-.75M7.25 6A.75.75 0 0 1 8 5.25h5a.75.75 0 0 1 0 1.5H8A.75.75 0 0 1 7.25 6m-2 5a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5H6a.75.75 0 0 1-.75-.75m-2 5a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5H4a.75.75 0 0 1-.75-.75"
               clip-rule="evenodd" />
@@ -184,9 +194,9 @@
       <tr>
         <td colspan="7" class="no-data py-4">
           @if (searchTerm.trim()) {
-            No Payroll Runs match your search.
+          No Payroll Runs match your search.
           } @else {
-            No Payroll Runs Added Yet.
+          No Payroll Runs Added Yet.
           }
         </td>
       </tr>
@@ -286,23 +296,26 @@
 
 <!-- Configure payroll popup -->
 <app-overlay-filter-box #configureBox [title]="'Configure Payroll'">
-  <form class="w-100 d-flex flex-column gap-3">
+  <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="savePayrollConfiguration()">
     <p>Select the starting day of upcoming Payroll Runs.
       This will not apply on approved payroll runs!</p>
     <div class="input">
       <label for="StartDay">Start Day</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="StartDay" class="form-select">
+          <select name="StartDay" id="StartDay" class="form-select" [(ngModel)]="selectedStartDay">
             <option value="" selected disabled hidden>Select</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
+            @for (day of days; track day) {
+            <option [value]="day">{{ day }}</option>
+            }
           </select>
         </div>
       </div>
     </div>
 
-    <p class="text-primary">The current Payroll will end on 30 January</p>
+    @if (currentPayrollEndDate) {
+    <p class="text-primary">The current Payroll will end on {{ currentPayrollEndDate | date: 'dd MMMM' }}</p>
+    }
 
 
 
@@ -312,7 +325,11 @@
 
 
     <div class="d-flex align-items-center gap-3">
-      <button type="submit" class="btn btn-lg btn-primary w-100">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isConfiguring">
+        @if (isConfiguring) {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span>Saving...</span>
+        } @else {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
@@ -320,6 +337,7 @@
           </g>
         </svg>
         <span>Save Changes</span>
+        }
       </button>
       <a type="button" (click)="closeconfigureBoxOverlays()" class="btn btn-lg btn-outline-dark border-0 w-100">
         <span>Discard Changes</span>
@@ -351,8 +369,7 @@
         <span>Download Template</span>
       </button>
       @if (!selectedFile) {
-      <button type="button"
-        class="btn btn-lg btn-primary px-0 w-100 position-relative overflow-hidden">
+      <button type="button" class="btn btn-lg btn-primary px-0 w-100 position-relative overflow-hidden">
         <input type="file" accept=".xls,.xlsx" (change)="onFileSelected($event)"
           class="position-absolute w-100 h-100 opacity-0 cursor-pointer" style="top: 0; left: 0;" />
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

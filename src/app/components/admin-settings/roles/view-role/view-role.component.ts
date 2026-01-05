@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
@@ -10,6 +10,7 @@ import { TableComponent } from 'app/components/shared/table/table.component';
 import { OverlayFilterBoxComponent } from 'app/components/shared/overlay-filter-box/overlay-filter-box.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
+import { NgClass } from '@angular/common';
 
 interface PermissionRow {
   moduleName: string;
@@ -20,7 +21,7 @@ interface PermissionRow {
 @Component({
   selector: 'app-view-role',
   standalone: true,
-  imports: [PageHeaderComponent, CommonModule, RouterLink, FormsModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, PopupComponent],
+  imports: [PageHeaderComponent, RouterLink, FormsModule, ReactiveFormsModule, TableComponent, OverlayFilterBoxComponent, PopupComponent, NgClass],
   templateUrl: './view-role.component.html',
   styleUrl: './view-role.component.css'
 })
@@ -435,7 +436,7 @@ export class ViewRoleComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Role deactivated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('Role deactivated successfully', "Updated Successfully");
         this.loadRoleDetails();
       },
       error: (err) => {
@@ -464,7 +465,7 @@ export class ViewRoleComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toasterService.showSuccess('Role activated successfully',"Updated Successfully");
+        this.toasterService.showSuccess('Role activated successfully', "Updated Successfully");
         this.loadRoleDetails();
       },
       error: (err) => {

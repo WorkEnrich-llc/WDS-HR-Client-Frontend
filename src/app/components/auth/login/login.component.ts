@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthenticationService } from '../../../core/services/authentication/authentication.service';
@@ -14,7 +15,7 @@ import DeviceDetector from 'device-detector-js';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, NgClass],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

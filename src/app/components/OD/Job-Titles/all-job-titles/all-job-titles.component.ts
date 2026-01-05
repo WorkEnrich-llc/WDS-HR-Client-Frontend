@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { JobsService } from '../../../../core/services/od/jobs/jobs.service';
-import { debounceTime, filter, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, Subject, Subscription, switchMap, distinctUntilChanged } from 'rxjs';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
@@ -30,11 +30,14 @@ export class AllJobTitlesComponent {
   constructor(private route: ActivatedRoute, private _DepartmentsService: DepartmentsService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
     private datePipe: DatePipe, private _JobsService: JobsService, private fb: FormBuilder, private subService: SubscriptionService) { }
   departments: any[] = [];
+  isLoadingDepartments: boolean = false;
   jobTitles: any[] = [];
   sortDirection: string = 'asc';
   currentSortColumn: string = '';
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private getAllJobTitlesSub?: Subscription;
+  private getAllDepartmentsSub?: Subscription;
   private toasterSubscription!: Subscription;
   currentFilters: any = {};
   currentSearchTerm: string = '';
@@ -54,7 +57,7 @@ export class AllJobTitlesComponent {
     });
 
 
-    this.getAllDepartment(1);
+    // Remove the automatic department loading - will be called on filter overlay open
     // this.route.queryParams.subscribe(params => {
     //   this.currentPage = +params['page'] || 1;
     //   this.getAllJobTitles(this.currentPage);
@@ -74,11 +77,37 @@ export class AllJobTitlesComponent {
         this.toasterMessageService.clearMessage();
       });
 
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.getAllJobTitles(this.currentPage, value);
-
-    });
-
+    this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          this.currentPage = 1;
+          this.currentSearchTerm = term;
+          this.loadData = true;
+          return this._JobsService.getAllJobTitles(this.currentPage, this.itemsPerPage, {
+            search: term || undefined,
+            request_in: 'all',
+            ...this.currentFilters
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.currentPage = Number(response.data.page);
+          this.totalItems = response.data.total_items;
+          this.totalPages = response.data.total_pages;
+          this.jobTitles = response.data.list_items;
+          this.sortDirection = 'desc';
+          this.currentSortColumn = 'id';
+          this.sortBy();
+          this.loadData = false;
+        },
+        error: (err) => {
+          console.error(err.error?.details);
+          this.loadData = false;
+        }
+      });
 
     this.filterForm = this.fb.group({
       updated_from: [''],
@@ -108,9 +137,28 @@ export class AllJobTitlesComponent {
     this.getAllJobTitles(this.currentPage);
   }
 
+  loadFilterData(): void {
+    // Load departments data only when filter overlay is opened
+    if (this.departments.length === 0) {
+      this.getAllDepartment(1);
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.toasterSubscription) {
       this.toasterSubscription.unsubscribe();
+    }
+    if (this.getAllJobTitlesSub) {
+      this.getAllJobTitlesSub.unsubscribe();
+    }
+    if (this.getAllDepartmentsSub) {
+      this.getAllDepartmentsSub.unsubscribe();
+    }
+    if (this.jobTitleSub && typeof this.jobTitleSub.unsubscribe === 'function') {
+      this.jobTitleSub.unsubscribe();
+    }
+    if (this.searchSubject) {
+      this.searchSubject.complete();
     }
   }
 
@@ -129,9 +177,18 @@ export class AllJobTitlesComponent {
   }
 
   onSearchChange() {
-    this.currentPage = 1;
-    this.currentSearchTerm = this.searchTerm;
-    this.getAllJobTitles(this.currentPage, this.currentSearchTerm, this.currentFilters);
+    let value = this.searchTerm || '';
+    // Remove leading spaces for the payload only (do not change input)
+    let payload = value.replace(/^\s+/, '');
+    // Prevent more than 2 consecutive spaces anywhere in the payload
+    payload = payload.replace(/ {3,}/g, '  ');
+    // Allow empty search to reset results, but prevent search with only whitespace
+    if (value.trim().length === 0 && payload.trim().length === 0) {
+      // Reset to first page and send empty search
+      this.searchSubject.next('');
+      return;
+    }
+    this.searchSubject.next(payload);
   }
 
 
@@ -178,7 +235,10 @@ export class AllJobTitlesComponent {
       request_in?: string;
     }
   ) {
-    this._JobsService.getAllJobTitles(pageNumber, this.itemsPerPage, {
+    if (this.getAllJobTitlesSub) {
+      this.getAllJobTitlesSub.unsubscribe();
+    }
+    this.getAllJobTitlesSub = this._JobsService.getAllJobTitles(pageNumber, this.itemsPerPage, {
       search: searchTerm || undefined,
       request_in: 'all',
       ...filters
@@ -188,7 +248,6 @@ export class AllJobTitlesComponent {
         this.totalItems = response.data.total_items;
         this.totalPages = response.data.total_pages;
         this.jobTitles = response.data.list_items;
-        // console.log(this.jobTitles);
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
@@ -197,7 +256,6 @@ export class AllJobTitlesComponent {
       error: (err) => {
         console.error(err.error?.details);
         this.loadData = false;
-
       }
     });
   }
@@ -214,7 +272,13 @@ export class AllJobTitlesComponent {
       created_to?: string;
     }
   ) {
-    this._DepartmentsService.getAllDepartment(1, 10000, {
+    // Unsubscribe from previous call if it exists
+    if (this.getAllDepartmentsSub) {
+      this.getAllDepartmentsSub.unsubscribe();
+    }
+
+    this.isLoadingDepartments = true;
+    this.getAllDepartmentsSub = this._DepartmentsService.getAllDepartment(1, 10000, {
       search: searchTerm || undefined,
       ...filters
     }).subscribe({
@@ -222,16 +286,20 @@ export class AllJobTitlesComponent {
         this.currentPage = Number(response.data.page);
         this.totalItems = response.data.total_items;
         // this.totalpages = response.data.total_pages;
-        this.departments = response.data.list_items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-        }));
+        this.departments = response.data.list_items
+          .filter((item: any) => item.is_active === true)
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+          }));
         this.sortDirection = 'desc';
         this.currentSortColumn = 'id';
         this.sortBy();
+        this.isLoadingDepartments = false;
       },
       error: (err) => {
         console.error(err.error?.details);
+        this.isLoadingDepartments = false;
       }
     });
   }

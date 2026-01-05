@@ -2,7 +2,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AttendanceLog, IAttendanceFilters } from 'app/core/models/attendance-log';
 
 @Injectable({
@@ -13,7 +13,7 @@ export class AttendanceLogService {
   http = inject(HttpClient);
 
   private apiBaseUrl: string;
-  constructor(private _HttpClient: HttpClient) {
+  constructor() {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
@@ -94,7 +94,7 @@ export class AttendanceLogService {
   }
 
   updateLog(id: string | number, check_in: string, check_out: string) {
-    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-out`;
+    const url = `${this.apiBaseUrl}personnel/1_0_2/attendance/control/update-check-in-and-out`;
     const formData = new FormData();
     formData.append('id', String(id));
     formData.append('check_in', check_in);

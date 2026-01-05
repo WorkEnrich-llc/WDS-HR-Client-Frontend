@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
+import { DatePipe, NgClass } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -9,7 +9,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-view-work-schedule',
-  imports: [PageHeaderComponent, CommonModule, RouterLink, PopupComponent, TableComponent],
+  imports: [PageHeaderComponent, RouterLink, PopupComponent, TableComponent, NgClass],
   providers: [DatePipe],
   templateUrl: './view-work-schedule.component.html',
   styleUrl: './view-work-schedule.component.css'

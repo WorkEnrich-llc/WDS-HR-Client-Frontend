@@ -1,0 +1,47 @@
+/* Skeleton loader styles */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease infinite;
+    border-radius: 8px;
+}
+
+.skeleton-main-info {
+    height: 140px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-recipients-table {
+    height: 180px;
+    width: 100%;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+.card-section-header {
+    color: var(--text-colors-heading-on-light, #1E2E40) !important;
+    font-family: var(--font-family-en-font, Poppins) !important;
+    font-size: var(--size-b1, 20px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--line-height-sm, 20px) !important;
+}
+
+.content-hug {
+    margin: 24px 0;
+}
+
+.content-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+}

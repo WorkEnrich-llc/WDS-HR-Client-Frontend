@@ -68,13 +68,13 @@
   <td>
     <div class="recipients-cell">
       <div class="recipients-list">
-        @for (recipient of item.recipients; track recipient.id) {
-        <div class="recipient-item">
-          <span class="recipient-type">{{ recipient.recipient_type }}</span>
-          <span class="recipient-name">{{ recipient.recipient_name }}</span>
+        @for (group of item.recipientGroups; track group.type) {
+        <div class="recipient-group">
+          <span class="recipient-type-label">{{ group.type }}</span>
+          <span class="recipient-names">{{ group.names }}</span>
         </div>
         }
-        @if (item.recipients.length === 0) {
+        @if (item.recipientGroups.length === 0) {
         <span class="text-muted">No recipients</span>
         }
       </div>

@@ -1,3 +1,4 @@
+
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
@@ -7,6 +8,13 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class JobOpeningsService {
+
+    // send job offer with full payload
+    sendJobOfferFull(payload: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const body = { request_data: payload };
+        return this._HttpClient.post(url, body);
+    }
 
     private _HttpClient = inject(HttpClient);
     private apiBaseUrl: string = environment.apiBaseUrl;
@@ -108,7 +116,8 @@ export class JobOpeningsService {
         pageNumber?: number,
         perPage?: number,
         status?: number,
-        search?: string
+        search?: string,
+        offerStatus?: number
     ): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/jobs-openings/applicants`;
 
@@ -128,6 +137,12 @@ export class JobOpeningsService {
         // 1: Applicant, 2: Candidate, 3: Interviewee, 4: Job Offer Sent, 5: New Joiner, 6: Rejected, 7: Qualified
         if (status !== undefined && status !== null) {
             params = params.set('status', status.toString());
+        }
+
+        // Add offer_status if provided
+        // 1: Offer Accepted, 2: Offer Rejected
+        if (offerStatus !== undefined && offerStatus !== null) {
+            params = params.set('offer_status', offerStatus.toString());
         }
 
         // Add search if provided
@@ -151,18 +166,36 @@ export class JobOpeningsService {
         return this._HttpClient.get(url);
     }
 
+    // get next application
+    getNextApplication(currentApplicationId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/next`;
+        const params = new HttpParams().set('current_application_id', currentApplicationId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
     // get feedbacks for application id with pagination
     getApplicationFeedbacks(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/feedbacks/${applicationId}/`;
+        const url = `${this.apiBaseUrl}recruiter/feedbacks`;
         const params = new HttpParams()
             .set('page', page.toString())
-            .set('per_page', perPage.toString());
+            .set('per_page', perPage.toString())
+            .set('application_id', applicationId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get applicant assignments for application id with pagination
+    getApplicantAssignments(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments`;
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString())
+            .set('application_id', applicationId.toString());
         return this._HttpClient.get(url, { params });
     }
 
     // add feedback for application
     addApplicationFeedback(applicationId: number, rating: number, comment: string): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/feedbacks/`;
+        const url = `${this.apiBaseUrl}recruiter/feedbacks`;
         const body = {
             request_data: {
                 application_id: applicationId,
@@ -195,7 +228,7 @@ export class JobOpeningsService {
             location: number | null;
         }
     ): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/interviews/`;
+        const url = `${this.apiBaseUrl}recruiter/interviews`;
         const body = {
             request_data: {
                 application_id: applicationId,
@@ -261,7 +294,7 @@ export class JobOpeningsService {
 
     // send job offer
     sendJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/job-offers/`;
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
         const body = { request_data: { application_id: applicationId, salary, join_date, offer_details } };
         return this._HttpClient.post(url, body);
     }
@@ -273,10 +306,29 @@ export class JobOpeningsService {
     }
 
     // update job offer by application ID
-    updateJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string): Observable<any> {
-        const url = `${this.apiBaseUrl}recruiter/job-offers/${applicationId}/`;
-        const body = { request_data: { salary, join_date, offer_details } };
+    updateJobOffer(applicationId: number, salary: number, join_date: string, offer_details: string, notice_period?: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        const request_data: any = { job_offer_id: applicationId, salary, join_date, offer_details };
+        if (typeof notice_period === 'number') {
+            request_data.notice_period = notice_period;
+        }
+        const body = { request_data };
         return this._HttpClient.put(url, body);
+    }
+
+    // accept job offer by ID with application_id param
+    acceptJobOffer(jobOfferId: number, applicationId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers/${jobOfferId}/`;
+        const params = new HttpParams().set('application_id', applicationId.toString());
+        const body = { request_data: { status: 1 } };
+        return this._HttpClient.patch(url, body, { params });
+    }
+
+    // edit join date for job offer
+    editJoinDate(jobOfferId: number, joinDate: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers/edit-join-date/${jobOfferId}/`;
+        const body = { request_data: { join_date: joinDate } };
+        return this._HttpClient.patch(url, body);
     }
 
     // reject application
@@ -291,5 +343,92 @@ export class JobOpeningsService {
         return this._HttpClient.put(url, body);
     }
 
-}
+    // get employee create info by application id
+    getEmployeeCreateInfo(applicationId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/employee-create-info/${applicationId}/`;
+        return this._HttpClient.get(url);
+    }
 
+    // get applications by applicant_id
+    getApplicationsByApplicantId(applicantId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications`;
+        const params = new HttpParams().set('applicant_id', applicantId.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get all assignments with pagination and search
+    getAllAssignments(page: number = 1, perPage: number = 10, search: string = ''): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+
+        if (search && search.trim() !== '') {
+            params = params.set('search', search.trim());
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get assignment details by id
+    getAssignmentDetails(id: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/${id}/`;
+        return this._HttpClient.get(url);
+    }
+
+    // update assignment status (activate/deactivate)
+    updateAssignmentStatus(id: number, statusData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/${id}/`;
+        return this._HttpClient.patch(url, statusData);
+    }
+
+    // upload assignment media file (image or video)
+    uploadAssignmentMedia(file: File): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments/upload-file`;
+        const formData = new FormData();
+        formData.append('file', file);
+        return this._HttpClient.post(url, formData);
+    }
+
+    // create a new assignment
+    createAssignment(assignmentData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        const body = { request_data: assignmentData };
+        return this._HttpClient.post(url, body);
+    }
+
+    // update existing assignment
+    updateAssignment(assignmentData: any): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+        const body = { request_data: assignmentData };
+        return this._HttpClient.put(url, body);
+    }
+
+    // get assignments for selection
+    getAssignmentsForSelection(page: number = 1, perPage: number = 10, search: string = ''): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/assignments`;
+
+        let params = new HttpParams()
+            .set('page', page)
+            .set('per_page', perPage);
+
+        if (search) {
+            params = params.set('search', search);
+        }
+
+        return this._HttpClient.get(url, { params });
+    }
+
+    // assign assignment to applicant
+    assignAssignmentToApplicant(assignmentId: number, applicationId: number, expirationDate: string): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments`;
+        const body = {
+            request_data: {
+                assignment_id: assignmentId,
+                application_id: applicationId,
+                expiration_date: expirationDate
+            }
+        };
+        return this._HttpClient.post(url, body);
+    }
+}

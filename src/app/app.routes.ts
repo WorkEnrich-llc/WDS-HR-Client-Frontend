@@ -5,6 +5,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { SubscriptionGuard } from './core/guards/subscription.guard';
 import { invitationResolver } from './core/resolver/invitation-resolver.resolver';
 import { PaginationStateService } from './core/services/pagination-state/pagination-state.service';
+import { InterviewAcceptedComponent } from './interview-accepted/interview-accepted.component';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,14 @@ export const routes: Routes = [
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+
+  // Public interview actions routes
+  { path: 'interview-accepted', loadComponent: () => import('./interview-accepted/interview-accepted.component').then(m => m.InterviewAcceptedComponent), title: 'Interview Accepted' },
+  { path: 'interview-rejected', loadComponent: () => import('./interview-rejected/interview-rejected.component').then(m => m.InterviewRejectedComponent), title: 'Interview Rejected' },
+
+  // Public offer actions routes
+  { path: 'offer-accepted', loadComponent: () => import('./offer-accepted/offer-accepted.component').then(m => m.OfferAcceptedComponent), title: 'Offer Accepted' },
+  { path: 'offer-rejected', loadComponent: () => import('./offer-rejected/offer-rejected.component').then(m => m.OfferRejectedComponent), title: 'Offer Rejected' },
 
   // Auth layout
   {
@@ -855,6 +864,20 @@ export const routes: Routes = [
             ]
           },
 
+          // Summary Report routes
+          {
+            path: 'summary-report',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Permissions_Control' },
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Attendance/summary-report/summary-report.component').then(m => m.SummaryReportComponent),
+                title: 'Summary Report',
+              }
+            ]
+          },
+
         ]
       },
 
@@ -923,6 +946,41 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Recruitment/applicant-detais/applicant-detais.component').then(m => m.ApplicantDetaisComponent),
                 title: 'View Applicant Details',
               },
+            ]
+          },
+
+          // Assignments route
+          {
+            path: 'assignments',
+            children: [
+              {
+                path: '',
+                loadComponent: () => import('./components/Recruitment/assignments/assignments.component').then(m => m.AssignmentsComponent),
+                title: 'Assignments',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings' }
+              },
+              {
+                path: 'add',
+                loadComponent: () => import('./components/Recruitment/assignments/manage-assignment/manage-assignment.component').then(m => m.ManageAssignmentComponent),
+                title: 'Create Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Assignments', action: 'create' }
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () => import('./components/Recruitment/assignments/manage-assignment/manage-assignment.component').then(m => m.ManageAssignmentComponent),
+                title: 'Edit Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Assignments', action: 'update' }
+              },
+              {
+                path: ':id',
+                loadComponent: () => import('./components/Recruitment/assignments/view-assignment/view-assignment.component').then(m => m.ViewAssignmentComponent),
+                title: 'View Assignment',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings' }
+              }
             ]
           },
 
@@ -1023,11 +1081,46 @@ export const routes: Routes = [
             ]
           },
 
+          // Bonus & Deductions route
+          {
+            path: 'bonus-deductions',
+            providers: [PaginationStateService],
+            // canActivate: [SubscriptionGuard],
+            data: { feature: 'Payroll_Bonus_Deductions' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-bonus-deductions',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-bonus-deductions',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/bonus-deductions.component').then(m => m.BonusDeductionsComponent),
+                title: 'Bonus & Deductions',
+              },
+              {
+                path: 'add-bonus-deduction',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/manage-bonus-deduction/manage-bonus-deduction.component').then(m => m.ManageBonusDeductionComponent),
+                title: 'Add Bonus or Deduction',
+              },
+              {
+                path: 'edit-bonus-deduction/:id',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/manage-bonus-deduction/manage-bonus-deduction.component').then(m => m.ManageBonusDeductionComponent),
+                title: 'Edit Bonus or Deduction',
+              },
+              {
+                path: 'view-bonus-deduction/:id',
+                loadComponent: () => import('./components/Payroll/bonus-deductions/view-bonus-deduction/view-bonus-deduction.component').then(m => m.ViewBonusDeductionComponent),
+                title: 'Bonus/Deduction Details',
+              }
+            ]
+          },
+
           // payroll runs routes
           {
             path: 'payroll-runs',
             providers: [PaginationStateService],
-            canActivate: [SubscriptionGuard],
+            // canActivate: [SubscriptionGuard],
             data: { feature: 'Payroll_Runs' },
             children: [
               {

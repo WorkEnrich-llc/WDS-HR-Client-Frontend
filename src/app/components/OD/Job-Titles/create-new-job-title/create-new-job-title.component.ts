@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -40,9 +40,9 @@ export const multipleMinMaxValidator: ValidatorFn = (group: AbstractControl): Va
 };
 @Component({
   selector: 'app-create-new-job-title',
-  imports: [PageHeaderComponent, CommonModule, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent],
-  providers: [DatePipe],
+  imports: [PageHeaderComponent, TableComponent, FormsModule, PopupComponent, ReactiveFormsModule, SystemSetupTourComponent, NgClass],
   templateUrl: './create-new-job-title.component.html',
+  providers: [DatePipe],
   styleUrls: ['./../../../shared/table/table.component.css', './create-new-job-title.component.css']
 })
 export class CreateNewJobTitleComponent {

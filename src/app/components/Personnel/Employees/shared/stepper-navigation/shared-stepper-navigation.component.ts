@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { ManageEmployeeSharedService } from '../../manage-employee/services/manage-shared.service';
+import { NgClass } from '@angular/common';
 
 export interface StepperNavigationConfig {
   currentStep: () => number;
@@ -10,7 +11,7 @@ export interface StepperNavigationConfig {
 @Component({
   standalone: true,
   selector: 'app-shared-stepper-navigation',
-  imports: [CommonModule],
+  imports: [NgClass],
   templateUrl: './shared-stepper-navigation.component.html',
   styleUrl: './shared-stepper-navigation.component.css'
 })

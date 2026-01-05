@@ -13,6 +13,7 @@ import { SalaryPortionsService } from 'app/core/services/payroll/salary-portions
 export class SalaryPotionsComponent implements OnInit {
   private salaryPortionService = inject(SalaryPortionsService);
   salaryPortions: any[] = [];
+  isLoading: boolean = true;
 
   ngOnInit(): void {
     this.loadSalaryPortions();
@@ -21,9 +22,13 @@ export class SalaryPotionsComponent implements OnInit {
   private loadSalaryPortions(): void {
     this.salaryPortionService.single().subscribe({
       next: (data) => {
-        this.salaryPortions = data.settings
+        this.salaryPortions = data.settings;
+        this.isLoading = false;
       },
-      error: (err) => console.error('Failed to load single salary portion', err)
+      error: (err) => {
+        console.error('Failed to load single salary portion', err);
+        this.isLoading = false;
+      }
     });
   }
 

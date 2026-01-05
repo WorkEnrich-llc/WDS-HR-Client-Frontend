@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { CommonModule } from '@angular/common';
+
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
@@ -11,10 +11,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { WorkflowService } from '../../../../core/services/personnel/workflows/workflow.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-workflow',
-  imports: [PageHeaderComponent, TableComponent, CommonModule, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule],
+  imports: [PageHeaderComponent, TableComponent, ReactiveFormsModule, OverlayFilterBoxComponent, RouterLink, FormsModule, DatePipe],
+  providers: [DatePipe],
   templateUrl: './all-workflow.component.html',
   styleUrl: './all-workflow.component.css'
 })
@@ -71,8 +73,8 @@ export class AllWorkflowComponent implements OnInit, OnDestroy {
     this.searchSubscription = this.searchSubject.pipe(
       // Trim leading whitespace only (keep trailing spaces if user wants them)
       map((searchTerm: string) => searchTerm.trimStart()),
-      // Filter out null/undefined and empty/whitespace-only strings - only send request when there's actual content
-      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined && searchTerm.trim().length > 0),
+      // Allow empty string to reset results, but filter out null/undefined
+      filter((searchTerm: string) => searchTerm !== null && searchTerm !== undefined),
       // Debounce to avoid too many requests
       debounceTime(300),
       // Only proceed if the value has actually changed
@@ -203,7 +205,12 @@ export class AllWorkflowComponent implements OnInit, OnDestroy {
   onSearchChange() {
     // Trim leading whitespace before sending to subject
     const trimmedSearch = this.searchTerm.trimStart();
-    this.searchSubject.next(trimmedSearch);
+    // If cleared, send empty string to trigger reset
+    if (trimmedSearch.trim().length === 0) {
+      this.searchSubject.next('');
+    } else {
+      this.searchSubject.next(trimmedSearch);
+    }
   }
 
   ngOnDestroy(): void {

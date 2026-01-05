@@ -1,10 +1,9 @@
-import { CommonModule } from '@angular/common';
+
+import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { CustomFieldObject, CustomFieldValueItem, CustomFieldValuesParams, UpdateCustomValueRequest, UpdateFieldRequest } from 'app/core/models/custom-field';
-
-
 
 export function noLeadingSpaceValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -27,7 +26,7 @@ export function noWhitespaceValidator(): ValidatorFn {
 @Component({
   selector: 'app-custom-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PopupComponent],
+  imports: [FormsModule, ReactiveFormsModule, PopupComponent, NgClass],
   templateUrl: './custom-info.component.html',
   styleUrl: './custom-info.component.css'
 })

@@ -1,15 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Contract } from '../../../../../../../../core/interfaces/contract';
 import { Employee } from '../../../../../../../../core/interfaces/employee';
 import { OverlayFilterBoxComponent } from '../../../../../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-contract-form-modal',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent],
+  imports: [FormsModule, ReactiveFormsModule, OverlayFilterBoxComponent, DecimalPipe],
   templateUrl: './contract-form-modal.component.html',
   styleUrl: './contract-form-modal.component.css'
 })

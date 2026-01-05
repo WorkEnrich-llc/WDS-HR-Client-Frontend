@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject, HostListener, Output, EventEmitter, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobsService } from '../../../../../core/services/od/jobs/jobs.service';
@@ -12,7 +12,7 @@ import { Subject, debounceTime } from 'rxjs';
 @Component({
   selector: 'app-main-info',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   providers: [DatePipe],
   templateUrl: './main-info.component.html',
   styleUrl: './main-info.component.css'
@@ -34,8 +34,8 @@ export class MainInfoComponent implements OnInit, OnDestroy {
   selectedEmploymentType: string = '';
   selectedWorkMode: string = '';
   selectedOnsiteDays: string = '';
-  timeLimit: number = 5;
-  cvLimit: number = 20;
+  timeLimit: number | undefined;
+  cvLimit: number | undefined;
 
   // Work Mode options
   workModes = [

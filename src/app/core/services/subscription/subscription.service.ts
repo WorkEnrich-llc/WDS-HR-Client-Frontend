@@ -1,8 +1,6 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "environments/environment";
-import { BehaviorSubject, map, Observable, of } from "rxjs";
-import { AuthHelperService } from "../authentication/auth-helper.service";
+import { BehaviorSubject, map, Observable } from "rxjs";
 import { BaseHttpService } from "../http/base-http.service";
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +9,6 @@ export class SubscriptionService {
 
   constructor(
     private _HttpClient: BaseHttpService, // Use BaseHttpService to automatically include withCredentials
-    private _AuthHelper: AuthHelperService
   ) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }

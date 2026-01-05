@@ -1,5 +1,6 @@
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
+import { NgClass } from '@angular/common';
+
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../overlay-filter-box/overlay-filter-box.component';
 import { SubscriptionService } from 'app/core/services/subscription/subscription.service';
@@ -17,18 +18,18 @@ interface RouteAccordionMapping {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterLink, RouterLinkActive, OverlayFilterBoxComponent],
+  imports: [RouterLink, RouterLinkActive, OverlayFilterBoxComponent, NgClass],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   currentRoute: string = '';
 
   // Map route patterns to accordion IDs
   private routeAccordionMap: RouteAccordionMapping = {
     'collapseOne': ['departments', 'branches', 'jobs', 'organizational-Chart', 'goals', 'dept-check'],
     'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
-    'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance'],
+    'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance', 'summary-report'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings', 'job-board-setup'],
     'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
     'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'company-documents', 'email-settings', 'custom-field']
@@ -39,8 +40,6 @@ export class SidebarComponent implements OnInit {
     public subService: SubscriptionService,
     private notificationsService: NotificationsService
   ) { }
-
-
 
   @Output() onToggleSideNav: EventEmitter<SideNavToggle> = new EventEmitter();
 
@@ -53,10 +52,74 @@ export class SidebarComponent implements OnInit {
   isLoadingNotifications = false;
 
   // get logo from local storage
-  companyInfo = localStorage.getItem('company_info');
-  parsedCompanyInfo = this.companyInfo ? JSON.parse(this.companyInfo) : null;
-  logo = this.parsedCompanyInfo ? this.parsedCompanyInfo.logo : null;
-  companyName = this.parsedCompanyInfo ? this.parsedCompanyInfo.name : null;
+  logo: string | null = null;
+  companyName: string | null = null;
+
+  ngOnInit(): void {
+    // Load logo from local storage
+    this.loadLogoFromLocalStorage();
+
+    // Listen to storage changes
+    window.addEventListener('storage', this.onLocalStorageChange.bind(this));
+
+    // supscription all feature supported 
+    this.subService.allFeatures$.subscribe(features => {
+      if (features && Object.keys(features).length > 0) {
+        this.features = features;
+      }
+    });
+
+    // Set initial route
+    this.currentRoute = this.router.url;
+
+    // Listen to route changes using NavigationEnd event
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentRoute = event.urlAfterRedirects;
+      this.openActiveAccordion();
+    });
+
+    // open responsive
+    this.screenWidth = window.innerWidth;
+    if (this.screenWidth <= 768) {
+      this.collapsed = false;
+    } else if (this.screenWidth > 768) {
+      this.collapsed = true;
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Remove event listener when component is destroyed
+    window.removeEventListener('storage', this.onLocalStorageChange.bind(this));
+  }
+
+  /**
+   * Load logo from local storage
+   */
+  private loadLogoFromLocalStorage(): void {
+    try {
+      const companyInfo = localStorage.getItem('company_info');
+      if (companyInfo) {
+        const parsedCompanyInfo = JSON.parse(companyInfo);
+        this.logo = parsedCompanyInfo?.logo || null;
+        this.companyName = parsedCompanyInfo?.name || null;
+      }
+    } catch (error) {
+      console.error('Error loading logo from local storage:', error);
+      this.logo = null;
+      this.companyName = null;
+    }
+  }
+
+  /**
+   * Handle storage changes from other tabs/windows
+   */
+  private onLocalStorageChange(event: StorageEvent): void {
+    if (event.key === 'company_info' || event.key === null) {
+      this.loadLogoFromLocalStorage();
+    }
+  }
 
 
   handleNotificationClick() {
@@ -163,34 +226,6 @@ export class SidebarComponent implements OnInit {
     });
   }
   // screen responsive in start page
-  ngOnInit(): void {
-    // supscription all feature supported 
-    this.subService.allFeatures$.subscribe(features => {
-      if (features && Object.keys(features).length > 0) {
-        this.features = features;
-      }
-    });
-
-    // Set initial route
-    this.currentRoute = this.router.url;
-
-    // Listen to route changes using NavigationEnd event
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.currentRoute = event.urlAfterRedirects;
-      this.openActiveAccordion();
-    });
-
-    // open responsive
-    this.screenWidth = window.innerWidth;
-    if (this.screenWidth <= 768) {
-      this.collapsed = false;
-    } else if (this.screenWidth > 768) {
-      this.collapsed = true;
-    }
-  }
-
   ngAfterViewInit(): void {
     // Open active accordion after view is initialized
     this.openActiveAccordion();

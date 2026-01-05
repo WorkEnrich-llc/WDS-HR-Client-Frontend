@@ -1,11 +1,12 @@
-import { CommonModule } from '@angular/common';
+
+import { NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { TableComponent } from 'app/components/shared/table/table.component';
-import { CustomField, CustomFieldFilters, CustomFieldObject } from 'app/core/models/custom-field';
+import { CustomFieldObject } from 'app/core/models/custom-field';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { CustomFieldsService } from 'app/core/services/personnel/custom-fields/custom-fields.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
@@ -13,8 +14,8 @@ import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-custom-fields',
-  imports: [PageHeaderComponent, TableComponent, CommonModule,
-    RouterLink, FormsModule, ReactiveFormsModule, PopupComponent],
+  imports: [PageHeaderComponent, TableComponent,
+    RouterLink, FormsModule, ReactiveFormsModule, PopupComponent, NgClass],
   templateUrl: './custom-fields.component.html',
   styleUrl: './custom-fields.component.css'
 })

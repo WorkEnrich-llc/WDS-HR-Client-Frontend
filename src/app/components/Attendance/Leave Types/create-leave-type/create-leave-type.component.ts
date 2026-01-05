@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ApiToastHelper } from '../../../../core/helpers/api-toast.helper';
@@ -9,7 +9,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFo
 import { LeaveTypeService } from '../../../../core/services/attendance/leave-type/leave-type.service';
 @Component({
   selector: 'app-create-leave-type',
-  imports: [PageHeaderComponent, CommonModule, PopupComponent, FormsModule, ReactiveFormsModule],
+  imports: [PageHeaderComponent, PopupComponent, FormsModule, ReactiveFormsModule, NgClass],
   providers: [DatePipe],
   templateUrl: './create-leave-type.component.html',
   styleUrl: './create-leave-type.component.css'
@@ -128,7 +128,7 @@ export class CreateLeaveTypeComponent implements OnInit {
     if (this.ageItems.length === 0) {
       this.addAgeItem();
     }
-    
+
     this.leaveType3.get('extra_with_age')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.ageItems.enable();
@@ -176,7 +176,7 @@ export class CreateLeaveTypeComponent implements OnInit {
     if (this.serviceItems.length === 0) {
       this.addServiceItem();
     }
-    
+
     this.leaveType3.get('extra_with_service')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.serviceItems.enable();
@@ -224,7 +224,7 @@ export class CreateLeaveTypeComponent implements OnInit {
     if (this.experienceItems.length === 0) {
       this.addExperienceItem();
     }
-    
+
     this.leaveType3.get('extra_with_experience')?.valueChanges.subscribe(checked => {
       if (checked) {
         this.experienceItems.enable();
