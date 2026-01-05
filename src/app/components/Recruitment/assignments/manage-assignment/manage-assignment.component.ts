@@ -871,7 +871,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         // Filter out deleted questions
         const activeQuestions = this.questions.filter(q => q.record_type !== 'delete');
-        
+
         if (activeQuestions.length === 0) {
             return false;
         }
@@ -881,17 +881,17 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             if (!question.question_text || question.question_text.trim() === '') {
                 return false;
             }
-            
+
             // Check question type
             if (!question.question_type) {
                 return false;
             }
-            
+
             // Check points
             if (!question.points || question.points <= 0) {
                 return false;
             }
-            
+
             // Validate based on question type
             if (question.question_type === 'mcq') {
                 if (!question.answers || question.answers.length === 0) {
@@ -925,7 +925,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             }
             // Essay questions only need text, type, and points (validated above)
         }
-        
+
         return true;
     }
 

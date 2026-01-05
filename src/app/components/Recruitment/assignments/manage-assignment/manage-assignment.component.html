@@ -503,7 +503,7 @@
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
                                 <input type="text" class="form-control custom-date-input" [(ngModel)]="answer.text"
                                     (ngModelChange)="clearAnswerError(answer)" (blur)="answer.touched = true"
-                                    placeholder="Answer Text" /> 
+                                    placeholder="Answer Text" />
                             </div>
                         </div>
                         <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== ansIndex"
@@ -561,8 +561,8 @@
                             </div>
                         </div>
                         <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 0"
-                            [class.btn-primary]="question.correct_answer === 0"
-                            (click)="setCorrectAnswer(i, 0)" type="button">
+                            [class.btn-primary]="question.correct_answer === 0" (click)="setCorrectAnswer(i, 0)"
+                            type="button">
                             @if (question.correct_answer === 0) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -594,8 +594,8 @@
                             </div>
                         </div>
                         <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 1"
-                            [class.btn-primary]="question.correct_answer === 1"
-                            (click)="setCorrectAnswer(i, 1)" type="button">
+                            [class.btn-primary]="question.correct_answer === 1" (click)="setCorrectAnswer(i, 1)"
+                            type="button">
                             @if (question.correct_answer === 1) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -616,7 +616,8 @@
                     <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
                     }
                 </div>
-                @if ((question.correct_answer === null || question.correct_answer === undefined) && (question.touched || formSubmitted)) {
+                @if ((question.correct_answer === null || question.correct_answer === undefined) && (question.touched ||
+                formSubmitted)) {
                 <p class="error-msg">Please mark one answer as correct</p>
                 }
             </div>
