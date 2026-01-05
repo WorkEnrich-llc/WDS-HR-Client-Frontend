@@ -547,12 +547,11 @@
             }
 
             <!-- Answers Section (for True/False) -->
-            @if (question.question_type === 'truefalse') {
+            @if (question.question_type === 'truefalse' && question.answers && question.answers.length >= 2) {
             <div class="answers-section">
                 <h6 class="answers-title">Answers</h6>
                 <div>
                     <div class="answer-row">
-                        <span class="answer-label">True</span>
                         <div style="flex: 1;">
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
                                 <input type="text" class="form-control custom-date-input"
@@ -561,6 +560,24 @@
                                     (blur)="question.answers[0].touched = true" placeholder="True Answer" />
                             </div>
                         </div>
+                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 0"
+                            [class.btn-primary]="question.correct_answer === 0"
+                            (click)="setCorrectAnswer(i, 0)" type="button">
+                            @if (question.correct_answer === 0) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                            </svg>
+                            True Answer
+                            } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
+                            Mark as True
+                            }
+                        </button>
                     </div>
                     @if (question.answers[0].error && (question.answers[0].touched || formSubmitted)) {
                     <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
@@ -568,7 +585,6 @@
                 </div>
                 <div>
                     <div class="answer-row">
-                        <span class="answer-label">False</span>
                         <div style="flex: 1;">
                             <div class="form-outline w-100 position-relative custom-date-wrapper">
                                 <input type="text" class="form-control custom-date-input"
@@ -577,11 +593,32 @@
                                     (blur)="question.answers[1].touched = true" placeholder="False Answer" />
                             </div>
                         </div>
+                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 1"
+                            [class.btn-primary]="question.correct_answer === 1"
+                            (click)="setCorrectAnswer(i, 1)" type="button">
+                            @if (question.correct_answer === 1) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+                                </g>
+                            </svg>
+                            True Answer
+                            } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
+                            Mark as True
+                            }
+                        </button>
                     </div>
                     @if (question.answers[1].error && (question.answers[1].touched || formSubmitted)) {
                     <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
                     }
                 </div>
+                @if ((question.correct_answer === null || question.correct_answer === undefined) && (question.touched || formSubmitted)) {
+                <p class="error-msg">Please mark one answer as correct</p>
+                }
             </div>
             }
         </div>
