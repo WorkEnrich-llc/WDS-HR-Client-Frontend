@@ -265,6 +265,14 @@ export class LoginComponent implements OnInit {
       return null;
     }
 
+    // Remove -dev prefix if present
+    let cleanSubDomain = subDomain.trim();
+    if (cleanSubDomain.startsWith('-dev-')) {
+      cleanSubDomain = cleanSubDomain.substring(5); // Remove '-dev-' prefix
+    } else if (cleanSubDomain.startsWith('dev-')) {
+      cleanSubDomain = cleanSubDomain.substring(4); // Remove 'dev-' prefix
+    }
+
     const currentUrl = window.location;
     const protocol = currentUrl.protocol; // http: or https:
     const hostname = currentUrl.hostname; // e.g., localhost, talentdot.org, or dev-google.talentdot.org
@@ -287,7 +295,7 @@ export class LoginComponent implements OnInit {
     }
 
     // Construct new URL with subdomain
-    const newUrl = `${protocol}//${subDomain}.${baseDomain}${port}`;
+    const newUrl = `${protocol}//${cleanSubDomain}.${baseDomain}${port}`;
     return newUrl;
   }
 
