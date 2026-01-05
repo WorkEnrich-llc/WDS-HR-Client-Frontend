@@ -122,7 +122,10 @@ export class LoginComponent implements OnInit {
 
           // Get sub_domain and construct redirect URL
           const subDomain = companyInfo?.sub_domain;
+          console.log('Backend returned sub_domain:', subDomain);
+          console.log('Current hostname:', window.location.hostname);
           const redirectUrl = this.constructSubdomainUrl(subDomain);
+          console.log('Constructed redirect URL:', redirectUrl);
 
           // Call S-L API if s_l_c and s_l_t are present and not empty, before subscription check
           const hasSLC = session?.s_l_c?.nonce && session?.s_l_c?.ciphertext;
@@ -265,14 +268,6 @@ export class LoginComponent implements OnInit {
       return null;
     }
 
-    // Remove -dev prefix if present
-    let cleanSubDomain = subDomain.trim();
-    if (cleanSubDomain.startsWith('-dev-')) {
-      cleanSubDomain = cleanSubDomain.substring(5); // Remove '-dev-' prefix
-    } else if (cleanSubDomain.startsWith('dev-')) {
-      cleanSubDomain = cleanSubDomain.substring(4); // Remove 'dev-' prefix
-    }
-
     const currentUrl = window.location;
     const protocol = currentUrl.protocol; // http: or https:
     const hostname = currentUrl.hostname; // e.g., localhost, talentdot.org, or dev-google.talentdot.org
@@ -294,8 +289,17 @@ export class LoginComponent implements OnInit {
       baseDomain = parts.slice(-2).join('.');
     }
 
+    // Check if current URL has dev- prefix and preserve it
+    let finalSubDomain = subDomain.trim();
+    const currentSubdomain = parts.length > 2 ? parts[0] : '';
+    
+    // If current subdomain starts with 'dev-' and the backend subdomain doesn't, add it
+    if (currentSubdomain.startsWith('dev-') && !finalSubDomain.startsWith('dev-')) {
+      finalSubDomain = `dev-${finalSubDomain}`;
+    }
+
     // Construct new URL with subdomain
-    const newUrl = `${protocol}//${cleanSubDomain}.${baseDomain}${port}`;
+    const newUrl = `${protocol}//${finalSubDomain}.${baseDomain}${port}`;
     return newUrl;
   }
 
