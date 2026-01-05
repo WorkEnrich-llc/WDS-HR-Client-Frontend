@@ -94,16 +94,16 @@ export class ApplicantDetaisComponent implements OnInit {
   // Set current tab
   setCurrentTab(tab: string): void {
     this.currentTab = tab;
-    // Lazy load feedback when feedback tab is opened
-    if (tab === 'feedback' && this.feedbacks.length === 0 && !this.isFeedbackLoading) {
+    // Always fetch feedback when feedback tab is opened
+    if (tab === 'feedback') {
       this.fetchFeedbacks();
     }
-    // Lazy load previous applications when tab is opened
-    if (tab === 'previous-applications' && this.applicantApplications.length === 0 && !this.isApplicationsLoading) {
+    // Always fetch previous applications when tab is opened
+    if (tab === 'previous-applications') {
       this.fetchPreviousApplications();
     }
-    // Lazy load assignments when tab is opened
-    if (tab === 'assignments' && this.assignments.length === 0 && !this.isAssignmentsLoading) {
+    // Always fetch assignments when tab is opened
+    if (tab === 'assignments') {
       this.fetchAssignments();
     }
   }
@@ -255,6 +255,16 @@ export class ApplicantDetaisComponent implements OnInit {
       if (!isNaN(applicationId)) {
         this.applicationId = applicationId;
         this.isLoading = true;
+
+        // Reset all cached data when navigating to a new applicant
+        this.feedbacks = [];
+        this.applicantApplications = [];
+        this.assignments = [];
+        this.applicantDetails = null;
+        this.applicationDetails = null;
+        
+        // Reset tab to CV when navigating
+        this.currentTab = 'cv';
 
         // Call application details API directly using application_id
         this.jobOpeningsService.getApplicationDetails(applicationId).subscribe({
