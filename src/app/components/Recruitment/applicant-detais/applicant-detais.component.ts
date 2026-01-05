@@ -262,7 +262,7 @@ export class ApplicantDetaisComponent implements OnInit {
         this.assignments = [];
         this.applicantDetails = null;
         this.applicationDetails = null;
-        
+
         // Reset tab to CV when navigating
         this.currentTab = 'cv';
 
