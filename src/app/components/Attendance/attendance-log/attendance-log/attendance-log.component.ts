@@ -138,6 +138,8 @@ export class AttendanceLogComponent implements OnDestroy {
   editModalEmp: any = null;
   editCheckInValue: string = '';
   editCheckOutValue: string = '';
+  isAddingCheckIn: boolean = false;
+  isAddingCheckOut: boolean = false;
 
   // error text 
   isLate(actual: string, expected: string): boolean {
@@ -934,7 +936,10 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkin';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    // Check if this is an add scenario (no existing check-in)
+    const hasExistingCheckIn = log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00';
+    this.isAddingCheckIn = !hasExistingCheckIn;
+    this.editCheckInValue = hasExistingCheckIn ? log?.times_object?.actual_check_in : '';
     this.editModalOpen = true;
   }
 
@@ -942,7 +947,10 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkout';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckOutValue = '';
+    // Check if this is an add scenario (no existing check-out)
+    const hasExistingCheckOut = log?.times_object?.actual_check_out && log?.times_object?.actual_check_out !== '00:00';
+    this.isAddingCheckOut = !hasExistingCheckOut;
+    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.actual_check_out : '';
     this.editModalOpen = true;
   }
 
@@ -965,6 +973,8 @@ export class AttendanceLogComponent implements OnDestroy {
   closeEditModal() {
     this.editModalOpen = false;
     this.editModalType = null;
+    this.isAddingCheckIn = false;
+    this.isAddingCheckOut = false;
     this.editModalLog = null;
     this.editModalEmp = null;
     this.editCheckInValue = '';
