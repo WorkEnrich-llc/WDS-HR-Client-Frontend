@@ -395,10 +395,9 @@
                         </span> Edit Check In
                       </button>
                       }
-                      <!-- Show "Edit Log" when BOTH check-in AND check-out exist OR when no check-in/check-out but deduction exists -->
+                      <!-- Show "Edit Log" when BOTH check-in AND check-out exist OR when no check-in/check-out exists -->
                       @if (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                      (hasBothCheckInAndOut(log) || (!hasCheckIn(log) && !hasCheckOut(log) &&
-                      log?.hours_object?.total_deduction > 0))) {
+                      (hasBothCheckInAndOut(log) || (!hasCheckIn(log) && !hasCheckOut(log)))) {
                       <button class="action-menu-item" (click)="openEditLogModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -440,7 +439,7 @@
                       </button>
                       }
                       <!-- Show Add Deduction when deduction doesn't exist -->
-                      @if (!log?.hours_object?.total_deduction || log?.hours_object?.total_deduction === 0) {
+                      <!-- @if (!log?.hours_object?.total_deduction || log?.hours_object?.total_deduction === 0) {
                       <button class="action-menu-item text-danger"
                         (click)="toggleDeduction(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
@@ -461,7 +460,7 @@
                           </svg>
                         </span> Add Deduction
                       </button>
-                      }
+                      } -->
                       <!-- Show Remove Deduction when deduction exists -->
                       @if (log?.hours_object?.total_deduction > 0) {
                       <button class="action-menu-item" style="color: #22c55e"
