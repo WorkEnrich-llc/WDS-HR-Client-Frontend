@@ -64,6 +64,20 @@ export class ApplicantDetaisComponent implements OnInit {
   assignmentPageSize: number = 10;
   assignmentTotalCount: number = 0;
   isAssignmentSubmitting: boolean = false;
+  assignmentExpirationDate: string = '';
+  assignmentExpirationTime: string = '';
+  assignmentExpirationDateError: string = '';
+  assignmentExpirationDateTouched: boolean = false;
+  assignmentSelectionTouched: boolean = false;
+
+  // Getter for minimum date (today)
+  get minExpirationDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   // Tab management
   currentTab: string = 'cv';
@@ -547,8 +561,19 @@ export class ApplicantDetaisComponent implements OnInit {
 
   // Confirm assignment selection
   confirmAssignmentSelection(): void {
+    // Mark fields as touched to show validation messages
+    this.assignmentSelectionTouched = true;
+    this.assignmentExpirationDateTouched = true;
+
     if (!this.selectedAssignmentId) {
-      this.toasterService.showWarning('Please select an assignment');
+      return;
+    }
+
+    if (!this.assignmentExpirationDate) {
+      return;
+    }
+
+    if (!this.assignmentExpirationTime) {
       return;
     }
 
@@ -559,20 +584,25 @@ export class ApplicantDetaisComponent implements OnInit {
 
     this.isAssignmentSubmitting = true;
 
-    // Calculate expiration date (default to 3 days from now)
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 3);
-    const formattedDate = expirationDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    // Combine date and time in the format "YYYY-MM-DD HH:MM"
+    const expirationDateTime = `${this.assignmentExpirationDate} ${this.assignmentExpirationTime}`;
 
     this.jobOpeningsService.assignAssignmentToApplicant(
       this.selectedAssignmentId,
       this.applicationId,
-      formattedDate
+      expirationDateTime
     ).subscribe({
       next: () => {
         this.isAssignmentSubmitting = false;
         this.assignmentSelectionOverlay?.closeOverlay();
         this.toasterService.showSuccess('Assignment sent successfully');
+        // Reset form
+        this.selectedAssignmentId = null;
+        this.assignmentExpirationDate = '';
+        this.assignmentExpirationTime = '';
+        this.assignmentSearchTerm = '';
+        this.assignmentSelectionTouched = false;
+        this.assignmentExpirationDateTouched = false;
         this.fetchAssignments();
       },
       error: () => {
@@ -591,4 +621,3 @@ export class ApplicantDetaisComponent implements OnInit {
     return `${startItem} from ${this.assignmentTotalCount}`;
   }
 }
-
