@@ -201,7 +201,7 @@ export class ApplicantDetaisComponent implements OnInit {
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectValidationErrors = {};
-    this.overlay?.openOverlay();
+    this.filterBox?.openOverlay();
   }
 
   // Clear validation errors when user types
