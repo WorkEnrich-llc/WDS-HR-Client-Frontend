@@ -856,7 +856,77 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 { text: '', is_correct: false, error: false, touched: false }
             ];
             this.questions[questionIndex].correct_answer = null;
+        } else if (type === 'essay') {
+            // Essay questions don't need answers
+            this.questions[questionIndex].answers = [];
+            this.questions[questionIndex].correct_answer = null;
         }
+    }
+
+    // Check if all questions are valid for submission
+    areQuestionsValid(): boolean {
+        if (this.questions.length === 0) {
+            return false;
+        }
+
+        // Filter out deleted questions
+        const activeQuestions = this.questions.filter(q => q.record_type !== 'delete');
+
+        if (activeQuestions.length === 0) {
+            return false;
+        }
+
+        for (const question of activeQuestions) {
+            // Check question text
+            if (!question.question_text || question.question_text.trim() === '') {
+                return false;
+            }
+
+            // Check question type
+            if (!question.question_type) {
+                return false;
+            }
+
+            // Check points
+            if (!question.points || question.points <= 0) {
+                return false;
+            }
+
+            // Validate based on question type
+            if (question.question_type === 'mcq') {
+                if (!question.answers || question.answers.length === 0) {
+                    return false;
+                }
+                // Check all answers have text
+                for (const answer of question.answers) {
+                    if (!answer.text || answer.text.trim() === '') {
+                        return false;
+                    }
+                }
+                // Check if correct answer is selected
+                if (question.correct_answer === null || question.correct_answer === undefined) {
+                    return false;
+                }
+            } else if (question.question_type === 'truefalse') {
+                if (!question.answers || question.answers.length < 2) {
+                    return false;
+                }
+                // Check both true and false answers have text
+                if (!question.answers[0]?.text || question.answers[0].text.trim() === '') {
+                    return false;
+                }
+                if (!question.answers[1]?.text || question.answers[1].text.trim() === '') {
+                    return false;
+                }
+                // Check if correct answer is selected
+                if (question.correct_answer === null || question.correct_answer === undefined) {
+                    return false;
+                }
+            }
+            // Essay questions only need text, type, and points (validated above)
+        }
+
+        return true;
     }
 
     // Add a new answer to the MCQ

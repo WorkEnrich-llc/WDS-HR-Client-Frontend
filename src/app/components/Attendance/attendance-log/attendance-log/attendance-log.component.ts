@@ -656,9 +656,14 @@ export class AttendanceLogComponent implements OnDestroy {
     let from_date = '';
     let to_date = '';
 
-    if (raw.from_date) {
-      from_date = this.datePipe.transform(raw.from_date.startDate?.toDate(), 'yyyy-MM-dd') || '';
-      to_date = this.datePipe.transform(raw.from_date.endDate?.toDate(), 'yyyy-MM-dd') || '';
+    // If date range is selected from filter form
+    if (raw.from_date && raw.from_date.startDate && raw.from_date.endDate) {
+      from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
+      to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
+    }
+    // If single date is selected from calendar
+    else if (this.selectedDate) {
+      from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
     }
 
     const filters: IAttendanceFilters = {
@@ -945,8 +950,15 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'log';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = log?.times_object?.actual_check_in || '';
-    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    // Only set initial values if both check-in and check-out exist
+    if (this.hasBothCheckInAndOut(log)) {
+      this.editCheckInValue = log?.times_object?.actual_check_in || '';
+      this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    } else {
+      // For add log scenario, start with empty values
+      this.editCheckInValue = '';
+      this.editCheckOutValue = '';
+    }
     this.editModalOpen = true;
   }
 
