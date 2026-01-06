@@ -29,4 +29,8 @@ export class PayrollRunService {
   startPayrollRun(formData: FormData): Observable<any> {
     return this.http.post(`${this.url}`, formData);
   }
+
+  createOffCyclePayroll(data: any): Observable<any> {
+    return this.http.post(`${this.url}/off-cycle`, { request_data: data });
+  }
 }

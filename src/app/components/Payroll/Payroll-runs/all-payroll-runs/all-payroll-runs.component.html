@@ -44,7 +44,7 @@
 
       <!-- Off-Cycle Payroll button aligned right -->
       <div class="d-flex justify-content-end w-100 mt-2 mt-lg-0">
-        <button class="btn btn-lg btn-primary" style="min-width: 300px;">
+        <button class="btn btn-lg btn-primary" style="min-width: 300px;" (click)="navigateToCreateOffCyclePayroll()">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M9.5625 6.75C9.5625 6.43934 9.31066 6.1875 9 6.1875C8.68934 6.1875 8.4375 6.43934 8.4375 6.75L8.4375 8.43752H6.75C6.43934 8.43752 6.1875 8.68936 6.1875 9.00002C6.1875 9.31068 6.43934 9.56252 6.75 9.56252H8.4375V11.25C8.4375 11.5607 8.68934 11.8125 9 11.8125C9.31066 11.8125 9.5625 11.5607 9.5625 11.25L9.5625 9.56252H11.25C11.5607 9.56252 11.8125 9.31068 11.8125 9.00002C11.8125 8.68936 11.5607 8.43752 11.25 8.43752H9.5625V6.75Z"
@@ -57,8 +57,6 @@
           Off-Cycle Payroll
         </button>
       </div>
-
-
     </div>
 
     <!-- start Table -->
@@ -316,14 +314,6 @@
     @if (currentPayrollEndDate) {
     <p class="text-primary">The current Payroll will end on {{ currentPayrollEndDate | date: 'dd MMMM' }}</p>
     }
-
-
-
-
-
-
-
-
     <div class="d-flex align-items-center gap-3">
       <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isConfiguring">
         @if (isConfiguring) {

@@ -1150,6 +1150,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./components/Payroll/Payroll-runs/view-employee/view-employee.component').then(m => m.ViewEmployeeComponent),
                 title: 'View Employee',
               },
+              {
+                path: 'create-off-cycle-payroll',
+                loadComponent: () => import('./components/Payroll/Payroll-runs/create-off-cycle-payroll/create-off-cycle-payroll.component').then(m => m.CreateOffCyclePayrollComponent),
+                title: 'Create Off-Cycle Payroll',
+              },
 
             ]
           },

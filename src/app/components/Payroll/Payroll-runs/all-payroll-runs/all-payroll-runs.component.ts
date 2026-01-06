@@ -201,6 +201,10 @@ export class AllPayrollRunsComponent implements OnDestroy {
     this.router.navigate(['/payroll-runs/view-payroll-run', runsId]);
   }
 
+  navigateToCreateOffCyclePayroll(): void {
+    this.router.navigate(['/payroll-runs/create-off-cycle-payroll']);
+  }
+
   savePayrollConfiguration(): void {
     if (!this.selectedStartDay) {
       this.toastr.error('Please select a start day');

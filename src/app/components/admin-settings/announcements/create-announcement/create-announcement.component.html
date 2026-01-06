@@ -3,15 +3,15 @@
   <button class="btn btn-lg btn-success w-auto"
     [disabled]="isSubmitting || !announcementForm.valid || !hasSelectedRecipients()" (click)="onSubmit()">
     @if (isSubmitting) {
-      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     }
     @if (!isSubmitting) {
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <g fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-        </g>
-      </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+      </g>
+    </svg>
     }
     <span>Send Notification</span>
   </button>
@@ -29,563 +29,566 @@
 
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" [ngClass]="{
+  <li class="nav-item" [ngClass]="{
         'active': currentTab === 'main-info',
         'text-success': currentTab === 'recipients', 
         'bg-light-success': currentTab === 'recipients'  
     }">
     @if (currentTab === 'main-info') {
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-        <path
-          d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
-        </svg>
-      }
-      @if (currentTab === 'recipients') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-          [style.fill]="currentTab === 'recipients' ? 'currentColor' : '#4A6D97'">
-          <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
-          <path
-            d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
-          </svg>
-        }
-        <span class="nav-link">Main Info</span>
-      </li>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+      <path
+        d="M12 17.75a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75M12 7a1 1 0 1 1 0 2a1 1 0 0 1 0-2" />
+    </svg>
+    }
+    @if (currentTab === 'recipients') {
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+      [style.fill]="currentTab === 'recipients' ? 'currentColor' : '#4A6D97'">
+      <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".5" />
+      <path
+        d="M16.03 8.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06l1.47 1.47l2.235-2.235L14.97 8.97a.75.75 0 0 1 1.06 0" />
+    </svg>
+    }
+    <span class="nav-link">Main Info</span>
+  </li>
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" [style.fill]="
     currentTab === 'main-info' ? '#DDE3EB' :
     currentTab === 'recipients' ? '#377AFD' :
     '#DDE3EB'
   ">
-        <path
-          d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-        </svg>
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
+  </svg>
 
-    <li class="nav-item" [ngClass]="{
+  <li class="nav-item" [ngClass]="{
         'active': currentTab === 'recipients',
         'text-success': false, 
         'bg-light-success': false  
     }">
-          @if (currentTab === 'main-info') {
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path opacity="0.3"
-                d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
-                fill="#4CA883" />
-                <path
-                  d="M12.0227 6.72725C12.2424 6.94692 12.2424 7.30308 12.0227 7.52275L8.27275 11.2727C8.05308 11.4924 7.69692 11.4924 7.47725 11.2727L5.97725 9.77275C5.75758 9.55308 5.75758 9.19692 5.97725 8.97725C6.19692 8.75758 6.55308 8.75758 6.77275 8.97725L7.875 10.0795L9.55113 8.40338L11.2273 6.72725C11.4469 6.50758 11.8031 6.50758 12.0227 6.72725Z"
-                  fill="#4CA883" />
-                </svg>
-              }
-              @if (currentTab === 'recipients') {
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M11.625 5.625C11.625 7.07475 10.4497 8.25 9 8.25C7.55025 8.25 6.375 7.07475 6.375 5.625C6.375 4.17525 7.55025 3 9 3C10.4497 3 11.625 4.17525 11.625 5.625Z"
-                    fill="#377AFD" />
-                    <path opacity="0.4"
-                      d="M14.625 5.625C14.625 6.66053 13.7855 7.5 12.75 7.5C11.7145 7.5 10.875 6.66053 10.875 5.625C10.875 4.58947 11.7145 3.75 12.75 3.75C13.7145 3.75 14.625 4.58947 14.625 5.625Z"
-                      fill="#377AFD" />
-                      <path opacity="0.4"
-                        d="M3.375 5.625C3.375 6.66053 4.21447 7.5 5.25 7.5C6.28553 7.5 7.125 6.66053 7.125 5.625C7.125 4.58947 6.28553 3.75 5.25 3.75C4.21447 3.75 3.375 4.58947 3.375 5.625Z"
-                        fill="#377AFD" />
-                        <path
-                          d="M13.5 12.375C13.5 13.8247 11.4853 15 9 15C6.51472 15 4.5 13.8247 4.5 12.375C4.5 10.9253 6.51472 9.75 9 9.75C11.4853 9.75 13.5 10.9253 13.5 12.375Z"
-                          fill="#377AFD" />
-                          <path opacity="0.4"
-                            d="M16.5 12.375C16.5 13.4105 15.1569 14.25 13.5 14.25C11.8431 14.25 10.5 13.4105 10.5 12.375C10.5 11.3395 11.8431 10.5 13.5 10.5C15.1569 10.5 16.5 11.3395 16.5 12.375Z"
-                            fill="#377AFD" />
-                            <path opacity="0.4"
-                              d="M1.5 12.375C1.5 13.4105 2.84315 14.25 4.5 14.25C6.15685 14.25 7.5 13.4105 7.5 12.375C7.5 11.3395 6.15685 10.5 4.5 10.5C2.84315 10.5 1.5 11.3395 1.5 12.375Z"
-                              fill="#377AFD" />
-                            </svg>
-                          }
-                          <span class="nav-link">Recipient(s)</span>
-                        </li>
-                      </ul>
+    @if (currentTab === 'main-info') {
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path opacity="0.3"
+        d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
+        fill="#4CA883" />
+      <path
+        d="M12.0227 6.72725C12.2424 6.94692 12.2424 7.30308 12.0227 7.52275L8.27275 11.2727C8.05308 11.4924 7.69692 11.4924 7.47725 11.2727L5.97725 9.77275C5.75758 9.55308 5.75758 9.19692 5.97725 8.97725C6.19692 8.75758 6.55308 8.75758 6.77275 8.97725L7.875 10.0795L9.55113 8.40338L11.2273 6.72725C11.4469 6.50758 11.8031 6.50758 12.0227 6.72725Z"
+        fill="#4CA883" />
+    </svg>
+    }
+    @if (currentTab === 'recipients') {
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M11.625 5.625C11.625 7.07475 10.4497 8.25 9 8.25C7.55025 8.25 6.375 7.07475 6.375 5.625C6.375 4.17525 7.55025 3 9 3C10.4497 3 11.625 4.17525 11.625 5.625Z"
+        fill="#377AFD" />
+      <path opacity="0.4"
+        d="M14.625 5.625C14.625 6.66053 13.7855 7.5 12.75 7.5C11.7145 7.5 10.875 6.66053 10.875 5.625C10.875 4.58947 11.7145 3.75 12.75 3.75C13.7145 3.75 14.625 4.58947 14.625 5.625Z"
+        fill="#377AFD" />
+      <path opacity="0.4"
+        d="M3.375 5.625C3.375 6.66053 4.21447 7.5 5.25 7.5C6.28553 7.5 7.125 6.66053 7.125 5.625C7.125 4.58947 6.28553 3.75 5.25 3.75C4.21447 3.75 3.375 4.58947 3.375 5.625Z"
+        fill="#377AFD" />
+      <path
+        d="M13.5 12.375C13.5 13.8247 11.4853 15 9 15C6.51472 15 4.5 13.8247 4.5 12.375C4.5 10.9253 6.51472 9.75 9 9.75C11.4853 9.75 13.5 10.9253 13.5 12.375Z"
+        fill="#377AFD" />
+      <path opacity="0.4"
+        d="M16.5 12.375C16.5 13.4105 15.1569 14.25 13.5 14.25C11.8431 14.25 10.5 13.4105 10.5 12.375C10.5 11.3395 11.8431 10.5 13.5 10.5C15.1569 10.5 16.5 11.3395 16.5 12.375Z"
+        fill="#377AFD" />
+      <path opacity="0.4"
+        d="M1.5 12.375C1.5 13.4105 2.84315 14.25 4.5 14.25C6.15685 14.25 7.5 13.4105 7.5 12.375C7.5 11.3395 6.15685 10.5 4.5 10.5C2.84315 10.5 1.5 11.3395 1.5 12.375Z"
+        fill="#377AFD" />
+    </svg>
+    }
+    <span class="nav-link">Recipient(s)</span>
+  </li>
+</ul>
 
-                      <!-- step 1 -->
-                      @if (currentTab === 'main-info') {
-                        <div class="content-hug">
-                          <div class="content-box d-flex flex-column gap-3">
-                            <h2>Main Information</h2>
-                            <form [formGroup]="announcementForm" class="w-lg-50 d-flex flex-column gap-2">
-                              <div class="input">
-                                <label for="title">Title <span>*</span></label>
-                                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                  <input formControlName="title" type="text" id="title" class="form-control custom-date-input"
-                                    placeholder="Enter announcement title" />
-                                  </div>
-                                  @if (announcementForm.get('title')?.touched && announcementForm.get('title')?.errors?.['required']) {
-                                    <p class="error-msg">
-                                      Title is required.
-                                    </p>
-                                  }
-                                  @if (announcementForm.get('title')?.touched && announcementForm.get('title')?.errors?.['minlength']) {
-                                    <p class="error-msg">
-                                      Title must be at least 2 characters long.
-                                    </p>
-                                  }
-                                  @if (hasFieldError('title')) {
-                                    <p class="error-msg">
-                                      {{ getFieldError('title') }}
-                                    </p>
-                                  }
-                                </div>
+<!-- step 1 -->
+@if (currentTab === 'main-info') {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Main Information</h2>
+    <form [formGroup]="announcementForm" class="w-lg-50 d-flex flex-column gap-2">
+      <div class="input">
+        <label for="title">Title <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input formControlName="title" type="text" id="title" class="form-control custom-date-input"
+            placeholder="Enter announcement title" />
+        </div>
+        @if (announcementForm.get('title')?.touched && announcementForm.get('title')?.errors?.['required']) {
+        <p class="error-msg">
+          Title is required.
+        </p>
+        }
+        @if (announcementForm.get('title')?.touched && announcementForm.get('title')?.errors?.['minlength']) {
+        <p class="error-msg">
+          Title must be at least 2 characters long.
+        </p>
+        }
+        @if (hasFieldError('title')) {
+        <p class="error-msg">
+          {{ getFieldError('title') }}
+        </p>
+        }
+      </div>
 
-                                <div class="input">
-                                  <label for="body">Body <span>*</span></label>
-                                  <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                    <textarea formControlName="body" id="body" rows="6" class="form-control custom-date-input"
-                                    placeholder="Enter announcement body"></textarea>
-                                  </div>
-                                  @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['required']) {
-                                    <p class="error-msg">
-                                      Body is required.
-                                    </p>
-                                  }
-                                  @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['whitespace']) {
-                                    <p class="error-msg">
-                                      Body cannot start or end with whitespace.
-                                    </p>
-                                  }
-                                  @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['minlength']) {
-                                    <p class="error-msg">
-                                      Body must be at least 2 characters long.
-                                    </p>
-                                  }
-                                  @if (hasFieldError('body')) {
-                                    <p class="error-msg">
-                                      {{ getFieldError('body') }}
-                                    </p>
-                                  }
-                                </div>
+      <div class="input">
+        <label for="body">Body <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <textarea formControlName="body" id="body" rows="6" class="form-control custom-date-input"
+            placeholder="Enter announcement body"></textarea>
+        </div>
+        @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['required']) {
+        <p class="error-msg">
+          Body is required.
+        </p>
+        }
+        @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['whitespace']) {
+        <p class="error-msg">
+          Body cannot start or end with whitespace.
+        </p>
+        }
+        @if (announcementForm.get('body')?.touched && announcementForm.get('body')?.errors?.['minlength']) {
+        <p class="error-msg">
+          Body must be at least 2 characters long.
+        </p>
+        }
+        @if (hasFieldError('body')) {
+        <p class="error-msg">
+          {{ getFieldError('body') }}
+        </p>
+        }
+      </div>
 
-                                <div class="input">
-                                  <label for="image">Announcement Image</label>
-                                  <div class="image-upload-container">
-                                    <input type="file" id="image" accept="image/jpeg,image/jpg,image/png,image/webp" (change)="onImageSelected($event)"
-                                      class="image-input" #imageInput>
-                                      <div class="image-upload-area" (click)="openImagePicker($event)" [class.has-image]="selectedImage">
-                                        @if (!selectedImage) {
-                                          <div class="upload-placeholder">
-                                            <div class="upload-icon-wrapper">
-                                              <div class="upload-cloud">
-                                                <!-- Cloud base -->
-                                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                                  xmlns="http://www.w3.org/2000/svg">
-                                                  <path
-                                                    d="M6.5 18H17.5C19.433 18 21 16.433 21 14.5C21 12.744 19.764 11.291 18.074 11.038C17.613 8.718 15.612 7 13.25 7C11.903 7 10.676 7.57 9.806 8.5C9.531 8.462 9.258 8.444 8.98 8.444C6.78 8.444 5 10.224 5 12.424C5 14.459 6.507 16.154 8.5 16.39"
-                                                    stroke="#9CA3AF" stroke-width="1.7" stroke-linecap="round"
-                                                    stroke-linejoin="round" />
-                                                  </svg>
-                                                  <!-- Small upload badge -->
-                                                  <div class="upload-cloud-badge">
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                                      xmlns="http://www.w3.org/2000/svg">
-                                                      <rect x="3" y="3" width="18" height="18" rx="5" fill="white" />
-                                                      <path d="M12 16V8" stroke="#2563EB" stroke-width="1.8"
-                                                        stroke-linecap="round" stroke-linejoin="round" />
-                                                        <path d="M9 11L12 8L15 11" stroke="#2563EB" stroke-width="1.8"
-                                                          stroke-linecap="round" stroke-linejoin="round" />
-                                                        </svg>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div class="upload-text">
-                                                    <h4>Upload image</h4>
-                                                    <p>Click to upload or drag & drop here</p>
-                                                    <span class="file-types">PNG, JPG or JPEG — up to 10MB</span>
-                                                  </div>
-                                                </div>
-                                              } @else {
-                                                <div class="image-preview">
-                                                  <img [src]="selectedImage" alt="Preview" class="preview-image">
-                                                  <div class="image-overlay">
-                                                    <button type="button" class="remove-image-btn" (click)="removeImage($event)">
-                                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2"
-                                                          stroke-linecap="round" stroke-linejoin="round" />
-                                                        </svg>
-                                                      </button>
-                                                      <button type="button" class="change-image-btn" (click)="openImagePicker($event)">
-                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                          xmlns="http://www.w3.org/2000/svg">
-                                                          <path
-                                                            d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
-                                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round" />
-                                                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2"
-                                                              stroke-linecap="round" stroke-linejoin="round" />
-                                                              <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                stroke-linejoin="round" />
-                                                              </svg>
-                                                            </button>
-                                                          </div>
-                                                        </div>
-                                                      }
-                                                    </div>
-                                                    @if (imageError) {
-                                                      <p class="error-msg">{{ imageError }}</p>
-                                                    }
-                                                  </div>
-                                                </div>
-                                              </form>
+      <div class="input">
+        <label for="image">Announcement Image</label>
+        <div class="image-upload-container">
+          <input type="file" id="image" accept="image/jpeg,image/jpg,image/png,image/webp"
+            (change)="onImageSelected($event)" class="image-input" #imageInput>
+          <div class="image-upload-area" (click)="openImagePicker($event)" [class.has-image]="selectedImage">
+            @if (!selectedImage) {
+            <div class="upload-placeholder">
+              <div class="upload-icon-wrapper">
+                <div class="upload-cloud">
+                  <!-- Cloud base -->
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M6.5 18H17.5C19.433 18 21 16.433 21 14.5C21 12.744 19.764 11.291 18.074 11.038C17.613 8.718 15.612 7 13.25 7C11.903 7 10.676 7.57 9.806 8.5C9.531 8.462 9.258 8.444 8.98 8.444C6.78 8.444 5 10.224 5 12.424C5 14.459 6.507 16.154 8.5 16.39"
+                      stroke="#9CA3AF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <!-- Small upload badge -->
+                  <div class="upload-cloud-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="3" width="18" height="18" rx="5" fill="white" />
+                      <path d="M12 16V8" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                      <path d="M9 11L12 8L15 11" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="upload-text">
+                <h4>Upload image</h4>
+                <p>Click to upload or drag & drop here</p>
+                <span class="file-types">PNG, JPG or JPEG — up to 10MB</span>
+              </div>
+            </div>
+            } @else {
+            <div class="image-preview">
+              <img [src]="selectedImage" alt="Preview" class="preview-image">
+              <div class="image-overlay">
+                <button type="button" class="remove-image-btn" (click)="removeImage($event)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <button type="button" class="change-image-btn" (click)="openImagePicker($event)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          @if (imageError) {
+          <p class="error-msg">{{ imageError }}</p>
+          }
+        </div>
+      </div>
+    </form>
 
-                                              <!-- next button -->
-                                              <div class="btn-fixed">
-                                                <button class="btn btn-lg btn-primary" [disabled]="!isFormValidForNext()" (click)="goToNextTab()">
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                      stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-                                                    </svg>
-                                                    <span>Next (1/2)</span>
-                                                  </button>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          }
+    <!-- next button -->
+    <div class="btn-fixed">
+      <button class="btn btn-lg btn-primary" [disabled]="!isFormValidForNext()" (click)="goToNextTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6" />
+        </svg>
+        <span>Next (1/2)</span>
+      </button>
+    </div>
+  </div>
+</div>
+}
 
-                                          <!-- step 2 -->
-                                          @if (currentTab === 'recipients') {
-                                            <div class="content-hug">
-                                              <div class="content-box d-flex flex-column gap-3">
+<!-- step 2 -->
+@if (currentTab === 'recipients') {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
 
-                                                <!-- Recipient Type Radios (visible in page) -->
-                                                <div class="d-flex flex-wrap align-items-center recipients-radio-group mb-3">
-                                                  <label class="form-check d-inline-flex align-items-center gap-2">
-                                                    <input class="form-check-input" type="radio" name="recipientTypeMain" value="department"
-                                                      [checked]="selectedRecipientType==='department'" (change)="setRecipientType('department')">
-                                                      <span>Department(s)</span>
-                                                    </label>
-                                                    <label class="form-check d-inline-flex align-items-center gap-2">
-                                                      <input class="form-check-input" type="radio" name="recipientTypeMain" value="section"
-                                                        [checked]="selectedRecipientType==='section'" (change)="setRecipientType('section')">
-                                                        <span>Section(s)</span>
-                                                      </label>
-                                                      <label class="form-check d-inline-flex align-items-center gap-2">
-                                                        <input class="form-check-input" type="radio" name="recipientTypeMain" value="employee"
-                                                          [checked]="selectedRecipientType==='employee'" (change)="setRecipientType('employee')">
-                                                          <span>Employee(s)</span>
-                                                        </label>
-                                                        <label class="form-check d-inline-flex align-items-center gap-2">
-                                                          <input class="form-check-input" type="radio" name="recipientTypeMain" value="branch"
-                                                            [checked]="selectedRecipientType==='branch'" (change)="setRecipientType('branch')">
-                                                            <span>Branch(s)</span>
-                                                          </label>
-                                                          <label class="form-check d-inline-flex align-items-center gap-2">
-                                                            <input class="form-check-input" type="radio" name="recipientTypeMain" value="company"
-                                                              [checked]="selectedRecipientType==='company'" (change)="setRecipientType('company')">
-                                                              <span>Company</span>
-                                                            </label>
-                                                          </div>
+    <!-- Recipient Type Radios (visible in page) -->
+    <div class="d-flex flex-wrap align-items-center recipients-radio-group mb-3">
+      <label class="form-check d-inline-flex align-items-center gap-2">
+        <input class="form-check-input" type="radio" name="recipientTypeMain" value="department"
+          [checked]="selectedRecipientType==='department'" (change)="setRecipientType('department')">
+        <span>Department(s)</span>
+      </label>
+      <label class="form-check d-inline-flex align-items-center gap-2">
+        <input class="form-check-input" type="radio" name="recipientTypeMain" value="section"
+          [checked]="selectedRecipientType==='section'" (change)="setRecipientType('section')">
+        <span>Section(s)</span>
+      </label>
+      <label class="form-check d-inline-flex align-items-center gap-2">
+        <input class="form-check-input" type="radio" name="recipientTypeMain" value="employee"
+          [checked]="selectedRecipientType==='employee'" (change)="setRecipientType('employee')">
+        <span>Employee(s)</span>
+      </label>
+      <label class="form-check d-inline-flex align-items-center gap-2">
+        <input class="form-check-input" type="radio" name="recipientTypeMain" value="branch"
+          [checked]="selectedRecipientType==='branch'" (change)="setRecipientType('branch')">
+        <span>Branch(s)</span>
+      </label>
+      <label class="form-check d-inline-flex align-items-center gap-2">
+        <input class="form-check-input" type="radio" name="recipientTypeMain" value="company"
+          [checked]="selectedRecipientType==='company'" (change)="setRecipientType('company')">
+        <span>Company</span>
+      </label>
+    </div>
 
-                                                          <!-- Company Selection Message -->
-                                                          @if (selectedRecipientType === 'company') {
-                                                            <div class="alert alert-info d-flex align-items-center" role="alert">
-                                                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
-                                                                <path
-                                                                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                                                                  fill="currentColor" />
-                                                                </svg>
-                                                                <div>
-                                                                  <strong>Company Selected:</strong> The notification will be sent to <strong>{{ getCompanyName()
-                                                                }}</strong> automatically.
-                                                              </div>
-                                                            </div>
-                                                          }
+    <!-- Company Selection Message -->
+    @if (selectedRecipientType === 'company') {
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+        <path
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+          fill="currentColor" />
+      </svg>
+      <div>
+        <strong>Company Selected:</strong> The notification will be sent to <strong>{{ getCompanyName()
+          }}</strong> automatically.
+      </div>
+    </div>
+    }
 
-                                                          <!-- Search Bar -->
-                                                          @if (selectedRecipientType !== 'company') {
-                                                            <div class="search-container">
-                                                              <div class="form-outline position-relative w-50">
-                                                                <input type="text" class="form-control custom-date-input" placeholder="Search"
-                                                                  [(ngModel)]="selectedSearchTerm" (input)="onSelectedSearchInput()">
-                                                                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <g clip-path="url(#clip0_620_11014)">
-                                                                      <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                        d="M8.625 2.0625C5.00063 2.0625 2.0625 5.00063 2.0625 8.625C2.0625 12.2494 5.00063 15.1875 8.625 15.1875C12.2494 15.1875 15.1875 12.2494 15.1875 8.625C15.1875 5.00063 12.2494 2.0625 8.625 2.0625ZM0.9375 8.625C0.9375 4.37931 4.37931 0.9375 8.625 0.9375C12.8707 0.9375 16.3125 4.37931 16.3125 8.625C16.3125 10.5454 15.6083 12.3013 14.4441 13.6487L16.8977 16.1023C17.1174 16.3219 17.1174 16.6781 16.8977 16.8977C16.6781 17.1174 16.3219 17.1174 16.1023 16.8977L13.6487 14.4441C12.3013 15.6083 10.5454 16.3125 8.625 16.3125C4.37931 16.3125 0.9375 12.8707 0.9375 8.625Z"
-                                                                        fill="#4A6D97" />
-                                                                      </g>
-                                                                      <defs>
-                                                                        <clipPath id="clip0_620_11014">
-                                                                          <rect width="18" height="18" fill="white" />
-                                                                        </clipPath>
-                                                                      </defs>
-                                                                    </svg>
+    <!-- Search Bar -->
+    @if (selectedRecipientType !== 'company') {
+    <div class="search-container">
+      <div class="form-outline position-relative w-50">
+        <input type="text" class="form-control custom-date-input" placeholder="Search" [(ngModel)]="selectedSearchTerm"
+          (input)="onSelectedSearchInput()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_620_11014)">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M8.625 2.0625C5.00063 2.0625 2.0625 5.00063 2.0625 8.625C2.0625 12.2494 5.00063 15.1875 8.625 15.1875C12.2494 15.1875 15.1875 12.2494 15.1875 8.625C15.1875 5.00063 12.2494 2.0625 8.625 2.0625ZM0.9375 8.625C0.9375 4.37931 4.37931 0.9375 8.625 0.9375C12.8707 0.9375 16.3125 4.37931 16.3125 8.625C16.3125 10.5454 15.6083 12.3013 14.4441 13.6487L16.8977 16.1023C17.1174 16.3219 17.1174 16.6781 16.8977 16.8977C16.6781 17.1174 16.3219 17.1174 16.1023 16.8977L13.6487 14.4441C12.3013 15.6083 10.5454 16.3125 8.625 16.3125C4.37931 16.3125 0.9375 12.8707 0.9375 8.625Z"
+              fill="#4A6D97" />
+          </g>
+          <defs>
+            <clipPath id="clip0_620_11014">
+              <rect width="18" height="18" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
 
-                                                                  </div>
-                                                                </div>
-                                                              }
+      </div>
+    </div>
+    }
 
-                                                              <!-- Selected List Table -->
-                                                              @if (selectedRecipientType !== 'company') {
-                                                                <div class="selected-departments-container">
-                                                                  <div class="d-flex justify-content-between align-items-center mb-3">
-                                                                    <a class="add-department-link" (click)="openDepartmentSelection()">
-                                                                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <path d="M9 1.5V16.5M1.5 9H16.5" stroke="#377AFD" stroke-width="2" stroke-linecap="round"
-                                                                          stroke-linejoin="round" />
-                                                                        </svg>
-                                                                        <span>Add {{ getRecipientLabelWithS() }}</span>
-                                                                      </a>
-                                                                    </div>
+    <!-- Selected List Table -->
+    @if (selectedRecipientType !== 'company') {
+    <div class="selected-departments-container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <a class="add-department-link" (click)="openDepartmentSelection()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 1.5V16.5M1.5 9H16.5" stroke="#377AFD" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span>Add {{ getRecipientLabelWithS() }}</span>
+        </a>
+      </div>
 
-                                                                    <!-- Validation message for recipients -->
-                                                                    @if (!hasSelectedRecipients()) {
-                                                                      <div class="alert alert-warning d-flex align-items-center" role="alert">
-                                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                                                          class="me-2">
-                                                                          <path
-                                                                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                                                                            fill="currentColor" />
-                                                                          </svg>
-                                                                          <div>
-                                                                            <strong>No recipients selected!</strong> Please select at least one {{
-                                                                            getRecipientLabelWithS().toLowerCase() }} to send the notification.
-                                                                          </div>
-                                                                        </div>
-                                                                      }
+      <!-- Validation message for recipients -->
+      @if (!hasSelectedRecipients()) {
+      <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+          <path
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            fill="currentColor" />
+        </svg>
+        <div>
+          <strong>No recipients selected!</strong> Please select at least one {{
+          getRecipientLabelWithS().toLowerCase() }} to send the notification.
+        </div>
+      </div>
+      }
 
-                                                                      <!-- API validation error for recipients -->
-                                                                      @if (hasFieldError('recipients')) {
-                                                                        <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                                                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                                                            class="me-2">
-                                                                            <path
-                                                                              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                                                                              fill="currentColor" />
-                                                                            </svg>
-                                                                            <div>
-                                                                              <strong>Recipients Error:</strong> {{ getFieldError('recipients') }}
-                                                                            </div>
-                                                                          </div>
-                                                                        }
+      <!-- API validation error for recipients -->
+      @if (hasFieldError('recipients')) {
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+          <path
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            fill="currentColor" />
+        </svg>
+        <div>
+          <strong>Recipients Error:</strong> {{ getFieldError('recipients') }}
+        </div>
+      </div>
+      }
 
-                                                                        <app-table [data]="getSelectedDepartmentsPage()" [totalItems]="tableTotalItems"
-                                                                          [itemsPerPage]="tableItemsPerPage" [currentPage]="tableCurrentPage" [isLoading]="tableIsLoading"
-                                                                          [columnsCount]="3" [headerTemplate]="selectedDepartmentsHeaderTemplate"
-                                                                          [rowTemplate]="selectedDepartmentRowTemplate" [emptyTemplate]="selectedDepartmentsEmptyTemplate"
-                                                                          [disablePagination]="!shouldShowDepartmentsPagination()" (pageChange)="onTablePageChange($event)"
-                                                                          (itemsPerPageChange)="onTableItemsPerPageChange($event)">
-                                                                        </app-table>
-                                                                      </div>
-                                                                    }
-                                                                  </div>
-                                                                </div>
-                                                              }
+      <app-table [data]="getSelectedDepartmentsPage()" [totalItems]="tableTotalItems" [itemsPerPage]="tableItemsPerPage"
+        [currentPage]="tableCurrentPage" [isLoading]="tableIsLoading" [columnsCount]="3"
+        [headerTemplate]="selectedDepartmentsHeaderTemplate" [rowTemplate]="selectedDepartmentRowTemplate"
+        [emptyTemplate]="selectedDepartmentsEmptyTemplate" [disablePagination]="!shouldShowDepartmentsPagination()"
+        (pageChange)="onTablePageChange($event)" (itemsPerPageChange)="onTableItemsPerPageChange($event)">
+      </app-table>
+    </div>
+    }
+  </div>
+</div>
+}
 
-                                                              <!-- Selected Departments Table Headers -->
-                                                              <ng-template #selectedDepartmentsHeaderTemplate>
-                                                                <th class="">ID</th>
-                                                                <th class="">Name</th>
-                                                                <th class=" text-end">Actions</th>
+<!-- Selected Departments Table Headers -->
+<ng-template #selectedDepartmentsHeaderTemplate>
+  <th class="">ID</th>
+  <th class="">Name</th>
+  <th class=" text-end">Actions</th>
 
-                                                              </ng-template>
+</ng-template>
 
-                                                              <!-- Selected Departments Empty Template -->
-                                                              <ng-template #selectedDepartmentsEmptyTemplate>
-                                                                <tr>
-                                                                  <td colspan="3" class="no-data py-4 text-center">No {{ getRecipientLabelWithS() }} Selected.</td>
-                                                                </tr>
+<!-- Selected Departments Empty Template -->
+<ng-template #selectedDepartmentsEmptyTemplate>
+  <tr>
+    <td colspan="3" class="no-data py-4 text-center">No {{ getRecipientLabelWithS() }} Selected.</td>
+  </tr>
 
-                                                              </ng-template>
+</ng-template>
 
-                                                              <!-- Fixed actions for Recipients -->
-                                                              @if (currentTab === 'recipients') {
-                                                                <div class="btn-fixed">
-                                                                  <div class="d-flex align-items-center gap-2">
-                                                                    <!-- Back square button -->
-                                                                    <button class="btn back-square-btn" (click)="goToPreviousTab()" title="Back">
-                                                                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                                                        <path fill="none" stroke="#4A6D97" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                                          d="M15 5l-6 7l6 7" />
-                                                                        </svg>
-                                                                      </button>
-                                                                      <!-- Create Entry primary -->
-                                                                      <button class="btn btn-lg btn-success" [disabled]="isSubmitting" (click)="onSubmit()">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                                                          <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                                                            <circle cx="12" cy="12" r="10" />
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                                                          </g>
-                                                                        </svg>
-                                                                        <span>Send Notification</span>
-                                                                      </button>
-                                                                    </div>
-                                                                  </div>
-                                                                }
+<!-- Fixed actions for Recipients -->
+@if (currentTab === 'recipients') {
+<div class="btn-fixed">
+  <div class="d-flex align-items-center gap-2">
+    <!-- Back square button -->
+    <button class="btn back-square-btn" (click)="goToPreviousTab()" title="Back">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+        <path fill="none" stroke="#4A6D97" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M15 5l-6 7l6 7" />
+      </svg>
+    </button>
+    <!-- Create Entry primary -->
+    <button class="btn btn-lg btn-success" [disabled]="isSubmitting" (click)="onSubmit()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+        </g>
+      </svg>
+      <span>Send Notification</span>
+    </button>
+  </div>
+</div>
+}
 
-                                                                <!-- Department Selection Overlay -->
-                                                                <app-overlay-filter-box #departmentFilterBox [title]="'Select ' + getRecipientLabelWithS()" [customWidth]="'40%'">
-                                                                  <div class="w-100 d-flex flex-column gap-3">
+<!-- Department Selection Overlay -->
+<app-overlay-filter-box #departmentFilterBox [title]="'Select ' + getRecipientLabelWithS()" [customWidth]="'40%'">
+  <div class="w-100 d-flex flex-column gap-3">
 
-                                                                    <!-- Department Dropdown for Sections -->
-                                                                    @if (selectedRecipientType === 'section') {
-                                                                      <div class="form-outline position-relative">
-                                                                        <select class="form-control custom-date-input" [(ngModel)]="selectedDepartmentId"
-                                                                          (change)="onDepartmentSelected($any($event.target).value)" [disabled]="isLoadingItems">
-                                                                          <!-- Placeholder option is bound to null so it shows when no department is selected -->
-                                                                          <option [ngValue]="null" disabled>
-                                                                            Select a department to load its sections
-                                                                          </option>
-                                                                          @for (dept of availableDepartments; track dept.id) {
-                                                                            <option [value]="dept.id">{{ dept.name }}</option>
-                                                                          }
-                                                                        </select>
-                                                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                                                          class="search-icon">
-                                                                          <path d="M6 7.5L9 10.5L12 7.5" stroke="#6B7280" stroke-width="2" stroke-linecap="round"
-                                                                            stroke-linejoin="round" />
-                                                                          </svg>
-                                                                        </div>
-                                                                      }
+    <!-- Department Dropdown for Sections -->
+    @if (selectedRecipientType === 'section') {
+    <div class="form-outline position-relative">
+      <select class="form-control custom-date-input" [(ngModel)]="selectedDepartmentId"
+        (change)="onDepartmentSelected($any($event.target).value)" [disabled]="isLoadingItems">
+        <!-- Placeholder option is bound to null so it shows when no department is selected -->
+        <option [ngValue]="null" disabled>
+          Select a department to load its sections
+        </option>
+        @for (dept of availableDepartments; track dept.id) {
+        <option [value]="dept.id">{{ dept.name }}</option>
+        }
+      </select>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+        class="search-icon">
+        <path d="M6 7.5L9 10.5L12 7.5" stroke="#6B7280" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </div>
+    }
 
-                                                                      <!-- Search -->
-                                                                      @if (selectedRecipientType !== 'company' && selectedRecipientType !== 'section') {
-                                                                        <div class="form-outline position-relative">
-                                                                          <input type="text" class="form-control custom-date-input"
-                                                                            [placeholder]="'Search ' + getRecipientLabelWithS()" [(ngModel)]="modalSearchTerm"
-                                                                            (input)="onModalSearchInput($event)">
+    <!-- Search -->
+    @if (selectedRecipientType !== 'company' && selectedRecipientType !== 'section') {
+    <div class="form-outline position-relative">
+      <input type="text" class="form-control custom-date-input" [placeholder]="'Search ' + getRecipientLabelWithS()"
+        [(ngModel)]="modalSearchTerm" (input)="onModalSearchInput($event)">
 
-                                                                            @if (modalSearchTerm) {
-                                                                              <!-- Clear search button -->
-                                                                              <button type="button" class="btn btn-sm btn-outline-secondary clear-search-btn" (click)="clearModalSearch()"
-                                                                                title="Clear search">
-                                                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                                  <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="#6B7280" stroke-width="1.5"
-                                                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                                                                  </svg>
-                                                                                </button>
-                                                                              } @else {
-                                                                                <!-- Search icon -->
-                                                                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                                                                  class="search-icon">
-                                                                                  <path
-                                                                                    d="M12.5 11H11.71L11.43 10.73C12.41 9.59 13 8.11 13 6.5C13 2.91 10.09 0 6.5 0C2.91 0 0 2.91 0 6.5C0 10.09 2.91 13 6.5 13C8.11 13 9.59 12.41 10.73 11.43L11 11.71V12.5L16 17.49L17.49 16L12.5 11ZM6.5 11C4.01 11 2 8.99 2 6.5C2 4.01 4.01 2 6.5 2C8.99 2 11 4.01 11 6.5C11 8.99 8.99 11 6.5 11Z"
-                                                                                    fill="#6B7280" />
-                                                                                  </svg>
-                                                                                }
-                                                                              </div>
-                                                                            }
+      @if (modalSearchTerm) {
+      <!-- Clear search button -->
+      <button type="button" class="btn btn-sm btn-outline-secondary clear-search-btn" (click)="clearModalSearch()"
+        title="Clear search">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+      } @else {
+      <!-- Search icon -->
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+        class="search-icon">
+        <path
+          d="M12.5 11H11.71L11.43 10.73C12.41 9.59 13 8.11 13 6.5C13 2.91 10.09 0 6.5 0C2.91 0 0 2.91 0 6.5C0 10.09 2.91 13 6.5 13C8.11 13 9.59 12.41 10.73 11.43L11 11.71V12.5L16 17.49L17.49 16L12.5 11ZM6.5 11C4.01 11 2 8.99 2 6.5C2 4.01 4.01 2 6.5 2C8.99 2 11 4.01 11 6.5C11 8.99 8.99 11 6.5 11Z"
+          fill="#6B7280" />
+      </svg>
+      }
+    </div>
+    }
 
-                                                                            <!-- Entities Table with Skeleton Loader -->
-                                                                            @if (!(selectedRecipientType === 'section' && !selectedDepartmentId)) {
-                                                                              <div class="departments-list-table">
-                                                                                @if (selectedRecipientType === 'section' && selectedDepartmentId) {
-                                                                                  <!-- Show sections when department is selected -->
-                                                                                  <app-table [data]="availableItems" [currentPage]="currentPage" [isLoading]="isLoadingItems"
-                                                                                    [columnsCount]="1" [headerTemplate]="modalHeaderTemplate" [rowTemplate]="modalRowTemplate"
-                                                                                    [emptyTemplate]="modalEmptyTemplate" [disablePagination]="true">
-                                                                                  </app-table>
-                                                                                } @else if (selectedRecipientType !== 'company') {
-                                                                                  <!-- Show entities for other types -->
-                                                                                  <app-table [data]="availableItems" [currentPage]="currentPage" [isLoading]="isLoadingItems"
-                                                                                    [columnsCount]="1" [headerTemplate]="modalHeaderTemplate" [rowTemplate]="modalRowTemplate"
-                                                                                    [emptyTemplate]="modalEmptyTemplate" [disablePagination]="true">
-                                                                                  </app-table>
-                                                                                } @else {
-                                                                                  <div class="text-center py-4 text-muted">
-                                                                                    <p>Please select a department to view its sections</p>
-                                                                                  </div>
-                                                                                }
-                                                                              </div>
-                                                                            }
+    <!-- Entities Table with Skeleton Loader -->
+    @if (!(selectedRecipientType === 'section' && !selectedDepartmentId)) {
+    <div class="departments-list-table">
+      @if (selectedRecipientType === 'section' && selectedDepartmentId) {
+      <!-- Show sections when department is selected -->
+      <app-table [data]="availableItems" [currentPage]="currentPage" [isLoading]="isLoadingItems" [columnsCount]="1"
+        [headerTemplate]="modalHeaderTemplate" [rowTemplate]="modalRowTemplate" [emptyTemplate]="modalEmptyTemplate"
+        [disablePagination]="true">
+      </app-table>
+      } @else if (selectedRecipientType !== 'company') {
+      <!-- Show entities for other types -->
+      <app-table [data]="availableItems" [currentPage]="currentPage" [isLoading]="isLoadingItems" [columnsCount]="1"
+        [headerTemplate]="modalHeaderTemplate" [rowTemplate]="modalRowTemplate" [emptyTemplate]="modalEmptyTemplate"
+        [disablePagination]="true">
+      </app-table>
+      } @else {
+      <div class="text-center py-4 text-muted">
+        <p>Please select a department to view its sections</p>
+      </div>
+      }
+    </div>
+    }
 
-                                                                            <!-- Pagination -->
-                                                                            @if (selectedRecipientType !== 'section' && selectedRecipientType !== 'company') {
-                                                                              <div class="d-flex justify-content-between align-items-center">
-                                                                                <span class="text-muted">{{ getPaginationInfo() }}</span>
-                                                                                <div class="d-flex gap-2">
-                                                                                  <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 1"
-                                                                                    (click)="goToPreviousPage()">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                                      <polyline points="15,18 9,12 15,6"></polyline>
-                                                                                    </svg>
-                                                                                  </button>
-                                                                                  <button class="btn btn-sm btn-primary">{{ currentPage }}</button>
-                                                                                  <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalPages"
-                                                                                    (click)="goToNextPage()">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                                      <polyline points="9,18 15,12 9,6"></polyline>
-                                                                                    </svg>
-                                                                                  </button>
-                                                                                </div>
-                                                                              </div>
-                                                                            }
+    <!-- Pagination -->
+    @if (selectedRecipientType !== 'section' && selectedRecipientType !== 'company') {
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="text-muted">{{ getPaginationInfo() }}</span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 1" (click)="goToPreviousPage()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15,18 9,12 15,6"></polyline>
+          </svg>
+        </button>
+        <button class="btn btn-sm btn-primary">{{ currentPage }}</button>
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalPages"
+          (click)="goToNextPage()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9,18 15,12 9,6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+    }
 
-                                                                            <!-- Action Buttons -->
-                                                                            <div class="d-flex align-items-center gap-3">
-                                                                              <button type="button" class="btn btn-lg btn-primary w-100" (click)="saveSelectedDepartments()">
-                                                                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                                  <path
-                                                                                    d="M12.0227 7.52275C12.2424 7.30308 12.2424 6.94692 12.0227 6.72725C11.8031 6.50758 11.4469 6.50758 11.2273 6.72725L7.875 10.0795L6.77275 8.97725C6.55308 8.75758 6.19692 8.75758 5.97725 8.97725C5.75758 9.19692 5.75758 9.55308 5.97725 9.77275L7.47725 11.2727C7.69692 11.4924 8.05308 11.4924 8.27275 11.2727L12.0227 7.52275Z"
-                                                                                    fill="#E0EBFF" />
-                                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                                      d="M9 0.9375C4.5472 0.9375 0.9375 4.5472 0.9375 9C0.9375 13.4528 4.5472 17.0625 9 17.0625C13.4528 17.0625 17.0625 13.4528 17.0625 9C17.0625 4.5472 13.4528 0.9375 9 0.9375ZM2.0625 9C2.0625 5.16852 5.16852 2.0625 9 2.0625C12.8315 2.0625 15.9375 5.16852 15.9375 9C15.9375 12.8315 12.8315 15.9375 9 15.9375C5.16852 15.9375 2.0625 12.8315 2.0625 9Z"
-                                                                                      fill="#E0EBFF" />
-                                                                                    </svg>
-                                                                                    <span>Confirm</span>
-                                                                                  </button>
-                                                                                  <a (click)="closeDepartmentSelection()" class="text-danger-dark fw-bold w-100 text-center cursor-pointer">
-                                                                                    <span>Discard</span>
-                                                                                  </a>
-                                                                                </div>
-                                                                              </div>
-                                                                            </app-overlay-filter-box>
+    <!-- Action Buttons -->
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn btn-lg btn-primary w-100" (click)="saveSelectedDepartments()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12.0227 7.52275C12.2424 7.30308 12.2424 6.94692 12.0227 6.72725C11.8031 6.50758 11.4469 6.50758 11.2273 6.72725L7.875 10.0795L6.77275 8.97725C6.55308 8.75758 6.19692 8.75758 5.97725 8.97725C5.75758 9.19692 5.75758 9.55308 5.97725 9.77275L7.47725 11.2727C7.69692 11.4924 8.05308 11.4924 8.27275 11.2727L12.0227 7.52275Z"
+            fill="#E0EBFF" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M9 0.9375C4.5472 0.9375 0.9375 4.5472 0.9375 9C0.9375 13.4528 4.5472 17.0625 9 17.0625C13.4528 17.0625 17.0625 13.4528 17.0625 9C17.0625 4.5472 13.4528 0.9375 9 0.9375ZM2.0625 9C2.0625 5.16852 5.16852 2.0625 9 2.0625C12.8315 2.0625 15.9375 5.16852 15.9375 9C15.9375 12.8315 12.8315 15.9375 9 15.9375C5.16852 15.9375 2.0625 12.8315 2.0625 9Z"
+            fill="#E0EBFF" />
+        </svg>
+        <span>Confirm</span>
+      </button>
+      <a (click)="closeDepartmentSelection()" class="text-danger-dark fw-bold w-100 text-center cursor-pointer">
+        <span>Discard</span>
+      </a>
+    </div>
+  </div>
+</app-overlay-filter-box>
 
-                                                                            <!-- Templates -->
-                                                                            <ng-template #selectedDepartmentRowTemplate let-department>
-                                                                              <tr>
-                                                                                <td>{{ department.code }}</td>
-                                                                                <td>{{ department.name }}</td>
-                                                                                <td class="text-end">
-                                                                                  <a class="view-link text-danger" (click)="removeDepartment(department)" style="cursor: pointer;">
-                                                                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                                      <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                                        d="M2.8125 5.625C2.8125 5.31434 3.06434 5.0625 3.375 5.0625H14.625C14.9357 5.0625 15.1875 5.31434 15.1875 5.625C15.1875 5.93566 14.9357 6.1875 14.625 6.1875H14.0625V13.5C14.0625 14.0967 13.8256 14.669 13.4053 15.0893C12.985 15.5096 12.4127 15.7465 11.8125 15.7465H6.1875C5.58832 15.7465 5.01497 15.5096 4.59467 15.0893C4.17438 14.669 3.9375 14.0967 3.9375 13.5V6.1875H3.375C3.06434 6.1875 2.8125 5.93566 2.8125 5.625ZM5.0625 6.1875V13.5C5.0625 13.7984 5.18103 14.0845 5.39029 14.2937C5.59955 14.503 5.88571 14.6215 6.1875 14.6215H11.8125C12.1143 14.6215 12.4004 14.503 12.6097 14.2937C12.819 14.0845 12.9375 13.7984 12.9375 13.5V6.1875H5.0625Z"
-                                                                                        fill="#E53E3E" />
-                                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                                          d="M7.3125 3.375C7.3125 3.22582 7.37176 3.08274 7.47725 2.97725C7.58274 2.87176 7.72582 2.8125 7.875 2.8125H10.125C10.2742 2.8125 10.4173 2.87176 10.5227 2.97725C10.6282 3.08274 10.6875 3.22582 10.6875 3.375V5.0625H11.8125V3.375C11.8125 2.92745 11.6347 2.49823 11.3182 2.1818C11.0018 1.86538 10.5726 1.6875 10.125 1.6875H7.875C7.42745 1.6875 6.99823 1.86538 6.6818 2.1818C6.36538 2.49823 6.1875 2.92745 6.1875 3.375V5.0625H7.3125V3.375Z"
-                                                                                          fill="#E53E3E" />
-                                                                                        </svg>
-                                                                                        <span>Delete</span>
-                                                                                      </a>
-                                                                                    </td>
-                                                                                  </tr>
-                                                                                </ng-template>
+<!-- Templates -->
+<ng-template #selectedDepartmentRowTemplate let-department>
+  <tr>
+    <td>{{ department.code }}</td>
+    <td>{{ department.name }}</td>
+    <td class="text-end">
+      <a class="view-link text-danger" (click)="removeDepartment(department)" style="cursor: pointer;">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_867_6307)">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M7.73196 1.68751H10.268C10.4303 1.68741 10.5717 1.68732 10.7052 1.70864C11.2327 1.79287 11.6892 2.12186 11.9359 2.59563C11.9983 2.71555 12.0429 2.84971 12.0942 3.00371L12.1779 3.25488C12.1921 3.2974 12.1961 3.30943 12.1995 3.31891C12.3309 3.682 12.6714 3.92745 13.0574 3.93723C13.0675 3.93748 13.08 3.93753 13.125 3.93753H15.375C15.6857 3.93753 15.9375 4.18937 15.9375 4.50003C15.9375 4.81069 15.6857 5.06253 15.375 5.06253H2.62494C2.31428 5.06253 2.06244 4.81069 2.06244 4.50003C2.06244 4.18937 2.31428 3.93753 2.62494 3.93753H4.875C4.92004 3.93753 4.93247 3.93749 4.94261 3.93723C5.3286 3.92745 5.66912 3.68202 5.80046 3.31893C5.80391 3.30938 5.80788 3.29761 5.82212 3.25488L5.90583 3.00372C5.95705 2.84973 6.00168 2.71555 6.06413 2.59563C6.31084 2.12186 6.76729 1.79287 7.29476 1.70864C7.42827 1.68732 7.56967 1.68741 7.73196 1.68751ZM6.75605 3.93753C6.79468 3.86176 6.82892 3.78303 6.85837 3.70161C6.86731 3.67689 6.87609 3.65057 6.88735 3.61675L6.96221 3.39219C7.03058 3.18706 7.04633 3.14522 7.06195 3.11523C7.14418 2.95731 7.29633 2.84764 7.47216 2.81957C7.50555 2.81423 7.55021 2.81253 7.76645 2.81253H10.2336C10.4498 2.81253 10.4945 2.81423 10.5278 2.81957C10.7037 2.84764 10.8558 2.95731 10.9381 3.11523C10.9537 3.14522 10.9694 3.18705 11.0378 3.39219L11.1126 3.61662L11.1416 3.70163C11.1711 3.78304 11.2053 3.86177 11.244 3.93753H6.75605Z"
+              fill="#E04F5F" />
+            <path
+              d="M4.43626 6.33761C4.41559 6.02764 4.14756 5.79311 3.83759 5.81377C3.52761 5.83444 3.29308 6.10247 3.31375 6.41245L3.66133 11.6262C3.72546 12.5883 3.77725 13.3654 3.89873 13.9752C4.02503 14.6092 4.23984 15.1387 4.68354 15.5538C5.12724 15.9689 5.6699 16.1481 6.31089 16.2319C6.92741 16.3126 7.70622 16.3125 8.67039 16.3125H9.32956C10.2937 16.3125 11.0726 16.3126 11.6891 16.2319C12.3301 16.1481 12.8728 15.9689 13.3165 15.5538C13.7602 15.1387 13.975 14.6092 14.1013 13.9752C14.2228 13.3654 14.2745 12.5883 14.3387 11.6263L14.6863 6.41245C14.7069 6.10247 14.4724 5.83444 14.1624 5.81377C13.8524 5.79311 13.5844 6.02764 13.5637 6.33761L13.2188 11.5119C13.1514 12.5228 13.1034 13.2262 12.998 13.7554C12.8957 14.2688 12.7529 14.5405 12.5479 14.7323C12.3428 14.9242 12.0622 15.0485 11.5432 15.1164C11.0081 15.1864 10.3031 15.1875 9.29001 15.1875H8.70999C7.69686 15.1875 6.99185 15.1864 6.4568 15.1164C5.9378 15.0485 5.65718 14.9242 5.45212 14.7323C5.24706 14.5405 5.10431 14.2687 5.00205 13.7554C4.89663 13.2262 4.8486 12.5228 4.78121 11.5119L4.43626 6.33761Z"
+              fill="#E04F5F" />
+            <path
+              d="M7.06904 7.69032C7.37816 7.65941 7.6538 7.88494 7.68472 8.19406L8.05972 11.9441C8.09063 12.2532 7.8651 12.5288 7.55598 12.5597C7.24686 12.5906 6.97121 12.3651 6.9403 12.056L6.5653 8.306C6.53439 7.99688 6.75992 7.72123 7.06904 7.69032Z"
+              fill="#E04F5F" />
+            <path
+              d="M10.931 7.69032C11.2401 7.72123 11.4656 7.99688 11.4347 8.306L11.0597 12.056C11.0288 12.3651 10.7532 12.5906 10.444 12.5597C10.1349 12.5288 9.90939 12.2532 9.9403 11.9441L10.3153 8.19406C10.3462 7.88494 10.6219 7.65941 10.931 7.69032Z"
+              fill="#E04F5F" />
+          </g>
+          <defs>
+            <clipPath id="clip0_867_6307">
+              <rect width="18" height="18" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
 
-                                                                                <!-- Modal Table Templates -->
-                                                                                <ng-template #modalHeaderTemplate>
-                                                                                  <th colspan="1" class="department-only-header">
-                                                                                    <div class="department-only-header-inner">
-                                                                                      <input type="checkbox" class="department-square-checkbox" [checked]="isAllCurrentPageSelected()"
-                                                                                        (change)="selectAllDepartments()">
-                                                                                        <span>{{ getRecipientLabelWithS() }}</span>
-                                                                                      </div>
-                                                                                    </th>
-                                                                                  </ng-template>
+        <span>Delete</span>
+      </a>
+    </td>
+  </tr>
+</ng-template>
 
-                                                                                  <ng-template #modalRowTemplate let-department>
-                                                                                    <td colspan="1">
-                                                                                      <div class="department-row d-flex align-items-start gap-3" (click)="toggleDepartmentSelection(department)">
-                                                                                        <input type="checkbox" class="department-square-checkbox mt-1" [checked]="isDepartmentSelected(department)"
-                                                                                          (click)="$event.stopPropagation(); toggleDepartmentSelection(department)">
-                                                                                          <div class="d-flex flex-column">
-                                                                                            <span class="department-id-label">{{ department.code }}</span>
-                                                                                            <span class="department-name-label">{{ department.name }}</span>
-                                                                                          </div>
-                                                                                        </div>
-                                                                                      </td>
-                                                                                    </ng-template>
+<!-- Modal Table Templates -->
+<ng-template #modalHeaderTemplate>
+  <th colspan="1" class="department-only-header">
+    <div class="department-only-header-inner">
+      <input type="checkbox" class="department-square-checkbox" [checked]="isAllCurrentPageSelected()"
+        (change)="selectAllDepartments()">
+      <span>{{ getRecipientLabelWithS() }}</span>
+    </div>
+  </th>
+</ng-template>
 
-                                                                                    <ng-template #modalEmptyTemplate>
-                                                                                      <tr>
-                                                                                        <td colspan="1" class="text-center py-4">
-                                                                                          <div class="empty-state">
-                                                                                            <p class="text-muted mb-0">No departments found.</p>
-                                                                                          </div>
-                                                                                        </td>
-                                                                                      </tr>
-                                                                                    </ng-template>
+<ng-template #modalRowTemplate let-department>
+  <td colspan="1">
+    <div class="department-row d-flex align-items-start gap-3" (click)="toggleDepartmentSelection(department)">
+      <input type="checkbox" class="department-square-checkbox mt-1" [checked]="isDepartmentSelected(department)"
+        (click)="$event.stopPropagation(); toggleDepartmentSelection(department)">
+      <div class="d-flex flex-column">
+        <span class="department-id-label">{{ department.code }}</span>
+        <span class="department-name-label">{{ department.name }}</span>
+      </div>
+    </div>
+  </td>
+</ng-template>
+
+<ng-template #modalEmptyTemplate>
+  <tr>
+    <td colspan="1" class="text-center py-4">
+      <div class="empty-state">
+        <p class="text-muted mb-0">No departments found.</p>
+      </div>
+    </td>
+  </tr>
+</ng-template>
