@@ -945,8 +945,15 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'log';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = log?.times_object?.actual_check_in || '';
-    this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    // Only set initial values if both check-in and check-out exist
+    if (this.hasBothCheckInAndOut(log)) {
+      this.editCheckInValue = log?.times_object?.actual_check_in || '';
+      this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+    } else {
+      // For add log scenario, start with empty values
+      this.editCheckInValue = '';
+      this.editCheckOutValue = '';
+    }
     this.editModalOpen = true;
   }
 
