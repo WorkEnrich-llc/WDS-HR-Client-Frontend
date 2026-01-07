@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface FileItem {
   id: string;
@@ -33,7 +35,9 @@ interface storageInfo {
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class SystemCloudComponent implements OnInit {
+export class SystemCloudComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   constructor(
     private _systemCloudService: SystemCloudService,
     private toasterService: ToastrService,
@@ -106,7 +110,9 @@ export class SystemCloudComponent implements OnInit {
   // get all system templates 
   getAllSystemTemplates() {
     this.loadData = true;
-    this._systemCloudService.getAllTemplates().subscribe({
+    this._systemCloudService.getAllTemplates()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.systemTemplates = response?.data?.object_info || [];
         this.filteredTemplates = [...this.systemTemplates];
@@ -140,7 +146,9 @@ export class SystemCloudComponent implements OnInit {
       this.loadFiles = true;
     }
 
-    this._systemCloudService.getFoldersFiles().subscribe({
+    this._systemCloudService.getFoldersFiles()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         const objects: FileItem[] = response?.data?.object_info ?? [];
         this.allFiles = this.flattenFilesRecursively(objects);
@@ -381,7 +389,9 @@ export class SystemCloudComponent implements OnInit {
       formData.append('parent', this.openedFolderId);
     }
 
-    this._systemCloudService.createFolder(formData).subscribe({
+    this._systemCloudService.createFolder(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.newFolderName = '';
         this.errMsg = '';
@@ -461,7 +471,9 @@ export class SystemCloudComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    this._systemCloudService.createUploadFile(formData).subscribe({
+    this._systemCloudService.createUploadFile(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (event: HttpEvent<any>) => {
         if (event.type === HttpEventType.UploadProgress) {
           if (event.total) {
@@ -644,7 +656,9 @@ export class SystemCloudComponent implements OnInit {
       formData.append('parent', this.openedFolderId);
     }
 
-    this._systemCloudService.createSystemFile(formData).subscribe({
+    this._systemCloudService.createSystemFile(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.systemFileName = '';
         this.errMsg = '';
@@ -731,7 +745,9 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.newName);
 
-    this._systemCloudService.renameFile(this.folderIdToRename, formData).subscribe({
+    this._systemCloudService.renameFile(this.folderIdToRename, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.isLoading = false;
         this.errMsg = '';
@@ -800,7 +816,9 @@ export class SystemCloudComponent implements OnInit {
     this.errMsg = '';
     this.uploadProgress = 0;
     this.closeModalDelete();
-    this._systemCloudService.deleteFile(id).subscribe({
+    this._systemCloudService.deleteFile(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.files = this.files.filter(file => file.id !== id);
         this.filteredFiles = this.filteredFiles.filter(file => file.id !== id);
@@ -866,7 +884,9 @@ export class SystemCloudComponent implements OnInit {
     this.errMsg = '';
     this.closeModalDublicate();
 
-    this._systemCloudService.duplicateFile(id).subscribe({
+    this._systemCloudService.duplicateFile(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         const now = new Date();
         const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -933,7 +953,9 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('parent', targetFolder.id);
 
-    this._systemCloudService.renameFile(fileId, formData).subscribe({
+    this._systemCloudService.renameFile(fileId, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         const updatedFile = { ...response.data.object_info };
 
@@ -982,7 +1004,9 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('parent', parentId ?? '');
 
-    this._systemCloudService.renameFile(fileId, formData).subscribe({
+    this._systemCloudService.renameFile(fileId, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         const movedFile = this.allFiles.find(f => f.id === fileId);
         if (!movedFile) return;
@@ -1014,5 +1038,8 @@ export class SystemCloudComponent implements OnInit {
     this.draggedFileIdForMove = null;
   }
 
-
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
