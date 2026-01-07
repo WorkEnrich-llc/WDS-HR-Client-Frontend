@@ -8,7 +8,7 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
-import { ToastrService } from 'ngx-toastr';
+import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-payroll-runs',
@@ -56,7 +56,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   payRollRunData: any = null;
   allSheetsData: any = null;
 
-  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toastr: ToastrService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService) { }
 
   employees: any[] = [];
   sortDirection: string = 'asc';
@@ -183,11 +183,13 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showConfirmation = false;
         this.isStartingPayroll = false;
-        this.toastr.success('Payroll has been started successfully');
+        this.toasterMessageService.showSuccess('Payroll has been started successfully');
+        // Refresh the payroll run details
+        this.refreshPayrollRunDetails();
       },
       error: (error) => {
         this.isStartingPayroll = false;
-        this.toastr.error('Failed to start payroll. Please try again.');
+        this.toasterMessageService.showError('Failed to start payroll. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -250,7 +252,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   confirmCreateSheet(): void {
     if (!this.payrollRunId || !this.payRollRunData?.data?.object_info?.title) {
-      this.toastr.error('Unable to create sheet. Missing required information.');
+      this.toasterMessageService.showError('Unable to create sheet. Missing required information.');
       return;
     }
 
@@ -265,13 +267,13 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showCreateSheetConfirmation = false;
         this.isCreatingSheet = false;
-        this.toastr.success('Sheet has been created successfully');
+        this.toasterMessageService.showSuccess('Sheet has been created successfully');
         // Refresh the sheets list
         this.fetchEmployees();
       },
       error: (error) => {
         this.isCreatingSheet = false;
-        this.toastr.error('Failed to create sheet. Please try again.');
+        this.toasterMessageService.showError('Failed to create sheet. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -329,14 +331,14 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showRevertToDraftConfirmation = false;
         this.isRevertingToDraft = false;
-        this.toastr.success('Payroll has been reverted to draft successfully');
+        this.toasterMessageService.showSuccess('Payroll has been reverted to draft successfully');
         // Refresh the payroll run details
         this.refreshPayrollRunDetails();
       },
       error: (error) => {
         this.showRevertToDraftConfirmation = false;
         this.isRevertingToDraft = false;
-        this.toastr.error('Failed to revert to draft. Please try again.');
+        this.toasterMessageService.showError('Failed to revert to draft. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -384,14 +386,13 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showRestartRunConfirmation = false;
         this.isRestartingRun = false;
-        this.toastr.success('Payroll run has been restarted successfully');
         // Refresh the payroll run details
         this.refreshPayrollRunDetails();
       },
       error: (error) => {
         this.showRestartRunConfirmation = false;
         this.isRestartingRun = false;
-        this.toastr.error('Failed to restart payroll run. Please try again.');
+        this.toasterMessageService.showError('Failed to restart payroll run. Please try again.');
       }
     });
     this.subscriptions.push(sub);
