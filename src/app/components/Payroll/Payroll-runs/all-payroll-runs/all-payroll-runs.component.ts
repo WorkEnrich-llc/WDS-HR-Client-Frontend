@@ -108,9 +108,9 @@ export class AllPayrollRunsComponent implements OnDestroy {
       next: (response: any) => {
         const items = response?.data?.list_items ?? [];
         this.payrollRuns = items.map((item: any) => ({
-          month: item.start_date ? `${item.start_date}` : '',
+          title: item.title ? `${item.title}` : '',
           cycle: item.start_date && item.end_date ? `${item.start_date} – ${item.end_date}` : '',
-          numOfEmp: item.employees_cont ?? 0,
+          numOfEmp: item.emp_count ?? 0,
           Status: item.status ?? '',
           id: item.id
         }));
@@ -127,8 +127,8 @@ export class AllPayrollRunsComponent implements OnDestroy {
   sortBy() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.payrollRuns = this.payrollRuns.sort((a, b) => {
-      const dateA = new Date(a.month);
-      const dateB = new Date(b.month);
+      const dateA = new Date(a.title);
+      const dateB = new Date(b.title);
 
       if (this.sortDirection === 'asc') {
         return dateA > dateB ? 1 : (dateA < dateB ? -1 : 0);
@@ -203,6 +203,18 @@ export class AllPayrollRunsComponent implements OnDestroy {
 
   navigateToCreateOffCyclePayroll(): void {
     this.router.navigate(['/payroll-runs/create-off-cycle-payroll']);
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Processed': 'badge-success',
+      'Completed': 'badge-success',
+      'In Process': 'badge-newjoiner',
+      'Draft': 'badge-gray',
+      'Pending': 'badge-warning',
+      'Failed': 'badge-danger'
+    };
+    return statusMap[status] || 'badge-gray';
   }
 
   savePayrollConfiguration(): void {

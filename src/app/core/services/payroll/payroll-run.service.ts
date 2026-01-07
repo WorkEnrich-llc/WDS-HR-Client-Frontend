@@ -33,4 +33,16 @@ export class PayrollRunService {
   createOffCyclePayroll(data: any): Observable<any> {
     return this.http.post(`${this.url}/off-cycle`, { request_data: data });
   }
+
+  createPayrollSheet(formData: FormData): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}cloud/files/`, formData);
+  }
+
+  revertToDraft(formData: FormData): Observable<any> {
+    return this.http.put(`${this.url}/revert-draft`, formData);
+  }
+
+  restartPayrollRun(formData: FormData): Observable<any> {
+    return this.http.put(`${this.url}/restart`, formData);
+  }
 }

@@ -1,18 +1,18 @@
 
-import { Component, ViewChild, OnDestroy } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, ViewChild, OnDestroy, HostListener } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
-import { RouterLink } from '@angular/router';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-view-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, RouterLink, OverlayFilterBoxComponent, PopupComponent, DecimalPipe, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, PopupComponent, DatePipe],
   providers: [DatePipe],
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
@@ -56,7 +56,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   payRollRunData: any = null;
   allSheetsData: any = null;
 
-  constructor(private route: ActivatedRoute, private payrollRunService: PayrollRunService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toastr: ToastrService) { }
 
   employees: any[] = [];
   sortDirection: string = 'asc';
@@ -78,6 +78,13 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   isStartingPayroll: boolean = false;
   showConfirmation: boolean = false;
   showValidationError: boolean = false;
+  showCreateSheetConfirmation: boolean = false;
+  isCreatingSheet: boolean = false;
+  showPayrollMenu: boolean = false;
+  showRevertToDraftConfirmation: boolean = false;
+  isRevertingToDraft: boolean = false;
+  showRestartRunConfirmation: boolean = false;
+  isRestartingRun: boolean = false;
 
   ngOnInit(): void {
     this.loadData = true;
@@ -87,7 +94,12 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       const sub = this.payrollRunService.getPayrollRunById(id).subscribe({
         next: (data) => {
           this.payRollRunData = data;
-          this.loadData = false;
+          // Only fetch payroll sheets if status is Draft
+          if (data?.data?.object_info?.status === 'Draft') {
+            this.fetchEmployees();
+          } else {
+            this.loadData = false;
+          }
         },
         error: () => {
           this.loadData = false;
@@ -95,7 +107,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       });
       this.subscriptions.push(sub);
     }
-    this.fetchEmployees();
   }
 
   ngOnDestroy(): void {
@@ -172,11 +183,11 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showConfirmation = false;
         this.isStartingPayroll = false;
-        // Handle success - you can add a toast notification here
+        this.toastr.success('Payroll has been started successfully');
       },
       error: (error) => {
         this.isStartingPayroll = false;
-        // Handle error - you can add a toast notification here
+        this.toastr.error('Failed to start payroll. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -192,5 +203,201 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     }
     const selectedSheet = this.employees.find(e => e.id === this.selectedSheetId);
     return selectedSheet?.name || 'Unknown';
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Processed': 'badge-success',
+      'Completed': 'badge-success',
+      'In Process': 'badge-newjoiner',
+      'Draft': 'badge-gray',
+      'Pending': 'badge-warning',
+      'Failed': 'badge-danger'
+    };
+    return statusMap[status] || 'badge-gray';
+  }
+
+  getDisplayTableHeaders(): any[] {
+    const displayTable = this.payRollRunData?.data?.object_info?.display_table;
+    if (!displayTable || !displayTable.headers) {
+      return [];
+    }
+    // Add Employee as the first header
+    return [
+      { key: 'employee', display: 'Employee' },
+      ...displayTable.headers
+    ];
+  }
+
+  getDisplayTableRows(): any[] {
+    const displayTable = this.payRollRunData?.data?.object_info?.display_table;
+    if (!displayTable || !displayTable.rows) {
+      return [];
+    }
+    // Transform rows to include employee info
+    return displayTable.rows.map((row: any) => ({
+      ...row,
+      employee: {
+        code: row.code,
+        name: row.name
+      }
+    }));
+  }
+
+  onCreateSheetClick(): void {
+    this.showCreateSheetConfirmation = true;
+  }
+
+  confirmCreateSheet(): void {
+    if (!this.payrollRunId || !this.payRollRunData?.data?.object_info?.title) {
+      this.toastr.error('Unable to create sheet. Missing required information.');
+      return;
+    }
+
+    this.isCreatingSheet = true;
+    const sheetName = `Sheet | ${this.payRollRunData.data.object_info.title}`;
+    const formData = new FormData();
+    formData.append('name', sheetName);
+    formData.append('type', 'System_File');
+    formData.append('file_type', 'payroll_sheet');
+
+    const sub = this.payrollRunService.createPayrollSheet(formData).subscribe({
+      next: (data) => {
+        this.showCreateSheetConfirmation = false;
+        this.isCreatingSheet = false;
+        this.toastr.success('Sheet has been created successfully');
+        // Refresh the sheets list
+        this.fetchEmployees();
+      },
+      error: (error) => {
+        this.isCreatingSheet = false;
+        this.toastr.error('Failed to create sheet. Please try again.');
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  cancelCreateSheet(): void {
+    this.showCreateSheetConfirmation = false;
+  }
+
+  navigateToEmployeeDetails(employeeId: string | number): void {
+    this.router.navigate(['/employees/view-employee', employeeId]);
+  }
+
+  navigateToEmployeePayslip(employeeId: string | number): void {
+    this.router.navigate(['/payroll-runs/view-employee-payroll', employeeId]);
+  }
+
+  togglePayrollMenu(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showPayrollMenu = !this.showPayrollMenu;
+  }
+
+  closePayrollMenu(event?: Event): void {
+    if (event && (event.target as HTMLElement).closest('.position-relative')) {
+      return;
+    }
+    this.showPayrollMenu = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.position-relative')) {
+      this.showPayrollMenu = false;
+    }
+  }
+
+  onRevertToDraft(): void {
+    this.showRevertToDraftConfirmation = true;
+    this.showPayrollMenu = false;
+  }
+
+  confirmRevertToDraft(): void {
+    if (!this.payrollRunId) {
+      return;
+    }
+
+    this.isRevertingToDraft = true;
+    const formData = new FormData();
+    formData.append('id', this.payrollRunId);
+
+    const sub = this.payrollRunService.revertToDraft(formData).subscribe({
+      next: (data) => {
+        this.showRevertToDraftConfirmation = false;
+        this.isRevertingToDraft = false;
+        this.toastr.success('Payroll has been reverted to draft successfully');
+        // Refresh the payroll run details
+        this.refreshPayrollRunDetails();
+      },
+      error: (error) => {
+        this.showRevertToDraftConfirmation = false;
+        this.isRevertingToDraft = false;
+        this.toastr.error('Failed to revert to draft. Please try again.');
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  cancelRevertToDraft(): void {
+    this.showRevertToDraftConfirmation = false;
+  }
+
+  refreshPayrollRunDetails(): void {
+    if (this.payrollRunId) {
+      const sub = this.payrollRunService.getPayrollRunById(this.payrollRunId).subscribe({
+        next: (data) => {
+          this.payRollRunData = data;
+          // Only fetch payroll sheets if status is Draft
+          if (data?.data?.object_info?.status === 'Draft') {
+            this.fetchEmployees();
+          } else {
+            this.loadData = false;
+          }
+        },
+        error: () => {
+          this.loadData = false;
+        }
+      });
+      this.subscriptions.push(sub);
+    }
+  }
+
+  onRestartRun(): void {
+    this.showRestartRunConfirmation = true;
+    this.showPayrollMenu = false;
+  }
+
+  confirmRestartRun(): void {
+    if (!this.payrollRunId) {
+      return;
+    }
+
+    this.isRestartingRun = true;
+    const formData = new FormData();
+    formData.append('id', this.payrollRunId);
+
+    const sub = this.payrollRunService.restartPayrollRun(formData).subscribe({
+      next: (data) => {
+        this.showRestartRunConfirmation = false;
+        this.isRestartingRun = false;
+        this.toastr.success('Payroll run has been restarted successfully');
+        // Refresh the payroll run details
+        this.refreshPayrollRunDetails();
+      },
+      error: (error) => {
+        this.showRestartRunConfirmation = false;
+        this.isRestartingRun = false;
+        this.toastr.error('Failed to restart payroll run. Please try again.');
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  cancelRestartRun(): void {
+    this.showRestartRunConfirmation = false;
   }
 }
