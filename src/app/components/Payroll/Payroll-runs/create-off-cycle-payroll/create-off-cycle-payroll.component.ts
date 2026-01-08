@@ -771,11 +771,11 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
                 const offCycleComponents = response.data.list_items.filter(
                     (item: any) => item.component_status?.name === 'Off Cycle'
                 );
-                
+
                 this.componentCurrentPage = Number(response.data.page);
                 this.componentTotalItems = offCycleComponents.length;
                 this.componentTotalPages = Math.ceil(offCycleComponents.length / this.componentItemsPerPage);
-                
+
                 this.availableComponents = offCycleComponents.map((item: any) => ({
                     id: item.id,
                     name: item.name,
