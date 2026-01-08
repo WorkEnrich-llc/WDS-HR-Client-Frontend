@@ -107,6 +107,12 @@ export class AllPayrollRunsComponent implements OnDestroy {
     this.apiSub = this.payrollRunService.getAllPayrollRuns(this.currentPage, this.itemsPerPage).subscribe({
       next: (response: any) => {
         const items = response?.data?.list_items ?? [];
+        
+        // Extract end_date from the first item (most recent payroll run)
+        if (items.length > 0) {
+          this.currentPayrollEndDate = items[0].end_date || '';
+        }
+        
         this.payrollRuns = items.map((item: any) => ({
           title: item.title ? `${item.title}` : '',
           cycle: item.start_date && item.end_date ? `${item.start_date} – ${item.end_date}` : '',
