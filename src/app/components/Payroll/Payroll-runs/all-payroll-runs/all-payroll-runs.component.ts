@@ -213,8 +213,9 @@ export class AllPayrollRunsComponent implements OnDestroy {
 
   getStatusBadgeClass(status: string): string {
     const statusMap: Record<string, string> = {
-      'Processed': 'badge-success',
+      'Processed': 'badge-probation',
       'Completed': 'badge-success',
+      'Complete': 'badge-success',
       'In Process': 'badge-newjoiner',
       'Draft': 'badge-gray',
       'Pending': 'badge-warning',
