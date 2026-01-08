@@ -11,13 +11,3 @@
         width: 50% !important;
     }
 }
-
-/* Ensure table takes full width during loading */
-.table-responsive {
-    width: 100%;
-}
-
-.table {
-    width: 100%;
-    table-layout: auto;
-}

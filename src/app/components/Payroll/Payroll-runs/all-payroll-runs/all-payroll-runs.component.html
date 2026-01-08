@@ -64,7 +64,7 @@
     <app-table [data]="payrollRuns" [isLoading]="loadData" [columnsCount]="9" [totalItems]="payrollRuns.length"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
-      [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
+      [rowTemplate]="payrollTableRow" [skeletonTemplate]="skeletonRow" [emptyTemplate]="noPayroll"></app-table>
 
     <ng-template #payrollTableHeader>
       <th (click)="sortBy()" style="cursor: pointer;" class="w-30">
@@ -94,16 +94,16 @@
     </ng-template>
 
     <ng-template #payrollTableRow let-runs let-i="index">
-      <td>
+      <td class="w-30">
         {{runs.title}}
       </td>
       <!-- <td>
         {{ runs.cycle }}
       </td> -->
-      <td>
+      <td class="w-20">
         {{runs.numOfEmp}}
       </td>
-      <td>
+      <td class="w-20">
         <span [class]="getStatusBadgeClass(runs.Status)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
@@ -114,7 +114,7 @@
           <span>{{ runs.Status }}</span>
         </span>
       </td>
-      <td>
+      <td class="w-10">
         <div class="d-flex justify-content-start gap-4 align-items-center w-100">
           <a class="edit-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="View"
             (click)="navigateToView(runs.id)">
@@ -412,3 +412,18 @@
 
 
 </app-overlay-filter-box>
+<!-- Skeleton template with proper column widths -->
+<ng-template #skeletonRow>
+  <td class="w-30">
+    <div class="skeleton-block h-4 w-full"></div>
+  </td>
+  <td class="w-20">
+    <div class="skeleton-block h-4 w-full"></div>
+  </td>
+  <td class="w-20">
+    <div class="skeleton-block h-4 w-full"></div>
+  </td>
+  <td class="w-10">
+    <div class="skeleton-block h-4 w-full"></div>
+  </td>
+</ng-template>
