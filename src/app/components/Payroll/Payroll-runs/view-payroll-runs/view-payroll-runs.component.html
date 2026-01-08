@@ -309,7 +309,12 @@
                 <thead class="table-dark">
                     <tr>
                         @for (header of getDisplayTableHeaders(); track header.key) {
+                        @if (header.key !== 'code' && header.key !== 'name' && header.key !== 'employee_id') {
                         <th>{{ header.display }}</th>
+                        }
+                        @if (header.key === 'code') {
+                        <th>Employee</th>
+                        }
                         }
                         <th>Actions</th>
                     </tr>
@@ -317,16 +322,18 @@
                 <tbody>
                     @for (row of getDisplayTableRows(); track row.code) {
                     <tr>
-                        <td class="py-2">
-                            <span class="d-block text-gray-sm text-sm">{{ row.code }}</span>
-                            <span class="d-block" style="font-weight: 500;">
-                                {{ row.name }}
-                            </span>
-                        </td>
                         @for (header of getDisplayTableHeaders(); track header.key) {
-                        @if (header.key !== 'employee') {
+                        @if (header.key !== 'code' && header.key !== 'name' && header.key !== 'employee_id') {
                         <td class="py-2 text-sm">
                             {{ row[header.key] }}
+                        </td>
+                        }
+                        @if (header.key === 'code') {
+                        <td class="py-2">
+                            <div class="d-flex flex-column">
+                                <span class="text-gray-sm text-sm">{{ row.code }}</span>
+                                <span style="font-weight: 500;">{{ row.name }}</span>
+                            </div>
                         </td>
                         }
                         }

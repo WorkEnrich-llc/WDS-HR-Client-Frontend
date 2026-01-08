@@ -226,11 +226,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     if (!displayTable || !displayTable.headers) {
       return [];
     }
-    // Add Employee as the first header
-    return [
-      { key: 'employee', display: 'Employee' },
-      ...displayTable.headers
-    ];
+    return displayTable.headers;
   }
 
   getDisplayTableRows(): any[] {
