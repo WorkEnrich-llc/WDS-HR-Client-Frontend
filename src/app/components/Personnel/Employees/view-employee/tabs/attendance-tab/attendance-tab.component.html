@@ -106,48 +106,48 @@
       <tbody>
         <!-- Skeleton Loader -->
         @if (loading) {
-          @for (row of skeletonRows; track $index) {
-            <tr>
-              <td colspan="8" class="px-0 td">
-                <div class="d-flex align-items-center main-row">
-                  <!-- Button skeleton -->
-                  <div class="d-flex align-items-center" [ngStyle]="{ width: columnWidths[0] }">
-                    <div style="width: 40px; height: 20px; margin-right: 8px;">
-                      <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                    </div>
-                    <div class="skeleton-cell" [ngStyle]="{ width: 'calc(100% - 48px)', height: '20px' }"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[1] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[2] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[3] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[4] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[5] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[6] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
-                  <div [ngStyle]="{ width: columnWidths[7] }" class="px-2">
-                    <div class="skeleton-cell w-100" style="height: 20px;"></div>
-                  </div>
+        @for (row of skeletonRows; track $index) {
+        <tr>
+          <td colspan="8" class="px-0 td">
+            <div class="d-flex align-items-center main-row">
+              <!-- Button skeleton -->
+              <div class="d-flex align-items-center" [ngStyle]="{ width: columnWidths[0] }">
+                <div style="width: 40px; height: 20px; margin-right: 8px;">
+                  <div class="skeleton-cell w-100" style="height: 20px;"></div>
                 </div>
-              </td>
-            </tr>
-          }
+                <div class="skeleton-cell" [ngStyle]="{ width: 'calc(100% - 48px)', height: '20px' }"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[1] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[2] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[3] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[4] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[5] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[6] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+              <div [ngStyle]="{ width: columnWidths[7] }" class="px-2">
+                <div class="skeleton-cell w-100" style="height: 20px;"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        }
         }
 
         <!-- Actual Data -->
         @if (!loading) {
-          @for (emp of employees ; track emp; let i = $index) {
-          <tr [ngClass]="{ 'expanded-row': !emp.collapsed }">
+        @for (emp of employees ; track emp; let i = $index) {
+        <tr [ngClass]="{ 'expanded-row': !emp.collapsed }">
           <td colspan="8" class="px-0 td">
             <div class="d-flex align-items-center main-row">
               <!-- Date Column (includes expand button) -->

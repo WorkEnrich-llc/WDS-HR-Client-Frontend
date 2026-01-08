@@ -160,11 +160,11 @@
     flex-direction: column;
     gap: var(--spacing-12);
   }
-  
+
   .dates {
     gap: var(--spacing-4);
   }
-  
+
   .date-box {
     width: 50px;
     height: 50px;
@@ -172,7 +172,7 @@
 }
 
 
-.inner-row{
+.inner-row {
   padding: var(--spacing-4) 0;
   border-top: 1px solid var(--color-secondary-300);
   min-height: 46px;
@@ -183,17 +183,21 @@
   position: relative;
 }
 
-.main-row div:not(:first-of-type),.inner-row div:not(:first-of-type){
+.main-row div:not(:first-of-type),
+.inner-row div:not(:first-of-type) {
   padding: 0 var(--spacing-20);
 }
-.main-row div.date-cell{
+
+.main-row div.date-cell {
   padding-inline-start: var(--spacing-20);
 }
- .td{
+
+.td {
   padding: 0 !important;
   position: relative;
 }
- .main-row{
+
+.main-row {
   padding-bottom: var(--spacing-12) !important;
   padding-top: var(--spacing-12) !important;
 }
@@ -207,26 +211,34 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
-.text-primary{
+.text-primary {
   color: var(--color-primary-500) !important;
 }
-.text-danger{
+
+.text-danger {
   color: var(--color-danger-600) !important;
 }
-.text-success{
+
+.text-success {
   color: var(--color-success-500) !important;
 }
-.text-warning{
+
+.text-warning {
   color: var(--color-warning-600) !;
 }
 
 
-.md-drppicker .calendar.right{
-   
-    display: none !important;
-  
+.md-drppicker .calendar.right {
+
+  display: none !important;
+
 }
