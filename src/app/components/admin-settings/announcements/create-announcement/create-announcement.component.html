@@ -506,7 +506,7 @@
 
     <!-- Action Buttons -->
     <div class="d-flex align-items-center gap-3">
-      <button type="button" class="btn btn-lg btn-primary w-100" (click)="saveSelectedDepartments()">
+      <button type="button" class="btn btn-lg btn-primary w-100" (click)="confirmDepartmentSelection()">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12.0227 7.52275C12.2424 7.30308 12.2424 6.94692 12.0227 6.72725C11.8031 6.50758 11.4469 6.50758 11.2273 6.72725L7.875 10.0795L6.77275 8.97725C6.55308 8.75758 6.19692 8.75758 5.97725 8.97725C5.75758 9.19692 5.75758 9.55308 5.97725 9.77275L7.47725 11.2727C7.69692 11.4924 8.05308 11.4924 8.27275 11.2727L12.0227 7.52275Z"
@@ -528,7 +528,7 @@
 <ng-template #selectedDepartmentRowTemplate let-department>
   <tr>
     <td>{{ department.code }}</td>
-    <td>{{ department.name }}</td>
+    <td>{{ department.fullName || department.name }}</td>
     <td class="text-end">
       <a class="view-link text-danger" (click)="removeDepartment(department)" style="cursor: pointer;">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -577,7 +577,7 @@
         (click)="$event.stopPropagation(); toggleDepartmentSelection(department)">
       <div class="d-flex flex-column">
         <span class="department-id-label">{{ department.code }}</span>
-        <span class="department-name-label">{{ department.name }}</span>
+        <span class="department-name-label">{{ department.fullName || department.name }}</span>
       </div>
     </div>
   </td>
