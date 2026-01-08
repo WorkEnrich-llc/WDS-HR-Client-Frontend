@@ -767,13 +767,19 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
             { search: this.componentSearchTerm || undefined }
         ).subscribe({
             next: (response) => {
+                // Filter components to show only "Off Cycle" status
+                const offCycleComponents = response.data.list_items.filter(
+                    (item: any) => item.component_status?.name === 'Off Cycle'
+                );
+                
                 this.componentCurrentPage = Number(response.data.page);
-                this.componentTotalItems = response.data.total_items;
-                this.componentTotalPages = response.data.total_pages;
-                this.availableComponents = response.data.list_items.map((item: any) => ({
+                this.componentTotalItems = offCycleComponents.length;
+                this.componentTotalPages = Math.ceil(offCycleComponents.length / this.componentItemsPerPage);
+                
+                this.availableComponents = offCycleComponents.map((item: any) => ({
                     id: item.id,
                     name: item.name,
-                    component_type: item.component_type.name,
+                    component_type: item.component_type?.name || 'N/A',
                     classification: item.classification.name,
                     payroll_type: item.component_status?.name || '-',
                     show_in_payslip: item.show_in_payslip,

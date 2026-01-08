@@ -673,7 +673,7 @@
 
 <!-- Modal Component Row Template -->
 <ng-template #modalComponentRowTemplate let-component>
-    <td class="w-40">
+    <td colspan="1" class="w-40">
         <div class="department-row d-flex align-items-start gap-3" (click)="toggleComponentSelection(component)">
             <input type="checkbox" class="department-square-checkbox mt-1" [checked]="isComponentSelected(component)"
                 (click)="$event.stopPropagation(); toggleComponentSelection(component)">
@@ -683,8 +683,8 @@
             </div>
         </div>
     </td>
-    <td class="w-30">{{ component.component_type }}</td>
-    <td class="w-30">{{ component.classification }}</td>
+    <td colspan="1" class="w-30">{{ component.component_type }}</td>
+    <td colspan="1" class="w-30">{{ component.classification }}</td>
 </ng-template>
 
 <!-- Modal Component Empty Template -->
