@@ -85,6 +85,8 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   isRevertingToDraft: boolean = false;
   showRestartRunConfirmation: boolean = false;
   isRestartingRun: boolean = false;
+  showPublishConfirmation: boolean = false;
+  isPublishing: boolean = false;
 
   ngOnInit(): void {
     this.loadData = true;
@@ -183,7 +185,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       next: (data) => {
         this.showConfirmation = false;
         this.isStartingPayroll = false;
-        this.toasterMessageService.showSuccess('Payroll has been started successfully');
         // Refresh the payroll run details
         this.refreshPayrollRunDetails();
       },
@@ -400,5 +401,37 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   cancelRestartRun(): void {
     this.showRestartRunConfirmation = false;
+  }
+
+  onPublishClick(): void {
+    this.showPublishConfirmation = true;
+  }
+
+  confirmPublish(): void {
+    if (!this.payrollRunId) {
+      return;
+    }
+
+    this.isPublishing = true;
+    const formData = new FormData();
+    formData.append('id', this.payrollRunId);
+
+    const sub = this.payrollRunService.publishPayrollRun(formData).subscribe({
+      next: (data) => {
+        this.showPublishConfirmation = false;
+        this.isPublishing = false;
+        this.toasterMessageService.showSuccess('Payroll has been published successfully');
+        // Refresh the payroll run details
+        this.refreshPayrollRunDetails();
+      },
+      error: (error) => {
+        this.isPublishing = false;
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  cancelPublish(): void {
+    this.showPublishConfirmation = false;
   }
 }

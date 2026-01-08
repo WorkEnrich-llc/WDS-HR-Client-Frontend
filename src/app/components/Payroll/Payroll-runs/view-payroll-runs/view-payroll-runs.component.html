@@ -95,7 +95,12 @@
 
         <!-- Publish Button -->
         <button class="btn btn-lg btn-success"
-            style="flex: 1; min-width: 0; padding: 0.80rem 10rem !important; font-weight: 500;">
+            style="flex: 1; min-width: 0; padding: 0.80rem 10rem !important; font-weight: 500;"
+            (click)="onPublishClick()" [disabled]="isPublishing">
+            @if (isPublishing) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Publishing...</span>
+            } @else {
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2"
                 style="width: 22px; height: 22px; margin-right: 8px; flex-shrink: 0;">
@@ -105,6 +110,7 @@
                 </g>
             </svg>
             <span>Publish</span>
+            }
         </button>
     </div>
     }
@@ -522,6 +528,24 @@
             {{ isRestartingRun ? 'Restarting...' : 'Restart Run' }}
         </button>
         <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelRestartRun()">
+            Cancel
+        </button>
+    </app-popup>
+
+    <!-- Publish Payroll confirmation popup -->
+    <app-popup [title]="'Publish Payroll'" [paragraph1]="'Are you sure you want to publish this payroll run?'"
+        [paragraph2]="'Payroll: ' + (payRollRunData?.data?.object_info?.title || 'N/A') + ' | Once published, the payroll will be finalized.'"
+        [isOpen]="showPublishConfirmation" (close)="cancelPublish()">
+        <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmPublish()"
+            [disabled]="isPublishing">
+            @if (isPublishing) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Publishing...</span>
+            } @else {
+            <span>Publish</span>
+            }
+        </button>
+        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelPublish()">
             Cancel
         </button>
     </app-popup>

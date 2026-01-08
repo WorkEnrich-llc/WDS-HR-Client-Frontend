@@ -45,4 +45,8 @@ export class PayrollRunService {
   restartPayrollRun(formData: FormData): Observable<any> {
     return this.http.put(`${this.url}/restart`, formData);
   }
+
+  publishPayrollRun(formData: FormData): Observable<any> {
+    return this.http.put(`${this.url}/publish`, formData);
+  }
 }
