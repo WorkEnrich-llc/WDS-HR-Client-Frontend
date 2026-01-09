@@ -286,7 +286,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   navigateToEmployeePayslip(employeeId: string | number): void {
-    this.router.navigate(['/payroll-runs/view-employee-payroll', employeeId]);
+    this.router.navigate(['/payroll-runs/view-employee-payroll', this.payrollRunId, employeeId]);
   }
 
   togglePayrollMenu(event?: Event): void {

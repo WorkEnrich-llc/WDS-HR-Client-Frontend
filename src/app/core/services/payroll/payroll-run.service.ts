@@ -49,4 +49,8 @@ export class PayrollRunService {
   publishPayrollRun(formData: FormData): Observable<any> {
     return this.http.put(`${this.url}/publish`, formData);
   }
+
+  getViewEmployee(id: number | string, employeeId: number | string): Observable<any> {
+    return this.http.get(`${this.url}/view-employee?id=${id}&employee_id=${employeeId}`);
+  }
 }

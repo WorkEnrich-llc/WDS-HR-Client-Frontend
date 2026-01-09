@@ -2,7 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
+import { PayrollRunService } from '../../../../core/services/payroll/payroll-run.service';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { ViewEmployeeSkeletonLoaderComponent } from './view-employee-skeleton-loader.component';
 
 @Component({
@@ -14,8 +16,10 @@ import { ViewEmployeeSkeletonLoaderComponent } from './view-employee-skeleton-lo
 export class ViewEmployeeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private employeeService = inject(EmployeeService);
+  private payrollRunService = inject(PayrollRunService);
 
   employeeId: number = 0;
+  payrollRunId: number = 0;
   employeeDetails: any = null;
   isLoading: boolean = true;
 
@@ -28,11 +32,21 @@ export class ViewEmployeeComponent implements OnInit {
   onboardingList: any[] = [];
   onboarding: { basic?: any[] } = {};
 
+  // Payroll data properties
+  payrollTitle: string = '';
+  payrollHeaders: any[] = [];
+  payrollRow: any = null;
+
+  // Make Math available in template
+  Math = Math;
+
   ngOnInit(): void {
-    // Get employee ID from route params (path parameter)
+    // Get employee ID and payroll run ID from route params
+    // Route pattern: view-employee-payroll/:payrollId/:id
     this.route.params.subscribe(params => {
+      this.payrollRunId = +params['payrollId'];
       this.employeeId = +params['id'];
-      if (this.employeeId) {
+      if (this.employeeId && this.payrollRunId) {
         this.fetchEmployeeDetails();
       }
     });
@@ -40,25 +54,33 @@ export class ViewEmployeeComponent implements OnInit {
 
   private fetchEmployeeDetails(): void {
     this.isLoading = true;
-    this.employeeService.getEmployeeById(this.employeeId).subscribe({
-      next: (response: any) => {
+
+    // Call both endpoints concurrently
+    forkJoin({
+      employeeDetails: this.employeeService.getEmployeeById(this.employeeId),
+      payrollRunEmployee: this.payrollRunService.getViewEmployee(this.payrollRunId, this.employeeId)
+    }).subscribe({
+      next: (responses: any) => {
+        const response = responses.employeeDetails;
+        const payrollResponse = responses.payrollRunEmployee;
+
         this.employeeDetails = response.data;
         if (response.data && response.data.object_info) {
           const objectInfo = response.data.object_info;
-          
+
           // Parse contact info
           this.contactInfo = objectInfo.contact_info || {};
-          
+
           // Parse job info
           this.jobInfo = objectInfo.job_info || {};
-          
+
           // Parse current contract
           this.currentContract = objectInfo.current_contract || {};
-          
+
           // Parse status fields
           this.employeeStatus = objectInfo.employee_status || '';
           this.employeeActive = objectInfo.employee_active || '';
-          
+
           // Parse onboarding list
           const objectInfoAny = objectInfo as any;
           this.onboarding = objectInfoAny.onboarding || {};
@@ -66,6 +88,14 @@ export class ViewEmployeeComponent implements OnInit {
             this.onboardingList = this.onboarding.basic.filter((item: any) => item.is_active);
           }
         }
+
+        // Handle payroll run employee response
+        if (payrollResponse && payrollResponse.data) {
+          this.payrollTitle = payrollResponse.data.title || '';
+          this.payrollHeaders = payrollResponse.data.headers || [];
+          this.payrollRow = payrollResponse.data.row || {};
+        }
+
         this.isLoading = false;
       },
       error: (err) => {
@@ -106,9 +136,9 @@ export class ViewEmployeeComponent implements OnInit {
   // Helper method to get contract status color
   getContractStatusColor(status: string): string {
     if (!status) return 'text-secondary';
-    
+
     const statusLower = status.toLowerCase();
-    
+
     if (statusLower === 'active') {
       return 'text-success';
     } else if (statusLower === 'expired') {
@@ -116,7 +146,7 @@ export class ViewEmployeeComponent implements OnInit {
     } else if (statusLower === 'pending') {
       return 'text-warning';
     }
-    
+
     return 'text-secondary';
   }
 }

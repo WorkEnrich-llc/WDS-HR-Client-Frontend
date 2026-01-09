@@ -1149,7 +1149,7 @@ export const routes: Routes = [
                 data: { feature: 'Payroll_Runs', action: 'update' }
               },
               {
-                path: 'view-employee-payroll/:id',
+                path: 'view-employee-payroll/:payrollId/:id',
                 loadComponent: () => import('./components/Payroll/Payroll-runs/view-employee/view-employee.component').then(m => m.ViewEmployeeComponent),
                 title: 'View Employee',
               },
