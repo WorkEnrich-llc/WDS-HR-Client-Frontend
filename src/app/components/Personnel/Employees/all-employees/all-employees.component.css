@@ -16,3 +16,22 @@
   color: var(--color-warning-500) !important;
   font-weight: 600;
 }
+
+/* Override table layout to allow flexible widths for badges */
+:host ::ng-deep .table {
+  table-layout: auto;
+}
+
+/* Employee Status Column Styling */
+:host ::ng-deep .table tbody tr td:nth-child(2) {
+  min-width: 170px;
+  white-space: nowrap;
+  padding: var(--spacing-12) var(--spacing-20);
+}
+
+/* Account Status Column Styling */
+:host ::ng-deep .table tbody tr td:nth-child(3) {
+  min-width: 140px;
+  white-space: nowrap;
+  padding: var(--spacing-12) var(--spacing-20);
+}
