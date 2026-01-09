@@ -106,7 +106,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
         // this.toastr.success('Attendance log canceled successfully');
       },
@@ -1023,7 +1024,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
       },
       error: (err) => {
@@ -1055,7 +1057,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
         this.closeDeductionModal();
       },
