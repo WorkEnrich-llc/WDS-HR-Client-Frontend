@@ -187,7 +187,7 @@ pagination-controls pagination-template nav {
     height: 20px;
     width: 100%;
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
-    margin: var(--spacing-4, 4px) 0;
+    margin: 0;
 }
 
 .skeleton-block.h-4 {
@@ -223,27 +223,7 @@ table.table tbody tr td .skeleton-block {
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
     min-height: 20px;
-}
-
-/* Varied widths for more realistic skeleton appearance */
-table.table tbody tr td:nth-child(1) .skeleton-block {
-    width: 85%;
-    max-width: 200px;
-}
-
-table.table tbody tr td:nth-child(2) .skeleton-block {
-    width: 70%;
-    max-width: 150px;
-}
-
-table.table tbody tr td:nth-child(3) .skeleton-block {
-    width: 60%;
-    max-width: 120px;
-}
-
-table.table tbody tr td:nth-child(4) .skeleton-block {
-    width: 50%;
-    max-width: 100px;
+    width: 100%;
 }
 
 /* Ensure skeleton rows have proper spacing */

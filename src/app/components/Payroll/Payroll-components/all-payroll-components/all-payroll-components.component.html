@@ -47,7 +47,7 @@
 
     <!-- start Table -->
 
-    <app-table [data]="components" [isLoading]="loadData" [columnsCount]="5" [totalItems]="totalItems"
+    <app-table [data]="components" [isLoading]="loadData" [columnsCount]="6" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="payrollTableHeader"
       [rowTemplate]="payrollTableRow" [emptyTemplate]="noPayroll"></app-table>
