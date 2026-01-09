@@ -12,6 +12,7 @@ import { takeUntil, switchMap, distinctUntilChanged, map } from 'rxjs/operators'
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
 
 @Component({
   selector: 'app-all-employees',
@@ -25,6 +26,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private employeeService = inject(EmployeeService);
   private paginationState = inject(PaginationStateService);
   private router = inject(Router);
+  private departmentsService = inject(DepartmentsService);
 
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService, private fb: FormBuilder) { }
 
@@ -51,6 +53,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private isChangingItemsPerPage: boolean = false;
   private lastLoadedPage: number = 0; // Initialize to 0 so initial load always happens
   loading: boolean = true;
+  departments: any[] = [];
+  private getAllDepartmentSubscription: any = null;
+  loadingDepartments: boolean = false;
 
 
   ngOnInit(): void {
@@ -61,6 +66,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       status: [''],
       contract_end_date: [''],
       contract_start_date: [''],
+      department_id: [''],
     });
 
     // Load state from query params
@@ -97,7 +103,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
               created_from: filters.created_from || '',
               created_to: filters.created_to || '',
               contract_end_date: filters.contract_end_date || '',
-              contract_start_date: filters.contract_start_date || ''
+              contract_start_date: filters.contract_start_date || '',
+              department_id: filters.department_id || ''
             });
           } catch (e) {
             console.error('Error parsing filters from query params:', e);
@@ -112,7 +119,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             created_from: '',
             created_to: '',
             contract_end_date: '',
-            contract_start_date: ''
+            contract_start_date: '',
+            department_id: ''
           });
         }
 
@@ -286,7 +294,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         created_from: rawFilters.created_from || null,
         created_to: rawFilters.created_to || null,
         contract_end_date: rawFilters.contract_end_date || null,
-        contract_start_date: rawFilters.contract_start_date || null
+        contract_start_date: rawFilters.contract_start_date || null,
+        department: rawFilters.department_id ? parseInt(rawFilters.department_id, 10) : null
       };
 
       // Reset to page 1 and reset lastLoadedPage to ensure loadEmployees executes
@@ -563,6 +572,14 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   resetFilterForm(): void {
     this.filterForm.reset();
+    this.filterForm.patchValue({
+      created_from: '',
+      created_to: '',
+      status: '',
+      contract_end_date: '',
+      contract_start_date: '',
+      department_id: ''
+    });
     this.activeFilters = {};
     this.currentPage = 1;
 
@@ -571,6 +588,53 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
     this.loadEmployees();
     this.filterBox.closeOverlay();
+  }
+
+  /**
+   * Open filter overlay and load all departments with per_page=10000
+   */
+  openFilterOverlay(): void {
+    // Load departments when opening the filter overlay (only if not already loaded)
+    if (this.departments.length === 0 && !this.loadingDepartments) {
+      this.getAllDepartment(1);
+    }
+    this.overlay.openOverlay();
+  }
+
+  /**
+   * Get all departments with high per_page limit
+   */
+  private getAllDepartment(pageNumber: number): void {
+    this.loadingDepartments = true;
+    this.getAllDepartmentSubscription = this.departmentsService
+      .getAllDepartment(pageNumber, 10000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.departments = response?.data?.list_items || [];
+            this.loadingDepartments = false;
+          } catch (error) {
+            console.error('Error loading departments:', error);
+            this.loadingDepartments = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching departments:', error);
+          this.loadingDepartments = false;
+        }
+      });
+  }
+
+  /**
+   * Close filter overlay callback
+   */
+  onFilterOverlayClose(): void {
+    // Unsubscribe from department API call when overlay is closed
+    if (this.getAllDepartmentSubscription) {
+      this.getAllDepartmentSubscription.unsubscribe();
+      this.getAllDepartmentSubscription = null as any;
+    }
   }
 
   /**
