@@ -115,7 +115,7 @@ export class AttendanceLogComponent implements OnDestroy {
         // this.toastr.error('Failed to cancel attendance log');
         this.closeCancelLogModal();
       }
-    });
+  });
   }
   editCheckIn(log: any, emp: any) { this.openEditCheckInModal(log, emp); }
   addCheckOut(log: any, emp: any) { this.openEditCheckOutModal(log, emp); }
