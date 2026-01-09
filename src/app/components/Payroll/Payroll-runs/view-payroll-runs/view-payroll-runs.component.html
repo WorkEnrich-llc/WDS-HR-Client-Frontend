@@ -71,7 +71,8 @@
                     <span style="white-space: nowrap; color: #85252D;">Revert to draft</span>
                 </button>
                 }
-                @if (payRollRunData?.data?.object_info?.status === 'Processed' || payRollRunData?.data?.object_info?.status === 'Complete') {
+                @if (payRollRunData?.data?.object_info?.status === 'Processed' ||
+                payRollRunData?.data?.object_info?.status === 'Complete') {
                 <button type="button" class="d-flex align-items-center text-start"
                     style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.875rem 1rem; cursor: pointer; transition: background-color 0.2s; border-top: 1px solid #e0e0e0; gap: 10px; width: 100%;"
                     (click)="onRestartRun(); togglePayrollMenu()" onmouseover="this.style.backgroundColor='#f0f3f8'"
