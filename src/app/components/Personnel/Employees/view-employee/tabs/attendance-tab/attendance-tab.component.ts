@@ -41,7 +41,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
   baseDate: Date = new Date();
   skeletonRows = Array.from({ length: 5 });
   days: { label: string, date: Date, isToday: boolean }[] = [];
-  
+
   // Modal state for editing logs
   editModalOpen: boolean = false;
   editModalType: 'checkin' | 'checkout' | 'log' | null = null;
@@ -52,17 +52,17 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
   isAddingCheckIn: boolean = false;
   isAddingCheckOut: boolean = false;
   editModalLoading: boolean = false;
-  
+
   // Deduction confirmation modal state
   deductionModalOpen: boolean = false;
   deductionModalLog: any = null;
   deductionModalEmp: any = null;
   deductionModalLoading: boolean = false;
-  
+
   // Action menu state
   openSubMenu: { mainIndex: number; subIndex: number } | null = null;
   private outsideClickListener: any;
-  subMenuPosition: { top: string; right: string } = { top: '0px', right: '0px' };
+  subMenuPosition: { top: string; left: string } = { top: '0px', left: '0px' };
   constructor(private fb: FormBuilder, private employeeService: EmployeeService, private _AttendanceLogService: AttendanceLogService, private datePipe: DatePipe) {
 
     // Initialize dates
@@ -73,11 +73,11 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
   }
   employees: any[] = [];
   columnWidths: string[] = [];
-  
+
   toggleCollapse(emp: any) {
     emp.collapsed = !emp.collapsed;
   }
-  
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       const thElements = this.tableHeader.nativeElement.querySelectorAll('th');
@@ -92,7 +92,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this.filterForm = this.fb.group({
       employee: [''],
     });
-    
+
     // Add outside click listener to close dropdown menu
     this.outsideClickListener = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -359,7 +359,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this.isModalOpen = false;
     this.attendanceToCancel = null;
   }
-  
+
   // Check if a record has check-in
   hasCheckIn(record: any): boolean {
     return record?.times_object?.actual_check_in && record?.times_object?.actual_check_in !== '00:00';
@@ -374,29 +374,27 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
   hasBothCheckInAndOut(record: any): boolean {
     return this.hasCheckIn(record) && this.hasCheckOut(record);
   }
-  
+
   // Action menu methods
   openSubLogMenu(mainIdx: number, subIdx: number) {
     this.openSubMenu = { mainIndex: mainIdx, subIndex: subIdx };
-    
-    // Calculate position for fixed dropdown
+
     setTimeout(() => {
       const button = document.querySelector(`[data-action-btn="${mainIdx}-${subIdx}"]`) as HTMLElement;
       if (button) {
         const rect = button.getBoundingClientRect();
         this.subMenuPosition = {
-          top: (rect.bottom + 5) + 'px',
-          right: (window.innerWidth - rect.right) + 'px'
+          top: (rect.bottom + 80) + 'px',
+          left: (rect.left + 80) + 'px'
         };
       }
     }, 0);
   }
-  
+
   closeSubLogMenu() {
     this.openSubMenu = null;
-    this.subMenuPosition = { top: '0px', right: '0px' };
   }
-  
+
   // Edit Check In Modal
   openEditCheckInModal(log: any, emp: any) {
     this.editModalType = 'checkin';
@@ -408,7 +406,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this.editCheckInValue = hasExistingCheckIn ? log?.times_object?.actual_check_in : '';
     this.editModalOpen = true;
   }
-  
+
   // Edit Check Out Modal
   openEditCheckOutModal(log: any, emp: any) {
     this.editModalType = 'checkout';
@@ -420,7 +418,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.actual_check_out : '';
     this.editModalOpen = true;
   }
-  
+
   // Edit Log Modal (for adding new log with both check-in and check-out)
   openEditLogModal(log: any, emp: any) {
     this.editModalType = 'log';
@@ -437,7 +435,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     }
     this.editModalOpen = true;
   }
-  
+
   closeEditModal() {
     this.editModalOpen = false;
     this.editModalType = null;
@@ -448,7 +446,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     this.editCheckInValue = '';
     this.editCheckOutValue = '';
   }
-  
+
   updateEditModal() {
     this.editModalLoading = true;
     let obs$;
@@ -495,7 +493,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
       }
     });
   }
-  
+
   // Deduction toggle methods
   toggleDeduction(log: any, emp: any) {
     this.deductionModalLog = log;
@@ -514,7 +512,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
     if (!this.deductionModalLog) return;
     this.handleDeductionToggle(this.deductionModalLog, this.deductionModalEmp, true);
   }
-  
+
   handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
     const id = log?.record_id ?? log?.id ?? log?.recordID ?? log?.attendance_id;
     if (!id) {
@@ -539,7 +537,7 @@ export class AttendanceTabComponent implements OnChanges, OnDestroy {
       }
     });
   }
-  
+
   // Clean up on destroy
   ngOnDestroy(): void {
     if (this.outsideClickListener) {

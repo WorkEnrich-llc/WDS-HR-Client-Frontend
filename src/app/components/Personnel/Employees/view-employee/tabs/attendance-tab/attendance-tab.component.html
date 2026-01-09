@@ -247,7 +247,7 @@
                 <div class="text-danger" [ngStyle]="{ width: columnWidths[6] }">{{
                   log?.hours_object?.deduction }}
                 </div>
-                <div [ngStyle]="{ width: columnWidths[7] }" class="text-end position-relative">
+                <div [ngStyle]="{ width: columnWidths[7] }" class="text-end position-relative action-menu-container">
                   @if ((!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
                   (!log?.times_object?.actual_check_in || log?.times_object?.actual_check_in === '00:00')) ||
                   (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&

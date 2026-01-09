@@ -6,6 +6,10 @@
   position: relative;
 }
 
+.action-menu-container {
+  position: relative;
+}
+
 /* Action menu styles */
 .action-menu-btn {
   background: none;
@@ -15,6 +19,8 @@
   display: flex;
   align-items: center;
   height: 32px;
+  position: relative;
+  z-index: 1001;
 }
 
 .action-menu-btn .dot {
@@ -41,6 +47,11 @@
   animation: fadeInMenu 0.18s ease;
   max-height: 400px;
   overflow-y: auto;
+}
+
+.action-menu-btn~.action-menu-dropdown {
+  top: calc(100% + 4px);
+  left: 0;
 }
 
 .action-menu-item {
