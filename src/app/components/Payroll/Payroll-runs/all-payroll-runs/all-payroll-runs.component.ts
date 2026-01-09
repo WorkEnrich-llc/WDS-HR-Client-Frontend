@@ -41,6 +41,7 @@ export class AllPayrollRunsComponent implements OnDestroy {
   private searchSubject = new Subject<string>();
   currentPayrollEndDate: string = '';
   selectedStartDay: number | null = null;
+  startConfigure: number | null = null;
   isConfiguring: boolean = false;
 
   constructor(
@@ -111,6 +112,12 @@ export class AllPayrollRunsComponent implements OnDestroy {
         // Extract end_date from the first item (most recent payroll run)
         if (items.length > 0) {
           this.currentPayrollEndDate = items[0].end_date || '';
+        }
+
+        // Extract start_configure from response
+        if (response?.data?.start_configure) {
+          this.startConfigure = response.data.start_configure;
+          this.selectedStartDay = response.data.start_configure;
         }
 
         this.payrollRuns = items.map((item: any) => ({
