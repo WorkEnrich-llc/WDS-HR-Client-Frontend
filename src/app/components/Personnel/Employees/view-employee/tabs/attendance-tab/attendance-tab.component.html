@@ -248,10 +248,21 @@
                   log?.hours_object?.deduction }}
                 </div>
                 <div [ngStyle]="{ width: columnWidths[7] }" class="text-end position-relative">
+                  @if ((!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
+                  (!log?.times_object?.actual_check_in || log?.times_object?.actual_check_in === '00:00')) ||
+                  (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
+                  (log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00') &&
+                  (!log?.times_object?.actual_check_out || log?.times_object?.actual_check_out === '00:00')) ||
+                  (!['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
+                  (hasBothCheckInAndOut(log) || (!hasCheckIn(log) && !hasCheckOut(log)))) ||
+                  (!['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
+                  (hasCheckIn(log) || hasCheckOut(log))) ||
+                  (log?.hours_object?.total_deduction > 0)) {
                   <button class="action-menu-btn" (click)="openSubLogMenu(i, j)" type="button"
                     [attr.data-action-btn]="i + '-' + j">
                     <span class="dot"></span><span class="dot"></span><span class="dot"></span>
                   </button>
+                  }
                   @if (openSubMenu && openSubMenu.mainIndex === i && openSubMenu.subIndex === j){
                   <div class="action-menu-dropdown" [ngStyle]="subMenuPosition" (mouseleave)="closeSubLogMenu()"
                     (click)="$event.stopPropagation()">
