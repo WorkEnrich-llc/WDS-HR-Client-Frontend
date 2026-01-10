@@ -634,6 +634,8 @@ export class SystemCloudComponent implements OnInit, OnDestroy {
 
   closeModalFile() {
     this.createFilePop = false;
+    this.systemFileName = '';
+    this.errMsg = '';
   }
 
 
