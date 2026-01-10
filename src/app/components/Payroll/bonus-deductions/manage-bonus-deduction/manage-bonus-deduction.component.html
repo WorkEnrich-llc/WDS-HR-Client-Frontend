@@ -278,7 +278,7 @@
         <!-- Add Recipient Button -->
         @if (selectedRecipientType !== 'company') {
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <a class="add-department-link" (click)="openDepartmentSelection()">
+            <a class="add-department-link" style="cursor: pointer;" (click)="openDepartmentSelection()">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 1.5V16.5M1.5 9H16.5" stroke="#377AFD" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" />
@@ -401,8 +401,6 @@
                 <ng-template #availableDepartmentsHeaderTemplate>
                     <th colspan="1" class="department-only-header">
                         <div class="department-only-header-inner">
-                            <input type="checkbox" class="department-square-checkbox"
-                                [checked]="isAllCurrentPageSelected()" (change)="selectAllEntities()">
                             <span>{{ getRecipientLabelWithS() }}</span>
                         </div>
                     </th>
