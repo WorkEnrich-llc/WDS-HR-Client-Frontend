@@ -121,7 +121,8 @@
                 {
                 <p class="error-msg">Title is required.</p>
                 }
-                @if (bonusDeductionForm.get('title')?.touched && bonusDeductionForm.get('title')?.errors?.['minLengthWithoutSpaces'])
+                @if (bonusDeductionForm.get('title')?.touched &&
+                bonusDeductionForm.get('title')?.errors?.['minLengthWithoutSpaces'])
                 {
                 <p class="error-msg">Title must be at least 3 characters long</p>
                 }
