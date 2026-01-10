@@ -345,13 +345,26 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
         // Ensure form exists
         if (!this.bonusDeductionForm) {
             this.bonusDeductionForm = this.formBuilder.group({
-                title: ['', [Validators.required, Validators.minLength(2)]],
+                title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
                 date: ['', [Validators.required, this.notPreviousMonthValidator()]],
                 days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
         }
+    }
+
+    /**
+     * Custom validator to ensure minimum length excluding spaces
+     */
+    minLengthWithoutSpaces(minLength: number) {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) {
+                return null;
+            }
+            const trimmedValue = control.value.replace(/\s+/g, '');
+            return trimmedValue.length >= minLength ? null : { minLengthWithoutSpaces: { requiredLength: minLength } };
+        };
     }
 
     notPreviousMonthValidator() {
@@ -737,7 +750,6 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             error: (error) => {
                 this.isSubmitting = false;
                 const action = this.isEditMode ? 'updating' : 'saving';
-                this.toaster.showError(`Error ${action} bonus/deduction.`);
                 console.error(`Error ${action} Bonus/Deduction:`, error);
             }
         });
