@@ -581,13 +581,34 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       department_id: ''
     });
     this.activeFilters = {};
+    this.searchTerm = ''; // Clear search term
     this.currentPage = 1;
+    this.lastLoadedPage = 0; // Reset to force loadEmployees to execute
 
-    // Clear filters from query params
-    this.updateQueryParams({ filters: null, page: 1 });
+    // Set flag to prevent route subscription from firing
+    this.isUpdatingQueryParams = true;
 
-    this.loadEmployees();
-    this.filterBox.closeOverlay();
+    // Clear all filter-related query params (filters and search)
+    const newParams: any = { page: '1' };
+
+    // Navigate with cleaned params (without merge to fully replace query params)
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: newParams
+    }).then(() => {
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+      }, 100);
+
+      // Load employees without filters
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    }).catch((error) => {
+      console.error('Navigation error:', error);
+      this.isUpdatingQueryParams = false;
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    });
   }
 
   /**
