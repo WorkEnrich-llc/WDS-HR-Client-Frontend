@@ -242,10 +242,10 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                     const normalized = Array.isArray(items) ? items.map((x: any) => {
                         // Extract employee name from contact_info first (API standard), then fallback to other fields
                         const contactName = x.object_info?.contact_info?.name;
-                        const name = contactName || 
-                                    x.object_info?.name || 
-                                    x.name || 
-                                    (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
+                        const name = contactName ||
+                            x.object_info?.name ||
+                            x.name ||
+                            (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
                         return {
                             id: x.object_info?.id ?? x.id,
                             code: x.object_info?.code ?? x.code ?? x.id,
