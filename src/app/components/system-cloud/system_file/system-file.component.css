@@ -146,3 +146,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: var(--color-secondary-400) !important;
   cursor: pointer !important;
 }
+
+/* Fixed table header on scroll */
+::ng-deep app-smart-grid-sheet table {
+  position: relative;
+}
+
+::ng-deep app-smart-grid-sheet .table-wrapper {
+  overflow-y: auto;
+  max-height: calc(100vh - 400px);
+}
+
+::ng-deep app-smart-grid-sheet table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-white);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+::ng-deep app-smart-grid-sheet table th {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-white);
+  z-index: 10;
+}
