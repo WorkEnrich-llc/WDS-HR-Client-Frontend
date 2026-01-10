@@ -651,6 +651,8 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
         this.clearAllSelections();
         this.selectedRecipientType = 'department';
         this.currentTab = 'main-info';
+        // Navigate back to list
+        this.router.navigate(['/bonus-deductions/all-bonus-deductions']);
     }
 
     onSubmit(): void {
