@@ -10,8 +10,20 @@ export class PayrollRunService {
   private readonly url = `${environment.apiBaseUrl}payroll/run`;
   constructor(private http: HttpClient) { }
 
-  getAllPayrollRuns(page: number = 1, per_page: number = 10): Observable<any> {
-    return this.http.get(`${this.url}?page=${page}&per_page=${per_page}`);
+  getAllPayrollRuns(page: number = 1, per_page: number = 10, filters?: any): Observable<any> {
+    let url = `${this.url}?page=${page}&per_page=${per_page}`;
+    
+    // Add filter parameters if provided
+    if (filters) {
+      if (filters.run_cycle) {
+        url += `&run_cycle=${filters.run_cycle}`;
+      }
+      if (filters.created_at) {
+        url += `&created_at=${filters.created_at}`;
+      }
+    }
+    
+    return this.http.get(url);
   }
 
   getPayrollRunById(id: number | string): Observable<any> {

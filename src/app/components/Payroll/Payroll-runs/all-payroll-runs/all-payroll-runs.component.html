@@ -179,16 +179,16 @@
 
 <!-- filter popup -->
 <app-overlay-filter-box #filterBox [title]="'Filters'">
-  <form class="w-100 d-flex flex-column gap-3">
+  <form [formGroup]="filterForm" class="w-100 d-flex flex-column gap-3">
     <div class="input">
       <label for="status">Status</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <select name="" id="status" class="form-select">
+          <select formControlName="run_cycle" id="status" class="form-select">
             <option value="" selected disabled hidden>Select</option>
-            <option value="all">Any</option>
-            <option value="true">Active</option>
-            <option value="false">Not Active</option>
+            <option value="">All</option>
+            <option value="1">Normal</option>
+            <option value="n">Off Cycle</option>
           </select>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -208,10 +208,10 @@
     </div>
 
     <div class="input">
-      <label for="createdFrom">Created From</label>
+      <label for="createdAt">Created At</label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="date" id="createdFrom" class="form-control custom-date-input" placeholder="Min-Max" />
+          <input formControlName="created_at" type="date" id="createdAt" class="form-control custom-date-input" placeholder="Select Date" />
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <g fill="none" stroke-width="1.5">
               <path stroke-linecap="round"
@@ -240,12 +240,8 @@
 
 
 
-
-
-
-
     <div class="d-flex align-items-center gap-3">
-      <button type="submit" class="btn btn-lg btn-primary w-100">
+      <button type="button" (click)="applyFilters()" class="btn btn-lg btn-primary w-100">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <g fill="none" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />

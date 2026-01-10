@@ -5,7 +5,7 @@ import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/ov
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 
-import { FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { debounceTime, filter, Subject, Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-all-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, FormsModule, ReactiveFormsModule, DatePipe],
   templateUrl: './all-payroll-runs.component.html',
   styleUrl: './all-payroll-runs.component.css',
   encapsulation: ViewEncapsulation.None
@@ -50,7 +50,8 @@ export class AllPayrollRunsComponent implements OnDestroy {
     private toastr: ToastrService,
     private payrollRunService: PayrollRunService,
     paginationState: PaginationStateService,
-    router: Router
+    router: Router,
+    private fb: FormBuilder
   ) {
     this.paginationState = paginationState;
     this.router = router;
@@ -65,10 +66,31 @@ export class AllPayrollRunsComponent implements OnDestroy {
 
 
   ngOnInit(): void {
+    // Initialize filter form
+    this.filterForm = this.fb.group({
+      run_cycle: [''],
+      created_at: ['']
+    });
+
     const sub = this.route.queryParams.subscribe(params => {
       const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-runs/payroll-runs') || 1;
       this.currentPage = pageFromUrl;
-      this.fetchPayrollRuns();
+      
+      // Build filters object from query params
+      const filters: any = {};
+      
+      // Load filters from query params if they exist
+      if (params['run_cycle']) {
+        this.filterForm.patchValue({ run_cycle: params['run_cycle'] });
+        filters['run_cycle'] = params['run_cycle'];
+      }
+      if (params['created_at']) {
+        this.filterForm.patchValue({ created_at: params['created_at'] });
+        filters['created_at'] = params['created_at'];
+      }
+      
+      // Fetch with filters if any exist, otherwise fetch without filters
+      this.fetchPayrollRuns(Object.keys(filters).length > 0 ? filters : undefined);
     });
     this.subscriptions.push(sub);
   }
@@ -100,12 +122,12 @@ export class AllPayrollRunsComponent implements OnDestroy {
     }
   }
 
-  fetchPayrollRuns() {
+  fetchPayrollRuns(filters?: any) {
     this.loadData = true;
     if (this.apiSub) {
       this.apiSub.unsubscribe();
     }
-    this.apiSub = this.payrollRunService.getAllPayrollRuns(this.currentPage, this.itemsPerPage).subscribe({
+    this.apiSub = this.payrollRunService.getAllPayrollRuns(this.currentPage, this.itemsPerPage, filters).subscribe({
       next: (response: any) => {
         const items = response?.data?.list_items ?? [];
 
@@ -174,10 +196,57 @@ export class AllPayrollRunsComponent implements OnDestroy {
     this.selectedFile = null;
   }
 
-  resetFilterForm(): void {
+  applyFilters(): void {
+    if (this.filterForm.valid) {
+      const formValue = this.filterForm.value;
+      const queryParams: any = { page: '1' };
+      
+      // Build filters object
+      const filters: any = {};
 
+      // Add run_cycle to query params and filters if selected
+      if (formValue.run_cycle) {
+        queryParams['run_cycle'] = formValue.run_cycle;
+        filters['run_cycle'] = formValue.run_cycle;
+      }
+
+      // Add created_at to query params and filters if set
+      if (formValue.created_at) {
+        queryParams['created_at'] = formValue.created_at;
+        filters['created_at'] = formValue.created_at;
+      }
+
+      // Set current page to 1 and fetch with filters
+      this.currentPage = 1;
+      
+      // Navigate with query params
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: queryParams
+      });
+      
+      // Fetch data with filters
+      this.fetchPayrollRuns(filters);
+      this.filterBox.closeOverlay();
+    }
+  }
+
+  resetFilterForm(): void {
+    this.filterForm.reset({
+      run_cycle: '',
+      created_at: ''
+    });
+    this.currentPage = 1;
+    
+    // Clear all query params except page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: '1' }
+    });
+
+    // Fetch without filters
+    this.fetchPayrollRuns();
     this.filterBox.closeOverlay();
-    // this.getAllDepartment(this.currentPage);
   }
   onSearchChange() {
     this.searchSubject.next(this.searchTerm);
