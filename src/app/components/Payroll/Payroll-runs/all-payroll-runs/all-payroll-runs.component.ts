@@ -75,10 +75,10 @@ export class AllPayrollRunsComponent implements OnDestroy {
     const sub = this.route.queryParams.subscribe(params => {
       const pageFromUrl = +params['page'] || this.paginationState.getPage('payroll-runs/payroll-runs') || 1;
       this.currentPage = pageFromUrl;
-      
+
       // Build filters object from query params
       const filters: any = {};
-      
+
       // Load filters from query params if they exist
       if (params['run_cycle']) {
         this.filterForm.patchValue({ run_cycle: params['run_cycle'] });
@@ -88,7 +88,7 @@ export class AllPayrollRunsComponent implements OnDestroy {
         this.filterForm.patchValue({ created_at: params['created_at'] });
         filters['created_at'] = params['created_at'];
       }
-      
+
       // Fetch with filters if any exist, otherwise fetch without filters
       this.fetchPayrollRuns(Object.keys(filters).length > 0 ? filters : undefined);
     });
@@ -200,7 +200,7 @@ export class AllPayrollRunsComponent implements OnDestroy {
     if (this.filterForm.valid) {
       const formValue = this.filterForm.value;
       const queryParams: any = { page: '1' };
-      
+
       // Build filters object
       const filters: any = {};
 
@@ -218,13 +218,13 @@ export class AllPayrollRunsComponent implements OnDestroy {
 
       // Set current page to 1 and fetch with filters
       this.currentPage = 1;
-      
+
       // Navigate with query params
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: queryParams
       });
-      
+
       // Fetch data with filters
       this.fetchPayrollRuns(filters);
       this.filterBox.closeOverlay();
@@ -237,7 +237,7 @@ export class AllPayrollRunsComponent implements OnDestroy {
       created_at: ''
     });
     this.currentPage = 1;
-    
+
     // Clear all query params except page
     this.router.navigate([], {
       relativeTo: this.route,

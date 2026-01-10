@@ -12,7 +12,7 @@ export class PayrollRunService {
 
   getAllPayrollRuns(page: number = 1, per_page: number = 10, filters?: any): Observable<any> {
     let url = `${this.url}?page=${page}&per_page=${per_page}`;
-    
+
     // Add filter parameters if provided
     if (filters) {
       if (filters.run_cycle) {
@@ -22,7 +22,7 @@ export class PayrollRunService {
         url += `&created_at=${filters.created_at}`;
       }
     }
-    
+
     return this.http.get(url);
   }
 
