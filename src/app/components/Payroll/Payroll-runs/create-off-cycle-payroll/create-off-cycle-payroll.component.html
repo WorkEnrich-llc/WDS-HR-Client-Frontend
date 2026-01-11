@@ -122,21 +122,18 @@
                     <input formControlName="payroll_title" type="text" id="payroll_title"
                         class="form-control custom-date-input" placeholder="Enter payroll title" />
                 </div>
-                @if (payrollForm.get('payroll_title')?.touched &&
+                @if (payrollForm.get('payroll_title')?.invalid &&
+                payrollForm.get('payroll_title')?.touched &&
                 payrollForm.get('payroll_title')?.errors?.['required']) {
                 <p class="error-msg">
                     Payroll Title is required.
                 </p>
                 }
-                @if (payrollForm.get('payroll_title')?.touched &&
+                @if (payrollForm.get('payroll_title')?.invalid &&
+                payrollForm.get('payroll_title')?.touched &&
                 payrollForm.get('payroll_title')?.errors?.['minlength']) {
                 <p class="error-msg">
                     Payroll Title must be at least 2 characters long.
-                </p>
-                }
-                @if (hasFieldError('payroll_title')) {
-                <p class="error-msg">
-                    {{ getFieldError('payroll_title') }}
                 </p>
                 }
             </div>
@@ -293,21 +290,6 @@
                 <div>
                     <strong>No recipients selected!</strong> Please select at least one {{
                     getRecipientLabelWithS().toLowerCase() }} to create the payroll.
-                </div>
-            </div>
-            }
-
-            <!-- API validation error for recipients -->
-            @if (hasFieldError('recipients')) {
-            <div class="alert alert-danger d-flex align-items-center mb-3 ms-3 me-3" role="alert">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    class="me-2">
-                    <path
-                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                        fill="currentColor" />
-                </svg>
-                <div>
-                    <strong>Recipients Error:</strong> {{ getFieldError('recipients') }}
                 </div>
             </div>
             }

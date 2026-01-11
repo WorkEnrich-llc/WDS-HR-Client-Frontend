@@ -133,6 +133,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     goToNextTab(): void {
         if (this.currentTab === 'details') {
             this.currentTab = 'recipients';
+            this.formErrors = {};
         }
     }
 
@@ -142,6 +143,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     goToPreviousTab(): void {
         if (this.currentTab === 'recipients') {
             this.currentTab = 'details';
+            this.formErrors = {};
         }
     }
 
@@ -650,21 +652,24 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
      * Submit the form
      */
     onSubmit(): void {
-        // Validate form
+        // Validate Main Info tab
         if (!this.payrollForm.valid) {
             this.formErrors = { payroll_title: 'Payroll Title is required' };
+            this.currentTab = 'details';
+            return;
+        }
+
+        // Validate components (must be selected before moving to recipients)
+        if (!this.hasSelectedComponents()) {
+            this.formErrors = { components: 'Please select at least one component' };
+            this.currentTab = 'details';
             return;
         }
 
         // Validate recipients
         if (!this.hasSelectedRecipients()) {
             this.formErrors = { recipients: 'Please select at least one recipient' };
-            return;
-        }
-
-        // Validate components
-        if (!this.hasSelectedComponents()) {
-            this.formErrors = { components: 'Please select at least one component' };
+            this.currentTab = 'recipients';
             return;
         }
 
@@ -797,19 +802,14 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         this.payrollComponentsService.getAllComponent(
             this.componentCurrentPage,
             this.componentItemsPerPage,
-            { search: this.componentSearchTerm || undefined }
+            { search: this.componentSearchTerm || undefined, component: 2 }
         ).subscribe({
             next: (response) => {
-                // Filter components to show only "Off Cycle" status
-                const offCycleComponents = response.data.list_items.filter(
-                    (item: any) => item.component_status?.name === 'Off Cycle'
-                );
-
                 this.componentCurrentPage = Number(response.data.page);
-                this.componentTotalItems = offCycleComponents.length;
-                this.componentTotalPages = Math.ceil(offCycleComponents.length / this.componentItemsPerPage);
+                this.componentTotalItems = response.data.total_count;
+                this.componentTotalPages = Math.ceil(response.data.total_count / this.componentItemsPerPage);
 
-                this.availableComponents = offCycleComponents.map((item: any) => ({
+                this.availableComponents = response.data.list_items.map((item: any) => ({
                     id: item.id,
                     name: item.name,
                     component_type: item.component_type?.name || 'N/A',
