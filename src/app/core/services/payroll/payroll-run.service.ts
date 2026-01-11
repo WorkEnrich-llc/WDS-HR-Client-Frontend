@@ -50,6 +50,10 @@ export class PayrollRunService {
     return this.http.post(`${environment.apiBaseUrl}cloud/files/`, formData);
   }
 
+  createOffCycleSheet(formData: FormData): Observable<any> {
+    return this.http.post(`${this.url}/off-cycle-create-sheet`, formData);
+  }
+
   revertToDraft(formData: FormData): Observable<any> {
     return this.http.put(`${this.url}/revert-draft`, formData);
   }

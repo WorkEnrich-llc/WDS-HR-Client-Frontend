@@ -55,6 +55,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
   payRollRunData: any = null;
   allSheetsData: any = null;
+  relatedSheetId: string | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService) { }
 
@@ -96,8 +97,14 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       const sub = this.payrollRunService.getPayrollRunById(id).subscribe({
         next: (data) => {
           this.payRollRunData = data;
-          // Only fetch payroll sheets if status is Draft
-          if (data?.data?.object_info?.status === 'Draft') {
+          // Store the related sheet ID if it exists
+          this.relatedSheetId = data?.data?.object_info?.related?.id || null;
+          // Auto-select related sheet if available
+          if (this.relatedSheetId) {
+            this.selectedSheetId = this.relatedSheetId;
+          }
+          // Only fetch payroll sheets if status is Draft and run_cycle is not Off Cycle (id !== 2)
+          if (data?.data?.object_info?.status === 'Draft' && data?.data?.object_info?.run_cycle?.id !== 2) {
             this.fetchEmployees();
           } else {
             this.loadData = false;
@@ -179,7 +186,9 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     this.isStartingPayroll = true;
     const formData = new FormData();
     formData.append('run_id', this.payrollRunId);
-    formData.append('sheet_id', this.selectedSheetId);
+    // Use the related sheet ID if available, otherwise use the selected sheet ID
+    const sheetId = this.relatedSheetId || this.selectedSheetId;
+    formData.append('sheet_id', sheetId);
 
     const sub = this.payrollRunService.startPayrollRun(formData).subscribe({
       next: (data) => {
@@ -255,19 +264,19 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     }
 
     this.isCreatingSheet = true;
-    const sheetName = `Sheet | ${this.payRollRunData.data.object_info.title}`;
-    const formData = new FormData();
-    formData.append('name', sheetName);
-    formData.append('type', 'System_File');
-    formData.append('file_type', 'payroll_sheet');
 
-    const sub = this.payrollRunService.createPayrollSheet(formData).subscribe({
+    // Check if this is an Off-Cycle payroll run (run_cycle.id === 2)
+    const isOffCyclePayroll = this.payRollRunData?.data?.object_info?.run_cycle?.id === 2;
+    const createSheetCall = isOffCyclePayroll 
+      ? this.payrollRunService.createOffCycleSheet(this.buildOffCycleSheetFormData())
+      : this.payrollRunService.createPayrollSheet(this.buildPayrollSheetFormData());
+
+    const sub = createSheetCall.subscribe({
       next: (data) => {
         this.showCreateSheetConfirmation = false;
         this.isCreatingSheet = false;
-        this.toasterMessageService.showSuccess('Sheet has been created successfully');
-        // Refresh the sheets list
-        this.fetchEmployees();
+        // Refresh the payroll run details and sheets list
+        this.refreshPayrollRunDetails();
       },
       error: (error) => {
         this.isCreatingSheet = false;
@@ -279,6 +288,28 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   cancelCreateSheet(): void {
     this.showCreateSheetConfirmation = false;
+  }
+
+  buildOffCycleSheetFormData(): FormData {
+    const formData = new FormData();
+    formData.append('id', this.payrollRunId || '');
+    return formData;
+  }
+
+  buildPayrollSheetFormData(): FormData {
+    const sheetName = `Sheet | ${this.payRollRunData.data.object_info.title}`;
+    const formData = new FormData();
+    formData.append('name', sheetName);
+    formData.append('type', 'System_File');
+    formData.append('file_type', 'payroll_sheet');
+    return formData;
+  }
+
+  onViewSheetClick(): void {
+    const relatedSheetId = this.payRollRunData?.data?.object_info?.related?.id;
+    if (relatedSheetId) {
+      this.router.navigate(['/cloud/system-file', relatedSheetId]);
+    }
   }
 
   navigateToEmployeeDetails(employeeId: string | number): void {
@@ -351,8 +382,14 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       const sub = this.payrollRunService.getPayrollRunById(this.payrollRunId).subscribe({
         next: (data) => {
           this.payRollRunData = data;
-          // Only fetch payroll sheets if status is Draft
-          if (data?.data?.object_info?.status === 'Draft') {
+          // Store the related sheet ID if it exists
+          this.relatedSheetId = data?.data?.object_info?.related?.id || null;
+          // Auto-select related sheet if available
+          if (this.relatedSheetId) {
+            this.selectedSheetId = this.relatedSheetId;
+          }
+          // Only fetch payroll sheets if status is Draft and run_cycle is not Off Cycle (id !== 2)
+          if (data?.data?.object_info?.status === 'Draft' && data?.data?.object_info?.run_cycle?.id !== 2) {
             this.fetchEmployees();
           } else {
             this.loadData = false;
