@@ -516,7 +516,7 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       deductionRules: [{ thresholdTime: null, deductionValue: null, deductionBase: null }]
     }
   ];
-  
+
   earlyLeaveValidationErrors: { [occurrenceIndex: number]: { [ruleIndex: number]: { thresholdTime: boolean; deductionValue: boolean; deductionBase: boolean } } } = {};
   sameAsLateness: boolean = false;
 
