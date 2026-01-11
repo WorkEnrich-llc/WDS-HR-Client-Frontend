@@ -267,7 +267,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
     // Check if this is an Off-Cycle payroll run (run_cycle.id === 2)
     const isOffCyclePayroll = this.payRollRunData?.data?.object_info?.run_cycle?.id === 2;
-    const createSheetCall = isOffCyclePayroll 
+    const createSheetCall = isOffCyclePayroll
       ? this.payrollRunService.createOffCycleSheet(this.buildOffCycleSheetFormData())
       : this.payrollRunService.createPayrollSheet(this.buildPayrollSheetFormData());
 
