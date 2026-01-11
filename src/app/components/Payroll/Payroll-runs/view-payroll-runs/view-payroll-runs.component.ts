@@ -56,6 +56,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   payRollRunData: any = null;
   allSheetsData: any = null;
   relatedSheetId: string | null = null;
+  relatedSheetName: string | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService) { }
 
@@ -97,8 +98,9 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       const sub = this.payrollRunService.getPayrollRunById(id).subscribe({
         next: (data) => {
           this.payRollRunData = data;
-          // Store the related sheet ID if it exists
+          // Store the related sheet ID and name if it exists
           this.relatedSheetId = data?.data?.object_info?.related?.id || null;
+          this.relatedSheetName = data?.data?.object_info?.related?.name || null;
           // Auto-select related sheet if available
           if (this.relatedSheetId) {
             this.selectedSheetId = this.relatedSheetId;
@@ -170,10 +172,20 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   onStartPayrollClick(): void {
-    if (!this.selectedSheetId) {
+    // Check if it's an off-cycle payroll without a sheet
+    const isOffCycle = this.payRollRunData?.data?.object_info?.run_cycle?.id === 2;
+    const hasNoSheet = !this.selectedSheetId && !this.relatedSheetId;
+    
+    if (isOffCycle && hasNoSheet) {
+      this.toasterMessageService.showError('Please create a sheet before starting the payroll run.');
+      return;
+    }
+
+    if (!this.selectedSheetId && !this.relatedSheetId) {
       this.showValidationError = true;
       return;
     }
+    
     this.showValidationError = false;
     this.showConfirmation = true;
   }
@@ -199,7 +211,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       },
       error: (error) => {
         this.isStartingPayroll = false;
-        this.toasterMessageService.showError('Failed to start payroll. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -213,6 +224,11 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     if (!this.selectedSheetId) {
       return 'Unknown';
     }
+    // If the selected sheet is the related sheet, return the related sheet name
+    if (this.selectedSheetId === this.relatedSheetId && this.relatedSheetName) {
+      return this.relatedSheetName;
+    }
+    // Otherwise, search in the employees (sheets) array
     const selectedSheet = this.employees.find(e => e.id === this.selectedSheetId);
     return selectedSheet?.name || 'Unknown';
   }
@@ -312,6 +328,15 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Navigate to the sheet view with the provided sheet ID
+   */
+  viewSheet(sheetId: string): void {
+    if (sheetId) {
+      this.router.navigate(['/cloud/system-file', sheetId]);
+    }
+  }
+
   navigateToEmployeeDetails(employeeId: string | number): void {
     this.router.navigate(['/employees/view-employee', employeeId]);
   }
@@ -382,8 +407,9 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       const sub = this.payrollRunService.getPayrollRunById(this.payrollRunId).subscribe({
         next: (data) => {
           this.payRollRunData = data;
-          // Store the related sheet ID if it exists
+          // Store the related sheet ID and name if it exists
           this.relatedSheetId = data?.data?.object_info?.related?.id || null;
+          this.relatedSheetName = data?.data?.object_info?.related?.name || null;
           // Auto-select related sheet if available
           if (this.relatedSheetId) {
             this.selectedSheetId = this.relatedSheetId;
