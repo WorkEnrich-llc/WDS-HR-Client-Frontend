@@ -126,7 +126,8 @@
         <div class="d-flex align-items-center justify-content-between">
             <h2>Main Information</h2>
             <!-- Create New Sheet button for Off Cycle runs without related sheet -->
-            @if (payRollRunData?.data?.object_info?.status === 'Draft' && payRollRunData?.data?.object_info?.run_cycle?.id === 2
+            @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
+            payRollRunData?.data?.object_info?.run_cycle?.id === 2
             && !relatedSheetId && !loadData) {
             <button class="btn btn-lg btn-outline-primary" (click)="onCreateSheetClick()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -262,25 +263,21 @@
 
         <ng-template #draftTableRow let-sheet>
             <td class="cursor-pointer" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"
-                style="width: 5%">
+                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 5%">
                 <input type="radio" [checked]="selectedSheetId === sheet.id" [value]="sheet.id"
                     (change)="selectedSheetId = sheet.id" class="cursor-pointer"
                     style="width: 20px; height: 20px; cursor: pointer; accent-color: #377AFD;" />
             </td>
             <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"
-                style="width: 46%">
+                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 46%">
                 {{ sheet.name }}
             </td>
             <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"
-                style="width: 15%">
+                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 15%">
                 {{ sheet.created_at | date:'dd/MM/yyyy' }}
             </td>
             <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"
-                style="width: 15%">
+                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 15%">
                 {{ sheet.updated_at | date:'dd/MM/yyyy' }}
             </td>
             <td class="text-center" [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"

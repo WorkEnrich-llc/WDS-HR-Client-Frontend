@@ -175,7 +175,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     // Check if it's an off-cycle payroll without a sheet
     const isOffCycle = this.payRollRunData?.data?.object_info?.run_cycle?.id === 2;
     const hasNoSheet = !this.selectedSheetId && !this.relatedSheetId;
-    
+
     if (isOffCycle && hasNoSheet) {
       this.toasterMessageService.showError('Please create a sheet before starting the payroll run.');
       return;
@@ -185,7 +185,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       this.showValidationError = true;
       return;
     }
-    
+
     this.showValidationError = false;
     this.showConfirmation = true;
   }
