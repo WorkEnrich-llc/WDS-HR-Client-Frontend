@@ -253,7 +253,7 @@
                   (change)="clearLatenessValidationError(occurrenceIndex, ruleIndex, 'deductionBase')"
                   [attr.aria-invalid]="latenessValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
-                  <option [value]="null">Select Salary Portion</option>
+                  <option [ngValue]="null" disabled>Select Salary Portion</option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
@@ -492,7 +492,7 @@
                   (change)="clearEarlyLeaveValidationError(occurrenceIndex, ruleIndex, 'deductionBase')"
                   [attr.aria-invalid]="earlyLeaveValidationErrors[occurrenceIndex][ruleIndex].deductionBase"
                   [ngModelOptions]="{ standalone: true }">
-                  <option [value]="null">Select Salary Portion</option>
+                  <option [ngValue]="null" disabled>Select Salary Portion</option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">
                     @if (shouldShowPercentage(portion.percentage)) {
@@ -654,7 +654,7 @@
                   [attr.aria-describedby]="absenceValidationErrors[i].salaryPortion ? 'absence-salary-error-' + i : null"
                   [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel(i)" [attr.aria-required]="true"
                   [disabled]="!entry.value && entry.value !== 0" [ngModelOptions]="{ standalone: true }">
-                  <option [value]="null" [disabled]="entry.value != null && entry.value !== 0">Select Salary Portion
+                  <option [ngValue]="null" [disabled]="entry.value != null && entry.value !== 0">Select Salary Portion
                   </option>
                   @for (portion of salaryPortions; track portion.index) {
                   <option [ngValue]="portion.index">

@@ -1120,7 +1120,6 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error saving rules:', error);
         this.isSaving = false;
-        this.toasterMessageService.showError('Failed to save attendance rules. Please try again.');
       }
     });
   }
