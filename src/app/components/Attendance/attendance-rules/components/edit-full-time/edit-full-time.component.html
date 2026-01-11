@@ -854,7 +854,8 @@
                                     [attr.aria-label]="'Salary portion for ' + getOccurrenceLabel($index)"
                                     [attr.aria-required]="true" [disabled]="entry.value == null || entry.value === 0"
                                     [ngModelOptions]="{ standalone: true }">
-                                    <option [ngValue]="null" [disabled]="entry.value != null && entry.value !== 0">Select
+                                    <option [ngValue]="null" [disabled]="entry.value != null && entry.value !== 0">
+                                        Select
                                         Salary Portion</option>
                                     @for (portion of salaryPortions; track portion.index) {
                                     <option [ngValue]="portion.index">
