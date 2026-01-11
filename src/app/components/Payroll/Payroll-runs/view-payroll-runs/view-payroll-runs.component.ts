@@ -296,7 +296,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       },
       error: (error) => {
         this.isCreatingSheet = false;
-        this.toasterMessageService.showError('Failed to create sheet. Please try again.');
       }
     });
     this.subscriptions.push(sub);
