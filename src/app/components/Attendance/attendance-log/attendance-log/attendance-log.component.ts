@@ -130,7 +130,7 @@ export class AttendanceLogComponent implements OnDestroy {
   editModalLoading: boolean = false;
 
   attendanceLogs: any[] = [];
-  departmentList$!: Observable<any[]>;
+  departmentList$?: Observable<any[]>;
   skeletonRows = Array.from({ length: 5 });
   // Modal state for editing logs
   editModalOpen: boolean = false;
@@ -345,9 +345,7 @@ export class AttendanceLogComponent implements OnDestroy {
     });
 
 
-    this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
-      map((res: any) => res?.data?.list_items ?? [])
-    );
+    // Departments are loaded lazily when the filters overlay is opened
 
     // Add outside click listener to close dropdown menu
     this.outsideClickListener = (event: MouseEvent) => {
@@ -362,6 +360,16 @@ export class AttendanceLogComponent implements OnDestroy {
 
     document.addEventListener('mousedown', this.outsideClickListener);
 
+  }
+
+  openFilterOverlay(): void {
+    if (!this.departmentList$) {
+      this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
+        map((res: any) => res?.data?.list_items ?? [])
+      );
+    }
+    // Open the overlay after ensuring department observable is set
+    this.overlay.openOverlay();
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
