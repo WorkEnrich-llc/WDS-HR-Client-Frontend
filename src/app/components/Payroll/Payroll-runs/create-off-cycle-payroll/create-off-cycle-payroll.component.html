@@ -4,7 +4,8 @@
     { label: 'Payroll Runs', link: '/payroll-runs/payroll-runs' },
     { label: 'Off-Cycle Payroll' }
   ]" title="Create Off-Cycle Payroll">
-    <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()">
+    <button class="btn btn-lg btn-success w-auto" (click)="onSubmit()" [disabled]="isLoading">
+        @if (!isLoading) {
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />
@@ -12,9 +13,18 @@
             </g>
         </svg>
         <span>Create Payroll</span>
+        }
+        @if (isLoading) {
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="spinner-bubble"></div>
+            <div class="spinner-bubble"></div>
+            <div class="spinner-bubble"></div>
+            <span>Processing...</span>
+        </div>
+        }
     </button>
 
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="onDiscard()">
+    <button class="btn btn-lg btn-outline-dark w-auto" (click)="onDiscard()" [disabled]="isLoading">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="12" cy="12" r="10" />

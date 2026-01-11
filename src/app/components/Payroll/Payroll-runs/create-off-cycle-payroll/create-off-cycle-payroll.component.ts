@@ -10,6 +10,7 @@ import { BranchesService } from '../../../../core/services/od/branches/branches.
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { PayrollComponentsService } from '../../../../core/services/payroll/payroll-components/payroll-components.service';
 import { PayrollRunService } from '../../../../core/services/payroll/payroll-run.service';
+import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -31,6 +32,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     private employeeService = inject(EmployeeService);
     private payrollComponentsService = inject(PayrollComponentsService);
     private payrollRunService = inject(PayrollRunService);
+    private toasterMessageService = inject(ToasterMessageService);
 
     @ViewChild('departmentFilterBox', { static: false }) departmentFilterBox!: OverlayFilterBoxComponent;
     @ViewChild('componentFilterBox', { static: false }) componentFilterBox!: OverlayFilterBoxComponent;
@@ -50,6 +52,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     // Form
     payrollForm!: FormGroup;
     isSubmitting: boolean = false;
+    isLoading: boolean = false;
     formErrors: any = {};
 
     // Recipients per type
@@ -665,7 +668,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.isSubmitting = true;
+        this.isLoading = true;
 
         // Build the request data
         const requestData = {
@@ -681,16 +684,25 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         this.payrollRunService.createOffCyclePayroll(requestData).subscribe({
             next: (response) => {
                 this.isSubmitting = false;
+                this.isLoading = false;
+                // Show success toaster
+                this.toasterMessageService.showSuccess('Off-Cycle Payroll has been created successfully');
                 // Redirect to payroll runs list on success
-                this.router.navigate(['/payroll-runs/payroll-runs']);
+                setTimeout(() => {
+                    this.router.navigate(['/payroll-runs/payroll-runs']);
+                }, 1500);
             },
             error: (err) => {
                 this.isSubmitting = false;
+                this.isLoading = false;
                 console.error('Error creating off-cycle payroll:', err);
                 // Set error message from API response
                 if (err.error?.message) {
                     this.formErrors['api'] = err.error.message;
+                    this.toasterMessageService.showError(err.error.message);
                 } else {
+                    this.formErrors['api'] = 'An error occurred while creating the payroll. Please try again.';
+                    this.toasterMessageService.showError('An error occurred while creating the payroll. Please try again.')
                     this.formErrors['api'] = 'An error occurred while creating the payroll. Please try again.';
                 }
             }

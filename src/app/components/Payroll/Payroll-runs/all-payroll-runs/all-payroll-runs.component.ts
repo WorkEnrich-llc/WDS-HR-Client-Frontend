@@ -131,9 +131,10 @@ export class AllPayrollRunsComponent implements OnDestroy {
       next: (response: any) => {
         const items = response?.data?.list_items ?? [];
 
-        // Extract end_date from the first item (most recent payroll run)
+        // Extract end_date from the last item with run_cycle id === 1 (Normal payroll)
         if (items.length > 0) {
-          this.currentPayrollEndDate = items[0].end_date || '';
+          const normalPayrolls = items.filter((item: any) => item.run_cycle?.id === 1);
+          this.currentPayrollEndDate = normalPayrolls.length > 0 ? normalPayrolls[normalPayrolls.length - 1].end_date || '' : items[0].end_date || '';
         }
 
         // Extract start_configure from response
@@ -314,9 +315,10 @@ export class AllPayrollRunsComponent implements OnDestroy {
       next: (response) => {
         this.toasterMessageService.showSuccess('Payroll configuration saved successfully');
 
-        // Extract end date from response details
+        // Extract end date from response details - get the last item with run_cycle id === 1
         if (response?.details && response.details.length > 0) {
-          this.currentPayrollEndDate = response.details[1]?.end_date || response.details[0]?.end_date || '';
+          const normalPayrolls = response.details.filter((item: any) => item.run_cycle?.id === 1);
+          this.currentPayrollEndDate = normalPayrolls.length > 0 ? normalPayrolls[normalPayrolls.length - 1].end_date || '' : response.details[0]?.end_date || '';
         }
 
         // Don't close the modal - let user close it manually
