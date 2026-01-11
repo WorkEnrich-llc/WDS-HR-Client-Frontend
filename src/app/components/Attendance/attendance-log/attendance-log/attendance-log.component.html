@@ -260,20 +260,16 @@
                   <span>Day Off</span>
                   }
                 </div>
-                @if (!['Absent', 'On Leave', 'Holiday', 'Weekly
-                leave'].includes(getMainRecord(emp.list_items)?.status)){
                 <div [ngStyle]="{ width: columnWidths[3] }">
-                  <span class="text-nowrap">{{ formatTimeTo12Hour(emp?.scheduled?.check_id) }}</span>
+                  <span class="text-nowrap">
+                    {{ emp?.scheduled?.check_id ? formatTimeTo12Hour(emp?.scheduled?.check_id) : '--' }}
+                  </span>
                 </div>
                 <div [ngStyle]="{ width: columnWidths[4] }">
-                  <span class="text-nowrap">{{ formatTimeTo12Hour(emp?.scheduled?.check_out) }}</span>
+                  <span class="text-nowrap">
+                    {{ emp?.scheduled?.check_out ? formatTimeTo12Hour(emp?.scheduled?.check_out) : '--' }}
+                  </span>
                 </div>
-                }
-                @if (["Absent", "On Leave", "Holiday", "Weekly leave"].includes(getMainRecord(emp.list_items)?.status))
-                {
-                <div [ngStyle]="{ width: columnWidths[3] }">--</div>
-                <div [ngStyle]="{ width: columnWidths[4] }">--</div>
-                }
                 <div [ngStyle]="{ width: columnWidths[5] }"
                   class="d-flex align-items-center justify-content-between gap-4">
                   <span>{{ emp?.work_hours }}</span>
@@ -327,10 +323,10 @@
                   <div class="text-danger" [style.width]="columnWidths[7]">{{ log?.hours_object?.deduction }}</div>
                   <div [style.width]="columnWidths[8]" class="text-end position-relative">
                     @if ((!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                    (!log?.times_object?.actual_check_in || log?.times_object?.actual_check_in === '00:00')) ||
+                    (!log?.times_object?.working_check_in || log?.times_object?.working_check_in === '00:00')) ||
                     (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                    (log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00') &&
-                    (!log?.times_object?.actual_check_out || log?.times_object?.actual_check_out === '00:00')) ||
+                    (log?.times_object?.working_check_in && log?.times_object?.working_check_in !== '00:00') &&
+                    (!log?.times_object?.working_check_out || log?.times_object?.working_check_out === '00:00')) ||
                     (!['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
                     (hasBothCheckInAndOut(log) || (!hasCheckIn(log) && !hasCheckOut(log)))) ||
                     (!['Absent', 'On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
@@ -346,7 +342,7 @@
                       <!-- Scenario 1: NO check-in AND NO check-out → Show "Add Check In" + "Add Check Out" + "Cancel Log" -->
                       <!-- Show "Add Check In" when check-in doesn't exist or is '00:00' -->
                       @if (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                      (!log?.times_object?.actual_check_in || log?.times_object?.actual_check_in === '00:00')) {
+                      (!log?.times_object?.working_check_in || log?.times_object?.working_check_in === '00:00')) {
                       <button class="action-menu-item" (click)="openEditCheckInModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -366,8 +362,8 @@
                       }
                       <!-- Show "Add Check Out" when check-in EXISTS AND check-out DOESN'T exist -->
                       @if (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                      (log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00') &&
-                      (!log?.times_object?.actual_check_out || log?.times_object?.actual_check_out === '00:00')) {
+                      (log?.times_object?.working_check_in && log?.times_object?.working_check_in !== '00:00') &&
+                      (!log?.times_object?.working_check_out || log?.times_object?.working_check_out === '00:00')) {
                       <button class="action-menu-item" (click)="openEditCheckOutModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -387,8 +383,8 @@
                       }
                       <!-- Show "Edit Check In" when check-in EXISTS AND check-out DOESN'T exist -->
                       @if (!['On Leave', 'Holiday', 'Weekly leave'].includes(log.status) &&
-                      (log?.times_object?.actual_check_in && log?.times_object?.actual_check_in !== '00:00') &&
-                      (!log?.times_object?.actual_check_out || log?.times_object?.actual_check_out === '00:00')) {
+                      (log?.times_object?.working_check_in && log?.times_object?.working_check_in !== '00:00') &&
+                      (!log?.times_object?.working_check_out || log?.times_object?.working_check_out === '00:00')) {
                       <button class="action-menu-item" (click)="openEditCheckInModal(log, emp); closeSubLogMenu()">
                         <span class="icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -717,9 +713,9 @@
         ' on ' +
         (attendanceToCancel.date | date : 'yyyy-MM-dd') +
         ' (Time: ' +
-        formatTimeTo12Hour(attendanceToCancel.times_object?.actual_check_in) +
+        formatTimeTo12Hour(attendanceToCancel.times_object?.working_check_in) +
         ' - ' +
-        formatTimeTo12Hour(attendanceToCancel.times_object?.actual_check_out) +
+        formatTimeTo12Hour(attendanceToCancel.times_object?.working_check_out) +
         ')?'
       : ''
   " [paragraph2]="'This action can’t be undone!'" [isOpen]="isModalOpen" (close)="closeModal()">
