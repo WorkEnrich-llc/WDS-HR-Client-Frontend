@@ -25,4 +25,10 @@ export class OnboardingService {
     return this._HttpClient.post(url, onboardingData);
   }
 
+  // delete onboarding items (supports body payload with ids)
+  deleteOnboarding(payload: any): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.request('delete', url, { body: payload });
+  }
+
 }
