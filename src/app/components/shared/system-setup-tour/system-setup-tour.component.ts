@@ -289,13 +289,13 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
 
   private load(): void {
     // Check localStorage flag to skip API call if all steps completed
-    const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
-    if (allDoneFlag === 'true') {
-      this.isLoading = false;
-      this.error = null;
-      this.items = [];
-      return;
-    }
+    // const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
+    // if (allDoneFlag === 'true') {
+    //   this.isLoading = false;
+    //   this.error = null;
+    //   this.items = [];
+    //   return;
+    // }
 
     this.isLoading = true;
     this.error = null;
