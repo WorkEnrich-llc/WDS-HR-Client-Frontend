@@ -237,7 +237,28 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             });
         } else if (this.selectedRecipientType === 'employee') {
             this.employeeService.getEmployees(page, perPage, search).subscribe({
-                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.contact_info?.name ?? x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
+                next: (res: any) => {
+                    const items = (res?.data?.list_items ?? res?.list_items ?? res?.data ?? []) || [];
+                    const normalized = Array.isArray(items) ? items.map((x: any) => {
+                        // Extract employee name from contact_info first (API standard), then fallback to other fields
+                        const contactName = x.object_info?.contact_info?.name;
+                        const name = contactName ||
+                            x.object_info?.name ||
+                            x.name ||
+                            (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
+                        return {
+                            id: x.object_info?.id ?? x.id,
+                            code: x.object_info?.code ?? x.code ?? x.id,
+                            name: name,
+                            fullName: name  // Ensure fullName is also set for display
+                        };
+                    }).filter((emp: any) => emp.id && emp.name) : [];
+                    this.availableItems = normalized;
+                    this.totalItems = res?.data?.total_items ?? res?.total_items ?? normalized.length;
+                    const computedPages = Math.ceil(this.totalItems / perPage);
+                    this.totalPages = (res?.data?.total_pages ?? res?.total_pages ?? computedPages) || 1;
+                    this.isLoadingItems = false;
+                },
                 error: () => this.isLoadingItems = false
             });
         } else {
@@ -324,13 +345,26 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
         // Ensure form exists
         if (!this.bonusDeductionForm) {
             this.bonusDeductionForm = this.formBuilder.group({
-                title: ['', [Validators.required, Validators.minLength(2)]],
+                title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
                 date: ['', [Validators.required, this.notPreviousMonthValidator()]],
                 days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
         }
+    }
+
+    /**
+     * Custom validator to ensure minimum length excluding spaces
+     */
+    minLengthWithoutSpaces(minLength: number) {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) {
+                return null;
+            }
+            const trimmedValue = control.value.replace(/\s+/g, '');
+            return trimmedValue.length >= minLength ? null : { minLengthWithoutSpaces: { requiredLength: minLength } };
+        };
     }
 
     notPreviousMonthValidator() {
@@ -630,6 +664,8 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
         this.clearAllSelections();
         this.selectedRecipientType = 'department';
         this.currentTab = 'main-info';
+        // Navigate back to list
+        this.router.navigate(['/bonus-deductions/all-bonus-deductions']);
     }
 
     onSubmit(): void {
@@ -714,7 +750,6 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             error: (error) => {
                 this.isSubmitting = false;
                 const action = this.isEditMode ? 'updating' : 'saving';
-                this.toaster.showError(`Error ${action} bonus/deduction.`);
                 console.error(`Error ${action} Bonus/Deduction:`, error);
             }
         });

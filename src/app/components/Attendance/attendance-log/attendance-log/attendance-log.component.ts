@@ -106,7 +106,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
         // this.toastr.success('Attendance log canceled successfully');
       },
@@ -129,7 +130,7 @@ export class AttendanceLogComponent implements OnDestroy {
   editModalLoading: boolean = false;
 
   attendanceLogs: any[] = [];
-  departmentList$!: Observable<any[]>;
+  departmentList$?: Observable<any[]>;
   skeletonRows = Array.from({ length: 5 });
   // Modal state for editing logs
   editModalOpen: boolean = false;
@@ -138,6 +139,8 @@ export class AttendanceLogComponent implements OnDestroy {
   editModalEmp: any = null;
   editCheckInValue: string = '';
   editCheckOutValue: string = '';
+  isAddingCheckIn: boolean = false;
+  isAddingCheckOut: boolean = false;
 
   // error text 
   isLate(actual: string, expected: string): boolean {
@@ -342,9 +345,7 @@ export class AttendanceLogComponent implements OnDestroy {
     });
 
 
-    this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
-      map((res: any) => res?.data?.list_items ?? [])
-    );
+    // Departments are loaded lazily when the filters overlay is opened
 
     // Add outside click listener to close dropdown menu
     this.outsideClickListener = (event: MouseEvent) => {
@@ -359,6 +360,16 @@ export class AttendanceLogComponent implements OnDestroy {
 
     document.addEventListener('mousedown', this.outsideClickListener);
 
+  }
+
+  openFilterOverlay(): void {
+    if (!this.departmentList$) {
+      this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
+        map((res: any) => res?.data?.list_items ?? [])
+      );
+    }
+    // Open the overlay after ensuring department observable is set
+    this.overlay.openOverlay();
   }
 
   getAllAttendanceLog(filters: IAttendanceFilters): void {
@@ -453,11 +464,11 @@ export class AttendanceLogComponent implements OnDestroy {
 
 
   getFormattedCheckIn(log: any): string {
-    return this.getSafeCheckInTime(log?.status, log?.times_object?.actual_check_in);
+    return this.getSafeCheckInTime(log?.status, log?.times_object?.working_check_in);
   }
 
   getFormattedCheckOut(log: any): string {
-    const checkOut = log?.times_object?.actual_check_out;
+    const checkOut = log?.times_object?.working_check_out;
     const finished = log?.working_details?.finished;
 
     if (!checkOut || checkOut === '00:00' || finished === false) {
@@ -474,12 +485,12 @@ export class AttendanceLogComponent implements OnDestroy {
 
   // Check if a record has check-in
   hasCheckIn(record: any): boolean {
-    return record?.times_object?.actual_check_in && record?.times_object?.actual_check_in !== '00:00';
+    return record?.times_object?.working_check_in && record?.times_object?.working_check_in !== '00:00';
   }
 
   // Check if a record has check-out
   hasCheckOut(record: any): boolean {
-    return record?.times_object?.actual_check_out && record?.times_object?.actual_check_out !== '00:00';
+    return record?.times_object?.working_check_out && record?.times_object?.working_check_out !== '00:00';
   }
 
   // Check if a record has both check-in and check-out
@@ -934,7 +945,10 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkin';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckInValue = log?.times_object?.actual_check_in || '';
+    // Check if this is an add scenario (no existing check-in)
+    const hasExistingCheckIn = log?.times_object?.working_check_in && log?.times_object?.working_check_in !== '00:00';
+    this.isAddingCheckIn = !hasExistingCheckIn;
+    this.editCheckInValue = hasExistingCheckIn ? log?.times_object?.working_check_in : '';
     this.editModalOpen = true;
   }
 
@@ -942,7 +956,10 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalType = 'checkout';
     this.editModalLog = log;
     this.editModalEmp = emp;
-    this.editCheckOutValue = '';
+    // Check if this is an add scenario (no existing check-out)
+    const hasExistingCheckOut = log?.times_object?.working_check_out && log?.times_object?.working_check_out !== '00:00';
+    this.isAddingCheckOut = !hasExistingCheckOut;
+    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.working_check_out : '';
     this.editModalOpen = true;
   }
 
@@ -952,8 +969,8 @@ export class AttendanceLogComponent implements OnDestroy {
     this.editModalEmp = emp;
     // Only set initial values if both check-in and check-out exist
     if (this.hasBothCheckInAndOut(log)) {
-      this.editCheckInValue = log?.times_object?.actual_check_in || '';
-      this.editCheckOutValue = log?.times_object?.actual_check_out || '';
+      this.editCheckInValue = log?.times_object?.working_check_in || '';
+      this.editCheckOutValue = log?.times_object?.working_check_out || '';
     } else {
       // For add log scenario, start with empty values
       this.editCheckInValue = '';
@@ -965,6 +982,8 @@ export class AttendanceLogComponent implements OnDestroy {
   closeEditModal() {
     this.editModalOpen = false;
     this.editModalType = null;
+    this.isAddingCheckIn = false;
+    this.isAddingCheckOut = false;
     this.editModalLog = null;
     this.editModalEmp = null;
     this.editCheckInValue = '';
@@ -1013,7 +1032,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
       },
       error: (err) => {
@@ -1045,7 +1065,8 @@ export class AttendanceLogComponent implements OnDestroy {
           page: this.currentPage,
           per_page: this.itemsPerPage,
           from_date: this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd')!,
-          to_date: ''
+          to_date: '',
+          search: this.searchTerm || undefined
         });
         this.closeDeductionModal();
       },

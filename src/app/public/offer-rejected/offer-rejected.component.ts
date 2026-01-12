@@ -2,17 +2,17 @@ import { Component, OnInit } from '@angular/core';
 
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { InterviewService } from '../core/services/recruitment/interview.service';
+import { InterviewService } from '../../core/services/recruitment/interview.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'app-interview-rejected',
+  selector: 'app-offer-rejected',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule],
-  templateUrl: './interview-rejected.component.html',
-  styleUrls: ['./interview-rejected.component.css']
+  templateUrl: './offer-rejected.component.html',
+  styleUrls: ['./offer-rejected.component.css']
 })
-export class InterviewRejectedComponent implements OnInit {
+export class OfferRejectedComponent implements OnInit {
   rejectForm!: FormGroup;
   isSubmitting = false;
   isSubmitted = false;
@@ -32,11 +32,11 @@ export class InterviewRejectedComponent implements OnInit {
   ngOnInit(): void {
     // Get token and applicant info from URL query params
     this.route.queryParams.subscribe(params => {
-      this.token = params['s'] || null; // Changed from 'token' to 's'
+      this.token = params['s'] || null;
       this.applicantName = params['name'] || 'Candidate';
 
       if (!this.token) {
-        this.errorMessage = 'Invalid interview token. Please check your email link.';
+        this.errorMessage = 'Invalid offer token. Please check your email link.';
       }
     });
 
@@ -53,8 +53,8 @@ export class InterviewRejectedComponent implements OnInit {
     }
 
     if (!this.token) {
-      this.errorMessage = 'Invalid interview token. Please try again.';
-      this.toastr.error('Invalid interview token');
+      this.errorMessage = 'Invalid offer token. Please try again.';
+      this.toastr.error('Invalid offer token');
       return;
     }
 
@@ -63,19 +63,18 @@ export class InterviewRejectedComponent implements OnInit {
 
     const reason = this.rejectForm.value.reason;
 
-    this.interviewService.rejectInterview(this.token, reason).subscribe({
+    this.interviewService.rejectJobOffer(this.token, reason).subscribe({
       next: (response) => {
         this.isSubmitted = true;
         this.isSubmitting = false;
-        this.toastr.success('Your response has been submitted successfully');
-        console.log('Interview rejected successfully:', response);
+        console.log('Offer rejected successfully:', response);
       },
       error: (error) => {
         this.isSubmitting = false;
         const errorMsg = error?.error?.message || 'Failed to submit your response. Please try again.';
         this.errorMessage = errorMsg;
         this.toastr.error(errorMsg);
-        console.error('Error rejecting interview:', error);
+        console.error('Error rejecting offer:', error);
       }
     });
   }

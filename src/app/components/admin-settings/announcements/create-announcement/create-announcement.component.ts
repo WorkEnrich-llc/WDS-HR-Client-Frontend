@@ -47,6 +47,14 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     selectedBranches: any[] = [];
     selectedCompanies: any[] = [];
     selectedSections: any[] = [];
+    
+    // Temporary selections in modal (before confirm)
+    tempSelectedDepartments: any[] = [];
+    tempSelectedEmployees: any[] = [];
+    tempSelectedBranches: any[] = [];
+    tempSelectedCompanies: any[] = [];
+    tempSelectedSections: any[] = [];
+    
     availableItems: any[] = [];
     availableDepartments: any[] = [];
     selectedDepartmentId: number | null = null;
@@ -269,19 +277,20 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      * Open department selection overlay
      */
     openDepartmentSelection(): void {
-        // console.log('openDepartmentSelection called for:', this.selectedRecipientType);
-        // Clear any previous selections when opening the modal
-        this.clearModalSelections();
+        // Load temp selections from current selections for display during edit
+        this.tempSelectedDepartments = JSON.parse(JSON.stringify(this.selectedDepartments));
+        this.tempSelectedEmployees = JSON.parse(JSON.stringify(this.selectedEmployees));
+        this.tempSelectedBranches = JSON.parse(JSON.stringify(this.selectedBranches));
+        this.tempSelectedCompanies = JSON.parse(JSON.stringify(this.selectedCompanies));
+        this.tempSelectedSections = JSON.parse(JSON.stringify(this.selectedSections));
+        
         this.departmentFilterBox.openOverlay();
         this.currentPage = 1;
 
         // Load data based on selected recipient type
         if (this.selectedRecipientType === 'section') {
-            // For sections, load departments for dropdown selection
-            // console.log('Loading departments for sections');
             this.loadDepartmentsForSections();
         } else {
-            // console.log('Loading entities for:', this.selectedRecipientType);
             this.loadEntities();
         }
     }
@@ -464,7 +473,28 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             });
         } else if (this.selectedRecipientType === 'employee') {
             this.employeeService.getEmployees(page, perPage, search).subscribe({
-                next: (res: any) => finish(res, (x: any) => ({ id: x.id, code: x.code ?? x.id, name: x.contact_info?.name ?? x.name ?? (x.first_name ? `${x.first_name} ${x.last_name ?? ''}`.trim() : '') })),
+                next: (res: any) => {
+                    const items = (res?.data?.list_items ?? res?.list_items ?? res?.data ?? []) || [];
+                    const normalized = Array.isArray(items) ? items.map((x: any) => {
+                        // Extract employee name from contact_info first (API standard), then fallback to other fields
+                        const contactName = x.object_info?.contact_info?.name;
+                        const name = contactName || 
+                                    x.object_info?.name || 
+                                    x.name || 
+                                    (x.object_info?.first_name ? `${x.object_info.first_name} ${x.object_info.last_name ?? ''}`.trim() : '');
+                        return {
+                            id: x.object_info?.id ?? x.id,
+                            code: x.object_info?.code ?? x.code ?? x.id,
+                            name: name,
+                            fullName: name  // Ensure fullName is also set for display
+                        };
+                    }).filter((emp: any) => emp.id && emp.name) : [];
+                    this.availableItems = normalized;
+                    this.totalItems = res?.data?.total_items ?? res?.total_items ?? normalized.length;
+                    const computedPages = Math.ceil(this.totalItems / perPage);
+                    this.totalPages = (res?.data?.total_pages ?? res?.total_pages ?? computedPages) || 1;
+                    this.isLoadingItems = false;
+                },
                 error: () => this.isLoadingItems = false
             });
         } else {
@@ -482,9 +512,22 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Toggle department selection
+     * Get the appropriate selected array (temporary during modal, permanent outside)
      */
     private getSelectedArray(): any[] {
+        switch (this.selectedRecipientType) {
+            case 'employee': return this.tempSelectedEmployees;
+            case 'branch': return this.tempSelectedBranches;
+            case 'company': return this.tempSelectedCompanies;
+            case 'section': return this.tempSelectedSections;
+            default: return this.tempSelectedDepartments;
+        }
+    }
+    
+    /**
+     * Get the permanent selected array (for outside display)
+     */
+    private getPermanentSelectedArray(): any[] {
         switch (this.selectedRecipientType) {
             case 'employee': return this.selectedEmployees;
             case 'branch': return this.selectedBranches;
@@ -546,9 +589,38 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Close department selection overlay
+     * Close department selection overlay (discard changes)
      */
     closeDepartmentSelection(): void {
+        // Clear temporary selections without saving
+        this.tempSelectedDepartments = [];
+        this.tempSelectedEmployees = [];
+        this.tempSelectedBranches = [];
+        this.tempSelectedCompanies = [];
+        this.tempSelectedSections = [];
+        this.departmentFilterBox.closeOverlay();
+    }
+
+    /**
+     * Confirm and save selections from modal
+     */
+    confirmDepartmentSelection(): void {
+        // Copy from temporary to permanent arrays
+        this.selectedDepartments = [...this.tempSelectedDepartments];
+        this.selectedEmployees = [...this.tempSelectedEmployees];
+        this.selectedBranches = [...this.tempSelectedBranches];
+        this.selectedCompanies = [...this.tempSelectedCompanies];
+        this.selectedSections = [...this.tempSelectedSections];
+        
+        // Clear temporary selections
+        this.tempSelectedDepartments = [];
+        this.tempSelectedEmployees = [];
+        this.tempSelectedBranches = [];
+        this.tempSelectedCompanies = [];
+        this.tempSelectedSections = [];
+        
+        // Update the table display
+        this.updateSelectedDepartmentsTable();
         this.departmentFilterBox.closeOverlay();
     }
 
@@ -556,7 +628,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
      * Remove department from selection
      */
     removeDepartment(department: any): void {
-        const arr = this.getSelectedArray();
+        const arr = this.getPermanentSelectedArray();
         const index = arr.findIndex(d => d.id === department.id);
         if (index > -1) { arr.splice(index, 1); }
         this.updateSelectedDepartmentsTable();
@@ -569,7 +641,8 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
 
     // Selected departments table helpers
     private getFilteredSelectedArray(): any[] {
-        const arr = this.getSelectedArray();
+        // Use permanent selected array for outside display
+        const arr = this.getPermanentSelectedArray();
         const term = (this.selectedSearchTerm || '').toLowerCase().trim();
         if (!term) return arr;
         return arr.filter(item => {
@@ -675,7 +748,7 @@ export class CreateAnnouncementComponent implements OnInit, OnDestroy {
             return true; // Company is automatically selected from localStorage
         }
 
-        const selectedArray = this.getSelectedArray();
+        const selectedArray = this.getPermanentSelectedArray();
         return selectedArray.length > 0;
     }
 

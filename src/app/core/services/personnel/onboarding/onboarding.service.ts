@@ -7,22 +7,34 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OnboardingService {
-   private apiBaseUrl: string;  
+  private apiBaseUrl: string;
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
   // get onboarding data
-   getOnboarding(): Observable<any> {
-      const url = `${this.apiBaseUrl}personnel/onboarding`;
-      return this._HttpClient.get(url);
-    }
+  getOnboarding(): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.get(url);
+  }
 
 
   // create and update onboarding check
   createOnboarding(onboardingData: any): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/onboarding`;
     return this._HttpClient.post(url, onboardingData);
+  }
+
+  // update onboarding check (same endpoint, PUT method)
+  updateOnboarding(onboardingData: any): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.put(url, onboardingData);
+  }
+
+  // delete onboarding items (supports body payload with ids)
+  deleteOnboarding(payload: any): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.request('delete', url, { body: payload });
   }
 
 }

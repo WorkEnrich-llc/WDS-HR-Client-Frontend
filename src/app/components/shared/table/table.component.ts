@@ -20,6 +20,7 @@ export class TableComponent {
   @Input() columnsCount = 0;
   @Input() headerTemplate!: TemplateRef<any>;
   @Input() rowTemplate!: TemplateRef<any>;
+  @Input() skeletonTemplate?: TemplateRef<any>;
   @Input() emptyTemplate!: TemplateRef<any>;
   @Input() disablePagination: boolean = false;
   @Input() isLoading: boolean = false;

@@ -39,18 +39,18 @@
         </div>
 
         <!-- start Table -->
-        <app-table [data]="paginatedList" [isLoading]="isLoading" [columnsCount]="7" [totalItems]="totalItems"
+        <app-table [data]="paginatedList" [isLoading]="isLoading" [columnsCount]="6" [totalItems]="totalItems"
             [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
             (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="bonusTableHeader"
             [rowTemplate]="bonusTableRow" [emptyTemplate]="noBonus"></app-table>
 
         <ng-template #bonusTableHeader>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Classification</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th class="w-30">Title</th>
+            <th class="w-20">Date</th>
+            <th class="w-15">Classification</th>
+            <th class="w-15">Amount</th>
+            <th class="w-15">Status</th>
+            <th class="w-10">Actions</th>
         </ng-template>
 
         <ng-template #bonusTableRow let-item>

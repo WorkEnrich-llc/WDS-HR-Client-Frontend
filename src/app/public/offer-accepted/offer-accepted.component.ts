@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { InterviewService } from '../core/services/recruitment/interview.service';
+import { InterviewService } from '../../core/services/recruitment/interview.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'app-interview-accepted',
+  selector: 'app-offer-accepted',
   standalone: true,
   imports: [],
-  templateUrl: './interview-accepted.component.html',
-  styleUrls: ['./interview-accepted.component.css']
+  templateUrl: './offer-accepted.component.html',
+  styleUrls: ['./offer-accepted.component.css']
 })
-export class InterviewAcceptedComponent implements OnInit {
+export class OfferAcceptedComponent implements OnInit {
   // URL parameters
   token: string | null = null;
   applicantName: string | null = null;
@@ -27,42 +27,40 @@ export class InterviewAcceptedComponent implements OnInit {
   ngOnInit(): void {
     // Get token and applicant info from URL query params
     this.route.queryParams.subscribe(params => {
-      this.token = params['s'] || null; // Changed from 'token' to 's'
+      this.token = params['s'] || null;
       this.applicantName = params['name'] || 'Candidate';
 
       if (!this.token) {
-        this.errorMessage = 'Invalid interview token. Please check your email link.';
-        this.toastr.error('Invalid interview token');
+        this.errorMessage = 'Invalid offer token. Please check your email link.';
         this.isLoading = false;
         return;
       }
 
-      // Call API to confirm interview acceptance
-      this.acceptInterview();
+      // Call API to confirm offer acceptance
+      this.acceptOffer();
     });
   }
 
-  acceptInterview(): void {
+  acceptOffer(): void {
     if (!this.token) {
-      this.errorMessage = 'Invalid interview token.';
+      this.errorMessage = 'Invalid offer token.';
       this.isLoading = false;
       return;
     }
 
-    this.interviewService.acceptInterview(this.token).subscribe({
+    this.interviewService.acceptJobOffer(this.token).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.toastr.success('Your interview acceptance has been confirmed!');
-        console.log('Interview accepted successfully:', response);
+        this.toastr.success('Your offer acceptance has been confirmed!');
+        console.log('Offer accepted successfully:', response);
       },
       error: (error) => {
         this.isLoading = false;
-        const errorMsg = error?.error?.message || 'Failed to confirm your attendance. Please try again.';
+        const errorMsg = error?.error?.message || 'Failed to confirm your acceptance. Please try again.';
         this.errorMessage = errorMsg;
         this.toastr.error(errorMsg);
-        console.error('Error accepting interview:', error);
+        console.error('Error accepting offer:', error);
       }
     });
   }
 }
-

@@ -30,6 +30,126 @@
     margin-top: 8px;
 }
 
+/* Enhanced skeleton loader for payroll table */
+.payroll-table-skeleton {
+    overflow-x: auto;
+}
+
+.payroll-table-skeleton table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payroll-table-skeleton thead {
+    background-color: #f8f9fa;
+}
+
+.payroll-table-skeleton thead th {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.payroll-table-skeleton tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.payroll-table-skeleton tbody td {
+    padding: 12px 8px;
+}
+
+.skeleton-row-item {
+    height: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeletonMove 1.5s infinite linear;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.skeleton-checkbox {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeletonMove 1.5s infinite linear;
+    border-radius: 3px;
+}
+
+/* Payroll display table - content width without color/spacing changes */
+.table {
+    table-layout: auto;
+    margin-top: 1.2rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.table thead th {
+    padding: 16px 14px;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.table tbody td {
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Sticky columns for horizontal scroll */
+/* Employee column - fixed on left */
+.table thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 12;
+    background-color: #343a40;
+    min-width: 200px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:hover td:first-child {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Actions column - fixed on right */
+.table thead th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 12;
+    background-color: #343a40;
+    min-width: 120px;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.table tbody td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:hover td:last-child {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 @keyframes skeletonMove {
     0% {
         background-position: 200% 0;

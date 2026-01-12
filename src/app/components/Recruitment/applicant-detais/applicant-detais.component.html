@@ -784,12 +784,45 @@
       </div>
     </div>
 
+    <!-- Expiration Date and Time Picker -->
+    <div class="d-flex gap-3 w-100">
+      <!-- Date Input -->
+      <div class="input flex-grow-1">
+        <label for="assignmentExpiry">Expiration Date <span class="text-danger">*</span></label>
+        <div class="form-outline position-relative w-100">
+          <input type="date" id="assignmentExpiry" class="form-control custom-date-input"
+            [(ngModel)]="assignmentExpirationDate" [min]="minExpirationDate"
+            (blur)="assignmentExpirationDateTouched = true">
+        </div>
+        @if (assignmentExpirationDateTouched && !assignmentExpirationDate) {
+        <small class="text-danger">Expiration date is required</small>
+        }
+      </div>
+
+      <!-- Time Input -->
+      <div class="input flex-grow-1">
+        <label for="assignmentExpiry">Expiration Time <span class="text-danger">*</span></label>
+        <div class="form-outline position-relative w-100">
+          <input type="time" id="assignmentExpiryTime" class="form-control custom-date-input"
+            [(ngModel)]="assignmentExpirationTime" (blur)="assignmentExpirationDateTouched = true">
+        </div>
+        @if (assignmentExpirationDateTouched && !assignmentExpirationTime) {
+        <small class="text-danger">Expiration time is required</small>
+        }
+      </div>
+    </div>
+
     <!-- Assignments Table using shared component -->
     <app-table [data]="availableAssignments" [totalItems]="assignmentTotalCount" [currentPage]="assignmentCurrentPage"
       [itemsPerPage]="assignmentPageSize" [isLoading]="availableAssignmentsLoading" [columnsCount]="1"
       [headerTemplate]="assignmentHeaderTemplate" [rowTemplate]="assignmentRowTemplate"
       [emptyTemplate]="assignmentEmptyTemplate" [disablePagination]="true" (pageChange)="changeAssignmentPage($event)">
     </app-table>
+
+    <!-- Assignment Selection Validation Error -->
+    @if (assignmentSelectionTouched && !selectedAssignmentId) {
+    <small class="text-danger">Please select an assignment</small>
+    }
 
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center">
@@ -816,8 +849,8 @@
 
     <!-- Action Buttons -->
     <div class="d-flex align-items-center gap-3 mt-4">
-      <button type="button" class="btn btn-lg btn-primary w-100"
-        [disabled]="!selectedAssignmentId || isAssignmentSubmitting" (click)="confirmAssignmentSelection()">
+      <button type="button" class="btn btn-lg btn-primary w-100" [disabled]="isAssignmentSubmitting"
+        (click)="confirmAssignmentSelection()">
         @if (!isAssignmentSubmitting) {
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path fill-rule="evenodd" clip-rule="evenodd"
