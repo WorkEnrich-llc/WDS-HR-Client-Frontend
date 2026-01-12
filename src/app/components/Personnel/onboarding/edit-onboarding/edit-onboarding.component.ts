@@ -68,7 +68,7 @@ export class EditOnboardingComponent {
         completed: false
       });
       this.checkForm.reset();
-      this.printData();
+      this.printData(true);
     }
   }
 
@@ -156,14 +156,19 @@ export class EditOnboardingComponent {
     this.dragOverIndex = null;
   }
 
-  // send data to back end 
-  printData() {
-    const request_data = {
-      onboarding_list: this.checks.map(c => ({
-        title: c.name,
-        status: false
-      }))
-    };
+  // send data to back end
+  // if `lastOnly` is true, send only the most recently added item
+  printData(lastOnly: boolean = false) {
+    let onboarding_list: any[] = [];
+
+    if (lastOnly && this.checks.length) {
+      const last = this.checks[this.checks.length - 1];
+      onboarding_list = [{ title: last.name, status: false }];
+    } else {
+      onboarding_list = this.checks.map(c => ({ title: c.name, status: false }));
+    }
+
+    const request_data = { onboarding_list };
     this.onboardingService.createOnboarding({ request_data }).subscribe({
       next: (response) => {
         // console.log('Onboarding data saved successfully:', response);
