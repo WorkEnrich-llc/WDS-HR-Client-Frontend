@@ -580,6 +580,21 @@ export class EditPartTimeComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   isSaving: boolean = false;
 
+  /**
+   * Header title reflects the current active tab
+   */
+  getHeaderTitle(): string {
+    const labels: { [key: number]: string } = {
+      1: 'Lateness',
+      2: 'Early Leave',
+      3: 'Absence',
+      4: 'Overtime',
+      5: 'Grace Period'
+    };
+    const label = labels[this.currentStep] || '';
+    return `Edit ${label} - Part Time`;
+  }
+
   goNext() {
     // Prevent navigation while APIs are loading
     if (this.loading || this.salaryPortionsLoading) {

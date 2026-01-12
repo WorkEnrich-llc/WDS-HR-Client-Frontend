@@ -2,8 +2,8 @@
 <app-page-header [breadcrumbs]="[
    { label: 'Attendance', link: '/attendance' },
     { label: 'Attendance Rules', link: '/attendance-rules' },
-    { label: 'Edit Full Time Rules' }
-  ]" title="Edit Absence - Full Time">
+        { label: 'Edit Full Time Rules' }
+    ]" [title]="getHeaderTitle()">
     <button class="btn btn-lg btn-success" [disabled]="isSaving || !hasChanges()" (click)="saveChanges()">
         @if (isSaving) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>

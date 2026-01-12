@@ -3,7 +3,7 @@
     { label: 'Attendance', link: '/attendance' },
     { label: 'Attendance Rules', link: '/attendance-rules' },
     { label: 'Edit Part Time Rules' }
-  ]" title="Edit Absence - Part Time">
+  ]" [title]="getHeaderTitle()">
   <button class="btn btn-lg btn-success" [disabled]="isSaving || !hasChanges()" (click)="saveChanges()">
     @if (isSaving) {
     <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
