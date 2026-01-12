@@ -25,6 +25,12 @@ export class OnboardingService {
     return this._HttpClient.post(url, onboardingData);
   }
 
+  // update onboarding check (same endpoint, PUT method)
+  updateOnboarding(onboardingData: any): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.put(url, onboardingData);
+  }
+
   // delete onboarding items (supports body payload with ids)
   deleteOnboarding(payload: any): Observable<any> {
     const url = `${this.apiBaseUrl}personnel/onboarding`;

@@ -39,6 +39,16 @@
 .onecheck:has(input:checked) p {
     color: var(--color-secondary-700);
 }
+.selection-error {
+    color: #b00020;
+    font-size: 0.95rem;
+    margin-top: 8px;
+}
+/* visual disabled state for action buttons (still clickable) */
+.edit-btn.disabled, .remove-btn.disabled {
+    opacity: 0.55;
+    cursor: pointer;
+}
 .onecheck.dragging {
   opacity: 0.5;
   background: #f0f0f0;

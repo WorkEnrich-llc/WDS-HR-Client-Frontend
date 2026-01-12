@@ -22,6 +22,9 @@ interface CheckItem {
 export class EditOnboardingComponent {
   checks: CheckItem[] = [];
   checkForm: FormGroup;
+  // UI state for selection validation
+  selectionError: string | null = null;
+  showSelectionError = false;
   constructor(private router: Router, private fb: FormBuilder, private onboardingService: OnboardingService) {
     this.checkForm = this.fb.group({
       checkName: ['', [Validators.required, Validators.maxLength(100),
@@ -84,12 +87,19 @@ export class EditOnboardingComponent {
   // toggle checkbox
   toggleCheck(index: number) {
     this.checks[index].completed = !this.checks[index].completed;
-    // this.printData();
+    // clear selection error if user selects an item
+    if (this.hasSelectedChecks) {
+      this.showSelectionError = false;
+      this.selectionError = null;
+    }
   }
 
   // delete selected items
   deleteSelected() {
-    if (!this.hasSelectedChecks) return;
+    if (!this.hasSelectedChecks) {
+      this.showSelectionErrorMsg('Please select at least one item to delete.');
+      return;
+    }
     this.openDeleteModal();
   }
 
@@ -118,10 +128,23 @@ export class EditOnboardingComponent {
 
   // Edit selected items
   startEditSelected() {
-    if (!this.hasSelectedChecks) return;
+    if (!this.hasSelectedChecks) {
+      this.showSelectionErrorMsg('Please select at least one item to edit.');
+      return;
+    }
     this.checks.forEach(c => {
       if (c.completed) c.editing = true;
     });
+  }
+
+  showSelectionErrorMsg(message: string) {
+    this.selectionError = message;
+    this.showSelectionError = true;
+    // auto-clear after a few seconds
+    setTimeout(() => {
+      this.showSelectionError = false;
+      this.selectionError = null;
+    }, 3500);
   }
 
   finishEdit(item: CheckItem, event: any) {
@@ -158,7 +181,7 @@ export class EditOnboardingComponent {
         is_active: item.is_active ?? false
       };
 
-      this.onboardingService.createOnboarding({ request_data }).subscribe({
+      this.onboardingService.updateOnboarding({ request_data }).subscribe({
         next: () => { },
         error: (err) => { console.error('Error updating onboarding item:', err); }
       });
@@ -229,7 +252,7 @@ export class EditOnboardingComponent {
           is_active: newest.is_active ?? false
         };
 
-        this.onboardingService.createOnboarding({ request_data }).subscribe({
+        this.onboardingService.updateOnboarding({ request_data }).subscribe({
           next: () => { },
           error: (err) => { console.error('Error saving onboarding data:', err); }
         });
