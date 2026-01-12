@@ -7,16 +7,16 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OnboardingService {
-   private apiBaseUrl: string;  
+  private apiBaseUrl: string;
   constructor(private _HttpClient: HttpClient) {
     this.apiBaseUrl = environment.apiBaseUrl;
   }
 
   // get onboarding data
-   getOnboarding(): Observable<any> {
-      const url = `${this.apiBaseUrl}personnel/onboarding`;
-      return this._HttpClient.get(url);
-    }
+  getOnboarding(): Observable<any> {
+    const url = `${this.apiBaseUrl}personnel/onboarding`;
+    return this._HttpClient.get(url);
+  }
 
 
   // create and update onboarding check

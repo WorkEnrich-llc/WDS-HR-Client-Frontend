@@ -105,7 +105,7 @@ export class EditOnboardingComponent {
     if (idsToDelete.length) {
       // send delete payload using HTTP DELETE with body: { request_data: { id: [...] } }
       this.onboardingService.deleteOnboarding({ request_data: { id: idsToDelete } }).subscribe({
-        next: () => {},
+        next: () => { },
         error: (err) => { console.error('Error deleting onboarding items:', err); }
       });
     } else {
@@ -159,7 +159,7 @@ export class EditOnboardingComponent {
       };
 
       this.onboardingService.createOnboarding({ request_data }).subscribe({
-        next: () => {},
+        next: () => { },
         error: (err) => { console.error('Error updating onboarding item:', err); }
       });
       return;
@@ -230,7 +230,7 @@ export class EditOnboardingComponent {
         };
 
         this.onboardingService.createOnboarding({ request_data }).subscribe({
-          next: () => {},
+          next: () => { },
           error: (err) => { console.error('Error saving onboarding data:', err); }
         });
         return;
@@ -274,7 +274,7 @@ export class EditOnboardingComponent {
       // delete by id using HTTP DELETE with body
       const ids = [item.id];
       this.onboardingService.deleteOnboarding({ request_data: { id: ids } }).subscribe({
-        next: () => {},
+        next: () => { },
         error: (err) => { console.error('Error deleting onboarding item:', err); }
       });
     } else {
