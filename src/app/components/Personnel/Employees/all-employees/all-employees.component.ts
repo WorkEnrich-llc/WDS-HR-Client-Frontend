@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, CommonModule } from '@angular/common';
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -13,15 +13,30 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe, CommonModule, NgxPaginationModule],
   providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })
 export class AllEmployeesComponent implements OnInit, OnDestroy {
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage) || 1;
+  }
+  copiedEmailId: number | null = null;
+  copyEmail(email: string, employeeId: number): void {
+    if (!email) return;
+    navigator.clipboard.writeText(email).then(() => {
+      this.copiedEmailId = employeeId;
+      setTimeout(() => {
+        this.copiedEmailId = null;
+      }, 1500);
+    });
+  }
+  selectedView: 'grid' | 'list' = 'list';
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
   private paginationState = inject(PaginationStateService);
@@ -221,6 +236,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       });
   }
 
+  setView(view: 'grid' | 'list') {
+    this.selectedView = view;
+  }
+
   // loadEmployees(currentPage: number): void {
   //   this.loading = true;
   //   this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
@@ -329,6 +348,13 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           // The employee data is nested in object_info
           const employee = item.object_info || item;
           const endContract = employee.current_contract?.end_contract;
+          // Try to get the profile image if available (adjust path as needed)
+          let profileImage = '';
+          if (employee.profile_image) {
+            profileImage = employee.profile_image;
+          } else if (employee.contact_info?.profile_image) {
+            profileImage = employee.contact_info.profile_image;
+          }
           return {
             id: employee.id,
             code: employee.code || '',
@@ -340,7 +366,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             branch: employee.job_info?.branch?.name || '',
             joinDate: this.formatDate(employee.job_info?.start_contract),
             end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
-            created_at: employee.created_at || ''
+            created_at: employee.created_at || '',
+            profileImage: profileImage,
+            email: employee.contact_info?.email || ''
           };
         } catch (empError) {
           console.error('Error transforming employee:', empError, item);
