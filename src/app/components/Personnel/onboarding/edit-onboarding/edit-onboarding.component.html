@@ -108,10 +108,10 @@
                     <p class="m-0">{{ check.name }}</p>
                     } @else {
                     <div class="d-flex gap-3 w-100">
-                        <input type="text" class="form-control" 
-                            [value]="check.name" (blur)="finishEdit(check, $event)" autofocus />
+                        <input type="text" class="form-control" [value]="check.name" (blur)="finishEdit(check, $event)"
+                            autofocus />
                         @if (check.error) {
-                         <span class="error-msg nowrap">{{ check.error }}</span>
+                        <span class="error-msg nowrap">{{ check.error }}</span>
                         }
                     </div>
                     }
@@ -130,12 +130,9 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<app-popup 
-    [title]="'Delete Selected Items'" 
+<app-popup [title]="'Delete Selected Items'"
     [paragraph1]="'Are you sure you want to delete ' + selectedChecksCount + (selectedChecksCount === 1 ? ' selected item?' : ' selected items?')"
-    [paragraph2]="'This action cannot be undone!'"
-    [isOpen]="isDeleteModalOpen" 
-    (close)="closeDeleteModal()">
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isDeleteModalOpen" (close)="closeDeleteModal()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
