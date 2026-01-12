@@ -18,7 +18,7 @@
 }
 
 <!-- Overlay Modal -->
-<!-- @if (visible && isOverlayOpen) { -->
+@if (visible && isOverlayOpen) {
 <div class="setup-overlay-backdrop" (click)="closeOverlay()">
   <div class="setup-overlay-modal" (click)="$event.stopPropagation()">
     <div class="setup-overlay-header">

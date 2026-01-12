@@ -51,7 +51,8 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   }
 
   get allStepsCompleted(): boolean {
-    return this.items.length > 0 && this.items.every(item => item.checked === true);
+    return false;
+    // return this.items.length > 0 && this.items.every(item => item.checked === true);
   }
 
   isStepRecentlyCompleted(step: ISystemSetupStepItem): boolean {
