@@ -133,23 +133,27 @@ export class EditSalaryPortionsComponent implements OnInit {
       next: (data) => {
         this.isLoading = false;
         this.salaryPortion = data;
-        this.salaryPortions = data.settings || [];
+        const settingsFromResponse = data.object_info?.settings || data.settings || [];
+        this.salaryPortions = settingsFromResponse || [];
         const isFlexibleState = data.is_flexible ?? false;
         this.portions.clear();
 
 
         if (this.salaryPortions.length > 0) {
-          // Filter out 'gross' and separate default from others based on default flag
+          // Filter out 'gross'
           const filteredPortions = this.salaryPortions.filter((p: any) => {
             const name = typeof p.name === 'string' ? p.name.toLowerCase().trim() : '';
             return name !== 'gross';
           });
 
-          // Find the portion with default === true
-          const defaultPortion = filteredPortions.find((p: any) => p.default === true);
+          // Determine default portion: prefer explicit default flag, otherwise use first element
+          let defaultPortion = filteredPortions.find((p: any) => p.default === true);
+          if (!defaultPortion && filteredPortions.length > 0) {
+            defaultPortion = filteredPortions[0];
+          }
 
-          // Get other portions (default === false or undefined)
-          const otherPortions = filteredPortions.filter((p: any) => p.default !== true);
+          // Other portions are the remaining items (exclude the chosen default)
+          const otherPortions = filteredPortions.filter((p: any) => p !== defaultPortion);
 
           const returnedFormArray: FormGroup[] = [];
 
@@ -283,17 +287,28 @@ export class EditSalaryPortionsComponent implements OnInit {
 
     // Get settings from other rows (indices 1 and 2) that are enabled
     const settings: { name: string; percentage: number }[] = [];
-    const startIndex = isFlexible ? 0 : 1;
+    // always include the first portion (basic) in settings so its percentage is sent
+    const startIndex = 0;
     for (let i = startIndex; i < this.portions.length; i++) {
       const portion = this.portions.at(i) as FormGroup;
       const isTargetRow = (i === 0);
       const enabled = portion?.get('enabled')?.value;
-      if (isTargetRow || enabled) {
-        const name = portion?.get('name')?.value?.trim() || '';
-        const percentage = Number(portion?.get('percentage')?.value) || 0;
-        if (name) {
-          settings.push({ name, percentage });
-        }
+      // use getRawValue to ensure we read the control value even if it's disabled
+      const raw = portion.getRawValue();
+      const name = (raw.name || '').toString().trim();
+      const percentage = raw.percentage === '' || raw.percentage === null || raw.percentage === undefined ? 0 : Number(raw.percentage);
+
+      // include the row if:
+      // - it's the target row (basic when flexible), or
+      // - it's explicitly enabled, or
+      // - the user filled a name, or
+      // - the user filled a percentage (> 0)
+      const hasPercentage = !isNaN(percentage) && percentage > 0;
+      const shouldInclude = isTargetRow || enabled || (!!name && name.length > 0) || hasPercentage;
+      if (shouldInclude) {
+        // prefer sending an empty string name as-is if user provided nothing,
+        // but backend expects a name — only push when we have a name or percentage
+        settings.push({ name, percentage });
       }
     }
 
