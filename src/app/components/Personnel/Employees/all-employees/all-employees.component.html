@@ -122,12 +122,10 @@
           <div class="profile-hug mb-3"
             style="width: 90px; height: 90px; overflow: hidden; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
             @if (employee.profileImage){
-            <img [src]="employee.profileImage" alt="Profile Picture"
-              (error)="handleImageError($event)"
+            <img [src]="employee.profileImage" alt="Profile Picture" (error)="handleImageError($event)"
               style="width: 100%; height: 100%; object-fit: cover;" />
             } @else {
-            <img [src]="defaultImage" alt="Profile Picture"
-              (error)="handleImageError($event)"
+            <img [src]="defaultImage" alt="Profile Picture" (error)="handleImageError($event)"
               style="width: 100%; height: 100%; object-fit: cover;" />
             }
           </div>
@@ -321,7 +319,8 @@
             </svg>
           </button>
           <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-          <button class="next p-0 btn border-0" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">
+          <button class="next p-0 btn border-0" [disabled]="currentPage >= totalPages"
+            (click)="onPageChange(currentPage + 1)">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="m9 5l6 7l-6 7" />
