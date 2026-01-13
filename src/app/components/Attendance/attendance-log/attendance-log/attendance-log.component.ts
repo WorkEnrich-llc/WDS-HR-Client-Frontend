@@ -9,7 +9,7 @@ import { DepartmentsService } from '../../../../core/services/od/departments/dep
 import { ToasterMessageService } from '../../../../core/services/tostermessage/tostermessage.service';
 import { ToastrService } from 'ngx-toastr';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
-import { debounceTime, distinctUntilChanged, filter, map, Observable, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, of, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { WorkSchaualeService } from '../../../../core/services/attendance/work-schaduale/work-schauale.service';
 import { AttendanceLogService } from '../../../../core/services/attendance/attendance-log/attendance-log.service';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
@@ -18,6 +18,7 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 
 // Extend dayjs with isoWeek plugin - required for ngx-daterangepicker-material
 dayjs.extend(isoWeek);
@@ -32,6 +33,8 @@ dayjs.extend(isoWeek);
   encapsulation: ViewEncapsulation.None,
 })
 export class AttendanceLogComponent implements OnDestroy {
+  isEmployeeLoading: boolean = false;
+  isDepartmentLoading: boolean = false;
 
 
   constructor(private route: ActivatedRoute, private _AttendanceLogService: AttendanceLogService, private _WorkSchaualeService: WorkSchaualeService, private toasterMessageService: ToasterMessageService, private toastr: ToastrService,
@@ -126,11 +129,16 @@ export class AttendanceLogComponent implements OnDestroy {
 
   private departmentService = inject(DepartmentsService);
   private toasterService = inject(ToasterMessageService);
+  private employeeService = inject(EmployeeService);
   selectedRange: { startDate: string; endDate: string } | null = null;
   editModalLoading: boolean = false;
 
   attendanceLogs: any[] = [];
   departmentList$?: Observable<any[]>;
+  employeeList: any[] = [];
+  // Caches to avoid re-fetching when opening filters repeatedly
+  private cachedDepartments: any[] | undefined;
+  private cachedEmployees: any[] | undefined;
   skeletonRows = Array.from({ length: 5 });
   // Modal state for editing logs
   editModalOpen: boolean = false;
@@ -209,6 +217,7 @@ export class AttendanceLogComponent implements OnDestroy {
   ngOnInit(): void {
     this.filterForm = this.fb.group({
       department_id: [''],
+      employee: [''],
       from_date: [''],
       offenses: [''],
       day_type: [''],
@@ -363,12 +372,57 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   openFilterOverlay(): void {
-    if (!this.departmentList$) {
-      this.departmentList$ = this.departmentService.getAllDepartment(1, 10000, { status: 'true' }).pipe(
+    this.isDepartmentLoading = true;
+    this.isEmployeeLoading = true;
+
+    // Use cached departments if available
+    if (this.cachedDepartments !== undefined) {
+      this.departmentList$ = of(this.cachedDepartments);
+      this.isDepartmentLoading = false;
+    } else {
+      // Fetch departments with per_page=500 and cache result.
+      // We must subscribe here so the API request is executed even if the template
+      // shows the skeleton (which would prevent the async pipe from subscribing).
+      this.departmentService.getAllDepartment(1, 500, { status: 'true' }).pipe(
         map((res: any) => res?.data?.list_items ?? [])
-      );
+      ).subscribe({
+        next: (list: any[]) => {
+          this.cachedDepartments = list;
+          this.departmentList$ = of(list);
+          this.isDepartmentLoading = false;
+        },
+        error: () => {
+          this.cachedDepartments = [];
+          this.departmentList$ = of([]);
+          this.isDepartmentLoading = false;
+        }
+      });
     }
-    // Open the overlay after ensuring department observable is set
+
+    // Use cached employees if available
+    if (this.cachedEmployees !== undefined) {
+      this.employeeList = this.cachedEmployees;
+      this.isEmployeeLoading = false;
+    } else {
+      // Fetch employees with per_page=2000 and cache result
+      this.employeeService.getEmployees(1, 2000, '').subscribe({
+        next: (res: any) => {
+          this.employeeList = (res?.data?.list_items ?? []).map((emp: any) => ({
+            id: emp.object_info.id,
+            name: emp.object_info.contact_info.name
+          }));
+          this.cachedEmployees = this.employeeList;
+          this.isEmployeeLoading = false;
+        },
+        error: () => {
+          this.employeeList = [];
+          this.cachedEmployees = [];
+          this.isEmployeeLoading = false;
+        }
+      });
+    }
+
+    // Open the overlay (data will be provided by observables/arrays above)
     this.overlay.openOverlay();
   }
 
@@ -698,30 +752,23 @@ export class AttendanceLogComponent implements OnDestroy {
   }
 
   exportAttendanceLog(): void {
-    // Prevent multiple simultaneous requests
-    if (this.isExporting) {
-      return;
-    }
-
+    if (this.isExporting) return;
     this.isExporting = true;
 
-    // Build filter params same as loadFilteredAttendance
-    const raw = this.filterForm.value;
+    // Build export params from current filterForm and searchTerm
+    const raw = this.filterForm?.value ?? {};
     let from_date = '';
     let to_date = '';
-
-    // If date range is selected from filter form
     if (raw.from_date && raw.from_date.startDate && raw.from_date.endDate) {
       from_date = this.datePipe.transform(raw.from_date.startDate.toDate(), 'yyyy-MM-dd') || '';
       to_date = this.datePipe.transform(raw.from_date.endDate.toDate(), 'yyyy-MM-dd') || '';
-    }
-    // If single date is selected from calendar
-    else if (this.selectedDate) {
+    } else if (this.selectedDate) {
       from_date = this.datePipe.transform(this.selectedDate, 'yyyy-MM-dd') || '';
     }
 
-    const filters: IAttendanceFilters = {
+    const exportParams: IAttendanceFilters = {
       department_id: raw.department_id || undefined,
+      employee: raw.employee || undefined,
       from_date,
       to_date,
       offenses: raw.offenses || undefined,
@@ -729,17 +776,8 @@ export class AttendanceLogComponent implements OnDestroy {
       search: this.searchTerm || undefined,
     };
 
-    // Remove undefined/null/empty values
-    const cleanFilters: any = {};
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        cleanFilters[key] = value;
-      }
-    });
-
-    this._AttendanceLogService.exportAttendanceLog(cleanFilters).subscribe({
+    this._AttendanceLogService.exportAttendanceLog(exportParams).subscribe({
       next: (blob: Blob) => {
-        // Create download link
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -748,7 +786,6 @@ export class AttendanceLogComponent implements OnDestroy {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-
         this.isExporting = false;
         this.toasterService.showSuccess('Attendance log exported successfully.');
       },
@@ -817,6 +854,7 @@ export class AttendanceLogComponent implements OnDestroy {
       }
       const filters: IAttendanceFilters = {
         department_id: raw.department_id,
+        employee: raw.employee,
         offenses: raw.offenses,
         day_type: raw.day_type,
         from_date,
@@ -836,6 +874,7 @@ export class AttendanceLogComponent implements OnDestroy {
       const filters: IAttendanceFilters = {
         page: this.currentPage,
         department_id: rawFilters.department_id || undefined,
+        employee: rawFilters.employee || undefined,
         from_date: rawFilters.from_date || undefined,
         to_date: rawFilters.to_date || undefined,
         offenses: rawFilters.offenses || undefined,
@@ -850,6 +889,7 @@ export class AttendanceLogComponent implements OnDestroy {
   resetFilterForm(): void {
     this.filterForm.reset({
       department_id: '',
+      employee: '',
       from_date: '',
       to_date: '',
       offenses: '',
@@ -862,6 +902,7 @@ export class AttendanceLogComponent implements OnDestroy {
       page: this.currentPage,
       per_page: this.itemsPerPage,
       department_id: undefined,
+      employee: undefined,
       from_date: '',
       to_date: '',
       offenses: '',
@@ -882,7 +923,7 @@ export class AttendanceLogComponent implements OnDestroy {
   openModal(attendance: any, emp: any) {
     this.attendanceToCancel = {
       record_id: attendance?.record_id,
-      employee_id: emp?.employee?.id,
+      employee: emp?.employee?.id,
       employeeName: emp?.employee?.name,
       date: emp?.date,
       status: attendance?.status,
