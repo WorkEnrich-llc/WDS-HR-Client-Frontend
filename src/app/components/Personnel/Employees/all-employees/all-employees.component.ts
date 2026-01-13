@@ -358,6 +358,11 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           } else if (employee.contact_info?.profile_image) {
             profileImage = employee.contact_info.profile_image;
           }
+          // Build display mobile number with prefix when available
+          const mobileNumber = employee.contact_info?.mobile?.number
+            ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
+            : '';
+
           return {
             id: employee.id,
             code: employee.code || '',
@@ -371,7 +376,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
             created_at: employee.created_at || '',
             profileImage: profileImage,
-            email: employee.contact_info?.email || ''
+            email: employee.contact_info?.email || '',
+            mobile: mobileNumber
           };
         } catch (empError) {
           console.error('Error transforming employee:', empError, item);
