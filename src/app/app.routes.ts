@@ -893,6 +893,8 @@ export const routes: Routes = [
           // Calendar routes
           {
             path: 'calendar',
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Calendar' },
             children: [
               {
                 path: '',
