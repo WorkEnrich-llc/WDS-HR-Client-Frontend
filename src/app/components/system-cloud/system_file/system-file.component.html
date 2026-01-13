@@ -97,19 +97,101 @@
       }
 
       @if (!loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalAddtosystem()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-            <path d="M4 12a8 8 0 1 0 16 0" />
-            <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
-          </g>
-        </svg>
-        <span>Import to System</span>
-      </button>
+      <div class="d-flex align-items-center gap-2 position-relative">
+        <div class="position-relative" style="flex-shrink: 0;">
+          <button class="btn" (click)="toggleSystemMenu($event)"
+            style="border-radius: 0.75rem; border: 1px solid #4a6d97; background-color: white; color: #4a6d97; padding: 0.5rem; height: 48px; display: flex; align-items: center; justify-content: center;"
+            title="More actions">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M1.6875 9C1.6875 7.86091 2.61091 6.9375 3.75 6.9375C4.88909 6.9375 5.8125 7.86091 5.8125 9C5.8125 10.1391 4.88909 11.0625 3.75 11.0625C2.61091 11.0625 1.6875 10.1391 1.6875 9ZM3.75 8.0625C3.23223 8.0625 2.8125 8.48223 2.8125 9C2.8125 9.51777 3.23223 9.9375 3.75 9.9375C4.26777 9.9375 4.6875 9.51777 4.6875 9C4.6875 8.48223 4.26777 8.0625 3.75 8.0625Z"
+                fill="#4A6D97" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M6.9375 9C6.9375 7.86091 7.86091 6.9375 9 6.9375C10.1391 6.9375 11.0625 7.86091 11.0625 9C11.0625 10.1391 10.1391 11.0625 9 11.0625C7.86091 11.0625 6.9375 10.1391 6.9375 9ZM9 8.0625C8.48223 8.0625 8.0625 8.48223 8.0625 9C8.0625 9.51777 8.48223 9.9375 9 9.9375C9.51777 9.9375 9.9375 9.51777 9.9375 9C9.9375 8.48223 9.51777 8.0625 9 8.0625Z"
+                fill="#4A6D97" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M14.25 6.9375C13.1109 6.9375 12.1875 7.86091 12.1875 9C12.1875 10.1391 13.1109 11.0625 14.25 11.0625C15.3891 11.0625 16.3125 10.1391 16.3125 9C16.3125 7.86091 15.3891 6.9375 14.25 6.9375ZM13.3125 9C13.3125 8.48223 13.7322 8.0625 14.25 8.0625C14.7678 8.0625 15.1875 8.48223 15.1875 9C15.1875 9.51777 14.7678 9.9375 14.25 9.9375C13.7322 9.9375 13.3125 9.51777 13.3125 9Z"
+                fill="#4A6D97" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          @if (showSystemMenu) {
+          <div class="dropdown-menu-custom position-absolute top-100 start-0"
+            style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); width: fit-content; z-index: 2000; margin-top: 0.5rem; overflow: hidden;">
+            <button type="button" class="d-flex align-items-center text-start"
+              style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; gap: 10px; width: 100%;"
+              (click)="openReupdateModal('structure'); toggleSystemMenu($event)" onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M4.5 12a7.5 7.5 0 1 0 15 0" stroke="#3b82f6" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 6v6" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <span style="white-space: nowrap;">Update Structure</span>
+            </button>
+
+            <button type="button" class="d-flex align-items-center text-start"
+              style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; border-top: 1px solid #e0e0e0; gap: 10px; width: 100%;"
+              (click)="openReupdateModal('basic'); toggleSystemMenu($event)" onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M3 21v-3.75L14.06 6.19l3.75 3.75L6.75 21H3z" stroke="#10b981"
+                  stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M20.71 7.04l-1.06 1.06-3.75-3.75 1.06-1.06a1 1 0 0 1 1.41 0l2.34 2.34a1 1 0 0 1 0 1.41z"
+                  stroke="#10b981" stroke-width="1.5" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <span style="white-space: nowrap;">Update basic</span>
+            </button>
+            <button type="button" class="d-flex align-items-center text-start"
+              style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; border-top: 1px solid #e0e0e0; gap: 10px; width: 100%;"
+              (click)="openReupdateModal('components_value'); toggleSystemMenu($event)" onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="8" height="8" stroke="#8b5cf6" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="13" y="3" width="8" height="8" stroke="#8b5cf6" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="3" y="13" width="8" height="8" stroke="#8b5cf6" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="13" y="13" width="8" height="8" stroke="#8b5cf6" stroke-width="1.5"
+                  fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span style="white-space: nowrap;">Update Component Basic</span>
+            </button>
+            <button type="button" class="d-flex align-items-center text-start"
+              style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; border-top: 1px solid #e0e0e0; gap: 10px; width: 100%;"
+              (click)="openReupdateModal('all'); toggleSystemMenu($event)" onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M21 12a9 9 0 1 1-3.1-6.36" stroke="var(--color-warning-500)" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M21 3v6h-6" stroke="var(--color-warning-500)" stroke-width="1.5" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span style="white-space: nowrap;">Update All</span>
+            </button>
+          </div>
+          }
+        </div>
+
+        <button class="btn btn-lg btn-outline-dark" (click)="openModalAddtosystem()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+              <path d="M4 12a8 8 0 1 0 16 0" />
+              <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
+            </g>
+          </svg>
+          <span>Import to System</span>
+        </button>
+      </div>
+
       }
 
       @if (isImported && !loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalMissing()">
+      <button class="btn btn-lg btn-meaning-warning" (click)="openModalMissing()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
@@ -233,6 +315,10 @@
                             <span>Cancel Save</span>
                           </button> -->
       }
+
+
+
+
     </div>
 
   </div>
@@ -261,7 +347,6 @@
   }
 </div>
 }
-
 @if (isAllLoaded && !loadData && !isImported) {
 <app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
   [rowsInput]="bodyRows" [fileEditable]="true" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
@@ -300,6 +385,43 @@
     }
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalAddtosystem()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- re-update confirmation modal (same visuals as import modal) -->
+<app-popup [title]="'Are you sure to Import To System?'"
+  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+  [isOpen]="reupdatePOP" (close)="closeReupdateModal()">
+  @if (errMsg) {
+  <div class="alert alert-danger mb-0 mt-3" role="alert">
+    {{errMsg}}
+  </div>
+  }
+  <div class="mb-3">
+    @if (reupdateType === 'basic') {
+    <p class="m-0">Basic: Updates employee data in the sheet (modifies field values only).</p>
+    }
+    @if (reupdateType === 'components_value') {
+    <p class="m-0">Component Value: Replaces any zero or empty values with the component's predefined default values.</p>
+    }
+    @if (reupdateType === 'structure') {
+    <p class="m-0">Structure: Updates the component's structure (fields, layout, or schema) without changing existing values.</p>
+    }
+    @if (reupdateType === 'all') {
+    <p class="m-0">All: Applies the Structure, Basic, and Component Value updates — updating structure and applying value changes.</p>
+    }
+  </div>
+  <button modal-btn-left class="btn btn-lg w-100" (click)="confirmReupdate()"
+    [style.backgroundColor]="getReupdateColor()" [style.borderColor]="getReupdateColor()" [style.color]="'#ffffff'">
+    @if (!isLoading) {
+    <span>Confirm</span>
+    }
+    @if (isLoading) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeReupdateModal()">
     Cancel
   </button>
 </app-popup>
