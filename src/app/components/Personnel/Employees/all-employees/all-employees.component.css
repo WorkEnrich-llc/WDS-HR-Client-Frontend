@@ -96,3 +96,17 @@
 .switchs .dispaly-switch.active svg {
   fill: var(--color-primary-500);
 }
+
+/* Use same pagination appearance as shared table: hide text labels and keep arrows */
+:host ::ng-deep .ngx-pagination .pagination-next,
+:host ::ng-deep .ngx-pagination .pagination-previous {
+  display: none !important;
+}
+
+:host ::ng-deep .small-screen {
+  display: none !important;
+}
+
+:host ::ng-deep pagination-controls pagination-template nav {
+  margin-bottom: 0 !important;
+}

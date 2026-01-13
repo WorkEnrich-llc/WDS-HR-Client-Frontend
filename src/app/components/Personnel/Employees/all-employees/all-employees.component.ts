@@ -37,7 +37,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       }, 1500);
     });
   }
-  selectedView: 'grid' | 'list' = 'grid';
+  selectedView: 'grid' | 'list' = 'list';
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
   private paginationState = inject(PaginationStateService);
