@@ -23,6 +23,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
   styleUrl: './all-employees.component.css'
 })
 export class AllEmployeesComponent implements OnInit, OnDestroy {
+  readonly defaultImage: string = './images/profile-defult.jpg';
   get totalPages(): number {
     return Math.ceil(this.totalItems / this.itemsPerPage) || 1;
   }
@@ -358,6 +359,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           } else if (employee.contact_info?.profile_image) {
             profileImage = employee.contact_info.profile_image;
           }
+          // If no image url available or empty string, use default image
+          if (!profileImage || (typeof profileImage === 'string' && profileImage.trim() === '')) {
+            profileImage = this.defaultImage;
+          }
           // Build display mobile number with prefix when available
           const mobileNumber = employee.contact_info?.mobile?.number
             ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
@@ -435,6 +440,18 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     }
 
     return dateStr;
+  }
+
+  // Fallback handler for broken images
+  handleImageError(event: any) {
+    try {
+      const img = event?.target as HTMLImageElement;
+      if (img && img.src !== this.defaultImage) {
+        img.src = this.defaultImage;
+      }
+    } catch (e) {
+      // noop
+    }
   }
 
 
