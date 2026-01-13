@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, CommonModule } from '@angular/common';
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -13,15 +13,31 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
 import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe, CommonModule, NgxPaginationModule],
   providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })
 export class AllEmployeesComponent implements OnInit, OnDestroy {
+  readonly defaultImage: string = './images/profile-defult.jpg';
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage) || 1;
+  }
+  copiedEmailId: number | null = null;
+  copyEmail(email: string, employeeId: number): void {
+    if (!email) return;
+    navigator.clipboard.writeText(email).then(() => {
+      this.copiedEmailId = employeeId;
+      setTimeout(() => {
+        this.copiedEmailId = null;
+      }, 1500);
+    });
+  }
+  selectedView: 'grid' | 'list' = 'grid';
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
   private paginationState = inject(PaginationStateService);
@@ -221,6 +237,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       });
   }
 
+  setView(view: 'grid' | 'list') {
+    this.selectedView = view;
+  }
+
   // loadEmployees(currentPage: number): void {
   //   this.loading = true;
   //   this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
@@ -329,6 +349,25 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           // The employee data is nested in object_info
           const employee = item.object_info || item;
           const endContract = employee.current_contract?.end_contract;
+          // Prefer signed URL from `picture.generate_signed_url` when available,
+          // otherwise fall back to existing profile image fields (if any).
+          let profileImage = '';
+          if (employee.picture && employee.picture.generate_signed_url && employee.picture.generate_signed_url.toString().trim() !== '') {
+            profileImage = employee.picture.generate_signed_url;
+          } else if (employee.profile_image) {
+            profileImage = employee.profile_image;
+          } else if (employee.contact_info?.profile_image) {
+            profileImage = employee.contact_info.profile_image;
+          }
+          // If no image url available or empty string, use default image
+          if (!profileImage || (typeof profileImage === 'string' && profileImage.trim() === '')) {
+            profileImage = this.defaultImage;
+          }
+          // Build display mobile number with prefix when available
+          const mobileNumber = employee.contact_info?.mobile?.number
+            ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
+            : '';
+
           return {
             id: employee.id,
             code: employee.code || '',
@@ -340,7 +379,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             branch: employee.job_info?.branch?.name || '',
             joinDate: this.formatDate(employee.job_info?.start_contract),
             end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
-            created_at: employee.created_at || ''
+            created_at: employee.created_at || '',
+            profileImage: profileImage,
+            email: employee.contact_info?.email || '',
+            mobile: mobileNumber
           };
         } catch (empError) {
           console.error('Error transforming employee:', empError, item);
@@ -398,6 +440,18 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     }
 
     return dateStr;
+  }
+
+  // Fallback handler for broken images
+  handleImageError(event: any) {
+    try {
+      const img = event?.target as HTMLImageElement;
+      if (img && img.src !== this.defaultImage) {
+        img.src = this.defaultImage;
+      }
+    } catch (e) {
+      // noop
+    }
   }
 
 

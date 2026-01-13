@@ -126,8 +126,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <h2>Main Information</h2>
             <!-- View Sheet button for Off Cycle runs with related sheet -->
-            @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
-            payRollRunData?.data?.object_info?.run_cycle?.id === 2
+            @if (payRollRunData?.data?.object_info?.status === 'Draft'
             && relatedSheetId && !loadData) {
             <button class="btn btn-lg btn-outline-primary" (click)="onViewSheetClick()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -193,126 +192,6 @@
         </div>
         }
     </div>
-
-    @if (payRollRunData?.data?.object_info?.status === 'Draft' && payRollRunData?.data?.object_info?.run_cycle?.id !== 2
-    && !loadData) {
-    <div class="content-box mt-4">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-3">
-                <h2 style="margin: 0;">Payroll Sheets</h2>
-                @if (showValidationError && !selectedSheetId) {
-                <div class="alert alert-warning d-flex align-items-center gap-2" style="margin: 0; max-width: 400px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                    </svg>
-                    <span class="small">Please select a payroll sheet to proceed</span>
-                </div>
-                }
-            </div>
-            @if (!relatedSheetId) {
-            <button class="btn btn-lg btn-outline-primary" (click)="onCreateSheetClick()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5">
-                        <path d="M12 5v14m-7-7h14" />
-                    </g>
-                </svg>
-                <span>Create New Sheet</span>
-            </button>
-            }
-        </div>
-
-        @if (loadData) {
-        <div class="payroll-table-skeleton">
-            <table class="table table-sm">
-                <thead class="table-dark">
-                    <tr>
-                        <th class="w-5"></th>
-                        <th class="w-50">File Name</th>
-                        <th class="w-20">Created Date</th>
-                        <th class="w-20">Updated Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (i of [1, 2, 3, 4, 5]; track i) {
-                    <tr>
-                        <td class="py-3">
-                            <div class="skeleton-checkbox"></div>
-                        </td>
-                        <td class="py-3">
-                            <div class="skeleton-row-item"></div>
-                            <div class="skeleton-row-item" style="width: 70%; margin-bottom: 0;"></div>
-                        </td>
-                        <td class="py-3">
-                            <div class="skeleton-row-item" style="width: 60%; margin-bottom: 0;"></div>
-                        </td>
-                        <td class="py-3">
-                            <div class="skeleton-row-item" style="width: 60%; margin-bottom: 0;"></div>
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        }
-
-        @if (!loadData) {
-        <!-- Draft Status Table -->
-        <app-table [data]="employees" [isLoading]="loadData" [columnsCount]="4" [totalItems]="employees.length"
-            [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-            (itemsPerPageChange)="onItemsPerPageChange($event)" [headerTemplate]="draftTableHeader"
-            [rowTemplate]="draftTableRow" [emptyTemplate]="noSheets"></app-table>
-        }
-
-        <ng-template #draftTableHeader>
-            <th style="width: 5%"></th>
-            <th style="width: 46%">File Name</th>
-            <th style="width: 15%">Created Date</th>
-            <th style="width: 15%">Updated Date</th>
-            <th style="width: 8%;">Actions</th>
-        </ng-template>
-
-        <ng-template #draftTableRow let-sheet>
-            <td class="cursor-pointer" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 5%">
-                <input type="radio" [checked]="selectedSheetId === sheet.id" [value]="sheet.id"
-                    (change)="selectedSheetId = sheet.id" class="cursor-pointer"
-                    style="width: 20px; height: 20px; cursor: pointer; accent-color: #377AFD;" />
-            </td>
-            <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 46%">
-                {{ sheet.name }}
-            </td>
-            <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 15%">
-                {{ sheet.created_at | date:'dd/MM/yyyy' }}
-            </td>
-            <td class="cursor-pointer text-md" (click)="selectedSheetId = sheet.id"
-                [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'" style="width: 15%">
-                {{ sheet.updated_at | date:'dd/MM/yyyy' }}
-            </td>
-            <td class="text-center" [style.background-color]="selectedSheetId === sheet.id ? '#377AFD' : 'transparent'"
-                style="width: 8%">
-                <button class="btn btn-sm" (click)="viewSheet(sheet.id)" title="View Sheet"
-                    style="background: none; border: none; cursor: pointer; padding: 0.25rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                </button>
-            </td>
-        </ng-template>
-
-        <ng-template #noSheets>
-            <div class="text-center py-4">
-                <p class="text-muted">No payroll sheets found</p>
-            </div>
-        </ng-template>
-    </div>
-    }
 
     @if (payRollRunData?.data?.object_info?.status === 'Pending' || payRollRunData?.data?.object_info?.status ===
     'Completed' || payRollRunData?.data?.object_info?.status === 'Processed' ||

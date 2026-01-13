@@ -5,14 +5,13 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
-import { TableComponent } from '../../../shared/table/table.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 
 @Component({
   selector: 'app-view-payroll-runs',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, PopupComponent, DatePipe],
+  imports: [PageHeaderComponent,OverlayFilterBoxComponent, PopupComponent, DatePipe],
   providers: [DatePipe],
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
@@ -105,12 +104,9 @@ export class ViewPayrollRunsComponent implements OnDestroy {
           if (this.relatedSheetId) {
             this.selectedSheetId = this.relatedSheetId;
           }
-          // Only fetch payroll sheets if status is Draft and run_cycle is not Off Cycle (id !== 2)
-          if (data?.data?.object_info?.status === 'Draft' && data?.data?.object_info?.run_cycle?.id !== 2) {
-            this.fetchEmployees();
-          } else {
-            this.loadData = false;
-          }
+
+          this.loadData = false;
+
         },
         error: () => {
           this.loadData = false;
@@ -412,12 +408,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
           // Auto-select related sheet if available
           if (this.relatedSheetId) {
             this.selectedSheetId = this.relatedSheetId;
-          }
-          // Only fetch payroll sheets if status is Draft and run_cycle is not Off Cycle (id !== 2)
-          if (data?.data?.object_info?.status === 'Draft' && data?.data?.object_info?.run_cycle?.id !== 2) {
-            this.fetchEmployees();
-          } else {
-            this.loadData = false;
           }
         },
         error: () => {
