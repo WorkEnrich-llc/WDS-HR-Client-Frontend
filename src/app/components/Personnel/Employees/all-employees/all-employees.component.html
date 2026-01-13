@@ -115,123 +115,124 @@
       }
       } @else {
       @for (employee of filteredEmployees; track employee.id) {
-      <div class="col-12 col-md-6 col-lg-3 d-flex">
-        <div
-          class="content-hug w-100 d-flex flex-column align-items-center p-3 shadow-sm rounded bg-white position-relative"
-          style="border-radius: 16px; min-height: 340px;">
-          <div class="profile-hug mb-3"
-            style="width: 90px; height: 90px; overflow: hidden; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-            @if (employee.profileImage){
-            <img [src]="employee.profileImage" alt="Profile Picture" (error)="handleImageError($event)"
-              style="width: 100%; height: 100%; object-fit: cover;" />
-            } @else {
-            <img [src]="defaultImage" alt="Profile Picture" (error)="handleImageError($event)"
-              style="width: 100%; height: 100%; object-fit: cover;" />
-            }
-          </div>
-          <div class="w-100 text-center">
-            <h5 class="mb-1 fw-bold">{{ employee.name || 'N/A' }}</h5>
-            <div class="text-muted small mb-2">{{ employee.jobTitle || 'N/A' }}</div>
-            <div class="mb-2">
-              <span class="badge-branch px-3 py-2 d-inline-flex align-items-center rounded-pill shadow-sm"
-                style="background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 500; font-size: 0.95rem; border: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  style="margin-right: 6px;">
-                  <path d="M6 3v12a3 3 0 0 0 3 3h6" stroke="#1976d2" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                  <circle cx="6" cy="18" r="3" stroke="#1976d2" stroke-width="1.5" />
-                  <circle cx="18" cy="18" r="3" stroke="#1976d2" stroke-width="1.5" />
-                  <circle cx="6" cy="6" r="3" stroke="#1976d2" stroke-width="1.5" />
-                </svg>
-                {{ employee.branch || 'N/A' }}
-              </span>
+      <a class="btn btn-outline-primary btn-sm" (click)="navigateToView(employee)">
+        <div class="col-12 col-md-6 col-lg-3 d-flex">
+          <div
+            class="content-hug w-100 d-flex flex-column align-items-center p-3 shadow-sm rounded bg-white position-relative"
+            style="border-radius: 16px; min-height: 340px;">
+            <div class="profile-hug mb-3"
+              style="width: 90px; height: 90px; overflow: hidden; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+              @if (employee.profileImage){
+              <img [src]="employee.profileImage" alt="Profile Picture" (error)="handleImageError($event)"
+                style="width: 100%; height: 100%; object-fit: cover;" />
+              } @else {
+              <img [src]="defaultImage" alt="Profile Picture" (error)="handleImageError($event)"
+                style="width: 100%; height: 100%; object-fit: cover;" />
+              }
             </div>
+            <div class="w-100 text-center">
+              <h5 class="mb-1 fw-bold">{{ employee.name || 'N/A' }}</h5>
+              <div class="text-muted small mb-2">{{ employee.jobTitle || 'N/A' }}</div>
+              <div class="mb-2">
+                <span class="badge-branch px-3 py-2 d-inline-flex align-items-center rounded-pill shadow-sm"
+                  style="background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 500; font-size: 0.95rem; border: none;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    style="margin-right: 6px;">
+                    <path d="M6 3v12a3 3 0 0 0 3 3h6" stroke="#1976d2" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <circle cx="6" cy="18" r="3" stroke="#1976d2" stroke-width="1.5" />
+                    <circle cx="18" cy="18" r="3" stroke="#1976d2" stroke-width="1.5" />
+                    <circle cx="6" cy="6" r="3" stroke="#1976d2" stroke-width="1.5" />
+                  </svg>
+                  {{ employee.branch || 'N/A' }}
+                </span>
+              </div>
 
-            <div class="mb-2 text-center d-flex align-items-center justify-content-center gap-2">
-              @if (employee.employeeStatus ==='New Joiner') {
-              <span class="badge-newjoiner">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <div class="mb-2 text-center d-flex align-items-center justify-content-center gap-2">
+                @if (employee.employeeStatus ==='New Joiner') {
+                <span class="badge-newjoiner">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path
+                        d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
+                      <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
+                      <circle cx="16.5" cy="16.5" r="1.5" />
+                      <path stroke-linecap="round" d="M2.5 9h19" />
+                    </g>
+                  </svg>
+                  <span>New Joiner</span>
+                </span>
+                }
+                @if (employee.employeeStatus ==='New Employee') {
+                <span class="badge-newemployee">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path
+                        d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
+                      <path
+                        d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
+                      <path stroke-linecap="round"
+                        d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
+                    </g>
+                  </svg>
+                  <span>New Employee</span>
+                </span>
+                }
+                @if (employee.employeeStatus ==='Employed') {
+                <span class="badge-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path
+                        d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
+                      <path
+                        d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
+                      <path stroke-linecap="round"
+                        d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
+                    </g>
+                  </svg>
+                  <span>Employed</span>
+                </span>
+                }
+                @if (employee.employeeStatus ==='Termination Pending') {
+                <span class="badge-gray">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path stroke-linecap="round" d="M12 7v5l3 3" />
+                    </g>
+                  </svg>
+                  <span>Termination Pending</span>
+                </span>
+                }
+                @if (employee.employeeStatus ==='Terminated') {
+                <span class="badge-danger">
+                  <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
-                      d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h4c3.771 0 5.657 0 6.828 1.172S22 8.229 22 12v2c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z" />
-                    <path stroke-linecap="round" d="M7 4V2.5M17 4V2.5" />
-                    <circle cx="16.5" cy="16.5" r="1.5" />
-                    <path stroke-linecap="round" d="M2.5 9h19" />
-                  </g>
-                </svg>
-                <span>New Joiner</span>
-              </span>
-              }
-              @if (employee.employeeStatus ==='New Employee') {
-              <span class="badge-newemployee">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      d="M7.3125 3.75C7.62316 3.75 7.875 4.00184 7.875 4.3125V8.8125C7.875 9.12316 7.62316 9.375 7.3125 9.375C7.00184 9.375 6.75 9.12316 6.75 8.8125V4.3125C6.75 4.00184 7.00184 3.75 7.3125 3.75Z"
+                      fill="#E04F5F" />
                     <path
-                      d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
-                    <path
-                      d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
-                    <path stroke-linecap="round"
-                      d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
-                  </g>
-                </svg>
-                <span>New Employee</span>
-              </span>
-              }
-              @if (employee.employeeStatus ==='Employed') {
-              <span class="badge-success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path
-                      d="M3 12c0 3.771 0 7.657 1.318 8.828C5.636 22 7.758 22 12 22s6.364 0 7.682-1.172S21 15.771 21 12" />
-                    <path
-                      d="m14.66 14.202l6.008-1.802c.595-.179.893-.268 1.082-.482a1 1 0 0 0 .1-.134c.15-.243.15-.553.15-1.175c0-2.45 0-3.675-.673-4.502a3 3 0 0 0-.434-.434C20.066 5 18.841 5 16.391 5H7.61c-2.45 0-3.675 0-4.502.673q-.24.195-.434.434C2 6.934 2 8.159 2 10.609c0 .622 0 .932.15 1.175q.045.07.1.134c.19.214.487.303 1.082.482l6.008 1.802M6.5 5c.823-.02 1.66-.545 1.94-1.32l.035-.103L8.5 3.5c.042-.127.064-.19.086-.246a2 2 0 0 1 1.735-1.25C10.38 2 10.448 2 10.58 2h2.838c.133 0 .2 0 .26.004a2 2 0 0 1 1.735 1.25c.023.056.044.12.086.246l.026.077c.018.053.026.08.035.103c.28.775 1.116 1.3 1.939 1.32" />
-                    <path stroke-linecap="round"
-                      d="M14 12.5h-4a.5.5 0 0 0-.5.5v2.162a.5.5 0 0 0 .314.464l.7.28a4 4 0 0 0 2.972 0l.7-.28a.5.5 0 0 0 .314-.464V13a.5.5 0 0 0-.5-.5Z" />
-                  </g>
-                </svg>
-                <span>Employed</span>
-              </span>
-              }
-              @if (employee.employeeStatus ==='Termination Pending') {
-              <span class="badge-gray">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" d="M12 7v5l3 3" />
-                  </g>
-                </svg>
-                <span>Termination Pending</span>
-              </span>
-              }
-              @if (employee.employeeStatus ==='Terminated') {
-              <span class="badge-danger">
-                <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M7.3125 3.75C7.62316 3.75 7.875 4.00184 7.875 4.3125V8.8125C7.875 9.12316 7.62316 9.375 7.3125 9.375C7.00184 9.375 6.75 9.12316 6.75 8.8125V4.3125C6.75 4.00184 7.00184 3.75 7.3125 3.75Z"
-                    fill="#E04F5F" />
-                  <path
-                    d="M8.0625 11.0625C8.0625 11.4767 7.72671 11.8125 7.3125 11.8125C6.89829 11.8125 6.5625 11.4767 6.5625 11.0625C6.5625 10.6483 6.89829 10.3125 7.3125 10.3125C7.72671 10.3125 8.0625 10.6483 8.0625 11.0625Z"
-                    fill="#E04F5F" />
-                  <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M7.3125 0C6.78406 0 6.30139 0.145194 5.77394 0.390274C5.26356 0.627418 4.67279 0.977278 3.93343 1.41514L3.36861 1.74962C2.629 2.18762 2.03828 2.53743 1.58307 2.87208C1.11236 3.21813 0.751326 3.57233 0.490009 4.03659C0.229107 4.50011 0.111308 4.99571 0.0547917 5.5838C-1.06506e-05 6.15404 -5.87241e-06 6.85237 1.25078e-07 7.72948V8.39551C-5.87241e-06 9.27261 -1.0645e-05 9.97096 0.0547917 10.5412C0.111308 11.1293 0.229107 11.6249 0.490009 12.0884C0.751326 12.5527 1.11236 12.9069 1.58307 13.2529C2.03829 13.5876 2.629 13.9374 3.36861 14.3754L3.93345 14.7099C4.67278 15.1477 5.26358 15.4976 5.77394 15.7347C6.30139 15.9798 6.78406 16.125 7.3125 16.125C7.84094 16.125 8.32361 15.9798 8.85106 15.7347C9.36143 15.4976 9.9522 15.1477 10.6916 14.7099L11.2564 14.3754C11.996 13.9374 12.5867 13.5876 13.0419 13.2529C13.5126 12.9069 13.8737 12.5527 14.135 12.0884C14.3959 11.6249 14.5137 11.1293 14.5702 10.5412C14.625 9.97096 14.625 9.27264 14.625 8.39554V7.72952C14.625 6.85242 14.625 6.15404 14.5702 5.5838C14.5137 4.99571 14.3959 4.50011 14.135 4.03659C13.8737 3.57233 13.5126 3.21813 13.0419 2.87208C12.5867 2.53743 11.996 2.18762 11.2564 1.74964L10.6916 1.41514C9.9522 0.977276 9.36144 0.627417 8.85106 0.390274C8.32361 0.145194 7.84094 0 7.3125 0ZM4.48143 2.39808C5.25179 1.94188 5.79454 1.62121 6.24799 1.41052C6.69015 1.20507 7.00556 1.125 7.3125 1.125C7.61944 1.125 7.93485 1.20507 8.37701 1.41052C8.83046 1.62121 9.37321 1.94188 10.1436 2.39808L10.6582 2.70284C11.4284 3.15898 11.9707 3.48086 12.3756 3.7785C12.7701 4.0685 12.9983 4.3106 13.1546 4.58841C13.3114 4.86696 13.4025 5.19293 13.4504 5.69142C13.4994 6.20163 13.5 6.84602 13.5 7.75774V8.36726C13.5 9.27898 13.4994 9.92337 13.4504 10.4336C13.4025 10.9321 13.3114 11.258 13.1546 11.5366C12.9983 11.8144 12.7701 12.0565 12.3756 12.3465C11.9707 12.6441 11.4284 12.966 10.6582 13.4222L10.1436 13.7269C9.37321 14.1831 8.83046 14.5038 8.37701 14.7145C7.93485 14.9199 7.61944 15 7.3125 15C7.00556 15 6.69015 14.9199 6.24799 14.7145C5.79454 14.5038 5.25179 14.1831 4.48143 13.7269L3.96681 13.4222C3.19657 12.966 2.6543 12.6441 2.24943 12.3465C1.85495 12.0565 1.62675 11.8144 1.47038 11.5366C1.31359 11.258 1.22254 10.9321 1.17463 10.4336C1.1256 9.92337 1.125 9.27898 1.125 8.36726V7.75774C1.125 6.84602 1.1256 6.20163 1.17463 5.69142C1.22254 5.19292 1.31359 4.86696 1.47038 4.58841C1.62675 4.3106 1.85495 4.0685 2.24943 3.7785C2.6543 3.48086 3.19657 3.15898 3.96681 2.70284L4.48143 2.39808Z"
-                    fill="#E04F5F" />
-                </svg>
-                <span>Terminated</span>
-              </span>
-              }
-              @if (employee.employeeStatus ==='In Notice Period') {
-              <span class="badge-warning">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" d="M12 7v5l3 3" />
-                  </g>
-                </svg>
-                <span>In Notice Period</span>
-              </span>
-              }
-            </div>
-            <!-- <div class="mb-2 d-flex flex-column align-items-center justify-content-center gap-2">
+                      d="M8.0625 11.0625C8.0625 11.4767 7.72671 11.8125 7.3125 11.8125C6.89829 11.8125 6.5625 11.4767 6.5625 11.0625C6.5625 10.6483 6.89829 10.3125 7.3125 10.3125C7.72671 10.3125 8.0625 10.6483 8.0625 11.0625Z"
+                      fill="#E04F5F" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M7.3125 0C6.78406 0 6.30139 0.145194 5.77394 0.390274C5.26356 0.627418 4.67279 0.977278 3.93343 1.41514L3.36861 1.74962C2.629 2.18762 2.03828 2.53743 1.58307 2.87208C1.11236 3.21813 0.751326 3.57233 0.490009 4.03659C0.229107 4.50011 0.111308 4.99571 0.0547917 5.5838C-1.06506e-05 6.15404 -5.87241e-06 6.85237 1.25078e-07 7.72948V8.39551C-5.87241e-06 9.27261 -1.0645e-05 9.97096 0.0547917 10.5412C0.111308 11.1293 0.229107 11.6249 0.490009 12.0884C0.751326 12.5527 1.11236 12.9069 1.58307 13.2529C2.03829 13.5876 2.629 13.9374 3.36861 14.3754L3.93345 14.7099C4.67278 15.1477 5.26358 15.4976 5.77394 15.7347C6.30139 15.9798 6.78406 16.125 7.3125 16.125C7.84094 16.125 8.32361 15.9798 8.85106 15.7347C9.36143 15.4976 9.9522 15.1477 10.6916 14.7099L11.2564 14.3754C11.996 13.9374 12.5867 13.5876 13.0419 13.2529C13.5126 12.9069 13.8737 12.5527 14.135 12.0884C14.3959 11.6249 14.5137 11.1293 14.5702 10.5412C14.625 9.97096 14.625 9.27264 14.625 8.39554V7.72952C14.625 6.85242 14.625 6.15404 14.5702 5.5838C14.5137 4.99571 14.3959 4.50011 14.135 4.03659C13.8737 3.57233 13.5126 3.21813 13.0419 2.87208C12.5867 2.53743 11.996 2.18762 11.2564 1.74964L10.6916 1.41514C9.9522 0.977276 9.36144 0.627417 8.85106 0.390274C8.32361 0.145194 7.84094 0 7.3125 0ZM4.48143 2.39808C5.25179 1.94188 5.79454 1.62121 6.24799 1.41052C6.69015 1.20507 7.00556 1.125 7.3125 1.125C7.61944 1.125 7.93485 1.20507 8.37701 1.41052C8.83046 1.62121 9.37321 1.94188 10.1436 2.39808L10.6582 2.70284C11.4284 3.15898 11.9707 3.48086 12.3756 3.7785C12.7701 4.0685 12.9983 4.3106 13.1546 4.58841C13.3114 4.86696 13.4025 5.19293 13.4504 5.69142C13.4994 6.20163 13.5 6.84602 13.5 7.75774V8.36726C13.5 9.27898 13.4994 9.92337 13.4504 10.4336C13.4025 10.9321 13.3114 11.258 13.1546 11.5366C12.9983 11.8144 12.7701 12.0565 12.3756 12.3465C11.9707 12.6441 11.4284 12.966 10.6582 13.4222L10.1436 13.7269C9.37321 14.1831 8.83046 14.5038 8.37701 14.7145C7.93485 14.9199 7.61944 15 7.3125 15C7.00556 15 6.69015 14.9199 6.24799 14.7145C5.79454 14.5038 5.25179 14.1831 4.48143 13.7269L3.96681 13.4222C3.19657 12.966 2.6543 12.6441 2.24943 12.3465C1.85495 12.0565 1.62675 11.8144 1.47038 11.5366C1.31359 11.258 1.22254 10.9321 1.17463 10.4336C1.1256 9.92337 1.125 9.27898 1.125 8.36726V7.75774C1.125 6.84602 1.1256 6.20163 1.17463 5.69142C1.22254 5.19292 1.31359 4.86696 1.47038 4.58841C1.62675 4.3106 1.85495 4.0685 2.24943 3.7785C2.6543 3.48086 3.19657 3.15898 3.96681 2.70284L4.48143 2.39808Z"
+                      fill="#E04F5F" />
+                  </svg>
+                  <span>Terminated</span>
+                </span>
+                }
+                @if (employee.employeeStatus ==='In Notice Period') {
+                <span class="badge-warning">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <path stroke-linecap="round" d="M12 7v5l3 3" />
+                    </g>
+                  </svg>
+                  <span>In Notice Period</span>
+                </span>
+                }
+              </div>
+              <!-- <div class="mb-2 d-flex flex-column align-items-center justify-content-center gap-2">
               <div class="d-flex align-items-center justify-content-center gap-2">
                 <span class="text-muted small">{{ employee.email || 'N/A' }}</span>
                 <button class="border-0 bg-transparent p-0 ms-2"
@@ -258,9 +259,8 @@
                 <span class="text-muted small">{{ employee.mobile || 'N/A' }}</span>
               </div>
             </div> -->
-
-          </div>
-          <div class="mt-auto w-100 d-flex justify-content-center gap-2">
+            </div>
+            <!-- <div class="mt-auto w-100 d-flex justify-content-center gap-2">
             <button class="btn btn-outline-primary btn-sm" (click)="navigateToView(employee)">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                 <path fill="none" stroke="currentColor" stroke-width="1.5"
@@ -269,9 +269,10 @@
               </svg>
               <span>View</span>
             </button>
+          </div> -->
           </div>
         </div>
-      </div>
+      </a>
       }
       @if (filteredEmployees.length === 0) {
       <div class="col-12">
