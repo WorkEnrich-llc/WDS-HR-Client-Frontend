@@ -348,9 +348,12 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           // The employee data is nested in object_info
           const employee = item.object_info || item;
           const endContract = employee.current_contract?.end_contract;
-          // Try to get the profile image if available (adjust path as needed)
+          // Prefer signed URL from `picture.generate_signed_url` when available,
+          // otherwise fall back to existing profile image fields (if any).
           let profileImage = '';
-          if (employee.profile_image) {
+          if (employee.picture && employee.picture.generate_signed_url && employee.picture.generate_signed_url.toString().trim() !== '') {
+            profileImage = employee.picture.generate_signed_url;
+          } else if (employee.profile_image) {
             profileImage = employee.profile_image;
           } else if (employee.contact_info?.profile_image) {
             profileImage = employee.contact_info.profile_image;
