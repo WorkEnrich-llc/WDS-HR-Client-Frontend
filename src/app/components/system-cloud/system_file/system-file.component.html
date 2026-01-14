@@ -367,7 +367,7 @@
 
 <!-- save to system model -->
 <app-popup [title]="'Import to System'"
-  [paragraph1]="'Are you sure you want to import this file to the system? This will create or update records based on the file content.'" 
+  [paragraph1]="'Are you sure you want to import this file to the system? This will create or update records based on the file content.'"
   [isOpen]="addTosystemPOP" (close)="closeModalAddtosystem()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
@@ -388,9 +388,8 @@
 </app-popup>
 
 <!-- re-update confirmation modal (same visuals as import modal) -->
-<app-popup [title]="getReupdateTitle()"
-  [paragraph1]="getReupdateParagraph()" 
-  [isOpen]="reupdatePOP" (close)="closeReupdateModal()">
+<app-popup [title]="getReupdateTitle()" [paragraph1]="getReupdateParagraph()" [isOpen]="reupdatePOP"
+  (close)="closeReupdateModal()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
     {{errMsg}}
@@ -453,7 +452,7 @@
 
 <!-- save to system missing model -->
 <app-popup [title]="'Import Missing Data'"
-  [paragraph1]="'Are you sure you want to import the missing data rows into the system? This will update only the incomplete records.'" 
+  [paragraph1]="'Are you sure you want to import the missing data rows into the system? This will update only the incomplete records.'"
   [isOpen]="addMissingPopup" (close)="closeModalMissing()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
