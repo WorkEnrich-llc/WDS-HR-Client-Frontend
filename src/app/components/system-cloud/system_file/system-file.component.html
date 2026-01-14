@@ -366,8 +366,8 @@
 
 
 <!-- save to system model -->
-<app-popup [title]="'Are you sure to Import To System?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+<app-popup [title]="'Import to System'"
+  [paragraph1]="'Are you sure you want to import this file to the system? This will create or update records based on the file content.'" 
   [isOpen]="addTosystemPOP" (close)="closeModalAddtosystem()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
@@ -388,31 +388,15 @@
 </app-popup>
 
 <!-- re-update confirmation modal (same visuals as import modal) -->
-<app-popup [title]="'Are you sure to Import To System?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+<app-popup [title]="getReupdateTitle()"
+  [paragraph1]="getReupdateParagraph()" 
   [isOpen]="reupdatePOP" (close)="closeReupdateModal()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
     {{errMsg}}
   </div>
   }
-  <div class="mb-3">
-    @if (reupdateType === 'basic') {
-    <p class="m-0">Basic: Updates employee data in the sheet (modifies field values only).</p>
-    }
-    @if (reupdateType === 'components_value') {
-    <p class="m-0">Component Value: Replaces any zero or empty values with the component's predefined default values.
-    </p>
-    }
-    @if (reupdateType === 'structure') {
-    <p class="m-0">Structure: Updates the component's structure (fields, layout, or schema) without changing existing
-      values.</p>
-    }
-    @if (reupdateType === 'all') {
-    <p class="m-0">All: Applies the Structure, Basic, and Component Value updates — updating structure and applying
-      value changes.</p>
-    }
-  </div>
+  <!-- Descriptive paragraph is provided in the popup header via getReupdateParagraph() to avoid duplication -->
   <button modal-btn-left class="btn btn-lg w-100" (click)="confirmReupdate()"
     [style.backgroundColor]="getReupdateColor()" [style.borderColor]="getReupdateColor()" [style.color]="'#ffffff'">
     @if (!isLoading) {
@@ -467,9 +451,9 @@
 </app-popup>
 
 
-<!-- save to system misssing model -->
-<app-popup [title]="'Are you sure to Import To System Missing Data?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
+<!-- save to system missing model -->
+<app-popup [title]="'Import Missing Data'"
+  [paragraph1]="'Are you sure you want to import the missing data rows into the system? This will update only the incomplete records.'" 
   [isOpen]="addMissingPopup" (close)="closeModalMissing()">
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
@@ -489,7 +473,7 @@
   </button>
 </app-popup>
 <!-- show update missing model -->
-<app-popup [title]="'Save to System Misssing Data'" [isOpen]="showMissingPopup" (close)="cancelUpload()">
+<app-popup [title]="'Saving Missing Data'" [isOpen]="showMissingPopup" (close)="cancelUpload()">
   <div class="progress" style="height: 25px;">
     <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
       [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">

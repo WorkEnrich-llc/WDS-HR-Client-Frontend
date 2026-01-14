@@ -541,6 +541,36 @@ export class SystemFileComponent implements OnInit {
     }
   }
 
+  getReupdateTitle(): string {
+    switch (this.reupdateType) {
+      case 'structure':
+        return 'Confirm Structure Update';
+      case 'basic':
+        return 'Confirm Basic Update';
+      case 'components_value':
+        return 'Confirm Component Value Update';
+      case 'all':
+        return 'Confirm Full Update';
+      default:
+        return 'Confirm Update';
+    }
+  }
+
+  getReupdateParagraph(): string {
+    switch (this.reupdateType) {
+      case 'structure':
+        return 'This will update the component structure (fields, layout or schema) without changing existing values. Proceed?';
+      case 'basic':
+        return 'This will update basic employee data in the sheet (modifies field values only). Proceed?';
+      case 'components_value':
+        return "This will replace empty or zero values with the component's predefined default values. Proceed?";
+      case 'all':
+        return 'This will apply structure, basic and component value updates. Proceed?';
+      default:
+        return 'Are you sure you want to perform this update?';
+    }
+  }
+
 
 
   startUploadTracking(id: string, isUpdateMissing: boolean = false): void {
