@@ -461,6 +461,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   hoveredApplicantId: number | null = null;
   tooltipPosition: { left: number; top: number } | null = null;
   tooltipWidth: number = 560;
+  tooltipMaxHeight: number | null = null;
   copiedSectionId: string | null = null;
 
   /**
@@ -650,6 +651,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     }
 
     this.tooltipWidth = tooltipWidth;
+    // store max height so template can allow internal scrolling
+    this.tooltipMaxHeight = Math.max(120, maxTooltipHeight);
 
     let left: number;
     let top: number;
@@ -674,6 +677,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       left: Math.round(left),
       top: Math.round(top)
     };
+    // Ensure tooltipMaxHeight is at least some minimum
+    if (!this.tooltipMaxHeight) this.tooltipMaxHeight = 300;
   }
 
   /**

@@ -547,7 +547,8 @@
     <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="6" [headerTemplate]="applicantTableHeader"
-      [rowTemplate]="applicantTableRow" [emptyTemplate]="noApplicants"></app-table>
+      [rowTemplate]="applicantTableRow" [skeletonTemplate]="applicantSkeleton"
+      [emptyTemplate]="noApplicants"></app-table>
 
     <ng-template #applicantTableHeader>
       <th (click)="sortBy('name')" style="cursor: pointer">
@@ -582,6 +583,28 @@
       <th>Action</th>
     </ng-template>
 
+    <!-- Skeleton template for applicants table (used when loading) -->
+    <ng-template #applicantSkeleton>
+      <td class="w-30">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-20">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-20">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-15">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-10">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-5">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+    </ng-template>
+
     <ng-template #applicantTableRow let-application let-i="index">
       <td>
         <span class="d-block text-gray-sm">{{
@@ -611,8 +634,11 @@
         </div>
       </td>
       <td>
-        <div class="d-flex align-items-center gap-2">
-          <span>{{ application.email }}</span>
+        <div class="d-flex align-items-center gap-2" style="min-width:0;">
+          <span class="text-truncate"
+            style="max-width:220px;min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            {{ application.email }}
+          </span>
           <button (click)="copyToClipboard(application.email, 'email-' + application.id)" class="copy-icon-btn"
             [attr.title]="'Copy email'" [class.copied]="copiedSectionId === 'email-' + application.id">
             @if (copiedSectionId === 'email-' + application.id) {
@@ -803,13 +829,14 @@
 @let hoveredApplicant = getHoveredApplicant();
 @if (hoveredApplicant && hoveredApplicant.evaluation) {
 <div
-  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; overflow: hidden; width: 660px;"
-  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" data-tooltip-id>
+  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; width: 660px;"
+  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" [style.maxHeight.px]="tooltipMaxHeight"
+  data-tooltip-id [style.overflow]="'auto'">
 
   <!-- Employee Evaluation Header -->
   <div style="background: linear-gradient(135deg, #D4F4DD 0%, #B8ECC7 100%); padding: 20px 24px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Applicant  Evaluation</h2>
+      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Applicant Evaluation</h2>
       <div style="font-size: 24px; font-weight: 700; color: #1F2937; line-height: 1;">
         {{ hoveredApplicant?.evaluation?.applicantEvaluation?.score?.toFixed(1) || '-' }}<span
           style="font-size: 16px; color: #6B7280;">/{{
@@ -824,7 +851,7 @@
   </div>
 
   <!-- Evaluation Sections -->
-  <div style="padding: 20px 24px 20px 24px;">
+  <div style="padding: 20px 24px 20px 24px; overflow: visible;">
     <!-- Role Fit -->
     <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
