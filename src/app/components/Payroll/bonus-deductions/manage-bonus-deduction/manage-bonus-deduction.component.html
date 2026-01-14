@@ -305,6 +305,7 @@
         }
 
         <!-- Selected List Table -->
+        @if (selectedRecipientType !== 'company') {
         <app-table [data]="getSelectedDepartmentsPage()" [totalItems]="tableTotalItems"
             [itemsPerPage]="tableItemsPerPage" [currentPage]="tableCurrentPage" [isLoading]="tableIsLoading"
             [columnsCount]="3" [headerTemplate]="selectedDepartmentsHeaderTemplate"
@@ -343,6 +344,7 @@
                 <td colspan="3" class="no-data py-4 text-center">No {{ getRecipientLabelWithS() }} Selected.</td>
             </tr>
         </ng-template>
+        }
 
 
         <!-- Overlay for selection (full logic/UI from create-announcement) -->
