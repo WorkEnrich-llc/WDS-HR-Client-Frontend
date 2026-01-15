@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { JobBoardSetupService } from '../../../../core/services/recruitment/job-board-setup/job-board-setup.service';
 import { ToastrService } from 'ngx-toastr';
+import { PopupComponent } from '../../../shared/popup/popup.component';
 
 interface SocialMediaLink {
     name: string;
@@ -13,7 +14,7 @@ interface SocialMediaLink {
 @Component({
     selector: 'app-view-job-board-setup',
     standalone: true,
-    imports: [PageHeaderComponent, RouterLink,],
+    imports: [PageHeaderComponent, RouterLink, PopupComponent],
     providers: [DatePipe],
     templateUrl: './view-job-board-setup.component.html',
     styleUrl: './view-job-board-setup.component.css'
@@ -26,6 +27,9 @@ export class ViewJobBoardSetupComponent implements OnInit {
     isLoading: boolean = false;
     errorMessage: string = '';
     isConnectingGoogleCalendar: boolean = false;
+    isDisconnectingGoogleCalendar: boolean = false;
+    isGoogleCalendarConnected: boolean = false;
+    showDisconnectConfirmation: boolean = false;
 
     // Job board setup data
     description: string = '';
@@ -70,6 +74,9 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
                 // Extract social media links
                 this.socialMediaLinks = this.extractSocialMediaLinks(data);
+
+                // Extract Google Calendar connection status
+                this.isGoogleCalendarConnected = data.google_calendar?.is_connected || false;
 
                 // Extract dates
                 if (data.created_at) {
@@ -195,6 +202,38 @@ export class ViewJobBoardSetupComponent implements OnInit {
                 console.error('Error connecting to Google Calendar:', error);
                 this.isConnectingGoogleCalendar = false;
                 const errorMessage = error.error?.details || error.error?.message || error.message || 'Failed to connect to Google Calendar';
+                this.toastr.error(errorMessage, 'Error');
+            }
+        });
+    }
+
+    openDisconnectConfirmation(): void {
+        this.showDisconnectConfirmation = true;
+    }
+
+    closeDisconnectConfirmation(): void {
+        this.showDisconnectConfirmation = false;
+    }
+
+    disconnectGoogleCalendar(): void {
+        if (this.isDisconnectingGoogleCalendar) {
+            return;
+        }
+
+        this.isDisconnectingGoogleCalendar = true;
+        this.showDisconnectConfirmation = false;
+
+        this.jobBoardSetupService.disconnectGoogleCalendar().subscribe({
+            next: (response: any) => {
+                this.isDisconnectingGoogleCalendar = false;
+                this.isGoogleCalendarConnected = false;
+                // Reload the job board setup to get updated status
+                this.loadJobBoardSetup();
+            },
+            error: (error: any) => {
+                console.error('Error disconnecting from Google Calendar:', error);
+                this.isDisconnectingGoogleCalendar = false;
+                const errorMessage = error.error?.details || error.error?.message || error.message || 'Failed to disconnect from Google Calendar';
                 this.toastr.error(errorMessage, 'Error');
             }
         });
