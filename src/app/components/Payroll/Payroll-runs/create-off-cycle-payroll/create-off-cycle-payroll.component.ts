@@ -806,8 +806,8 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         ).subscribe({
             next: (response) => {
                 this.componentCurrentPage = Number(response.data.page);
-                this.componentTotalItems = response.data.total_count;
-                this.componentTotalPages = Math.ceil(response.data.total_count / this.componentItemsPerPage);
+                this.componentTotalItems = response.data.total_items || 0;
+                this.componentTotalPages = Number(response.data.total_pages) || 1;
 
                 this.availableComponents = response.data.list_items.map((item: any) => ({
                     id: item.id,

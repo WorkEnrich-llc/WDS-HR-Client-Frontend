@@ -3,7 +3,7 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Runs',link:'/payroll-runs/payroll-runs' },
     { label: payRollRunData?.data?.object_info?.title || 'View Run' },
-  ]" [title]="payRollRunData?.data?.object_info?.title || 'View Run'" create="13/06/2023" update="13/06/2023">
+  ]" [title]="payRollRunData?.data?.object_info?.title || 'View Run'" [create]="getCreatedAt()" [update]="getUpdatedAt()">
     @if (payRollRunData?.data?.object_info?.status === 'Draft' && !loadData) {
     <button class="btn btn-lg btn-primary w-100 px-5" (click)="onStartPayrollClick()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">

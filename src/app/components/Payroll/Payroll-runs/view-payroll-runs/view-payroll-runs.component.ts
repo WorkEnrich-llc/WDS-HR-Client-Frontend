@@ -57,7 +57,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   relatedSheetId: string | null = null;
   relatedSheetName: string | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService, private datePipe: DatePipe) { }
 
   employees: any[] = [];
   sortDirection: string = 'asc';
@@ -482,5 +482,24 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   cancelPublish(): void {
     this.showPublishConfirmation = false;
+  }
+
+  formatDate(dateString: string | null | undefined): string | undefined {
+    if (!dateString) return undefined;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return undefined;
+      return this.datePipe.transform(date, 'dd/MM/yyyy') || undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  getCreatedAt(): string | undefined {
+    return this.formatDate(this.payRollRunData?.data?.object_info?.created_at);
+  }
+
+  getUpdatedAt(): string | undefined {
+    return this.formatDate(this.payRollRunData?.data?.object_info?.updated_at);
   }
 }
