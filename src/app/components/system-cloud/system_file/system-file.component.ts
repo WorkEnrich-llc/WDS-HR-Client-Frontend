@@ -61,7 +61,7 @@ export class SystemFileComponent implements OnInit {
   private collectTimer: any = null;
   private lastCollectedData: any[] = [];
   isAllLoaded = false;
-  syncStatus: 'synced' | 'syncing' | 'error' = 'synced';
+  syncStatus: 'synced' | 'syncing' | 'error' | null = null;
   showSystemMenu: boolean = false;
 
 
