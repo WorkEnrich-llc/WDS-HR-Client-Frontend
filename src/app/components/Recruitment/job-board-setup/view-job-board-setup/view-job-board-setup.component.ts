@@ -190,7 +190,7 @@ export class ViewJobBoardSetupComponent implements OnInit {
                 this.isConnectingGoogleCalendar = false;
                 // Extract URL from response.data.object_info.url
                 const authUrl = response?.data?.object_info?.url || response?.data?.auth_url || response?.auth_url;
-                
+
                 if (authUrl) {
                     window.open(authUrl, '_blank', 'noopener,noreferrer');
                     this.toastr.success('Redirecting to Google Calendar authorization...', 'Success');

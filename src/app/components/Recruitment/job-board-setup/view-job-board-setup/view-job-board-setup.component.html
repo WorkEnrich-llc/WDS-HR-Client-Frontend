@@ -463,7 +463,9 @@
 <app-popup
   [title]="'Disconnect Google Calendar'"
   [paragraph1]="'Are you sure you want to disconnect Google Calendar?'"
-  [paragraph2]="'This action will remove the Google Calendar integration. You can reconnect it later if needed.'"
+  [paragraph2]="
+    'This action will remove the Google Calendar integration. You can reconnect it later if needed.'
+  "
   [isOpen]="showDisconnectConfirmation"
   (close)="closeDisconnectConfirmation()"
 >
