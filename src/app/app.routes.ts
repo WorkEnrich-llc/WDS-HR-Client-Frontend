@@ -1191,6 +1191,45 @@ export const routes: Routes = [
             ]
           },
 
+          // Taxes routes
+          {
+            path: 'taxes',
+            providers: [PaginationStateService],
+            canActivate: [SubscriptionGuard],
+            data: { feature: 'Salary_Portions' },
+            children: [
+              {
+                path: '',
+                redirectTo: 'all-taxes',
+                pathMatch: 'full'
+              },
+              {
+                path: 'all-taxes',
+                loadComponent: () => import('./components/Payroll/taxes/all-taxes/all-taxes.component').then(m => m.AllTaxesComponent),
+                title: 'All Taxes',
+              },
+              {
+                path: 'view-taxes/:id',
+                loadComponent: () => import('./components/Payroll/taxes/view-taxes/view-taxes.component').then(m => m.ViewTaxesComponent),
+                title: 'Tax Details',
+              },
+              {
+                path: 'manage-taxes',
+                loadComponent: () => import('./components/Payroll/taxes/manage-taxes/manage-taxes.component').then(m => m.ManageTaxesComponent),
+                title: 'Create Tax',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Salary_Portions', action: 'create' }
+              },
+              {
+                path: 'manage-taxes/:id',
+                loadComponent: () => import('./components/Payroll/taxes/manage-taxes/manage-taxes.component').then(m => m.ManageTaxesComponent),
+                title: 'Update Tax',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Salary_Portions', action: 'update' }
+              },
+            ]
+          },
+
         ]
       },
 

@@ -20,7 +20,8 @@ interface RouteAccordionMapping {
   selector: 'app-sidebar',
   imports: [RouterLink, RouterLinkActive, OverlayFilterBoxComponent, NgClass],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  styleUrls: ['./sidebar.component.css'],
+  standalone: true
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   currentRoute: string = '';
@@ -31,7 +32,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     'collapseTwo': ['personnel-calender', 'employees', 'workflow', 'requests', 'onboarding', 'documents', 'contracts', 'insurance', 'delegation'],
     'collapseThree': ['attendance', 'attendance-rules', 'restricted-days', 'schedule', 'leave-types', 'permissions-control', 'permissions', 'leave-balance', 'summary-report'],
     'collapseFour': ['calendar', 'job-openings', 'archived-openings', 'job-board-setup'],
-    'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions'],
+    'collapseFive': ['payroll-components', 'payroll-runs', 'salary-portions', 'taxes'],
     'collapseSix': ['cloud', 'roles', 'users', 'integrations', 'announcements', 'company-policy', 'company-documents', 'email-settings', 'custom-field']
   };
 
