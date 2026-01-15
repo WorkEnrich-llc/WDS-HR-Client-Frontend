@@ -353,92 +353,42 @@
     }
   </div>
 
-  <!-- @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
-  payRollRunData?.data?.object_info?.status === 'Completed' ||
-  payRollRunData?.data?.object_info?.status === 'Processed' ||
-  payRollRunData?.data?.object_info?.status === 'In Process' ||
-  payRollRunData?.data?.object_info?.status === 'Applied') {
+  @if (payRollRunData?.data?.object_info?.status === 'Completed' ||
+  payRollRunData?.data?.object_info?.status === 'Complete' ||
+  payRollRunData?.data?.object_info?.status === 'Processed') {
   <div class="content-box mt-4">
     <div class="d-flex align-items-center justify-content-between">
       <h2>Employee Payrolls</h2>
-      @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
-      payRollRunData?.data?.object_info?.status === 'Applied') {
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <button class="btn btn-lg btn-outline-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
-            <g fill="none" stroke="currenColor" stroke-width="1.5">
-              <path
-                stroke-linecap="round"
-                d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5"
-              />
-              <path
-                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9"
-              />
-            </g>
-          </svg>
-          <span>Edit Payrolls</span>
-        </button>
-        <button
-          class="btn btn-lg btn-primary"
-          (click)="importBox.openOverlay()"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-          >
-            <g
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="1.5"
-            >
-              <path
-                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877"
-              />
-              <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
-            </g>
-          </svg>
-          <span>Import Payrolls</span>
-        </button>
-      </div>
-      }
     </div>
     <div style="overflow-x: auto">
       <table class="table table-sm">
         <thead class="table-dark">
           <tr>
+            <th>Employee</th>
             @for (header of getDisplayTableHeaders(); track header.key) { @if
-            (header.key !== 'code' && header.key !== 'name' && header.key !==
+            (header.key !== 'id' && header.key !== 'name' && header.key !==
             'employee_id') {
             <th>{{ header.display }}</th>
-            } @if (header.key === 'code') {
-            <th>Employee</th>
             } }
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          @for (row of getDisplayTableRows(); track row.code) {
+          @for (row of getDisplayTableRows(); track row.id || row.employee_id) {
           <tr>
+            <td class="py-2">
+              <div class="d-flex flex-column">
+                @if (row.id) {
+                <span class="text-gray-sm text-sm">{{ row.id }}</span>
+                }
+                <span style="font-weight: 500">{{ row.name }}</span>
+              </div>
+            </td>
             @for (header of getDisplayTableHeaders(); track header.key) { @if
-            (header.key !== 'code' && header.key !== 'name' && header.key !==
+            (header.key !== 'id' && header.key !== 'name' && header.key !==
             'employee_id') {
             <td class="py-2 text-sm">
               {{ row[header.key] }}
-            </td>
-            } @if (header.key === 'code') {
-            <td class="py-2">
-              <div class="d-flex flex-column">
-                <span class="text-gray-sm text-sm">{{ row.code }}</span>
-                <span style="font-weight: 500">{{ row.name }}</span>
-              </div>
             </td>
             } }
             <td class="py-2">
@@ -519,7 +469,7 @@
       </table>
     </div>
   </div>
-  } -->
+  }
 
   <!-- Import popup -->
   <app-overlay-filter-box #importBox [title]="'Import Employee Payrolls'">
