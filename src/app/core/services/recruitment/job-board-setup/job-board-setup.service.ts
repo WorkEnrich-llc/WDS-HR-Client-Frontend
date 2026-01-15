@@ -34,4 +34,10 @@ export class JobBoardSetupService {
         const url = `${this.apiBaseUrl}recruiter/google-calendar/connect`;
         return this._HttpClient.post<any>(url, {});
     }
+
+    // disconnect from google calendar
+    disconnectGoogleCalendar(): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/google-calendar/disconnect`;
+        return this._HttpClient.post<any>(url, {});
+    }
 }
