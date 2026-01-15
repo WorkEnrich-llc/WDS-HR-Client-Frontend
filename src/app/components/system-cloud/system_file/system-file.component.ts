@@ -182,7 +182,12 @@ export class SystemFileComponent implements OnInit {
         // console.log(this.systemFileData)
         if (!this.fileEditable) {
           this.isImported = true;
-          this.startUploadTracking(this.systemFileData.file.id);
+          if (this.systemFileData.file.file_type !== 'payroll_sheet') {
+            this.startUploadTracking(this.systemFileData.file.id);
+          } else {
+            this.loadData = false;
+            this.isAllLoaded = true;
+          }
           return;
         }
 
