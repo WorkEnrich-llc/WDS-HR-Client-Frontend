@@ -193,11 +193,11 @@ export class ManageTaxesComponent implements OnInit {
       return;
     }
     this.isSubmitting = true;
-    
+
     // Format brackets based on create or update mode
     let formattedBrackets: any[] = [];
     let deletedBrackets: any[] = [];
-    
+
     if (this.isEditMode) {
       // For update: determine which brackets are new, updated, or deleted
       const currentBrackets = (this.taxForm.value.brackets || []).map((bracket: any) => ({
@@ -207,7 +207,7 @@ export class ManageTaxesComponent implements OnInit {
         percentage: +bracket.percentage || 0,
         taxable: +bracket.taxable || 0
       }));
-      
+
       // Find deleted brackets (in original but not in current)
       const currentIds = currentBrackets.map((b: any) => b.id);
       deletedBrackets = this.originalBrackets
@@ -220,7 +220,7 @@ export class ManageTaxesComponent implements OnInit {
           taxable: bracket.taxable,
           type: 'delete'
         }));
-      
+
       // Process current brackets: determine if new or updated
       formattedBrackets = currentBrackets.map((bracket: any) => {
         const originalBracket = this.originalBrackets.find((orig: any) => orig.id === bracket.id);
@@ -255,7 +255,7 @@ export class ManageTaxesComponent implements OnInit {
           type: 'create'
         };
       });
-      
+
       // Add deleted brackets
       formattedBrackets = [...formattedBrackets, ...deletedBrackets];
     } else {
@@ -269,7 +269,7 @@ export class ManageTaxesComponent implements OnInit {
         type: 'create'
       }));
     }
-    
+
     const formData: any = {
       code: '', // Empty code as per API structure
       name: this.taxForm.value.name,
