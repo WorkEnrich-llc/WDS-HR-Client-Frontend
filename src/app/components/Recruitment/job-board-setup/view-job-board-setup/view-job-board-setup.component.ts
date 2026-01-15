@@ -25,6 +25,7 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
     isLoading: boolean = false;
     errorMessage: string = '';
+    isConnectingGoogleCalendar: boolean = false;
 
     // Job board setup data
     description: string = '';
@@ -168,6 +169,35 @@ export class ViewJobBoardSetupComponent implements OnInit {
 
     handleLogoError(): void {
         this.logoLoadFailed = true;
+    }
+
+    connectGoogleCalendar(): void {
+        if (this.isConnectingGoogleCalendar) {
+            return;
+        }
+
+        this.isConnectingGoogleCalendar = true;
+
+        this.jobBoardSetupService.connectGoogleCalendar().subscribe({
+            next: (response: any) => {
+                this.isConnectingGoogleCalendar = false;
+                // Extract URL from response.data.object_info.url
+                const authUrl = response?.data?.object_info?.url || response?.data?.auth_url || response?.auth_url;
+                
+                if (authUrl) {
+                    window.open(authUrl, '_blank', 'noopener,noreferrer');
+                    this.toastr.success('Redirecting to Google Calendar authorization...', 'Success');
+                } else {
+                    this.toastr.success('Google Calendar connected successfully!', 'Success');
+                }
+            },
+            error: (error: any) => {
+                console.error('Error connecting to Google Calendar:', error);
+                this.isConnectingGoogleCalendar = false;
+                const errorMessage = error.error?.details || error.error?.message || error.message || 'Failed to connect to Google Calendar';
+                this.toastr.error(errorMessage, 'Error');
+            }
+        });
     }
 }
 

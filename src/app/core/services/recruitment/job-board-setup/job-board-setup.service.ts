@@ -28,4 +28,10 @@ export class JobBoardSetupService {
         const url = `${this.apiBaseUrl}recruiter/job-board-setup/company-logo`;
         return this._HttpClient.post<any>(url, formData);
     }
+
+    // connect to google calendar
+    connectGoogleCalendar(): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/google-calendar/connect`;
+        return this._HttpClient.post<any>(url, {});
+    }
 }
