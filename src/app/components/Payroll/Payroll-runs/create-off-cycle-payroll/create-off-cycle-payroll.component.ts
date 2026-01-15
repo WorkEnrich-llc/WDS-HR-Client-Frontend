@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, inject, TemplateRef } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ViewChild, inject, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
@@ -33,6 +33,7 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     private payrollComponentsService = inject(PayrollComponentsService);
     private payrollRunService = inject(PayrollRunService);
     private toasterMessageService = inject(ToasterMessageService);
+    private cdr = inject(ChangeDetectorRef);
 
     @ViewChild('departmentFilterBox', { static: false }) departmentFilterBox!: OverlayFilterBoxComponent;
     @ViewChild('componentFilterBox', { static: false }) componentFilterBox!: OverlayFilterBoxComponent;
@@ -54,6 +55,8 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
     isSubmitting: boolean = false;
     isLoading: boolean = false;
     formErrors: any = {};
+    showComponentsWarning: boolean = false;
+    showRecipientsWarning: boolean = false;
 
     // Recipients per type
     selectedDepartments: any[] = [];
@@ -506,6 +509,10 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         this.selectedBranches = JSON.parse(JSON.stringify(this.modalSelectedBranches));
         this.selectedCompanies = JSON.parse(JSON.stringify(this.modalSelectedCompanies));
         this.selectedSections = JSON.parse(JSON.stringify(this.modalSelectedSections));
+        // Reset warning if recipients are now selected
+        if (this.hasSelectedRecipients()) {
+            this.showRecipientsWarning = false;
+        }
         this.departmentFilterBox.closeOverlay();
         this.updateSelectedDepartmentsTable();
     }
@@ -526,6 +533,10 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         const index = arr.findIndex(d => d.id === department.id);
         if (index > -1) {
             arr.splice(index, 1);
+        }
+        // Show warning again if no recipients remain and warning was previously shown
+        if (!this.hasSelectedRecipients() && this.showRecipientsWarning) {
+            // Warning flag stays true if it was already true
         }
         this.updateSelectedDepartmentsTable();
     }
@@ -652,26 +663,49 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
      * Submit the form
      */
     onSubmit(): void {
+        let hasErrors = false;
+        this.currentTab = 'details';
+
+        // Mark all form fields as touched to show validation errors
+        this.payrollForm.markAllAsTouched();
+
         // Validate Main Info tab
         if (!this.payrollForm.valid) {
             this.formErrors = { payroll_title: 'Payroll Title is required' };
-            this.currentTab = 'details';
-            return;
+            hasErrors = true;
         }
 
-        // Validate components (must be selected before moving to recipients)
+        // Validate components (check even if title is invalid to show all errors)
         if (!this.hasSelectedComponents()) {
-            this.formErrors = { components: 'Please select at least one component' };
-            this.currentTab = 'details';
+            this.showComponentsWarning = true;
+            if (!this.formErrors) {
+                this.formErrors = {};
+            }
+            this.formErrors.components = 'Please select at least one component';
+            hasErrors = true;
+        } else {
+            this.showComponentsWarning = false;
+        }
+
+        // If there are errors on details tab, stop here and show them
+        if (hasErrors) {
+            setTimeout(() => {
+                this.cdr.detectChanges();
+            }, 0);
             return;
         }
 
-        // Validate recipients
+        // Validate recipients (only check if details tab is valid)
         if (!this.hasSelectedRecipients()) {
             this.formErrors = { recipients: 'Please select at least one recipient' };
+            this.showRecipientsWarning = true;
             this.currentTab = 'recipients';
             return;
         }
+
+        // Reset warnings if validation passes
+        this.showComponentsWarning = false;
+        this.showRecipientsWarning = false;
 
         this.isLoading = true;
 
@@ -894,6 +928,10 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
      */
     saveSelectedComponents(): void {
         this.selectedComponents = JSON.parse(JSON.stringify(this.modalSelectedComponents));
+        // Reset warning if components are now selected
+        if (this.selectedComponents.length > 0) {
+            this.showComponentsWarning = false;
+        }
         this.componentFilterBox.closeOverlay();
         this.updateSelectedComponentsTable();
     }
@@ -913,6 +951,10 @@ export class CreateOffCyclePayrollComponent implements OnInit, OnDestroy {
         const index = this.selectedComponents.findIndex(c => c.id === component.id);
         if (index > -1) {
             this.selectedComponents.splice(index, 1);
+        }
+        // Show warning again if no components remain and warning was previously shown
+        if (this.selectedComponents.length === 0 && this.showComponentsWarning) {
+            // Warning flag stays true if it was already true
         }
         this.updateSelectedComponentsTable();
     }

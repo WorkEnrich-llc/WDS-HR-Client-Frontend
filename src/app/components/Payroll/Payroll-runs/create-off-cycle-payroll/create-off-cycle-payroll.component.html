@@ -157,7 +157,7 @@
             </a>
         </div>
         <div class="selected-components-container">
-            @if (!hasSelectedComponents()) {
+            @if (showComponentsWarning && !hasSelectedComponents()) {
             <div class="alert alert-warning d-flex align-items-center mb-3 ms-3 me-3" role="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" class="me-2">
@@ -170,12 +170,11 @@
                     this run.
                 </div>
             </div>
-            } @else {
+            }
             <app-table [data]="selectedComponents" [columnsCount]="7" [disablePagination]="true"
                 [headerTemplate]="selectedComponentsHeaderTemplate" [rowTemplate]="selectedComponentRowTemplate"
                 [emptyTemplate]="selectedComponentsEmptyTemplate">
             </app-table>
-            }
         </div>
     </div>
 </div>
@@ -279,7 +278,7 @@
             </div>
 
             <!-- Validation message for recipients -->
-            @if (!hasSelectedRecipients()) {
+            @if (showRecipientsWarning && !hasSelectedRecipients()) {
             <div class="alert alert-warning d-flex align-items-center mb-3 ms-3 me-3" role="alert">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     class="me-2">

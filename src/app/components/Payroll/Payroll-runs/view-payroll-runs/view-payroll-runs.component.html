@@ -1,482 +1,852 @@
 <!-- start page header -->
-<app-page-header [breadcrumbs]="[
+<app-page-header
+  [breadcrumbs]="[
     { label: 'Payroll', link: '/payroll-components' },
-    { label: 'Payroll Runs',link:'/payroll-runs/payroll-runs' },
-    { label: payRollRunData?.data?.object_info?.title || 'View Run' },
-  ]" [title]="payRollRunData?.data?.object_info?.title || 'View Run'" [create]="getCreatedAt()" [update]="getUpdatedAt()">
-    @if (payRollRunData?.data?.object_info?.status === 'Draft' && !loadData) {
-    <button class="btn btn-lg btn-primary w-100 px-5" (click)="onStartPayrollClick()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-width="1.5"
-                d="M20.409 9.353a2.998 2.998 0 0 1 0 5.294L7.597 21.614C5.534 22.737 3 21.277 3 18.968V5.033c0-2.31 2.534-3.769 4.597-2.648z" />
+    { label: 'Payroll Runs', link: '/payroll-runs/payroll-runs' },
+    { label: payRollRunData?.data?.object_info?.title || 'View Run' }
+  ]"
+  [title]="payRollRunData?.data?.object_info?.title || 'View Run'"
+  [create]="getCreatedAt()"
+  [update]="getUpdatedAt()"
+>
+  @if (payRollRunData?.data?.object_info?.status === 'Draft' && !loadData) {
+  <button
+    class="btn btn-lg btn-primary w-100 px-5"
+    (click)="onStartPayrollClick()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        d="M20.409 9.353a2.998 2.998 0 0 1 0 5.294L7.597 21.614C5.534 22.737 3 21.277 3 18.968V5.033c0-2.31 2.534-3.769 4.597-2.648z"
+      />
+    </svg>
+    <span>{{ isStartingPayroll ? "Processing..." : "Start Payroll Run" }}</span>
+  </button>
+  } @if (payRollRunData?.data?.object_info?.status !== 'Draft' &&
+  payRollRunData?.data?.object_info?.status !== 'Complete' && !loadData) {
+  <div class="d-flex align-items-center gap-1 w-100">
+    <!-- Menu Button -->
+    <div class="position-relative" style="flex-shrink: 0">
+      <button
+        class="btn"
+        (click)="togglePayrollMenu($event)"
+        style="
+          border-radius: 0.75rem;
+          border: 1px solid #4a6d97;
+          background-color: white;
+          color: #4a6d97;
+          padding: 0.875rem 0.8rem;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+        title="More actions"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M1.6875 9C1.6875 7.86091 2.61091 6.9375 3.75 6.9375C4.88909 6.9375 5.8125 7.86091 5.8125 9C5.8125 10.1391 4.88909 11.0625 3.75 11.0625C2.61091 11.0625 1.6875 10.1391 1.6875 9ZM3.75 8.0625C3.23223 8.0625 2.8125 8.48223 2.8125 9C2.8125 9.51777 3.23223 9.9375 3.75 9.9375C4.26777 9.9375 4.6875 9.51777 4.6875 9C4.6875 8.48223 4.26777 8.0625 3.75 8.0625Z"
+            fill="#4A6D97"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.9375 9C6.9375 7.86091 7.86091 6.9375 9 6.9375C10.1391 6.9375 11.0625 7.86091 11.0625 9C11.0625 10.1391 10.1391 11.0625 9 11.0625C7.86091 11.0625 6.9375 10.1391 6.9375 9ZM9 8.0625C8.48223 8.0625 8.0625 8.48223 8.0625 9C8.0625 9.51777 8.48223 9.9375 9 9.9375C9.51777 9.9375 9.9375 9.51777 9.9375 9C9.9375 8.48223 9.51777 8.0625 9 8.0625Z"
+            fill="#4A6D97"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M14.25 6.9375C13.1109 6.9375 12.1875 7.86091 12.1875 9C12.1875 10.1391 13.1109 11.0625 14.25 11.0625C15.3891 11.0625 16.3125 10.1391 16.3125 9C16.3125 7.86091 15.3891 6.9375 14.25 6.9375ZM13.3125 9C13.3125 8.48223 13.7322 8.0625 14.25 8.0625C14.7678 8.0625 15.1875 8.48223 15.1875 9C15.1875 9.51777 14.7678 9.9375 14.25 9.9375C13.7322 9.9375 13.3125 9.51777 13.3125 9Z"
+            fill="#4A6D97"
+          />
         </svg>
-        <span>{{ isStartingPayroll ? 'Processing...' : 'Start Payroll Run' }}</span>
-    </button>
-    }
-    @if (payRollRunData?.data?.object_info?.status !== 'Draft' && payRollRunData?.data?.object_info?.status !==
-    'Complete' && !loadData) {
-    <div class="d-flex align-items-center gap-1 w-100">
-        <!-- Menu Button -->
-        <div class="position-relative" style="flex-shrink: 0;">
-            <button class="btn" (click)="togglePayrollMenu($event)" style="border-radius: 0.75rem; border: 1px solid #4a6d97; background-color: white; color: #4a6d97;
-                padding: 0.875rem 0.8rem;height: 48px; display: flex; align-items: center; justify-content: center;"
-                title="More actions">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M1.6875 9C1.6875 7.86091 2.61091 6.9375 3.75 6.9375C4.88909 6.9375 5.8125 7.86091 5.8125 9C5.8125 10.1391 4.88909 11.0625 3.75 11.0625C2.61091 11.0625 1.6875 10.1391 1.6875 9ZM3.75 8.0625C3.23223 8.0625 2.8125 8.48223 2.8125 9C2.8125 9.51777 3.23223 9.9375 3.75 9.9375C4.26777 9.9375 4.6875 9.51777 4.6875 9C4.6875 8.48223 4.26777 8.0625 3.75 8.0625Z"
-                        fill="#4A6D97" />
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M6.9375 9C6.9375 7.86091 7.86091 6.9375 9 6.9375C10.1391 6.9375 11.0625 7.86091 11.0625 9C11.0625 10.1391 10.1391 11.0625 9 11.0625C7.86091 11.0625 6.9375 10.1391 6.9375 9ZM9 8.0625C8.48223 8.0625 8.0625 8.48223 8.0625 9C8.0625 9.51777 8.48223 9.9375 9 9.9375C9.51777 9.9375 9.9375 9.51777 9.9375 9C9.9375 8.48223 9.51777 8.0625 9 8.0625Z"
-                        fill="#4A6D97" />
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M14.25 6.9375C13.1109 6.9375 12.1875 7.86091 12.1875 9C12.1875 10.1391 13.1109 11.0625 14.25 11.0625C15.3891 11.0625 16.3125 10.1391 16.3125 9C16.3125 7.86091 15.3891 6.9375 14.25 6.9375ZM13.3125 9C13.3125 8.48223 13.7322 8.0625 14.25 8.0625C14.7678 8.0625 15.1875 8.48223 15.1875 9C15.1875 9.51777 14.7678 9.9375 14.25 9.9375C13.7322 9.9375 13.3125 9.51777 13.3125 9Z"
-                        fill="#4A6D97" />
-                </svg>
-            </button>
+      </button>
 
-            <!-- Dropdown Menu -->
-            @if (showPayrollMenu) {
-            <div class="dropdown-menu-custom position-absolute top-100 start-0"
-                style="background: white; border: 1px solid #e0e0e0; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: fit-content; z-index: 2000; margin-top: 0.5rem; overflow: hidden;">
-                @if (payRollRunData?.data?.object_info?.status !== 'Draft' && payRollRunData?.data?.object_info?.status
-                !== 'Complete') {
-                <button type="button" class="d-flex align-items-center text-start"
-                    style="color: #e04f5f; font-weight: 500; border: none; background: white; padding: 0.875rem 1rem; cursor: pointer; transition: background-color 0.2s; gap: 10px;"
-                    (click)="onRevertToDraft(); togglePayrollMenu()" onmouseover="this.style.backgroundColor='#feeaea'"
-                    onmouseout="this.style.backgroundColor='white'">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_913_7939)">
-                            <g clip-path="url(#clip1_913_7939)">
-                                <path
-                                    d="M5.25 5.4375C5.56066 5.4375 5.8125 5.68934 5.8125 6L5.8125 12C5.8125 12.3107 5.56066 12.5625 5.25 12.5625C4.93934 12.5625 4.6875 12.3107 4.6875 12L4.6875 6C4.6875 5.68934 4.93934 5.4375 5.25 5.4375Z"
-                                    fill="#E04F5F" />
-                                <path
-                                    d="M13.3125 9C13.3125 9.31066 13.0607 9.5625 12.75 9.5625H8.858L10.1477 10.8523C10.3674 11.0719 10.3674 11.4281 10.1477 11.6477C9.92808 11.8674 9.57192 11.8674 9.35225 11.6477L7.10225 9.39775C6.99676 9.29226 6.9375 9.14918 6.9375 9C6.9375 8.85082 6.99676 8.70774 7.10225 8.60225L9.35225 6.35225C9.57192 6.13258 9.92808 6.13258 10.1477 6.35225C10.3674 6.57192 10.3674 6.92808 10.1477 7.14775L8.858 8.4375H12.75C13.0607 8.4375 13.3125 8.68934 13.3125 9Z"
-                                    fill="#E04F5F" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M8.95697 0.9375C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V8.95697C17.0625 7.22567 17.0625 5.8689 16.9202 4.81028C16.7745 3.72673 16.4705 2.87171 15.7994 2.2006C15.1283 1.5295 14.2733 1.22549 13.1897 1.07981C12.1311 0.937483 10.7743 0.937491 9.04303 0.9375H8.95697ZM2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.0637 7.21633 2.0625 9 2.0625C10.7837 2.0625 12.0648 2.0637 13.0398 2.19478C13.9986 2.32369 14.5767 2.56886 15.0039 2.9961C15.4311 3.42334 15.6763 4.00138 15.8052 4.96018C15.9363 5.93517 15.9375 7.21633 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.0637 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.0637 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961Z"
-                                    fill="#E04F5F" />
-                            </g>
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_913_7939">
-                                <rect width="18" height="18" fill="white" />
-                            </clipPath>
-                            <clipPath id="clip1_913_7939">
-                                <rect width="18" height="18" rx="5" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
+      <!-- Dropdown Menu -->
+      @if (showPayrollMenu) {
+      <div
+        class="dropdown-menu-custom position-absolute top-100 start-0"
+        style="
+          background: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 16px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          width: fit-content;
+          z-index: 2000;
+          margin-top: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        @if (payRollRunData?.data?.object_info?.status !== 'Draft' &&
+        payRollRunData?.data?.object_info?.status !== 'Complete') {
+        <button
+          type="button"
+          class="d-flex align-items-center text-start"
+          style="
+            color: #e04f5f;
+            font-weight: 500;
+            border: none;
+            background: white;
+            padding: 0.875rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            gap: 10px;
+          "
+          (click)="onRevertToDraft(); togglePayrollMenu()"
+          onmouseover="this.style.backgroundColor='#feeaea'"
+          onmouseout="this.style.backgroundColor='white'"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g clip-path="url(#clip0_913_7939)">
+              <g clip-path="url(#clip1_913_7939)">
+                <path
+                  d="M5.25 5.4375C5.56066 5.4375 5.8125 5.68934 5.8125 6L5.8125 12C5.8125 12.3107 5.56066 12.5625 5.25 12.5625C4.93934 12.5625 4.6875 12.3107 4.6875 12L4.6875 6C4.6875 5.68934 4.93934 5.4375 5.25 5.4375Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M13.3125 9C13.3125 9.31066 13.0607 9.5625 12.75 9.5625H8.858L10.1477 10.8523C10.3674 11.0719 10.3674 11.4281 10.1477 11.6477C9.92808 11.8674 9.57192 11.8674 9.35225 11.6477L7.10225 9.39775C6.99676 9.29226 6.9375 9.14918 6.9375 9C6.9375 8.85082 6.99676 8.70774 7.10225 8.60225L9.35225 6.35225C9.57192 6.13258 9.92808 6.13258 10.1477 6.35225C10.3674 6.57192 10.3674 6.92808 10.1477 7.14775L8.858 8.4375H12.75C13.0607 8.4375 13.3125 8.68934 13.3125 9Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M8.95697 0.9375C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V8.95697C17.0625 7.22567 17.0625 5.8689 16.9202 4.81028C16.7745 3.72673 16.4705 2.87171 15.7994 2.2006C15.1283 1.5295 14.2733 1.22549 13.1897 1.07981C12.1311 0.937483 10.7743 0.937491 9.04303 0.9375H8.95697ZM2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.0637 7.21633 2.0625 9 2.0625C10.7837 2.0625 12.0648 2.0637 13.0398 2.19478C13.9986 2.32369 14.5767 2.56886 15.0039 2.9961C15.4311 3.42334 15.6763 4.00138 15.8052 4.96018C15.9363 5.93517 15.9375 7.21633 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.0637 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.0637 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961Z"
+                  fill="#E04F5F"
+                />
+              </g>
+            </g>
+            <defs>
+              <clipPath id="clip0_913_7939">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+              <clipPath id="clip1_913_7939">
+                <rect width="18" height="18" rx="5" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
 
-                    <span style="white-space: nowrap; color: #85252D;">Revert to draft</span>
-                </button>
-                }
-                @if (payRollRunData?.data?.object_info?.status === 'Processed' ||
-                payRollRunData?.data?.object_info?.status === 'Complete') {
-                <button type="button" class="d-flex align-items-center text-start"
-                    style="color: #2C435D; font-weight: 500; border: none; background: white; padding: 0.875rem 1rem; cursor: pointer; transition: background-color 0.2s; border-top: 1px solid #e0e0e0; gap: 10px; width: 100%;"
-                    (click)="onRestartRun(); togglePayrollMenu()" onmouseover="this.style.backgroundColor='#f0f3f8'"
-                    onmouseout="this.style.backgroundColor='white'">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_913_2430)">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M13.773 2.29297C14.0836 2.29297 14.3355 2.54481 14.3355 2.85547V6.03745C14.3355 6.34811 14.0836 6.59995 13.773 6.59995H10.591C10.2803 6.59995 10.0285 6.34811 10.0285 6.03745C10.0285 5.72679 10.2803 5.47495 10.591 5.47495H12.3613C10.2272 3.79264 7.12403 3.93595 5.15511 5.90487C3.03163 8.02834 3.03163 11.4712 5.15511 13.5947C7.27858 15.7181 10.7214 15.7181 12.8449 13.5947C14.2675 12.172 14.7378 10.1568 14.2529 8.34116C14.1728 8.04102 14.3511 7.73273 14.6512 7.65257C14.9514 7.57242 15.2597 7.75076 15.3398 8.0509C15.9241 10.2386 15.3585 12.672 13.6404 14.3901C11.0776 16.953 6.92243 16.953 4.35961 14.3901C1.7968 11.8273 1.7968 7.67219 4.35961 5.10937C6.78362 2.68536 10.6322 2.55407 13.2105 4.71551V2.85547C13.2105 2.54481 13.4623 2.29297 13.773 2.29297Z"
-                                fill="#4A6D97" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_913_2430">
-                                <rect width="18" height="18" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-                    <span style="white-space: nowrap; color: #2C435D;">Restart Run</span>
-                </button>
-                }
-            </div>
-            }
-        </div>
-
-        <!-- Publish Button -->
-        <button class="btn btn-lg btn-success"
-            style="flex: 1; min-width: 0; padding: 0.80rem 10rem !important; font-weight: 500;"
-            (click)="onPublishClick()" [disabled]="isPublishing">
-            @if (isPublishing) {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            <span>Publishing...</span>
-            } @else {
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2"
-                style="width: 22px; height: 22px; margin-right: 8px; flex-shrink: 0;">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                </g>
-            </svg>
-            <span>Publish</span>
-            }
+          <span style="white-space: nowrap; color: #85252d"
+            >Revert to draft</span
+          >
         </button>
+        } @if (payRollRunData?.data?.object_info?.status === 'Processed' ||
+        payRollRunData?.data?.object_info?.status === 'Complete') {
+        <button
+          type="button"
+          class="d-flex align-items-center text-start"
+          style="
+            color: #2c435d;
+            font-weight: 500;
+            border: none;
+            background: white;
+            padding: 0.875rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-top: 1px solid #e0e0e0;
+            gap: 10px;
+            width: 100%;
+          "
+          (click)="onRestartRun(); togglePayrollMenu()"
+          onmouseover="this.style.backgroundColor='#f0f3f8'"
+          onmouseout="this.style.backgroundColor='white'"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g clip-path="url(#clip0_913_2430)">
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M13.773 2.29297C14.0836 2.29297 14.3355 2.54481 14.3355 2.85547V6.03745C14.3355 6.34811 14.0836 6.59995 13.773 6.59995H10.591C10.2803 6.59995 10.0285 6.34811 10.0285 6.03745C10.0285 5.72679 10.2803 5.47495 10.591 5.47495H12.3613C10.2272 3.79264 7.12403 3.93595 5.15511 5.90487C3.03163 8.02834 3.03163 11.4712 5.15511 13.5947C7.27858 15.7181 10.7214 15.7181 12.8449 13.5947C14.2675 12.172 14.7378 10.1568 14.2529 8.34116C14.1728 8.04102 14.3511 7.73273 14.6512 7.65257C14.9514 7.57242 15.2597 7.75076 15.3398 8.0509C15.9241 10.2386 15.3585 12.672 13.6404 14.3901C11.0776 16.953 6.92243 16.953 4.35961 14.3901C1.7968 11.8273 1.7968 7.67219 4.35961 5.10937C6.78362 2.68536 10.6322 2.55407 13.2105 4.71551V2.85547C13.2105 2.54481 13.4623 2.29297 13.773 2.29297Z"
+                fill="#4A6D97"
+              />
+            </g>
+            <defs>
+              <clipPath id="clip0_913_2430">
+                <rect width="18" height="18" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+          <span style="white-space: nowrap; color: #2c435d">Restart Run</span>
+        </button>
+        }
+      </div>
+      }
     </div>
-    }
+
+    <!-- Publish Button -->
+    <button
+      class="btn btn-lg btn-success"
+      style="
+        flex: 1;
+        min-width: 0;
+        padding: 0.8rem 10rem !important;
+        font-weight: 500;
+      "
+      (click)="onPublishClick()"
+      [disabled]="isPublishing"
+    >
+      @if (isPublishing) {
+      <span
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      <span>Publishing...</span>
+      } @else {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        style="width: 22px; height: 22px; margin-right: 8px; flex-shrink: 0"
+      >
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m8.5 12.5l2 2l5-5"
+          />
+        </g>
+      </svg>
+      <span>Publish</span>
+      }
+    </button>
+  </div>
+  }
 </app-page-header>
 <!-- end page header -->
 
 <!-- content -->
 <div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <div class="d-flex align-items-center justify-content-between">
-            <h2>Main Information</h2>
-            <!-- View Sheet button for Off Cycle runs with related sheet -->
-            @if (payRollRunData?.data?.object_info?.status === 'Draft'
-            && relatedSheetId && !loadData) {
-            <button class="btn btn-lg btn-outline-primary" (click)="onViewSheetClick()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <path
-                        d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20s9.27-3.11 11-7.5C21.27 8.11 17 5 12 5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
-                        fill="currentColor" />
-                </svg>
-                <span>View Sheet</span>
-            </button>
-            }
-            <!-- Create New Sheet button for Off Cycle runs without related sheet -->
-            @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
-            payRollRunData?.data?.object_info?.run_cycle?.id === 2
-            && !relatedSheetId && !loadData) {
-            <button class="btn btn-lg btn-outline-primary" (click)="onCreateSheetClick()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="1.5">
-                        <path d="M12 5v14m-7-7h14" />
-                    </g>
-                </svg>
-                <span>Create New Sheet</span>
-            </button>
-            }
-        </div>
-        @if (loadData) {
-        <div class="main-info-skeleton">
-            <div class="skeleton-line skeleton-title"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-badge"></div>
-        </div>
-        }
-        @if (payRollRunData?.data?.object_info && !loadData) {
-        <div class="info">
-            <h6>Title</h6>
-            <span>{{ payRollRunData.data.object_info.title }}</span>
-        </div>
-        <div class="info">
-            <h6>Month</h6>
-            <span>{{ payRollRunData.data.object_info.start_date | date:'MMMM yyyy' }}</span>
-        </div>
-        <div class="info">
-            <h6>Cycle</h6>
-            <span>{{ payRollRunData.data.object_info.start_date | date:'d MMMM' }} – {{
-                payRollRunData.data.object_info.end_date | date:'d MMMM' }}</span>
-        </div>
-        <div class="info">
-            <h6>No. of Employees</h6>
-            <span>{{ payRollRunData.data.object_info.emp_count }}</span>
-        </div>
-        <div>
-            <span [class]="getStatusBadgeClass(payRollRunData.data.object_info.status)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                    </g>
-                </svg>
-                <span>{{ payRollRunData.data.object_info.status }}</span>
-            </span>
-        </div>
-        }
+  <div class="content-box d-flex flex-column gap-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <h2>Main Information</h2>
+      <!-- View Sheet button for Off Cycle runs with related sheet -->
+      @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
+      relatedSheetId && !loadData) {
+      <button
+        class="btn btn-lg btn-outline-primary"
+        (click)="onViewSheetClick()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20s9.27-3.11 11-7.5C21.27 8.11 17 5 12 5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+            fill="currentColor"
+          />
+        </svg>
+        <span>View Sheet</span>
+      </button>
+      }
+      <!-- Create New Sheet button for Off Cycle runs without related sheet -->
+      @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
+      payRollRunData?.data?.object_info?.run_cycle?.id === 2 && !relatedSheetId
+      && !loadData) {
+      <button
+        class="btn btn-lg btn-outline-primary"
+        (click)="onCreateSheetClick()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+          >
+            <path d="M12 5v14m-7-7h14" />
+          </g>
+        </svg>
+        <span>Create New Sheet</span>
+      </button>
+      }
     </div>
-
-    @if (payRollRunData?.data?.object_info?.status === 'Pending' || payRollRunData?.data?.object_info?.status ===
-    'Completed' || payRollRunData?.data?.object_info?.status === 'Processed' ||
-    payRollRunData?.data?.object_info?.status === 'In Process' || payRollRunData?.data?.object_info?.status ===
-    'Applied') {
-    <div class="content-box mt-4">
-        <div class="d-flex align-items-center justify-content-between">
-            <h2>Employee Payrolls</h2>
-            @if (payRollRunData?.data?.object_info?.status === 'Pending' || payRollRunData?.data?.object_info?.status
-            === 'Applied') {
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <button class="btn btn-lg btn-outline-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currenColor" stroke-width="1.5">
-                            <path stroke-linecap="round"
-                                d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5" />
-                            <path
-                                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9" />
-                        </g>
-                    </svg>
-                    <span>Edit Payrolls</span>
-                </button>
-                <button class="btn btn-lg btn-primary" (click)="importBox.openOverlay()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                            <path
-                                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
-                            <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
-                        </g>
-                    </svg>
-                    <span>Import Payrolls</span>
-                </button>
-            </div>
-            }
-        </div>
-        <!-- start dynamic payroll table from display_table -->
-        <div style="overflow-x: auto;">
-            <table class="table table-sm">
-                <thead class="table-dark">
-                    <tr>
-                        @for (header of getDisplayTableHeaders(); track header.key) {
-                        @if (header.key !== 'code' && header.key !== 'name' && header.key !== 'employee_id') {
-                        <th>{{ header.display }}</th>
-                        }
-                        @if (header.key === 'code') {
-                        <th>Employee</th>
-                        }
-                        }
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (row of getDisplayTableRows(); track row.code) {
-                    <tr>
-                        @for (header of getDisplayTableHeaders(); track header.key) {
-                        @if (header.key !== 'code' && header.key !== 'name' && header.key !== 'employee_id') {
-                        <td class="py-2 text-sm">
-                            {{ row[header.key] }}
-                        </td>
-                        }
-                        @if (header.key === 'code') {
-                        <td class="py-2">
-                            <div class="d-flex flex-column">
-                                <span class="text-gray-sm text-sm">{{ row.code }}</span>
-                                <span style="font-weight: 500;">{{ row.name }}</span>
-                            </div>
-                        </td>
-                        }
-                        }
-                        <td class="py-2">
-                            <div class="d-flex justify-content-start gap-3 align-items-center">
-                                <button class="btn btn-sm" (click)="navigateToEmployeeDetails(row.employee_id)"
-                                    style="background: none; border: none; padding: 0; cursor: pointer;"
-                                    title="View Employee Details">
-                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <g clip-path="url(#clip0_888_12861)">
-                                            <g clip-path="url(#clip1_888_12861)">
-                                                <path
-                                                    d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
-                                                    fill="#4A6D97" />
-                                                <path
-                                                    d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
-                                                    fill="#4A6D97" />
-                                            </g>
-                                        </g>
-                                        <defs>
-                                            <clipPath id="clip0_888_12861">
-                                                <rect width="18" height="18" fill="white" />
-                                            </clipPath>
-                                            <clipPath id="clip1_888_12861">
-                                                <rect width="18" height="18" fill="white" />
-                                            </clipPath>
-                                        </defs>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-sm" (click)="navigateToEmployeePayslip(row.employee_id)"
-                                    style="background: none; border: none; padding: 0; cursor: pointer;"
-                                    title="View Employee Payslip">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"
-                                        fill="none">
-                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                            d="M5.32409 0.93753C5.36013 0.937546 5.3967 0.937562 5.43381 0.937562H12.5663C12.6034 0.937562 12.64 0.937546 12.676 0.93753C13.4386 0.937197 13.9634 0.936967 14.4054 1.09076C15.2401 1.38121 15.8882 2.05295 16.166 2.89919L15.6316 3.07466L16.166 2.89919C16.3131 3.34703 16.3129 3.87941 16.3126 4.66991C16.3126 4.70529 16.3125 4.74118 16.3125 4.77761V15.2807C16.3125 16.3796 15.0173 17.0339 14.1642 16.2532C14.1046 16.1987 14.0205 16.1987 13.9609 16.2532L13.5985 16.5848C12.9024 17.2218 11.8477 17.2218 11.1516 16.5848C10.8853 16.3412 10.4898 16.3412 10.2235 16.5848C9.5274 17.2218 8.47271 17.2218 7.77657 16.5848C7.51033 16.3412 7.11478 16.3412 6.84854 16.5848C6.1524 17.2218 5.09771 17.2218 4.40157 16.5848L4.03924 16.2532C3.97964 16.1987 3.89547 16.1987 3.83586 16.2532C2.98279 17.0339 1.68755 16.3796 1.68755 15.2807V4.77761C1.68755 4.74118 1.68754 4.70529 1.68752 4.66991C1.68724 3.87941 1.68705 3.34703 1.83408 2.89919C2.11193 2.05295 2.76001 1.38121 3.59474 1.09076C4.03673 0.936967 4.56153 0.937196 5.32409 0.93753ZM5.43381 2.06256C4.518 2.06256 4.20255 2.07043 3.96445 2.15328C3.46992 2.32535 3.07439 2.72796 2.90295 3.25013C2.81964 3.50387 2.81255 3.83847 2.81255 4.77761V15.2807C2.81255 15.37 2.85749 15.4246 2.91388 15.4506C2.94325 15.4642 2.97198 15.4677 2.99592 15.4645C3.01702 15.4617 3.04433 15.4526 3.07639 15.4233C3.5659 14.9754 4.30921 14.9754 4.79871 15.4233L5.16104 15.7548C5.42728 15.9985 5.82283 15.9985 6.08906 15.7548C6.7852 15.1178 7.8399 15.1178 8.53604 15.7548C8.80228 15.9985 9.19783 15.9985 9.46407 15.7548C10.1602 15.1178 11.2149 15.1178 11.911 15.7548C12.1773 15.9985 12.5728 15.9985 12.8391 15.7548L13.2014 15.4233C13.6909 14.9754 14.4342 14.9754 14.9237 15.4233C14.9558 15.4526 14.9831 15.4617 15.0042 15.4645C15.0281 15.4677 15.0569 15.4642 15.0862 15.4507C15.1426 15.4246 15.1875 15.37 15.1875 15.2807V4.77761C15.1875 3.83847 15.1805 3.50387 15.0972 3.25013C14.9257 2.72796 14.5302 2.32535 14.0357 2.15328C13.7976 2.07043 13.4821 2.06256 12.5663 2.06256H5.43381ZM4.68755 5.62506C4.68755 5.3144 4.93939 5.06256 5.25005 5.06256H5.62505C5.93571 5.06256 6.18755 5.3144 6.18755 5.62506C6.18755 5.93572 5.93571 6.18756 5.62505 6.18756H5.25005C4.93939 6.18756 4.68755 5.93572 4.68755 5.62506ZM7.31255 5.62506C7.31255 5.3144 7.56439 5.06256 7.87505 5.06256H12.7501C13.0607 5.06256 13.3126 5.3144 13.3126 5.62506C13.3126 5.93572 13.0607 6.18756 12.7501 6.18756H7.87505C7.56439 6.18756 7.31255 5.93572 7.31255 5.62506ZM4.68755 8.25006C4.68755 7.9394 4.93939 7.68756 5.25005 7.68756H5.62505C5.93571 7.68756 6.18755 7.9394 6.18755 8.25006C6.18755 8.56072 5.93571 8.81256 5.62505 8.81256H5.25005C4.93939 8.81256 4.68755 8.56072 4.68755 8.25006ZM7.31255 8.25006C7.31255 7.9394 7.56439 7.68756 7.87505 7.68756H12.7501C13.0607 7.68756 13.3126 7.9394 13.3126 8.25006C13.3126 8.56072 13.0607 8.81256 12.7501 8.81256H7.87505C7.56439 8.81256 7.31255 8.56072 7.31255 8.25006ZM4.68755 10.8751C4.68755 10.5644 4.93939 10.3126 5.25005 10.3126H5.62505C5.93571 10.3126 6.18755 10.5644 6.18755 10.8751C6.18755 11.1857 5.93571 11.4376 5.62505 11.4376H5.25005C4.93939 11.4376 4.68755 11.1857 4.68755 10.8751ZM7.31255 10.8751C7.31255 10.5644 7.56439 10.3126 7.87505 10.3126H12.7501C13.0607 10.3126 13.3126 10.5644 13.3126 10.8751C13.3126 11.1857 13.0607 11.4376 12.7501 11.4376H7.87505C7.56439 11.4376 7.31255 11.1857 7.31255 10.8751Z"
-                                            fill="#4A6D97" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+    @if (loadData) {
+    <div class="main-info-skeleton">
+      <div class="skeleton-line skeleton-title"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-badge"></div>
+    </div>
+    } @if (payRollRunData?.data?.object_info && !loadData) {
+    <div class="info">
+      <h6>Title</h6>
+      <span>{{ payRollRunData.data.object_info.title }}</span>
+    </div>
+    <div class="info">
+      <h6>Month</h6>
+      <span>{{
+        payRollRunData.data.object_info.start_date | date : "MMMM yyyy"
+      }}</span>
+    </div>
+    <div class="info">
+      <h6>Cycle</h6>
+      <span
+        >{{ payRollRunData.data.object_info.start_date | date : "d MMMM" }} –
+        {{ payRollRunData.data.object_info.end_date | date : "d MMMM" }}</span
+      >
+    </div>
+    <div class="info">
+      <h6>No. of Employees</h6>
+      <span>{{ payRollRunData.data.object_info.emp_count }}</span>
+    </div>
+    <div>
+      <span
+        [class]="getStatusBadgeClass(payRollRunData.data.object_info.status)"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
+          </g>
+        </svg>
+        <span>{{ payRollRunData.data.object_info.status }}</span>
+      </span>
     </div>
     }
+  </div>
 
-
-
-
-
-    <!-- Import popup -->
-    <app-overlay-filter-box #importBox [title]="'Import Employee Payrolls'">
-        <form class="w-100 d-flex flex-column gap-3">
-            <p>Download the template file, fill in your data, and upload it again to import all employee payrolls.</p>
-
-
-            <div class="d-flex align-items-center gap-3">
-                <button type="submit" class="btn btn-lg btn-outline-dark px-0 w-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
-                            <path
-                                d="M12.25 2.834c-.46-.078-1.088-.084-2.22-.084c-1.917 0-3.28.002-4.312.14c-1.012.135-1.593.39-2.016.812s-.677 1.003-.812 2.009c-.138 1.028-.14 2.382-.14 4.29v4c0 1.906.002 3.26.14 4.288c.135 1.006.389 1.586.812 2.01c.423.422 1.003.676 2.009.811c1.028.139 2.382.14 4.289.14h4c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-.437c0-1.536-.01-2.264-.174-2.813h-3.13c-1.133 0-2.058 0-2.79-.098c-.763-.103-1.425-.325-1.954-.854s-.751-1.19-.854-1.955c-.098-.73-.098-1.656-.098-2.79zm1.5.776V5c0 1.2.002 2.024.085 2.643c.08.598.224.891.428 1.094s.496.348 1.094.428c.619.083 1.443.085 2.643.085h2.02a46 46 0 0 0-1.17-1.076l-3.959-3.563A37 37 0 0 0 13.75 3.61m-3.575-2.36c1.385 0 2.28 0 3.103.315c.823.316 1.485.912 2.51 1.835l.107.096l3.958 3.563l.125.112c1.184 1.065 1.95 1.754 2.361 2.678s.412 1.954.411 3.546v.661c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433V9.945c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.75-.749 1.701-1.08 2.878-1.238c1.144-.153 2.607-.153 4.455-.153h.202" />
-                            <path
-                                d="M7.987 19.047a.75.75 0 0 0 1.026 0l2-1.875a.75.75 0 0 0-1.026-1.094l-.737.69V13.5a.75.75 0 1 0-1.5 0v3.269l-.737-.691a.75.75 0 1 0-1.026 1.094z" />
-                        </g>
-                    </svg>
-                    <span>Download Template</span>
+  @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
+  payRollRunData?.data?.object_info?.status === 'Completed' ||
+  payRollRunData?.data?.object_info?.status === 'Processed' ||
+  payRollRunData?.data?.object_info?.status === 'In Process' ||
+  payRollRunData?.data?.object_info?.status === 'Applied') {
+  <div class="content-box mt-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <h2>Employee Payrolls</h2>
+      @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
+      payRollRunData?.data?.object_info?.status === 'Applied') {
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <button class="btn btn-lg btn-outline-primary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currenColor" stroke-width="1.5">
+              <path
+                stroke-linecap="round"
+                d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5"
+              />
+              <path
+                d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9"
+              />
+            </g>
+          </svg>
+          <span>Edit Payrolls</span>
+        </button>
+        <button
+          class="btn btn-lg btn-primary"
+          (click)="importBox.openOverlay()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="1.5"
+            >
+              <path
+                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877"
+              />
+              <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
+            </g>
+          </svg>
+          <span>Import Payrolls</span>
+        </button>
+      </div>
+      }
+    </div>
+    <!-- start dynamic payroll table from display_table -->
+    <div style="overflow-x: auto">
+      <table class="table table-sm">
+        <thead class="table-dark">
+          <tr>
+            @for (header of getDisplayTableHeaders(); track header.key) { @if
+            (header.key !== 'code' && header.key !== 'name' && header.key !==
+            'employee_id') {
+            <th>{{ header.display }}</th>
+            } @if (header.key === 'code') {
+            <th>Employee</th>
+            } }
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of getDisplayTableRows(); track row.code) {
+          <tr>
+            @for (header of getDisplayTableHeaders(); track header.key) { @if
+            (header.key !== 'code' && header.key !== 'name' && header.key !==
+            'employee_id') {
+            <td class="py-2 text-sm">
+              {{ row[header.key] }}
+            </td>
+            } @if (header.key === 'code') {
+            <td class="py-2">
+              <div class="d-flex flex-column">
+                <span class="text-gray-sm text-sm">{{ row.code }}</span>
+                <span style="font-weight: 500">{{ row.name }}</span>
+              </div>
+            </td>
+            } }
+            <td class="py-2">
+              <div
+                class="d-flex justify-content-start gap-3 align-items-center"
+              >
+                <button
+                  class="btn btn-sm"
+                  (click)="navigateToEmployeeDetails(row.employee_id)"
+                  style="
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    cursor: pointer;
+                  "
+                  title="View Employee Details"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_888_12861)">
+                      <g clip-path="url(#clip1_888_12861)">
+                        <path
+                          d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
+                          fill="#4A6D97"
+                        />
+                        <path
+                          d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
+                          fill="#4A6D97"
+                        />
+                      </g>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_888_12861">
+                        <rect width="18" height="18" fill="white" />
+                      </clipPath>
+                      <clipPath id="clip1_888_12861">
+                        <rect width="18" height="18" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
                 </button>
-                @if (!selectedFile) {
-                <button type="button" class="btn btn-lg btn-primary px-0 w-100 position-relative overflow-hidden">
-                    <input type="file" accept=".xls,.xlsx" (change)="onFileSelected($event)"
-                        class="position-absolute w-100 h-100 opacity-0 cursor-pointer" style="top: 0; left: 0;" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                            <path
-                                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877" />
-                            <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
-                        </g>
-                    </svg>
-                    <span>Upload File</span>
+                <button
+                  class="btn btn-sm"
+                  (click)="navigateToEmployeePayslip(row.employee_id)"
+                  style="
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    cursor: pointer;
+                  "
+                  title="View Employee Payslip"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M5.32409 0.93753C5.36013 0.937546 5.3967 0.937562 5.43381 0.937562H12.5663C12.6034 0.937562 12.64 0.937546 12.676 0.93753C13.4386 0.937197 13.9634 0.936967 14.4054 1.09076C15.2401 1.38121 15.8882 2.05295 16.166 2.89919L15.6316 3.07466L16.166 2.89919C16.3131 3.34703 16.3129 3.87941 16.3126 4.66991C16.3126 4.70529 16.3125 4.74118 16.3125 4.77761V15.2807C16.3125 16.3796 15.0173 17.0339 14.1642 16.2532C14.1046 16.1987 14.0205 16.1987 13.9609 16.2532L13.5985 16.5848C12.9024 17.2218 11.8477 17.2218 11.1516 16.5848C10.8853 16.3412 10.4898 16.3412 10.2235 16.5848C9.5274 17.2218 8.47271 17.2218 7.77657 16.5848C7.51033 16.3412 7.11478 16.3412 6.84854 16.5848C6.1524 17.2218 5.09771 17.2218 4.40157 16.5848L4.03924 16.2532C3.97964 16.1987 3.89547 16.1987 3.83586 16.2532C2.98279 17.0339 1.68755 16.3796 1.68755 15.2807V4.77761C1.68755 4.74118 1.68754 4.70529 1.68752 4.66991C1.68724 3.87941 1.68705 3.34703 1.83408 2.89919C2.11193 2.05295 2.76001 1.38121 3.59474 1.09076C4.03673 0.936967 4.56153 0.937196 5.32409 0.93753ZM5.43381 2.06256C4.518 2.06256 4.20255 2.07043 3.96445 2.15328C3.46992 2.32535 3.07439 2.72796 2.90295 3.25013C2.81964 3.50387 2.81255 3.83847 2.81255 4.77761V15.2807C2.81255 15.37 2.85749 15.4246 2.91388 15.4506C2.94325 15.4642 2.97198 15.4677 2.99592 15.4645C3.01702 15.4617 3.04433 15.4526 3.07639 15.4233C3.5659 14.9754 4.30921 14.9754 4.79871 15.4233L5.16104 15.7548C5.42728 15.9985 5.82283 15.9985 6.08906 15.7548C6.7852 15.1178 7.8399 15.1178 8.53604 15.7548C8.80228 15.9985 9.19783 15.9985 9.46407 15.7548C10.1602 15.1178 11.2149 15.1178 11.911 15.7548C12.1773 15.9985 12.5728 15.9985 12.8391 15.7548L13.2014 15.4233C13.6909 14.9754 14.4342 14.9754 14.9237 15.4233C14.9558 15.4526 14.9831 15.4617 15.0042 15.4645C15.0281 15.4677 15.0569 15.4642 15.0862 15.4507C15.1426 15.4246 15.1875 15.37 15.1875 15.2807V4.77761C15.1875 3.83847 15.1805 3.50387 15.0972 3.25013C14.9257 2.72796 14.5302 2.32535 14.0357 2.15328C13.7976 2.07043 13.4821 2.06256 12.5663 2.06256H5.43381ZM4.68755 5.62506C4.68755 5.3144 4.93939 5.06256 5.25005 5.06256H5.62505C5.93571 5.06256 6.18755 5.3144 6.18755 5.62506C6.18755 5.93572 5.93571 6.18756 5.62505 6.18756H5.25005C4.93939 6.18756 4.68755 5.93572 4.68755 5.62506ZM7.31255 5.62506C7.31255 5.3144 7.56439 5.06256 7.87505 5.06256H12.7501C13.0607 5.06256 13.3126 5.3144 13.3126 5.62506C13.3126 5.93572 13.0607 6.18756 12.7501 6.18756H7.87505C7.56439 6.18756 7.31255 5.93572 7.31255 5.62506ZM4.68755 8.25006C4.68755 7.9394 4.93939 7.68756 5.25005 7.68756H5.62505C5.93571 7.68756 6.18755 7.9394 6.18755 8.25006C6.18755 8.56072 5.93571 8.81256 5.62505 8.81256H5.25005C4.93939 8.81256 4.68755 8.56072 4.68755 8.25006ZM7.31255 8.25006C7.31255 7.9394 7.56439 7.68756 7.87505 7.68756H12.7501C13.0607 7.68756 13.3126 7.9394 13.3126 8.25006C13.3126 8.56072 13.0607 8.81256 12.7501 8.81256H7.87505C7.56439 8.81256 7.31255 8.56072 7.31255 8.25006ZM4.68755 10.8751C4.68755 10.5644 4.93939 10.3126 5.25005 10.3126H5.62505C5.93571 10.3126 6.18755 10.5644 6.18755 10.8751C6.18755 11.1857 5.93571 11.4376 5.62505 11.4376H5.25005C4.93939 11.4376 4.68755 11.1857 4.68755 10.8751ZM7.31255 10.8751C7.31255 10.5644 7.56439 10.3126 7.87505 10.3126H12.7501C13.0607 10.3126 13.3126 10.5644 13.3126 10.8751C13.3126 11.1857 13.0607 11.4376 12.7501 11.4376H7.87505C7.56439 11.4376 7.31255 11.1857 7.31255 10.8751Z"
+                      fill="#4A6D97"
+                    />
+                  </svg>
                 </button>
-                }
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
 
-                <!--file uploaded-->
-                @if (selectedFile) {
-                <div class="d-flex align-items-center justify-content-between gap-2 px-0 w-100">
-                    <div class="text-success d-flex align-items-center gap-2 w-auto">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-sm">{{ selectedFile.name }}</span>
-                    </div>
-                    <div class="d-flex gap-1">
+  <!-- Import popup -->
+  <app-overlay-filter-box #importBox [title]="'Import Employee Payrolls'">
+    <form class="w-100 d-flex flex-column gap-3">
+      <p>
+        Download the template file, fill in your data, and upload it again to
+        import all employee payrolls.
+      </p>
 
-                        <button type="button" class="btn btn-outline-dark px-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                <g fill="none">
-                                    <path fill="currentColor"
-                                        d="m15.393 4.054l-.502.557zm3.959 3.563l-.502.557zm2.302 2.537l-.685.305zM3.172 20.828l.53-.53zm17.656 0l-.53-.53zM14 21.25h-4v1.5h4zM2.75 14v-4h-1.5v4zm18.5-.437V14h1.5v-.437zM14.891 4.61l3.959 3.563l1.003-1.115l-3.958-3.563zm7.859 8.952c0-1.689.015-2.758-.41-3.714l-1.371.61c.266.598.281 1.283.281 3.104zm-3.9-5.389c1.353 1.218 1.853 1.688 2.119 2.285l1.37-.61c-.426-.957-1.23-1.66-2.486-2.79zM10.03 2.75c1.582 0 2.179.012 2.71.216l.538-1.4c-.852-.328-1.78-.316-3.248-.316zm5.865.746c-1.086-.977-1.765-1.604-2.617-1.93l-.537 1.4c.532.204.98.592 2.15 1.645zM10 21.25c-1.907 0-3.261-.002-4.29-.14c-1.005-.135-1.585-.389-2.008-.812l-1.06 1.06c.748.75 1.697 1.081 2.869 1.239c1.15.155 2.625.153 4.489.153zM1.25 14c0 1.864-.002 3.338.153 4.489c.158 1.172.49 2.121 1.238 2.87l1.06-1.06c-.422-.424-.676-1.004-.811-2.01c-.138-1.027-.14-2.382-.14-4.289zM14 22.75c1.864 0 3.338.002 4.489-.153c1.172-.158 2.121-.49 2.87-1.238l-1.06-1.06c-.424.422-1.004.676-2.01.811c-1.027.138-2.382.14-4.289.14zM21.25 14c0 1.907-.002 3.262-.14 4.29c-.135 1.005-.389 1.585-.812 2.008l1.06 1.06c.75-.748 1.081-1.697 1.239-2.869c.155-1.15.153-2.625.153-4.489zm-18.5-4c0-1.907.002-3.261.14-4.29c.135-1.005.389-1.585.812-2.008l-1.06-1.06c-.75.748-1.081 1.697-1.239 2.869C1.248 6.661 1.25 8.136 1.25 10zm7.28-8.75c-1.875 0-3.356-.002-4.511.153c-1.177.158-2.129.49-2.878 1.238l1.06 1.06c.424-.422 1.005-.676 2.017-.811c1.033-.138 2.395-.14 4.312-.14z" />
-                                    <path stroke="currentColor" stroke-width="1.5"
-                                        d="M13 2.5V5c0 2.357 0 3.536.732 4.268S15.643 10 18 10h4" />
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="1.5" d="M8.5 13.5v5m0 0l2-1.875m-2 1.875l-2-1.875" />
-                                </g>
-                            </svg>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger px-2" (click)="removeFile()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                                <path fill="currentColor"
-                                    d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z" />
-                                <path fill="currentColor"
-                                    d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                }
-            </div>
-
-
-
-
-
-
-            <div class="d-flex align-items-center gap-3">
-                <button type="submit" class="btn btn-lg btn-success px-0 w-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-                        <path fill="currentColor" fill-rule="evenodd"
-                            d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <span>Import Payrolls</span>
-                </button>
-                <a type="button" (click)="closeOverlays()" class="btn btn-lg btn-outline-dark border-0 px-0 w-100">
-                    <span>Discard Import</span>
-                </a>
-            </div>
-        </form>
-
-    </app-overlay-filter-box>
-
-    <!-- Start Payroll Run confirmation popup -->
-    <app-popup [title]="'Start Payroll Run'"
-        [paragraph1]="'Are you sure you want to start the payroll run with the selected sheet?'"
-        [paragraph2]="'Selected Sheet: ' + getSelectedSheetName()" [isOpen]="showConfirmation"
-        (close)="cancelStartPayroll()">
-        <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="confirmStartPayroll()"
-            [disabled]="isStartingPayroll">
-            {{ isStartingPayroll ? 'Processing...' : 'Start Payroll Run' }}
+      <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-lg btn-outline-dark px-0 w-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
+              <path
+                d="M12.25 2.834c-.46-.078-1.088-.084-2.22-.084c-1.917 0-3.28.002-4.312.14c-1.012.135-1.593.39-2.016.812s-.677 1.003-.812 2.009c-.138 1.028-.14 2.382-.14 4.29v4c0 1.906.002 3.26.14 4.288c.135 1.006.389 1.586.812 2.01c.423.422 1.003.676 2.009.811c1.028.139 2.382.14 4.289.14h4c1.907 0 3.262-.002 4.29-.14c1.005-.135 1.585-.389 2.008-.812s.677-1.003.812-2.009c.138-1.027.14-2.382.14-4.289v-.437c0-1.536-.01-2.264-.174-2.813h-3.13c-1.133 0-2.058 0-2.79-.098c-.763-.103-1.425-.325-1.954-.854s-.751-1.19-.854-1.955c-.098-.73-.098-1.656-.098-2.79zm1.5.776V5c0 1.2.002 2.024.085 2.643c.08.598.224.891.428 1.094s.496.348 1.094.428c.619.083 1.443.085 2.643.085h2.02a46 46 0 0 0-1.17-1.076l-3.959-3.563A37 37 0 0 0 13.75 3.61m-3.575-2.36c1.385 0 2.28 0 3.103.315c.823.316 1.485.912 2.51 1.835l.107.096l3.958 3.563l.125.112c1.184 1.065 1.95 1.754 2.361 2.678s.412 1.954.411 3.546v.661c0 1.838 0 3.294-.153 4.433c-.158 1.172-.49 2.121-1.238 2.87c-.749.748-1.698 1.08-2.87 1.238c-1.14.153-2.595.153-4.433.153H9.944c-1.838 0-3.294 0-4.433-.153c-1.172-.158-2.121-.49-2.87-1.238c-.748-.749-1.08-1.698-1.238-2.87c-.153-1.14-.153-2.595-.153-4.433V9.945c0-1.838 0-3.294.153-4.433c.158-1.172.49-2.121 1.238-2.87c.75-.749 1.701-1.08 2.878-1.238c1.144-.153 2.607-.153 4.455-.153h.202"
+              />
+              <path
+                d="M7.987 19.047a.75.75 0 0 0 1.026 0l2-1.875a.75.75 0 0 0-1.026-1.094l-.737.69V13.5a.75.75 0 1 0-1.5 0v3.269l-.737-.691a.75.75 0 1 0-1.026 1.094z"
+              />
+            </g>
+          </svg>
+          <span>Download Template</span>
         </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelStartPayroll()">
-            Cancel
+        @if (!selectedFile) {
+        <button
+          type="button"
+          class="btn btn-lg btn-primary px-0 w-100 position-relative overflow-hidden"
+        >
+          <input
+            type="file"
+            accept=".xls,.xlsx"
+            (change)="onFileSelected($event)"
+            class="position-absolute w-100 h-100 opacity-0 cursor-pointer"
+            style="top: 0; left: 0"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="1.5"
+            >
+              <path
+                d="M17 9.002c2.175.012 3.353.109 4.121.877C22 10.758 22 12.172 22 15v1c0 2.829 0 4.243-.879 5.122C20.243 22 18.828 22 16 22H8c-2.828 0-4.243 0-5.121-.878C2 20.242 2 18.829 2 16v-1c0-2.828 0-4.242.879-5.121c.768-.768 1.946-.865 4.121-.877"
+              />
+              <path stroke-linejoin="round" d="M12 15V2m0 0l3 3.5M12 2L9 5.5" />
+            </g>
+          </svg>
+          <span>Upload File</span>
         </button>
-    </app-popup>
+        }
 
-    <!-- Create Sheet confirmation popup -->
-    <app-popup [title]="'Create New Sheet'" [paragraph1]="'Are you sure you want to create a new sheet?'"
-        [paragraph2]="'Sheet Name: Sheet | ' + (payRollRunData?.data?.object_info?.title || 'Payroll Run')"
-        [isOpen]="showCreateSheetConfirmation" (close)="cancelCreateSheet()">
-        <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="confirmCreateSheet()"
-            [disabled]="isCreatingSheet">
-            {{ isCreatingSheet ? 'Creating...' : 'Create Sheet' }}
-        </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelCreateSheet()">
-            Cancel
-        </button>
-    </app-popup>
+        <!--file uploaded-->
+        @if (selectedFile) {
+        <div
+          class="d-flex align-items-center justify-content-between gap-2 px-0 w-100"
+        >
+          <div class="text-success d-flex align-items-center gap-2 w-auto">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z"
+              />
+              <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span class="text-sm">{{ selectedFile.name }}</span>
+          </div>
+          <div class="d-flex gap-1">
+            <button type="button" class="btn btn-outline-dark px-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+              >
+                <g fill="none">
+                  <path
+                    fill="currentColor"
+                    d="m15.393 4.054l-.502.557zm3.959 3.563l-.502.557zm2.302 2.537l-.685.305zM3.172 20.828l.53-.53zm17.656 0l-.53-.53zM14 21.25h-4v1.5h4zM2.75 14v-4h-1.5v4zm18.5-.437V14h1.5v-.437zM14.891 4.61l3.959 3.563l1.003-1.115l-3.958-3.563zm7.859 8.952c0-1.689.015-2.758-.41-3.714l-1.371.61c.266.598.281 1.283.281 3.104zm-3.9-5.389c1.353 1.218 1.853 1.688 2.119 2.285l1.37-.61c-.426-.957-1.23-1.66-2.486-2.79zM10.03 2.75c1.582 0 2.179.012 2.71.216l.538-1.4c-.852-.328-1.78-.316-3.248-.316zm5.865.746c-1.086-.977-1.765-1.604-2.617-1.93l-.537 1.4c.532.204.98.592 2.15 1.645zM10 21.25c-1.907 0-3.261-.002-4.29-.14c-1.005-.135-1.585-.389-2.008-.812l-1.06 1.06c.748.75 1.697 1.081 2.869 1.239c1.15.155 2.625.153 4.489.153zM1.25 14c0 1.864-.002 3.338.153 4.489c.158 1.172.49 2.121 1.238 2.87l1.06-1.06c-.422-.424-.676-1.004-.811-2.01c-.138-1.027-.14-2.382-.14-4.289zM14 22.75c1.864 0 3.338.002 4.489-.153c1.172-.158 2.121-.49 2.87-1.238l-1.06-1.06c-.424.422-1.004.676-2.01.811c-1.027.138-2.382.14-4.289.14zM21.25 14c0 1.907-.002 3.262-.14 4.29c-.135 1.005-.389 1.585-.812 2.008l1.06 1.06c.75-.748 1.081-1.697 1.239-2.869c.155-1.15.153-2.625.153-4.489zm-18.5-4c0-1.907.002-3.261.14-4.29c.135-1.005.389-1.585.812-2.008l-1.06-1.06c-.75.748-1.081 1.697-1.239 2.869C1.248 6.661 1.25 8.136 1.25 10zm7.28-8.75c-1.875 0-3.356-.002-4.511.153c-1.177.158-2.129.49-2.878 1.238l1.06 1.06c.424-.422 1.005-.676 2.017-.811c1.033-.138 2.395-.14 4.312-.14z"
+                  />
+                  <path
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    d="M13 2.5V5c0 2.357 0 3.536.732 4.268S15.643 10 18 10h4"
+                  />
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M8.5 13.5v5m0 0l2-1.875m-2 1.875l-2-1.875"
+                  />
+                </g>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger px-2"
+              (click)="removeFile()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M12 2.75a2.25 2.25 0 0 0-2.122 1.5a.75.75 0 0 1-1.414-.5a3.751 3.751 0 0 1 7.073 0a.75.75 0 0 1-1.415.5A2.25 2.25 0 0 0 12 2.75M2.75 6a.75.75 0 0 1 .75-.75h17a.75.75 0 0 1 0 1.5h-17A.75.75 0 0 1 2.75 6m3.165 2.45a.75.75 0 1 0-1.497.1l.464 6.952c.085 1.282.154 2.318.316 3.132c.169.845.455 1.551 1.047 2.104s1.315.793 2.17.904c.822.108 1.86.108 3.146.108h.879c1.285 0 2.324 0 3.146-.108c.854-.111 1.578-.35 2.17-.904c.591-.553.877-1.26 1.046-2.104c.162-.814.23-1.85.316-3.132l.464-6.952a.75.75 0 0 0-1.497-.1l-.46 6.9c-.09 1.347-.154 2.285-.294 2.99c-.137.685-.327 1.047-.6 1.303c-.274.256-.648.422-1.34.512c-.713.093-1.653.095-3.004.095h-.774c-1.35 0-2.29-.002-3.004-.095c-.692-.09-1.066-.256-1.34-.512c-.273-.256-.463-.618-.6-1.303c-.14-.705-.204-1.643-.294-2.99z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M9.425 10.254a.75.75 0 0 1 .821.671l.5 5a.75.75 0 0 1-1.492.15l-.5-5a.75.75 0 0 1 .671-.821m5.821.821a.75.75 0 0 0-1.492-.15l-.5 5a.75.75 0 0 0 1.492.15z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
 
-    <!-- Revert to Draft confirmation popup -->
-    <app-popup [title]="'Revert to Draft'"
-        [paragraph1]="'Are you sure you want to revert this payroll run to draft status?'"
-        [paragraph2]="'Payroll: ' + (payRollRunData?.data?.object_info?.title || 'N/A') + ' | This action will undo all processing.'"
-        [isOpen]="showRevertToDraftConfirmation" (close)="cancelRevertToDraft()">
-        <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmRevertToDraft()"
-            [disabled]="isRevertingToDraft">
-            {{ isRevertingToDraft ? 'Reverting...' : 'Revert to Draft' }}
+      <div class="d-flex align-items-center gap-3">
+        <button type="submit" class="btn btn-lg btn-success px-0 w-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z"
+            />
+            <path
+              fill="currentColor"
+              fill-rule="evenodd"
+              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>Import Payrolls</span>
         </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelRevertToDraft()">
-            Cancel
-        </button>
-    </app-popup>
+        <a
+          type="button"
+          (click)="closeOverlays()"
+          class="btn btn-lg btn-outline-dark border-0 px-0 w-100"
+        >
+          <span>Discard Import</span>
+        </a>
+      </div>
+    </form>
+  </app-overlay-filter-box>
 
-    <!-- Restart Run confirmation popup -->
-    <app-popup [title]="'Restart Run'" [paragraph1]="'Are you sure you want to restart this payroll run?'"
-        [paragraph2]="'Payroll: ' + (payRollRunData?.data?.object_info?.title || 'N/A') + ' | This will reset the processing.'"
-        [isOpen]="showRestartRunConfirmation" (close)="cancelRestartRun()">
-        <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="confirmRestartRun()"
-            [disabled]="isRestartingRun">
-            {{ isRestartingRun ? 'Restarting...' : 'Restart Run' }}
-        </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelRestartRun()">
-            Cancel
-        </button>
-    </app-popup>
+  <!-- Start Payroll Run confirmation popup -->
+  <app-popup
+    [title]="'Start Payroll Run'"
+    [paragraph1]="
+      'Are you sure you want to start the payroll run with the selected sheet?'
+    "
+    [paragraph2]="'Selected Sheet: ' + getSelectedSheetName()"
+    [isOpen]="showConfirmation"
+    (close)="cancelStartPayroll()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg btn-primary w-100"
+      (click)="confirmStartPayroll()"
+      [disabled]="isStartingPayroll"
+    >
+      {{ isStartingPayroll ? "Processing..." : "Start Payroll Run" }}
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="cancelStartPayroll()"
+    >
+      Cancel
+    </button>
+  </app-popup>
 
-    <!-- Publish Payroll confirmation popup -->
-    <app-popup [title]="'Publish Payroll'" [paragraph1]="'Are you sure you want to publish this payroll run?'"
-        [paragraph2]="'Payroll: ' + (payRollRunData?.data?.object_info?.title || 'N/A') + ' | Once published, the payroll will be finalized.'"
-        [isOpen]="showPublishConfirmation" (close)="cancelPublish()">
-        <button modal-btn-left class="btn btn-lg btn-success w-100" (click)="confirmPublish()"
-            [disabled]="isPublishing">
-            @if (isPublishing) {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            <span>Publishing...</span>
-            } @else {
-            <span>Publish</span>
-            }
-        </button>
-        <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="cancelPublish()">
-            Cancel
-        </button>
-    </app-popup>
+  <!-- Create Sheet confirmation popup -->
+  <app-popup
+    [title]="'Create New Sheet'"
+    [paragraph1]="'Are you sure you want to create a new sheet?'"
+    [paragraph2]="
+      'Sheet Name: Sheet | ' +
+      (payRollRunData?.data?.object_info?.title || 'Payroll Run')
+    "
+    [isOpen]="showCreateSheetConfirmation"
+    (close)="cancelCreateSheet()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg btn-primary w-100"
+      (click)="confirmCreateSheet()"
+      [disabled]="isCreatingSheet"
+    >
+      {{ isCreatingSheet ? "Creating..." : "Create Sheet" }}
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="cancelCreateSheet()"
+    >
+      Cancel
+    </button>
+  </app-popup>
+
+  <!-- Revert to Draft confirmation popup -->
+  <app-popup
+    [title]="'Revert to Draft'"
+    [paragraph1]="
+      'Are you sure you want to revert this payroll run to draft status?'
+    "
+    [paragraph2]="
+      'Payroll: ' +
+      (payRollRunData?.data?.object_info?.title || 'N/A') +
+      ' | This action will undo all processing.'
+    "
+    [isOpen]="showRevertToDraftConfirmation"
+    (close)="cancelRevertToDraft()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg btn-danger w-100"
+      (click)="confirmRevertToDraft()"
+      [disabled]="isRevertingToDraft"
+    >
+      {{ isRevertingToDraft ? "Reverting..." : "Revert to Draft" }}
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="cancelRevertToDraft()"
+    >
+      Cancel
+    </button>
+  </app-popup>
+
+  <!-- Restart Run confirmation popup -->
+  <app-popup
+    [title]="'Restart Run'"
+    [paragraph1]="'Are you sure you want to restart this payroll run?'"
+    [paragraph2]="
+      'Payroll: ' +
+      (payRollRunData?.data?.object_info?.title || 'N/A') +
+      ' | This will reset the processing.'
+    "
+    [isOpen]="showRestartRunConfirmation"
+    (close)="cancelRestartRun()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg btn-primary w-100"
+      (click)="confirmRestartRun()"
+      [disabled]="isRestartingRun"
+    >
+      {{ isRestartingRun ? "Restarting..." : "Restart Run" }}
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="cancelRestartRun()"
+    >
+      Cancel
+    </button>
+  </app-popup>
+
+  <!-- Publish Payroll confirmation popup -->
+  <app-popup
+    [title]="'Publish Payroll'"
+    [paragraph1]="'Are you sure you want to publish this payroll run?'"
+    [paragraph2]="
+      'Payroll: ' +
+      (payRollRunData?.data?.object_info?.title || 'N/A') +
+      ' | Once published, the payroll will be finalized.'
+    "
+    [isOpen]="showPublishConfirmation"
+    (close)="cancelPublish()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg btn-success w-100"
+      (click)="confirmPublish()"
+      [disabled]="isPublishing"
+    >
+      @if (isPublishing) {
+      <span
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      <span>Publishing...</span>
+      } @else {
+      <span>Publish</span>
+      }
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="cancelPublish()"
+    >
+      Cancel
+    </button>
+  </app-popup>
+</div>
