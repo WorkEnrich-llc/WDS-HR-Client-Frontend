@@ -253,8 +253,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <h2>Main Information</h2>
       <!-- View Sheet button for Off Cycle runs with related sheet -->
-      @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
-      relatedSheetId && !loadData) {
+      @if (relatedSheetId && !loadData) {
       <button
         class="btn btn-lg btn-outline-primary"
         (click)="onViewSheetClick()"
@@ -274,9 +273,7 @@
       </button>
       }
       <!-- Create New Sheet button for Off Cycle runs without related sheet -->
-      @if (payRollRunData?.data?.object_info?.status === 'Draft' &&
-      payRollRunData?.data?.object_info?.run_cycle?.id === 2 && !relatedSheetId
-      && !loadData) {
+      <!-- @if (!relatedSheetId && !loadData) {
       <button
         class="btn btn-lg btn-outline-primary"
         (click)="onCreateSheetClick()"
@@ -299,7 +296,7 @@
         </svg>
         <span>Create New Sheet</span>
       </button>
-      }
+      } -->
     </div>
     @if (loadData) {
     <div class="main-info-skeleton">
@@ -356,7 +353,7 @@
     }
   </div>
 
-  @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
+  <!-- @if (payRollRunData?.data?.object_info?.status === 'Pending' ||
   payRollRunData?.data?.object_info?.status === 'Completed' ||
   payRollRunData?.data?.object_info?.status === 'Processed' ||
   payRollRunData?.data?.object_info?.status === 'In Process' ||
@@ -413,7 +410,6 @@
       </div>
       }
     </div>
-    <!-- start dynamic payroll table from display_table -->
     <div style="overflow-x: auto">
       <table class="table table-sm">
         <thead class="table-dark">
@@ -523,7 +519,7 @@
       </table>
     </div>
   </div>
-  }
+  } -->
 
   <!-- Import popup -->
   <app-overlay-filter-box #importBox [title]="'Import Employee Payrolls'">
