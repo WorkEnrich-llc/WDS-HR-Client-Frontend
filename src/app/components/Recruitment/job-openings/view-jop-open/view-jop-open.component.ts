@@ -86,8 +86,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   jobDetailsInfoLoading: boolean = true;
   dynamicFieldsLoading: boolean = true;
 
-  // show more text
-  isExpanded = false;
+  // show/hide for main information and job details
+  mainInfoExpanded = true;
+  // show more/less for additional fields
+  showMoreExpanded = false;
 
   // Tab functionality
   activeTab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected' = 'applicant';
@@ -368,8 +370,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     return offerStatusMap[tab];
   }
 
-  toggleText() {
-    this.isExpanded = !this.isExpanded;
+  toggleMainInfo() {
+    this.mainInfoExpanded = !this.mainInfoExpanded;
+  }
+
+  toggleShowMore() {
+    // If content is hidden, show it first before expanding
+    if (!this.mainInfoExpanded) {
+      this.mainInfoExpanded = true;
+    }
+    this.showMoreExpanded = !this.showMoreExpanded;
   }
 
   setActiveTab(tab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected') {
