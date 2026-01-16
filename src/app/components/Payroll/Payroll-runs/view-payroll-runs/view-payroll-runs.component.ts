@@ -347,16 +347,16 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       return [];
     }
     const headers = displayTable.headers;
-    
+
     // Separate "net" header from others
     const netHeader = headers.find((h: any) => h.key === 'net');
     const otherHeaders = headers.filter((h: any) => h.key !== 'net');
-    
+
     // Return headers with "net" at the end (before Actions)
     if (netHeader) {
       return [...otherHeaders, netHeader];
     }
-    
+
     return headers;
   }
 
