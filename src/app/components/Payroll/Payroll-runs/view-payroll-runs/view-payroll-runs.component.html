@@ -253,7 +253,8 @@
     <div class="d-flex align-items-center justify-content-between">
       <h2>Main Information</h2>
       <!-- View Sheet button for Off Cycle runs with related sheet -->
-      @if (relatedSheetId && !loadData) {
+      @if (relatedSheetId && !loadData &&
+      payRollRunData?.data?.object_info?.status !== 'Completed') {
       <button
         class="btn btn-lg btn-outline-primary"
         (click)="onViewSheetClick()"
