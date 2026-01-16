@@ -10,6 +10,46 @@
   --color-border: #e0e0e0;
 
   --font-family: 'Poppins', sans-serif;
+
+  /* Prevent text selection and copying */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow text selection only in text input areas */
+.answer-input,
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Skip Link for Keyboard Navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 0;
+  position: fixed;
+  margin: 8px;
 }
 
 /* Questions Page Wrapper */
@@ -19,6 +59,27 @@
   width: 100%;
   min-height: 100vh;
   background-color: #f5f5f5;
+}
+
+/* Hide focus outlines until keyboard navigation starts */
+.questions-page-wrapper:not([data-keyboard-navigation="true"]) *:focus,
+.questions-page-wrapper:not([data-keyboard-navigation="true"]) *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Show focus outlines once keyboard navigation has started */
+.questions-page-wrapper[data-keyboard-navigation="true"] *:focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Always allow focus for inputs and textareas (they need focus to work) */
+.questions-page-wrapper input:focus,
+.questions-page-wrapper textarea:focus {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(55, 122, 253, 0.1) !important;
 }
 
 /* Screen Reader Only */
@@ -32,6 +93,17 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 /* Assignment Questions Container */

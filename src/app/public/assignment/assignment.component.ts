@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssignmentService } from '../../core/services/recruitment/assignment.service';
 import { AssignmentStateService } from '../../core/services/recruitment/assignment-state.service';
@@ -15,13 +15,14 @@ import { ThemeService } from '../../client-job-board/services/theme.service';
   templateUrl: './assignment.component.html',
   styleUrl: './assignment.component.css'
 })
-export class AssignmentComponent implements OnInit {
+export class AssignmentComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private assignmentService = inject(AssignmentService);
   private assignmentStateService = inject(AssignmentStateService);
   private toastr = inject(ToastrService);
   private themeService = inject(ThemeService);
+  private elementRef = inject(ElementRef);
 
   accessToken: string | null = null;
   isLoading = true;
@@ -31,6 +32,7 @@ export class AssignmentComponent implements OnInit {
 
   // View state
   isStartingAssignment: boolean = false;
+  private popupRedirectChecked: boolean = false;
 
   // Navbar and Footer data
   logoData: LogoData = {};
@@ -38,6 +40,9 @@ export class AssignmentComponent implements OnInit {
   websiteUrl: string | null = null;
 
   ngOnInit(): void {
+    // Check if opened in main window and redirect to popup
+    this.checkAndOpenInPopup();
+    
     this.route.queryParams.subscribe(params => {
       this.accessToken = params['s'] || null;
 
@@ -48,6 +53,164 @@ export class AssignmentComponent implements OnInit {
         this.errorMessage = 'Invalid access token';
         this.toastr.error('Invalid access token');
       }
+    });
+  }
+
+  /**
+   * Check if page is opened in main window and redirect to popup window
+   */
+  private checkAndOpenInPopup(): void {
+    // Prevent multiple checks
+    if (this.popupRedirectChecked) {
+      return;
+    }
+    this.popupRedirectChecked = true;
+
+    // If window has opener or parent, it's already in a popup/iframe - don't redirect
+    if (window.opener || window.parent !== window || window.frameElement) {
+      return;
+    }
+
+    // Check if there's a flag in sessionStorage to prevent redirect loops
+    const alreadyRedirected = sessionStorage.getItem('assignment_popup_redirected');
+    if (alreadyRedirected === 'true') {
+      sessionStorage.removeItem('assignment_popup_redirected');
+      return;
+    }
+
+    // Get current URL with query parameters
+    const currentUrl = window.location.href;
+
+    // Calculate popup dimensions (adjust as needed)
+    const width = Math.min(1400, window.screen.width - 100);
+    const height = Math.min(900, window.screen.height - 100);
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    // Window features for popup without browser UI
+    const features = [
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      'toolbar=no',
+      'menubar=no',
+      'location=no',
+      'directories=no',
+      'status=no',
+      'resizable=yes',
+      'scrollbars=yes',
+      'fullscreen=no'
+    ].join(',');
+
+    // Set flag to prevent redirect in the popup
+    sessionStorage.setItem('assignment_popup_redirected', 'true');
+
+    // Open popup window
+    const popup = window.open(currentUrl, '_blank', features);
+
+    if (popup) {
+      // Focus the popup
+      popup.focus();
+      
+      // Hide current window content and show redirect message
+      setTimeout(() => {
+        if (document.body) {
+          document.body.style.display = 'none';
+          const messageDiv = document.createElement('div');
+          messageDiv.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 99999;">
+              <div style="text-align: center;">
+                <p style="font-size: 18px; margin-bottom: 20px;">Opening assignment in a new window...</p>
+                <p style="font-size: 14px; color: #666;">If the window doesn't open, please allow popups for this site.</p>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(messageDiv);
+        }
+      }, 100);
+      
+      // Close current window after a short delay (browsers may block this)
+      setTimeout(() => {
+        try {
+          window.close();
+        } catch (e) {
+          // Ignore - window.close() may fail if window wasn't opened by script
+        }
+      }, 1000);
+    } else {
+      // Popup was blocked - show message
+      sessionStorage.removeItem('assignment_popup_redirected');
+      setTimeout(() => {
+        if (document.body) {
+          const messageDiv = document.createElement('div');
+          messageDiv.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 99999;">
+              <div style="text-align: center; max-width: 600px; padding: 20px;">
+                <h2 style="margin-bottom: 20px;">Popup Blocked</h2>
+                <p style="margin-bottom: 20px;">Please allow popups for this site to open the assignment in a focused window.</p>
+                <button onclick="window.location.reload()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px;">
+                  Retry
+                </button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(messageDiv);
+        }
+      }, 100);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Prevent copying and text selection
+    this.preventCopying();
+  }
+
+  /**
+   * Prevent copying, text selection, and context menu
+   */
+  private preventCopying(): void {
+    // Prevent context menu (right-click)
+    this.elementRef.nativeElement.addEventListener('contextmenu', (e: MouseEvent): void => {
+      e.preventDefault();
+    });
+
+    // Prevent keyboard shortcuts for copy
+    this.elementRef.nativeElement.addEventListener('keydown', (e: KeyboardEvent): void => {
+      // Prevent Ctrl+C, Ctrl+A, Ctrl+X, Ctrl+V, Ctrl+S, Ctrl+P
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' ||
+        e.key === 'x' || e.key === 'X' || e.key === 'v' || e.key === 'V' ||
+        e.key === 'a' || e.key === 'A' || e.key === 's' || e.key === 'S' ||
+        e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) {
+        e.preventDefault();
+        return;
+      }
+
+      // Prevent F12 (Developer Tools) and Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+      if (e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'U')) {
+        e.preventDefault();
+        return;
+      }
+    });
+
+    // Prevent copy, cut, paste events
+    this.elementRef.nativeElement.addEventListener('copy', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    this.elementRef.nativeElement.addEventListener('cut', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    this.elementRef.nativeElement.addEventListener('paste', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    // Prevent drag and drop
+    this.elementRef.nativeElement.addEventListener('dragstart', (e: DragEvent): void => {
+      e.preventDefault();
     });
   }
 

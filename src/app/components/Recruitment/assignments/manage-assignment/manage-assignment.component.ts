@@ -381,8 +381,6 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     this.router.navigate(['/assignments']);
                 },
                 error: (error) => {
-                    console.error('Error updating assignment:', error);
-                    this.toaster.showError('Failed to update assignment');
                 }
             });
         } else {
@@ -434,13 +432,23 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 } : undefined),
                 order: mediaIndex + 1
             })).filter((m: any) => m.file || m.id), // Only include media with files or existing records
-            answers: question.answers.map((answer: any, answerIndex: number) => ({
-                id: answer.id || undefined,
-                record_type: answer.id ? 'update' : 'create',
-                text: answer.text,
-                order: answerIndex + 1,
-                is_correct: answer.is_correct || false
-            }))
+            answers: question.answers.map((answer: any, answerIndex: number) => {
+                // Determine if this answer is correct
+                // Use the is_correct flag if set, otherwise check if answerIndex matches correct_answer
+                const isCorrect = answer.is_correct !== undefined 
+                    ? answer.is_correct 
+                    : (question.correct_answer !== null && question.correct_answer !== undefined 
+                        ? answerIndex === question.correct_answer 
+                        : false);
+                
+                return {
+                    id: answer.id || undefined,
+                    record_type: answer.id ? 'update' : 'create',
+                    text: answer.text,
+                    order: answerIndex + 1,
+                    is_correct: isCorrect
+                };
+            })
         }));
 
         const payload: any = {
@@ -819,7 +827,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     }
 
     setCorrectAnswer(questionIndex: number, answerIndex: number): void {
-        const answer = this.questions[questionIndex].answers[answerIndex];
+        const question = this.questions[questionIndex];
+        const answer = question.answers[answerIndex];
 
         // Validation: check if answer is not empty or only spaces
         if (!answer.text || answer.text.trim() === '') {
@@ -828,7 +837,15 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         }
 
         answer.error = false;
-        this.questions[questionIndex].correct_answer = answerIndex;
+        
+        // Set correct_answer index
+        question.correct_answer = answerIndex;
+        
+        // Update is_correct flag on all answers
+        // Set selected answer to true, all others to false
+        question.answers.forEach((ans: any, index: number) => {
+            ans.is_correct = index === answerIndex;
+        });
     }
 
     // Clear error when user types in answer input

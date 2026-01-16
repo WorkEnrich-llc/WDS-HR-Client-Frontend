@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -16,12 +16,15 @@ import { ThemeService } from '../../../../client-job-board/services/theme.servic
   templateUrl: './questions.component.html',
   styleUrl: './questions.component.css'
 })
-export class AssignmentQuestionsComponent implements OnInit, OnDestroy {
+export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private toastr = inject(ToastrService);
   private assignmentService = inject(AssignmentService);
   private assignmentStateService = inject(AssignmentStateService);
   private themeService = inject(ThemeService);
+  private elementRef = inject(ElementRef);
+
+  @ViewChild('mainContent') mainContent?: ElementRef<HTMLElement>;
 
   accessToken: string | null = null;
   isLoading: boolean = true;
@@ -56,7 +59,21 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy {
   // Validation error message
   validationError: string | null = null;
 
+  // Accessibility: Screen reader announcements
+  screenReaderAnnouncement: string = '';
+
+  // Accessibility: Skip link visibility
+  showSkipLink: boolean = false;
+  
+  private popupRedirectChecked: boolean = false;
+  
+  // Track if user has started keyboard navigation
+  keyboardNavigationStarted: boolean = false;
+
   ngOnInit(): void {
+    // Check if opened in main window and redirect to popup
+    this.checkAndOpenInPopup();
+    
     this.route.queryParams.subscribe(params => {
       this.accessToken = params['s'] || null;
 
@@ -81,10 +98,324 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Check if page is opened in main window and redirect to popup window
+   */
+  private checkAndOpenInPopup(): void {
+    // Prevent multiple checks
+    if (this.popupRedirectChecked) {
+      return;
+    }
+    this.popupRedirectChecked = true;
+
+    // If window has opener or parent, it's already in a popup/iframe - don't redirect
+    if (window.opener || window.parent !== window || window.frameElement) {
+      return;
+    }
+
+    // Check if there's a flag in sessionStorage to prevent redirect loops
+    const alreadyRedirected = sessionStorage.getItem('assignment_popup_redirected');
+    if (alreadyRedirected === 'true') {
+      sessionStorage.removeItem('assignment_popup_redirected');
+      return;
+    }
+
+    // Get current URL with query parameters
+    const currentUrl = window.location.href;
+
+    // Calculate popup dimensions (adjust as needed)
+    const width = Math.min(1400, window.screen.width - 100);
+    const height = Math.min(900, window.screen.height - 100);
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    // Window features for popup without browser UI
+    const features = [
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      'toolbar=no',
+      'menubar=no',
+      'location=no',
+      'directories=no',
+      'status=no',
+      'resizable=yes',
+      'scrollbars=yes',
+      'fullscreen=no'
+    ].join(',');
+
+    // Set flag to prevent redirect in the popup
+    sessionStorage.setItem('assignment_popup_redirected', 'true');
+
+    // Open popup window
+    const popup = window.open(currentUrl, '_blank', features);
+
+    if (popup) {
+      // Focus the popup
+      popup.focus();
+      
+      // Hide current window content and show redirect message
+      setTimeout(() => {
+        if (document.body) {
+          document.body.style.display = 'none';
+          const messageDiv = document.createElement('div');
+          messageDiv.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 99999;">
+              <div style="text-align: center;">
+                <p style="font-size: 18px; margin-bottom: 20px;">Opening assignment in a new window...</p>
+                <p style="font-size: 14px; color: #666;">If the window doesn't open, please allow popups for this site.</p>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(messageDiv);
+        }
+      }, 100);
+      
+      // Close current window after a short delay (browsers may block this)
+      setTimeout(() => {
+        try {
+          window.close();
+        } catch (e) {
+          // Ignore - window.close() may fail if window wasn't opened by script
+        }
+      }, 1000);
+    } else {
+      // Popup was blocked - show message
+      sessionStorage.removeItem('assignment_popup_redirected');
+      setTimeout(() => {
+        if (document.body) {
+          const messageDiv = document.createElement('div');
+          messageDiv.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 99999;">
+              <div style="text-align: center; max-width: 600px; padding: 20px;">
+                <h2 style="margin-bottom: 20px;">Popup Blocked</h2>
+                <p style="margin-bottom: 20px;">Please allow popups for this site to open the assignment in a focused window.</p>
+                <button onclick="window.location.reload()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px;">
+                  Retry
+                </button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(messageDiv);
+        }
+      }, 100);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Prevent copying and text selection
+    this.preventCopying();
+
+    // Don't auto-focus - wait for user to start keyboard navigation
+    // Listen for first keyboard interaction to enable focus
+    this.setupKeyboardNavigationListener();
+  }
+
+  /**
+   * Setup listener to detect when user starts keyboard navigation
+   */
+  private setupKeyboardNavigationListener(): void {
+    // Listen for keyboard events to detect when user starts navigating
+    const handleFirstKeyboardInteraction = (event: KeyboardEvent): void => {
+      // Ignore keyboard shortcuts we're preventing
+      if ((event.ctrlKey || event.metaKey) && 
+          (event.key === 'c' || event.key === 'C' || 
+           event.key === 'x' || event.key === 'X' || 
+           event.key === 'v' || event.key === 'V' || 
+           event.key === 'a' || event.key === 'A' || 
+           event.key === 's' || event.key === 'S' || 
+           event.key === 'p' || event.key === 'P' || 
+           event.key === 'u' || event.key === 'U')) {
+        return;
+      }
+
+      // User started keyboard navigation
+      if (!this.keyboardNavigationStarted) {
+        this.keyboardNavigationStarted = true;
+        
+        // Enable keyboard navigation by making question cards focusable
+        const questionCards = this.elementRef.nativeElement.querySelectorAll('.question-card');
+        questionCards.forEach((card: HTMLElement) => {
+          card.setAttribute('tabindex', '0');
+        });
+        
+        // Remove listener after first keyboard interaction
+        document.removeEventListener('keydown', handleFirstKeyboardInteraction);
+      }
+    };
+
+    // Add listener for keyboard events
+    document.addEventListener('keydown', handleFirstKeyboardInteraction, { once: false });
+  }
+
   ngOnDestroy(): void {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+  }
+
+  /**
+   * Prevent copying, text selection, and context menu
+   */
+  private preventCopying(): void {
+    // Prevent context menu (right-click)
+    this.elementRef.nativeElement.addEventListener('contextmenu', (e: MouseEvent): void => {
+      e.preventDefault();
+    });
+
+    // Prevent keyboard shortcuts for copy
+    this.elementRef.nativeElement.addEventListener('keydown', (e: KeyboardEvent): void => {
+      // Prevent Ctrl+C, Ctrl+A, Ctrl+X, Ctrl+V, Ctrl+S, Ctrl+P
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' ||
+        e.key === 'x' || e.key === 'X' || e.key === 'v' || e.key === 'V' ||
+        e.key === 'a' || e.key === 'A' || e.key === 's' || e.key === 'S' ||
+        e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) {
+        e.preventDefault();
+        return;
+      }
+
+      // Prevent F12 (Developer Tools) and Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+      if (e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'U')) {
+        e.preventDefault();
+        return;
+      }
+    });
+
+    // Prevent copy, cut, paste events
+    this.elementRef.nativeElement.addEventListener('copy', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    this.elementRef.nativeElement.addEventListener('cut', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    this.elementRef.nativeElement.addEventListener('paste', (e: ClipboardEvent): void => {
+      e.preventDefault();
+    });
+
+    // Prevent drag and drop
+    this.elementRef.nativeElement.addEventListener('dragstart', (e: DragEvent): void => {
+      e.preventDefault();
+    });
+  }
+
+  /**
+   * Keyboard navigation handler
+   */
+  @HostListener('keydown', ['$event'])
+  handleKeyboardNavigation(event: KeyboardEvent): void {
+    // Mark keyboard navigation as started on any keyboard interaction
+    if (!this.keyboardNavigationStarted) {
+      // Ignore keyboard shortcuts we're preventing
+      if (!((event.ctrlKey || event.metaKey) && 
+          (event.key === 'c' || event.key === 'C' || 
+           event.key === 'x' || event.key === 'X' || 
+           event.key === 'v' || event.key === 'V' || 
+           event.key === 'a' || event.key === 'A' || 
+           event.key === 's' || event.key === 'S' || 
+           event.key === 'p' || event.key === 'P' || 
+           event.key === 'u' || event.key === 'U'))) {
+        this.keyboardNavigationStarted = true;
+        
+        // Enable keyboard navigation by making question cards focusable
+        setTimeout(() => {
+          const questionCards = this.elementRef.nativeElement.querySelectorAll('.question-card');
+          questionCards.forEach((card: HTMLElement) => {
+            card.setAttribute('tabindex', '0');
+          });
+        }, 0);
+      }
+    }
+    
+    // Escape key: Close dropdown or go back
+    if (event.key === 'Escape') {
+      if (this.showGoToDropdown) {
+        this.showGoToDropdown = false;
+        event.preventDefault();
+      }
+    }
+
+    // Arrow keys for question navigation (when focus is not on input elements)
+    const target = event.target as HTMLElement;
+    const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+    if (!isInputElement) {
+      // Left Arrow: Previous question
+      if (event.key === 'ArrowLeft' && this.currentQuestionIndex > 0) {
+        this.previousQuestion();
+        this.announceToScreenReader(`Navigated to question ${this.currentQuestionIndex + 1}`);
+        event.preventDefault();
+      }
+
+      // Right Arrow: Next question
+      if (event.key === 'ArrowRight' && this.currentQuestionIndex < this.questions.length - 1) {
+        this.nextQuestion();
+        this.announceToScreenReader(`Navigated to question ${this.currentQuestionIndex + 1}`);
+        event.preventDefault();
+      }
+
+      // Number keys 1-9: Jump to question (when not typing)
+      if (event.key >= '1' && event.key <= '9' && !event.ctrlKey && !event.metaKey) {
+        const questionIndex = parseInt(event.key) - 1;
+        if (questionIndex >= 0 && questionIndex < this.questions.length) {
+          this.goToQuestion(questionIndex);
+          this.announceToScreenReader(`Jumped to question ${questionIndex + 1}`);
+          event.preventDefault();
+        }
+      }
+    }
+
+    // Enter/Space on question indicator: Navigate to that question
+    if ((event.key === 'Enter' || event.key === ' ') && target.classList.contains('question-indicator')) {
+      const questionIndex = this.questions.findIndex((_, i) => {
+        const indicator = this.elementRef.nativeElement.querySelector(`[aria-label*="Question ${i + 1}"]`);
+        return indicator === target;
+      });
+      if (questionIndex >= 0) {
+        this.goToQuestion(questionIndex);
+        this.announceToScreenReader(`Navigated to question ${questionIndex + 1}`);
+        event.preventDefault();
+      }
+    }
+  }
+
+  /**
+   * Announce message to screen readers
+   */
+  private announceToScreenReader(message: string): void {
+    this.screenReaderAnnouncement = message;
+    setTimeout(() => {
+      this.screenReaderAnnouncement = '';
+    }, 1000);
+  }
+
+  /**
+   * Get dynamic aria-label for current question
+   */
+  getCurrentQuestionAriaLabel(): string {
+    const question = this.getCurrentQuestion();
+    if (!question) return '';
+
+    const questionNum = this.currentQuestionIndex + 1;
+    const totalQuestions = this.questions.length;
+    const isAnswered = this.isQuestionAnswered(this.currentQuestionIndex);
+    const questionType = question.type === 'MCQ' ? 'Multiple choice' : 'Text';
+
+    return `Question ${questionNum} of ${totalQuestions}, ${questionType} question${isAnswered ? ', answered' : ', not answered'}. ${question.text}`;
+  }
+
+  /**
+   * Get timer aria-label
+   */
+  getTimerAriaLabel(): string {
+    const remaining = this.getTimeRemaining();
+    const total = this.getTotalTime();
+    const progress = Math.round(this.getTimerProgress());
+    return `Timer: ${remaining} remaining out of ${total} total. ${progress}% complete.`;
   }
 
   /**
@@ -466,6 +797,12 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy {
         this.currentSelectedAnswerId = null;
       }
       this.showGoToDropdown = false;
+
+      // Announce navigation to screen reader
+      this.announceToScreenReader(`Question ${index + 1} of ${this.questions.length}`);
+      
+      // Don't auto-focus - only focus if user has started keyboard navigation
+      // This prevents unwanted focus outline on page load
     }
   }
 
