@@ -421,10 +421,11 @@ input[type="password"] {
   position: absolute;
   left: 0;
   top: 0;
-  min-width: 0;
+  min-width: 60px;
   flex-shrink: 0;
   z-index: 2;
   padding-left: 16px;
+  padding-right: 16px;
 }
 
 .timer-progress.full-width {
@@ -511,14 +512,25 @@ input[type="password"] {
 /* Question Indicators */
 .question-indicators {
   display: flex;
+  flex-direction: row;
   gap: 6px;
   flex-wrap: nowrap;
   justify-content: flex-start;
+  align-items: center;
   margin-top: 0;
   width: 100%;
   max-width: 800px;
   overflow-x: auto;
   padding-bottom: 4px;
+}
+
+.question-indicators > div[role="list"] {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  flex-wrap: nowrap;
+  width: 100%;
+  flex: 1;
 }
 
 .question-indicators::-webkit-scrollbar {
@@ -539,7 +551,6 @@ input[type="password"] {
 }
 
 .question-indicator {
-  min-width: 60px;
   height: 36px;
   border-radius: 8px;
   border: none;
@@ -555,7 +566,7 @@ input[type="password"] {
   font-family: var(--font-family);
   padding: 0 12px;
   flex: 1;
-  flex-shrink: 0;
+  min-width: 0;
   position: relative;
 }
 
@@ -671,6 +682,41 @@ input[type="password"] {
   flex-direction: column;
   gap: 12px;
   margin-top: 8px;
+  border: none;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.mcq-answers > div[role="radiogroup"] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mcq-answers > div[role="radiogroup"] > label {
+  margin: 0;
+}
+
+/* True & False Answers */
+.true-false-answers > div[role="radiogroup"] {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.true-false-answers > div[role="radiogroup"] > label {
+  flex: 1;
+  min-width: 120px;
+  justify-content: center;
+  text-align: center;
+}
+
+.true-false-option .answer-text {
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: capitalize;
 }
 
 .mcq-option {

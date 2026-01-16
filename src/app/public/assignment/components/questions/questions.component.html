@@ -115,11 +115,9 @@
               [style.width.%]="getTimerProgress()"
               [class.full-width]="getTimerProgress() >= 100"
             >
-              @if (getTimerProgress() >= 8) {
               <span class="time-remaining" aria-hidden="true">{{
                 getTimeRemaining()
               }}</span>
-              }
             </div>
             @if (getTimerProgress() < 100) {
             <div
@@ -238,6 +236,47 @@
             }
           </div>
         </fieldset>
+        } @else if (getCurrentQuestion().type === 'True & False') {
+        <!-- True & False Question -->
+        <fieldset
+          class="mcq-answers true-false-answers"
+          [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+        >
+          <legend class="sr-only">Select True or False</legend>
+          <div
+            role="radiogroup"
+            [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+          >
+            @for (answer of getCurrentQuestion().answers; track answer.id) {
+            <label
+              class="mcq-option true-false-option"
+              [class.selected]="currentSelectedAnswerId === answer.id"
+              [attr.aria-label]="'Select ' + (answer.text?.toLowerCase() === 'true' ? 'True' : 'False')"
+            >
+              <input
+                type="radio"
+                [name]="'question-' + getCurrentQuestion().id"
+                [value]="answer.id"
+                [checked]="currentSelectedAnswerId === answer.id"
+                [attr.aria-checked]="currentSelectedAnswerId === answer.id"
+                (change)="onAnswerSelect(answer.id)"
+                [attr.aria-label]="answer.text?.toLowerCase() === 'true' ? 'True' : 'False'"
+                [attr.id]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+              />
+              <span class="radio-custom" aria-hidden="true"></span>
+              <span
+                class="answer-text"
+                [attr.for]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+                >{{ answer.text?.toLowerCase() === 'true' ? 'True' : 'False' }}</span
+              >
+            </label>
+            }
+          </div>
+        </fieldset>
         } @else {
         <!-- Text Question -->
         <div class="text-answer-container">
@@ -315,7 +354,7 @@
       <!-- Navigation Buttons -->
       <div class="navigation-buttons">
         <!-- Go To Button -->
-        <div class="go-to-container">
+        <div class="go-to-container" #goToContainer>
           <button
             type="button"
             class="go-to-button"

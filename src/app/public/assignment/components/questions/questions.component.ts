@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AssignmentService } from '../../../../core/services/recruitment/assignment.service';
 import { AssignmentStateService } from '../../../../core/services/recruitment/assignment-state.service';
@@ -25,6 +27,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   private elementRef = inject(ElementRef);
 
   @ViewChild('mainContent') mainContent?: ElementRef<HTMLElement>;
+  @ViewChild('goToContainer') goToContainer?: ElementRef<HTMLElement>;
 
   accessToken: string | null = null;
   isLoading: boolean = true;
@@ -41,6 +44,20 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   totalMinutes: number = 0;
   remainingSeconds: number = 0;
   timerInterval: any = null;
+
+  // Event listener references for cleanup
+  private preventContextMenuHandler?: (e: MouseEvent) => void;
+  private preventDevToolsHandler?: (e: KeyboardEvent) => boolean | void;
+  private clickOutsideHandler?: (e: MouseEvent) => void;
+  private keyboardNavigationHandler?: (event: KeyboardEvent) => void;
+  private componentKeydownHandler?: (e: KeyboardEvent) => void;
+  private componentCopyHandler?: (e: ClipboardEvent) => void;
+  private componentCutHandler?: (e: ClipboardEvent) => void;
+  private componentPasteHandler?: (e: ClipboardEvent) => void;
+  private componentDragStartHandler?: (e: DragEvent) => void;
+
+  // Subscription management
+  private destroy$ = new Subject<void>();
 
   // Questions
   currentQuestionIndex: number = 0;
@@ -74,7 +91,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Check if opened in main window and redirect to popup
     this.checkAndOpenInPopup();
     
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
       this.accessToken = params['s'] || null;
 
       if (this.accessToken) {
@@ -210,6 +229,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Don't auto-focus - wait for user to start keyboard navigation
     // Listen for first keyboard interaction to enable focus
     this.setupKeyboardNavigationListener();
+    
+    // Setup click outside listener for dropdown
+    this.setupClickOutsideListener();
   }
 
   /**
@@ -217,7 +239,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
    */
   private setupKeyboardNavigationListener(): void {
     // Listen for keyboard events to detect when user starts navigating
-    const handleFirstKeyboardInteraction = (event: KeyboardEvent): void => {
+    this.keyboardNavigationHandler = (event: KeyboardEvent): void => {
       // Ignore keyboard shortcuts we're preventing
       if ((event.ctrlKey || event.metaKey) && 
           (event.key === 'c' || event.key === 'C' || 
@@ -241,17 +263,55 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         });
         
         // Remove listener after first keyboard interaction
-        document.removeEventListener('keydown', handleFirstKeyboardInteraction);
+        if (this.keyboardNavigationHandler) {
+          document.removeEventListener('keydown', this.keyboardNavigationHandler);
+        }
       }
     };
 
     // Add listener for keyboard events
-    document.addEventListener('keydown', handleFirstKeyboardInteraction, { once: false });
+    document.addEventListener('keydown', this.keyboardNavigationHandler, { once: false });
   }
 
   ngOnDestroy(): void {
+    // Complete destroy subject to unsubscribe from all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Clear timer interval
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
+    }
+
+    // Remove document-level event listeners
+    if (this.preventContextMenuHandler) {
+      document.removeEventListener('contextmenu', this.preventContextMenuHandler);
+    }
+    if (this.preventDevToolsHandler) {
+      document.removeEventListener('keydown', this.preventDevToolsHandler, true);
+    }
+    if (this.clickOutsideHandler) {
+      document.removeEventListener('click', this.clickOutsideHandler, true);
+    }
+    if (this.keyboardNavigationHandler) {
+      document.removeEventListener('keydown', this.keyboardNavigationHandler);
+    }
+
+    // Remove component-level event listeners
+    if (this.componentKeydownHandler) {
+      this.elementRef.nativeElement.removeEventListener('keydown', this.componentKeydownHandler);
+    }
+    if (this.componentCopyHandler) {
+      this.elementRef.nativeElement.removeEventListener('copy', this.componentCopyHandler);
+    }
+    if (this.componentCutHandler) {
+      this.elementRef.nativeElement.removeEventListener('cut', this.componentCutHandler);
+    }
+    if (this.componentPasteHandler) {
+      this.elementRef.nativeElement.removeEventListener('paste', this.componentPasteHandler);
+    }
+    if (this.componentDragStartHandler) {
+      this.elementRef.nativeElement.removeEventListener('dragstart', this.componentDragStartHandler);
     }
   }
 
@@ -259,13 +319,30 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
    * Prevent copying, text selection, and context menu
    */
   private preventCopying(): void {
-    // Prevent context menu (right-click)
-    this.elementRef.nativeElement.addEventListener('contextmenu', (e: MouseEvent): void => {
+    // Prevent context menu (right-click) - document level
+    this.preventContextMenuHandler = (e: MouseEvent): void => {
       e.preventDefault();
-    });
+    };
+    document.addEventListener('contextmenu', this.preventContextMenuHandler);
 
-    // Prevent keyboard shortcuts for copy
-    this.elementRef.nativeElement.addEventListener('keydown', (e: KeyboardEvent): void => {
+    // Prevent keyboard shortcuts - document level for F12 and dev tools
+    this.preventDevToolsHandler = (e: KeyboardEvent): boolean | void => {
+      // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
+      if (e.key === 'F12' ||
+        e.key === 'F8' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'K')) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'U') ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F12')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return false;
+      }
+    };
+    document.addEventListener('keydown', this.preventDevToolsHandler, true);
+
+    // Prevent keyboard shortcuts for copy - component level
+    this.componentKeydownHandler = (e: KeyboardEvent): void => {
       // Prevent Ctrl+C, Ctrl+A, Ctrl+X, Ctrl+V, Ctrl+S, Ctrl+P
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' ||
         e.key === 'x' || e.key === 'X' || e.key === 'v' || e.key === 'V' ||
@@ -275,32 +352,36 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         return;
       }
 
-      // Prevent F12 (Developer Tools) and Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-      if (e.key === 'F12' ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-        ((e.ctrlKey || e.metaKey) && e.key === 'U')) {
+      // Additional F12 prevention at component level
+      if (e.key === 'F12' || e.key === 'F8') {
         e.preventDefault();
+        e.stopPropagation();
         return;
       }
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('keydown', this.componentKeydownHandler);
 
     // Prevent copy, cut, paste events
-    this.elementRef.nativeElement.addEventListener('copy', (e: ClipboardEvent): void => {
+    this.componentCopyHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('copy', this.componentCopyHandler);
 
-    this.elementRef.nativeElement.addEventListener('cut', (e: ClipboardEvent): void => {
+    this.componentCutHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('cut', this.componentCutHandler);
 
-    this.elementRef.nativeElement.addEventListener('paste', (e: ClipboardEvent): void => {
+    this.componentPasteHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('paste', this.componentPasteHandler);
 
     // Prevent drag and drop
-    this.elementRef.nativeElement.addEventListener('dragstart', (e: DragEvent): void => {
+    this.componentDragStartHandler = (e: DragEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('dragstart', this.componentDragStartHandler);
   }
 
   /**
@@ -423,7 +504,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
    * Called when navigating directly to questions route
    */
   private loadOverviewData(): void {
-    this.assignmentService.getAssignmentOverview(this.accessToken!).subscribe({
+    this.assignmentService.getAssignmentOverview(this.accessToken!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         // Check for error_handling array first
         const errorHandling = response?.data?.error_handling || response?.error_handling;
@@ -525,7 +608,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     this.errorHandling = [];
     this.errorMessage = null;
 
-    this.assignmentService.getAssignmentData(this.accessToken!).subscribe({
+    this.assignmentService.getAssignmentData(this.accessToken!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         // Check for error_handling array first
         const errorHandling = response?.data?.error_handling || response?.error_handling;
@@ -666,23 +751,29 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       }));
     }
 
-    // Find the first question that has an answer, otherwise start at first question
+    // Find the first question that doesn't have an answer, otherwise start at first question
     let initialQuestionIndex = 0;
     if (this.questions.length > 0) {
-      const firstAnsweredIndex = this.questions.findIndex((q: any, index: number) => {
+      const firstUnansweredIndex = this.questions.findIndex((q: any, index: number) => {
         const answer = this.answers[q.id];
-        if (!answer) return false;
+        
+        // If no answer object exists, this question is unanswered
+        if (!answer) return true;
 
-        if (q.type === 'MCQ') {
-          return answer.selected_answer_id !== null && answer.selected_answer_id !== undefined;
-        } else {
-          return !!answer.text_answer && answer.text_answer.trim() !== '';
+        // Check if question has an answer based on type
+        if (q.type === 'MCQ' || q.type === 'True & False') {
+          return answer.selected_answer_id === null || answer.selected_answer_id === undefined;
+        } else if (q.type === 'Text') {
+          return !answer.text_answer || answer.text_answer.trim() === '';
         }
+        
+        // Default: consider unanswered
+        return true;
       });
 
-      // If a question with answer is found, use it; otherwise start at first question
-      if (firstAnsweredIndex !== -1) {
-        initialQuestionIndex = firstAnsweredIndex;
+      // If a question without answer is found, use it; otherwise start at first question
+      if (firstUnansweredIndex !== -1) {
+        initialQuestionIndex = firstUnansweredIndex;
       }
 
       this.currentQuestionIndex = initialQuestionIndex;
@@ -690,7 +781,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       // Initialize current answer for the selected question
       const currentQuestion = this.questions[initialQuestionIndex];
       if (currentQuestion) {
-        if (currentQuestion.type === 'MCQ') {
+        if (currentQuestion.type === 'MCQ' || currentQuestion.type === 'True & False') {
           this.currentSelectedAnswerId = this.answers[currentQuestion.id]?.selected_answer_id || null;
           this.currentAnswer = '';
         } else {
@@ -811,6 +902,32 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
    */
   toggleGoToDropdown(): void {
     this.showGoToDropdown = !this.showGoToDropdown;
+  }
+
+  /**
+   * Setup click outside listener to close dropdown
+   */
+  private setupClickOutsideListener(): void {
+    this.clickOutsideHandler = (e: MouseEvent): void => {
+      // Only handle if dropdown is open
+      if (!this.showGoToDropdown) {
+        return;
+      }
+
+      // Check if click is outside the dropdown container
+      if (this.goToContainer?.nativeElement) {
+        const clickedElement = e.target as HTMLElement;
+        const container = this.goToContainer.nativeElement;
+        
+        // Check if click is outside the container
+        if (!container.contains(clickedElement)) {
+          this.showGoToDropdown = false;
+        }
+      }
+    };
+
+    // Add listener with capture phase to catch clicks early
+    document.addEventListener('click', this.clickOutsideHandler, true);
   }
 
   /**
@@ -1024,7 +1141,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       currentQuestion.id,
       answerData.selected_answer_id || null,
       answerData.text_answer || null
-    ).subscribe({
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.isSubmittingAnswer = false;
 
@@ -1045,7 +1164,6 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
 
         // Assignment submitted successfully
         this.toastr.success('Assignment submitted successfully!');
-        console.log('Assignment submitted with answers:', this.answers);
 
         // TODO: Navigate to success page or show completion message
       },

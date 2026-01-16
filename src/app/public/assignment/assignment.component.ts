@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AssignmentService } from '../../core/services/recruitment/assignment.service';
 import { AssignmentStateService } from '../../core/services/recruitment/assignment-state.service';
 import { ToastrService } from 'ngx-toastr';
@@ -15,7 +17,7 @@ import { ThemeService } from '../../client-job-board/services/theme.service';
   templateUrl: './assignment.component.html',
   styleUrl: './assignment.component.css'
 })
-export class AssignmentComponent implements OnInit, AfterViewInit {
+export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private assignmentService = inject(AssignmentService);
@@ -39,21 +41,35 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
   socialMediaLinks: SocialMediaLinks = {};
   websiteUrl: string | null = null;
 
+  // Event listener references for cleanup
+  private preventContextMenuHandler?: (e: MouseEvent) => void;
+  private preventDevToolsHandler?: (e: KeyboardEvent) => boolean | void;
+  private componentKeydownHandler?: (e: KeyboardEvent) => void;
+  private componentCopyHandler?: (e: ClipboardEvent) => void;
+  private componentCutHandler?: (e: ClipboardEvent) => void;
+  private componentPasteHandler?: (e: ClipboardEvent) => void;
+  private componentDragStartHandler?: (e: DragEvent) => void;
+
+  // Subscription management
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
     // Check if opened in main window and redirect to popup
     this.checkAndOpenInPopup();
     
-    this.route.queryParams.subscribe(params => {
-      this.accessToken = params['s'] || null;
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.accessToken = params['s'] || null;
 
-      if (this.accessToken) {
-        this.loadAssignmentData();
-      } else {
-        this.isLoading = false;
-        this.errorMessage = 'Invalid access token';
-        this.toastr.error('Invalid access token');
-      }
-    });
+        if (this.accessToken) {
+          this.loadAssignmentData();
+        } else {
+          this.isLoading = false;
+          this.errorMessage = 'Invalid access token';
+          this.toastr.error('Invalid access token');
+        }
+      });
   }
 
   /**
@@ -166,17 +182,65 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
     this.preventCopying();
   }
 
+  ngOnDestroy(): void {
+    // Complete destroy subject to unsubscribe from all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Remove document-level event listeners
+    if (this.preventContextMenuHandler) {
+      document.removeEventListener('contextmenu', this.preventContextMenuHandler);
+    }
+    if (this.preventDevToolsHandler) {
+      document.removeEventListener('keydown', this.preventDevToolsHandler, true);
+    }
+
+    // Remove component-level event listeners
+    if (this.componentKeydownHandler) {
+      this.elementRef.nativeElement.removeEventListener('keydown', this.componentKeydownHandler);
+    }
+    if (this.componentCopyHandler) {
+      this.elementRef.nativeElement.removeEventListener('copy', this.componentCopyHandler);
+    }
+    if (this.componentCutHandler) {
+      this.elementRef.nativeElement.removeEventListener('cut', this.componentCutHandler);
+    }
+    if (this.componentPasteHandler) {
+      this.elementRef.nativeElement.removeEventListener('paste', this.componentPasteHandler);
+    }
+    if (this.componentDragStartHandler) {
+      this.elementRef.nativeElement.removeEventListener('dragstart', this.componentDragStartHandler);
+    }
+  }
+
   /**
    * Prevent copying, text selection, and context menu
    */
   private preventCopying(): void {
-    // Prevent context menu (right-click)
-    this.elementRef.nativeElement.addEventListener('contextmenu', (e: MouseEvent): void => {
+    // Prevent context menu (right-click) - document level
+    this.preventContextMenuHandler = (e: MouseEvent): void => {
       e.preventDefault();
-    });
+    };
+    document.addEventListener('contextmenu', this.preventContextMenuHandler);
 
-    // Prevent keyboard shortcuts for copy
-    this.elementRef.nativeElement.addEventListener('keydown', (e: KeyboardEvent): void => {
+    // Prevent keyboard shortcuts - document level for F12 and dev tools
+    this.preventDevToolsHandler = (e: KeyboardEvent): boolean | void => {
+      // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
+      if (e.key === 'F12' ||
+        e.key === 'F8' ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'K')) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'U') ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F12')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return false;
+      }
+    };
+    document.addEventListener('keydown', this.preventDevToolsHandler, true);
+
+    // Prevent keyboard shortcuts for copy - component level
+    this.componentKeydownHandler = (e: KeyboardEvent): void => {
       // Prevent Ctrl+C, Ctrl+A, Ctrl+X, Ctrl+V, Ctrl+S, Ctrl+P
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' ||
         e.key === 'x' || e.key === 'X' || e.key === 'v' || e.key === 'V' ||
@@ -186,32 +250,36 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      // Prevent F12 (Developer Tools) and Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-      if (e.key === 'F12' ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-        ((e.ctrlKey || e.metaKey) && e.key === 'U')) {
+      // Additional F12 prevention at component level
+      if (e.key === 'F12' || e.key === 'F8') {
         e.preventDefault();
+        e.stopPropagation();
         return;
       }
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('keydown', this.componentKeydownHandler);
 
     // Prevent copy, cut, paste events
-    this.elementRef.nativeElement.addEventListener('copy', (e: ClipboardEvent): void => {
+    this.componentCopyHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('copy', this.componentCopyHandler);
 
-    this.elementRef.nativeElement.addEventListener('cut', (e: ClipboardEvent): void => {
+    this.componentCutHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('cut', this.componentCutHandler);
 
-    this.elementRef.nativeElement.addEventListener('paste', (e: ClipboardEvent): void => {
+    this.componentPasteHandler = (e: ClipboardEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('paste', this.componentPasteHandler);
 
     // Prevent drag and drop
-    this.elementRef.nativeElement.addEventListener('dragstart', (e: DragEvent): void => {
+    this.componentDragStartHandler = (e: DragEvent): void => {
       e.preventDefault();
-    });
+    };
+    this.elementRef.nativeElement.addEventListener('dragstart', this.componentDragStartHandler);
   }
 
   private loadAssignmentData(): void {
@@ -219,25 +287,17 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
     this.errorHandling = [];
     this.errorMessage = null;
 
-    this.assignmentService.getAssignmentOverview(this.accessToken!).subscribe({
+    this.assignmentService.getAssignmentOverview(this.accessToken!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
-        console.log('=== Assignment Overview Response ===');
-        console.log('Full response:', response);
-        console.log('Response.data:', response?.data);
-        console.log('Response.data?.error_handling:', response?.data?.error_handling);
-        console.log('Response.data?.object_info:', response?.data?.object_info);
-
         // Check for error_handling array first (check both response.data and response directly)
         const errorHandling = response?.data?.error_handling || response?.error_handling;
-        console.log('Extracted errorHandling:', errorHandling);
 
         if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          console.log('Found error_handling array, setting error state');
           this.errorHandling = errorHandling;
           const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
           this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          console.log('Error message set to:', this.errorMessage);
-          console.log('Error handling array set to:', this.errorHandling);
           this.toastr.error(this.errorMessage || 'An error occurred');
           this.assignmentData = null; // Ensure assignmentData is null when there are errors
           this.isLoading = false;
@@ -307,40 +367,24 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
             this.websiteUrl = objectInfo.company.social_links?.website || null;
           }
         } else {
-          console.log('object_info is null, checking for error_handling again');
           // If object_info is null, check again for error_handling (in case it wasn't caught earlier)
           const errorHandlingRetry = response?.data?.error_handling || response?.error_handling;
-          console.log('Error handling retry:', errorHandlingRetry);
 
           if (errorHandlingRetry && Array.isArray(errorHandlingRetry) && errorHandlingRetry.length > 0) {
-            console.log('Found error_handling in retry, setting error state');
             this.errorHandling = errorHandlingRetry;
             const errorMessages = errorHandlingRetry.map(err => err.error || err.message).filter(Boolean);
             this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-            console.log('Error message set to:', this.errorMessage);
-            console.log('Error handling array set to:', this.errorHandling);
             this.toastr.error(this.errorMessage || 'An error occurred');
             this.assignmentData = null;
           } else {
-            console.log('No error_handling found, setting generic error');
             this.errorMessage = 'Invalid assignment data';
             this.toastr.error('Invalid assignment data');
           }
         }
 
-        console.log('Final state - errorMessage:', this.errorMessage);
-        console.log('Final state - errorHandling:', this.errorHandling);
-        console.log('Final state - assignmentData:', this.assignmentData);
-
         this.isLoading = false;
       },
       error: (error) => {
-        console.log('=== Assignment Overview Error ===');
-        console.log('Full error object:', error);
-        console.log('Error.error:', error.error);
-        console.log('Error.error?.data:', error.error?.data);
-        console.log('Error.error?.data?.error_handling:', error.error?.data?.error_handling);
-
         this.isLoading = false;
 
         // Check if error response has error_handling array (check multiple possible locations)
@@ -348,36 +392,27 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
           error.error?.error_handling ||
           error?.data?.error_handling ||
           error?.error_handling;
-        console.log('Extracted errorHandling from error:', errorHandling);
 
         if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          console.log('Found error_handling in error callback, setting error state');
           this.errorHandling = errorHandling;
           const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
           this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          console.log('Error message set to:', this.errorMessage);
-          console.log('Error handling array set to:', this.errorHandling);
           this.toastr.error(this.errorMessage || 'An error occurred');
         } else {
           // Also check if there's a message in error_handling format at root level
           const rootErrorHandling = error?.error_handling || error.error?.error_handling;
           if (rootErrorHandling && Array.isArray(rootErrorHandling) && rootErrorHandling.length > 0) {
-            console.log('Found root error_handling, setting error state');
             this.errorHandling = rootErrorHandling;
             const errorMessages = rootErrorHandling.map(err => err.error || err.message).filter(Boolean);
             this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-            console.log('Error message set to:', this.errorMessage);
             this.toastr.error(this.errorMessage || 'An error occurred');
           } else {
-            console.log('No error_handling found, setting generic error');
             this.errorMessage = error.error?.message || error.message || 'Failed to load assignment data';
             this.toastr.error(this.errorMessage || 'Failed to load assignment data');
           }
         }
 
         this.assignmentData = null; // Ensure assignmentData is null when there are errors
-        console.log('Final error state - errorMessage:', this.errorMessage);
-        console.log('Final error state - errorHandling:', this.errorHandling);
         console.error('Error loading assignment data:', error);
       }
     });
@@ -393,7 +428,9 @@ export class AssignmentComponent implements OnInit, AfterViewInit {
 
     this.isStartingAssignment = true;
 
-    this.assignmentService.startAssignment(this.accessToken).subscribe({
+    this.assignmentService.startAssignment(this.accessToken)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         // Check for error_handling array in response
         const errorHandling = response?.data?.error_handling;

@@ -435,12 +435,12 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             answers: question.answers.map((answer: any, answerIndex: number) => {
                 // Determine if this answer is correct
                 // Use the is_correct flag if set, otherwise check if answerIndex matches correct_answer
-                const isCorrect = answer.is_correct !== undefined 
-                    ? answer.is_correct 
-                    : (question.correct_answer !== null && question.correct_answer !== undefined 
-                        ? answerIndex === question.correct_answer 
+                const isCorrect = answer.is_correct !== undefined
+                    ? answer.is_correct
+                    : (question.correct_answer !== null && question.correct_answer !== undefined
+                        ? answerIndex === question.correct_answer
                         : false);
-                
+
                 return {
                     id: answer.id || undefined,
                     record_type: answer.id ? 'update' : 'create',
@@ -837,10 +837,10 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         }
 
         answer.error = false;
-        
+
         // Set correct_answer index
         question.correct_answer = answerIndex;
-        
+
         // Update is_correct flag on all answers
         // Set selected answer to true, all others to false
         question.answers.forEach((ans: any, index: number) => {
