@@ -399,7 +399,7 @@
   </div>
   } @else { @for (question of questions; let i = $index; track i) { @if
   (question.record_type !== 'delete') {
-  <div class="content-box">
+  <div class="content-box" [attr.data-question-index]="i">
     <!-- Question Header - Expandable -->
     <div class="question-header" (click)="toggleQuestion(i)">
       <span class="question-number">Question {{ getQuestionNumber(i) }}</span>
@@ -955,7 +955,10 @@
         </div>
         } @if ((question.correct_answer === null || question.correct_answer ===
         undefined) && formSubmitted) {
-        <p class="error-msg">Please mark one answer as correct</p>
+        <div class="answer-row">
+          <span class="answer-label"></span>
+          <p class="error-msg mb-0">Please mark one answer as correct</p>
+        </div>
         }
       </div>
       }
@@ -1025,7 +1028,7 @@
           </div>
           @if (question.answers[0].error && (question.answers[0].touched ||
           formSubmitted)) {
-          <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+          <p class="mb-3 error-msg">Answer cannot be empty</p>
           }
         </div>
         <div>
@@ -1088,12 +1091,16 @@
           </div>
           @if (question.answers[1].error && (question.answers[1].touched ||
           formSubmitted)) {
-          <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+          <p class="mb-3 error-msg">Answer cannot be empty</p>
           }
         </div>
         @if ((question.correct_answer === null || question.correct_answer ===
         undefined) && (question.touched || formSubmitted)) {
-        <p class="error-msg">Please mark one answer as correct</p>
+        <div class="answer-row">
+          <div style="flex: 1">
+            <p class="error-msg mb-0">Please mark one answer as true</p>
+          </div>
+        </div>
         }
       </div>
       }

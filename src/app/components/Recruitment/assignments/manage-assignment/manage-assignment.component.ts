@@ -610,6 +610,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         };
         this.questions.push(newQuestion);
         this.expandedQuestion = this.questions.length - 1;
+        // Reset formSubmitted flag when adding new question so validation messages don't appear for untouched fields
+        this.formSubmitted = false;
     }
 
     removeQuestion(index: number): void {
@@ -688,7 +690,33 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 a.id = null; // Reset answer IDs for duplicated answers
             });
         }
+        // Step 1: Close the old question smoothly if it's currently expanded
+        const oldQuestionWasExpanded = this.expandedQuestion === index;
+        if (oldQuestionWasExpanded) {
+            this.expandedQuestion = null;
+        }
+
+        // Step 2: Add the duplicated question to the array
         this.questions.splice(index + 1, 0, duplicated);
+        const duplicatedIndex = index + 1;
+
+        // Step 3: Wait for the old question to close (500ms), then expand and scroll to new one (1000ms total)
+        setTimeout(() => {
+            // Expand the new duplicated question
+            this.expandedQuestion = duplicatedIndex;
+
+            // Step 4: Scroll to the duplicated question smoothly after it's expanded
+            setTimeout(() => {
+                const questionElement = document.querySelector(`[data-question-index="${duplicatedIndex}"]`) as HTMLElement;
+                if (questionElement) {
+                    questionElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                }
+            }, 500); // Wait for expand animation (500ms)
+        }, oldQuestionWasExpanded ? 500 : 100); // If old question was open, wait for it to close (500ms), otherwise just 100ms for DOM update
     }
 
     private validateQuestionForDuplication(question: any): string | null {
@@ -717,6 +745,10 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     return `Answer ${i + 1} cannot be empty`;
                 }
             }
+            // Check if correct answer is selected
+            if (question.correct_answer === null || question.correct_answer === undefined) {
+                return 'Please mark one answer as correct';
+            }
         } else if (question.question_type === 'truefalse') {
             if (!question.answers || question.answers.length < 2) {
                 return 'True/False question must have both answers';
@@ -726,6 +758,10 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             }
             if (!question.answers[1].text || question.answers[1].text.trim() === '') {
                 return 'False answer cannot be empty';
+            }
+            // Check if correct answer is selected
+            if (question.correct_answer === null || question.correct_answer === undefined) {
+                return 'Please mark one answer as true';
             }
         }
 

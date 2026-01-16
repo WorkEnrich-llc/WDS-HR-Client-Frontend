@@ -192,6 +192,20 @@ select option[value=""][disabled] {
 
 .question-details {
     padding-top: 1.5rem;
+    animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 5000px;
+    }
 }
 
 /* Media Upload Section */
