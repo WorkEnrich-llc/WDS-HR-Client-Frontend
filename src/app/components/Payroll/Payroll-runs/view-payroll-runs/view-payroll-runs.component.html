@@ -374,7 +374,37 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of getDisplayTableRows(); track row.id || row.employee_id) {
+          @if (getDisplayTableRows().length === 0) {
+          <tr>
+            <td
+              [attr.colspan]="getTableEmptyStateColspan()"
+              class="text-center py-5"
+            >
+              <div
+                class="d-flex flex-column align-items-center justify-content-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  class="mb-3"
+                  style="opacity: 0.5"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"
+                  />
+                </svg>
+                <p class="text-muted mb-0" style="font-size: 1rem">
+                  No employee payrolls available
+                </p>
+              </div>
+            </td>
+          </tr>
+          } @else { @for (row of getDisplayTableRows(); track row.id ||
+          row.employee_id) {
           <tr>
             <td class="py-2">
               <div class="d-flex flex-column">
@@ -464,7 +494,7 @@
               </div>
             </td>
           </tr>
-          }
+          } }
         </tbody>
       </table>
     </div>
@@ -643,20 +673,228 @@
     </form>
   </app-overlay-filter-box>
 
+  <!-- Start Early Payroll Overlay -->
+  <app-overlay-filter-box
+    [title]="'Start Early Payroll'"
+    [isOverlayVisible]="showEarlyPayrollOverlay"
+    [customWidth]="'600px'"
+    (onClose)="closeEarlyPayrollOverlay()"
+  >
+    <div class="d-flex flex-column gap-4">
+      <!-- Warning message if end date is before today -->
+      @if (isPayrollEndDateBeforeToday()) {
+      <div class="fw-bold" style="color: #85252d">
+        <p class="mb-1">
+          Please note that you're starting this payroll Run Early!
+        </p>
+        <p class="mb-0 text-dark fw-normal">
+          The cycle should end in {{ getRemainingDays() }} day{{
+            getRemainingDays() !== 1 ? "s" : ""
+          }}
+          on {{ getPayrollEndDateFormatted() }}.
+        </p>
+      </div>
+      }
+
+      <!-- Payroll Options -->
+      <div>
+        <h6 class="mb-3">You can either:</h6>
+
+        <!-- Skip the Remaining Days Option -->
+        <div class="mb-3">
+          <div class="d-flex align-items-center" style="gap: 8px">
+            <div class="position-relative flex-shrink-0">
+              <input
+                class="custom-radio-input"
+                type="radio"
+                name="payrollOption"
+                id="skipRemainingDays"
+                [(ngModel)]="payrollOption"
+                value="skip"
+                (change)="onPayrollOptionChange()"
+              />
+              <label class="custom-radio-label" for="skipRemainingDays">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="2.5"
+                    y="2.5"
+                    width="19"
+                    height="19"
+                    rx="9.5"
+                    stroke="#377AFD"
+                    class="radio-outline"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="5"
+                    fill="#377AFD"
+                    class="radio-fill"
+                  />
+                </svg>
+              </label>
+            </div>
+            <label
+              class="flex-grow-1"
+              for="skipRemainingDays"
+              style="
+                cursor: pointer;
+                margin-bottom: 6px;
+                padding: 0;
+                font-weight: 500;
+              "
+            >
+              Skip the Remaining Days
+            </label>
+          </div>
+          <p class="text-muted mb-0" style="font-size: 0.875rem">
+            This will avoid applying any deduction or earning for the remaining
+            days. This means Attendance rules will not be applied.
+          </p>
+        </div>
+
+        <!-- Start Partial Payroll Option -->
+        <div>
+          <div
+            class="d-flex align-items-center"
+            style="margin: 0; padding: 0; gap: 8px"
+          >
+            <div class="position-relative flex-shrink-0">
+              <input
+                class="custom-radio-input"
+                type="radio"
+                name="payrollOption"
+                id="startPartialPayroll"
+                [(ngModel)]="payrollOption"
+                value="partial"
+                (change)="onPayrollOptionChange()"
+              />
+              <label class="custom-radio-label" for="startPartialPayroll">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="2.5"
+                    y="2.5"
+                    width="19"
+                    height="19"
+                    rx="9.5"
+                    stroke="#377AFD"
+                    class="radio-outline"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="5"
+                    fill="#377AFD"
+                    class="radio-fill"
+                  />
+                </svg>
+              </label>
+            </div>
+            <label
+              class="flex-grow-1"
+              for="startPartialPayroll"
+              style="
+                cursor: pointer;
+                margin-bottom: 4px;
+                padding: 0;
+                font-weight: 500;
+              "
+            >
+              Start Partial Payroll
+            </label>
+          </div>
+          <p class="text-muted mb-3" style="font-size: 0.875rem">
+            This will calculate all payroll components based on the selected
+            date range. Another Payroll will be created for the remaining days.
+          </p>
+
+          <!-- Payroll End Date Dropdown - Only visible when "Start Partial Payroll" is selected -->
+          @if (payrollOption === 'partial') {
+          <div class="mb-3">
+            <label for="payrollEndDate" class="form-label mb-2"
+              >Payroll End Date</label
+            >
+            <div class="form-outline">
+              <select
+                class="form-select w-100"
+                id="payrollEndDate"
+                [(ngModel)]="payrollEndDate"
+              >
+                @for (day of generateEndDateOptions(); track day) {
+                <option [value]="day">{{ day }}</option>
+                }
+              </select>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex align-items-center gap-3 mt-3">
+        <button
+          type="button"
+          class="btn btn-lg btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+          (click)="showConfirmation = true"
+          [disabled]="isStartingPayroll"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M20.409 9.353a2.998 2.998 0 0 1 0 5.294L7.597 21.614C5.534 22.737 3 21.277 3 18.968V5.033c0-2.31 2.534-3.769 4.597-2.648z"
+            />
+          </svg>
+          <span>{{
+            isStartingPayroll ? "Processing..." : "Start Payroll"
+          }}</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-dark border-0 w-100"
+          (click)="cancelStartPayroll()"
+          [disabled]="isStartingPayroll"
+        >
+          Discard Changes
+        </button>
+      </div>
+    </div>
+  </app-overlay-filter-box>
+
   <!-- Start Payroll Run confirmation popup -->
   <app-popup
     [title]="'Start Payroll Run'"
     [paragraph1]="
-      'Are you sure you want to start the payroll run with the selected sheet?'
+      'Are you sure you want to start this payroll run?'
     "
-    [paragraph2]="'Selected Sheet: ' + getSelectedSheetName()"
+    [paragraph2]="
+      'Payroll: ' + (payRollRunData?.data?.object_info?.title || 'N/A')
+    "
     [isOpen]="showConfirmation"
-    (close)="cancelStartPayroll()"
+    (close)="cancelStartPayrollPopup()"
   >
     <button
       modal-btn-left
       class="btn btn-lg btn-primary w-100"
-      (click)="confirmStartPayroll()"
+      (click)="confirmStartPayrollPopup()"
       [disabled]="isStartingPayroll"
     >
       {{ isStartingPayroll ? "Processing..." : "Start Payroll Run" }}
@@ -664,7 +902,7 @@
     <button
       modal-btn-right
       class="btn btn-lg btn-outline-dark border-0 w-100"
-      (click)="cancelStartPayroll()"
+      (click)="cancelStartPayrollPopup()"
     >
       Cancel
     </button>

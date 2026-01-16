@@ -22,8 +22,9 @@ export const routes: Routes = [
   { path: 'offer-accepted', loadComponent: () => import('./public/offer-accepted/offer-accepted.component').then(m => m.OfferAcceptedComponent), title: 'Offer Accepted' },
   { path: 'offer-rejected', loadComponent: () => import('./public/offer-rejected/offer-rejected.component').then(m => m.OfferRejectedComponent), title: 'Offer Rejected' },
 
-  // Public assignment route
+  // Public assignment routes
   { path: 'assignment', loadComponent: () => import('./public/assignment/assignment.component').then(m => m.AssignmentComponent), title: 'Assignment' },
+  { path: 'assignment/questions', loadComponent: () => import('./public/assignment/components/questions/questions.component').then(m => m.AssignmentQuestionsComponent), title: 'Assignment Questions' },
 
   // Auth layout
   {
