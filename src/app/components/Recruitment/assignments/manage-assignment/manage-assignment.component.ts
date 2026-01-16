@@ -74,7 +74,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
     private initializeForm(): void {
         this.assignmentForm = this.formBuilder.group({
-            code: ['', [Validators.required]],
+            code: [''],
             name: ['', [Validators.required]],
             duration_minutes: ['', [Validators.required, Validators.min(1)]],
             instructions: ['', [Validators.required]]
