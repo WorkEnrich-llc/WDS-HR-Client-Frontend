@@ -327,7 +327,12 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           // Check if assignment is already started - navigate to questions
-          if (objectInfo.applicant_assignment?.status === 'Started') {
+          // Check status (case-insensitive) - if status is 'Started', redirect to questions
+          const assignmentStatus = objectInfo.applicant_assignment?.status;
+          const isStarted = assignmentStatus && 
+            String(assignmentStatus).trim().toLowerCase() === 'started';
+          
+          if (isStarted) {
             this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });
             this.isLoading = false;
             return;
