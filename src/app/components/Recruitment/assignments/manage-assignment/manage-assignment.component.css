@@ -1,3 +1,8 @@
+/* Hide disabled placeholder option from dropdown */
+select option[value=""][disabled] {
+    display: none;
+}
+
 .nav-tabs {
     border-bottom: 1px solid #dee2e6;
 }
