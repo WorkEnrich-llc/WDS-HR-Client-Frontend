@@ -60,9 +60,12 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     showDeleteMediaConfirmation: boolean = false;
     showDeleteQuestionConfirmation: boolean = false;
     showDiscardConfirmation: boolean = false;
+    showDeleteAnswerConfirmation: boolean = false;
     pendingDeleteQuestionIndex: number | null = null;
     pendingDeleteMediaQuestionIndex: number | null = null;
     pendingDeleteMediaIndex: number | null = null;
+    pendingDeleteAnswerQuestionIndex: number | null = null;
+    pendingDeleteAnswerIndex: number | null = null;
 
     private destroy$ = new Subject<void>();
 
@@ -155,7 +158,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             text: a.text,
                             is_correct: a.is_correct,
                             error: false,
-                            touched: false
+                            touched: false,
+                            markAsCorrectError: false
                         })),
                         correct_answer: q.answers?.findIndex((a: any) => a.is_correct) ?? null,
                         touched: false,
@@ -282,14 +286,16 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Mark all questions as touched
+        // Mark all questions as touched (only non-deleted ones)
         this.questions.forEach(q => {
-            q.touched = true;
-            q.questionTextTouched = true;
-            if (q.answers) {
-                q.answers.forEach((a: any) => {
-                    a.touched = true;
-                });
+            if (q.record_type !== 'delete') {
+                q.touched = true;
+                q.questionTextTouched = true;
+                if (q.answers) {
+                    q.answers.forEach((a: any) => {
+                        a.touched = true;
+                    });
+                }
             }
         });
 
@@ -300,70 +306,140 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Validate each question
+        let hasValidationError = false;
+        let firstErrorQuestionIndex = null;
+
+        // Validate each question - mark all errors first, then return
         for (let i = 0; i < this.questions.length; i++) {
             const question = this.questions[i];
+
+            // Filter out deleted questions
+            if (question.record_type === 'delete') {
+                continue;
+            }
+
             if (!question.question_text || question.question_text.trim() === '') {
-                this.currentTab = 'questions';
-                this.expandedQuestion = i;
-                return;
+                if (firstErrorQuestionIndex === null) {
+                    firstErrorQuestionIndex = i;
+                }
+                hasValidationError = true;
+                continue;
             }
             if (!question.question_type) {
-                this.currentTab = 'questions';
-                this.expandedQuestion = i;
-                return;
+                if (firstErrorQuestionIndex === null) {
+                    firstErrorQuestionIndex = i;
+                }
+                hasValidationError = true;
+                continue;
             }
             if (!question.points || question.points <= 0) {
-                this.currentTab = 'questions';
-                this.expandedQuestion = i;
-                return;
+                if (firstErrorQuestionIndex === null) {
+                    firstErrorQuestionIndex = i;
+                }
+                hasValidationError = true;
+                continue;
             }
+
             if (question.question_type === 'mcq') {
                 if (!question.answers || question.answers.length === 0) {
-                    this.currentTab = 'questions';
-                    this.expandedQuestion = i;
-                    return;
+                    if (firstErrorQuestionIndex === null) {
+                        firstErrorQuestionIndex = i;
+                    }
+                    hasValidationError = true;
+                    continue;
                 }
+
+                // Validate all answers and mark empty ones
+                let hasEmptyAnswer = false;
                 for (let j = 0; j < question.answers.length; j++) {
-                    if (!question.answers[j].text || question.answers[j].text.trim() === '') {
-                        question.answers[j].error = true;
-                        this.currentTab = 'questions';
-                        this.expandedQuestion = i;
-                        return;
+                    const answer = question.answers[j];
+                    if (!answer) continue; // Skip if answer doesn't exist
+
+                    // Ensure error property exists
+                    if (answer.error === undefined) {
+                        answer.error = false;
+                    }
+
+                    if (!answer.text || (answer.text && answer.text.trim() === '')) {
+                        answer.error = true;
+                        answer.markAsCorrectError = false; // Clear mark as correct error on form submission
+                        answer.touched = true;
+                        hasEmptyAnswer = true;
+                        if (firstErrorQuestionIndex === null) {
+                            firstErrorQuestionIndex = i;
+                        }
                     } else {
-                        question.answers[j].error = false;
+                        answer.error = false;
                     }
                 }
+
+                if (hasEmptyAnswer) {
+                    hasValidationError = true;
+                }
+
                 if (question.correct_answer === null || question.correct_answer === undefined) {
-                    this.currentTab = 'questions';
-                    this.expandedQuestion = i;
-                    return;
+                    if (firstErrorQuestionIndex === null) {
+                        firstErrorQuestionIndex = i;
+                    }
+                    hasValidationError = true;
                 }
             }
+
             if (question.question_type === 'truefalse') {
                 if (!question.answers || question.answers.length < 2) {
-                    this.currentTab = 'questions';
-                    this.expandedQuestion = i;
+                    if (firstErrorQuestionIndex === null) {
+                        firstErrorQuestionIndex = i;
+                    }
+                    hasValidationError = true;
                     this.toaster.showError('Please add both true and false answers', 'Validation Error');
-                    return;
+                    continue;
                 }
+
+                // Validate all answers and mark empty ones
+                let hasEmptyAnswer = false;
                 for (let j = 0; j < question.answers.length; j++) {
-                    if (!question.answers[j].text || question.answers[j].text.trim() === '') {
-                        question.answers[j].error = true;
-                        this.currentTab = 'questions';
-                        this.expandedQuestion = i;
-                        this.toaster.showError('Please fill in all answer options', 'Validation Error');
-                        return;
+                    const answer = question.answers[j];
+                    if (!answer) continue; // Skip if answer doesn't exist
+
+                    // Ensure error property exists
+                    if (answer.error === undefined) {
+                        answer.error = false;
+                    }
+
+                    if (!answer.text || (answer.text && answer.text.trim() === '')) {
+                        answer.error = true;
+                        answer.markAsCorrectError = false; // Clear mark as correct error on form submission
+                        answer.touched = true;
+                        hasEmptyAnswer = true;
+                        if (firstErrorQuestionIndex === null) {
+                            firstErrorQuestionIndex = i;
+                        }
                     } else {
-                        question.answers[j].error = false;
+                        answer.error = false;
                     }
                 }
+
+                if (hasEmptyAnswer) {
+                    hasValidationError = true;
+                    this.toaster.showError('Please fill in all answer options', 'Validation Error');
+                }
+
                 if (question.correct_answer === null || question.correct_answer === undefined) {
-                    this.currentTab = 'questions';
-                    this.expandedQuestion = i;
-                    return;
+                    if (firstErrorQuestionIndex === null) {
+                        firstErrorQuestionIndex = i;
+                    }
+                    hasValidationError = true;
                 }
             }
+        }
+
+        // If validation errors found, navigate to questions tab and expand first error question
+        if (hasValidationError) {
+            this.currentTab = 'questions';
+            if (firstErrorQuestionIndex !== null) {
+                this.expandedQuestion = firstErrorQuestionIndex;
+            }
+            return;
         }
 
         this.isSubmitting = true;
@@ -832,11 +908,16 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         // Validation: check if answer is not empty or only spaces
         if (!answer.text || answer.text.trim() === '') {
-            answer.error = true;
+            // Only show mark as correct error, not the general error
+            answer.markAsCorrectError = true;
+            answer.error = false; // Clear general error if it was set
+            answer.touched = true;
             return;
         }
 
+        // Clear both errors when answer is valid
         answer.error = false;
+        answer.markAsCorrectError = false;
 
         // Set correct_answer index
         question.correct_answer = answerIndex;
@@ -849,8 +930,23 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     }
 
     // Clear error when user types in answer input
-    clearAnswerError(answer: any): void {
+    clearAnswerError(questionIndex: number, answerIndex: number): void {
+        const question = this.questions[questionIndex];
+        const answer = question.answers[answerIndex];
+
         answer.error = false;
+        answer.markAsCorrectError = false;
+
+        // If answer text becomes empty and it was marked as correct, unmark it
+        if (!answer.text || answer.text.trim() === '') {
+            if (question.correct_answer === answerIndex) {
+                question.correct_answer = null;
+                // Reset is_correct flags
+                question.answers.forEach((ans: any) => {
+                    ans.is_correct = false;
+                });
+            }
+        }
     }
 
     // Called when question type changes
@@ -862,15 +958,16 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     text: '',
                     is_correct: false,
                     error: false,
-                    touched: false
+                    touched: false,
+                    markAsCorrectError: false
                 }];
                 this.questions[questionIndex].correct_answer = null;
             }
         } else if (type === 'truefalse') {
             // If switching to True/False, initialize with two answers
             this.questions[questionIndex].answers = [
-                { text: '', is_correct: false, error: false, touched: false },
-                { text: '', is_correct: false, error: false, touched: false }
+                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false },
+                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false }
             ];
             this.questions[questionIndex].correct_answer = null;
         } else if (type === 'essay') {
@@ -951,16 +1048,90 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         if (!this.questions[questionIndex].answers) {
             this.questions[questionIndex].answers = [];
         }
+        // Prevent adding more than 26 answers (A-Z)
+        if (this.questions[questionIndex].answers.length >= 26) {
+            return;
+        }
         this.questions[questionIndex].answers.push({
             text: '',
             is_correct: false,
             error: false,
-            touched: false
+            touched: false,
+            markAsCorrectError: false
         });
+    }
+
+    // Open delete answer confirmation
+    openDeleteAnswerConfirmation(questionIndex: number, answerIndex: number): void {
+        const question = this.questions[questionIndex];
+        if (!question.answers || question.answers.length <= 1) {
+            // Cannot remove the last answer - MCQ must have at least one answer
+            return;
+        }
+        this.pendingDeleteAnswerQuestionIndex = questionIndex;
+        this.pendingDeleteAnswerIndex = answerIndex;
+        this.showDeleteAnswerConfirmation = true;
+    }
+
+    // Close delete answer confirmation
+    closeDeleteAnswerConfirmation(): void {
+        this.showDeleteAnswerConfirmation = false;
+        this.pendingDeleteAnswerQuestionIndex = null;
+        this.pendingDeleteAnswerIndex = null;
+    }
+
+    // Confirm and remove an answer from MCQ
+    confirmDeleteAnswer(): void {
+        if (this.pendingDeleteAnswerQuestionIndex !== null && this.pendingDeleteAnswerIndex !== null) {
+            const question = this.questions[this.pendingDeleteAnswerQuestionIndex];
+            const answerIndex = this.pendingDeleteAnswerIndex;
+
+            question.answers.splice(answerIndex, 1);
+
+            // Update correct_answer index if needed
+            if (question.correct_answer !== null && question.correct_answer !== undefined) {
+                if (question.correct_answer === answerIndex) {
+                    // If we removed the correct answer, reset it
+                    question.correct_answer = null;
+                    // Also reset is_correct flags
+                    question.answers.forEach((ans: any) => {
+                        ans.is_correct = false;
+                    });
+                } else if (question.correct_answer > answerIndex) {
+                    // If correct answer was after the removed one, adjust the index
+                    question.correct_answer = question.correct_answer - 1;
+                }
+            }
+        }
+        this.closeDeleteAnswerConfirmation();
+    }
+
+    // Remove an answer from MCQ (kept for backward compatibility, now opens confirmation)
+    removeAnswer(questionIndex: number, answerIndex: number): void {
+        this.openDeleteAnswerConfirmation(questionIndex, answerIndex);
+    }
+
+    // Get alphabet letter (A-Z) for answer label
+    getAnswerLetter(index: number): string {
+        if (index < 0 || index >= 26) {
+            return '';
+        }
+        return String.fromCharCode(65 + index); // 65 is ASCII for 'A'
     }
 
     getTotalScore(): number {
         return this.questions.reduce((total, q) => total + (q.points || 0), 0);
+    }
+
+    getQuestionNumber(index: number): number {
+        // Count only non-deleted questions up to the current index
+        let questionNumber = 0;
+        for (let i = 0; i <= index; i++) {
+            if (this.questions[i] && this.questions[i].record_type !== 'delete') {
+                questionNumber++;
+            }
+        }
+        return questionNumber;
     }
 
     private formatFileSize(bytes: number): string {

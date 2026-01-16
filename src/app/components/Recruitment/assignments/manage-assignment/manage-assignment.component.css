@@ -392,6 +392,27 @@
     color: #377AFD !important;
 }
 
+/* Delete Answer Button - Small Square */
+.delete-answer-btn {
+    min-width: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0;
+}
+
+.delete-answer-btn svg {
+    width: 14px;
+    height: 15px;
+}
+
+.delete-answer-btn:hover svg path {
+    fill: #ffffff !important;
+}
+
 /* Summary Footer */
 .assignment-summary {
     display: flex;
