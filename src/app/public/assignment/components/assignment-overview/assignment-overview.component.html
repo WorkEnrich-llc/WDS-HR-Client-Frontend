@@ -1,0 +1,337 @@
+<main
+  class="assignment-overview-container"
+  role="main"
+  [attr.aria-label]="'Assignment overview for ' + getAssignmentTitle()"
+>
+  <!-- Loading State -->
+  @if (isLoading) {
+  <div role="status" aria-live="polite" aria-busy="true" class="sr-only">
+    Loading assignment overview, please wait...
+  </div>
+  <div
+    class="skeleton-loader"
+    role="progressbar"
+    aria-label="Loading assignment overview"
+    aria-valuetext="Loading"
+  >
+    <div class="skeleton skeleton-header"></div>
+    <div class="skeleton skeleton-content"></div>
+    <div class="skeleton skeleton-content"></div>
+    <div class="skeleton skeleton-content short"></div>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading && errorMessage) {
+  <div
+    role="alert"
+    aria-live="assertive"
+    class="error-card"
+    aria-describedby="error-description"
+  >
+    <div class="error-card-content">
+      <div class="error-icon-wrapper">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          class="error-icon"
+        >
+          <path
+            d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <div class="error-text-content">
+        <h3 class="error-title">Unable to Load Assignment</h3>
+        <p id="error-description" class="error-description">
+          {{ errorMessage }}
+        </p>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Assignment Overview Content -->
+  @if (!isLoading && assignmentData) {
+  <div class="assignment-overview-content">
+    <!-- Top Card: Assignment/Job Details -->
+    <article
+      class="assignment-info-card"
+      [attr.aria-labelledby]="'assignment-title'"
+      [attr.aria-describedby]="'assignment-meta'"
+    >
+      <!-- Tags/Labels -->
+      <div class="assignment-tags" role="list" aria-label="Assignment tags">
+        <span
+          class="tag tag-primary"
+          role="listitem"
+          [attr.aria-label]="'Category: ' + getCategory()"
+        >
+          {{ getCategory() }}
+        </span>
+        @if (isNew()) {
+        <span class="tag tag-new" role="listitem" aria-label="New assignment">
+          <span class="sr-only">New: </span>NEW!
+        </span>
+        }
+        <span
+          class="tag tag-secondary"
+          role="listitem"
+          [attr.aria-label]="'Employment type: ' + getEmploymentType()"
+        >
+          {{ getEmploymentType() }}
+        </span>
+        <span
+          class="tag tag-secondary"
+          role="listitem"
+          [attr.aria-label]="'Work schedule: ' + getWorkSchedule()"
+        >
+          {{ getWorkSchedule() }}
+        </span>
+      </div>
+
+      <!-- Assignment Title -->
+      <h1 class="assignment-title" id="assignment-title" tabindex="-1">
+        {{ getAssignmentTitle() }}
+      </h1>
+
+      <!-- Assignment Meta Info -->
+      <div
+        class="assignment-meta-info"
+        id="assignment-meta"
+        role="list"
+        aria-label="Assignment information"
+      >
+        <!-- Location -->
+        <div class="assignment-meta-item" role="listitem">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              opacity="0.3"
+              d="M14.7874 15.2718C15.8573 14.6884 16.5 13.9405 16.5 13.125C16.5 12.2606 15.7779 11.4721 14.5903 10.875C13.217 10.1845 11.2212 9.75 9 9.75C6.77875 9.75 4.78304 10.1845 3.40973 10.875C2.22213 11.4721 1.5 12.2606 1.5 13.125C1.5 13.9894 2.22213 14.7779 3.40973 15.375C4.78304 16.0655 6.77875 16.5 9 16.5C11.33 16.5 13.4118 16.0219 14.7874 15.2718Z"
+              fill="#4A6D97"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M3.75 6.38598C3.75 3.68753 6.10051 1.5 9 1.5C11.8995 1.5 14.25 3.68753 14.25 6.38598C14.25 9.06328 12.5744 12.1874 9.96005 13.3047C9.35061 13.5651 8.64939 13.5651 8.03995 13.3047C5.42562 12.1874 3.75 9.06328 3.75 6.38598ZM9 8.25C9.82843 8.25 10.5 7.57843 10.5 6.75C10.5 5.92157 9.82843 5.25 9 5.25C8.17157 5.25 7.5 5.92157 7.5 6.75C7.5 7.57843 8.17157 8.25 9 8.25Z"
+              fill="#4A6D97"
+            />
+          </svg>
+          <span>
+            <span class="sr-only">Location: </span>{{ getLocation() }}
+          </span>
+        </div>
+
+        <!-- Experience -->
+        <!-- <div class="assignment-meta-item" role="listitem">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M9 1.5C4.85786 1.5 1.5 4.85786 1.5 9C1.5 13.1421 4.85786 16.5 9 16.5C13.1421 16.5 16.5 13.1421 16.5 9C16.5 4.85786 13.1421 1.5 9 1.5ZM9 15C5.68629 15 3 12.3137 3 9C3 5.68629 5.68629 3 9 3C12.3137 3 15 5.68629 15 9C15 12.3137 12.3137 15 9 15Z"
+              fill="#4A6D97"
+            />
+            <path
+              d="M9 5.25V9L11.25 10.5"
+              stroke="#4A6D97"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>
+            <span class="sr-only">Experience required: </span
+            >{{ getExperience() }}
+          </span>
+        </div> -->
+      </div>
+    </article>
+
+    <!-- Bottom Card: Assignment Instructions and Warning -->
+    <section
+      class="assignment-instructions-card"
+      aria-labelledby="instructions-heading"
+    >
+      <div class="instructions-content">
+        <h2 id="instructions-heading" class="instructions-heading">
+          Before Proceeding,
+        </h2>
+
+        <p class="instructions-text">
+          {{ getInstructionText() }}
+        </p>
+
+        <p class="instructions-warning" role="alert" aria-live="assertive">
+          {{ getWarningText() }}
+        </p>
+
+        <!-- Assignment Metrics -->
+        <div
+          class="assignment-metrics"
+          role="list"
+          aria-label="Assignment metrics"
+        >
+          <!-- Duration -->
+          <div class="assignment-metric-item" role="listitem">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clip-path="url(#clip0_311_10640)">
+                <path
+                  opacity="0.3"
+                  d="M12 23C16.9706 23 21 18.9706 21 14C21 9.02944 16.9706 5 12 5C7.02944 5 3 9.02944 3 14C3 18.9706 7.02944 23 12 23Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  d="M12 9.25C12.4142 9.25 12.75 9.58579 12.75 10V14C12.75 14.4142 12.4142 14.75 12 14.75C11.5858 14.75 11.25 14.4142 11.25 14V10C11.25 9.58579 11.5858 9.25 12 9.25Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M9.25 2.75C9.25 2.33579 9.58579 2 10 2H14C14.4142 2 14.75 2.33579 14.75 2.75C14.75 3.16421 14.4142 3.5 14 3.5H10C9.58579 3.5 9.25 3.16421 9.25 2.75Z"
+                  fill="#4A6D97"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_311_10640">
+                  <rect width="24" height="24" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span>
+              <span class="sr-only">Duration: </span>{{ getDuration() }}
+            </span>
+          </div>
+
+          <!-- Questions Count -->
+          <div class="assignment-metric-item" role="listitem">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clip-path="url(#clip0_311_10590)">
+                <path
+                  opacity="0.3"
+                  d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  d="M12 7.75C11.3787 7.75 10.875 8.25368 10.875 8.875C10.875 9.28921 10.5392 9.625 10.125 9.625C9.71079 9.625 9.375 9.28921 9.375 8.875C9.375 7.42525 10.5503 6.25 12 6.25C13.4497 6.25 14.625 7.42525 14.625 8.875C14.625 9.58584 14.3415 10.232 13.883 10.704C13.7907 10.7989 13.7027 10.8869 13.6187 10.9708C13.4029 11.1864 13.2138 11.3753 13.0479 11.5885C12.8289 11.8699 12.75 12.0768 12.75 12.25V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V12.25C11.25 11.5948 11.555 11.0644 11.8642 10.6672C12.0929 10.3733 12.3804 10.0863 12.6138 9.85346C12.6842 9.78321 12.7496 9.71789 12.807 9.65877C13.0046 9.45543 13.125 9.18004 13.125 8.875C13.125 8.25368 12.6213 7.75 12 7.75Z"
+                  fill="#4A6D97"
+                />
+                <path
+                  d="M12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z"
+                  fill="#4A6D97"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_311_10590">
+                  <rect width="24" height="24" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <span>
+              <span class="sr-only">Number of questions: </span
+              >{{ getQuestionCount() }}
+              {{ getQuestionCount() === 1 ? "Question" : "Questions" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call-to-Action Button -->
+    <button
+      class="proceed-button"
+      type="button"
+      (click)="onProceedClick()"
+      [disabled]="isStartingAssignment"
+      [attr.aria-label]="'Proceed to assignment: ' + getAssignmentTitle()"
+      [attr.aria-describedby]="'assignment-title'"
+    >
+      @if (isStartingAssignment) {
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="spinner"
+        aria-hidden="true"
+      >
+        <circle
+          cx="9"
+          cy="9"
+          r="7"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+          stroke-linecap="round"
+          stroke-dasharray="44"
+          stroke-dashoffset="22"
+        />
+      </svg>
+      <span>Starting Assignment...</span>
+      } @else {
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g clip-path="url(#clip0_351_2159)">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M10.1023 4.10225C10.3219 3.88258 10.6781 3.88258 10.8977 4.10225L15.3977 8.60225C15.6174 8.82192 15.6174 9.17808 15.3977 9.39775L10.8977 13.8977C10.6781 14.1174 10.3219 14.1174 10.1023 13.8977C9.88258 13.6781 9.88258 13.3219 10.1023 13.1023L13.642 9.5625H3C2.68934 9.5625 2.4375 9.31066 2.4375 9C2.4375 8.68934 2.68934 8.4375 3 8.4375H13.642L10.1023 4.89775C9.88258 4.67808 9.88258 4.32192 10.1023 4.10225Z"
+            fill="#E0EBFF"
+          />
+        </g>
+        <defs>
+          <clipPath id="clip0_351_2159">
+            <rect width="18" height="18" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+      <span>Proceed to assignment</span>
+      }
+    </button>
+  </div>
+  }
+</main>

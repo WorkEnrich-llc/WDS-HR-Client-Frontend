@@ -1,0 +1,54 @@
+/* Full-width background for assignment page */
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  flex: 1;
+  width: 100%;
+}
+
+/* Footer wrapper - makes footer flow at bottom */
+.footer-wrapper {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 48px;
+}
+
+/* Override footer fixed positioning for assignment component */
+.footer-wrapper ::ng-deep .footer-container {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 90% !important;
+  max-width: 1344px !important;
+  margin: 0 auto !important;
+  border-radius: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .footer-wrapper {
+    padding-top: 32px;
+  }
+  
+  .footer-wrapper ::ng-deep .footer-container {
+    width: calc(100% - 32px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-wrapper {
+    padding-top: 24px;
+  }
+  
+  .footer-wrapper ::ng-deep .footer-container {
+    width: calc(100% - 24px) !important;
+  }
+}

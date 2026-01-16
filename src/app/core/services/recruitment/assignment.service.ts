@@ -15,4 +15,19 @@ export class AssignmentService {
         const url = `${this.baseUrl}recruiter/assignment-data?access_token=${accessToken}`;
         return this.http.get(url);
     }
+
+    getAssignmentOverview(accessToken: string): Observable<any> {
+        const url = `${this.baseUrl}recruiter/assignment-overview?access_token=${accessToken}`;
+        return this.http.get(url);
+    }
+
+    startAssignment(accessToken: string): Observable<any> {
+        const url = `${this.baseUrl}recruiter/start-assignment`;
+        const body = {
+            request_data: {
+                access_token: accessToken
+            }
+        };
+        return this.http.post(url, body);
+    }
 }

@@ -1,1 +1,20 @@
-<p>assignment works!</p>
+<app-navbar
+  [logo]="logoData"
+  [socialMediaLinks]="socialMediaLinks"
+  [websiteUrl]="websiteUrl"
+  [showVisitWebsite]="true">
+</app-navbar>
+
+<div class="content-wrapper">
+  <app-assignment-overview
+    [assignmentData]="assignmentData"
+    [isLoading]="isLoading"
+    [errorMessage]="errorMessage"
+    [isStartingAssignment]="isStartingAssignment"
+    (proceedToAssignment)="onProceedToAssignment()">
+  </app-assignment-overview>
+</div>
+
+<div class="footer-wrapper">
+  <app-footer [logo]="logoData"></app-footer>
+</div>

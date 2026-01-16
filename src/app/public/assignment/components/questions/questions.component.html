@@ -1,0 +1,149 @@
+<div class="questions-page-wrapper">
+  <app-navbar
+    [logo]="logoData"
+    [socialMediaLinks]="socialMediaLinks"
+    [websiteUrl]="websiteUrl"
+    [showVisitWebsite]="true">
+  </app-navbar>
+
+  <main class="assignment-questions-container" role="main" [attr.aria-label]="'Assignment questions for ' + getAssignmentTitle()">
+  <!-- Loading State -->
+  @if (isLoading) {
+  <div role="status" aria-live="polite" aria-busy="true" class="sr-only">
+    Loading assignment questions, please wait...
+  </div>
+  <div class="loading-container">
+    <div class="skeleton-loader">
+      <div class="skeleton skeleton-header"></div>
+      <div class="skeleton skeleton-content"></div>
+      <div class="skeleton skeleton-content"></div>
+      <div class="skeleton skeleton-content short"></div>
+    </div>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading && errorMessage) {
+  <div role="alert" aria-live="assertive" class="error-container">
+    <div class="error-card">
+      <h3>Unable to Load Assignment</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+  </div>
+  }
+
+  <!-- Questions Content -->
+  @if (!isLoading && !errorMessage && assignmentData) {
+  <div class="questions-content">
+    <!-- Header Section -->
+    <div class="questions-header">
+      <h1 class="assignment-title">{{ getAssignmentTitle() }}</h1>
+
+      <!-- Timer Bar -->
+      <div class="timer-container">
+        <div class="timer-bar">
+          <div class="timer-progress" [style.width.%]="getTimerProgress()"></div>
+        </div>
+        <div class="timer-info">
+          <span class="time-remaining">{{ getTimeRemaining() }}</span>
+          <span class="time-total">{{ getTotalTime() }}</span>
+        </div>
+      </div>
+
+      <!-- Total Questions -->
+      <p class="total-questions">{{ getTotalQuestions() }} Total Questions</p>
+
+      <!-- Question Progress Indicators -->
+      <div class="question-indicators" role="list" aria-label="Question progress">
+        @for (question of questions; track question.id; let i = $index) {
+        <button
+          type="button"
+          class="question-indicator"
+          [class.active]="i === currentQuestionIndex"
+          [class.answered]="isQuestionAnswered(i)"
+          [attr.aria-label]="'Question ' + (i + 1) + (i === currentQuestionIndex ? ' current' : '')"
+          (click)="goToQuestion(i)">
+          <span class="question-number">{{ i + 1 }}</span>
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Question Card -->
+    @if (getCurrentQuestion()) {
+    <div class="question-card">
+      <h2 class="question-title">{{ getCurrentQuestion().title }}</h2>
+      <textarea
+        class="answer-input"
+        [(ngModel)]="currentAnswer"
+        (blur)="saveAnswer()"
+        placeholder="Answer"
+        rows="8"
+        [attr.aria-label]="'Answer for question ' + (currentQuestionIndex + 1)">
+      </textarea>
+    </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+      <!-- Go To Button -->
+      <div class="go-to-container">
+        <button
+          type="button"
+          class="go-to-button"
+          (click)="toggleGoToDropdown()"
+          [attr.aria-expanded]="showGoToDropdown"
+          aria-label="Go to question">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true" focusable="false">
+            <path d="M4.5 6.75L9 11.25L13.5 6.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span>Go To</span>
+        </button>
+        @if (showGoToDropdown) {
+        <div class="go-to-dropdown" role="menu">
+          @for (question of questions; track question.id; let i = $index) {
+          <button
+            type="button"
+            class="dropdown-item"
+            [class.active]="i === currentQuestionIndex"
+            [class.answered]="isQuestionAnswered(i)"
+            (click)="goToQuestion(i)"
+            role="menuitem">
+            Question {{ i + 1 }}
+            @if (isQuestionAnswered(i)) {
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true">
+              <path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            }
+          </button>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Next Question Button -->
+      <button
+        type="button"
+        class="next-button"
+        (click)="nextQuestion()"
+        [attr.aria-label]="currentQuestionIndex < questions.length - 1 ? 'Next question' : 'Submit assignment'">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true" focusable="false">
+          <path d="M6.75 3.75L11.25 9L6.75 14.25" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span>{{ currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Submit Assignment' }}</span>
+      </button>
+    </div>
+  </div>
+  }
+  </main>
+
+  <div class="footer-wrapper">
+    <app-footer [logo]="logoData"></app-footer>
+  </div>
+</div>
