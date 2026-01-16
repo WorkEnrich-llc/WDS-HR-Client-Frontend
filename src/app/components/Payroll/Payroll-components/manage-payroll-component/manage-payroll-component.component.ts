@@ -63,6 +63,9 @@ export class ManagePayrollComponentComponent implements OnInit {
         portionControl?.enable();
         portionControl?.setValidators([Validators.required]);
         portionControl?.reset();
+      } else if (calcValue === 3) { // Percentage
+        portionControl?.enable();
+        portionControl?.setValidators([Validators.required]);
       }
       portionControl?.updateValueAndValidity();
     });
@@ -141,6 +144,10 @@ export class ManagePayrollComponentComponent implements OnInit {
             portionControl?.clearValidators();
             portionControl?.updateValueAndValidity({ emitEvent: false });
           } else if (calcValue === 2) { // Days
+            portionControl?.enable({ emitEvent: false });
+            portionControl?.setValidators([Validators.required]);
+            portionControl?.updateValueAndValidity({ emitEvent: false });
+          } else if (calcValue === 3) { // Percentage
             portionControl?.enable({ emitEvent: false });
             portionControl?.setValidators([Validators.required]);
             portionControl?.updateValueAndValidity({ emitEvent: false });

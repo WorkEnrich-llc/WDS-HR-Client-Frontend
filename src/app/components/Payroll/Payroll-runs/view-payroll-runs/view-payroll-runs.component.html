@@ -9,7 +9,7 @@
   [create]="getCreatedAt()"
   [update]="getUpdatedAt()"
 >
-  @if (payRollRunData?.data?.object_info?.status === 'Draft' && !loadData) {
+  @if (payRollRunData?.data?.object_info?.status === 'Draft' && payRollRunData?.data?.object_info?.status !== 'Pending' && !loadData) {
   <button
     class="btn btn-lg btn-primary w-100 px-5"
     (click)="onStartPayrollClick()"
@@ -30,7 +30,8 @@
     <span>{{ isStartingPayroll ? "Processing..." : "Start Payroll Run" }}</span>
   </button>
   } @if (payRollRunData?.data?.object_info?.status !== 'Draft' &&
-  payRollRunData?.data?.object_info?.status !== 'Complete' && !loadData) {
+  payRollRunData?.data?.object_info?.status !== 'Complete' &&
+  payRollRunData?.data?.object_info?.status !== 'Pending' && !loadData) {
   <div class="d-flex align-items-center gap-1 w-100">
     <!-- Menu Button -->
     <div class="position-relative" style="flex-shrink: 0">
@@ -254,7 +255,8 @@
       <h2>Main Information</h2>
       <!-- View Sheet button for Off Cycle runs with related sheet -->
       @if (relatedSheetId && !loadData &&
-      payRollRunData?.data?.object_info?.status !== 'Completed') {
+      payRollRunData?.data?.object_info?.status !== 'Completed' &&
+      payRollRunData?.data?.object_info?.status !== 'Pending') {
       <button
         class="btn btn-lg btn-outline-primary"
         (click)="onViewSheetClick()"
@@ -274,7 +276,9 @@
       </button>
       }
       <!-- Create New Sheet button for Off Cycle runs without related sheet -->
-      <!-- @if (!relatedSheetId && !loadData) {
+      @if (!relatedSheetId && !loadData &&
+      payRollRunData?.data?.object_info?.status !== 'Pending' &&
+      payRollRunData?.data?.object_info?.status !== 'Complete') {
       <button
         class="btn btn-lg btn-outline-primary"
         (click)="onCreateSheetClick()"
@@ -297,7 +301,7 @@
         </svg>
         <span>Create New Sheet</span>
       </button>
-      } -->
+      }
     </div>
     @if (loadData) {
     <div class="main-info-skeleton">
