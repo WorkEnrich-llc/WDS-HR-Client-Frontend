@@ -676,8 +676,6 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy {
 
     // If answer hasn't changed, just show success message without calling API
     if (!hasAnswerChanged) {
-      this.toastr.success('Assignment submitted successfully!');
-      console.log('Assignment submitted with answers:', this.answers);
       // TODO: Navigate to success page or show completion message
       return;
     }
