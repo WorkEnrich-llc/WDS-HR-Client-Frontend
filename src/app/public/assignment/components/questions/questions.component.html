@@ -1,6 +1,6 @@
 <div class="questions-page-wrapper" [attr.data-keyboard-navigation]="keyboardNavigationStarted">
   @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
-  assignmentData) {
+  assignmentData && !isSubmitted) {
   <app-navbar
     [logo]="logoData"
     [socialMediaLinks]="socialMediaLinks"
@@ -91,9 +91,67 @@
     </div>
     }
 
+    <!-- Submitted State -->
+    @if (!isLoading && isSubmitted) {
+    <div role="status" aria-live="polite" class="submitted-container">
+      <div class="submitted-card">
+        <div class="submitted-icon-container">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+            class="submitted-icon-main"
+          >
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              fill="#D1FAE5"
+              stroke="#86EFAC"
+              stroke-width="2"
+            />
+            <circle
+              cx="32"
+              cy="32"
+              r="24"
+              fill="none"
+              stroke="#10B981"
+              stroke-width="2"
+              stroke-dasharray="2 2"
+              opacity="0.3"
+            />
+            <path
+              d="M20 32L28 40L44 24"
+              stroke="#10B981"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="32" cy="32" r="3" fill="#10B981" />
+          </svg>
+        </div>
+        <div class="submitted-content">
+          <h2 class="submitted-title">Assignment Submitted Successfully!</h2>
+          <div class="submitted-description">
+            <p class="submitted-message">
+              Your assignment has been submitted successfully. Thank you for completing the assessment.
+            </p>
+            <p class="submitted-message secondary">
+              You will be notified about the results soon.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
     <!-- Questions Content -->
     @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
-    assignmentData) {
+    assignmentData && !isSubmitted) {
     <div class="questions-content">
       <!-- Header Section -->
       <div class="questions-header">
@@ -520,9 +578,43 @@
   </main>
 
   @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
-  assignmentData) {
+  assignmentData && !isSubmitted) {
   <div class="footer-wrapper">
     <app-footer [logo]="logoData"></app-footer>
   </div>
   }
+
+  <!-- Submit Confirmation Popup -->
+  <app-popup
+    [title]="'Submit Assignment'"
+    [paragraph1]="'Are you sure you want to submit your assignment?'"
+    [paragraph2]="'Once submitted, you will not be able to make any changes to your answers.'"
+    [isOpen]="showSubmitConfirmation"
+    (close)="closeSubmitConfirmation()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg text-white w-100"
+      [style.background-color]="'var(--color-primary, #377afd)'"
+      [style.border]="'none'"
+      [style.cursor]="isSubmittingAnswer ? 'not-allowed' : 'pointer'"
+      [style.opacity]="isSubmittingAnswer ? '0.7' : '1'"
+      (click)="confirmSubmitAssignment()"
+      [disabled]="isSubmittingAnswer"
+    >
+      @if (isSubmittingAnswer) {
+      <span>Submitting...</span>
+      } @else {
+      <span>Confirm Submit</span>
+      }
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="closeSubmitConfirmation()"
+      [disabled]="isSubmittingAnswer"
+    >
+      Cancel
+    </button>
+  </app-popup>
 </div>

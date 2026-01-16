@@ -214,6 +214,19 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Check if running on localhost
+   */
+  private isLocalhost(): boolean {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || 
+           hostname === '127.0.0.1' || 
+           hostname === '::1' ||
+           hostname.startsWith('192.168.') ||
+           hostname.startsWith('10.') ||
+           hostname.startsWith('172.');
+  }
+
+  /**
    * Prevent copying, text selection, and context menu
    */
   private preventCopying(): void {
@@ -225,6 +238,12 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Prevent keyboard shortcuts - document level for F12 and dev tools
     this.preventDevToolsHandler = (e: KeyboardEvent): boolean | void => {
+      // Allow F12 on localhost for development
+      const isF12 = e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F12');
+      if (isF12 && this.isLocalhost()) {
+        return; // Allow F12 on localhost
+      }
+
       // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
       if (e.key === 'F12' ||
         e.key === 'F8' ||
@@ -250,8 +269,8 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
-      // Additional F12 prevention at component level
-      if (e.key === 'F12' || e.key === 'F8') {
+      // Additional F12 prevention at component level (skip on localhost)
+      if ((e.key === 'F12' || e.key === 'F8') && !this.isLocalhost()) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -326,11 +345,20 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
             });
           }
 
-          // Check if assignment is already started - navigate to questions
-          // Check status (case-insensitive) - if status is 'Started', redirect to questions
+          // Check assignment status
           const assignmentStatus = objectInfo.applicant_assignment?.status;
+          const isSubmitted = assignmentStatus && 
+            String(assignmentStatus).trim().toLowerCase() === 'submitted';
           const isStarted = assignmentStatus && 
             String(assignmentStatus).trim().toLowerCase() === 'started';
+          
+          // If assignment is submitted, don't navigate - just show overview with submitted state
+          if (isSubmitted) {
+            this.isLoading = false;
+            return;
+          }
+
+          // Check if assignment is already started - navigate to questions
           
           if (isStarted) {
             this.router.navigate(['/assignment/questions'], { queryParams: { s: this.accessToken } });

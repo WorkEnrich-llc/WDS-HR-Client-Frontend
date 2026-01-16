@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChi
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -10,11 +11,12 @@ import { AssignmentStateService } from '../../../../core/services/recruitment/as
 import { NavbarComponent, LogoData, SocialMediaLinks } from '../../../../client-job-board/layouts/navbar/navbar.component';
 import { FooterComponent } from '../../../../client-job-board/layouts/footer/footer.component';
 import { ThemeService } from '../../../../client-job-board/services/theme.service';
+import { PopupComponent } from '../../../../components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-assignment-questions',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent, PopupComponent],
   templateUrl: './questions.component.html',
   styleUrl: './questions.component.css'
 })
@@ -25,6 +27,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   private assignmentStateService = inject(AssignmentStateService);
   private themeService = inject(ThemeService);
   private elementRef = inject(ElementRef);
+  private titleService = inject(Title);
 
   @ViewChild('mainContent') mainContent?: ElementRef<HTMLElement>;
   @ViewChild('goToContainer') goToContainer?: ElementRef<HTMLElement>;
@@ -73,6 +76,12 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   // Loading state for submitting answers
   isSubmittingAnswer: boolean = false;
 
+  // Confirmation popup state
+  showSubmitConfirmation: boolean = false;
+
+  // Submitted state
+  isSubmitted: boolean = false;
+
   // Validation error message
   validationError: string | null = null;
 
@@ -81,40 +90,40 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
 
   // Accessibility: Skip link visibility
   showSkipLink: boolean = false;
-  
+
   private popupRedirectChecked: boolean = false;
-  
+
   // Track if user has started keyboard navigation
   keyboardNavigationStarted: boolean = false;
 
   ngOnInit(): void {
     // Check if opened in main window and redirect to popup
     this.checkAndOpenInPopup();
-    
+
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
-      this.accessToken = params['s'] || null;
+        this.accessToken = params['s'] || null;
 
-      if (this.accessToken) {
-        // Check if overview data exists in service (from assignment overview page)
-        const overviewData = this.assignmentStateService.getOverviewData(this.accessToken);
+        if (this.accessToken) {
+          // Check if overview data exists in service (from assignment overview page)
+          const overviewData = this.assignmentStateService.getOverviewData(this.accessToken);
 
-        if (overviewData) {
-          // Use saved overview data for theme, navbar, and footer
-          this.setupFromOverviewData(overviewData);
-          // Load questions data
-          this.loadAssignmentData();
+          if (overviewData) {
+            // Use saved overview data for theme, navbar, and footer
+            this.setupFromOverviewData(overviewData);
+            // Load questions data
+            this.loadAssignmentData();
+          } else {
+            // No saved data - call overview API first to get theme, navbar, footer
+            this.loadOverviewData();
+          }
         } else {
-          // No saved data - call overview API first to get theme, navbar, footer
-          this.loadOverviewData();
+          this.isLoading = false;
+          this.errorMessage = 'Invalid access token';
+          this.toastr.error('Invalid access token');
         }
-      } else {
-        this.isLoading = false;
-        this.errorMessage = 'Invalid access token';
-        this.toastr.error('Invalid access token');
-      }
-    });
+      });
   }
 
   /**
@@ -173,7 +182,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     if (popup) {
       // Focus the popup
       popup.focus();
-      
+
       // Hide current window content and show redirect message
       setTimeout(() => {
         if (document.body) {
@@ -190,7 +199,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
           document.body.appendChild(messageDiv);
         }
       }, 100);
-      
+
       // Close current window after a short delay (browsers may block this)
       setTimeout(() => {
         try {
@@ -229,7 +238,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Don't auto-focus - wait for user to start keyboard navigation
     // Listen for first keyboard interaction to enable focus
     this.setupKeyboardNavigationListener();
-    
+
     // Setup click outside listener for dropdown
     this.setupClickOutsideListener();
   }
@@ -241,27 +250,27 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Listen for keyboard events to detect when user starts navigating
     this.keyboardNavigationHandler = (event: KeyboardEvent): void => {
       // Ignore keyboard shortcuts we're preventing
-      if ((event.ctrlKey || event.metaKey) && 
-          (event.key === 'c' || event.key === 'C' || 
-           event.key === 'x' || event.key === 'X' || 
-           event.key === 'v' || event.key === 'V' || 
-           event.key === 'a' || event.key === 'A' || 
-           event.key === 's' || event.key === 'S' || 
-           event.key === 'p' || event.key === 'P' || 
-           event.key === 'u' || event.key === 'U')) {
+      if ((event.ctrlKey || event.metaKey) &&
+        (event.key === 'c' || event.key === 'C' ||
+          event.key === 'x' || event.key === 'X' ||
+          event.key === 'v' || event.key === 'V' ||
+          event.key === 'a' || event.key === 'A' ||
+          event.key === 's' || event.key === 'S' ||
+          event.key === 'p' || event.key === 'P' ||
+          event.key === 'u' || event.key === 'U')) {
         return;
       }
 
       // User started keyboard navigation
       if (!this.keyboardNavigationStarted) {
         this.keyboardNavigationStarted = true;
-        
+
         // Enable keyboard navigation by making question cards focusable
         const questionCards = this.elementRef.nativeElement.querySelectorAll('.question-card');
         questionCards.forEach((card: HTMLElement) => {
           card.setAttribute('tabindex', '0');
         });
-        
+
         // Remove listener after first keyboard interaction
         if (this.keyboardNavigationHandler) {
           document.removeEventListener('keydown', this.keyboardNavigationHandler);
@@ -316,6 +325,14 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   }
 
   /**
+   * Check if running on localhost
+   */
+  private isLocalhost(): boolean {
+    const hostname = window.location.hostname;
+    return hostname === 'localhost'
+  }
+
+  /**
    * Prevent copying, text selection, and context menu
    */
   private preventCopying(): void {
@@ -327,6 +344,12 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
 
     // Prevent keyboard shortcuts - document level for F12 and dev tools
     this.preventDevToolsHandler = (e: KeyboardEvent): boolean | void => {
+      // Allow F12 on localhost for development
+      const isF12 = e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F12');
+      if (isF12 && this.isLocalhost()) {
+        return; // Allow F12 on localhost
+      }
+
       // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U
       if (e.key === 'F12' ||
         e.key === 'F8' ||
@@ -352,8 +375,8 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         return;
       }
 
-      // Additional F12 prevention at component level
-      if (e.key === 'F12' || e.key === 'F8') {
+      // Additional F12 prevention at component level (skip on localhost)
+      if ((e.key === 'F12' || e.key === 'F8') && !this.isLocalhost()) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -392,16 +415,16 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Mark keyboard navigation as started on any keyboard interaction
     if (!this.keyboardNavigationStarted) {
       // Ignore keyboard shortcuts we're preventing
-      if (!((event.ctrlKey || event.metaKey) && 
-          (event.key === 'c' || event.key === 'C' || 
-           event.key === 'x' || event.key === 'X' || 
-           event.key === 'v' || event.key === 'V' || 
-           event.key === 'a' || event.key === 'A' || 
-           event.key === 's' || event.key === 'S' || 
-           event.key === 'p' || event.key === 'P' || 
-           event.key === 'u' || event.key === 'U'))) {
+      if (!((event.ctrlKey || event.metaKey) &&
+        (event.key === 'c' || event.key === 'C' ||
+          event.key === 'x' || event.key === 'X' ||
+          event.key === 'v' || event.key === 'V' ||
+          event.key === 'a' || event.key === 'A' ||
+          event.key === 's' || event.key === 'S' ||
+          event.key === 'p' || event.key === 'P' ||
+          event.key === 'u' || event.key === 'U'))) {
         this.keyboardNavigationStarted = true;
-        
+
         // Enable keyboard navigation by making question cards focusable
         setTimeout(() => {
           const questionCards = this.elementRef.nativeElement.querySelectorAll('.question-card');
@@ -411,7 +434,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         }, 0);
       }
     }
-    
+
     // Escape key: Close dropdown or go back
     if (event.key === 'Escape') {
       if (this.showGoToDropdown) {
@@ -507,62 +530,91 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     this.assignmentService.getAssignmentOverview(this.accessToken!)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (response) => {
-        // Check for error_handling array first
-        const errorHandling = response?.data?.error_handling || response?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-          this.isLoading = false;
-          return;
-        }
+        next: (response) => {
+          // Check for error_handling array first
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(this.errorMessage || 'An error occurred');
+            this.isLoading = false;
+            return;
+          }
 
-        const objectInfo = response?.data?.object_info || response?.object_info;
+          const objectInfo = response?.data?.object_info || response?.object_info;
 
-        if (objectInfo?.company) {
-          // Save overview data to service
-          this.assignmentStateService.setOverviewData(this.accessToken!, {
-            company: {
-              theme: objectInfo.company.theme,
-              logo_url: objectInfo.company.logo_url,
-              name: objectInfo.company.name,
-              title: objectInfo.company.title,
-              social_links: objectInfo.company.social_links
+          if (objectInfo) {
+            // Check if status is Submitted
+            const assignmentStatus = objectInfo.applicant_assignment?.status;
+            const isSubmitted = assignmentStatus &&
+              String(assignmentStatus).trim().toLowerCase() === 'submitted';
+
+            if (isSubmitted) {
+              // Assignment is submitted - show submitted state
+              this.isSubmitted = true;
+              // Set up theme, navbar, and footer from overview data if available
+              if (objectInfo.company) {
+                this.assignmentStateService.setOverviewData(this.accessToken!, {
+                  company: {
+                    theme: objectInfo.company.theme,
+                    logo_url: objectInfo.company.logo_url,
+                    name: objectInfo.company.name,
+                    title: objectInfo.company.title,
+                    social_links: objectInfo.company.social_links
+                  }
+                });
+                this.setupFromOverviewData({
+                  company: objectInfo.company
+                });
+              }
+              this.isLoading = false;
+              return;
             }
-          });
 
-          // Setup theme, navbar, and footer from overview data
-          this.setupFromOverviewData({
-            company: objectInfo.company
-          });
+            if (objectInfo.company) {
+              // Save overview data to service
+              this.assignmentStateService.setOverviewData(this.accessToken!, {
+                company: {
+                  theme: objectInfo.company.theme,
+                  logo_url: objectInfo.company.logo_url,
+                  name: objectInfo.company.name,
+                  title: objectInfo.company.title,
+                  social_links: objectInfo.company.social_links
+                }
+              });
+
+              // Setup theme, navbar, and footer from overview data
+              this.setupFromOverviewData({
+                company: objectInfo.company
+              });
+            }
+          }
+
+          // Now load questions data
+          this.loadAssignmentData();
+        },
+        error: (error) => {
+          // Check if error response has error_handling array
+          const errorHandling = error.error?.data?.error_handling ||
+            error.error?.error_handling ||
+            error?.data?.error_handling ||
+            error?.error_handling;
+
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(this.errorMessage || 'An error occurred');
+          } else {
+            this.errorMessage = error.error?.message || error.message || 'Failed to load assignment overview';
+            this.toastr.error(this.errorMessage || 'Failed to load assignment overview');
+          }
+
+          this.isLoading = false;
+          console.error('Error loading assignment overview:', error);
         }
-
-        // Now load questions data
-        this.loadAssignmentData();
-      },
-      error: (error) => {
-        // Check if error response has error_handling array
-        const errorHandling = error.error?.data?.error_handling ||
-          error.error?.error_handling ||
-          error?.data?.error_handling ||
-          error?.error_handling;
-
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-        } else {
-          this.errorMessage = error.error?.message || error.message || 'Failed to load assignment overview';
-          this.toastr.error(this.errorMessage || 'Failed to load assignment overview');
-        }
-
-        this.isLoading = false;
-        console.error('Error loading assignment overview:', error);
-      }
-    });
+      });
   }
 
   /**
@@ -611,77 +663,93 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     this.assignmentService.getAssignmentData(this.accessToken!)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (response) => {
-        // Check for error_handling array first
-        const errorHandling = response?.data?.error_handling || response?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-          this.assignmentData = null;
-          this.isLoading = false;
-          return;
-        }
-
-        // Clear any previous errors
-        this.errorHandling = [];
-        this.errorMessage = null;
-
-        const objectInfo = response.data?.object_info;
-
-        if (objectInfo) {
-          this.assignmentData = objectInfo;
-
-          // Theme, navbar, and footer are already set from overview data (either from service or API call)
-          // Only set them here if they weren't set yet (fallback)
-          if (!this.logoData.companyName && objectInfo.company) {
-            this.setupFromOverviewData({
-              company: objectInfo.company
-            });
-          }
-
-          this.initializeFromData();
-        } else {
-          // If object_info is null, check again for error_handling (in case it wasn't caught earlier)
-          const errorHandlingRetry = response?.data?.error_handling || response?.error_handling;
-          if (errorHandlingRetry && Array.isArray(errorHandlingRetry) && errorHandlingRetry.length > 0) {
-            this.errorHandling = errorHandlingRetry;
-            const errorMessages = errorHandlingRetry.map(err => err.error || err.message).filter(Boolean);
+        next: (response) => {
+          // Check for error_handling array first
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
             this.errorMessage = errorMessages.join('. ') || 'An error occurred';
             this.toastr.error(this.errorMessage || 'An error occurred');
             this.assignmentData = null;
-          } else {
-            this.errorMessage = 'Invalid assignment data';
-            this.toastr.error('Invalid assignment data');
+            this.isLoading = false;
+            return;
           }
+
+          // Clear any previous errors
+          this.errorHandling = [];
+          this.errorMessage = null;
+
+          const objectInfo = response.data?.object_info;
+
+          if (objectInfo) {
+            this.assignmentData = objectInfo;
+
+            // Check if status is Submitted
+            const assignmentStatus = objectInfo.applicant_assignment?.status;
+            const isSubmitted = assignmentStatus &&
+              String(assignmentStatus).trim().toLowerCase() === 'submitted';
+
+            if (isSubmitted) {
+              this.isSubmitted = true;
+              // Clear timer if submitted
+              if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+              }
+              this.isLoading = false;
+              return;
+            }
+
+            // Theme, navbar, and footer are already set from overview data (either from service or API call)
+            // Only set them here if they weren't set yet (fallback)
+            if (!this.logoData.companyName && objectInfo.company) {
+              this.setupFromOverviewData({
+                company: objectInfo.company
+              });
+            }
+
+            this.initializeFromData();
+          } else {
+            // If object_info is null, check again for error_handling (in case it wasn't caught earlier)
+            const errorHandlingRetry = response?.data?.error_handling || response?.error_handling;
+            if (errorHandlingRetry && Array.isArray(errorHandlingRetry) && errorHandlingRetry.length > 0) {
+              this.errorHandling = errorHandlingRetry;
+              const errorMessages = errorHandlingRetry.map(err => err.error || err.message).filter(Boolean);
+              this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+              this.toastr.error(this.errorMessage || 'An error occurred');
+              this.assignmentData = null;
+            } else {
+              this.errorMessage = 'Invalid assignment data';
+              this.toastr.error('Invalid assignment data');
+            }
+          }
+
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.isLoading = false;
+
+          // Check if error response has error_handling array (check multiple possible locations)
+          const errorHandling = error.error?.data?.error_handling ||
+            error.error?.error_handling ||
+            error?.data?.error_handling ||
+            error?.error_handling;
+
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            this.errorHandling = errorHandling;
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            this.errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(this.errorMessage || 'An error occurred');
+          } else {
+            this.errorMessage = error.error?.message || error.message || 'Failed to load assignment questions';
+            this.toastr.error(this.errorMessage || 'Failed to load assignment questions');
+          }
+
+          this.assignmentData = null;
+          console.error('Error loading assignment questions:', error);
         }
-
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.isLoading = false;
-
-        // Check if error response has error_handling array (check multiple possible locations)
-        const errorHandling = error.error?.data?.error_handling ||
-          error.error?.error_handling ||
-          error?.data?.error_handling ||
-          error?.error_handling;
-
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          this.errorHandling = errorHandling;
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          this.errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(this.errorMessage || 'An error occurred');
-        } else {
-          this.errorMessage = error.error?.message || error.message || 'Failed to load assignment questions';
-          this.toastr.error(this.errorMessage || 'Failed to load assignment questions');
-        }
-
-        this.assignmentData = null;
-        console.error('Error loading assignment questions:', error);
-      }
-    });
+      });
   }
 
   private initializeFromData(): void {
@@ -756,7 +824,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     if (this.questions.length > 0) {
       const firstUnansweredIndex = this.questions.findIndex((q: any, index: number) => {
         const answer = this.answers[q.id];
-        
+
         // If no answer object exists, this question is unanswered
         if (!answer) return true;
 
@@ -766,7 +834,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         } else if (q.type === 'Text') {
           return !answer.text_answer || answer.text_answer.trim() === '';
         }
-        
+
         // Default: consider unanswered
         return true;
       });
@@ -789,6 +857,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
           this.currentSelectedAnswerId = null;
         }
       }
+
+      // Update page title after initializing question
+      this.updatePageTitle();
     }
   }
 
@@ -870,6 +941,29 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   }
 
   /**
+   * Update page title dynamically based on current question
+   */
+  private updatePageTitle(): void {
+    const currentQuestion = this.getCurrentQuestion();
+    const assignmentTitle = this.getAssignmentTitle();
+
+    if (currentQuestion && currentQuestion.text) {
+      // Format: "Question X: [Question Text] | [Assignment Title]"
+      const questionNumber = this.currentQuestionIndex + 1;
+      const totalQuestions = this.questions.length;
+      const questionText = currentQuestion.text.length > 50
+        ? currentQuestion.text.substring(0, 50) + '...'
+        : currentQuestion.text;
+
+      const title = `Question ${questionNumber} of ${totalQuestions}: ${questionText} | ${assignmentTitle}`;
+      this.titleService.setTitle(title);
+    } else {
+      // Fallback: just assignment title
+      this.titleService.setTitle(`${assignmentTitle} - Assignment`);
+    }
+  }
+
+  /**
    * Navigate to specific question
    */
   goToQuestion(index: number): void {
@@ -880,7 +974,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       this.validationError = null;
       this.currentQuestionIndex = index;
       const question = this.questions[index];
-      if (question.type === 'MCQ') {
+      if (question.type === 'MCQ' || question.type === 'True & False') {
         this.currentSelectedAnswerId = this.answers[question.id]?.selected_answer_id || null;
         this.currentAnswer = '';
       } else {
@@ -891,7 +985,10 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
 
       // Announce navigation to screen reader
       this.announceToScreenReader(`Question ${index + 1} of ${this.questions.length}`);
-      
+
+      // Update page title
+      this.updatePageTitle();
+
       // Don't auto-focus - only focus if user has started keyboard navigation
       // This prevents unwanted focus outline on page load
     }
@@ -918,7 +1015,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       if (this.goToContainer?.nativeElement) {
         const clickedElement = e.target as HTMLElement;
         const container = this.goToContainer.nativeElement;
-        
+
         // Check if click is outside the container
         if (!container.contains(clickedElement)) {
           this.showGoToDropdown = false;
@@ -940,13 +1037,15 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
       const question = this.questions[this.currentQuestionIndex];
-      if (question.type === 'MCQ') {
+      if (question.type === 'MCQ' || question.type === 'True & False') {
         this.currentSelectedAnswerId = this.answers[question.id]?.selected_answer_id || null;
         this.currentAnswer = '';
       } else {
         this.currentAnswer = this.answers[question.id]?.text_answer || '';
         this.currentSelectedAnswerId = null;
       }
+      // Update page title
+      this.updatePageTitle();
     }
   }
 
@@ -974,7 +1073,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     }
 
     // Check if answer is valid
-    const hasAnswer = currentQuestion.type === 'MCQ'
+    const hasAnswer = (currentQuestion.type === 'MCQ' || currentQuestion.type === 'True & False')
       ? (answerData.selected_answer_id !== null && answerData.selected_answer_id !== undefined)
       : (answerData.text_answer && answerData.text_answer.trim() !== '');
 
@@ -986,75 +1085,73 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Clear validation error if answer is valid
     this.validationError = null;
 
+    // If on last question, show confirmation popup instead of submitting immediately
+    if (this.currentQuestionIndex >= this.questions.length - 1) {
+      // Last question - show confirmation popup
+      this.submitAssignment();
+      return;
+    }
+
     // Check if answer has changed from the original
     const originalAnswer = this.originalAnswers[currentQuestion.id];
     const hasAnswerChanged = this.hasAnswerChanged(currentQuestion, answerData, originalAnswer);
 
     // If answer hasn't changed, just navigate to next question without calling API
     if (!hasAnswerChanged) {
-      // If on last question, submit assignment; otherwise navigate to next
-      if (this.currentQuestionIndex < this.questions.length - 1) {
-        this.navigateToNextQuestion();
-      } else {
-        // Already on last question - submit assignment
-        this.submitAssignment();
-      }
+      this.navigateToNextQuestion();
       return;
     }
 
-    // Submit answer to API only if it has changed
+    // Submit answer to API only if it has changed (and not on last question)
     this.isSubmittingAnswer = true;
     this.assignmentService.submitAnswer(
       this.accessToken!,
       currentQuestion.id,
       answerData.selected_answer_id || null,
       answerData.text_answer || null
-    ).subscribe({
-      next: (response) => {
-        this.isSubmittingAnswer = false;
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.isSubmittingAnswer = false;
 
-        // Check for error_handling in response
-        const errorHandling = response?.data?.error_handling || response?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-          return;
-        }
+          // Check for error_handling in response
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+            return;
+          }
 
-        // Update original answer after successful submission
-        this.originalAnswers[currentQuestion.id] = {
-          selected_answer_id: answerData.selected_answer_id || null,
-          text_answer: answerData.text_answer || null
-        };
+          // Update original answer after successful submission
+          this.originalAnswers[currentQuestion.id] = {
+            selected_answer_id: answerData.selected_answer_id || null,
+            text_answer: answerData.text_answer || null
+          };
 
-        // Move to next question or submit assignment
-        if (this.currentQuestionIndex < this.questions.length - 1) {
+          // Move to next question
           this.navigateToNextQuestion();
-        } else {
-          // Already on last question - submit assignment
-          this.submitAssignment();
-        }
-      },
-      error: (error) => {
-        this.isSubmittingAnswer = false;
+        },
+        error: (error) => {
+          this.isSubmittingAnswer = false;
 
-        // Check for error_handling in error response
-        const errorHandling = error.error?.data?.error_handling ||
-          error.error?.error_handling ||
-          error?.data?.error_handling ||
-          error?.error_handling;
+          // Check for error_handling in error response
+          const errorHandling = error.error?.data?.error_handling ||
+            error.error?.error_handling ||
+            error?.data?.error_handling ||
+            error?.error_handling;
 
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-        } else {
-          this.toastr.error(error.error?.message || error.message || 'Failed to submit answer');
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+          } else {
+            this.toastr.error(error.error?.message || error.message || 'Failed to submit answer');
+          }
+          console.error('Error submitting answer:', error);
         }
-        console.error('Error submitting answer:', error);
-      }
-    });
+      });
   }
 
   /**
@@ -1063,7 +1160,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
   saveAnswer(): void {
     const currentQuestion = this.getCurrentQuestion();
     if (currentQuestion) {
-      if (currentQuestion.type === 'MCQ') {
+      if (currentQuestion.type === 'MCQ' || currentQuestion.type === 'True & False') {
         this.answers[currentQuestion.id] = {
           selected_answer_id: this.currentSelectedAnswerId,
           text_answer: null
@@ -1075,7 +1172,9 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
         };
       }
       // Clear validation error when answer is saved
-      if (currentQuestion.type === 'text' && this.currentAnswer && this.currentAnswer.trim() !== '') {
+      if ((currentQuestion.type === 'MCQ' || currentQuestion.type === 'True & False') && this.currentSelectedAnswerId !== null) {
+        this.validationError = null;
+      } else if (currentQuestion.type === 'Text' && this.currentAnswer && this.currentAnswer.trim() !== '') {
         this.validationError = null;
       }
     }
@@ -1112,7 +1211,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     }
 
     // Check if answer is valid
-    const hasAnswer = currentQuestion.type === 'MCQ'
+    const hasAnswer = currentQuestion.type === 'MCQ' || currentQuestion.type === 'True & False'
       ? (answerData.selected_answer_id !== null && answerData.selected_answer_id !== undefined)
       : (answerData.text_answer && answerData.text_answer.trim() !== '');
 
@@ -1124,13 +1223,45 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     // Clear validation error if answer is valid
     this.validationError = null;
 
+    // Show confirmation popup before submitting
+    this.showSubmitConfirmation = true;
+  }
+
+  /**
+   * Close submit confirmation popup
+   */
+  closeSubmitConfirmation(): void {
+    this.showSubmitConfirmation = false;
+  }
+
+  /**
+   * Confirm and perform assignment submission
+   */
+  confirmSubmitAssignment(): void {
+    this.showSubmitConfirmation = false;
+
+    if (this.isSubmittingAnswer) {
+      return; // Prevent multiple submissions
+    }
+
+    const currentQuestion = this.getCurrentQuestion();
+    if (!currentQuestion) {
+      return;
+    }
+
+    const answerData = this.answers[currentQuestion.id];
+    if (!answerData) {
+      this.validationError = 'Please provide an answer before proceeding';
+      return;
+    }
+
     // Check if answer has changed from the original
     const originalAnswer = this.originalAnswers[currentQuestion.id];
     const hasAnswerChanged = this.hasAnswerChanged(currentQuestion, answerData, originalAnswer);
 
-    // If answer hasn't changed, just show success message without calling API
+    // If answer hasn't changed, just refresh overview and check status
     if (!hasAnswerChanged) {
-      // TODO: Navigate to success page or show completion message
+      this.refreshAssignmentOverview();
       return;
     }
 
@@ -1144,48 +1275,88 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (response) => {
-        this.isSubmittingAnswer = false;
+        next: (response) => {
+          this.isSubmittingAnswer = false;
 
-        // Check for error_handling in response
-        const errorHandling = response?.data?.error_handling || response?.error_handling;
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-          return;
+          // Check for error_handling in response
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+            return;
+          }
+
+          // Update original answer after successful submission
+          this.originalAnswers[currentQuestion.id] = {
+            selected_answer_id: answerData.selected_answer_id || null,
+            text_answer: answerData.text_answer || null
+          };
+          this.refreshAssignmentOverview();
+
+          // TODO: Navigate to success page or show completion message
+        },
+        error: (error) => {
+          this.isSubmittingAnswer = false;
+
+          // Check for error_handling in error response
+          const errorHandling = error.error?.data?.error_handling ||
+            error.error?.error_handling ||
+            error?.data?.error_handling ||
+            error?.error_handling;
+
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
+            const errorMessage = errorMessages.join('. ') || 'An error occurred';
+            this.toastr.error(errorMessage);
+          } else {
+            this.toastr.error(error.error?.message || error.message || 'Failed to submit assignment');
+          }
+          console.error('Error submitting assignment:', error);
         }
+      });
+  }
 
-        // Update original answer after successful submission
-        this.originalAnswers[currentQuestion.id] = {
-          selected_answer_id: answerData.selected_answer_id || null,
-          text_answer: answerData.text_answer || null
-        };
+  /**
+   * Refresh assignment overview API to check for Submitted status
+   */
+  private refreshAssignmentOverview(): void {
+    if (!this.accessToken) {
+      return;
+    }
 
-        // Assignment submitted successfully
-        this.toastr.success('Assignment submitted successfully!');
+    this.assignmentService.getAssignmentOverview(this.accessToken!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          // Check for error_handling array first
+          const errorHandling = response?.data?.error_handling || response?.error_handling;
+          if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
+            return; // Don't update if there's an error
+          }
 
-        // TODO: Navigate to success page or show completion message
-      },
-      error: (error) => {
-        this.isSubmittingAnswer = false;
+          const objectInfo = response?.data?.object_info || response?.object_info;
 
-        // Check for error_handling in error response
-        const errorHandling = error.error?.data?.error_handling ||
-          error.error?.error_handling ||
-          error?.data?.error_handling ||
-          error?.error_handling;
+          if (objectInfo) {
+            // Check if status is Submitted
+            const assignmentStatus = objectInfo.applicant_assignment?.status;
+            const isSubmitted = assignmentStatus &&
+              String(assignmentStatus).trim().toLowerCase() === 'submitted';
 
-        if (errorHandling && Array.isArray(errorHandling) && errorHandling.length > 0) {
-          const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
-          const errorMessage = errorMessages.join('. ') || 'An error occurred';
-          this.toastr.error(errorMessage);
-        } else {
-          this.toastr.error(error.error?.message || error.message || 'Failed to submit assignment');
+            if (isSubmitted) {
+              this.isSubmitted = true;
+              // Clear timer if submitted
+              if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+              }
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error refreshing assignment overview:', error);
         }
-        console.error('Error submitting assignment:', error);
-      }
-    });
+      });
   }
 
   /**
@@ -1230,8 +1401,8 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
       return true;
     }
 
-    if (question.type === 'MCQ') {
-      // For MCQ, compare selected_answer_id
+    if (question.type === 'MCQ' || question.type === 'True & False') {
+      // For MCQ and True & False, compare selected_answer_id
       const currentId = currentAnswer.selected_answer_id ?? null;
       const originalId = originalAnswer.selected_answer_id ?? null;
       return currentId !== originalId;
@@ -1250,13 +1421,17 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
     if (this.currentQuestionIndex < this.questions.length - 1) {
       this.currentQuestionIndex++;
       const question = this.questions[this.currentQuestionIndex];
-      if (question.type === 'MCQ') {
+      if (question.type === 'MCQ' || question.type === 'True & False') {
         this.currentSelectedAnswerId = this.answers[question.id]?.selected_answer_id || null;
         this.currentAnswer = '';
       } else {
         this.currentAnswer = this.answers[question.id]?.text_answer || '';
         this.currentSelectedAnswerId = null;
       }
+      // Clear validation error
+      this.validationError = null;
+      // Update page title
+      this.updatePageTitle();
     } else {
       // Last question - submit assignment
       this.submitAssignment();
