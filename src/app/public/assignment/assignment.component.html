@@ -1,20 +1,29 @@
+@if (!isLoading && !errorMessage && errorHandling.length === 0 &&
+assignmentData) {
 <app-navbar
   [logo]="logoData"
   [socialMediaLinks]="socialMediaLinks"
   [websiteUrl]="websiteUrl"
-  [showVisitWebsite]="true">
+  [showVisitWebsite]="true"
+>
 </app-navbar>
+}
 
 <div class="content-wrapper">
   <app-assignment-overview
     [assignmentData]="assignmentData"
     [isLoading]="isLoading"
     [errorMessage]="errorMessage"
+    [errorHandling]="errorHandling"
     [isStartingAssignment]="isStartingAssignment"
-    (proceedToAssignment)="onProceedToAssignment()">
+    (proceedToAssignment)="onProceedToAssignment()"
+  >
   </app-assignment-overview>
 </div>
 
+@if (!isLoading && !errorMessage && errorHandling.length === 0 &&
+assignmentData) {
 <div class="footer-wrapper">
   <app-footer [logo]="logoData"></app-footer>
 </div>
+}

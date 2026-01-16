@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,12 +8,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './assignment-overview.component.html',
   styleUrl: './assignment-overview.component.css'
 })
-export class AssignmentOverviewComponent {
+export class AssignmentOverviewComponent implements OnChanges {
   @Input() assignmentData: any = null;
   @Input() isLoading: boolean = false;
   @Input() errorMessage: string | null = null;
+  @Input() errorHandling: Array<{ field: string; error: string }> = [];
   @Input() isStartingAssignment: boolean = false;
   @Output() proceedToAssignment = new EventEmitter<void>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['errorHandling']) {
+      console.log('=== Assignment Overview Component - errorHandling changed ===');
+      console.log('New errorHandling value:', changes['errorHandling'].currentValue);
+      console.log('Previous errorHandling value:', changes['errorHandling'].previousValue);
+    }
+    if (changes['errorMessage']) {
+      console.log('=== Assignment Overview Component - errorMessage changed ===');
+      console.log('New errorMessage value:', changes['errorMessage'].currentValue);
+      console.log('Previous errorMessage value:', changes['errorMessage'].previousValue);
+    }
+  }
 
   /**
    * Get assignment title

@@ -1,10 +1,12 @@
 <div class="questions-page-wrapper">
+  @if (!isLoading && !errorMessage && errorHandling.length === 0 && assignmentData) {
   <app-navbar
     [logo]="logoData"
     [socialMediaLinks]="socialMediaLinks"
     [websiteUrl]="websiteUrl"
     [showVisitWebsite]="true">
   </app-navbar>
+  }
 
   <main class="assignment-questions-container" role="main" [attr.aria-label]="'Assignment questions for ' + getAssignmentTitle()">
   <!-- Loading State -->
@@ -23,17 +25,49 @@
   }
 
   <!-- Error State -->
-  @if (!isLoading && errorMessage) {
+  @if (!isLoading && (errorMessage || errorHandling.length > 0)) {
   <div role="alert" aria-live="assertive" class="error-container">
     <div class="error-card">
-      <h3>Unable to Load Assignment</h3>
-      <p>{{ errorMessage }}</p>
+      <div class="error-icon-container">
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          class="error-icon-main"
+        >
+          <circle cx="32" cy="32" r="30" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="2"/>
+          <circle cx="32" cy="32" r="24" fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="2 2" opacity="0.3"/>
+          <path
+            d="M32 20V32L40 40"
+            stroke="#DC2626"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="32" cy="32" r="3" fill="#DC2626"/>
+        </svg>
+      </div>
+      <div class="error-content">
+        <div class="error-description">
+          @if (errorHandling.length > 0) {
+            @for (error of errorHandling; track error.field) {
+              <p class="error-message">{{ error.error }}</p>
+            }
+          } @else if (errorMessage) {
+            <p class="error-message">{{ errorMessage }}</p>
+          }
+        </div>
+      </div>
     </div>
   </div>
   }
 
   <!-- Questions Content -->
-  @if (!isLoading && !errorMessage && assignmentData) {
+  @if (!isLoading && !errorMessage && errorHandling.length === 0 && assignmentData) {
   <div class="questions-content">
     <!-- Header Section -->
     <div class="questions-header">
@@ -42,16 +76,24 @@
       <!-- Timer Bar -->
       <div class="timer-container">
         <div class="timer-bar">
-          <div class="timer-progress" [style.width.%]="getTimerProgress()"></div>
-        </div>
-        <div class="timer-info">
-          <span class="time-remaining">{{ getTimeRemaining() }}</span>
-          <span class="time-total">{{ getTotalTime() }}</span>
+          <div class="timer-progress" [style.width.%]="getTimerProgress()" [class.full-width]="getTimerProgress() >= 100">
+            @if (getTimerProgress() >= 8) {
+            <span class="time-remaining">{{ getTimeRemaining() }}</span>
+            }
+          </div>
+          @if (getTimerProgress() < 100) {
+          <div class="timer-remaining-section" [class.overlapped]="getTimerProgress() > 75">
+            <span class="time-total">{{ getTotalTime() }}</span>
+          </div>
+          }
         </div>
       </div>
 
       <!-- Total Questions -->
-      <p class="total-questions">{{ getTotalQuestions() }} Total Questions</p>
+      <div class="total-questions">
+        <span class="done-count">{{ getAnsweredCount() }} Done</span>
+        <span class="total-count">{{ getTotalQuestions() }} Total Questions</span>
+      </div>
 
       <!-- Question Progress Indicators -->
       <div class="question-indicators" role="list" aria-label="Question progress">
@@ -72,15 +114,52 @@
     <!-- Question Card -->
     @if (getCurrentQuestion()) {
     <div class="question-card">
-      <h2 class="question-title">{{ getCurrentQuestion().title }}</h2>
+      <h2 class="question-title">{{ getCurrentQuestion().text }}</h2>
+      
+      <!-- MCQ Question -->
+      @if (getCurrentQuestion().type === 'MCQ') {
+      <div class="mcq-answers">
+        @for (answer of getCurrentQuestion().answers; track answer.id) {
+        <label class="mcq-option" [class.selected]="currentSelectedAnswerId === answer.id">
+          <input
+            type="radio"
+            [name]="'question-' + getCurrentQuestion().id"
+            [value]="answer.id"
+            [checked]="currentSelectedAnswerId === answer.id"
+            (change)="onAnswerSelect(answer.id)"
+            [attr.aria-label]="'Select answer: ' + answer.text"
+          />
+          <span class="radio-custom"></span>
+          <span class="answer-text">{{ answer.text }}</span>
+        </label>
+        }
+      </div>
+      }
+      
+      <!-- Text Question -->
+      @if (getCurrentQuestion().type === 'text' || getCurrentQuestion().type !== 'MCQ') {
       <textarea
         class="answer-input"
         [(ngModel)]="currentAnswer"
         (blur)="saveAnswer()"
+        (input)="validationError = null"
         placeholder="Answer"
         rows="8"
         [attr.aria-label]="'Answer for question ' + (currentQuestionIndex + 1)">
       </textarea>
+      }
+
+      <!-- Validation Error Message -->
+      @if (validationError) {
+      <div class="validation-error" role="alert" aria-live="polite">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 6V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="10" cy="13" r="1" fill="currentColor"/>
+        </svg>
+        <span>{{ validationError }}</span>
+      </div>
+      }
     </div>
     }
 
@@ -125,25 +204,53 @@
         }
       </div>
 
+      <!-- Previous Button -->
+      @if (currentQuestionIndex > 0) {
+      <button
+        type="button"
+        class="previous-button"
+        (click)="previousQuestion()"
+        aria-label="Previous question">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true" focusable="false">
+          <path d="M11.25 3.75L6.75 9L11.25 14.25" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span>Previous</span>
+      </button>
+      }
+
       <!-- Next Question Button -->
       <button
         type="button"
         class="next-button"
         (click)="nextQuestion()"
+        [disabled]="isSubmittingAnswer"
         [attr.aria-label]="currentQuestionIndex < questions.length - 1 ? 'Next question' : 'Submit assignment'">
+        @if (isSubmittingAnswer) {
+        <div class="button-loader">
+          <span class="bubble"></span>
+          <span class="bubble"></span>
+          <span class="bubble"></span>
+        </div>
+        <span>{{ currentQuestionIndex < questions.length - 1 ? 'Saving Answer...' : 'Submitting...' }}</span>
+        } @else {
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true" focusable="false">
           <path d="M6.75 3.75L11.25 9L6.75 14.25" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" />
         </svg>
         <span>{{ currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Submit Assignment' }}</span>
+        }
       </button>
     </div>
   </div>
   }
   </main>
 
+  @if (!isLoading && !errorMessage && errorHandling.length === 0 && assignmentData) {
   <div class="footer-wrapper">
     <app-footer [logo]="logoData"></app-footer>
   </div>
+  }
 </div>

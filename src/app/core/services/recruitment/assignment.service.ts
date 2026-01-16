@@ -30,4 +30,24 @@ export class AssignmentService {
         };
         return this.http.post(url, body);
     }
+
+    submitAnswer(accessToken: string, questionId: number, selectedAnswerId?: number | null, textAnswer?: string | null): Observable<any> {
+        const url = `${this.baseUrl}recruiter/assignment-submit-answer`;
+        const body: any = {
+            request_data: {
+                access_token: accessToken,
+                question_id: questionId
+            }
+        };
+
+        if (selectedAnswerId !== null && selectedAnswerId !== undefined) {
+            body.request_data.selected_answer_id = selectedAnswerId;
+        }
+
+        if (textAnswer !== null && textAnswer !== undefined && textAnswer.trim() !== '') {
+            body.request_data.text_answer = textAnswer;
+        }
+
+        return this.http.post(url, body);
+    }
 }
