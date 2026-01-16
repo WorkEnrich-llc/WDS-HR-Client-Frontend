@@ -631,7 +631,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
     confirmDeleteQuestion(): void {
         if (this.pendingDeleteQuestionIndex !== null) {
-            const question = this.questions[this.pendingDeleteQuestionIndex];
+            const deletedIndex = this.pendingDeleteQuestionIndex;
+            const question = this.questions[deletedIndex];
 
             // Clean up media blob URL if exists
             const media = question.media?.[0];
@@ -639,11 +640,40 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 URL.revokeObjectURL(media.url);
             }
 
-            // Mark question as deleted instead of removing it
-            question.record_type = 'delete';
+            // If question has an ID (came from backend), mark as deleted
+            // Otherwise, remove it from the array (client-side only)
+            if (question.id) {
+                // Mark question as deleted instead of removing it (backend question)
+                question.record_type = 'delete';
+            } else {
+                // Remove from array (client-side only, hasn't been saved yet)
+                this.questions.splice(deletedIndex, 1);
+            }
 
-            if (this.expandedQuestion === this.pendingDeleteQuestionIndex) {
-                this.expandedQuestion = null;
+            // If the deleted question was expanded, expand the previous question (or last one)
+            if (this.expandedQuestion === deletedIndex) {
+                // Find the previous non-deleted question
+                let previousQuestionIndex = null;
+                const targetIndex = question.id ? deletedIndex : Math.max(0, deletedIndex - 1);
+
+                for (let i = targetIndex; i >= 0; i--) {
+                    if (this.questions[i] && this.questions[i].record_type !== 'delete') {
+                        previousQuestionIndex = i;
+                        break;
+                    }
+                }
+
+                // If no previous question found, find the last non-deleted question
+                if (previousQuestionIndex === null) {
+                    for (let i = this.questions.length - 1; i >= 0; i--) {
+                        if (this.questions[i] && this.questions[i].record_type !== 'delete') {
+                            previousQuestionIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                this.expandedQuestion = previousQuestionIndex;
             }
         }
         this.closeDeleteQuestionConfirmation();
