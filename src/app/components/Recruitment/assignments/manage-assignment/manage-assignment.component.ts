@@ -54,6 +54,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
     questions: any[] = [];
     selectedQuestions: any[] = [];
     expandedQuestion: number | null = null;
+    expandedQuestions: Set<number> = new Set(); // Track all expanded questions (including invalid ones)
     formSubmitted: boolean = false;
 
     // Popup states
@@ -123,6 +124,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         };
         this.questions.push(emptyQuestion);
         this.expandedQuestion = 0;
+        this.expandedQuestions.add(0);
     }
 
     private loadAssignmentForEdit(id: string | number): void {
@@ -169,6 +171,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     // Set first question as expanded by default
                     if (this.questions.length > 0) {
                         this.expandedQuestion = 0;
+                        this.expandedQuestions.add(0);
                     }
                 }
             },
@@ -308,6 +311,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         let hasValidationError = false;
         let firstErrorQuestionIndex = null;
+        const invalidQuestionIndices: number[] = []; // Track all invalid question indices
 
         // Validate each question - mark all errors first, then return
         for (let i = 0; i < this.questions.length; i++) {
@@ -322,6 +326,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 if (firstErrorQuestionIndex === null) {
                     firstErrorQuestionIndex = i;
                 }
+                invalidQuestionIndices.push(i);
                 hasValidationError = true;
                 continue;
             }
@@ -329,6 +334,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 if (firstErrorQuestionIndex === null) {
                     firstErrorQuestionIndex = i;
                 }
+                invalidQuestionIndices.push(i);
                 hasValidationError = true;
                 continue;
             }
@@ -336,6 +342,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 if (firstErrorQuestionIndex === null) {
                     firstErrorQuestionIndex = i;
                 }
+                invalidQuestionIndices.push(i);
                 hasValidationError = true;
                 continue;
             }
@@ -345,6 +352,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     if (firstErrorQuestionIndex === null) {
                         firstErrorQuestionIndex = i;
                     }
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                     continue;
                 }
@@ -374,6 +382,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 }
 
                 if (hasEmptyAnswer) {
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                 }
 
@@ -381,6 +390,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     if (firstErrorQuestionIndex === null) {
                         firstErrorQuestionIndex = i;
                     }
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                 }
             }
@@ -390,6 +400,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     if (firstErrorQuestionIndex === null) {
                         firstErrorQuestionIndex = i;
                     }
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                     this.toaster.showError('Please add both true and false answers', 'Validation Error');
                     continue;
@@ -420,6 +431,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 }
 
                 if (hasEmptyAnswer) {
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                     this.toaster.showError('Please fill in all answer options', 'Validation Error');
                 }
@@ -428,16 +440,33 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     if (firstErrorQuestionIndex === null) {
                         firstErrorQuestionIndex = i;
                     }
+                    invalidQuestionIndices.push(i);
                     hasValidationError = true;
                 }
             }
         }
 
-        // If validation errors found, navigate to questions tab and expand first error question
+        // If validation errors found, navigate to questions tab and expand all invalid questions
         if (hasValidationError) {
             this.currentTab = 'questions';
+            // Expand all invalid questions
+            invalidQuestionIndices.forEach(index => {
+                this.expandedQuestions.add(index);
+            });
+            // Also set expandedQuestion to the first error for scrolling
             if (firstErrorQuestionIndex !== null) {
                 this.expandedQuestion = firstErrorQuestionIndex;
+                // Scroll to first error question after a short delay
+                setTimeout(() => {
+                    const questionElement = document.querySelector(`[data-question-index="${firstErrorQuestionIndex}"]`) as HTMLElement;
+                    if (questionElement) {
+                        questionElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                    }
+                }, 100);
             }
             return;
         }
@@ -609,7 +638,9 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             questionTextTouched: false
         };
         this.questions.push(newQuestion);
-        this.expandedQuestion = this.questions.length - 1;
+        const newIndex = this.questions.length - 1;
+        this.expandedQuestion = newIndex;
+        this.expandedQuestions.add(newIndex);
         // Reset formSubmitted flag when adding new question so validation messages don't appear for untouched fields
         this.formSubmitted = false;
     }
@@ -673,14 +704,29 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     }
                 }
 
-                this.expandedQuestion = previousQuestionIndex;
+                if (previousQuestionIndex !== null) {
+                    this.expandedQuestion = previousQuestionIndex;
+                    this.expandedQuestions.add(previousQuestionIndex);
+                } else {
+                    this.expandedQuestion = null;
+                }
             }
         }
         this.closeDeleteQuestionConfirmation();
     }
 
     toggleQuestion(index: number): void {
-        this.expandedQuestion = this.expandedQuestion === index ? null : index;
+        if (this.expandedQuestions.has(index)) {
+            this.expandedQuestions.delete(index);
+            this.expandedQuestion = null;
+        } else {
+            this.expandedQuestions.add(index);
+            this.expandedQuestion = index;
+        }
+    }
+
+    isQuestionExpanded(index: number): boolean {
+        return this.expandedQuestions.has(index) || this.expandedQuestion === index;
     }
 
     duplicateQuestion(index: number): void {
@@ -724,6 +770,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         const oldQuestionWasExpanded = this.expandedQuestion === index;
         if (oldQuestionWasExpanded) {
             this.expandedQuestion = null;
+            this.expandedQuestions.delete(index);
         }
 
         // Step 2: Add the duplicated question to the array
@@ -734,6 +781,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             // Expand the new duplicated question
             this.expandedQuestion = duplicatedIndex;
+            this.expandedQuestions.add(duplicatedIndex);
 
             // Step 4: Scroll to the duplicated question smoothly after it's expanded
             setTimeout(() => {

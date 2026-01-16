@@ -409,7 +409,7 @@
           width="12"
           height="12"
           viewBox="0 0 24 24"
-          [style.transform]="expandedQuestion === i ? '' : 'rotate(180deg)'"
+          [style.transform]="isQuestionExpanded(i) ? '' : 'rotate(180deg)'"
         >
           <path
             fill="none"
@@ -425,7 +425,7 @@
     </div>
 
     <!-- Question Details - Collapsible -->
-    @if (expandedQuestion === i) {
+    @if (isQuestionExpanded(i)) {
     <div class="question-details">
       <!-- Question Title with Action Buttons in One Row -->
       <div class="d-flex gap-2 mb-3" style="align-items: flex-start">
@@ -446,8 +446,8 @@
             />
           </div>
           @if ((question.question_text?.trim() === '' &&
-          (question.questionTextTouched || formSubmitted)) && expandedQuestion
-          === i) {
+          (question.questionTextTouched || formSubmitted)) &&
+          isQuestionExpanded(i)) {
           <p class="error-msg">Question title is required</p>
           }
         </div>
@@ -792,7 +792,7 @@
               </select>
             </div>
             @if (!question.question_type && (question.touched || formSubmitted)
-            && expandedQuestion === i) {
+            && isQuestionExpanded(i)) {
             <p class="error-msg">Please select a question type</p>
             }
           </div>
