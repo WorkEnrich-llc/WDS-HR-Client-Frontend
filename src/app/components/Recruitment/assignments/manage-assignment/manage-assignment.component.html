@@ -401,27 +401,54 @@
   (question.record_type !== 'delete') {
   <div class="content-box" [attr.data-question-index]="i">
     <!-- Question Header - Expandable -->
-    <div class="question-header" (click)="toggleQuestion(i)">
+    <div class="question-header">
       <span class="question-number">Question {{ getQuestionNumber(i) }}</span>
-      <button class="btn btn-sm btn-link hide-btn" type="button">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          [style.transform]="isQuestionExpanded(i) ? '' : 'rotate(180deg)'"
+      <div
+        class="d-flex align-items-center gap-2"
+        style="flex: 1; justify-content: flex-end"
+      >
+        <div class="order-dropdown-wrapper" (click)="$event.stopPropagation()">
+          <label for="order-{{ i }}" class="order-label">Order:</label>
+          <div class="form-outline position-relative custom-date-wrapper">
+            <select
+              id="order-{{ i }}"
+              class="form-control custom-date-input order-select"
+              [ngModel]="question.order || i + 1"
+              (ngModelChange)="
+                onOrderChange(i, $event); $event.stopPropagation()
+              "
+              (click)="$event.stopPropagation()"
+            >
+              @for (orderNum of getAvailableOrders(i); track orderNum) {
+              <option [ngValue]="orderNum">{{ orderNum }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <button
+          class="btn btn-sm btn-link hide-btn"
+          type="button"
+          (click)="toggleQuestion(i)"
         >
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m18 15l-6-6l-6 6"
-          />
-        </svg>
-        Hide
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            [style.transform]="isQuestionExpanded(i) ? '' : 'rotate(180deg)'"
+          >
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m18 15l-6-6l-6 6"
+            />
+          </svg>
+          Hide
+        </button>
+      </div>
     </div>
 
     <!-- Question Details - Collapsible -->

@@ -168,6 +168,30 @@ select option[value=""][disabled] {
     font-family: Poppins, sans-serif;
 }
 
+.order-dropdown-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a6d97;
+    white-space: nowrap;
+}
+
+.order-dropdown-wrapper .form-outline {
+    width: auto;
+    min-width: 100px;
+}
+
+.order-select {
+    width: 100%;
+    font-size: 14px;
+}
+
 .hide-btn {
     display: flex;
     align-items: center;
