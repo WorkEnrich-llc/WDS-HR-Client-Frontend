@@ -273,3 +273,60 @@
     display: block;
     width: 100%;
 }
+
+/* Bubble Spinner Animation */
+.spinner-bubble {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    position: relative;
+    margin-right: 8px;
+    vertical-align: middle;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: bubble-bounce 1.4s infinite ease-in-out;
+    animation-delay: 0s;
+}
+
+.spinner-bubble::before,
+.spinner-bubble::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    top: 0;
+}
+
+.spinner-bubble::before {
+    left: -10px;
+    animation: bubble-bounce 1.4s infinite ease-in-out;
+    animation-delay: -0.32s;
+}
+
+.spinner-bubble::after {
+    left: 10px;
+    animation: bubble-bounce 1.4s infinite ease-in-out;
+    animation-delay: -0.16s;
+}
+
+@keyframes bubble-bounce {
+    0%,
+    80%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Disable button styling during loading */
+button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+}

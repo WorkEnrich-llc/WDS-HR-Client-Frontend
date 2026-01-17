@@ -1,5 +1,5 @@
 
-import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -33,6 +33,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
     private salaryPortionsService = inject(SalaryPortionsService);
     private bonusDeductionsService = inject(BonusDeductionsService);
     private toaster = inject(ToasterMessageService);
+    private cdr = inject(ChangeDetectorRef);
 
     @ViewChild('departmentFilterBox') departmentFilterBox!: OverlayFilterBoxComponent;
 
@@ -85,6 +86,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
     salaryPortions: any = null;
     salaryPortionsLoading: boolean = false;
     salaryPortionsRequestInFlight: boolean = false;
+    pendingSalaryPortionId: number | undefined = undefined; // Store salary portion ID from edit response until salary portions are loaded
 
     // Edit mode
     isEditMode: boolean = false;
@@ -314,17 +316,56 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                         const data = (response as any).data?.object_info;
 
                         if (data && this.bonusDeductionForm) {
-                            // Get the correct salary portion name by matching id with index
+                            // Store salary portion ID to set it after salary portions are loaded
+                            if (data.salary_portion?.id) {
+                                this.pendingSalaryPortionId = data.salary_portion.id;
+                            }
+
+                            // Try to get the correct salary portion name by matching id with index
+                            // If salary portions haven't loaded yet, this will be empty but will be set later
                             const salaryPortionName = this.getSalaryPortionNameById(data.salary_portion?.id);
 
-                            // Patch form with data from response
-                            this.bonusDeductionForm.patchValue({
+                            // Build patch value object
+                            const patchValues: any = {
                                 title: data.title || '',
                                 classification: data.classification?.id === 4 ? 'bonus' : 'deduction',
                                 date: data.date || '',
                                 days: data.days || 1,
-                                salaryPortion: salaryPortionName || ''
+                                salaryPortion: salaryPortionName || ''  // Always include, will be updated if empty
+                            };
+
+                            // Patch form with data from response
+                            this.bonusDeductionForm.patchValue(patchValues, { emitEvent: true });
+
+                            // If salary portions are already loaded and we have a pending ID, set it now
+                            if (!salaryPortionName && this.pendingSalaryPortionId && this.salaryPortions?.settings) {
+                                const name = this.getSalaryPortionNameById(this.pendingSalaryPortionId);
+                                if (name) {
+                                    const salaryPortionControl = this.bonusDeductionForm.get('salaryPortion');
+                                    if (salaryPortionControl) {
+                                        salaryPortionControl.setValue(name, { emitEvent: true });
+                                        salaryPortionControl.updateValueAndValidity({ emitEvent: true });
+                                    }
+                                }
+                            }
+
+                            // Force validation update on all controls - run synchronously first
+                            Object.keys(this.bonusDeductionForm.controls).forEach(key => {
+                                const control = this.bonusDeductionForm.get(key);
+                                if (control) {
+                                    control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+                                }
                             });
+
+                            // Update form-level validation
+                            this.bonusDeductionForm.updateValueAndValidity({ emitEvent: false });
+
+                            // Use setTimeout with delay to ensure change detection runs after all updates
+                            setTimeout(() => {
+                                // Run validation again to ensure form state is correct
+                                this.bonusDeductionForm.updateValueAndValidity({ emitEvent: false });
+                                this.cdr.detectChanges();
+                            }, 100);
 
                             // Patch recipients based on related_to type
                             this.populateRecipientsFromResponse(data);
@@ -347,7 +388,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             this.bonusDeductionForm = this.formBuilder.group({
                 title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
-                date: ['', [Validators.required, this.notPreviousMonthValidator()]],
+                date: ['', [Validators.required]],
                 days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
@@ -481,10 +522,43 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
                 } else {
                     this.salaryPortions = { settings: [] };
                 }
-                // Set default selection if provided
-                const def = this.salaryPortions?.settings?.find((s: any) => s.default);
-                if (def) {
-                    this.bonusDeductionForm.get('salaryPortion')?.setValue(def.name, { emitEvent: false });
+
+                // If we have a pending salary portion ID from edit mode, set it now
+                if (this.pendingSalaryPortionId && this.salaryPortions?.settings) {
+                    const name = this.getSalaryPortionNameById(this.pendingSalaryPortionId);
+                    if (name && this.bonusDeductionForm) {
+                        const salaryPortionControl = this.bonusDeductionForm.get('salaryPortion');
+                        if (salaryPortionControl) {
+                            salaryPortionControl.setValue(name, { emitEvent: true });
+                            salaryPortionControl.updateValueAndValidity({ emitEvent: true });
+                            // Update all controls and form validation
+                            setTimeout(() => {
+                                Object.keys(this.bonusDeductionForm.controls).forEach(key => {
+                                    const control = this.bonusDeductionForm.get(key);
+                                    if (control) {
+                                        control.updateValueAndValidity({ emitEvent: false });
+                                    }
+                                });
+                                this.bonusDeductionForm.updateValueAndValidity({ emitEvent: false });
+                                this.cdr.detectChanges();
+                            }, 0);
+                        }
+                        this.pendingSalaryPortionId = undefined; // Clear pending ID
+                    }
+                } else {
+                    // Only set default selection if we're not in edit mode (no pending ID)
+                    const def = this.salaryPortions?.settings?.find((s: any) => s.default);
+                    if (def && this.bonusDeductionForm && !this.pendingSalaryPortionId) {
+                        const salaryPortionControl = this.bonusDeductionForm.get('salaryPortion');
+                        if (salaryPortionControl) {
+                            salaryPortionControl.setValue(def.name, { emitEvent: true });
+                            salaryPortionControl.updateValueAndValidity({ emitEvent: true });
+                        }
+                        setTimeout(() => {
+                            this.bonusDeductionForm.updateValueAndValidity({ emitEvent: false });
+                            this.cdr.detectChanges();
+                        }, 0);
+                    }
                 }
             },
             error: (error) => {
@@ -647,7 +721,10 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
 
     // ---- Page navigation and header actions ----
     isFormValidForNext(): boolean {
-        return !!this.bonusDeductionForm && this.bonusDeductionForm.valid;
+        if (!this.bonusDeductionForm) {
+            return false;
+        }
+        return this.bonusDeductionForm.valid;
     }
 
     goToNextTab(): void {
@@ -733,13 +810,13 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             requestData.remove_related_ids = removedRecipients.map(item => item.id);
         }
 
-        // Wrap payload in request_data for API
+        // Wrap payload in request_data for API (both create and update)
         const payload = { request_data: requestData };
 
         // Call API - create or update based on edit mode
         const apiCall = this.isEditMode
             ? this.bonusDeductionsService.updateBonusDeduction(this.editId!, payload)
-            : this.bonusDeductionsService.createBonusDeduction(requestData);
+            : this.bonusDeductionsService.createBonusDeduction(payload);
         apiCall.subscribe({
             next: (response) => {
                 this.isSubmitting = false;

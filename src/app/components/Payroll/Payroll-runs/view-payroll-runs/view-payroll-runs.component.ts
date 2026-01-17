@@ -1,6 +1,7 @@
 
 import { Component, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollRunService } from 'app/core/services/payroll/payroll-run.service';
@@ -11,7 +12,7 @@ import { ToasterMessageService } from 'app/core/services/tostermessage/tostermes
 
 @Component({
   selector: 'app-view-payroll-runs',
-  imports: [PageHeaderComponent,OverlayFilterBoxComponent, PopupComponent, DatePipe],
+  imports: [PageHeaderComponent, OverlayFilterBoxComponent, PopupComponent, DatePipe, FormsModule],
   providers: [DatePipe],
   templateUrl: './view-payroll-runs.component.html',
   styleUrl: './view-payroll-runs.component.css'
@@ -57,7 +58,7 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   relatedSheetId: string | null = null;
   relatedSheetName: string | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService) { }
+  constructor(private route: ActivatedRoute, private router: Router, private payrollRunService: PayrollRunService, private toasterMessageService: ToasterMessageService, private datePipe: DatePipe) { }
 
   employees: any[] = [];
   sortDirection: string = 'asc';
@@ -88,6 +89,11 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   isRestartingRun: boolean = false;
   showPublishConfirmation: boolean = false;
   isPublishing: boolean = false;
+
+  // Early Payroll Overlay
+  showEarlyPayrollOverlay: boolean = false;
+  payrollOption: 'skip' | 'partial' = 'skip';
+  payrollEndDate: number = 1;
 
   ngOnInit(): void {
     this.loadData = true;
@@ -168,12 +174,20 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   onStartPayrollClick(): void {
-    // Check if it's an off-cycle payroll without a sheet
-    const isOffCycle = this.payRollRunData?.data?.object_info?.run_cycle?.id === 2;
+    const runCycleId = this.payRollRunData?.data?.object_info?.run_cycle?.id;
+    const isOffCycle = runCycleId === 2;
     const hasNoSheet = !this.selectedSheetId && !this.relatedSheetId;
 
+    // Check if it's an off-cycle payroll without a sheet
     if (isOffCycle && hasNoSheet) {
       this.toasterMessageService.showError('Please create a sheet before starting the payroll run.');
+      return;
+    }
+
+    // Check if related sheet ID is missing (mandatory for payroll)
+    if (!this.relatedSheetId) {
+      this.toasterMessageService.showError('A related sheet is mandatory to start the payroll. Please select or create a sheet.');
+      this.showValidationError = true;
       return;
     }
 
@@ -183,24 +197,57 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     }
 
     this.showValidationError = false;
-    this.showConfirmation = true;
+
+    // If run_cycle.id is 2 (Off-Cycle), show confirmation popup
+    if (runCycleId === 2) {
+      this.showConfirmation = true;
+      return;
+    }
+
+    // If run_cycle.id is 1 (Regular Cycle), open overlay directly without confirmation
+    if (runCycleId === 1) {
+      // Reset overlay state
+      this.payrollOption = 'skip';
+      this.payrollEndDate = 1;
+      this.showEarlyPayrollOverlay = true;
+    }
+  }
+
+  confirmStartPayrollPopup(): void {
+    // Close confirmation popup
+    this.showConfirmation = false;
+    // Start payroll (this is called either from outside confirmation for off-cycle or from inside overlay)
+    this.confirmStartPayroll();
+  }
+
+  cancelStartPayrollPopup(): void {
+    this.showConfirmation = false;
   }
 
   confirmStartPayroll(): void {
-    if (!this.selectedSheetId || !this.payrollRunId) {
+    if (!this.selectedSheetId && !this.relatedSheetId || !this.payrollRunId) {
+      return;
+    }
+
+    // Use the related sheet ID if available, otherwise use the selected sheet ID
+    const sheetId = this.relatedSheetId || this.selectedSheetId;
+    if (!sheetId) {
       return;
     }
 
     this.isStartingPayroll = true;
     const formData = new FormData();
     formData.append('run_id', this.payrollRunId);
-    // Use the related sheet ID if available, otherwise use the selected sheet ID
-    const sheetId = this.relatedSheetId || this.selectedSheetId;
     formData.append('sheet_id', sheetId);
+
+    // Only add end_edit if "Start Partial Payroll" is selected
+    if (this.payrollOption === 'partial') {
+      formData.append('end_edit', this.payrollEndDate.toString());
+    }
 
     const sub = this.payrollRunService.startPayrollRun(formData).subscribe({
       next: (data) => {
-        this.showConfirmation = false;
+        this.showEarlyPayrollOverlay = false;
         this.isStartingPayroll = false;
         // Refresh the payroll run details
         this.refreshPayrollRunDetails();
@@ -213,7 +260,72 @@ export class ViewPayrollRunsComponent implements OnDestroy {
   }
 
   cancelStartPayroll(): void {
-    this.showConfirmation = false;
+    this.showEarlyPayrollOverlay = false;
+  }
+
+  isPayrollEndDateBeforeToday(): boolean {
+    const endDate = this.payRollRunData?.data?.object_info?.end_date;
+    if (!endDate) {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const payrollEndDate = new Date(endDate);
+    payrollEndDate.setHours(0, 0, 0, 0);
+    // Show warning if the end date is after today (meaning we're starting before the cycle ends)
+    // This matches the requirement: "will be displayed if the end date of the payroll was before today"
+    // interpreted as: if today hasn't reached the end date yet (we're starting early)
+    return today < payrollEndDate;
+  }
+
+  isPayrollEndDatePassed(): boolean {
+    const endDate = this.payRollRunData?.data?.object_info?.end_date;
+    if (!endDate) {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const payrollEndDate = new Date(endDate);
+    payrollEndDate.setHours(0, 0, 0, 0);
+    // Check if the end date is before today (the cycle has ended)
+    return payrollEndDate < today;
+  }
+
+  getRemainingDays(): number {
+    const endDate = this.payRollRunData?.data?.object_info?.end_date;
+    if (!endDate) {
+      return 0;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const payrollEndDate = new Date(endDate);
+    payrollEndDate.setHours(0, 0, 0, 0);
+    const diffTime = payrollEndDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  }
+
+  getPayrollEndDateFormatted(): string {
+    const endDate = this.payRollRunData?.data?.object_info?.end_date;
+    if (!endDate) {
+      return '';
+    }
+    return this.datePipe.transform(endDate, 'd MMMM') || '';
+  }
+
+  onPayrollOptionChange(): void {
+    // Reset dropdown value when switching options
+    if (this.payrollOption === 'skip') {
+      this.payrollEndDate = 1;
+    }
+  }
+
+  generateEndDateOptions(): number[] {
+    return Array.from({ length: 28 }, (_, i) => i + 1);
+  }
+
+  closeEarlyPayrollOverlay(): void {
+    this.showEarlyPayrollOverlay = false;
   }
 
   getSelectedSheetName(): string {
@@ -247,7 +359,18 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     if (!displayTable || !displayTable.headers) {
       return [];
     }
-    return displayTable.headers;
+    const headers = displayTable.headers;
+
+    // Separate "net" header from others
+    const netHeader = headers.find((h: any) => h.key === 'net');
+    const otherHeaders = headers.filter((h: any) => h.key !== 'net');
+
+    // Return headers with "net" at the end (before Actions)
+    if (netHeader) {
+      return [...otherHeaders, netHeader];
+    }
+
+    return headers;
   }
 
   getDisplayTableRows(): any[] {
@@ -263,6 +386,13 @@ export class ViewPayrollRunsComponent implements OnDestroy {
         name: row.name
       }
     }));
+  }
+
+  getTableEmptyStateColspan(): number {
+    const headers = this.getDisplayTableHeaders();
+    const filteredHeaders = headers.filter(h => h.key !== 'id' && h.key !== 'name' && h.key !== 'employee_id');
+    // Employee column + filtered headers + Actions column
+    return filteredHeaders.length + 2;
   }
 
   onCreateSheetClick(): void {
@@ -387,7 +517,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       error: (error) => {
         this.showRevertToDraftConfirmation = false;
         this.isRevertingToDraft = false;
-        this.toasterMessageService.showError('Failed to revert to draft. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -442,7 +571,6 @@ export class ViewPayrollRunsComponent implements OnDestroy {
       error: (error) => {
         this.showRestartRunConfirmation = false;
         this.isRestartingRun = false;
-        this.toasterMessageService.showError('Failed to restart payroll run. Please try again.');
       }
     });
     this.subscriptions.push(sub);
@@ -482,5 +610,24 @@ export class ViewPayrollRunsComponent implements OnDestroy {
 
   cancelPublish(): void {
     this.showPublishConfirmation = false;
+  }
+
+  formatDate(dateString: string | null | undefined): string | undefined {
+    if (!dateString) return undefined;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return undefined;
+      return this.datePipe.transform(date, 'dd/MM/yyyy') || undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  getCreatedAt(): string | undefined {
+    return this.formatDate(this.payRollRunData?.data?.object_info?.created_at);
+  }
+
+  getUpdatedAt(): string | undefined {
+    return this.formatDate(this.payRollRunData?.data?.object_info?.updated_at);
   }
 }

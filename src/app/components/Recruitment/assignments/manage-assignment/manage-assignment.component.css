@@ -1,3 +1,8 @@
+/* Hide disabled placeholder option from dropdown */
+select option[value=""][disabled] {
+    display: none;
+}
+
 .nav-tabs {
     border-bottom: 1px solid #dee2e6;
 }
@@ -163,6 +168,30 @@
     font-family: Poppins, sans-serif;
 }
 
+.order-dropdown-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a6d97;
+    white-space: nowrap;
+}
+
+.order-dropdown-wrapper .form-outline {
+    width: auto;
+    min-width: 100px;
+}
+
+.order-select {
+    width: 100%;
+    font-size: 14px;
+}
+
 .hide-btn {
     display: flex;
     align-items: center;
@@ -187,6 +216,20 @@
 
 .question-details {
     padding-top: 1.5rem;
+    animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 5000px;
+    }
 }
 
 /* Media Upload Section */
@@ -390,6 +433,27 @@
     background-color: #E8F0FE !important;
     border-color: #E8F0FE !important;
     color: #377AFD !important;
+}
+
+/* Delete Answer Button - Small Square */
+.delete-answer-btn {
+    min-width: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0;
+}
+
+.delete-answer-btn svg {
+    width: 14px;
+    height: 15px;
+}
+
+.delete-answer-btn:hover svg path {
+    fill: #ffffff !important;
 }
 
 /* Summary Footer */

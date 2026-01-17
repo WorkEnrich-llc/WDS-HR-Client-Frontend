@@ -1,0 +1,620 @@
+<div class="questions-page-wrapper" [attr.data-keyboard-navigation]="keyboardNavigationStarted">
+  @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
+  assignmentData && !isSubmitted) {
+  <app-navbar
+    [logo]="logoData"
+    [socialMediaLinks]="socialMediaLinks"
+    [websiteUrl]="websiteUrl"
+    [showVisitWebsite]="true"
+  >
+  </app-navbar>
+  }
+
+  <main
+    class="assignment-questions-container"
+    role="main"
+    id="main-content"
+    tabindex="-1"
+    #mainContent
+    [attr.aria-label]="'Assignment questions for ' + getAssignmentTitle()"
+    [attr.data-keyboard-navigation]="keyboardNavigationStarted"
+  >
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div role="status" aria-live="polite" aria-busy="true" class="sr-only">
+      Loading assignment questions, please wait...
+    </div>
+    <div class="loading-container">
+      <div class="skeleton-loader">
+        <div class="skeleton skeleton-header"></div>
+        <div class="skeleton skeleton-content"></div>
+        <div class="skeleton skeleton-content"></div>
+        <div class="skeleton skeleton-content short"></div>
+      </div>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (!isLoading && (errorMessage || errorHandling.length > 0)) {
+    <div role="alert" aria-live="assertive" class="error-container">
+      <div class="error-card">
+        <div class="error-icon-container">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+            class="error-icon-main"
+          >
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              fill="#FEE2E2"
+              stroke="#FCA5A5"
+              stroke-width="2"
+            />
+            <circle
+              cx="32"
+              cy="32"
+              r="24"
+              fill="none"
+              stroke="#DC2626"
+              stroke-width="2"
+              stroke-dasharray="2 2"
+              opacity="0.3"
+            />
+            <path
+              d="M32 20V32L40 40"
+              stroke="#DC2626"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="32" cy="32" r="3" fill="#DC2626" />
+          </svg>
+        </div>
+        <div class="error-content">
+          <div class="error-description">
+            @if (errorHandling.length > 0) { @for (error of errorHandling; track
+            error.field) {
+            <p class="error-message">{{ error.error }}</p>
+            } } @else if (errorMessage) {
+            <p class="error-message">{{ errorMessage }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Submitted State -->
+    @if (!isLoading && isSubmitted) {
+    <div role="status" aria-live="polite" class="submitted-container">
+      <div class="submitted-card">
+        <div class="submitted-icon-container">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+            class="submitted-icon-main"
+          >
+            <circle
+              cx="32"
+              cy="32"
+              r="30"
+              fill="#D1FAE5"
+              stroke="#86EFAC"
+              stroke-width="2"
+            />
+            <circle
+              cx="32"
+              cy="32"
+              r="24"
+              fill="none"
+              stroke="#10B981"
+              stroke-width="2"
+              stroke-dasharray="2 2"
+              opacity="0.3"
+            />
+            <path
+              d="M20 32L28 40L44 24"
+              stroke="#10B981"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="32" cy="32" r="3" fill="#10B981" />
+          </svg>
+        </div>
+        <div class="submitted-content">
+          <h2 class="submitted-title">Assignment Submitted Successfully!</h2>
+          <div class="submitted-description">
+            <p class="submitted-message">
+              Your assignment has been submitted successfully. Thank you for completing the assessment.
+            </p>
+            <p class="submitted-message secondary">
+              You will be notified about the results soon.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Questions Content -->
+    @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
+    assignmentData && !isSubmitted) {
+    <div class="questions-content">
+      <!-- Header Section -->
+      <div class="questions-header">
+        <h1 class="assignment-title">{{ getAssignmentTitle() }}</h1>
+
+        <!-- Timer Bar -->
+        <div class="timer-container">
+          <div
+            class="timer-bar"
+            role="progressbar"
+            [attr.aria-label]="getTimerAriaLabel()"
+            [attr.aria-valuenow]="getTimerProgress()"
+            [attr.aria-valuemin]="0"
+            [attr.aria-valuemax]="100"
+            [attr.aria-valuetext]="getTimeRemaining() + ' remaining'"
+          >
+            <div
+              class="timer-progress"
+              [style.width.%]="getTimerProgress()"
+              [class.full-width]="getTimerProgress() >= 100"
+            >
+              <span class="time-remaining" aria-hidden="true">{{
+                getTimeRemaining()
+              }}</span>
+            </div>
+            @if (getTimerProgress() < 100) {
+            <div
+              class="timer-remaining-section"
+              [class.overlapped]="getTimerProgress() > 75"
+            >
+              <span class="time-total" aria-hidden="true">{{
+                getTotalTime()
+              }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Total Questions -->
+        <div class="total-questions" role="status" aria-live="polite">
+          <span class="done-count">{{ getAnsweredCount() }} Done</span>
+          <span class="total-count"
+            >{{ getTotalQuestions() }} Total Questions</span
+          >
+        </div>
+
+        <!-- Question Progress Indicators -->
+        <nav
+          class="question-indicators"
+          role="navigation"
+          aria-label="Question navigation"
+        >
+          <div role="list" aria-label="Question progress indicators">
+            @for (question of questions; track question.id; let i = $index) {
+            <button
+              type="button"
+              class="question-indicator"
+              role="listitem"
+              [class.active]="i === currentQuestionIndex"
+              [class.answered]="isQuestionAnswered(i)"
+              [attr.aria-label]="
+                'Question ' +
+                (i + 1) +
+                (i === currentQuestionIndex ? ', current question' : '') +
+                (isQuestionAnswered(i) ? ', answered' : ', not answered') +
+                '. ' +
+                question.text
+              "
+              [attr.aria-current]="i === currentQuestionIndex ? 'step' : null"
+              [attr.aria-pressed]="i === currentQuestionIndex ? 'true' : null"
+              (click)="goToQuestion(i)"
+              (keydown.enter)="goToQuestion(i)"
+              (keydown.space)="goToQuestion(i)"
+            >
+              <span class="question-number" aria-hidden="true">{{
+                i + 1
+              }}</span>
+            </button>
+            }
+          </div>
+        </nav>
+      </div>
+
+      <!-- Question Card -->
+      @if (getCurrentQuestion()) {
+      <article
+        class="question-card"
+        role="article"
+        [attr.aria-label]="getCurrentQuestionAriaLabel()"
+        [attr.tabindex]="keyboardNavigationStarted ? '0' : '-1'"
+      >
+        <h2
+          class="question-title"
+          [attr.id]="'question-title-' + currentQuestionIndex"
+        >
+          <span class="sr-only"
+            >Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}:
+          </span>
+          {{ getCurrentQuestion().text }}
+        </h2>
+
+        <!-- MCQ Question -->
+        @if (getCurrentQuestion().type === 'MCQ') {
+        <fieldset
+          class="mcq-answers"
+          [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+        >
+          <legend class="sr-only">Select your answer</legend>
+          <div
+            role="radiogroup"
+            [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+          >
+            @for (answer of getCurrentQuestion().answers; track answer.id) {
+            <label
+              class="mcq-option"
+              [class.selected]="currentSelectedAnswerId === answer.id"
+              [attr.aria-label]="'Option ' + ($index + 1) + ': ' + answer.text"
+            >
+              <input
+                type="radio"
+                [name]="'question-' + getCurrentQuestion().id"
+                [value]="answer.id"
+                [checked]="currentSelectedAnswerId === answer.id"
+                [attr.aria-checked]="currentSelectedAnswerId === answer.id"
+                (change)="onAnswerSelect(answer.id)"
+                [attr.aria-label]="answer.text"
+                [attr.id]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+              />
+              <span class="radio-custom" aria-hidden="true"></span>
+              <span
+                class="answer-text"
+                [attr.for]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+                >{{ answer.text }}</span
+              >
+            </label>
+            }
+          </div>
+        </fieldset>
+        } @else if (getCurrentQuestion().type === 'True & False') {
+        <!-- True & False Question -->
+        <fieldset
+          class="mcq-answers true-false-answers"
+          [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+        >
+          <legend class="sr-only">Select True or False</legend>
+          <div
+            role="radiogroup"
+            [attr.aria-labelledby]="'question-title-' + currentQuestionIndex"
+          >
+            @for (answer of getCurrentQuestion().answers; track answer.id) {
+            <label
+              class="mcq-option true-false-option"
+              [class.selected]="currentSelectedAnswerId === answer.id"
+              [attr.aria-label]="'Select ' + (answer.text?.toLowerCase() === 'true' ? 'True' : 'False')"
+            >
+              <input
+                type="radio"
+                [name]="'question-' + getCurrentQuestion().id"
+                [value]="answer.id"
+                [checked]="currentSelectedAnswerId === answer.id"
+                [attr.aria-checked]="currentSelectedAnswerId === answer.id"
+                (change)="onAnswerSelect(answer.id)"
+                [attr.aria-label]="answer.text?.toLowerCase() === 'true' ? 'True' : 'False'"
+                [attr.id]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+              />
+              <span class="radio-custom" aria-hidden="true"></span>
+              <span
+                class="answer-text"
+                [attr.for]="
+                  'answer-' + getCurrentQuestion().id + '-' + answer.id
+                "
+                >{{ answer.text?.toLowerCase() === 'true' ? 'True' : 'False' }}</span
+              >
+            </label>
+            }
+          </div>
+        </fieldset>
+        } @else {
+        <!-- Text Question -->
+        <div class="text-answer-container">
+          <label
+            [attr.for]="'text-answer-' + getCurrentQuestion().id"
+            class="sr-only"
+          >
+            Type your answer for question {{ currentQuestionIndex + 1 }}
+          </label>
+          <textarea
+            [id]="'text-answer-' + getCurrentQuestion().id"
+            class="answer-input"
+            [(ngModel)]="currentAnswer"
+            (blur)="saveAnswer()"
+            (input)="validationError = null"
+            [attr.aria-label]="
+              'Answer for question ' +
+              (currentQuestionIndex + 1) +
+              ': ' +
+              getCurrentQuestion().text
+            "
+            [attr.aria-describedby]="
+              validationError
+                ? 'validation-error-' + currentQuestionIndex
+                : null
+            "
+            [attr.aria-invalid]="!!validationError"
+            placeholder="Type your answer here"
+            rows="8"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          </textarea>
+        </div>
+        }
+
+        <!-- Validation Error Message -->
+        @if (validationError) {
+        <div
+          class="validation-error"
+          role="alert"
+          aria-live="assertive"
+          [attr.id]="'validation-error-' + currentQuestionIndex"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <circle
+              cx="10"
+              cy="10"
+              r="9"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path
+              d="M10 6V10"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="10" cy="13" r="1" fill="currentColor" />
+          </svg>
+          <span>{{ validationError }}</span>
+        </div>
+        }
+      </article>
+      }
+
+      <!-- Navigation Buttons -->
+      <div class="navigation-buttons">
+        <!-- Go To Button -->
+        <div class="go-to-container" #goToContainer>
+          <button
+            type="button"
+            class="go-to-button"
+            (click)="toggleGoToDropdown()"
+            [attr.aria-expanded]="showGoToDropdown"
+            [attr.aria-haspopup]="true"
+            aria-label="Go to question navigation menu"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M4.5 6.75L9 11.25L13.5 6.75"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Go To</span>
+          </button>
+          @if (showGoToDropdown) {
+          <div
+            class="go-to-dropdown"
+            role="menu"
+            [attr.aria-label]="'Navigate to question menu'"
+          >
+            @for (question of questions; track question.id; let i = $index) {
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.active]="i === currentQuestionIndex"
+              [class.answered]="isQuestionAnswered(i)"
+              (click)="goToQuestion(i)"
+              role="menuitem"
+              [attr.aria-label]="
+                'Question ' +
+                (i + 1) +
+                (i === currentQuestionIndex ? ', current question' : '') +
+                (isQuestionAnswered(i) ? ', answered' : '')
+              "
+              [attr.aria-current]="i === currentQuestionIndex ? 'step' : null"
+            >
+              <span>Question {{ i + 1 }}</span>
+              @if (isQuestionAnswered(i)) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M13.3333 4L6 11.3333L2.66667 8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              }
+            </button>
+            }
+          </div>
+          }
+        </div>
+
+        <!-- Previous Button -->
+        @if (currentQuestionIndex > 0) {
+        <button
+          type="button"
+          class="previous-button"
+          (click)="previousQuestion()"
+          [attr.aria-label]="
+            'Go to previous question, question ' + currentQuestionIndex
+          "
+          [attr.aria-keyshortcuts]="'ArrowLeft'"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M11.25 3.75L6.75 9L11.25 14.25"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Previous</span>
+        </button>
+        }
+
+        <!-- Next Question Button -->
+        <button
+          type="button"
+          class="next-button"
+          (click)="nextQuestion()"
+          [disabled]="isSubmittingAnswer"
+          [attr.aria-label]="
+            currentQuestionIndex < questions.length - 1
+              ? 'Go to next question, question ' + (currentQuestionIndex + 2)
+              : 'Submit assignment'
+          "
+          [attr.aria-busy]="isSubmittingAnswer"
+          [attr.aria-keyshortcuts]="
+            currentQuestionIndex < questions.length - 1 ? 'ArrowRight' : 'Enter'
+          "
+        >
+          @if (isSubmittingAnswer) {
+          <div class="button-loader" aria-hidden="true">
+            <span class="bubble"></span>
+            <span class="bubble"></span>
+            <span class="bubble"></span>
+          </div>
+          <span>{{
+            currentQuestionIndex < questions.length - 1
+              ? "Saving Answer..."
+              : "Submitting..."
+          }}</span>
+          } @else {
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M6.75 3.75L11.25 9L6.75 14.25"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>{{
+            currentQuestionIndex < questions.length - 1
+              ? "Next Question"
+              : "Submit Assignment"
+          }}</span>
+          }
+        </button>
+      </div>
+    </div>
+    }
+  </main>
+
+  @if (!isLoading && !errorMessage && errorHandling.length === 0 &&
+  assignmentData && !isSubmitted) {
+  <div class="footer-wrapper">
+    <app-footer [logo]="logoData"></app-footer>
+  </div>
+  }
+
+  <!-- Submit Confirmation Popup -->
+  <app-popup
+    [title]="'Submit Assignment'"
+    [paragraph1]="'Are you sure you want to submit your assignment?'"
+    [paragraph2]="'Once submitted, you will not be able to make any changes to your answers.'"
+    [isOpen]="showSubmitConfirmation"
+    (close)="closeSubmitConfirmation()"
+  >
+    <button
+      modal-btn-left
+      class="btn btn-lg text-white w-100"
+      [style.background-color]="'var(--color-primary, #377afd)'"
+      [style.border]="'none'"
+      [style.cursor]="isSubmittingAnswer ? 'not-allowed' : 'pointer'"
+      [style.opacity]="isSubmittingAnswer ? '0.7' : '1'"
+      (click)="confirmSubmitAssignment()"
+      [disabled]="isSubmittingAnswer"
+    >
+      @if (isSubmittingAnswer) {
+      <span>Submitting...</span>
+      } @else {
+      <span>Confirm Submit</span>
+      }
+    </button>
+    <button
+      modal-btn-right
+      class="btn btn-lg btn-outline-dark border-0 w-100"
+      (click)="closeSubmitConfirmation()"
+      [disabled]="isSubmittingAnswer"
+    >
+      Cancel
+    </button>
+  </app-popup>
+</div>

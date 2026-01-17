@@ -3,7 +3,6 @@
   <p>Using Alt + Arrows to move between cells</p>
 </app-page-header>
 
-
 <div class="content-hug">
   <!-- <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
   <ol class="breadcrumb">
@@ -12,66 +11,101 @@
   </ol>
 </nav> -->
 
-  <nav class="m-0" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <nav class="m-0" style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
     <ol class="breadcrumb">
       @for (crumb of breadcrumb; track $index; let i = $index) {
-      <li class="breadcrumb-item" [class.active]="i === breadcrumb.length - 1" style="cursor: pointer"
-        (click)="goToFolder(crumb)">
+      <li
+        class="breadcrumb-item"
+        [class.active]="i === breadcrumb.length - 1"
+        style="cursor: pointer"
+        (click)="goToFolder(crumb)"
+      >
         <a>{{ crumb.name }}</a>
       </li>
       }
     </ol>
   </nav>
 
-
   <div class="d-flex align-items-center justify-content-between mt-3">
-
     <div class="d-flex flex-column w-25">
-      <div class="form-outline  position-relative custom-date-wrapper">
-        <input type="text" id="fileName" [value]="systemFileData?.file?.name" class="form-control"
-          placeholder="File Name" readonly />
+      <div class="form-outline position-relative custom-date-wrapper">
+        <input
+          type="text"
+          id="fileName"
+          [value]="systemFileData?.file?.name"
+          class="form-control"
+          placeholder="File Name"
+          readonly
+        />
       </div>
 
       @if(errMsg){
-      <p class="m-0 mt-2 error-msg">{{errMsg}}</p>
+      <p class="m-0 mt-2 error-msg">{{ errMsg }}</p>
       }
-
-
     </div>
-
 
     <div class="d-flex align-items-end gap-3">
       @if (syncStatus === 'synced' && !isImported && !loadData && !upLoading) {
       <span class="badge-success">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
           </g>
         </svg>
         <span>Synced</span>
       </span>
-      }
-      @if (syncStatus === 'syncing' && !isImported && !loadData && !upLoading) {
+      } @if (syncStatus === 'syncing' && !isImported && !loadData && !upLoading)
+      {
       <span class="badge-newjoiner">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M12.079 2.25c-4.794 0-8.734 3.663-9.118 8.333H2a.75.75 0 0 0-.528 1.283l1.68 1.666a.75.75 0 0 0 1.056 0l1.68-1.666a.75.75 0 0 0-.528-1.283h-.893c.38-3.831 3.638-6.833 7.612-6.833a7.66 7.66 0 0 1 6.537 3.643a.75.75 0 1 0 1.277-.786A9.16 9.16 0 0 0 12.08 2.25m8.761 8.217a.75.75 0 0 0-1.054 0L18.1 12.133a.75.75 0 0 0 .527 1.284h.899c-.382 3.83-3.651 6.833-7.644 6.833a7.7 7.7 0 0 1-6.565-3.644a.75.75 0 1 0-1.277.788a9.2 9.2 0 0 0 7.842 4.356c4.808 0 8.765-3.66 9.15-8.333H22a.75.75 0 0 0 .527-1.284z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M12.079 2.25c-4.794 0-8.734 3.663-9.118 8.333H2a.75.75 0 0 0-.528 1.283l1.68 1.666a.75.75 0 0 0 1.056 0l1.68-1.666a.75.75 0 0 0-.528-1.283h-.893c.38-3.831 3.638-6.833 7.612-6.833a7.66 7.66 0 0 1 6.537 3.643a.75.75 0 1 0 1.277-.786A9.16 9.16 0 0 0 12.08 2.25m8.761 8.217a.75.75 0 0 0-1.054 0L18.1 12.133a.75.75 0 0 0 .527 1.284h.899c-.382 3.83-3.651 6.833-7.644 6.833a7.7 7.7 0 0 1-6.565-3.644a.75.75 0 1 0-1.277.788a9.2 9.2 0 0 0 7.842 4.356c4.808 0 8.765-3.66 9.15-8.333H22a.75.75 0 0 0 .527-1.284z"
+          />
         </svg>
         <span>Syncing</span>
       </span>
-      }
-
-
-      @if(isImported && !loadData && !upLoading){
+      } @if(isImported && !loadData && !upLoading){
       <div class="switchs d-flex">
-        <a type="button" class="dispaly-switch text-danger" [class.active]="activeTab === 'failed'"
-          (click)="switchTab('failed')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <a
+          type="button"
+          class="dispaly-switch text-danger"
+          [class.active]="activeTab === 'failed'"
+          (click)="switchTab('failed')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
             <g fill="none">
-              <path stroke="currentColor" stroke-width="1.5"
-                d="M5.312 10.762C8.23 5.587 9.689 3 12 3s3.77 2.587 6.688 7.762l.364.644c2.425 4.3 3.638 6.45 2.542 8.022S17.786 21 12.364 21h-.728c-5.422 0-8.134 0-9.23-1.572s.117-3.722 2.542-8.022z" />
-              <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 8v5" />
+              <path
+                stroke="currentColor"
+                stroke-width="1.5"
+                d="M5.312 10.762C8.23 5.587 9.689 3 12 3s3.77 2.587 6.688 7.762l.364.644c2.425 4.3 3.638 6.45 2.542 8.022S17.786 21 12.364 21h-.728c-5.422 0-8.134 0-9.23-1.572s.117-3.722 2.542-8.022z"
+              />
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.5"
+                d="M12 8v5"
+              />
               <circle cx="12" cy="16" r="1" fill="currentColor" />
             </g>
           </svg>
@@ -80,12 +114,25 @@
             <small>Failed</small>
           </div>
         </a>
-        <a type="button" class="dispaly-switch text-success active" [class.active]="activeTab === 'imported'"
-          (click)="switchTab('imported')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+        <a
+          type="button"
+          class="dispaly-switch text-success active"
+          [class.active]="activeTab === 'imported'"
+          (click)="switchTab('imported')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
             <g fill="none" stroke="currentcolor" stroke-width="1.5">
               <circle cx="12" cy="12" r="10" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m8.5 12.5l2 2l5-5"
+              />
             </g>
           </svg>
           <div class="d-flex flex-column">
@@ -94,46 +141,355 @@
           </div>
         </a>
       </div>
-      }
+      } @if (!loadData && !upLoading) { @if (systemFileData?.file?.file_type ===
+      'payroll_sheet') {
+      <div class="d-flex align-items-center gap-2 position-relative">
+        <div class="position-relative" style="flex-shrink: 0">
+          <button
+            class="btn"
+            (click)="toggleSystemMenu($event)"
+            style="
+              border-radius: 0.75rem;
+              border: 1px solid #4a6d97;
+              background-color: white;
+              color: #4a6d97;
+              padding: 0.5rem;
+              height: 48px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+            title="More actions"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M1.6875 9C1.6875 7.86091 2.61091 6.9375 3.75 6.9375C4.88909 6.9375 5.8125 7.86091 5.8125 9C5.8125 10.1391 4.88909 11.0625 3.75 11.0625C2.61091 11.0625 1.6875 10.1391 1.6875 9ZM3.75 8.0625C3.23223 8.0625 2.8125 8.48223 2.8125 9C2.8125 9.51777 3.23223 9.9375 3.75 9.9375C4.26777 9.9375 4.6875 9.51777 4.6875 9C4.6875 8.48223 4.26777 8.0625 3.75 8.0625Z"
+                fill="#4A6D97"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M6.9375 9C6.9375 7.86091 7.86091 6.9375 9 6.9375C10.1391 6.9375 11.0625 7.86091 11.0625 9C11.0625 10.1391 10.1391 11.0625 9 11.0625C7.86091 11.0625 6.9375 10.1391 6.9375 9ZM9 8.0625C8.48223 8.0625 8.0625 8.48223 8.0625 9C8.0625 9.51777 8.48223 9.9375 9 9.9375C9.51777 9.9375 9.9375 9.51777 9.9375 9C9.9375 8.48223 9.51777 8.0625 9 8.0625Z"
+                fill="#4A6D97"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M14.25 6.9375C13.1109 6.9375 12.1875 7.86091 12.1875 9C12.1875 10.1391 13.1109 11.0625 14.25 11.0625C15.3891 11.0625 16.3125 10.1391 16.3125 9C16.3125 7.86091 15.3891 6.9375 14.25 6.9375ZM13.3125 9C13.3125 8.48223 13.7322 8.0625 14.25 8.0625C14.7678 8.0625 15.1875 8.48223 15.1875 9C15.1875 9.51777 14.7678 9.9375 14.25 9.9375C13.7322 9.9375 13.3125 9.51777 13.3125 9Z"
+                fill="#4A6D97"
+              />
+            </svg>
+          </button>
 
-      @if (!loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalAddtosystem()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+          <!-- Dropdown Menu -->
+          @if (showSystemMenu) {
+          <div
+            class="dropdown-menu-custom position-absolute top-100 end-0"
+            style="
+              background: white;
+              border: 1px solid #e0e0e0;
+              border-radius: 12px;
+              box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+              width: fit-content;
+              z-index: 2000;
+              margin-top: 0.5rem;
+              overflow: hidden;
+            "
+          >
+            <button
+              type="button"
+              class="d-flex align-items-center text-start"
+              style="
+                color: #2c435d;
+                font-weight: 500;
+                border: none;
+                background: white;
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                gap: 10px;
+                width: 100%;
+              "
+              (click)="openReupdateModal('structure'); toggleSystemMenu($event)"
+              onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M4.5 12a7.5 7.5 0 1 0 15 0"
+                  stroke="#3b82f6"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 6v6"
+                  stroke="#3b82f6"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span style="white-space: nowrap">Update Structure</span>
+            </button>
+
+            <button
+              type="button"
+              class="d-flex align-items-center text-start"
+              style="
+                color: #2c435d;
+                font-weight: 500;
+                border: none;
+                background: white;
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                border-top: 1px solid #e0e0e0;
+                gap: 10px;
+                width: 100%;
+              "
+              (click)="openReupdateModal('basic'); toggleSystemMenu($event)"
+              onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M3 21v-3.75L14.06 6.19l3.75 3.75L6.75 21H3z"
+                  stroke="#10b981"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M20.71 7.04l-1.06 1.06-3.75-3.75 1.06-1.06a1 1 0 0 1 1.41 0l2.34 2.34a1 1 0 0 1 0 1.41z"
+                  stroke="#10b981"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span style="white-space: nowrap">Update basic</span>
+            </button>
+            <button
+              type="button"
+              class="d-flex align-items-center text-start"
+              style="
+                color: #2c435d;
+                font-weight: 500;
+                border: none;
+                background: white;
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                border-top: 1px solid #e0e0e0;
+                gap: 10px;
+                width: 100%;
+              "
+              (click)="
+                openReupdateModal('components_value'); toggleSystemMenu($event)
+              "
+              onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <rect
+                  x="3"
+                  y="3"
+                  width="8"
+                  height="8"
+                  stroke="#8b5cf6"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <rect
+                  x="13"
+                  y="3"
+                  width="8"
+                  height="8"
+                  stroke="#8b5cf6"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <rect
+                  x="3"
+                  y="13"
+                  width="8"
+                  height="8"
+                  stroke="#8b5cf6"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <rect
+                  x="13"
+                  y="13"
+                  width="8"
+                  height="8"
+                  stroke="#8b5cf6"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span style="white-space: nowrap">Update Component Basic</span>
+            </button>
+            <button
+              type="button"
+              class="d-flex align-items-center text-start"
+              style="
+                color: #2c435d;
+                font-weight: 500;
+                border: none;
+                background: white;
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                border-top: 1px solid #e0e0e0;
+                gap: 10px;
+                width: 100%;
+              "
+              (click)="openReupdateModal('all'); toggleSystemMenu($event)"
+              onmouseover="this.style.backgroundColor='#f0f3f8'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M21 12a9 9 0 1 1-3.1-6.36"
+                  stroke="var(--color-warning-500)"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M21 3v6h-6"
+                  stroke="var(--color-warning-500)"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span style="white-space: nowrap">Update All</span>
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+      } @if (systemFileData?.file?.file_type === 'employee_sheet') {
+      <button
+        class="btn btn-lg btn-outline-dark"
+        (click)="openModalAddtosystem()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          >
             <path d="M4 12a8 8 0 1 0 16 0" />
             <path stroke-linejoin="round" d="M12 4v10m0 0l3-3m-3 3l-3-3" />
           </g>
         </svg>
         <span>Import to System</span>
       </button>
-      }
-
-      @if (isImported && !loadData && !upLoading) {
-      <button class="btn btn-lg btn-outline-primary" (click)="openModalMissing()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-          <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807" />
+      } } @if (isImported && !loadData && !upLoading) {
+      <button
+        class="btn btn-lg btn-meaning-warning"
+        (click)="openModalMissing()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="m18.364 8.05l-.707-.707a8 8 0 1 0 2.28 4.658m-1.573-3.95h-4.243m4.243 0V3.807"
+          />
         </svg>
         <span>Try again</span>
       </button>
-      }
-
-      @if (upLoading && uploadType !== 'Stopped' && uploadType !== 'Failure') {
-      <div class="progress relative overflow-hidden"
-        style="height: 25px; width: 250px; border-radius: 8px; background-color: #e0e0e0;">
-
+      } @if (upLoading && uploadType !== 'Stopped' && uploadType !== 'Failure')
+      {
+      <div
+        class="progress relative overflow-hidden"
+        style="
+          height: 25px;
+          width: 250px;
+          border-radius: 8px;
+          background-color: #e0e0e0;
+        "
+      >
         <!-- Skeleton effect while empty -->
         @if (percentage === 0) {
-        <div class="skeleton-loading rounded-md w-full h-full absolute top-0 left-0">
-        </div>
+        <div
+          class="skeleton-loading rounded-md w-full h-full absolute top-0 left-0"
+        ></div>
         }
 
         <!-- Actual progress bar -->
         @if (percentage > 0) {
         <div
           class="progress-bar progress-bar-striped progress-bar-animated bg-primary transition-all duration-300 text-center text-white"
-          role="progressbar" [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0"
-          aria-valuemax="100">
+          role="progressbar"
+          [style.width.%]="percentage"
+          [attr.aria-valuenow]="percentage"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
           {{ percentage }}%
         </div>
         }
@@ -141,79 +497,129 @@
 
       @if (uploadType) {
       <span class="badge-success" [ngClass]="getUploadBadge(uploadType).class">
-
         @if (uploadType === 'Checking') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor"
-            d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M18.258 3.508a.75.75 0 0 1 .463.693v4.243a.75.75 0 0 1-.75.75h-4.243a.75.75 0 0 1-.53-1.28L14.8 6.31a7.25 7.25 0 1 0 4.393 5.783a.75.75 0 0 1 1.488-.187A8.75 8.75 0 1 1 15.93 5.18l1.51-1.51a.75.75 0 0 1 .817-.162"
+          />
         </svg>
-        }
-
-        @if (uploadType === 'Creating') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Creating') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <path
-              d="m18.18 8.04l.463-.464a1.966 1.966 0 1 1 2.781 2.78l-.463.464M18.18 8.04s.058.984.927 1.853s1.854.927 1.854.927M18.18 8.04l-4.26 4.26c-.29.288-.434.433-.558.592q-.22.282-.374.606c-.087.182-.151.375-.28.762l-.413 1.24l-.134.401m8.8-5.081l-4.26 4.26c-.29.29-.434.434-.593.558q-.282.22-.606.374c-.182.087-.375.151-.762.28l-1.24.413l-.401.134m0 0l-.401.134a.53.53 0 0 1-.67-.67l.133-.402m.938.938l-.938-.938" />
-            <path stroke-linecap="round"
-              d="M8 13h2.5M8 9h6.5M8 17h1.5M19.828 3.172C18.657 2 16.771 2 13 2h-2C7.229 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2c3.771 0 5.657 0 6.828-1.172c.944-.943 1.127-2.348 1.163-4.828" />
-          </g>
-        </svg>
-        }
-
-        @if (uploadType === 'Sending emails') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round"
-              d="M18 16.92c1.14-.099 1.922-.323 2.538-.828q.304-.25.554-.554C22 14.43 22 12.788 22 9.5c0-3.287 0-4.931-.908-6.038a4 4 0 0 0-.554-.554C19.43 2 17.788 2 14.5 2h-5c-3.287 0-4.931 0-6.038.908a4 4 0 0 0-.554.554C2 4.57 2 6.212 2 9.5c0 3.287 0 4.931.908 6.038a4 4 0 0 0 .554.554c.616.505 1.398.73 2.538.829M20.5 15.5l-6.5-5M3.5 3L14 10.5m6.5-7l-6.5 7" />
+              d="m18.18 8.04l.463-.464a1.966 1.966 0 1 1 2.781 2.78l-.463.464M18.18 8.04s.058.984.927 1.853s1.854.927 1.854.927M18.18 8.04l-4.26 4.26c-.29.288-.434.433-.558.592q-.22.282-.374.606c-.087.182-.151.375-.28.762l-.413 1.24l-.134.401m8.8-5.081l-4.26 4.26c-.29.29-.434.434-.593.558q-.282.22-.606.374c-.182.087-.375.151-.762.28l-1.24.413l-.401.134m0 0l-.401.134a.53.53 0 0 1-.67-.67l.133-.402m.938.938l-.938-.938"
+            />
             <path
-              d="m15.267 19.2l-1.335-2.67C13.089 14.843 12.668 14 12 14s-1.089.843-1.932 2.53L8.733 19.2c-.512 1.024-.768 1.537-.73 1.859c.057.465.407.842.868.93c.318.062.847-.157 1.905-.595c.39-.162.587-.243.787-.284c.288-.06.586-.06.874 0c.2.041.396.122.787.284c1.058.438 1.586.657 1.905.596c.46-.09.81-.465.867-.931c.04-.323-.217-.835-.729-1.858Z" />
+              stroke-linecap="round"
+              d="M8 13h2.5M8 9h6.5M8 17h1.5M19.828 3.172C18.657 2 16.771 2 13 2h-2C7.229 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2c3.771 0 5.657 0 6.828-1.172c.944-.943 1.127-2.348 1.163-4.828"
+            />
           </g>
         </svg>
-        }
-
-        @if (uploadType === 'Completed') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Sending emails') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <path
+              stroke-linecap="round"
+              d="M18 16.92c1.14-.099 1.922-.323 2.538-.828q.304-.25.554-.554C22 14.43 22 12.788 22 9.5c0-3.287 0-4.931-.908-6.038a4 4 0 0 0-.554-.554C19.43 2 17.788 2 14.5 2h-5c-3.287 0-4.931 0-6.038.908a4 4 0 0 0-.554.554C2 4.57 2 6.212 2 9.5c0 3.287 0 4.931.908 6.038a4 4 0 0 0 .554.554c.616.505 1.398.73 2.538.829M20.5 15.5l-6.5-5M3.5 3L14 10.5m6.5-7l-6.5 7"
+            />
+            <path
+              d="m15.267 19.2l-1.335-2.67C13.089 14.843 12.668 14 12 14s-1.089.843-1.932 2.53L8.733 19.2c-.512 1.024-.768 1.537-.73 1.859c.057.465.407.842.868.93c.318.062.847-.157 1.905-.595c.39-.162.587-.243.787-.284c.288-.06.586-.06.874 0c.2.041.396.122.787.284c1.058.438 1.586.657 1.905.596c.46-.09.81-.465.867-.931c.04-.323-.217-.835-.729-1.858Z"
+            />
+          </g>
+        </svg>
+        } @if (uploadType === 'Completed') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m8.5 12.5l2 2l5-5"
+            />
           </g>
         </svg>
-        }
-
-        @if (uploadType === 'Stopped') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Stopped') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path
-              d="M8 12c0-1.886 0-2.828.586-3.414S10.114 8 12 8s2.828 0 3.414.586S16 10.114 16 12s0 2.828-.586 3.414S13.886 16 12 16s-2.828 0-3.414-.586S8 13.886 8 12Z" />
+              d="M8 12c0-1.886 0-2.828.586-3.414S10.114 8 12 8s2.828 0 3.414.586S16 10.114 16 12s0 2.828-.586 3.414S13.886 16 12 16s-2.828 0-3.414-.586S8 13.886 8 12Z"
+            />
           </g>
         </svg>
-        }
-
-        @if (uploadType === 'Cancelled') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Cancelled') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10" />
             <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
           </g>
         </svg>
-        }
-
-        @if (uploadType === 'Failure') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Failure') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-            <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 7v6" />
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="1.5"
+              d="M12 7v6"
+            />
             <circle cx="12" cy="16" r="1" fill="currentColor" />
           </g>
         </svg>
-        }
-
-        @if (uploadType === 'Pending') {
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+        } @if (uploadType === 'Pending') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+        >
           <g fill="none" stroke="currentColor" stroke-width="1.5">
             <path
-              d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+              d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z"
+            />
             <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
           </g>
         </svg>
@@ -234,12 +640,8 @@
                           </button> -->
       }
     </div>
-
   </div>
-
 </div>
-
-
 
 <!-- sheet -->
 @if (!isAllLoaded || loadData) {
@@ -260,146 +662,284 @@
   </div>
   }
 </div>
-}
-
-@if (isAllLoaded && !loadData && !isImported) {
-<app-smart-grid-sheet #mainGrid [columns]="customColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="bodyRows" [fileEditable]="true" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
+} @if (isAllLoaded && !loadData && !isImported) {
+<app-smart-grid-sheet
+  #mainGrid
+  [columns]="customColumns"
+  (inputChanged)="onCellInput()"
+  [initialRows]="rowsData"
+  [rowsInput]="bodyRows"
+  [fileEditable]="true"
+  (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()"
+>
+</app-smart-grid-sheet>
+} @if (isAllLoaded && isImported && activeTab === 'imported') {
+<app-smart-grid-sheet
+  #smartGrid
+  [columns]="importedColumns"
+  (inputChanged)="onCellInput()"
+  [initialRows]="rowsData"
+  [rowsInput]="importedRows"
+  [fileEditable]="false"
+  (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()"
+>
+</app-smart-grid-sheet>
+} @if (isAllLoaded && isImported && activeTab === 'failed') {
+<app-smart-grid-sheet
+  #failedGrid
+  [columns]="failedColumns"
+  [initialRows]="rowsData"
+  [rowsInput]="failedRows"
+  [fileEditable]="true"
+  (inputChanged)="onCellInput()"
+  (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()"
+>
 </app-smart-grid-sheet>
 }
-
-@if (isAllLoaded && isImported && activeTab === 'imported') {
-<app-smart-grid-sheet #smartGrid [columns]="importedColumns" (inputChanged)="onCellInput()" [initialRows]="rowsData"
-  [rowsInput]="importedRows" [fileEditable]="false" (rowsChange)="onRowsChanged($event); triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
-@if (isAllLoaded && isImported && activeTab === 'failed') {
-<app-smart-grid-sheet #failedGrid [columns]="failedColumns" [initialRows]="rowsData" [rowsInput]="failedRows"
-  [fileEditable]="true" (inputChanged)="onCellInput()"
-  (rowsChange)="missingRowsData = $event; triggerCollectFilledRows()">
-</app-smart-grid-sheet>
-}
-
-
 
 <!-- save to system model -->
-<app-popup [title]="'Are you sure to Import To System?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
-  [isOpen]="addTosystemPOP" (close)="closeModalAddtosystem()">
+<app-popup
+  [title]="'Import to System'"
+  [paragraph1]="
+    'Are you sure you want to import this file to the system? This will create or update records based on the file content.'
+  "
+  [isOpen]="addTosystemPOP"
+  (close)="closeModalAddtosystem()"
+>
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
-    {{errMsg}}
+    {{ errMsg }}
   </div>
   }
-  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="addingTosystem()">
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-primary w-100"
+    (click)="addingTosystem()"
+  >
     @if (!isLoading) {
     <span>Add to System</span>
-    }
-    @if (isLoading) {
-    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    } @if (isLoading) {
+    <span
+      class="spinner-grow spinner-grow-sm"
+      role="status"
+      aria-hidden="true"
+    ></span>
     }
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalAddtosystem()">
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeModalAddtosystem()"
+  >
+    Cancel
+  </button>
+</app-popup>
+
+<!-- re-update confirmation modal (same visuals as import modal) -->
+<app-popup
+  [title]="getReupdateTitle()"
+  [paragraph1]="getReupdateParagraph()"
+  [isOpen]="reupdatePOP"
+  (close)="closeReupdateModal()"
+>
+  @if (errMsg) {
+  <div class="alert alert-danger mb-0 mt-3" role="alert">
+    {{ errMsg }}
+  </div>
+  }
+  <!-- Descriptive paragraph is provided in the popup header via getReupdateParagraph() to avoid duplication -->
+  <button
+    modal-btn-left
+    class="btn btn-lg w-100"
+    (click)="confirmReupdate()"
+    [style.backgroundColor]="getReupdateColor()"
+    [style.borderColor]="getReupdateColor()"
+    [style.color]="'#ffffff'"
+  >
+    @if (!isLoading) {
+    <span>Confirm</span>
+    } @if (isLoading) {
+    <span
+      class="spinner-grow spinner-grow-sm"
+      role="status"
+      aria-hidden="true"
+    ></span>
+    }
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeReupdateModal()"
+  >
     Cancel
   </button>
 </app-popup>
 
 <!-- show upload status model -->
-<app-popup [title]="'Save to System'" [isOpen]="showUploadPopup" (close)="cancelUpload()">
-  <div class="progress" style="height: 25px;">
-    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
-      [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+<app-popup
+  [title]="'Save to System'"
+  [isOpen]="showUploadPopup"
+  (close)="cancelUpload()"
+>
+  <div class="progress" style="height: 25px">
+    <div
+      class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+      role="progressbar"
+      [style.width.%]="percentage"
+      [attr.aria-valuenow]="percentage"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
       {{ percentage }}%
     </div>
   </div>
   <div class="d-flex align-items-center justify-content-center my-2">
     @if(uploadType ==='Completed'){
     <span class="badge-success">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+      >
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m8.5 12.5l2 2l5-5"
+          />
         </g>
       </svg>
       <span>Completed</span>
     </span>
     }@else {
     <span class="badge-newjoiner">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+      >
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <path
-            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z"
+          />
           <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
         </g>
       </svg>
       <span>Pending</span>
     </span>
     }
-
-
   </div>
-  <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-outline-danger w-50"
+    (click)="cancelUpload()"
+  >
     Cancel Save
   </button>
 </app-popup>
 
-
-<!-- save to system misssing model -->
-<app-popup [title]="'Are you sure to Import To System Missing Data?'"
-  [paragraph1]="'Are you sure you want to Import this file to system?'" [paragraph2]="'This action cannot be undone.'"
-  [isOpen]="addMissingPopup" (close)="closeModalMissing()">
+<!-- save to system missing model -->
+<app-popup
+  [title]="'Import Missing Data'"
+  [paragraph1]="
+    'Are you sure you want to import the missing data rows into the system? This will update only the incomplete records.'
+  "
+  [isOpen]="addMissingPopup"
+  (close)="closeModalMissing()"
+>
   @if (errMsg) {
   <div class="alert alert-danger mb-0 mt-3" role="alert">
-    {{errMsg}}
+    {{ errMsg }}
   </div>
   }
-  <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="updateMissing()">
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-primary w-100"
+    (click)="updateMissing()"
+  >
     @if (!isLoading) {
     <span>Add to System</span>
-    }
-    @if (isLoading) {
-    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    } @if (isLoading) {
+    <span
+      class="spinner-grow spinner-grow-sm"
+      role="status"
+      aria-hidden="true"
+    ></span>
     }
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeModalMissing()">
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeModalMissing()"
+  >
     Cancel
   </button>
 </app-popup>
 <!-- show update missing model -->
-<app-popup [title]="'Save to System Misssing Data'" [isOpen]="showMissingPopup" (close)="cancelUpload()">
-  <div class="progress" style="height: 25px;">
-    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
-      [style.width.%]="percentage" [attr.aria-valuenow]="percentage" aria-valuemin="0" aria-valuemax="100">
+<app-popup
+  [title]="'Saving Missing Data'"
+  [isOpen]="showMissingPopup"
+  (close)="cancelUpload()"
+>
+  <div class="progress" style="height: 25px">
+    <div
+      class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+      role="progressbar"
+      [style.width.%]="percentage"
+      [attr.aria-valuenow]="percentage"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
       {{ percentage }}%
     </div>
   </div>
   <div class="d-flex align-items-center justify-content-center my-2">
     @if(uploadType ==='Completed'){
     <span class="badge-success">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+      >
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m8.5 12.5l2 2l5-5"
+          />
         </g>
       </svg>
       <span>Completed</span>
     </span>
     }@else {
     <span class="badge-newjoiner">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+      >
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <path
-            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z" />
+            d="m12 12l-2.958 2.929c-2.922 2.894-4.383 4.341-3.974 5.59q.052.16.13.312C5.8 22 7.867 22 12 22s6.2 0 6.802-1.17q.078-.15.13-.311c.41-1.249-1.052-2.696-3.974-5.59zm0 0l2.958-2.929c2.922-2.894 4.383-4.341 3.974-5.59a2 2 0 0 0-.13-.312C18.2 2 16.133 2 12 2S5.8 2 5.198 3.17q-.078.15-.13.311c-.41 1.249 1.052 2.696 3.974 5.59z"
+          />
           <path stroke-linecap="round" d="M10 5.5h4m-4 13h4" />
         </g>
       </svg>
       <span>Pending</span>
     </span>
     }
-
-
   </div>
-  <button modal-btn-left class="btn btn-lg btn-outline-danger w-50" (click)="cancelUpload()">
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-outline-danger w-50"
+    (click)="cancelUpload()"
+  >
     Cancel Save
   </button>
 </app-popup>

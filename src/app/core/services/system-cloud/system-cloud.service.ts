@@ -115,9 +115,14 @@ export class SystemCloudService {
         return this._HttpClient.get(url);
     }
 
-    // re-update payroll structure
-    reUpdatePayroll(id: string): Observable<any> {
+    // re-update payroll structure (optionally with update_type via form data)
+    reUpdatePayroll(id: string, updateType?: string): Observable<any> {
         const url = `${this.apiBaseUrl}cloud/system-file-data/re-update-payroll/${id}/`;
+        if (updateType) {
+            const form = new FormData();
+            form.append('update_type', updateType);
+            return this._HttpClient.put(url, form);
+        }
         return this._HttpClient.put(url, {});
     }
 

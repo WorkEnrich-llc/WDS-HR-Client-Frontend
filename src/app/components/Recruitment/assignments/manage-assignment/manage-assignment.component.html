@@ -1,733 +1,1360 @@
 <!-- page header -->
-<app-page-header [breadcrumbs]="breadcrumbs"
-    [title]="isEditMode && assignmentForm.get('name')?.value ? 'Edit Assignment - ' + assignmentForm.get('name')?.value : pageTitle"
-    [create]="todayFormatted">
-    <button class="btn btn-lg btn-primary w-auto"
-        [disabled]="isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null" (click)="onSubmit()">
-        @if (isSubmitting) {
-        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-        }
-        @if (!isSubmitting) {
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-            </g>
-        </svg>
-        }
-        <span>{{ buttonText }}</span>
-    </button>
-    <button class="btn btn-lg btn-outline-dark w-auto" (click)="onDiscard()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10" />
-                <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
-            </g>
-        </svg>
-        <span>Discard Changes</span>
-    </button>
+<app-page-header
+  [breadcrumbs]="breadcrumbs"
+  [title]="
+    isEditMode && assignmentForm.get('name')?.value
+      ? 'Edit Assignment - ' + assignmentForm.get('name')?.value
+      : pageTitle
+  "
+  [create]="todayFormatted"
+>
+  <button
+    class="btn btn-lg btn-success w-auto"
+    [disabled]="
+      isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null
+    "
+    (click)="onSubmit()"
+  >
+    @if (isSubmitting) {
+    <span
+      class="spinner-grow spinner-grow-sm"
+      role="status"
+      aria-hidden="true"
+    ></span>
+    } @if (!isSubmitting) {
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m8.5 12.5l2 2l5-5"
+        />
+      </g>
+    </svg>
+    }
+    <span>{{ buttonText }}</span>
+  </button>
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="onDiscard()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Changes</span>
+  </button>
 </app-page-header>
 
 <!-- steps navigation -->
 <ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
-    <li class="nav-item" [ngClass]="{ 'active': currentTab === 'main-info', 'completed': assignmentForm.valid }"
-        (click)="setCurrentTab('main-info')">
-        <span class="nav-link d-flex align-items-center gap-1">
-            @if (!assignmentForm.valid) {
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path opacity="0.3"
-                    d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
-                    [style.fill]="currentTab === 'main-info' ? '#377AFD' : '#D3D3D3'" />
-                <path
-                    d="M9 13.3125C9.31066 13.3125 9.5625 13.0607 9.5625 12.75V8.25C9.5625 7.93934 9.31066 7.6875 9 7.6875C8.68934 7.6875 8.4375 7.93934 8.4375 8.25V12.75C8.4375 13.0607 8.68934 13.3125 9 13.3125Z"
-                    [style.fill]="currentTab === 'main-info' ? '#4A6D97' : '#999999'" />
-                <path
-                    d="M9 5.25C9.41421 5.25 9.75 5.58579 9.75 6C9.75 6.41421 9.41421 6.75 9 6.75C8.58579 6.75 8.25 6.41421 8.25 6C8.25 5.58579 8.58579 5.25 9 5.25Z"
-                    [style.fill]="currentTab === 'main-info' ? '#4A6D97' : '#999999'" />
-            </svg>
-            }
-            @if (assignmentForm.valid) {
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path opacity="0.3"
-                    d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
-                    fill="#4CA883" />
-                <path
-                    d="M12.0227 6.72725C12.2424 6.94692 12.2424 7.30308 12.0227 7.52275L8.27275 11.2727C8.05308 11.4924 7.69692 11.4924 7.47725 11.2727L5.97725 9.77275C5.75758 9.55308 5.75758 9.19692 5.97725 8.97725C6.19692 8.75758 6.55308 8.75758 6.77275 8.97725L7.875 10.0795L9.55113 8.40338L11.2273 6.72725C11.4469 6.50758 11.8031 6.50758 12.0227 6.72725Z"
-                    fill="#4CA883" />
-            </svg>
-
-            }
-
-            Main Info
-        </span>
-    </li>
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-        [style.fill]="currentTab === 'main-info' ? '#DDE3EB' : '#377AFD'">
+  <li
+    class="nav-item"
+    [ngClass]="{
+      active: currentTab === 'main-info',
+      completed: assignmentForm.valid
+    }"
+    (click)="setCurrentTab('main-info')"
+  >
+    <span class="nav-link d-flex align-items-center gap-1">
+      @if (!assignmentForm.valid) {
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
-            d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74" />
-    </svg>
-    <li class="nav-item" [ngClass]="{ 'active': currentTab === 'questions' }" (click)="setCurrentTab('questions')">
-        <span class="nav-link d-flex align-items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path opacity="0.3"
-                    d="M15.6362 6.53479C16.7879 5.38301 16.7879 3.51561 15.6362 2.36383C14.4844 1.21206 12.617 1.21206 11.4652 2.36383L10.7999 3.02911C10.809 3.05662 10.8185 3.08451 10.8283 3.11277C11.0721 3.81562 11.5322 4.737 12.3977 5.60252C13.2632 6.46803 14.1846 6.92811 14.8875 7.17196C14.9156 7.18172 14.9434 7.19113 14.9708 7.2002L15.6362 6.53479Z" />
-                <path
-                    d="M10.8289 3.00049L10.8003 3.02913C10.8094 3.05664 10.8189 3.08453 10.8287 3.11279C11.0725 3.81564 11.5326 4.73703 12.3981 5.60254C13.2636 6.46805 14.185 6.92813 14.8879 7.17198C14.9157 7.18166 14.9433 7.19099 14.9704 7.19998L8.55008 13.6203C8.11723 14.0532 7.90076 14.2696 7.66212 14.4558C7.38061 14.6753 7.07602 14.8636 6.75373 15.0172C6.48052 15.1474 6.19014 15.2442 5.60938 15.4378L2.54688 16.4586C2.26108 16.5539 1.94599 16.4795 1.73297 16.2665C1.51995 16.0534 1.44557 15.7384 1.54084 15.4526L2.56167 12.3901C2.75526 11.8093 2.85205 11.5189 2.98226 11.2457C3.13585 10.9234 3.3241 10.6188 3.54367 10.3373C3.7298 10.0987 3.94623 9.88225 4.37906 9.44942L10.8289 3.00049Z" />
-            </svg>
+          opacity="0.3"
+          d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
+          [style.fill]="currentTab === 'main-info' ? '#377AFD' : '#D3D3D3'"
+        />
+        <path
+          d="M9 13.3125C9.31066 13.3125 9.5625 13.0607 9.5625 12.75V8.25C9.5625 7.93934 9.31066 7.6875 9 7.6875C8.68934 7.6875 8.4375 7.93934 8.4375 8.25V12.75C8.4375 13.0607 8.68934 13.3125 9 13.3125Z"
+          [style.fill]="currentTab === 'main-info' ? '#4A6D97' : '#999999'"
+        />
+        <path
+          d="M9 5.25C9.41421 5.25 9.75 5.58579 9.75 6C9.75 6.41421 9.41421 6.75 9 6.75C8.58579 6.75 8.25 6.41421 8.25 6C8.25 5.58579 8.58579 5.25 9 5.25Z"
+          [style.fill]="currentTab === 'main-info' ? '#4A6D97' : '#999999'"
+        />
+      </svg>
+      } @if (assignmentForm.valid) {
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          opacity="0.3"
+          d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
+          fill="#4CA883"
+        />
+        <path
+          d="M12.0227 6.72725C12.2424 6.94692 12.2424 7.30308 12.0227 7.52275L8.27275 11.2727C8.05308 11.4924 7.69692 11.4924 7.47725 11.2727L5.97725 9.77275C5.75758 9.55308 5.75758 9.19692 5.97725 8.97725C6.19692 8.75758 6.55308 8.75758 6.77275 8.97725L7.875 10.0795L9.55113 8.40338L11.2273 6.72725C11.4469 6.50758 11.8031 6.50758 12.0227 6.72725Z"
+          fill="#4CA883"
+        />
+      </svg>
 
-            Questions
-        </span>
-    </li>
+      } Main Info
+    </span>
+  </li>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    [style.fill]="currentTab === 'main-info' ? '#DDE3EB' : '#377AFD'"
+  >
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74"
+    />
+  </svg>
+  <li
+    class="nav-item"
+    [ngClass]="{ active: currentTab === 'questions' }"
+    (click)="setCurrentTab('questions')"
+  >
+    <span class="nav-link d-flex align-items-center gap-1">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+      >
+        <path
+          opacity="0.3"
+          d="M15.6362 6.53479C16.7879 5.38301 16.7879 3.51561 15.6362 2.36383C14.4844 1.21206 12.617 1.21206 11.4652 2.36383L10.7999 3.02911C10.809 3.05662 10.8185 3.08451 10.8283 3.11277C11.0721 3.81562 11.5322 4.737 12.3977 5.60252C13.2632 6.46803 14.1846 6.92811 14.8875 7.17196C14.9156 7.18172 14.9434 7.19113 14.9708 7.2002L15.6362 6.53479Z"
+        />
+        <path
+          d="M10.8289 3.00049L10.8003 3.02913C10.8094 3.05664 10.8189 3.08453 10.8287 3.11279C11.0725 3.81564 11.5326 4.73703 12.3981 5.60254C13.2636 6.46805 14.185 6.92813 14.8879 7.17198C14.9157 7.18166 14.9433 7.19099 14.9704 7.19998L8.55008 13.6203C8.11723 14.0532 7.90076 14.2696 7.66212 14.4558C7.38061 14.6753 7.07602 14.8636 6.75373 15.0172C6.48052 15.1474 6.19014 15.2442 5.60938 15.4378L2.54688 16.4586C2.26108 16.5539 1.94599 16.4795 1.73297 16.2665C1.51995 16.0534 1.44557 15.7384 1.54084 15.4526L2.56167 12.3901C2.75526 11.8093 2.85205 11.5189 2.98226 11.2457C3.13585 10.9234 3.3241 10.6188 3.54367 10.3373C3.7298 10.0987 3.94623 9.88225 4.37906 9.44942L10.8289 3.00049Z"
+        />
+      </svg>
+
+      Questions
+    </span>
+  </li>
 </ul>
 
 <!-- step 1: Main Information -->
 @if (currentTab === 'main-info') {
 <div class="content-hug">
-    <div class="content-box d-flex flex-column gap-3">
-        <h2>Main Information</h2>
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Main Information</h2>
 
-        @if (isLoadingEdit) {
-        <!-- Skeleton Loader for Assignment Form -->
-        <div class="w-lg-50 placeholder-glow">
-            <!-- Code Field Skeleton -->
-            <div class="skeleton-input-group mb-3">
-                <div class="placeholder col-2" style="height: 16px; margin-bottom: 8px;"></div>
-                <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-            </div>
+    @if (isLoadingEdit) {
+    <!-- Skeleton Loader for Assignment Form -->
+    <div class="w-lg-50 placeholder-glow">
+      <!-- Code Field Skeleton -->
+      <div class="skeleton-input-group mb-3">
+        <div
+          class="placeholder col-2"
+          style="height: 16px; margin-bottom: 8px"
+        ></div>
+        <div
+          class="placeholder col-12"
+          style="height: 40px; border-radius: 6px"
+        ></div>
+      </div>
 
-            <!-- Name Field Skeleton -->
-            <div class="skeleton-input-group mb-3">
-                <div class="placeholder col-2" style="height: 16px; margin-bottom: 8px;"></div>
-                <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-            </div>
+      <!-- Name Field Skeleton -->
+      <div class="skeleton-input-group mb-3">
+        <div
+          class="placeholder col-2"
+          style="height: 16px; margin-bottom: 8px"
+        ></div>
+        <div
+          class="placeholder col-12"
+          style="height: 40px; border-radius: 6px"
+        ></div>
+      </div>
 
-            <!-- Duration Field Skeleton -->
-            <div class="skeleton-input-group mb-3">
-                <div class="placeholder col-3" style="height: 16px; margin-bottom: 8px;"></div>
-                <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-            </div>
+      <!-- Duration Field Skeleton -->
+      <div class="skeleton-input-group mb-3">
+        <div
+          class="placeholder col-3"
+          style="height: 16px; margin-bottom: 8px"
+        ></div>
+        <div
+          class="placeholder col-12"
+          style="height: 40px; border-radius: 6px"
+        ></div>
+      </div>
 
-            <!-- Instructions Field Skeleton -->
-            <div class="skeleton-input-group">
-                <div class="placeholder col-2" style="height: 16px; margin-bottom: 8px;"></div>
-                <div class="placeholder col-12" style="height: 100px; border-radius: 6px;"></div>
-            </div>
-        </div>
-        }
-
-        @if (!isLoadingEdit) {
-        <form [formGroup]="assignmentForm" class="w-lg-50 d-flex flex-column gap-2">
-            <!-- Assignment Code -->
-            <div class="input">
-                <label for="code">Assignment Code <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="code" type="text" id="code" class="form-control custom-date-input"
-                        placeholder="e.g., ASSIGN001" />
-                </div>
-                @if (assignmentForm.get('code')?.touched && assignmentForm.get('code')?.errors?.['required']) {
-                <p class="error-msg">Assignment code is required</p>
-                }
-            </div>
-
-            <!-- Assignment Name -->
-            <div class="input">
-                <label for="name">Assignment Name <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="name" type="text" id="name" class="form-control custom-date-input"
-                        placeholder="e.g., English Assignment" />
-                </div>
-                @if (assignmentForm.get('name')?.touched && assignmentForm.get('name')?.errors?.['required']) {
-                <p class="error-msg">Assignment name is required</p>
-                }
-            </div>
-
-            <!-- Duration -->
-            <div class="input">
-                <label for="duration">Total Time (in minutes) <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <input formControlName="duration_minutes" type="number" id="duration"
-                        class="form-control custom-date-input" placeholder="e.g., 60" />
-                </div>
-                @if (assignmentForm.get('duration_minutes')?.touched &&
-                assignmentForm.get('duration_minutes')?.errors?.['required']) {
-                <p class="error-msg">Duration is required</p>
-                }
-                @if (assignmentForm.get('duration_minutes')?.touched &&
-                assignmentForm.get('duration_minutes')?.errors?.['min']) {
-                <p class="error-msg">Duration must be greater than 0</p>
-                }
-            </div>
-
-            <!-- Instructions -->
-            <div class="input">
-                <label for="instructions">Instructions <span>*</span></label>
-                <div class="form-outline w-100 position-relative custom-date-wrapper">
-                    <textarea formControlName="instructions" id="instructions" class="form-control custom-date-input"
-                        rows="4" placeholder="Add instructions for the assignment..."></textarea>
-                </div>
-                @if (assignmentForm.get('instructions')?.touched &&
-                assignmentForm.get('instructions')?.errors?.['required']) {
-                <p class="error-msg">Instructions are required</p>
-                }
-            </div>
-        </form>
-        }
+      <!-- Instructions Field Skeleton -->
+      <div class="skeleton-input-group">
+        <div
+          class="placeholder col-2"
+          style="height: 16px; margin-bottom: 8px"
+        ></div>
+        <div
+          class="placeholder col-12"
+          style="height: 100px; border-radius: 6px"
+        ></div>
+      </div>
     </div>
+    } @if (!isLoadingEdit) {
+    <form [formGroup]="assignmentForm" class="w-lg-50 d-flex flex-column gap-2">
+      <!-- Assignment Code -->
+      <div class="input">
+        <label for="code">Assignment Code</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            formControlName="code"
+            type="text"
+            id="code"
+            class="form-control custom-date-input"
+            placeholder="e.g., ASSIGN001"
+          />
+        </div>
+      </div>
+
+      <!-- Assignment Name -->
+      <div class="input">
+        <label for="name">Assignment Name <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            formControlName="name"
+            type="text"
+            id="name"
+            class="form-control custom-date-input"
+            placeholder="e.g., English Assignment"
+          />
+        </div>
+        @if (assignmentForm.get('name')?.touched &&
+        assignmentForm.get('name')?.errors?.['required']) {
+        <p class="error-msg">Assignment name is required</p>
+        }
+      </div>
+
+      <!-- Duration -->
+      <div class="input">
+        <label for="duration">Total Time (in minutes) <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            formControlName="duration_minutes"
+            type="number"
+            id="duration"
+            class="form-control custom-date-input"
+            placeholder="e.g., 60"
+          />
+        </div>
+        @if (assignmentForm.get('duration_minutes')?.touched &&
+        assignmentForm.get('duration_minutes')?.errors?.['required']) {
+        <p class="error-msg">Duration is required</p>
+        } @if (assignmentForm.get('duration_minutes')?.touched &&
+        assignmentForm.get('duration_minutes')?.errors?.['min']) {
+        <p class="error-msg">Duration must be greater than 0</p>
+        }
+      </div>
+
+      <!-- Instructions -->
+      <div class="input">
+        <label for="instructions">Instructions <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <textarea
+            formControlName="instructions"
+            id="instructions"
+            class="form-control custom-date-input"
+            rows="4"
+            placeholder="Add instructions for the assignment..."
+          ></textarea>
+        </div>
+        @if (assignmentForm.get('instructions')?.touched &&
+        assignmentForm.get('instructions')?.errors?.['required']) {
+        <p class="error-msg">Instructions are required</p>
+        }
+      </div>
+    </form>
+    }
+  </div>
 </div>
 }
 
 <!-- step 2: Questions -->
 @if (currentTab === 'questions') {
 <div class="content-hug d-flex flex-column gap-3">
-    @if (isLoadingEdit) {
-    <!-- Skeleton Loader for Questions -->
-    <div class="placeholder-glow">
-        @for (i of [1, 2]; track i) {
-        <div class="content-box mb-3">
-            <!-- Question Header Skeleton -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="placeholder col-2" style="height: 24px; border-radius: 4px;"></div>
-                <div class="placeholder col-1" style="height: 24px; border-radius: 4px;"></div>
-            </div>
+  @if (isLoadingEdit) {
+  <!-- Skeleton Loader for Questions -->
+  <div class="placeholder-glow">
+    @for (i of [1, 2]; track i) {
+    <div class="content-box mb-3">
+      <!-- Question Header Skeleton -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div
+          class="placeholder col-2"
+          style="height: 24px; border-radius: 4px"
+        ></div>
+        <div
+          class="placeholder col-1"
+          style="height: 24px; border-radius: 4px"
+        ></div>
+      </div>
 
-            <!-- Question Title Input Skeleton -->
-            <div class="d-flex gap-2 mb-3" style="align-items: flex-end;">
-                <div class="skeleton-input-group" style="flex: 0 0 50%;">
-                    <div class="placeholder col-4" style="height: 14px; margin-bottom: 8px;"></div>
-                    <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-                </div>
-                <div class="placeholder col-3" style="height: 40px; border-radius: 6px; flex: 0 0 25%;"></div>
-                <div class="placeholder col-3" style="height: 40px; border-radius: 6px; flex: 0 0 25%;"></div>
-            </div>
+      <!-- Question Title Input Skeleton -->
+      <div class="d-flex gap-2 mb-3" style="align-items: flex-end">
+        <div class="skeleton-input-group" style="flex: 0 0 50%">
+          <div
+            class="placeholder col-4"
+            style="height: 14px; margin-bottom: 8px"
+          ></div>
+          <div
+            class="placeholder col-12"
+            style="height: 40px; border-radius: 6px"
+          ></div>
+        </div>
+        <div
+          class="placeholder col-3"
+          style="height: 40px; border-radius: 6px; flex: 0 0 25%"
+        ></div>
+        <div
+          class="placeholder col-3"
+          style="height: 40px; border-radius: 6px; flex: 0 0 25%"
+        ></div>
+      </div>
 
-            <!-- Media Section Skeleton -->
-            <div class="media-upload-section mb-3">
-                <div class="placeholder col-12" style="height: 120px; border-radius: 8px;"></div>
-            </div>
+      <!-- Media Section Skeleton -->
+      <div class="media-upload-section mb-3">
+        <div
+          class="placeholder col-12"
+          style="height: 120px; border-radius: 8px"
+        ></div>
+      </div>
 
-            <!-- Question Type & Score Skeleton -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="skeleton-input-group">
-                        <div class="placeholder col-3" style="height: 14px; margin-bottom: 8px;"></div>
-                        <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="skeleton-input-group">
-                        <div class="placeholder col-3" style="height: 14px; margin-bottom: 8px;"></div>
-                        <div class="placeholder col-12" style="height: 40px; border-radius: 6px;"></div>
-                    </div>
-                </div>
-            </div>
+      <!-- Question Type & Score Skeleton -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="skeleton-input-group">
+            <div
+              class="placeholder col-3"
+              style="height: 14px; margin-bottom: 8px"
+            ></div>
+            <div
+              class="placeholder col-12"
+              style="height: 40px; border-radius: 6px"
+            ></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="skeleton-input-group">
+            <div
+              class="placeholder col-3"
+              style="height: 14px; margin-bottom: 8px"
+            ></div>
+            <div
+              class="placeholder col-12"
+              style="height: 40px; border-radius: 6px"
+            ></div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Answers Section Skeleton -->
-            <div class="answers-section">
-                <div class="placeholder col-2 mb-3" style="height: 18px; border-radius: 4px;"></div>
-                @for (j of [1, 2, 3, 4]; track j) {
-                <div class="answer-row mb-2">
-                    <div class="placeholder col-1" style="height: 36px; border-radius: 4px;"></div>
-                    <div class="placeholder col-8" style="height: 36px; border-radius: 6px; margin: 0 8px;"></div>
-                    <div class="placeholder col-2" style="height: 36px; border-radius: 6px;"></div>
-                </div>
-                }
-            </div>
+      <!-- Answers Section Skeleton -->
+      <div class="answers-section">
+        <div
+          class="placeholder col-2 mb-3"
+          style="height: 18px; border-radius: 4px"
+        ></div>
+        @for (j of [1, 2, 3, 4]; track j) {
+        <div class="answer-row mb-2">
+          <div
+            class="placeholder col-1"
+            style="height: 36px; border-radius: 4px"
+          ></div>
+          <div
+            class="placeholder col-8"
+            style="height: 36px; border-radius: 6px; margin: 0 8px"
+          ></div>
+          <div
+            class="placeholder col-2"
+            style="height: 36px; border-radius: 6px"
+          ></div>
         </div>
         }
+      </div>
     </div>
     }
-
-    @if (!isLoadingEdit) {
-    @if (questions.length === 0) {
-    <div class="content-box">
-        <div class="alert alert-info mb-0">
-            <p class="m-0">No questions added yet. Click "Add Question" to create questions for this assignment.</p>
-        </div>
+  </div>
+  } @if (!isLoadingEdit) { @if (questions.length === 0) {
+  <div class="content-box">
+    <div class="alert alert-info mb-0">
+      <p class="m-0">
+        No questions added yet. Click "Add Question" to create questions for
+        this assignment.
+      </p>
     </div>
-    } @else {
-    @for (question of questions; let i = $index; track i) {
-    @if (question.record_type !== 'delete') {
-    <div class="content-box">
-        <!-- Question Header - Expandable -->
-        <div class="question-header" (click)="toggleQuestion(i)">
-            <span class="question-number">Question {{ i + 1 }}</span>
-            <button class="btn btn-sm btn-link hide-btn" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
-                    [style.transform]="expandedQuestion === i ? '' : 'rotate(180deg)'">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" d="m18 15l-6-6l-6 6" />
-                </svg>
-                Hide
+  </div>
+  } @else { @for (question of questions; let i = $index; track i) { @if
+  (question.record_type !== 'delete') {
+  <div class="content-box" [attr.data-question-index]="i">
+    <!-- Question Header - Expandable -->
+    <div class="question-header">
+      <span class="question-number">Question {{ getQuestionNumber(i) }}</span>
+      <div
+        class="d-flex align-items-center gap-2"
+        style="flex: 1; justify-content: flex-end"
+      >
+        <div class="order-dropdown-wrapper" (click)="$event.stopPropagation()">
+          <label for="order-{{ i }}" class="order-label">Order:</label>
+          <div class="form-outline position-relative custom-date-wrapper">
+            <select
+              id="order-{{ i }}"
+              class="form-control custom-date-input order-select"
+              [ngModel]="question.order || i + 1"
+              (ngModelChange)="
+                onOrderChange(i, $event); $event.stopPropagation()
+              "
+              (click)="$event.stopPropagation()"
+            >
+              @for (orderNum of getAvailableOrders(i); track orderNum) {
+              <option [ngValue]="orderNum">{{ orderNum }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <button
+          class="btn btn-sm btn-link hide-btn"
+          type="button"
+          (click)="toggleQuestion(i)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            [style.transform]="isQuestionExpanded(i) ? '' : 'rotate(180deg)'"
+          >
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m18 15l-6-6l-6 6"
+            />
+          </svg>
+          Hide
+        </button>
+      </div>
+    </div>
+
+    <!-- Question Details - Collapsible -->
+    @if (isQuestionExpanded(i)) {
+    <div class="question-details">
+      <!-- Question Title with Action Buttons in One Row -->
+      <div class="d-flex gap-2 mb-3" style="align-items: flex-start">
+        <!-- Question Title Input (50% width) -->
+        <div class="input" style="flex: 0 0 50%">
+          <label for="qtxt{{ i }}">Question Title <span>*</span></label>
+          <div class="form-outline w-100 position-relative custom-date-wrapper">
+            <input
+              type="text"
+              id="qtxt{{ i }}"
+              class="form-control custom-date-input"
+              [(ngModel)]="question.question_text"
+              (blur)="
+                question.question_text = question.question_text?.trim() || '';
+                question.questionTextTouched = true
+              "
+              placeholder="What is the Question?"
+            />
+          </div>
+          @if ((question.question_text?.trim() === '' &&
+          (question.questionTextTouched || formSubmitted)) &&
+          isQuestionExpanded(i)) {
+          <p class="error-msg">Question title is required</p>
+          }
+        </div>
+
+        <!-- Action Buttons (50% width) -->
+        <div
+          style="flex: 0 0 50%; display: flex; gap: 0.5rem; padding-top: 28px"
+        >
+          <button
+            class="btn btn-lg btn-outline-secondary flex-grow-1"
+            (click)="duplicateQuestion(i)"
+            type="button"
+            title="Duplicate Question"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="17"
+              viewBox="0 0 15 17"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11638 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3486 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3486 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
+                fill="#4A6D97"
+              />
+            </svg>
+            <span class="d-none d-lg-inline">Duplicate</span>
+          </button>
+          <button
+            class="btn btn-lg btn-outline-danger flex-grow-1"
+            (click)="removeQuestion(i)"
+            type="button"
+            title="Remove Question"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="15"
+              viewBox="0 0 14 15"
+              fill="none"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
+                fill="#E04F5F"
+              />
+              <path
+                d="M2.37382 4.65011C2.35315 4.34014 2.08512 4.10561 1.77515 4.12627C1.46517 4.14694 1.23064 4.41497 1.25131 4.72495L1.5989 9.93875C1.66302 10.9008 1.71481 11.6779 1.83629 12.2877C1.96259 12.9217 2.17741 13.4512 2.6211 13.8663C3.0648 14.2814 3.60746 14.4606 4.24845 14.5444C4.86497 14.6251 5.64378 14.625 6.60795 14.625H7.26713C8.23129 14.625 9.01016 14.6251 9.62668 14.5444C10.2677 14.4606 10.8103 14.2814 11.254 13.8663C11.6977 13.4512 11.9125 12.9217 12.0388 12.2877C12.1603 11.6779 12.2121 10.9008 12.2762 9.93876L12.6238 4.72495C12.6445 4.41497 12.41 4.14694 12.1 4.12627C11.79 4.10561 11.522 4.34014 11.5013 4.65011L11.1564 9.82445C11.089 10.8353 11.0409 11.5387 10.9355 12.0679C10.8333 12.5813 10.6905 12.853 10.4854 13.0448C10.2804 13.2367 9.99976 13.361 9.48076 13.4289C8.94571 13.4989 8.24071 13.5 7.22757 13.5H6.64755C5.63442 13.5 4.92942 13.4989 4.39436 13.4289C3.87536 13.361 3.59474 13.2367 3.38968 13.0448C3.18462 12.853 3.04187 12.5812 2.93961 12.0679C2.83419 11.5387 2.78617 10.8353 2.71877 9.82445L2.37382 4.65011Z"
+                fill="#E04F5F"
+              />
+              <path
+                d="M5.0066 6.00282C5.31572 5.97191 5.59136 6.19744 5.62228 6.50656L5.99728 10.2566C6.02819 10.5657 5.80266 10.8413 5.49354 10.8722C5.18442 10.9031 4.90877 10.6776 4.87786 10.3685L4.50286 6.6185C4.47195 6.30938 4.69748 6.03373 5.0066 6.00282Z"
+                fill="#E04F5F"
+              />
+              <path
+                d="M8.86854 6.00282C9.17766 6.03373 9.40319 6.30938 9.37228 6.6185L8.99728 10.3685C8.96636 10.6776 8.69072 10.9031 8.3816 10.8722C8.07248 10.8413 7.84695 10.5657 7.87786 10.2566L8.25286 6.50656C8.28377 6.19744 8.55942 5.97191 8.86854 6.00282Z"
+                fill="#E04F5F"
+              />
+            </svg>
+            <span class="d-none d-lg-inline">Remove</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Media Upload -->
+      <div class="media-upload-section mb-3">
+        <!-- No media - show upload prompt -->
+        @if (!question.media || question.media.length === 0) {
+        <div class="upload-prompt">
+          <svg
+            width="89"
+            height="48"
+            viewBox="0 0 89 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M62.4375 0V0.5H65C66.2966 0.5 67.4789 0.500444 68.5635 0.506836L68.5654 0.0078125C71.5718 0.0255226 73.8332 0.0932854 75.6777 0.344727L75.6113 0.837891C76.9026 1.01396 77.9667 1.28001 78.9316 1.67969C79.8767 2.07113 80.7732 2.55228 81.6113 3.1123L81.8887 2.69629C83.6354 3.86336 85.1355 5.36374 86.3027 7.11035L85.8877 7.38867C86.4477 8.22678 86.9289 9.12334 87.3203 10.0684C87.72 11.0333 87.986 12.0974 88.1621 13.3887L88.6543 13.3213C88.9058 15.1658 88.9735 17.4271 88.9912 20.4336L88.4932 20.4365C88.4996 21.5211 88.5 22.7034 88.5 24C88.5 25.2966 88.4996 26.4789 88.4932 27.5635L88.9912 27.5654C88.9735 30.5719 88.9058 32.8332 88.6543 34.6777L88.1621 34.6113C88.0081 35.741 87.7849 36.6968 87.4639 37.5645L87.3203 37.9316C86.9289 38.8767 86.4477 39.7732 85.8877 40.6113L86.3027 40.8887C85.1356 42.6354 83.6354 44.1356 81.8887 45.3027L81.6113 44.8877C80.8779 45.3778 80.0995 45.807 79.2832 46.1689L78.9316 46.3203C77.9667 46.72 76.9026 46.986 75.6113 47.1621L75.6777 47.6543C73.8332 47.9058 71.5719 47.9735 68.5654 47.9912L68.5635 47.4932C67.4789 47.4996 66.2966 47.5 65 47.5H62.4375V48H57.3125V47.5H52.1875V48H47.0625V47.5H41.9375V48H36.8125V47.5H31.6875V48H26.5625V47.5H24C22.7034 47.5 21.5211 47.4996 20.4365 47.4932L20.4336 47.9912C17.4271 47.9735 15.1658 47.9058 13.3213 47.6543L13.3887 47.1621C12.0974 46.986 11.0333 46.72 10.0684 46.3203L9.7168 46.1689C8.90051 45.807 8.12211 45.3778 7.38867 44.8877L7.11035 45.3027C5.36374 44.1355 3.86336 42.6354 2.69629 40.8887L3.1123 40.6113C2.55228 39.7732 2.07113 38.8767 1.67969 37.9316L1.53613 37.5645C1.21507 36.6968 0.991928 35.741 0.837891 34.6113L0.344727 34.6777C0.0932857 32.8332 0.0255225 30.5718 0.0078125 27.5654L0.506836 27.5635C0.500444 26.4789 0.5 25.2966 0.5 24C0.5 22.7034 0.500444 21.5211 0.506836 20.4365L0.0078125 20.4336C0.0255343 17.4272 0.0932053 15.1658 0.344727 13.3213L0.837891 13.3887C1.01396 12.0974 1.28002 11.0333 1.67969 10.0684C2.07113 9.12334 2.55228 8.22678 3.1123 7.38867L2.69629 7.11035C3.8634 5.36377 5.36377 3.8634 7.11035 2.69629L7.38867 3.1123C8.22678 2.55228 9.12334 2.07113 10.0684 1.67969C11.0333 1.28002 12.0974 1.01396 13.3887 0.837891L13.3213 0.344727C15.1658 0.0932053 17.4272 0.0255343 20.4336 0.0078125L20.4365 0.506836C21.5211 0.500444 22.7034 0.5 24 0.5H26.5625V0H31.6875V0.5H36.8125V0H41.9375V0.5H47.0625V0H52.1875V0.5H57.3125V0H62.4375Z"
+              fill="#F0F3F8"
+            />
+            <path
+              d="M62.4375 0V0.5H65C66.2966 0.5 67.4789 0.500444 68.5635 0.506836L68.5654 0.0078125C71.5718 0.0255226 73.8332 0.0932854 75.6777 0.344727L75.6113 0.837891C76.9026 1.01396 77.9667 1.28001 78.9316 1.67969C79.8767 2.07113 80.7732 2.55228 81.6113 3.1123L81.8887 2.69629C83.6354 3.86336 85.1355 5.36374 86.3027 7.11035L85.8877 7.38867C86.4477 8.22678 86.9289 9.12334 87.3203 10.0684C87.72 11.0333 87.986 12.0974 88.1621 13.3887L88.6543 13.3213C88.9058 15.1658 88.9735 17.4271 88.9912 20.4336L88.4932 20.4365C88.4996 21.5211 88.5 22.7034 88.5 24C88.5 25.2966 88.4996 26.4789 88.4932 27.5635L88.9912 27.5654C88.9735 30.5719 88.9058 32.8332 88.6543 34.6777L88.1621 34.6113C88.0081 35.741 87.7849 36.6968 87.4639 37.5645L87.3203 37.9316C86.9289 38.8767 86.4477 39.7732 85.8877 40.6113L86.3027 40.8887C85.1356 42.6354 83.6354 44.1356 81.8887 45.3027L81.6113 44.8877C80.8779 45.3778 80.0995 45.807 79.2832 46.1689L78.9316 46.3203C77.9667 46.72 76.9026 46.986 75.6113 47.1621L75.6777 47.6543C73.8332 47.9058 71.5719 47.9735 68.5654 47.9912L68.5635 47.4932C67.4789 47.4996 66.2966 47.5 65 47.5H62.4375V48H57.3125V47.5H52.1875V48H47.0625V47.5H41.9375V48H36.8125V47.5H31.6875V48H26.5625V47.5H24C22.7034 47.5 21.5211 47.4996 20.4365 47.4932L20.4336 47.9912C17.4271 47.9735 15.1658 47.9058 13.3213 47.6543L13.3887 47.1621C12.0974 46.986 11.0333 46.72 10.0684 46.3203L9.7168 46.1689C8.90051 45.807 8.12211 45.3778 7.38867 44.8877L7.11035 45.3027C5.36374 44.1355 3.86336 42.6354 2.69629 40.8887L3.1123 40.6113C2.55228 39.7732 2.07113 38.8767 1.67969 37.9316L1.53613 37.5645C1.21507 36.6968 0.991928 35.741 0.837891 34.6113L0.344727 34.6777C0.0932857 32.8332 0.0255225 30.5718 0.0078125 27.5654L0.506836 27.5635C0.500444 26.4789 0.5 25.2966 0.5 24C0.5 22.7034 0.500444 21.5211 0.506836 20.4365L0.0078125 20.4336C0.0255343 17.4272 0.0932053 15.1658 0.344727 13.3213L0.837891 13.3887C1.01396 12.0974 1.28002 11.0333 1.67969 10.0684C2.07113 9.12334 2.55228 8.22678 3.1123 7.38867L2.69629 7.11035C3.8634 5.36377 5.36377 3.8634 7.11035 2.69629L7.38867 3.1123C8.22678 2.55228 9.12334 2.07113 10.0684 1.67969C11.0333 1.28002 12.0974 1.01396 13.3887 0.837891L13.3213 0.344727C15.1658 0.0932053 17.4272 0.0255343 20.4336 0.0078125L20.4365 0.506836C21.5211 0.500444 22.7034 0.5 24 0.5H26.5625V0H31.6875V0.5H36.8125V0H41.9375V0.5H47.0625V0H52.1875V0.5H57.3125V0H62.4375Z"
+              stroke="#93A7C1"
+              stroke-dasharray="5 5"
+            />
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M45 26.6667C42.4859 26.6667 41.2288 26.6667 40.4477 27.4478C39.6667 28.2288 39.6667 29.4859 39.6667 32.0001C39.6667 34.5142 39.6667 35.7713 40.4477 36.5524C41.2288 37.3334 42.4859 37.3334 45 37.3334C47.5142 37.3334 48.7713 37.3334 49.5523 36.5524C50.3334 35.7713 50.3334 34.5142 50.3334 32.0001C50.3334 29.4859 50.3334 28.2288 49.5523 27.4478C48.7713 26.6667 47.5142 26.6667 45 26.6667ZM47.4063 30.7789L45.6286 29.0012C45.2814 28.654 44.7186 28.654 44.3715 29.0012L42.5937 30.7789C42.2466 31.1261 42.2466 31.6889 42.5937 32.036C42.9408 32.3832 43.5036 32.3832 43.8508 32.036L44.1111 31.7757V34.3705C44.1111 34.8614 44.5091 35.2593 45 35.2593C45.4909 35.2593 45.8889 34.8614 45.8889 34.3705V31.7757L46.1493 32.036C46.4964 32.3832 47.0592 32.3832 47.4063 32.036C47.7535 31.6889 47.7535 31.1261 47.4063 30.7789Z"
+              fill="#4A6D97"
+            />
+            <path
+              opacity="0.3"
+              d="M37.6667 32.0001L37.6667 31.8808C37.6666 30.7266 37.6664 29.6684 37.7822 28.8075C37.9096 27.8596 38.2095 26.8577 39.0335 26.0336C39.8576 25.2095 40.8595 24.9097 41.8075 24.7822C42.6683 24.6665 43.7265 24.6666 44.8807 24.6668H45.1194C46.2735 24.6666 47.3318 24.6665 48.1926 24.7822C49.1405 24.9097 50.1425 25.2095 50.9665 26.0336C51.7906 26.8577 52.0905 27.8596 52.2179 28.8075C52.3319 29.6557 52.3335 30.6954 52.3334 31.8297C55.7635 31.0962 58.3334 28.08 58.3334 24.4707C58.3334 21.1749 56.1906 18.3737 53.2068 17.3534C52.7828 13.5917 49.5545 10.6667 45.6349 10.6667C41.4271 10.6667 38.0159 14.0378 38.0159 18.1962C38.0159 19.1159 38.1828 19.9971 38.4882 20.8119C38.13 20.7424 37.7598 20.706 37.381 20.706C34.2251 20.706 31.6667 23.2342 31.6667 26.353C31.6667 29.4718 34.2251 32.0001 37.381 32.0001L37.6667 32.0001Z"
+              fill="#4A6D97"
+            />
+          </svg>
+
+          <div class="upload-text">
+            <span class="upload-label"
+              >Do you need to upload a helping video or photo?</span
+            >
+            <span class="upload-size">Max Size: 10 mb</span>
+          </div>
+          <label class="upload-icon-btn">
+            @if (mediaUploadingIndex === i) {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              style="animation: spin 1s linear infinite"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-dasharray="15.7 47.1"
+              />
+            </svg>
+            } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_1666_1579)">
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M9 0.9375C9.16421 0.9375 9.32022 1.00925 9.42708 1.13393L11.6771 3.75893C11.8793 3.9948 11.8519 4.34991 11.6161 4.55208C11.3802 4.75426 11.0251 4.72694 10.8229 4.49107L9.5625 3.02058L9.5625 11.25C9.5625 11.5607 9.31066 11.8125 9 11.8125C8.68934 11.8125 8.4375 11.5607 8.4375 11.25L8.4375 3.02058L7.17708 4.49107C6.97491 4.72694 6.6198 4.75426 6.38393 4.55208C6.14806 4.34991 6.12074 3.9948 6.32292 3.75893L8.57292 1.13393C8.67978 1.00925 8.83579 0.9375 9 0.9375ZM5.24687 6.18897C5.55752 6.18724 5.81076 6.43768 5.81249 6.74833C5.81422 7.05899 5.56379 7.31223 5.25313 7.31396C4.43301 7.31852 3.8517 7.33982 3.41051 7.42086C2.9854 7.49894 2.73935 7.62433 2.55676 7.80692C2.34918 8.01449 2.21385 8.30592 2.13986 8.85625C2.06369 9.42276 2.0625 10.1736 2.0625 11.2502V12.0002C2.0625 13.0767 2.06369 13.8276 2.13986 14.3941C2.21385 14.9444 2.34918 15.2358 2.55676 15.4434C2.76433 15.651 3.05576 15.7863 3.60609 15.8603C4.1726 15.9365 4.92344 15.9377 6 15.9377H12C13.0766 15.9377 13.8274 15.9365 14.3939 15.8603C14.9442 15.7863 15.2357 15.651 15.4432 15.4434C15.6508 15.2358 15.7861 14.9444 15.8601 14.3941C15.9363 13.8276 15.9375 13.0767 15.9375 12.0002V11.2502C15.9375 10.1736 15.9363 9.42276 15.8601 8.85625C15.7861 8.30592 15.6508 8.01449 15.4432 7.80692C15.2607 7.62433 15.0146 7.49894 14.5895 7.42086C14.1483 7.33982 13.567 7.31852 12.7469 7.31396C12.4362 7.31223 12.1858 7.05899 12.1875 6.74833C12.1892 6.43768 12.4425 6.18724 12.7531 6.18897C13.5643 6.19349 14.2403 6.2129 14.7927 6.31437C15.3612 6.4188 15.845 6.61773 16.2387 7.01142C16.6902 7.46286 16.8843 8.03127 16.9751 8.70635C17.0625 9.35657 17.0625 10.1833 17.0625 11.209V12.0413C17.0625 13.067 17.0625 13.8937 16.9751 14.544C16.8843 15.2191 16.6902 15.7875 16.2387 16.2389C15.7873 16.6903 15.2189 16.8845 14.5438 16.9753C13.8936 17.0627 13.0668 17.0627 12.0412 17.0627H5.95885C4.93315 17.0627 4.10641 17.0627 3.45619 16.9753C2.78111 16.8845 2.2127 16.6903 1.76126 16.2389C1.30982 15.7875 1.11565 15.2191 1.02489 14.544C0.937472 13.8937 0.937484 13.067 0.937499 12.0413V11.209C0.937484 10.1833 0.937472 9.35657 1.02489 8.70635C1.11565 8.03127 1.30982 7.46286 1.76126 7.01142C2.15496 6.61773 2.63877 6.4188 3.20726 6.31437C3.75968 6.2129 4.43572 6.19349 5.24687 6.18897Z"
+                  fill="#377AFD"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_1666_1579">
+                  <rect width="18" height="18" rx="5" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            }
+            <input
+              type="file"
+              [id]="'media-upload-' + i"
+              class="d-none"
+              (change)="onMediaSelect($event, i)"
+              accept="image/*,video/*"
+              [disabled]="mediaUploadingIndex === i"
+            />
+          </label>
+        </div>
+        }
+
+        <!-- Media items list -->
+        @if (question.media && question.media.length > 0) { @for (media of
+        question.media; track media.timestamp || $index; let mediaIdx = $index)
+        {
+        <div class="media-preview" style="margin-top: 0.75rem">
+          <!-- Media File Info -->
+          <div class="media-file-info">
+            <!-- Media Preview -->
+            @if (media.url && media.type?.toLowerCase() === 'image') {
+            <img [src]="media.url" [alt]="media.name" />
+            } @if (media.url && media.type?.toLowerCase() === 'video') {
+            <video [src]="media.url" controls>
+              Your browser does not support the video tag.
+            </video>
+            }
+
+            <!-- File Details -->
+            <div class="file-details">
+              <span class="file-name">{{ media.name }}</span>
+              <span class="file-size">{{ media.size }}</span>
+            </div>
+          </div>
+
+          <!-- Media Actions -->
+          <div class="media-actions">
+            <label class="btn-icon" type="button" title="Replace">
+              @if (mediaUploadingIndex === i && mediaEditingIndex === mediaIdx)
+              {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                style="animation: spin 1s linear infinite"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-dasharray="15.7 47.1"
+                />
+              </svg>
+              } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="17"
+                height="17"
+                viewBox="0 0 17 17"
+                fill="none"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M8.01947 1.58655e-07L9.1875 3.37469e-07C9.49816 3.37469e-07 9.75 0.25184 9.75 0.5625C9.75 0.873161 9.49816 1.125 9.1875 1.125H8.0625C6.27883 1.125 4.99767 1.12619 4.02268 1.25728C3.06388 1.38619 2.48584 1.63136 2.0586 2.0586C1.63136 2.48584 1.38619 3.06388 1.25728 4.02268C1.12619 4.99767 1.125 6.27883 1.125 8.0625C1.125 9.84617 1.12619 11.1273 1.25728 12.1023C1.38619 13.0611 1.63136 13.6392 2.0586 14.0664C2.48584 14.4936 3.06388 14.7388 4.02268 14.8677C4.99767 14.9988 6.27883 15 8.0625 15C9.84617 15 11.1273 14.9988 12.1023 14.8677C13.0611 14.7388 13.6392 14.4936 14.0664 14.0664C14.4936 13.6392 14.7388 13.0611 14.8677 12.1023C14.9988 11.1273 15 9.84617 15 8.0625V6.9375C15 6.62684 15.2518 6.375 15.5625 6.375C15.8732 6.375 16.125 6.62684 16.125 6.9375V8.10553C16.125 9.83683 16.125 11.1936 15.9827 12.2522C15.837 13.3358 15.533 14.1908 14.8619 14.8619C14.1908 15.533 13.3358 15.837 12.2522 15.9827C11.1936 16.125 9.83683 16.125 8.10553 16.125H8.01947C6.28817 16.125 4.9314 16.125 3.87278 15.9827C2.78923 15.837 1.93421 15.533 1.2631 14.8619C0.591995 14.1908 0.28799 13.3358 0.14231 12.2522C-1.71438e-05 11.1936 -9.4973e-06 9.83683 1.58655e-07 8.10553V8.01947C-9.4973e-06 6.28817 -1.71438e-05 4.93139 0.14231 3.87278C0.28799 2.78923 0.591995 1.93421 1.2631 1.2631C1.93421 0.591995 2.78923 0.28799 3.87278 0.14231C4.93139 -1.71438e-05 6.28817 -9.4973e-06 8.01947 1.58655e-07ZM11.6404 0.769436C12.6663 -0.256478 14.3296 -0.256478 15.3556 0.769436C16.3815 1.79535 16.3815 3.45869 15.3556 4.4846L10.3695 9.47068C10.091 9.74918 9.9166 9.92364 9.72194 10.0755C9.49266 10.2543 9.24459 10.4076 8.98211 10.5327C8.75926 10.6389 8.52521 10.7169 8.15159 10.8414L5.9732 11.5675C5.57101 11.7016 5.1276 11.5969 4.82783 11.2972C4.52806 10.9974 4.42339 10.554 4.55745 10.1518L5.28358 7.97342C5.40809 7.59979 5.48609 7.36574 5.5923 7.14289C5.71739 6.88041 5.87071 6.63234 6.04953 6.40306C6.20137 6.2084 6.37583 6.03397 6.65433 5.7555L11.6404 0.769436ZM14.5601 1.56493C13.9735 0.978357 13.0225 0.978357 12.4359 1.56493L12.1534 1.8474C12.1705 1.91929 12.1943 2.00495 12.2274 2.1005C12.3349 2.41029 12.5383 2.81829 12.9225 3.2025C13.3067 3.5867 13.7147 3.7901 14.0245 3.89758C14.12 3.93073 14.2057 3.95455 14.2776 3.97157L14.5601 3.68911C15.1466 3.10253 15.1466 2.15151 14.5601 1.56493ZM13.3914 4.85782C13.0044 4.6914 12.5536 4.42459 12.127 3.99799C11.7004 3.57139 11.4336 3.12062 11.2672 2.73364L7.47563 6.52519C7.16325 6.83758 7.04073 6.96147 6.93661 7.09496C6.80803 7.25981 6.6978 7.43817 6.60786 7.62689C6.53502 7.77972 6.47901 7.9447 6.3393 8.36381L6.01538 9.33557L6.78943 10.1096L7.76119 9.7857C8.1803 9.64599 8.34528 9.58997 8.49811 9.51714C8.68683 9.4272 8.86519 9.31697 9.03004 9.18839C9.16353 9.08427 9.28742 8.96176 9.59981 8.64937L13.3914 4.85782Z"
+                  fill="#4A6D97"
+                />
+              </svg>
+              }
+              <input
+                type="file"
+                class="d-none"
+                (change)="onMediaSelect($event, i, mediaIdx)"
+                accept="image/*,video/*"
+                [disabled]="
+                  mediaUploadingIndex === i && mediaEditingIndex === mediaIdx
+                "
+              />
+            </label>
+            <button
+              class="btn-icon delete"
+              (click)="removeMedia(i, mediaIdx)"
+              type="button"
+              title="Delete"
+              [disabled]="
+                mediaUploadingIndex === i && mediaEditingIndex === mediaIdx
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="15"
+                viewBox="0 0 14 15"
+                fill="none"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M2.37382 4.65011C2.35315 4.34014 2.08512 4.10561 1.77515 4.12627C1.46517 4.14694 1.23064 4.41497 1.25131 4.72495L1.5989 9.93875C1.66302 10.9008 1.71481 11.6779 1.83629 12.2877C1.96259 12.9217 2.17741 13.4512 2.6211 13.8663C3.0648 14.2814 3.60746 14.4606 4.24845 14.5444C4.86497 14.6251 5.64378 14.625 6.60795 14.625H7.26713C8.23129 14.625 9.01016 14.6251 9.62668 14.5444C10.2677 14.4606 10.8103 14.2814 11.254 13.8663C11.6977 13.4512 11.9125 12.9217 12.0388 12.2877C12.1603 11.6779 12.2121 10.9008 12.2762 9.93876L12.6238 4.72495C12.6445 4.41497 12.41 4.14694 12.1 4.12627C11.79 4.10561 11.522 4.34014 11.5013 4.65011L11.1564 9.82445C11.089 10.8353 11.0409 11.5387 10.9355 12.0679C10.8333 12.5813 10.6905 12.853 10.4854 13.0448C10.2804 13.2367 9.99976 13.361 9.48076 13.4289C8.94571 13.4989 8.24071 13.5 7.22757 13.5H6.64755C5.63442 13.5 4.92942 13.4989 4.39436 13.4289C3.87536 13.361 3.59474 13.2367 3.38968 13.0448C3.18462 12.853 3.04187 12.5812 2.93961 12.0679C2.83419 11.5387 2.78617 10.8353 2.71877 9.82445L2.37382 4.65011Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M5.0066 6.00282C5.31572 5.97191 5.59136 6.19744 5.62228 6.50656L5.99728 10.2566C6.02819 10.5657 5.80266 10.8413 5.49354 10.8722C5.18442 10.9031 4.90877 10.6776 4.87786 10.3685L4.50286 6.6185C4.47195 6.30938 4.69748 6.03373 5.0066 6.00282Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M8.86854 6.00282C9.17766 6.03373 9.40319 6.30938 9.37228 6.6185L8.99728 10.3685C8.96636 10.6776 8.69072 10.9031 8.3816 10.8722C8.07248 10.8413 7.84695 10.5657 7.87786 10.2566L8.25286 6.50656C8.28377 6.19744 8.55942 5.97191 8.86854 6.00282Z"
+                  fill="#E04F5F"
+                />
+              </svg>
             </button>
+          </div>
         </div>
+        } }
 
-        <!-- Question Details - Collapsible -->
-        @if (expandedQuestion === i) {
-        <div class="question-details">
-            <!-- Question Title with Action Buttons in One Row -->
-            <div class="d-flex gap-2 mb-3" style="align-items: flex-start;">
-                <!-- Question Title Input (50% width) -->
-                <div class="input" style="flex: 0 0 50%;">
-                    <label for="qtxt{{ i }}">Question Title <span>*</span></label>
-                    <div class="form-outline w-100 position-relative custom-date-wrapper">
-                        <input type="text" id="qtxt{{ i }}" class="form-control custom-date-input"
-                            [(ngModel)]="question.question_text"
-                            (blur)="question.question_text = question.question_text?.trim() || ''; question.questionTextTouched = true"
-                            placeholder="What is the Question?" />
-                    </div>
-                    @if ((question.question_text?.trim() === '' && (question.questionTextTouched || formSubmitted)) &&
-                    expandedQuestion === i) {
-                    <p class="error-msg">Question title is required</p>
-                    }
-                </div>
+        <!-- Add Media Button -->
+        <button
+          class="btn btn-lg btn-outline-primary form-control custom-date-input mt-3"
+          type="button"
+          (click)="triggerMediaUpload(i)"
+          [disabled]="mediaUploadingIndex === i"
+        >
+          @if (mediaUploadingIndex === i) {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            style="animation: spin 1s linear infinite"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-dasharray="15.7 47.1"
+            />
+          </svg>
+          } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
+            </g>
+          </svg>
+          } Add media
+        </button>
+        <!-- Hidden file input for programmatic triggering -->
+        <input
+          type="file"
+          [id]="'media-upload-' + i"
+          class="d-none"
+          (change)="onMediaSelect($event, i)"
+          accept="image/*,video/*"
+          [disabled]="mediaUploadingIndex === i"
+        />
+      </div>
 
-                <!-- Action Buttons (50% width) -->
-                <div style="flex: 0 0 50%; display: flex; gap: 0.5rem; padding-top: 28px;">
-                    <button class="btn btn-lg btn-outline-secondary flex-grow-1" (click)="duplicateQuestion(i)"
-                        type="button" title="Duplicate Question">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17" fill="none">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M9.5625 2.3717e-07H6.52019C5.14187 -1.15211e-05 4.05014 -2.0843e-05 3.19573 0.114852C2.31642 0.233073 1.60471 0.48216 1.04343 1.04343C0.48216 1.60471 0.233073 2.31642 0.114852 3.19573C-2.08318e-05 4.05014 -1.15211e-05 5.14186 2.37168e-07 6.52018V11.0625C2.37168e-07 12.4667 1.02904 13.6305 2.37414 13.841C2.47761 14.414 2.67565 14.9031 3.07376 15.3012C3.5252 15.7527 4.09361 15.9468 4.76869 16.0376C5.41891 16.125 6.24565 16.125 7.27135 16.125H9.60365C10.6293 16.125 11.4561 16.125 12.1063 16.0376C12.7814 15.9468 13.3498 15.7527 13.8012 15.3012C14.2527 14.8498 14.4468 14.2814 14.5376 13.6063C14.625 12.9561 14.625 12.1293 14.625 11.1037V7.27135C14.625 6.24565 14.625 5.41891 14.5376 4.76869C14.4468 4.09361 14.2527 3.5252 13.8012 3.07376C13.4031 2.67565 12.914 2.47761 12.341 2.37414C12.1305 1.02904 10.9667 2.3717e-07 9.5625 2.3717e-07ZM11.1595 2.26588C10.9324 1.60218 10.3032 1.125 9.5625 1.125H6.5625C5.13239 1.125 4.11639 1.1262 3.34564 1.22982C2.59107 1.33127 2.15634 1.52152 1.83893 1.83893C1.52152 2.15634 1.33127 2.59107 1.22982 3.34564C1.1262 4.11638 1.125 5.13238 1.125 6.5625V11.0625C1.125 11.8032 1.60218 12.4324 2.26588 12.6595C2.24998 12.202 2.24999 11.6848 2.25 11.1037V7.27134C2.24998 6.24565 2.24997 5.41891 2.33739 4.76869C2.42816 4.09361 2.62233 3.5252 3.07376 3.07376C3.5252 2.62233 4.09361 2.42816 4.76869 2.33739C5.41891 2.24997 6.24565 2.24998 7.27134 2.25H9.60366C10.1848 2.24999 10.702 2.24998 11.1595 2.26588ZM3.86926 3.86926C4.07683 3.66169 4.36826 3.52635 4.91859 3.45236C5.4851 3.3762 6.23594 3.375 7.3125 3.375H9.5625C10.6391 3.375 11.3899 3.3762 11.9564 3.45236C12.5067 3.52635 12.7982 3.66169 13.0057 3.86926C13.2133 4.07683 13.3486 4.36826 13.4226 4.91859C13.4988 5.4851 13.5 6.23594 13.5 7.3125V11.0625C13.5 12.1391 13.4988 12.8899 13.4226 13.4564C13.3486 14.0067 13.2133 14.2982 13.0057 14.5057C12.7982 14.7133 12.5067 14.8487 11.9564 14.9226C11.3899 14.9988 10.6391 15 9.5625 15H7.3125C6.23594 15 5.4851 14.9988 4.91859 14.9226C4.36826 14.8487 4.07683 14.7133 3.86926 14.5057C3.66169 14.2982 3.52635 14.0067 3.45236 13.4564C3.3762 12.8899 3.375 12.1391 3.375 11.0625V7.3125C3.375 6.23594 3.3762 5.4851 3.45236 4.91859C3.52635 4.36826 3.66169 4.07683 3.86926 3.86926Z"
-                                fill="#4A6D97" />
-                        </svg>
-                        <span class="d-none d-lg-inline">Duplicate</span>
-                    </button>
-                    <button class="btn btn-lg btn-outline-danger flex-grow-1" (click)="removeQuestion(i)" type="button"
-                        title="Remove Question">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
-                                fill="#E04F5F" />
-                            <path
-                                d="M2.37382 4.65011C2.35315 4.34014 2.08512 4.10561 1.77515 4.12627C1.46517 4.14694 1.23064 4.41497 1.25131 4.72495L1.5989 9.93875C1.66302 10.9008 1.71481 11.6779 1.83629 12.2877C1.96259 12.9217 2.17741 13.4512 2.6211 13.8663C3.0648 14.2814 3.60746 14.4606 4.24845 14.5444C4.86497 14.6251 5.64378 14.625 6.60795 14.625H7.26713C8.23129 14.625 9.01016 14.6251 9.62668 14.5444C10.2677 14.4606 10.8103 14.2814 11.254 13.8663C11.6977 13.4512 11.9125 12.9217 12.0388 12.2877C12.1603 11.6779 12.2121 10.9008 12.2762 9.93876L12.6238 4.72495C12.6445 4.41497 12.41 4.14694 12.1 4.12627C11.79 4.10561 11.522 4.34014 11.5013 4.65011L11.1564 9.82445C11.089 10.8353 11.0409 11.5387 10.9355 12.0679C10.8333 12.5813 10.6905 12.853 10.4854 13.0448C10.2804 13.2367 9.99976 13.361 9.48076 13.4289C8.94571 13.4989 8.24071 13.5 7.22757 13.5H6.64755C5.63442 13.5 4.92942 13.4989 4.39436 13.4289C3.87536 13.361 3.59474 13.2367 3.38968 13.0448C3.18462 12.853 3.04187 12.5812 2.93961 12.0679C2.83419 11.5387 2.78617 10.8353 2.71877 9.82445L2.37382 4.65011Z"
-                                fill="#E04F5F" />
-                            <path
-                                d="M5.0066 6.00282C5.31572 5.97191 5.59136 6.19744 5.62228 6.50656L5.99728 10.2566C6.02819 10.5657 5.80266 10.8413 5.49354 10.8722C5.18442 10.9031 4.90877 10.6776 4.87786 10.3685L4.50286 6.6185C4.47195 6.30938 4.69748 6.03373 5.0066 6.00282Z"
-                                fill="#E04F5F" />
-                            <path
-                                d="M8.86854 6.00282C9.17766 6.03373 9.40319 6.30938 9.37228 6.6185L8.99728 10.3685C8.96636 10.6776 8.69072 10.9031 8.3816 10.8722C8.07248 10.8413 7.84695 10.5657 7.87786 10.2566L8.25286 6.50656C8.28377 6.19744 8.55942 5.97191 8.86854 6.00282Z"
-                                fill="#E04F5F" />
-                        </svg>
-                        <span class="d-none d-lg-inline">Remove</span>
-                    </button>
-                </div>
+      <!-- Question Type and Score -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="input">
+            <label for="qtype">Question type <span>*</span></label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <select
+                id="qtype"
+                class="form-control custom-date-input"
+                [(ngModel)]="question.question_type"
+                (change)="onQuestionTypeChange(i, question.question_type)"
+                (blur)="question.touched = true"
+              >
+                <option value="" disabled hidden>Select Question Type</option>
+                <option value="essay">Essay</option>
+                <option value="mcq">MCQ</option>
+                <option value="truefalse">True & False</option>
+              </select>
             </div>
-
-            <!-- Media Upload -->
-            <div class="media-upload-section mb-3">
-                <!-- No media - show upload prompt -->
-                @if (!question.media || question.media.length === 0) {
-                <div class="upload-prompt">
-                    <svg width="89" height="48" viewBox="0 0 89 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M62.4375 0V0.5H65C66.2966 0.5 67.4789 0.500444 68.5635 0.506836L68.5654 0.0078125C71.5718 0.0255226 73.8332 0.0932854 75.6777 0.344727L75.6113 0.837891C76.9026 1.01396 77.9667 1.28001 78.9316 1.67969C79.8767 2.07113 80.7732 2.55228 81.6113 3.1123L81.8887 2.69629C83.6354 3.86336 85.1355 5.36374 86.3027 7.11035L85.8877 7.38867C86.4477 8.22678 86.9289 9.12334 87.3203 10.0684C87.72 11.0333 87.986 12.0974 88.1621 13.3887L88.6543 13.3213C88.9058 15.1658 88.9735 17.4271 88.9912 20.4336L88.4932 20.4365C88.4996 21.5211 88.5 22.7034 88.5 24C88.5 25.2966 88.4996 26.4789 88.4932 27.5635L88.9912 27.5654C88.9735 30.5719 88.9058 32.8332 88.6543 34.6777L88.1621 34.6113C88.0081 35.741 87.7849 36.6968 87.4639 37.5645L87.3203 37.9316C86.9289 38.8767 86.4477 39.7732 85.8877 40.6113L86.3027 40.8887C85.1356 42.6354 83.6354 44.1356 81.8887 45.3027L81.6113 44.8877C80.8779 45.3778 80.0995 45.807 79.2832 46.1689L78.9316 46.3203C77.9667 46.72 76.9026 46.986 75.6113 47.1621L75.6777 47.6543C73.8332 47.9058 71.5719 47.9735 68.5654 47.9912L68.5635 47.4932C67.4789 47.4996 66.2966 47.5 65 47.5H62.4375V48H57.3125V47.5H52.1875V48H47.0625V47.5H41.9375V48H36.8125V47.5H31.6875V48H26.5625V47.5H24C22.7034 47.5 21.5211 47.4996 20.4365 47.4932L20.4336 47.9912C17.4271 47.9735 15.1658 47.9058 13.3213 47.6543L13.3887 47.1621C12.0974 46.986 11.0333 46.72 10.0684 46.3203L9.7168 46.1689C8.90051 45.807 8.12211 45.3778 7.38867 44.8877L7.11035 45.3027C5.36374 44.1355 3.86336 42.6354 2.69629 40.8887L3.1123 40.6113C2.55228 39.7732 2.07113 38.8767 1.67969 37.9316L1.53613 37.5645C1.21507 36.6968 0.991928 35.741 0.837891 34.6113L0.344727 34.6777C0.0932857 32.8332 0.0255225 30.5718 0.0078125 27.5654L0.506836 27.5635C0.500444 26.4789 0.5 25.2966 0.5 24C0.5 22.7034 0.500444 21.5211 0.506836 20.4365L0.0078125 20.4336C0.0255343 17.4272 0.0932053 15.1658 0.344727 13.3213L0.837891 13.3887C1.01396 12.0974 1.28002 11.0333 1.67969 10.0684C2.07113 9.12334 2.55228 8.22678 3.1123 7.38867L2.69629 7.11035C3.8634 5.36377 5.36377 3.8634 7.11035 2.69629L7.38867 3.1123C8.22678 2.55228 9.12334 2.07113 10.0684 1.67969C11.0333 1.28002 12.0974 1.01396 13.3887 0.837891L13.3213 0.344727C15.1658 0.0932053 17.4272 0.0255343 20.4336 0.0078125L20.4365 0.506836C21.5211 0.500444 22.7034 0.5 24 0.5H26.5625V0H31.6875V0.5H36.8125V0H41.9375V0.5H47.0625V0H52.1875V0.5H57.3125V0H62.4375Z"
-                            fill="#F0F3F8" />
-                        <path
-                            d="M62.4375 0V0.5H65C66.2966 0.5 67.4789 0.500444 68.5635 0.506836L68.5654 0.0078125C71.5718 0.0255226 73.8332 0.0932854 75.6777 0.344727L75.6113 0.837891C76.9026 1.01396 77.9667 1.28001 78.9316 1.67969C79.8767 2.07113 80.7732 2.55228 81.6113 3.1123L81.8887 2.69629C83.6354 3.86336 85.1355 5.36374 86.3027 7.11035L85.8877 7.38867C86.4477 8.22678 86.9289 9.12334 87.3203 10.0684C87.72 11.0333 87.986 12.0974 88.1621 13.3887L88.6543 13.3213C88.9058 15.1658 88.9735 17.4271 88.9912 20.4336L88.4932 20.4365C88.4996 21.5211 88.5 22.7034 88.5 24C88.5 25.2966 88.4996 26.4789 88.4932 27.5635L88.9912 27.5654C88.9735 30.5719 88.9058 32.8332 88.6543 34.6777L88.1621 34.6113C88.0081 35.741 87.7849 36.6968 87.4639 37.5645L87.3203 37.9316C86.9289 38.8767 86.4477 39.7732 85.8877 40.6113L86.3027 40.8887C85.1356 42.6354 83.6354 44.1356 81.8887 45.3027L81.6113 44.8877C80.8779 45.3778 80.0995 45.807 79.2832 46.1689L78.9316 46.3203C77.9667 46.72 76.9026 46.986 75.6113 47.1621L75.6777 47.6543C73.8332 47.9058 71.5719 47.9735 68.5654 47.9912L68.5635 47.4932C67.4789 47.4996 66.2966 47.5 65 47.5H62.4375V48H57.3125V47.5H52.1875V48H47.0625V47.5H41.9375V48H36.8125V47.5H31.6875V48H26.5625V47.5H24C22.7034 47.5 21.5211 47.4996 20.4365 47.4932L20.4336 47.9912C17.4271 47.9735 15.1658 47.9058 13.3213 47.6543L13.3887 47.1621C12.0974 46.986 11.0333 46.72 10.0684 46.3203L9.7168 46.1689C8.90051 45.807 8.12211 45.3778 7.38867 44.8877L7.11035 45.3027C5.36374 44.1355 3.86336 42.6354 2.69629 40.8887L3.1123 40.6113C2.55228 39.7732 2.07113 38.8767 1.67969 37.9316L1.53613 37.5645C1.21507 36.6968 0.991928 35.741 0.837891 34.6113L0.344727 34.6777C0.0932857 32.8332 0.0255225 30.5718 0.0078125 27.5654L0.506836 27.5635C0.500444 26.4789 0.5 25.2966 0.5 24C0.5 22.7034 0.500444 21.5211 0.506836 20.4365L0.0078125 20.4336C0.0255343 17.4272 0.0932053 15.1658 0.344727 13.3213L0.837891 13.3887C1.01396 12.0974 1.28002 11.0333 1.67969 10.0684C2.07113 9.12334 2.55228 8.22678 3.1123 7.38867L2.69629 7.11035C3.8634 5.36377 5.36377 3.8634 7.11035 2.69629L7.38867 3.1123C8.22678 2.55228 9.12334 2.07113 10.0684 1.67969C11.0333 1.28002 12.0974 1.01396 13.3887 0.837891L13.3213 0.344727C15.1658 0.0932053 17.4272 0.0255343 20.4336 0.0078125L20.4365 0.506836C21.5211 0.500444 22.7034 0.5 24 0.5H26.5625V0H31.6875V0.5H36.8125V0H41.9375V0.5H47.0625V0H52.1875V0.5H57.3125V0H62.4375Z"
-                            stroke="#93A7C1" stroke-dasharray="5 5" />
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M45 26.6667C42.4859 26.6667 41.2288 26.6667 40.4477 27.4478C39.6667 28.2288 39.6667 29.4859 39.6667 32.0001C39.6667 34.5142 39.6667 35.7713 40.4477 36.5524C41.2288 37.3334 42.4859 37.3334 45 37.3334C47.5142 37.3334 48.7713 37.3334 49.5523 36.5524C50.3334 35.7713 50.3334 34.5142 50.3334 32.0001C50.3334 29.4859 50.3334 28.2288 49.5523 27.4478C48.7713 26.6667 47.5142 26.6667 45 26.6667ZM47.4063 30.7789L45.6286 29.0012C45.2814 28.654 44.7186 28.654 44.3715 29.0012L42.5937 30.7789C42.2466 31.1261 42.2466 31.6889 42.5937 32.036C42.9408 32.3832 43.5036 32.3832 43.8508 32.036L44.1111 31.7757V34.3705C44.1111 34.8614 44.5091 35.2593 45 35.2593C45.4909 35.2593 45.8889 34.8614 45.8889 34.3705V31.7757L46.1493 32.036C46.4964 32.3832 47.0592 32.3832 47.4063 32.036C47.7535 31.6889 47.7535 31.1261 47.4063 30.7789Z"
-                            fill="#4A6D97" />
-                        <path opacity="0.3"
-                            d="M37.6667 32.0001L37.6667 31.8808C37.6666 30.7266 37.6664 29.6684 37.7822 28.8075C37.9096 27.8596 38.2095 26.8577 39.0335 26.0336C39.8576 25.2095 40.8595 24.9097 41.8075 24.7822C42.6683 24.6665 43.7265 24.6666 44.8807 24.6668H45.1194C46.2735 24.6666 47.3318 24.6665 48.1926 24.7822C49.1405 24.9097 50.1425 25.2095 50.9665 26.0336C51.7906 26.8577 52.0905 27.8596 52.2179 28.8075C52.3319 29.6557 52.3335 30.6954 52.3334 31.8297C55.7635 31.0962 58.3334 28.08 58.3334 24.4707C58.3334 21.1749 56.1906 18.3737 53.2068 17.3534C52.7828 13.5917 49.5545 10.6667 45.6349 10.6667C41.4271 10.6667 38.0159 14.0378 38.0159 18.1962C38.0159 19.1159 38.1828 19.9971 38.4882 20.8119C38.13 20.7424 37.7598 20.706 37.381 20.706C34.2251 20.706 31.6667 23.2342 31.6667 26.353C31.6667 29.4718 34.2251 32.0001 37.381 32.0001L37.6667 32.0001Z"
-                            fill="#4A6D97" />
-                    </svg>
-
-                    <div class="upload-text">
-                        <span class="upload-label">Do you need to upload a helping video or photo?</span>
-                        <span class="upload-size">Max Size: 10 mb</span>
-                    </div>
-                    <label class="upload-icon-btn">
-                        @if (mediaUploadingIndex === i) {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                            style="animation: spin 1s linear infinite;">
-                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-dasharray="15.7 47.1" />
-                        </svg>
-                        } @else {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <g clip-path="url(#clip0_1666_1579)">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 0.9375C9.16421 0.9375 9.32022 1.00925 9.42708 1.13393L11.6771 3.75893C11.8793 3.9948 11.8519 4.34991 11.6161 4.55208C11.3802 4.75426 11.0251 4.72694 10.8229 4.49107L9.5625 3.02058L9.5625 11.25C9.5625 11.5607 9.31066 11.8125 9 11.8125C8.68934 11.8125 8.4375 11.5607 8.4375 11.25L8.4375 3.02058L7.17708 4.49107C6.97491 4.72694 6.6198 4.75426 6.38393 4.55208C6.14806 4.34991 6.12074 3.9948 6.32292 3.75893L8.57292 1.13393C8.67978 1.00925 8.83579 0.9375 9 0.9375ZM5.24687 6.18897C5.55752 6.18724 5.81076 6.43768 5.81249 6.74833C5.81422 7.05899 5.56379 7.31223 5.25313 7.31396C4.43301 7.31852 3.8517 7.33982 3.41051 7.42086C2.9854 7.49894 2.73935 7.62433 2.55676 7.80692C2.34918 8.01449 2.21385 8.30592 2.13986 8.85625C2.06369 9.42276 2.0625 10.1736 2.0625 11.2502V12.0002C2.0625 13.0767 2.06369 13.8276 2.13986 14.3941C2.21385 14.9444 2.34918 15.2358 2.55676 15.4434C2.76433 15.651 3.05576 15.7863 3.60609 15.8603C4.1726 15.9365 4.92344 15.9377 6 15.9377H12C13.0766 15.9377 13.8274 15.9365 14.3939 15.8603C14.9442 15.7863 15.2357 15.651 15.4432 15.4434C15.6508 15.2358 15.7861 14.9444 15.8601 14.3941C15.9363 13.8276 15.9375 13.0767 15.9375 12.0002V11.2502C15.9375 10.1736 15.9363 9.42276 15.8601 8.85625C15.7861 8.30592 15.6508 8.01449 15.4432 7.80692C15.2607 7.62433 15.0146 7.49894 14.5895 7.42086C14.1483 7.33982 13.567 7.31852 12.7469 7.31396C12.4362 7.31223 12.1858 7.05899 12.1875 6.74833C12.1892 6.43768 12.4425 6.18724 12.7531 6.18897C13.5643 6.19349 14.2403 6.2129 14.7927 6.31437C15.3612 6.4188 15.845 6.61773 16.2387 7.01142C16.6902 7.46286 16.8843 8.03127 16.9751 8.70635C17.0625 9.35657 17.0625 10.1833 17.0625 11.209V12.0413C17.0625 13.067 17.0625 13.8937 16.9751 14.544C16.8843 15.2191 16.6902 15.7875 16.2387 16.2389C15.7873 16.6903 15.2189 16.8845 14.5438 16.9753C13.8936 17.0627 13.0668 17.0627 12.0412 17.0627H5.95885C4.93315 17.0627 4.10641 17.0627 3.45619 16.9753C2.78111 16.8845 2.2127 16.6903 1.76126 16.2389C1.30982 15.7875 1.11565 15.2191 1.02489 14.544C0.937472 13.8937 0.937484 13.067 0.937499 12.0413V11.209C0.937484 10.1833 0.937472 9.35657 1.02489 8.70635C1.11565 8.03127 1.30982 7.46286 1.76126 7.01142C2.15496 6.61773 2.63877 6.4188 3.20726 6.31437C3.75968 6.2129 4.43572 6.19349 5.24687 6.18897Z"
-                                    fill="#377AFD" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_1666_1579">
-                                    <rect width="18" height="18" rx="5" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
-                        }
-                        <input type="file" [id]="'media-upload-' + i" class="d-none" (change)="onMediaSelect($event, i)"
-                            accept="image/*,video/*" [disabled]="mediaUploadingIndex === i" />
-                    </label>
-                </div>
-                }
-
-                <!-- Media items list -->
-                @if (question.media && question.media.length > 0) {
-                @for (media of question.media; track media.timestamp || $index; let mediaIdx = $index) {
-                <div class="media-preview" style="margin-top: 0.75rem;">
-                    <!-- Media File Info -->
-                    <div class="media-file-info">
-
-                        <!-- Media Preview -->
-                        @if (media.url && media.type?.toLowerCase() === 'image') {
-                        <img [src]="media.url" [alt]="media.name" />
-                        }
-                        @if (media.url && media.type?.toLowerCase() === 'video') {
-                        <video [src]="media.url" controls>
-                            Your browser does not support the video tag.
-                        </video>
-                        }
-
-                        <!-- File Details -->
-                        <div class="file-details">
-                            <span class="file-name">{{ media.name }}</span>
-                            <span class="file-size">{{ media.size }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Media Actions -->
-                    <div class="media-actions">
-                        <label class="btn-icon" type="button" title="Replace">
-                            @if (mediaUploadingIndex === i && mediaEditingIndex === mediaIdx) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                                style="animation: spin 1s linear infinite;">
-                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-dasharray="15.7 47.1" />
-                            </svg>
-                            } @else {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17"
-                                fill="none">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M8.01947 1.58655e-07L9.1875 3.37469e-07C9.49816 3.37469e-07 9.75 0.25184 9.75 0.5625C9.75 0.873161 9.49816 1.125 9.1875 1.125H8.0625C6.27883 1.125 4.99767 1.12619 4.02268 1.25728C3.06388 1.38619 2.48584 1.63136 2.0586 2.0586C1.63136 2.48584 1.38619 3.06388 1.25728 4.02268C1.12619 4.99767 1.125 6.27883 1.125 8.0625C1.125 9.84617 1.12619 11.1273 1.25728 12.1023C1.38619 13.0611 1.63136 13.6392 2.0586 14.0664C2.48584 14.4936 3.06388 14.7388 4.02268 14.8677C4.99767 14.9988 6.27883 15 8.0625 15C9.84617 15 11.1273 14.9988 12.1023 14.8677C13.0611 14.7388 13.6392 14.4936 14.0664 14.0664C14.4936 13.6392 14.7388 13.0611 14.8677 12.1023C14.9988 11.1273 15 9.84617 15 8.0625V6.9375C15 6.62684 15.2518 6.375 15.5625 6.375C15.8732 6.375 16.125 6.62684 16.125 6.9375V8.10553C16.125 9.83683 16.125 11.1936 15.9827 12.2522C15.837 13.3358 15.533 14.1908 14.8619 14.8619C14.1908 15.533 13.3358 15.837 12.2522 15.9827C11.1936 16.125 9.83683 16.125 8.10553 16.125H8.01947C6.28817 16.125 4.9314 16.125 3.87278 15.9827C2.78923 15.837 1.93421 15.533 1.2631 14.8619C0.591995 14.1908 0.28799 13.3358 0.14231 12.2522C-1.71438e-05 11.1936 -9.4973e-06 9.83683 1.58655e-07 8.10553V8.01947C-9.4973e-06 6.28817 -1.71438e-05 4.93139 0.14231 3.87278C0.28799 2.78923 0.591995 1.93421 1.2631 1.2631C1.93421 0.591995 2.78923 0.28799 3.87278 0.14231C4.93139 -1.71438e-05 6.28817 -9.4973e-06 8.01947 1.58655e-07ZM11.6404 0.769436C12.6663 -0.256478 14.3296 -0.256478 15.3556 0.769436C16.3815 1.79535 16.3815 3.45869 15.3556 4.4846L10.3695 9.47068C10.091 9.74918 9.9166 9.92364 9.72194 10.0755C9.49266 10.2543 9.24459 10.4076 8.98211 10.5327C8.75926 10.6389 8.52521 10.7169 8.15159 10.8414L5.9732 11.5675C5.57101 11.7016 5.1276 11.5969 4.82783 11.2972C4.52806 10.9974 4.42339 10.554 4.55745 10.1518L5.28358 7.97342C5.40809 7.59979 5.48609 7.36574 5.5923 7.14289C5.71739 6.88041 5.87071 6.63234 6.04953 6.40306C6.20137 6.2084 6.37583 6.03397 6.65433 5.7555L11.6404 0.769436ZM14.5601 1.56493C13.9735 0.978357 13.0225 0.978357 12.4359 1.56493L12.1534 1.8474C12.1705 1.91929 12.1943 2.00495 12.2274 2.1005C12.3349 2.41029 12.5383 2.81829 12.9225 3.2025C13.3067 3.5867 13.7147 3.7901 14.0245 3.89758C14.12 3.93073 14.2057 3.95455 14.2776 3.97157L14.5601 3.68911C15.1466 3.10253 15.1466 2.15151 14.5601 1.56493ZM13.3914 4.85782C13.0044 4.6914 12.5536 4.42459 12.127 3.99799C11.7004 3.57139 11.4336 3.12062 11.2672 2.73364L7.47563 6.52519C7.16325 6.83758 7.04073 6.96147 6.93661 7.09496C6.80803 7.25981 6.6978 7.43817 6.60786 7.62689C6.53502 7.77972 6.47901 7.9447 6.3393 8.36381L6.01538 9.33557L6.78943 10.1096L7.76119 9.7857C8.1803 9.64599 8.34528 9.58997 8.49811 9.51714C8.68683 9.4272 8.86519 9.31697 9.03004 9.18839C9.16353 9.08427 9.28742 8.96176 9.59981 8.64937L13.3914 4.85782Z"
-                                    fill="#4A6D97" />
-                            </svg>
-                            }
-                            <input type="file" class="d-none" (change)="onMediaSelect($event, i, mediaIdx)"
-                                accept="image/*,video/*"
-                                [disabled]="mediaUploadingIndex === i && mediaEditingIndex === mediaIdx" />
-                        </label>
-                        <button class="btn-icon delete" (click)="removeMedia(i, mediaIdx)" type="button" title="Delete"
-                            [disabled]="mediaUploadingIndex === i && mediaEditingIndex === mediaIdx">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15"
-                                fill="none">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
-                                    fill="#E04F5F" />
-                                <path
-                                    d="M2.37382 4.65011C2.35315 4.34014 2.08512 4.10561 1.77515 4.12627C1.46517 4.14694 1.23064 4.41497 1.25131 4.72495L1.5989 9.93875C1.66302 10.9008 1.71481 11.6779 1.83629 12.2877C1.96259 12.9217 2.17741 13.4512 2.6211 13.8663C3.0648 14.2814 3.60746 14.4606 4.24845 14.5444C4.86497 14.6251 5.64378 14.625 6.60795 14.625H7.26713C8.23129 14.625 9.01016 14.6251 9.62668 14.5444C10.2677 14.4606 10.8103 14.2814 11.254 13.8663C11.6977 13.4512 11.9125 12.9217 12.0388 12.2877C12.1603 11.6779 12.2121 10.9008 12.2762 9.93876L12.6238 4.72495C12.6445 4.41497 12.41 4.14694 12.1 4.12627C11.79 4.10561 11.522 4.34014 11.5013 4.65011L11.1564 9.82445C11.089 10.8353 11.0409 11.5387 10.9355 12.0679C10.8333 12.5813 10.6905 12.853 10.4854 13.0448C10.2804 13.2367 9.99976 13.361 9.48076 13.4289C8.94571 13.4989 8.24071 13.5 7.22757 13.5H6.64755C5.63442 13.5 4.92942 13.4989 4.39436 13.4289C3.87536 13.361 3.59474 13.2367 3.38968 13.0448C3.18462 12.853 3.04187 12.5812 2.93961 12.0679C2.83419 11.5387 2.78617 10.8353 2.71877 9.82445L2.37382 4.65011Z"
-                                    fill="#E04F5F" />
-                                <path
-                                    d="M5.0066 6.00282C5.31572 5.97191 5.59136 6.19744 5.62228 6.50656L5.99728 10.2566C6.02819 10.5657 5.80266 10.8413 5.49354 10.8722C5.18442 10.9031 4.90877 10.6776 4.87786 10.3685L4.50286 6.6185C4.47195 6.30938 4.69748 6.03373 5.0066 6.00282Z"
-                                    fill="#E04F5F" />
-                                <path
-                                    d="M8.86854 6.00282C9.17766 6.03373 9.40319 6.30938 9.37228 6.6185L8.99728 10.3685C8.96636 10.6776 8.69072 10.9031 8.3816 10.8722C8.07248 10.8413 7.84695 10.5657 7.87786 10.2566L8.25286 6.50656C8.28377 6.19744 8.55942 5.97191 8.86854 6.00282Z"
-                                    fill="#E04F5F" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                }
-                }
-
-                <!-- Add Media Button -->
-                <button class="btn btn-lg btn-outline-primary form-control custom-date-input mt-3" type="button"
-                    (click)="triggerMediaUpload(i)" [disabled]="mediaUploadingIndex === i">
-                    @if (mediaUploadingIndex === i) {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        style="animation: spin 1s linear infinite;">
-                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-dasharray="15.7 47.1" />
-                    </svg>
-                    } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
-                        </g>
-                    </svg>
-                    }
-                    Add media
-                </button>
-                <!-- Hidden file input for programmatic triggering -->
-                <input type="file" [id]="'media-upload-' + i" class="d-none" (change)="onMediaSelect($event, i)"
-                    accept="image/*,video/*" [disabled]="mediaUploadingIndex === i" />
-            </div>
-
-            <!-- Question Type and Score -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="input">
-                        <label for="qtype">Question type <span>*</span></label>
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <select id="qtype" class="form-control custom-date-input"
-                                [(ngModel)]="question.question_type"
-                                (change)="onQuestionTypeChange(i, question.question_type)"
-                                (blur)="question.touched = true">
-                                <option value="">Select Type</option>
-                                <option value="essay">Essay</option>
-                                <option value="mcq">MCQ</option>
-                                <option value="truefalse">True & False</option>
-                            </select>
-                        </div>
-                        @if (!question.question_type && (question.touched || formSubmitted) && expandedQuestion === i) {
-                        <p class="error-msg">Please select a question type</p>
-                        }
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="input">
-                        <label for="qscore">Question score <span>*</span></label>
-                        <div class="form-outline w-100 position-relative custom-date-wrapper">
-                            <input type="number" id="qscore" class="form-control custom-date-input"
-                                [(ngModel)]="question.points" (blur)="question.touched = true" placeholder="40" />
-                        </div>
-                        @if ((!question.points || question.points <= 0) && (question.touched || formSubmitted) &&
-                            expandedQuestion===i) { <p class="error-msg">Points must be greater than 0</p>
-                            }
-                    </div>
-                </div>
-            </div>
-
-            <!-- Answers Section (for MCQ) -->
-            @if (question.question_type === 'mcq') {
-            <div class="answers-section">
-                <h6 class="answers-title">Answers</h6>
-                @for (answer of question.answers || []; let ansIndex = $index; track ansIndex) {
-                <div>
-                    <div class="answer-row">
-                        <span class="answer-label">{{ ['A', 'B', 'C', 'D'][ansIndex] }}</span>
-                        <div style="flex: 1;">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input type="text" class="form-control custom-date-input" [(ngModel)]="answer.text"
-                                    (ngModelChange)="clearAnswerError(answer)" (blur)="answer.touched = true"
-                                    placeholder="Answer Text" />
-                            </div>
-                        </div>
-                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== ansIndex"
-                            [class.btn-primary]="question.correct_answer === ansIndex"
-                            (click)="setCorrectAnswer(i, ansIndex)" type="button">
-                            @if (question.correct_answer === ansIndex) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                </g>
-                            </svg>
-                            Correct Answer
-                            } @else {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
-                            </svg>
-                            Mark as Correct
-                            }
-                        </button>
-                    </div>
-                    @if (answer.error && (answer.touched || formSubmitted)) {
-                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-                    }
-                </div>
-                }
-                <div class="answer-row">
-                    <span class="answer-label"></span>
-                    <button class="btn btn-lg btn-outline-primary form-control custom-date-input" (click)="addAnswer(i)"
-                        type="button" style="width: 81%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                <circle cx="12" cy="12" r="10" />
-                                <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
-                            </g>
-                        </svg>
-                        Add answer
-                    </button>
-                </div>
-            </div>
+            @if (!question.question_type && (question.touched || formSubmitted)
+            && isQuestionExpanded(i)) {
+            <p class="error-msg">Please select a question type</p>
             }
-
-            <!-- Answers Section (for True/False) -->
-            @if (question.question_type === 'truefalse' && question.answers && question.answers.length >= 2) {
-            <div class="answers-section">
-                <h6 class="answers-title">Answers</h6>
-                <div>
-                    <div class="answer-row">
-                        <div style="flex: 1;">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input type="text" class="form-control custom-date-input"
-                                    [(ngModel)]="question.answers[0].text"
-                                    (ngModelChange)="clearAnswerError(question.answers[0])"
-                                    (blur)="question.answers[0].touched = true" placeholder="True Answer" />
-                            </div>
-                        </div>
-                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 0"
-                            [class.btn-primary]="question.correct_answer === 0" (click)="setCorrectAnswer(i, 0)"
-                            type="button">
-                            @if (question.correct_answer === 0) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                </g>
-                            </svg>
-                            True Answer
-                            } @else {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
-                            </svg>
-                            Mark as True
-                            }
-                        </button>
-                    </div>
-                    @if (question.answers[0].error && (question.answers[0].touched || formSubmitted)) {
-                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-                    }
-                </div>
-                <div>
-                    <div class="answer-row">
-                        <div style="flex: 1;">
-                            <div class="form-outline w-100 position-relative custom-date-wrapper">
-                                <input type="text" class="form-control custom-date-input"
-                                    [(ngModel)]="question.answers[1].text"
-                                    (ngModelChange)="clearAnswerError(question.answers[1])"
-                                    (blur)="question.answers[1].touched = true" placeholder="False Answer" />
-                            </div>
-                        </div>
-                        <button class="btn btn-lg" [class.btn-outline-secondary]="question.correct_answer !== 1"
-                            [class.btn-primary]="question.correct_answer === 1" (click)="setCorrectAnswer(i, 1)"
-                            type="button">
-                            @if (question.correct_answer === 1) {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                                </g>
-                            </svg>
-                            True Answer
-                            } @else {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
-                            </svg>
-                            Mark as True
-                            }
-                        </button>
-                    </div>
-                    @if (question.answers[1].error && (question.answers[1].touched || formSubmitted)) {
-                    <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-                    }
-                </div>
-                @if ((question.correct_answer === null || question.correct_answer === undefined) && (question.touched ||
-                formSubmitted)) {
-                <p class="error-msg">Please mark one answer as correct</p>
-                }
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input">
+            <label for="qscore">Question score <span>*</span></label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <input
+                type="number"
+                id="qscore"
+                class="form-control custom-date-input"
+                [(ngModel)]="question.points"
+                (blur)="question.touched = true"
+                placeholder="40"
+              />
             </div>
+            @if ((!question.points || question.points <= 0) && formSubmitted &&
+            expandedQuestion===i) {
+            <p class="error-msg">Points must be greater than 0</p>
             }
+          </div>
+        </div>
+      </div>
+
+      <!-- Answers Section (for MCQ) -->
+      @if (question.question_type === 'mcq') {
+      <div class="answers-section">
+        <h6 class="answers-title">Answers</h6>
+        @for (answer of question.answers || []; let ansIndex = $index; track
+        ansIndex) {
+        <div>
+          <div class="answer-row">
+            <span class="answer-label">{{ getAnswerLetter(ansIndex) }}</span>
+            <div style="flex: 1">
+              <div
+                class="form-outline w-100 position-relative custom-date-wrapper"
+              >
+                <input
+                  type="text"
+                  class="form-control custom-date-input"
+                  [(ngModel)]="answer.text"
+                  (ngModelChange)="clearAnswerError(i, ansIndex)"
+                  (blur)="answer.touched = true"
+                  placeholder="Answer Text"
+                />
+              </div>
+            </div>
+            <button
+              class="btn btn-lg"
+              [class.btn-outline-secondary]="
+                question.correct_answer !== ansIndex
+              "
+              [class.btn-primary]="question.correct_answer === ansIndex"
+              (click)="setCorrectAnswer(i, ansIndex)"
+              type="button"
+            >
+              @if (question.correct_answer === ansIndex) {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m8.5 12.5l2 2l5-5"
+                  />
+                </g>
+              </svg>
+              Correct Answer } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+              </svg>
+              Mark as Correct }
+            </button>
+            @if ((question.answers || []).length > 1) {
+            <button
+              class="btn btn-sm btn-outline-danger delete-answer-btn"
+              (click)="removeAnswer(i, ansIndex)"
+              type="button"
+              title="Remove Answer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="15"
+                viewBox="0 0 14 15"
+                fill="none"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M5.66952 1.42113e-05H8.2056C8.3679 -8.93219e-05 8.50929 -0.000179489 8.64281 0.0211409C9.17028 0.10537 9.62673 0.43436 9.87344 0.908129C9.93588 1.02805 9.98051 1.16221 10.0317 1.31621L10.1154 1.56738C10.1296 1.6099 10.1337 1.62193 10.1371 1.63141C10.2684 1.9945 10.609 2.23995 10.995 2.24973C11.0051 2.24998 11.0175 2.25003 11.0626 2.25003H13.3126C13.6232 2.25003 13.8751 2.50187 13.8751 2.81253C13.8751 3.12319 13.6232 3.37503 13.3126 3.37503H0.5625C0.25184 3.37503 0 3.12319 0 2.81253C0 2.50187 0.25184 2.25003 0.5625 2.25003H2.81256C2.8576 2.25003 2.87003 2.24999 2.88017 2.24973C3.26616 2.23995 3.60668 1.99452 3.73802 1.63143C3.74147 1.62188 3.74544 1.61011 3.75968 1.56738L3.84339 1.31622C3.89461 1.16223 3.93924 1.02805 4.00169 0.90813C4.2484 0.434361 4.70485 0.10537 5.23232 0.0211409C5.36584 -0.000179489 5.50723 -8.93219e-05 5.66952 1.42113e-05ZM4.69361 2.25003C4.73225 2.17426 4.76648 2.09553 4.79593 2.01411C4.80487 1.98939 4.81365 1.96307 4.82492 1.92925L4.89977 1.70469C4.96815 1.49956 4.98389 1.45772 4.99951 1.42773C5.08174 1.26981 5.23389 1.16014 5.40972 1.13207C5.44311 1.12673 5.48777 1.12503 5.70401 1.12503H8.17112C8.38735 1.12503 8.43201 1.12673 8.46541 1.13207C8.64123 1.16014 8.79338 1.26981 8.87562 1.42773C8.89124 1.45772 8.90698 1.49955 8.97536 1.70469L9.05016 1.92912L9.0792 2.01413C9.10865 2.09554 9.14288 2.17427 9.18151 2.25003H4.69361Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M2.37382 4.65011C2.35315 4.34014 2.08512 4.10561 1.77515 4.12627C1.46517 4.14694 1.23064 4.41497 1.25131 4.72495L1.5989 9.93875C1.66302 10.9008 1.71481 11.6779 1.83629 12.2877C1.96259 12.9217 2.17741 13.4512 2.6211 13.8663C3.0648 14.2814 3.60746 14.4606 4.24845 14.5444C4.86497 14.6251 5.64378 14.625 6.60795 14.625H7.26713C8.23129 14.625 9.01016 14.6251 9.62668 14.5444C10.2677 14.4606 10.8103 14.2814 11.254 13.8663C11.6977 13.4512 11.9125 12.9217 12.0388 12.2877C12.1603 11.6779 12.2121 10.9008 12.2762 9.93876L12.6238 4.72495C12.6445 4.41497 12.41 4.14694 12.1 4.12627C11.79 4.10561 11.522 4.34014 11.5013 4.65011L11.1564 9.82445C11.089 10.8353 11.0409 11.5387 10.9355 12.0679C10.8333 12.5813 10.6905 12.853 10.4854 13.0448C10.2804 13.2367 9.99976 13.361 9.48076 13.4289C8.94571 13.4989 8.24071 13.5 7.22757 13.5H6.64755C5.63442 13.5 4.92942 13.4989 4.39436 13.4289C3.87536 13.361 3.59474 13.2367 3.38968 13.0448C3.18462 12.853 3.04187 12.5812 2.93961 12.0679C2.83419 11.5387 2.78617 10.8353 2.71877 9.82445L2.37382 4.65011Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M5.0066 6.00282C5.31572 5.97191 5.59136 6.19744 5.62228 6.50656L5.99728 10.2566C6.02819 10.5657 5.80266 10.8413 5.49354 10.8722C5.18442 10.9031 4.90877 10.6776 4.87786 10.3685L4.50286 6.6185C4.47195 6.30938 4.69748 6.03373 5.0066 6.00282Z"
+                  fill="#E04F5F"
+                />
+                <path
+                  d="M8.86854 6.00282C9.17766 6.03373 9.40319 6.30938 9.37228 6.6185L8.99728 10.3685C8.96636 10.6776 8.69072 10.9031 8.3816 10.8722C8.07248 10.8413 7.84695 10.5657 7.87786 10.2566L8.25286 6.50656C8.28377 6.19744 8.55942 5.97191 8.86854 6.00282Z"
+                  fill="#E04F5F"
+                />
+              </svg>
+            </button>
+            }
+          </div>
+          @if (answer.error && (answer.touched || formSubmitted)) {
+          <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
+          } @if (answer.markAsCorrectError && !answer.error) {
+          <p class="ms-5 mb-3 error-msg">
+            The answer must have a value to mark it as correct
+          </p>
+          }
+        </div>
+        } @if ((question.answers || []).length < 26) {
+        <div class="answer-row">
+          <span class="answer-label"></span>
+          <button
+            class="btn btn-lg btn-outline-primary form-control custom-date-input"
+            (click)="addAnswer(i)"
+            type="button"
+            [style.width]="(question.answers || []).length > 1 ? '77%' : '81%'"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+            >
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
+              </g>
+            </svg>
+            Add answer
+          </button>
+        </div>
+        } @if ((question.correct_answer === null || question.correct_answer ===
+        undefined) && formSubmitted) {
+        <div class="answer-row">
+          <span class="answer-label"></span>
+          <p class="error-msg mb-0">Please mark one answer as correct</p>
         </div>
         }
+      </div>
+      }
+
+      <!-- Answers Section (for True/False) -->
+      @if (question.question_type === 'truefalse' && question.answers &&
+      question.answers.length >= 2) {
+      <div class="answers-section">
+        <h6 class="answers-title">Answers</h6>
+        <div>
+          <div class="answer-row">
+            <div style="flex: 1">
+              <div
+                class="form-outline w-100 position-relative custom-date-wrapper"
+              >
+                <input
+                  type="text"
+                  class="form-control custom-date-input"
+                  [(ngModel)]="question.answers[0].text"
+                  (ngModelChange)="clearAnswerError(i, 0)"
+                  (blur)="question.answers[0].touched = true"
+                  placeholder="Type Answer"
+                />
+              </div>
+            </div>
+            <button
+              class="btn btn-lg"
+              [class.btn-outline-secondary]="question.correct_answer !== 0"
+              [class.btn-primary]="question.correct_answer === 0"
+              (click)="setCorrectAnswer(i, 0)"
+              type="button"
+            >
+              @if (question.correct_answer === 0) {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m8.5 12.5l2 2l5-5"
+                  />
+                </g>
+              </svg>
+              True Answer } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+              </svg>
+              Mark as True }
+            </button>
+          </div>
+          @if (question.answers[0].error && (question.answers[0].touched ||
+          formSubmitted)) {
+          <p class="mb-3 error-msg">Answer cannot be empty</p>
+          }
+        </div>
+        <div>
+          <div class="answer-row">
+            <div style="flex: 1">
+              <div
+                class="form-outline w-100 position-relative custom-date-wrapper"
+              >
+                <input
+                  type="text"
+                  class="form-control custom-date-input"
+                  [(ngModel)]="question.answers[1].text"
+                  (ngModelChange)="clearAnswerError(i, 1)"
+                  (blur)="question.answers[1].touched = true"
+                  placeholder="Type Answer"
+                />
+              </div>
+            </div>
+            <button
+              class="btn btn-lg"
+              [class.btn-outline-secondary]="question.correct_answer !== 1"
+              [class.btn-primary]="question.correct_answer === 1"
+              (click)="setCorrectAnswer(i, 1)"
+              type="button"
+            >
+              @if (question.correct_answer === 1) {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <g fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m8.5 12.5l2 2l5-5"
+                  />
+                </g>
+              </svg>
+              True Answer } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+              </svg>
+              Mark as True }
+            </button>
+          </div>
+          @if (question.answers[1].error && (question.answers[1].touched ||
+          formSubmitted)) {
+          <p class="mb-3 error-msg">Answer cannot be empty</p>
+          }
+        </div>
+        @if ((question.correct_answer === null || question.correct_answer ===
+        undefined) && (question.touched || formSubmitted)) {
+        <div class="answer-row">
+          <div style="flex: 1">
+            <p class="error-msg mb-0">Please mark one answer as true</p>
+          </div>
+        </div>
+        }
+      </div>
+      }
     </div>
     }
-    }
-    }
-    }
+  </div>
+  } } } }
 </div>
 <!-- Summary Footer -->
-<div class="content-box">
-    <div class="assignment-summary d-flex gap-2">
-        <div class="stat-item">
-            <span class="stat-label">Total Questions</span>
-            <span class="stat-value">{{ questions.length }}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Full Score</span>
-            <span class="stat-value">{{ getTotalScore() }}</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Total Time</span>
-            <span class="stat-value">{{ assignmentForm.get('duration_minutes')?.value || 0 }} mins</span>
-        </div>
-        <button class="btn btn-lg btn-outline-primary" (click)="addQuestion()" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
-                </g>
-            </svg>
-            Add Question
-        </button>
+<div class="content-hug">
+  <div class="assignment-summary d-flex gap-2 content-box">
+    <div class="stat-item">
+      <span class="stat-label">Total Questions</span>
+      <span class="stat-value">{{ questions.length }}</span>
     </div>
+    <div class="stat-item">
+      <span class="stat-label">Full Score</span>
+      <span class="stat-value">{{ getTotalScore() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Total Time</span>
+      <span class="stat-value"
+        >{{ assignmentForm.get("duration_minutes")?.value || 0 }} mins</span
+      >
+    </div>
+    <button
+      class="btn btn-lg btn-outline-primary"
+      (click)="addQuestion()"
+      type="button"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+      >
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path stroke-linecap="round" d="M12 8v8m-4-4h8" />
+        </g>
+      </svg>
+      Add Question
+    </button>
+  </div>
 </div>
 }
 
 <!-- Navigation Buttons -->
 <div class="btn-fixed">
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn back-square-btn" (click)="goToPreviousTab()" title="Back">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round" d="m15 18l-6-6l6-6" />
-            </svg>
-        </button>
-        @if (currentTab === 'main-info') {
-        <button class="btn btn-lg btn-primary" [disabled]="!assignmentForm.valid" (click)="setCurrentTab('questions')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="1.5" d="M4 12h16m0 0l-6-6m6 6l-6 6" />
-            </svg>
-            <span>Next</span>
-        </button>
-        } @else if (currentTab === 'questions') {
-        <button class="btn btn-lg btn-success"
-            [disabled]="isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null" (click)="onSubmit()">
-            @if (isSubmitting) {
-            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-            }
-            @if (!isSubmitting) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
-                </g>
-            </svg>
-            }
-            <span>{{ buttonText }}</span>
-        </button>
-        }
-    </div>
+  <div class="d-flex align-items-center gap-2">
+    <button
+      class="btn back-square-btn"
+      (click)="goToPreviousTab()"
+      title="Back"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m15 18l-6-6l6-6"
+        />
+      </svg>
+    </button>
+    @if (currentTab === 'main-info') {
+    <button
+      class="btn btn-lg btn-primary"
+      [disabled]="!assignmentForm.valid"
+      (click)="setCurrentTab('questions')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+          d="M4 12h16m0 0l-6-6m6 6l-6 6"
+        />
+      </svg>
+      <span>Next</span>
+    </button>
+    } @else if (currentTab === 'questions') {
+    <button
+      class="btn btn-lg btn-success"
+      [disabled]="
+        isSubmitting || !assignmentForm.valid || mediaUploadingIndex !== null
+      "
+      (click)="onSubmit()"
+    >
+      @if (isSubmitting) {
+      <span
+        class="spinner-grow spinner-grow-sm"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      } @if (!isSubmitting) {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m8.5 12.5l2 2l5-5"
+          />
+        </g>
+      </svg>
+      }
+      <span>{{ buttonText }}</span>
+    </button>
+    }
+  </div>
 </div>
 
 <!-- Delete Media Confirmation Popup -->
-<app-popup [title]="'Delete Media'" [paragraph1]="'Are you sure you want to delete this media file?'"
-    [paragraph2]="'This action cannot be undone.'" [isOpen]="showDeleteMediaConfirmation"
-    (close)="closeDeleteMediaConfirmation()">
-    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeleteMedia()">
-        <span>Delete</span>
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDeleteMediaConfirmation()">
-        Cancel
-    </button>
+<app-popup
+  [title]="'Delete Media'"
+  [paragraph1]="'Are you sure you want to delete this media file?'"
+  [paragraph2]="'This action cannot be undone.'"
+  [isOpen]="showDeleteMediaConfirmation"
+  (close)="closeDeleteMediaConfirmation()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-danger w-100"
+    (click)="confirmDeleteMedia()"
+  >
+    <span>Delete</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeDeleteMediaConfirmation()"
+  >
+    Cancel
+  </button>
 </app-popup>
 
 <!-- Delete Question Confirmation Popup -->
-<app-popup [title]="'Delete Question'" [paragraph1]="'Are you sure you want to delete this question?'"
-    [paragraph2]="'All answers and media associated with this question will be permanently deleted.'"
-    [isOpen]="showDeleteQuestionConfirmation" (close)="closeDeleteQuestionConfirmation()">
-    <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDeleteQuestion()">
-        <span>Delete</span>
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100"
-        (click)="closeDeleteQuestionConfirmation()">
-        Cancel
-    </button>
+<app-popup
+  [title]="'Delete Question'"
+  [paragraph1]="'Are you sure you want to delete this question?'"
+  [paragraph2]="
+    'All answers and media associated with this question will be permanently deleted.'
+  "
+  [isOpen]="showDeleteQuestionConfirmation"
+  (close)="closeDeleteQuestionConfirmation()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-danger w-100"
+    (click)="confirmDeleteQuestion()"
+  >
+    <span>Delete</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeDeleteQuestionConfirmation()"
+  >
+    Cancel
+  </button>
 </app-popup>
 
 <!-- Discard Changes Confirmation Popup -->
-<app-popup [title]="'Discard Changes?'" [paragraph1]="'You have unsaved changes.'"
-    [paragraph2]="'Are you sure you want to leave? All your changes will be lost.'" [isOpen]="showDiscardConfirmation"
-    (close)="closeDiscardConfirmation()">
-    <button modal-btn-left class="btn btn-lg btn-outline-dark w-100" (click)="confirmDiscard()">
-        <span>Discard</span>
-    </button>
-    <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeDiscardConfirmation()">
-        Cancel
-    </button>
+<app-popup
+  [title]="'Discard Changes?'"
+  [paragraph1]="'You have unsaved changes.'"
+  [paragraph2]="
+    'Are you sure you want to leave? All your changes will be lost.'
+  "
+  [isOpen]="showDiscardConfirmation"
+  (close)="closeDiscardConfirmation()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-outline-dark w-100"
+    (click)="confirmDiscard()"
+  >
+    <span>Discard</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeDiscardConfirmation()"
+  >
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Delete Answer Confirmation Popup -->
+<app-popup
+  [title]="'Delete Answer'"
+  [paragraph1]="'Are you sure you want to delete this answer?'"
+  [paragraph2]="'This action cannot be undone.'"
+  [isOpen]="showDeleteAnswerConfirmation"
+  (close)="closeDeleteAnswerConfirmation()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-danger w-100"
+    (click)="confirmDeleteAnswer()"
+  >
+    <span>Delete</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeDeleteAnswerConfirmation()"
+  >
+    Cancel
+  </button>
 </app-popup>

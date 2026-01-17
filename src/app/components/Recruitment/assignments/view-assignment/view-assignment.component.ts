@@ -38,6 +38,8 @@ export class ViewAssignmentComponent implements OnInit, OnDestroy {
 
     deactivateOpen = false;
     activateOpen = false;
+    isActivating: boolean = false;
+    isDeactivating: boolean = false;
 
     ngOnInit(): void {
         this.assignmentId = this.activatedRoute.snapshot.paramMap.get('id') as unknown as number;
@@ -94,13 +96,14 @@ export class ViewAssignmentComponent implements OnInit, OnDestroy {
     }
 
     confirmDeactivate(): void {
+        if (this.isDeactivating || this.isActivating) return; // Prevent duplicate requests
         this.deactivateOpen = false;
         const statusData = {
             request_data: {
                 status: false
             }
         };
-        this.updateAssignmentStatus(statusData);
+        this.updateAssignmentStatus(statusData, false);
     }
 
     openActivate(): void {
@@ -112,17 +115,26 @@ export class ViewAssignmentComponent implements OnInit, OnDestroy {
     }
 
     confirmActivate(): void {
+        if (this.isActivating || this.isDeactivating) return; // Prevent duplicate requests
         this.activateOpen = false;
         const statusData = {
             request_data: {
                 status: true
             }
         };
-        this.updateAssignmentStatus(statusData);
+        this.updateAssignmentStatus(statusData, true);
     }
 
-    private updateAssignmentStatus(statusData: any): void {
+    private updateAssignmentStatus(statusData: any, isActivating: boolean): void {
         if (!this.assignment?.id) return;
+        
+        // Set loading state based on operation
+        if (isActivating) {
+            this.isActivating = true;
+        } else {
+            this.isDeactivating = true;
+        }
+        
         this.jobOpeningsService.updateAssignmentStatus(this.assignment.id, statusData)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -130,9 +142,15 @@ export class ViewAssignmentComponent implements OnInit, OnDestroy {
                     this.assignment = res?.data?.object_info ?? res?.object_info;
                     this.toasterMessageService.showSuccess('Assignment Status Updated', 'Updated Successfully');
                     this.formatDates();
+                    // Reset loading states
+                    this.isActivating = false;
+                    this.isDeactivating = false;
                 },
                 error: () => {
                     this.toasterMessageService.showError('Failed to update assignment status', 'Error');
+                    // Reset loading states on error
+                    this.isActivating = false;
+                    this.isDeactivating = false;
                 }
             });
     }

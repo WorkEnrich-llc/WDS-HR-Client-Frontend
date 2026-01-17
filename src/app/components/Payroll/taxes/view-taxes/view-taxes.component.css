@@ -1,0 +1,64 @@
+/* Skeleton Loader Styles */
+.skeleton-line {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    height: 20px;
+}
+
+.skeleton-label {
+    width: 180px;
+    height: 16px;
+}
+
+.skeleton-value {
+    width: 120px;
+    height: 20px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.card-section-header {
+    color: var(--text-colors-heading-on-light, #1E2E40) !important;
+    font-family: var(--font-family-en-font, Poppins) !important;
+    font-size: var(--size-b1, 20px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--line-height-sm, 20px) !important;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info h6 {
+    font-size: var(--font-size-b2);
+    line-height: var(--line-height-xss);
+    color: var(--color-secondary-400);
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+    display: block;
+    width: 100%;
+}
+
+.info span {
+    font-size: var(--font-size-b2);
+    line-height: var(--line-height-xss);
+    color: var(--color-secondary-600);
+    margin: 0;
+    padding: 0;
+    display: block;
+    word-wrap: break-word;
+}

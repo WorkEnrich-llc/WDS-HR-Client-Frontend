@@ -61,7 +61,8 @@ export class SystemFileComponent implements OnInit {
   private collectTimer: any = null;
   private lastCollectedData: any[] = [];
   isAllLoaded = false;
-  syncStatus: 'synced' | 'syncing' | 'error' = 'synced';
+  syncStatus: 'synced' | 'syncing' | 'error' | null = null;
+  showSystemMenu: boolean = false;
 
 
   onRowsChanged(updatedRows: any[]) {
@@ -78,6 +79,15 @@ export class SystemFileComponent implements OnInit {
     this.collectTimer = setTimeout(() => {
       this.collectFilledRows();
     }, 3000);
+  }
+
+  toggleSystemMenu(event?: any) {
+    if (event && event.stopPropagation) event.stopPropagation();
+    this.showSystemMenu = !this.showSystemMenu;
+  }
+
+  onUpdateBasic(): void {
+    // placeholder - no operation for now
   }
 
   // onCellInput() {
@@ -172,7 +182,12 @@ export class SystemFileComponent implements OnInit {
         // console.log(this.systemFileData)
         if (!this.fileEditable) {
           this.isImported = true;
-          this.startUploadTracking(this.systemFileData.file.id);
+          if (this.systemFileData.file.file_type !== 'payroll_sheet') {
+            this.startUploadTracking(this.systemFileData.file.id);
+          } else {
+            this.loadData = false;
+            this.isAllLoaded = true;
+          }
           return;
         }
 
@@ -445,6 +460,9 @@ export class SystemFileComponent implements OnInit {
   showUploadPopup: boolean = false;
   addMissingPopup: boolean = false;
   showMissingPopup: boolean = false;
+  // re-update confirmation popup
+  reupdatePOP: boolean = false;
+  reupdateType: string = '';
 
 
   gridsEditable: boolean = true;
@@ -475,6 +493,87 @@ export class SystemFileComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  openReupdateModal(type: 'structure' | 'basic' | 'components_value' | 'all') {
+    // if any validation is needed before allowing operation, it can be added here
+    this.reupdateType = type;
+    this.reupdatePOP = true;
+  }
+
+  closeReupdateModal() {
+    this.reupdatePOP = false;
+  }
+
+  confirmReupdate() {
+    if (!this.SystemFileId) return;
+
+    this.errMsg = '';
+    this.reupdatePOP = false;
+    this.upLoading = true;
+    this.gridsEditable = false;
+    this.cdr.detectChanges();
+
+    this._systemCloudService.reUpdatePayroll(this.SystemFileId, this.reupdateType).subscribe({
+      next: (response) => {
+        // start tracking upload/status for the file
+        if (this.SystemFileId) {
+          this.startUploadTracking(this.SystemFileId);
+        }
+      },
+      error: (err) => {
+        console.error('Error re-updating payroll:', err);
+        this.errMsg = err.error?.details || 'An error occurred while performing update.';
+        this.gridsEditable = true;
+        this.upLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getReupdateColor(): string {
+    switch (this.reupdateType) {
+      case 'structure':
+        return '#3b82f6';
+      case 'basic':
+        return '#10b981';
+      case 'components_value':
+        return '#8b5cf6';
+      case 'all':
+        return 'var(--color-warning-500)';
+      default:
+        return '';
+    }
+  }
+
+  getReupdateTitle(): string {
+    switch (this.reupdateType) {
+      case 'structure':
+        return 'Confirm Structure Update';
+      case 'basic':
+        return 'Confirm Basic Update';
+      case 'components_value':
+        return 'Confirm Component Value Update';
+      case 'all':
+        return 'Confirm Full Update';
+      default:
+        return 'Confirm Update';
+    }
+  }
+
+  getReupdateParagraph(): string {
+    switch (this.reupdateType) {
+      case 'structure':
+        return 'This will update the component structure (fields, layout or schema) without changing existing values. Proceed?';
+      case 'basic':
+        return 'This will update basic employee data in the sheet (modifies field values only). Proceed?';
+      case 'components_value':
+        return "This will replace empty or zero values with the component's predefined default values. Proceed?";
+      case 'all':
+        return 'This will apply structure, basic and component value updates. Proceed?';
+      default:
+        return 'Are you sure you want to perform this update?';
+    }
   }
 
 
@@ -760,25 +859,8 @@ export class SystemFileComponent implements OnInit {
   }
 
   updateStructure(): void {
-    if (!this.SystemFileId) return;
-
-    this.isUpdatingStructure = true;
-    this.errMsg = '';
-
-    this._systemCloudService.reUpdatePayroll(this.SystemFileId).subscribe({
-      next: (response) => {
-        this.isUpdatingStructure = false;
-        // Refresh the file data after successful update
-        if (this.SystemFileId) {
-          this.getSystemFileData(this.SystemFileId);
-        }
-      },
-      error: (err) => {
-        console.error('Error updating structure:', err);
-        this.errMsg = err.error?.details || 'An error occurred while updating structure.';
-        this.isUpdatingStructure = false;
-      }
-    });
+    // Defer to the confirmation modal flow to avoid duplicate API calls.
+    this.openReupdateModal('structure');
   }
 
 }

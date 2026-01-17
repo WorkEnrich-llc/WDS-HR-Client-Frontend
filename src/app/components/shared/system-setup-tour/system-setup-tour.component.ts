@@ -51,8 +51,7 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
   }
 
   get allStepsCompleted(): boolean {
-    return false;
-    // return this.items.length > 0 && this.items.every(item => item.checked === true);
+    return this.items.length > 0 && this.items.every(item => item.checked === true);
   }
 
   isStepRecentlyCompleted(step: ISystemSetupStepItem): boolean {
@@ -290,13 +289,13 @@ export class SystemSetupTourComponent implements OnInit, OnDestroy {
 
   private load(): void {
     // Check localStorage flag to skip API call if all steps completed
-    // const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
-    // if (allDoneFlag === 'true') {
-    //   this.isLoading = false;
-    //   this.error = null;
-    //   this.items = [];
-    //   return;
-    // }
+    const allDoneFlag = localStorage.getItem('system_setup_tour_all_done');
+    if (allDoneFlag === 'true') {
+      this.isLoading = false;
+      this.error = null;
+      this.items = [];
+      return;
+    }
 
     this.isLoading = true;
     this.error = null;
