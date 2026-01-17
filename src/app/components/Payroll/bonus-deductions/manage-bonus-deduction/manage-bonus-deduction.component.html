@@ -1,7 +1,7 @@
 <!-- page header -->
 <app-page-header [breadcrumbs]="breadcrumbs" [title]="pageTitle" [create]="todayFormatted">
     <button class="btn btn-lg btn-success w-auto"
-        [disabled]="isSubmitting || !bonusDeductionForm.valid || !hasSelectedRecipients()" (click)="onSubmit()">
+        [disabled]="isSubmitting || !bonusDeductionForm?.valid || !hasSelectedRecipients()" (click)="onSubmit()">
         @if (isSubmitting) {
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         }
@@ -173,10 +173,12 @@
                 <div class="form-outline w-100 position-relative custom-date-wrapper">
                     <select formControlName="salaryPortion" id="salaryPortion" class="form-control custom-date-input">
                         <option value="" disabled selected>Select Salary Portion</option>
-                        @for (sp of salaryPortions.settings; track sp.index) {
-                        <option [value]="sp.name">{{ sp.name }} {{ sp.percentage }}{{ sp.percentage !== '' ? ' (%)' : ''
-                            }}{{ sp.default ? ' - Default' : ''
-                            }}</option>
+                        @if (salaryPortions?.settings) {
+                            @for (sp of salaryPortions.settings; track sp.index) {
+                            <option [value]="sp.name">{{ sp.name }} {{ sp.percentage }}{{ sp.percentage !== '' ? ' (%)' : ''
+                                }}{{ sp.default ? ' - Default' : ''
+                                }}</option>
+                            }
                         }
                     </select>
                 </div>
