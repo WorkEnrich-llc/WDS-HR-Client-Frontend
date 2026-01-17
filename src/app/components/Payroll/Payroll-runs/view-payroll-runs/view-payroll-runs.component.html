@@ -706,7 +706,7 @@
       <div>
         <h6 class="mb-3">You can either:</h6>
 
-        <!-- Skip the Remaining Days Option -->
+        <!-- Skip the Remaining Days / Start Complete Payroll Option -->
         <div class="mb-3">
           <div class="d-flex align-items-center" style="gap: 8px">
             <div class="position-relative flex-shrink-0">
@@ -756,12 +756,20 @@
                 font-weight: 500;
               "
             >
+              @if (isPayrollEndDatePassed()) {
+              Start Complete Payroll
+              } @else {
               Skip the Remaining Days
+              }
             </label>
           </div>
           <p class="text-muted mb-0" style="font-size: 0.875rem">
+            @if (isPayrollEndDatePassed()) {
+            This will start a payroll for the entire cycle.
+            } @else {
             This will avoid applying any deduction or earning for the remaining
             days. This means Attendance rules will not be applied.
+            }
           </p>
         </div>
 

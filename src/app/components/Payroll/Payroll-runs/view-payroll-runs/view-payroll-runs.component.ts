@@ -278,6 +278,19 @@ export class ViewPayrollRunsComponent implements OnDestroy {
     return today < payrollEndDate;
   }
 
+  isPayrollEndDatePassed(): boolean {
+    const endDate = this.payRollRunData?.data?.object_info?.end_date;
+    if (!endDate) {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const payrollEndDate = new Date(endDate);
+    payrollEndDate.setHours(0, 0, 0, 0);
+    // Check if the end date is before today (the cycle has ended)
+    return payrollEndDate < today;
+  }
+
   getRemainingDays(): number {
     const endDate = this.payRollRunData?.data?.object_info?.end_date;
     if (!endDate) {
