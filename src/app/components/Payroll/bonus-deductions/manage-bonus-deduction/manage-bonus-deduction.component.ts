@@ -388,7 +388,7 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             this.bonusDeductionForm = this.formBuilder.group({
                 title: ['', [Validators.required, this.minLengthWithoutSpaces(3)]],
                 classification: ['', [Validators.required]],
-                date: ['', [Validators.required, this.notPreviousMonthValidator()]],
+                date: ['', [Validators.required]],
                 days: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
                 salaryPortion: ['', [Validators.required]],
             });
@@ -810,13 +810,13 @@ export class ManageBonusDeductionComponent implements OnInit, OnDestroy {
             requestData.remove_related_ids = removedRecipients.map(item => item.id);
         }
 
-        // Wrap payload in request_data for API
+        // Wrap payload in request_data for API (both create and update)
         const payload = { request_data: requestData };
 
         // Call API - create or update based on edit mode
         const apiCall = this.isEditMode
             ? this.bonusDeductionsService.updateBonusDeduction(this.editId!, payload)
-            : this.bonusDeductionsService.createBonusDeduction(requestData);
+            : this.bonusDeductionsService.createBonusDeduction(payload);
         apiCall.subscribe({
             next: (response) => {
                 this.isSubmitting = false;
