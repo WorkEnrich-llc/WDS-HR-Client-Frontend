@@ -22,7 +22,7 @@ export class BonusDeductionsService {
     }
 
     createBonusDeduction(data: any): Observable<any> {
-        const url = environment.apiBaseUrl + 'payroll/bonus-deductions/';
+        const url = environment.apiBaseUrl + 'payroll/bonus-deductions';
         return this.http.post<any>(url, data);
     }
 

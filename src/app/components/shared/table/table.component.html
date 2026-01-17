@@ -11,7 +11,12 @@
       @if (isLoading) {
       @for (row of skeletonRows; track row.id) {
       <tr>
-        <ng-container *ngTemplateOutlet="skeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
+        @if (skeletonTemplate) {
+        <ng-container *ngTemplateOutlet="skeletonTemplate"></ng-container>
+        } @else {
+        <ng-container
+          *ngTemplateOutlet="defaultSkeletonRowTemplate; context: { columnsCount: columnsCount }"></ng-container>
+        }
       </tr>
       }
       } @else {
@@ -38,8 +43,8 @@
   </table>
 </div>
 
-<!-- Skeleton Template -->
-<ng-template #skeletonRowTemplate let-columnsCount="columnsCount">
+<!-- Default Skeleton Template -->
+<ng-template #defaultSkeletonRowTemplate let-columnsCount="columnsCount">
   @for (i of getColumnsArray(columnsCount); track indexFn($index, i)) {
   <td>
     <div class="skeleton-block h-4 w-full"></div>

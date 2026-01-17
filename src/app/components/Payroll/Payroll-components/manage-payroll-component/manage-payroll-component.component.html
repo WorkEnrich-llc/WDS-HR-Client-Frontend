@@ -199,7 +199,8 @@
       </div>
 
       <div class="input">
-        <label for="portion">Select salary portion </label>
+        <label for="portion">Select salary portion @if (createPayrollForm.get('portion')?.hasError('required')) {
+          <span>*</span> } </label>
         <div class="d-flex align-items-center gap-4">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
             <select name="portion" id="portion" class="form-select" formControlName="portion">
@@ -221,11 +222,20 @@
       <div class="input">
         <label for="value">Default Value</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
-          <input type="number" id="value" class="form-control custom-date-input" placeholder="Enter Value"
-            formControlName="value" min="0" />
+          <input type="number" id="value" class="form-control custom-date-input" [placeholder]="defaultValuePlaceholder"
+            formControlName="value" [min]="0" [max]="getMaxValue()" (input)="onValueInput($event)" />
         </div>
         @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['min']) {
         <p class="error-msg">Value must be 0 or greater.</p>
+        }
+        @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['max']) {
+        <p class="error-msg">
+          @if (createPayrollForm.get('calculation')?.value == 2) {
+          Maximum value is 31 days.
+          } @else if (createPayrollForm.get('calculation')?.value == 3) {
+          Maximum value is 100%.
+          }
+        </p>
         }
       </div>
 

@@ -56,6 +56,10 @@ export class SummaryReportComponent implements OnInit {
     this.fetchSummaryReport(1, this.itemsPerPage);
   }
 
+  onFilterChange(): void {
+    this.fetchSummaryReport(1, this.itemsPerPage);
+  }
+
   onPrintClick(): void {
     window.print();
   }

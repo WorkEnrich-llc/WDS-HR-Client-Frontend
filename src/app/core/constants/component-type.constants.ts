@@ -1,9 +1,8 @@
 import { ComponentTypes } from "@app/enums";
 
 export const COMPONENT_TYPE: Record<ComponentTypes, string> = {
-   [ComponentTypes.Recurring]: 'Recurring',
-   [ComponentTypes.Monthly]: 'Monthly',
-   [ComponentTypes.Fixed]: 'Fixed'
+   [ComponentTypes.Fixed]: 'Fixed',
+   [ComponentTypes.Variable]: 'Variable'
 };
 
 

@@ -193,6 +193,26 @@ export class JobOpeningsService {
         return this._HttpClient.get(url, { params });
     }
 
+    // get interviews list filtered by application_id (and optional pagination)
+    getInterviews(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/interviews`;
+        let params = new HttpParams()
+            .set('application_id', applicationId.toString())
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
+    // get job offers list filtered by application_id (and optional pagination)
+    getJobOffers(applicationId: number, page: number = 1, perPage: number = 10): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers`;
+        let params = new HttpParams()
+            .set('application_id', applicationId.toString())
+            .set('page', page.toString())
+            .set('per_page', perPage.toString());
+        return this._HttpClient.get(url, { params });
+    }
+
     // add feedback for application
     addApplicationFeedback(applicationId: number, rating: number, comment: string): Observable<any> {
         const url = `${this.apiBaseUrl}recruiter/feedbacks`;
@@ -329,6 +349,13 @@ export class JobOpeningsService {
         const url = `${this.apiBaseUrl}recruiter/job-offers/edit-join-date/${jobOfferId}/`;
         const body = { request_data: { join_date: joinDate } };
         return this._HttpClient.patch(url, body);
+    }
+
+    // resend job offer email
+    resendJobOffer(jobOfferId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers/resend`;
+        const body = { request_data: { job_offer_id: jobOfferId } };
+        return this._HttpClient.post(url, body);
     }
 
     // reject application

@@ -3,34 +3,48 @@
     { label: 'Payroll', link: '/payroll-components' },
     { label: 'Payroll Runs',link:'/payroll-runs/payroll-runs' },
     { label: 'View Run 001',link:'/payroll-runs/view-payroll-run' },
-    { label: 'View Employee 1234'},
-  ]" title="View Employee 1234">
+    { label: contactInfo?.name || 'View Employee'},
+  ]" [title]="contactInfo?.name || 'View Employee'">
 </app-page-header>
 
-
+@if (isLoading) {
+<app-view-employee-skeleton-loader></app-view-employee-skeleton-loader>
+} @else {
 <div class="content-hug d-flex flex-column gap-4">
     <div class="d-flex align-items-stretch gap-4">
         <div class="content-box d-flex flex-column gap-3 w-100">
             <h2>Contact Info</h2>
             <div class="info">
                 <h6>ID</h6>
-                <span>0012</span>
+                <span>{{ employeeDetails?.object_info?.code || employeeDetails?.code || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Full Name</h6>
-                <span>Ahmed Magdy</span>
+                <span>{{ contactInfo?.name || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Phone Number</h6>
-                <span>0101234567</span>
+                <span>{{ getFormattedMobile() || 'N/A' }}</span>
             </div>
             <div class="info">
-                <h6>Business Email</h6>
-                <span>ahmed.123&#64;gmail.com</span>
+                <h6>Email</h6>
+                <span>{{ contactInfo?.email || 'N/A' }}</span>
             </div>
             <div class="info">
-                <h6>Company Email</h6>
-                <span>companyname.123&#64;gmail.com</span>
+                <h6>Date of Birth</h6>
+                <span>{{ (contactInfo?.date_of_birth | date: 'MMM d, yyyy') || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Gender</h6>
+                <span>{{ contactInfo?.gender?.name || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Address</h6>
+                <span>{{ contactInfo?.address || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Marital Status</h6>
+                <span>{{ contactInfo?.marital_status?.name || 'N/A' }}</span>
             </div>
         </div>
         <div class="content-box d-flex flex-column gap-3 w-100">
@@ -66,46 +80,55 @@
 
             <div class="info">
                 <h6>Job Title</h6>
-                <span>UI/UX Designer</span>
+                <span>{{ jobInfo?.job_title?.name || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Employment Type</h6>
-                <span>Full-Time</span>
+                <span>{{ jobInfo?.employment_type?.name || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Section</h6>
-                <span>UI/UX Design Section</span>
+                <span>{{ jobInfo?.section?.name || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Department</h6>
-                <span>Product Design Department</span>
+                <span>{{ jobInfo?.department?.name || 'N/A' }}</span>
             </div>
             <div class="info">
                 <h6>Branch</h6>
-                <span>Head Office – Cairo</span>
+                <span>{{ jobInfo?.branch?.name || 'N/A' }}</span>
             </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="info">
-                    <h6>Direct Manager</h6>
-                    <span>Ahmed Hamed</span>
-                </div>
-                <a class="view-btn h-100 d-flex align-items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                            <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
-                            <path
-                                d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
-                        </g>
-                    </svg>
-                </a>
+            <div class="info">
+                <h6>Management Level</h6>
+                <span>{{ jobInfo?.management_level || 'N/A' }}</span>
             </div>
-
+            <div class="info">
+                <h6>Years of Experience</h6>
+                <span>{{ jobInfo?.years_of_experience || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Work Mode</h6>
+                <span>{{ jobInfo?.work_mode?.name || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Contract Type</h6>
+                <span>{{ jobInfo?.contract_type?.name || 'N/A' }}</span>
+            </div>
+            <a class="view-btn h-100 d-flex align-items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                        <path stroke-linejoin="round" d="m13 11l9-9m0 0h-5.344M22 2v5.344" />
+                        <path
+                            d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2" />
+                    </g>
+                </svg>
+            </a>
         </div>
-
         <div class="content-box d-flex flex-column gap-3 w-100">
             <div class="d-flex align-items-center justify-content-between">
                 <h2>Account Info</h2>
-                <div class="badge-success">
+                @if (isEmployeeActive) {
+                <span class="badge-success">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -113,8 +136,10 @@
                         </g>
                     </svg>
                     <span>Active</span>
-                </div>
-                <!-- <div class="badge-warning">
+                </span>
+                }
+                @if (isEmployeePending) {
+                <span class="badge-warning">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
@@ -122,17 +147,21 @@
                         </g>
                     </svg>
                     <span>Pending</span>
-                </div>
-                <div class="badge-danger">
+                </span>
+                }
+                @if (isEmployeeDisabled) {
+                <span class="badge-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <circle cx="12" cy="12" r="10" />
-                            <path stroke-linecap="round" d="m15 9l-6 6m0-6l6 6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m15 9l-6 6m0-6l6 6" />
                         </g>
                     </svg>
                     <span>Disabled</span>
-                </div>
-                <div class="badge-gray">
+                </span>
+                }
+                @if (isEmployeeInactive) {
+                <span class="badge-gray">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                         <g fill="none" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" d="m18.5 5.5l-13 13" />
@@ -140,19 +169,41 @@
                         </g>
                     </svg>
                     <span>Inactive</span>
-                </div> -->
+                </span>
+                }
             </div>
             <div class="info">
-                <h6>Company Email</h6>
-                <span>companyname.123&#64;gmail.com</span>
+                <h6>Contract Status</h6>
+                <span>{{ currentContract?.status?.name || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Start Date</h6>
+                <span>{{ (currentContract?.start_contract | date: 'MMM d, yyyy') || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>End Date</h6>
+                <span>{{ (currentContract?.end_contract | date: 'MMM d, yyyy') || 'N/A' }}</span>
+            </div>
+            <div class="info">
+                <h6>Notice Period</h6>
+                <span>{{ currentContract?.notice_period || 'N/A' }} days</span>
+            </div>
+            <div class="info">
+                <h6>Salary</h6>
+                <span>{{ currentContract?.salary || 'N/A' }} EGP</span>
             </div>
         </div>
-
     </div>
+
+</div>
+<div class="content-hug">
     <div class="content-box d-flex flex-column gap-3">
         <div class="w-lg-50 d-flex flex-column gap-3">
             <div class="d-flex align-items-center justify-content-between">
-                <h2>Payroll Details</h2>
+                <div>
+                    <h2>Payroll Details</h2>
+                    <p style="margin: 0; color: #666; font-size: 14px;">{{ payrollTitle }}</p>
+                </div>
                 <a type="button" class="view-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <g fill="none">
@@ -167,94 +218,41 @@
                     <span>Print</span>
                 </a>
             </div>
-            <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
+            <!-- <div class="form-check d-flex align-items-end justify-content-start p-0 m-0 gap-3">
                 <input class="form-check-input m-0" type="checkbox" id="viewAll">
                 <label class="form-check-label m-0" for="viewAll">
                     View all Components
                 </label>
-            </div>
+            </div> -->
+
+            <!-- Dynamic Payroll Details from API -->
+            @for (header of payrollHeaders; let last = $last; track header) {
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
+                    @if (payrollRow[header.key] > 0) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path fill="#4CA883"
                             d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
                     </svg>
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                        viewBox="0 0 24 24">
-                        <path fill="#E04F5F"
-                            d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
-                    </svg> -->
-                    <span>Basic Salary</span>
-                </div>
-                <span class="growth">12,000 EGP</span>
-                <!-- <span class="lose">-2,000 EGP</span> -->
-            </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#4CA883"
-                            d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
-                    </svg> -->
+                    } @else {
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                         <path fill="#E04F5F"
                             d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
                     </svg>
-                    <span>Insurance</span>
+                    }
+                    <span>{{ header.display }}</span>
                 </div>
-                <!-- <span class="growth">12,000 EGP</span> -->
-                <span class="lose">-2,000 EGP</span>
+                @if (payrollRow[header.key] > 0) {
+                <span class="growth">{{ payrollRow[header.key] | number: '1.2-2' }} @if (header.key ===
+                    'basic') { EGP } </span>
+                } @else {
+                <span class="lose">-{{ Math.abs(payrollRow[header.key]) | number: '1.2-2' }} @if (header.key ===
+                    'basic') { EGP } </span>
+                }
             </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#4CA883"
-                            d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
-                    </svg> -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#E04F5F"
-                            d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
-                    </svg>
-                    <span>Absence</span>
-                </div>
-                <!-- <span class="growth">12,000 EGP</span> -->
-                <span class="lose">-480 EGP</span>
-            </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#4CA883"
-                            d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
-                    </svg> -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#E04F5F"
-                            d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
-                    </svg>
-                    <span>Damages</span>
-                </div>
-                <!-- <span class="growth">1,800 EGP</span> -->
-                <span class="lose">-800 EGP</span>
-            </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-                        <path fill="#4CA883"
-                            d="m12.37 8.165l6.43 6.63c.401.414.158 1.205-.37 1.205H5.57c-.528 0-.771-.79-.37-1.205l6.43-6.63a.5.5 0 0 1 .74 0" />
-                    </svg>
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                        viewBox="0 0 24 24">
-                        <path fill="#E04F5F"
-                            d="m12.37 15.835l6.43-6.63C19.201 8.79 18.958 8 18.43 8H5.57c-.528 0-.771.79-.37 1.205l6.43 6.63c.213.22.527.22.74 0" />
-                    </svg> -->
-                    <span>Bonus</span>
-                </div>
-                <span class="growth">1,800 EGP</span>
-                <!-- <span class="lose">-2,000 EGP</span> -->
-            </div>
-            <div class="total d-flex align-items-center justify-content-between">
-                <span>Gross Salary</span>
-                <span class="fw-semibold">11,200 EGP</span>
-            </div>
+            }
         </div>
 
     </div>
 </div>
+}

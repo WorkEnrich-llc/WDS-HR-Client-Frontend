@@ -2,6 +2,7 @@
   .width-fix {
     width: 300px !important;
   }
+
   .w-lg-50 {
     width: 50% !important;
   }
@@ -15,4 +16,97 @@
 .text-expiring-warning {
   color: var(--color-warning-500) !important;
   font-weight: 600;
+}
+
+/* Override table layout to allow flexible widths for badges */
+:host ::ng-deep .table {
+  table-layout: auto;
+}
+
+/* Employee Status Column Styling */
+:host ::ng-deep .table tbody tr td:nth-child(2) {
+  min-width: 170px;
+  white-space: nowrap;
+  padding: var(--spacing-12) var(--spacing-20);
+}
+
+/* Account Status Column Styling */
+:host ::ng-deep .table tbody tr td:nth-child(3) {
+  min-width: 140px;
+  white-space: nowrap;
+  padding: var(--spacing-12) var(--spacing-20);
+}
+
+/* Skeleton Loader Styles */
+.skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-input {
+  height: 38px;
+  width: 100%;
+}
+
+/* Switch (Grid/List) styles copied from system-cloud for consistent appearance */
+.switchs {
+  display: flex;
+  min-width: 140px;
+  min-height: 36px;
+  border-radius: var(--border-radius-25);
+  border: 1px solid var(--color-secondary-300);
+  overflow: hidden;
+}
+
+.switchs .dispaly-switch {
+  padding: 0px 10px;
+  width: 50%;
+  height: 100%;
+  line-height: 36px;
+  border: none;
+  color: var(--color-secondary-700);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: var(--font-size-b2);
+}
+
+.switchs .dispaly-switch.active {
+  background-color: var(--color-primary-50);
+  border: 1px solid var(--color-primary-300);
+  color: var(--color-primary-600);
+  font-weight: 600;
+  border-radius: var(--border-radius-25);
+}
+
+.switchs .dispaly-switch.active svg {
+  fill: var(--color-primary-500);
+}
+
+/* Use same pagination appearance as shared table: hide text labels and keep arrows */
+:host ::ng-deep .ngx-pagination .pagination-next,
+:host ::ng-deep .ngx-pagination .pagination-previous {
+  display: none !important;
+}
+
+:host ::ng-deep .small-screen {
+  display: none !important;
+}
+
+:host ::ng-deep pagination-controls pagination-template nav {
+  margin-bottom: 0 !important;
 }

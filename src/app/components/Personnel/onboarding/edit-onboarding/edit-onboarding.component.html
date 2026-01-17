@@ -60,7 +60,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <h2 class="fw-semibold">List</h2>
                 <div class="d-flex align-items-center gap-3">
-                    <button class="edit-btn" [disabled]="!hasSelectedChecks" (click)="startEditSelected()">
+                    <button class="edit-btn" [class.disabled]="!hasSelectedChecks" (click)="startEditSelected()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round"
@@ -71,7 +71,7 @@
                         </svg>
                         <span>Edit</span>
                     </button>
-                    <button class="remove-btn" [disabled]="!hasSelectedChecks" (click)="deleteSelected()">
+                    <button class="remove-btn" [class.disabled]="!hasSelectedChecks" (click)="deleteSelected()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"
                                 d="M9.17 4a3.001 3.001 0 0 1 5.66 0m5.67 2h-17m15.333 2.5l-.46 6.9c-.177 2.654-.265 3.981-1.13 4.79s-2.196.81-4.856.81h-.774c-2.66 0-3.991 0-4.856-.81c-.865-.809-.954-2.136-1.13-4.79l-.46-6.9M9.5 11l.5 5m4.5-5l-.5 5" />
@@ -80,6 +80,10 @@
                     </button>
                 </div>
             </div>
+
+            @if (selectionError) {
+            <p class="error-msg selection-error mb-0">{{ selectionError }}</p>
+            }
 
             @for (check of checks; track $index; let i = $index) {
             <label class="onecheck d-flex align-items-center justify-content-between" draggable="true"
@@ -104,10 +108,10 @@
                     <p class="m-0">{{ check.name }}</p>
                     } @else {
                     <div class="d-flex gap-3 w-100">
-                        <input type="text" class="form-control" 
-                            [value]="check.name" (blur)="finishEdit(check, $event)" autofocus />
+                        <input type="text" class="form-control" [value]="check.name" (blur)="finishEdit(check, $event)"
+                            autofocus />
                         @if (check.error) {
-                         <span class="error-msg nowrap">{{ check.error }}</span>
+                        <span class="error-msg nowrap">{{ check.error }}</span>
                         }
                     </div>
                     }
@@ -126,12 +130,9 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<app-popup 
-    [title]="'Delete Selected Items'" 
+<app-popup [title]="'Delete Selected Items'"
     [paragraph1]="'Are you sure you want to delete ' + selectedChecksCount + (selectedChecksCount === 1 ? ' selected item?' : ' selected items?')"
-    [paragraph2]="'This action cannot be undone!'"
-    [isOpen]="isDeleteModalOpen" 
-    (close)="closeDeleteModal()">
+    [paragraph2]="'This action cannot be undone!'" [isOpen]="isDeleteModalOpen" (close)="closeDeleteModal()">
     <button modal-btn-left class="btn btn-lg btn-danger w-100" (click)="confirmDelete()">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"

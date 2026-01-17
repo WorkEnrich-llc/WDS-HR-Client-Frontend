@@ -43,6 +43,8 @@ export class ManagePayrollComponentComponent implements OnInit {
   createDate: string = '';
   updatedDate: string = '';
   payrollComponentStatus = PAYROLL_COMPONENT_STATUS;
+  defaultValuePlaceholder: string = 'Enter Value';
+  previousValidValue: number | null = null;
 
 
 
@@ -54,17 +56,53 @@ export class ManagePayrollComponentComponent implements OnInit {
     this.checkModeAndLoadData();
     this.createPayrollForm.get('calculation')?.valueChanges.subscribe(value => {
       const portionControl = this.createPayrollForm.get('portion');
+      const valueControl = this.createPayrollForm.get('value');
       const calcValue = +value;
+
+      // Reset previous valid value when calculation type changes
+      if (valueControl && valueControl.value !== null && valueControl.value !== '') {
+        this.previousValidValue = +valueControl.value;
+      } else {
+        this.previousValidValue = null;
+      }
+
       if (calcValue === 1) { // RawValue
         portionControl?.setValue(0);
         portionControl?.disable();
         portionControl?.clearValidators();
+        // Default Value: no max validation, placeholder "enter value"
+        this.defaultValuePlaceholder = 'Enter Value';
+        valueControl?.clearValidators();
+        valueControl?.setValidators([Validators.min(0)]);
       } else if (calcValue === 2) { // Days
         portionControl?.enable();
         portionControl?.setValidators([Validators.required]);
         portionControl?.reset();
+        // Default Value: max 31, placeholder "enter days"
+        this.defaultValuePlaceholder = 'Enter Days';
+        valueControl?.clearValidators();
+        valueControl?.setValidators([Validators.min(0), Validators.max(31)]);
+      } else if (calcValue === 3) { // Percentage
+        portionControl?.enable();
+        portionControl?.setValidators([Validators.required]);
+        // Default Value: max 100, placeholder "enter percentage"
+        this.defaultValuePlaceholder = 'Enter Percentage';
+        valueControl?.clearValidators();
+        valueControl?.setValidators([Validators.min(0), Validators.max(100)]);
       }
       portionControl?.updateValueAndValidity();
+      valueControl?.updateValueAndValidity();
+    });
+
+    // Track previous valid value when value control changes
+    this.createPayrollForm.get('value')?.valueChanges.subscribe(newValue => {
+      if (newValue !== null && newValue !== '' && !isNaN(+newValue)) {
+        const maxValue = this.getMaxValue();
+        const numValue = +newValue;
+        if (maxValue === null || numValue <= maxValue) {
+          this.previousValidValue = numValue;
+        }
+      }
     });
 
   }
@@ -132,18 +170,39 @@ export class ManagePayrollComponentComponent implements OnInit {
             });
           }, 0);
 
-          // After patching, handle the calculation logic for portion field
+          // After patching, handle the calculation logic for portion and value fields
           const calcValue = +calculationId;
           const portionControl = this.createPayrollForm.get('portion');
+          const valueControl = this.createPayrollForm.get('value');
+
+          // Initialize previous valid value with existing value if it exists
+          this.previousValidValue = data.value !== null && data.value !== undefined ? +data.value : null;
+
           if (calcValue === 1) { // RawValue
             portionControl?.setValue(0, { emitEvent: false });
             portionControl?.disable({ emitEvent: false });
             portionControl?.clearValidators();
             portionControl?.updateValueAndValidity({ emitEvent: false });
+            this.defaultValuePlaceholder = 'Enter Value';
+            valueControl?.clearValidators();
+            valueControl?.setValidators([Validators.min(0)]);
+            valueControl?.updateValueAndValidity({ emitEvent: false });
           } else if (calcValue === 2) { // Days
             portionControl?.enable({ emitEvent: false });
             portionControl?.setValidators([Validators.required]);
             portionControl?.updateValueAndValidity({ emitEvent: false });
+            this.defaultValuePlaceholder = 'Enter Days';
+            valueControl?.clearValidators();
+            valueControl?.setValidators([Validators.min(0), Validators.max(31)]);
+            valueControl?.updateValueAndValidity({ emitEvent: false });
+          } else if (calcValue === 3) { // Percentage
+            portionControl?.enable({ emitEvent: false });
+            portionControl?.setValidators([Validators.required]);
+            portionControl?.updateValueAndValidity({ emitEvent: false });
+            this.defaultValuePlaceholder = 'Enter Percentage';
+            valueControl?.clearValidators();
+            valueControl?.setValidators([Validators.min(0), Validators.max(100)]);
+            valueControl?.updateValueAndValidity({ emitEvent: false });
           }
 
           this.createDate = new Date(data.created_at).toLocaleDateString('en-GB');
@@ -169,6 +228,47 @@ export class ManagePayrollComponentComponent implements OnInit {
       },
       error: (err) => console.error('Failed to load single salary portion', err)
     });
+  }
+
+  getMaxValue(): number | null {
+    const calcValue = +this.createPayrollForm.get('calculation')?.value;
+    if (calcValue === 2) { // Days
+      return 31;
+    } else if (calcValue === 3) { // Percentage
+      return 100;
+    }
+    return null; // No max for raw value
+  }
+
+  onValueInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const inputValue = input.value.trim();
+
+    // Allow empty input (for clearing the field)
+    if (inputValue === '' || inputValue === null || inputValue === undefined) {
+      this.previousValidValue = null;
+      return;
+    }
+
+    const value = parseFloat(inputValue);
+    const maxValue = this.getMaxValue();
+
+    // If value is invalid or exceeds max, revert to previous valid value
+    if (isNaN(value) || (maxValue !== null && value > maxValue)) {
+      // Revert to previous valid value if it exists, otherwise clear the input
+      setTimeout(() => {
+        if (this.previousValidValue !== null) {
+          input.value = this.previousValidValue.toString();
+          this.createPayrollForm.get('value')?.setValue(this.previousValidValue, { emitEvent: false });
+        } else {
+          input.value = '';
+          this.createPayrollForm.get('value')?.setValue(null, { emitEvent: false });
+        }
+      }, 0);
+    } else {
+      // Value is valid, store it as the previous valid value
+      this.previousValidValue = value;
+    }
   }
 
   async createComponent(): Promise<void> {

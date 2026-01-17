@@ -45,6 +45,11 @@
     margin: .25rem 0 0
 }
 
+/* Hide disabled hidden options in select dropdowns */
+select option[disabled][hidden] {
+    display: none;
+}
+
 .form-check {
     padding-left: 0;
     display: flex;

@@ -86,8 +86,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   jobDetailsInfoLoading: boolean = true;
   dynamicFieldsLoading: boolean = true;
 
-  // show more text
-  isExpanded = false;
+  // show/hide for main information and job details
+  mainInfoExpanded = true;
+  // show more/less for additional fields
+  showMoreExpanded = false;
 
   // Tab functionality
   activeTab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected' = 'applicant';
@@ -368,8 +370,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     return offerStatusMap[tab];
   }
 
-  toggleText() {
-    this.isExpanded = !this.isExpanded;
+  toggleMainInfo() {
+    this.mainInfoExpanded = !this.mainInfoExpanded;
+  }
+
+  toggleShowMore() {
+    // If content is hidden, show it first before expanding
+    if (!this.mainInfoExpanded) {
+      this.mainInfoExpanded = true;
+    }
+    this.showMoreExpanded = !this.showMoreExpanded;
   }
 
   setActiveTab(tab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected') {
@@ -461,6 +471,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   hoveredApplicantId: number | null = null;
   tooltipPosition: { left: number; top: number } | null = null;
   tooltipWidth: number = 560;
+  tooltipMaxHeight: number | null = null;
   copiedSectionId: string | null = null;
 
   /**
@@ -650,6 +661,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     }
 
     this.tooltipWidth = tooltipWidth;
+    // store max height so template can allow internal scrolling
+    this.tooltipMaxHeight = Math.max(120, maxTooltipHeight);
 
     let left: number;
     let top: number;
@@ -674,6 +687,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       left: Math.round(left),
       top: Math.round(top)
     };
+    // Ensure tooltipMaxHeight is at least some minimum
+    if (!this.tooltipMaxHeight) this.tooltipMaxHeight = 300;
   }
 
   /**
