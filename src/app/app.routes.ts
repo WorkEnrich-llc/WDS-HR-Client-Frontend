@@ -17,6 +17,7 @@ export const routes: Routes = [
   // Public interview actions routes
   { path: 'interview-accepted', loadComponent: () => import('./public/interview-accepted/interview-accepted.component').then(m => m.InterviewAcceptedComponent), title: 'Interview Accepted' },
   { path: 'interview-rejected', loadComponent: () => import('./public/interview-rejected/interview-rejected.component').then(m => m.InterviewRejectedComponent), title: 'Interview Rejected' },
+  { path: 'interview-feedback', loadComponent: () => import('./public/interview-feedback/interview-feedback.component').then(m => m.InterviewFeedbackComponent), title: 'Interview Feedback' },
 
   // Public offer actions routes
   { path: 'offer-accepted', loadComponent: () => import('./public/offer-accepted/offer-accepted.component').then(m => m.OfferAcceptedComponent), title: 'Offer Accepted' },

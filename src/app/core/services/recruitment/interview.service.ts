@@ -93,4 +93,23 @@ export class InterviewService {
     };
     return this.http.post(`${this.apiBaseUrl}recruiter/job-offers/reject`, payload);
   }
+
+  /**
+   * Submit interview feedback
+   * @param token The interview token (s parameter from URL)
+   * @param rating The rating (0-10)
+   * @param comment The feedback comment
+   * @returns Observable response
+   */
+  submitInterviewFeedback(token: string, rating: number, comment: string): Observable<any> {
+    const payload = {
+      request_data: {
+        token: token,
+        rating: rating,
+        comment: comment
+      }
+    };
+
+    return this.http.post(`${this.apiBaseUrl}recruiter/feedbacks/interviewer-feedback`, payload);
+  }
 }
