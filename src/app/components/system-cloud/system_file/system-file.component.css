@@ -1,90 +1,95 @@
 .page-header h2 {
-    margin-bottom: var(--spacing-12) !important;
+  margin-bottom: var(--spacing-12) !important;
 }
-.page-header .parag{
-    width: 100% !important;
+
+.page-header .parag {
+  width: 100% !important;
 }
-.page-header .parag p{
-    margin: 0 !important;
-    color: var(--color-secondary-600);
+
+.page-header .parag p {
+  margin: 0 !important;
+  color: var(--color-secondary-600);
 }
+
 .body {
-    padding: 0 !important;
+  padding: 0 !important;
 }
 
 .breadcrumb {
-    margin: 0;
+  margin: 0;
 }
 
 .breadcrumb a {
-    color: var(--color-secondary-700);
+  color: var(--color-secondary-700);
 }
 
 .breadcrumb .active a {
-    color: var(--color-primary-500) !important;
+  color: var(--color-primary-500) !important;
 }
 
 .content-hug {
-    background-color: var(--color-white);
+  background-color: var(--color-white);
 }
 
 .form-outline .form-control {
-    border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    -ms-border-radius: 0 !important;
-    -o-border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
-    border: none;
-    border-bottom: 1px solid var(--color-secondary-300);
+  border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  -ms-border-radius: 0 !important;
+  -o-border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+  border: none;
+  border-bottom: 1px solid var(--color-secondary-300);
 }
 
 .switchs {
-    display: flex;
-    min-width: 270px;
-    min-height: 36px;
-    border-radius: 0.8rem;
-    border: 1px solid var(--color-secondary-200);
-    overflow: hidden;
-    -webkit-border-radius: 0.8rem;
-    -moz-border-radius: 0.8rem;
-    -ms-border-radius: 0.8rem;
-    -o-border-radius: 0.8rem;
-    overflow: hidden;
+  display: flex;
+  min-width: 270px;
+  min-height: 36px;
+  border-radius: 0.8rem;
+  border: 1px solid var(--color-secondary-200);
+  overflow: hidden;
+  -webkit-border-radius: 0.8rem;
+  -moz-border-radius: 0.8rem;
+  -ms-border-radius: 0.8rem;
+  -o-border-radius: 0.8rem;
+  overflow: hidden;
 }
 
 .switchs .dispaly-switch {
-    padding: 4px;
-    width: 50%;
-    height: 100%;
-    line-height: 18px;
-    border: none;
-    color: var(--color-secondary-700);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    font-size: var(--font-size-b2);
+  padding: 4px;
+  width: 50%;
+  height: 100%;
+  line-height: 18px;
+  border: none;
+  color: var(--color-secondary-700);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: var(--font-size-b2);
 }
 
 .switchs .dispaly-switch.active {
-    border-radius: 0.5rem;
-    -webkit-border-radius: 0.5rem;
-    -moz-border-radius: 0.5rem;
-    -ms-border-radius: 0.5rem;
-    -o-border-radius: 0.5rem;
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
 }
 
 .switchs .dispaly-switch.active svg {
-    fill: var(--color-white) !important;
+  fill: var(--color-white) !important;
 }
-.switchs .dispaly-switch.text-danger.active{
-    background-color: var(--color-danger-500);
-    color:var(--color-white) !important;
+
+.switchs .dispaly-switch.text-danger.active {
+  background-color: var(--color-danger-500);
+  color: var(--color-white) !important;
 }
-.switchs .dispaly-switch.text-success.active{
-    background-color: var(--color-success-500);
-    color:var(--color-white) !important;
+
+.switchs .dispaly-switch.text-success.active {
+  background-color: var(--color-success-500);
+  color: var(--color-white) !important;
 }
 
 /* Skeleton Loader Styles */
@@ -99,6 +104,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -141,8 +147,34 @@
   height: 25px;
   border-radius: 8px;
 }
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 1;
   color: var(--color-secondary-400) !important;
   cursor: pointer !important;
+}
+
+/* Fixed table header on scroll */
+::ng-deep app-smart-grid-sheet table {
+  position: relative;
+}
+
+::ng-deep app-smart-grid-sheet .table-wrapper {
+  overflow-y: auto;
+  max-height: calc(100vh - 400px);
+}
+
+::ng-deep app-smart-grid-sheet table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-white);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+::ng-deep app-smart-grid-sheet table th {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-white);
+  z-index: 10;
 }

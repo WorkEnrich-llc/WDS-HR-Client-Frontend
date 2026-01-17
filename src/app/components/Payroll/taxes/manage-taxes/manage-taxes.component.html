@@ -1,0 +1,618 @@
+<!-- start page header -->
+<app-page-header
+  [breadcrumbs]="[
+    { label: 'Payroll', link: '/payroll-components' },
+    { label: 'Taxes', link: '/taxes/all-taxes' },
+    { label: isEditMode ? 'Update Tax ' + taxName : 'Create New Tax' }
+  ]"
+  [title]="isEditMode ? 'Update Tax ' + taxName : 'Create New Tax'"
+  [create]="createDate"
+  [update]="updatedDate"
+>
+  <button
+    class="btn btn-lg btn-success w-auto"
+    (click)="openConfirmSavePopup()"
+    [disabled]="isSubmitting || !taxForm.valid"
+  >
+    @if (!isSubmitting) {
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m8.5 12.5l2 2l5-5"
+        />
+      </g>
+    </svg>
+    <span>{{ isEditMode ? "Update Tax" : "Create Tax" }}</span>
+    } @else {
+    <span
+      class="spinner-grow spinner-grow-sm"
+      role="status"
+      aria-hidden="true"
+    ></span>
+    <span>{{ isEditMode ? "Updating..." : "Creating..." }}</span>
+    }
+  </button>
+
+  <button class="btn btn-lg btn-outline-dark w-auto" (click)="openModal()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="m14.5 9.5l-5 5m0-5l5 5" />
+      </g>
+    </svg>
+    <span>Discard Tax</span>
+  </button>
+</app-page-header>
+
+<!-- tabs navigation -->
+<ul class="nav d-flex align-items-center nav-tabs bg-white px-3">
+  <li class="nav-item" [ngClass]="{ active: currentTab === 'main-info' }">
+    <span class="nav-link d-flex align-items-center gap-1">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          opacity="0.3"
+          d="M16.5 9C16.5 13.1421 13.1421 16.5 9 16.5C4.85786 16.5 1.5 13.1421 1.5 9C1.5 4.85786 4.85786 1.5 9 1.5C13.1421 1.5 16.5 4.85786 16.5 9Z"
+          fill="#377AFD"
+        />
+        <path
+          d="M9 13.3125C9.31066 13.3125 9.5625 13.0607 9.5625 12.75V8.25C9.5625 7.93934 9.31066 7.6875 9 7.6875C8.68934 7.6875 8.4375 7.93934 8.4375 8.25V12.75C8.4375 13.0607 8.68934 13.3125 9 13.3125Z"
+          fill="#4A6D97"
+        />
+        <path
+          d="M9 5.25C9.41421 5.25 9.75 5.58579 9.75 6C9.75 6.41421 9.41421 6.75 9 6.75C8.58579 6.75 8.25 6.41421 8.25 6C8.25 5.58579 8.58579 5.25 9 5.25Z"
+          fill="#4A6D97"
+        />
+      </svg>
+      Main Information
+    </span>
+  </li>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    [style.fill]="currentTab === 'main-info' ? '#DDE3EB' : '#377AFD'"
+  >
+    <path
+      d="M15.835 11.63L9.205 5.2C8.79 4.799 8 5.042 8 5.57v12.86c0 .528.79.771 1.205.37l6.63-6.43a.5.5 0 0 0 0-.74"
+    />
+  </svg>
+  <li class="nav-item" [ngClass]="{ active: currentTab === 'tax-brackets' }">
+    <span class="nav-link d-flex align-items-center gap-1">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g clip-path="url(#clip0_1015_11824)">
+          <path
+            opacity="0.3"
+            d="M2.59835 15.4017C3.6967 16.5 5.46447 16.5 9 16.5C12.5355 16.5 14.3033 16.5 15.4017 15.4017C16.5 14.3033 16.5 12.5355 16.5 9C16.5 5.46447 16.5 3.6967 15.4017 2.59835C14.3033 1.5 12.5355 1.5 9 1.5C5.46447 1.5 3.6967 1.5 2.59835 2.59835C1.5 3.6967 1.5 5.46447 1.5 9C1.5 12.5355 1.5 14.3033 2.59835 15.4017Z"
+            fill="#4A6D97"
+          />
+          <path
+            d="M9.93751 5.25003C9.93751 5.01555 10.083 4.80567 10.3025 4.72334C10.522 4.64101 10.7696 4.7035 10.9238 4.88016L13.1738 7.45829C13.3781 7.69235 13.3539 8.04768 13.1199 8.25195C12.8858 8.45622 12.5305 8.43207 12.3262 8.19801L11.0625 6.75003L11.0625 12.75C11.0625 13.0607 10.8107 13.3125 10.5 13.3125C10.1893 13.3125 9.93751 13.0607 9.93751 12.75L9.93751 5.25003Z"
+            fill="#4A6D97"
+          />
+          <path
+            d="M5.67381 9.80204C5.46954 9.56798 5.1142 9.54383 4.88014 9.7481C4.64609 9.95237 4.62194 10.3077 4.82621 10.5418L7.07621 13.1199C7.23038 13.2965 7.47797 13.359 7.69751 13.2767C7.91706 13.1944 8.06251 12.9845 8.06251 12.75V5.25003C8.06251 4.93937 7.81067 4.68753 7.50001 4.68753C7.18935 4.68753 6.93751 4.93937 6.93751 5.25003V11.25L5.67381 9.80204Z"
+            fill="#4A6D97"
+          />
+        </g>
+        <defs>
+          <clipPath id="clip0_1015_11824">
+            <rect width="18" height="18" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+
+      Tax Brackets
+    </span>
+  </li>
+</ul>
+
+<!-- Main Info Tab -->
+@if (currentTab === 'main-info') {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Main Information</h2>
+
+    @if (isLoading && isEditMode) {
+    <!-- Skeleton Loaders -->
+    <div class="w-lg-50 d-flex flex-column gap-2">
+      @for (i of [1,2,3,4,5]; track i) {
+      <div class="input">
+        <div class="skeleton-loading skeleton-label"></div>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <div class="skeleton-loading skeleton-input"></div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <!-- Actual Form -->
+    <form [formGroup]="taxForm" class="w-lg-50 d-flex flex-column gap-2">
+      <!-- Tax ID (Editable) -->
+      <div class="input">
+        <label for="taxId">Tax ID</label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="number"
+            id="taxId"
+            class="form-control custom-date-input"
+            formControlName="id"
+            placeholder="Tax ID"
+          />
+        </div>
+      </div>
+
+      <!-- Tax Name -->
+      <div class="input">
+        <label for="taxName">Tax Name <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="text"
+            id="taxName"
+            class="form-control custom-date-input"
+            placeholder="Name"
+            formControlName="name"
+          />
+        </div>
+        @if (taxForm.get('name')?.touched &&
+        taxForm.get('name')?.errors?.['required']) {
+        <p class="error-msg">Tax Name is required.</p>
+        } @if (taxForm.get('name')?.touched &&
+        taxForm.get('name')?.errors?.['maxlength']) {
+        <p class="error-msg">Tax Name must not exceed 255 characters.</p>
+        }
+      </div>
+
+      <!-- Minimum Annual Salary -->
+      <div class="input">
+        <label for="minimum">Minimum Annual Salary <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="number"
+            id="minimum"
+            class="form-control custom-date-input"
+            placeholder="0"
+            formControlName="minimum"
+            min="0"
+          />
+        </div>
+        @if (taxForm.get('minimum')?.touched &&
+        taxForm.get('minimum')?.errors?.['required']) {
+        <p class="error-msg">Minimum Annual Salary is required.</p>
+        } @if (taxForm.get('minimum')?.touched &&
+        taxForm.get('minimum')?.errors?.['min']) {
+        <p class="error-msg">
+          Minimum Annual Salary must be greater than or equal to 0.
+        </p>
+        }
+      </div>
+
+      <!-- Maximum Annual Salary -->
+      <div class="input">
+        <label for="maximum">Maximum Annual Salary <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="number"
+            id="maximum"
+            class="form-control custom-date-input"
+            placeholder="0"
+            formControlName="maximum"
+            min="0"
+          />
+        </div>
+        @if (taxForm.get('maximum')?.touched &&
+        taxForm.get('maximum')?.errors?.['required']) {
+        <p class="error-msg">Maximum Annual Salary is required.</p>
+        } @if (taxForm.get('maximum')?.touched &&
+        taxForm.get('maximum')?.errors?.['min']) {
+        <p class="error-msg">
+          Maximum Annual Salary must be greater than or equal to 0.
+        </p>
+        }
+      </div>
+
+      <!-- Exempted Amount -->
+      <div class="input">
+        <label for="exemption">Exempted Amount <span>*</span></label>
+        <div class="form-outline w-100 position-relative custom-date-wrapper">
+          <input
+            type="number"
+            id="exemption"
+            class="form-control custom-date-input"
+            placeholder="0"
+            formControlName="exemption"
+            min="0"
+          />
+        </div>
+        @if (taxForm.get('exemption')?.touched &&
+        taxForm.get('exemption')?.errors?.['required']) {
+        <p class="error-msg">Exempted Amount is required.</p>
+        } @if (taxForm.get('exemption')?.touched &&
+        taxForm.get('exemption')?.errors?.['min']) {
+        <p class="error-msg">
+          Exempted Amount must be greater than or equal to 0.
+        </p>
+        }
+      </div>
+    </form>
+    } @if (!isLoading) {
+    <div class="btn-fixed">
+      <button
+        class="btn btn-lg btn-primary"
+        [disabled]="!isFormValidForNext()"
+        (click)="goToNextTab()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M4 12h16m0 0l-6-6m6 6l-6 6"
+          />
+        </svg>
+        <span>Next</span>
+      </button>
+    </div>
+    }
+  </div>
+</div>
+}
+
+<!-- Tax Brackets Tab -->
+@if (currentTab === 'tax-brackets') {
+<div class="content-hug">
+  <div class="content-box d-flex flex-column gap-3">
+    <h2>Tax Brackets</h2>
+
+    @if (isLoading && isEditMode) {
+    <!-- Skeleton Loader for Brackets -->
+    <div class="d-flex flex-column gap-3">
+      @for (i of [1,2,3]; track i) {
+      <div class="bracket-row-skeleton d-flex gap-3">
+        @for (j of [1,2,3,4]; track j) {
+        <div class="skeleton-loading skeleton-input" style="flex: 1"></div>
+        }
+        <div class="skeleton-loading skeleton-input" style="width: 120px"></div>
+      </div>
+      }
+    </div>
+    } @else {
+    <!-- Tax Brackets Form Array -->
+    <form [formGroup]="taxForm">
+      <div formArrayName="brackets" class="d-flex flex-column gap-3">
+        @for (bracket of bracketsArray.controls; track $index; let i = $index) {
+        <div
+          [formGroupName]="i"
+          class="bracket-row d-flex align-items-end gap-3"
+        >
+          <!-- Minimum -->
+          <div class="input flex-fill">
+            <label [for]="'minimum-' + i">Minimum</label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <input
+                type="number"
+                [id]="'minimum-' + i"
+                class="form-control custom-date-input"
+                placeholder="0"
+                formControlName="minimum"
+                min="0"
+              />
+            </div>
+            @if (bracket.get('minimum')?.touched &&
+            bracket.get('minimum')?.errors?.['required']) {
+            <p class="error-msg">Minimum is required.</p>
+            }
+          </div>
+
+          <!-- Maximum -->
+          <div class="input flex-fill">
+            <label [for]="'maximum-' + i">Maximum</label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <input
+                type="number"
+                [id]="'maximum-' + i"
+                class="form-control custom-date-input"
+                placeholder="Annual Salary"
+                formControlName="maximum"
+                min="0"
+              />
+            </div>
+            @if (bracket.get('maximum')?.touched &&
+            bracket.get('maximum')?.errors?.['required']) {
+            <p class="error-msg">Maximum is required.</p>
+            }
+          </div>
+
+          <!-- Tax Percentage -->
+          <div class="input flex-fill">
+            <label [for]="'percentage-' + i">Tax Percentage</label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <input
+                type="number"
+                [id]="'percentage-' + i"
+                class="form-control custom-date-input"
+                placeholder="Percentage"
+                formControlName="percentage"
+                min="0"
+                max="100"
+                step="0.01"
+              />
+            </div>
+            @if (bracket.get('percentage')?.touched &&
+            bracket.get('percentage')?.errors?.['required']) {
+            <p class="error-msg">Tax Percentage is required.</p>
+            } @if (bracket.get('percentage')?.touched &&
+            bracket.get('percentage')?.errors?.['max']) {
+            <p class="error-msg">Tax Percentage must be between 0 and 100.</p>
+            }
+          </div>
+
+          <!-- Taxable -->
+          <div class="input flex-fill">
+            <label [for]="'taxable-' + i">Taxable</label>
+            <div
+              class="form-outline w-100 position-relative custom-date-wrapper"
+            >
+              <input
+                type="number"
+                [id]="'taxable-' + i"
+                class="form-control custom-date-input"
+                placeholder="0"
+                formControlName="taxable"
+                min="0"
+              />
+            </div>
+            @if (bracket.get('taxable')?.touched &&
+            bracket.get('taxable')?.errors?.['required']) {
+            <p class="error-msg">Taxable is required.</p>
+            }
+          </div>
+
+          <!-- Remove Button -->
+          <button
+            type="button"
+            class="btn btn-outline-danger remove-bracket-btn"
+            (click)="openRemoveBracketPopup(i)"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+            >
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" />
+                <path stroke-linecap="round" d="M8 12h8" />
+              </g>
+            </svg>
+            <span>Remove</span>
+          </button>
+        </div>
+        }
+
+        <!-- Empty State -->
+        @if (bracketsArray.length === 0) {
+        <div class="text-center py-4">
+          <p class="text-muted">
+            No tax brackets added yet. Click "Add Bracket" to get started.
+          </p>
+        </div>
+        }
+
+        <!-- Add Bracket Button -->
+        <button
+          type="button"
+          class="btn btn-outline-primary add-bracket-btn"
+          (click)="addBracket()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path stroke-linecap="round" d="M8 12h8M12 8v8" />
+            </g>
+          </svg>
+          <span>Add Bracket</span>
+        </button>
+      </div>
+    </form>
+    }
+
+    <div class="btn-fixed">
+      <div class="d-flex align-items-center gap-2">
+        <button
+          class="btn back-square-btn"
+          (click)="goToPreviousTab()"
+          title="Back"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="none"
+              stroke="#4A6D97"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M15 5l-6 7l6 7"
+            />
+          </svg>
+        </button>
+        <button
+          class="btn btn-lg btn-success"
+          (click)="openConfirmSavePopup()"
+          [disabled]="isSubmitting || !taxForm.valid"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+          >
+            <g fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m8.5 12.5l2 2l5-5"
+              />
+            </g>
+          </svg>
+          <span>{{ isEditMode ? "Update Tax" : "Create Tax" }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Discard popup -->
+<app-popup
+  [title]="'Discard Tax'"
+  [paragraph1]="
+    isEditMode
+      ? 'Are you sure you want to discard updating the Tax?'
+      : 'Are you sure you want to discard creating the new Tax?'
+  "
+  [paragraph2]="'This action cannot be undone!'"
+  [isOpen]="isModalOpen"
+  (close)="closeModal()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-dark w-100"
+    (click)="confirmAction()"
+  >
+    Discard Tax
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeModal()"
+  >
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Remove Bracket popup -->
+<app-popup
+  [title]="'Remove Tax Bracket'"
+  [paragraph1]="'Are you sure you want to remove this tax bracket?'"
+  [paragraph2]="'This action cannot be undone!'"
+  [isOpen]="isRemoveBracketOpen"
+  (close)="closeRemoveBracketPopup()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-danger w-100"
+    (click)="confirmRemoveBracket()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="M8 12h8" />
+      </g>
+    </svg>
+    <span>Remove</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeRemoveBracketPopup()"
+  >
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Confirm Save popup -->
+<app-popup
+  [title]="isEditMode ? 'Update Tax' : 'Create Tax'"
+  [paragraph1]="
+    isEditMode
+      ? 'Are you sure you want to update this tax?'
+      : 'Are you sure you want to create this new tax?'
+  "
+  [paragraph2]="''"
+  [isOpen]="isConfirmSaveOpen"
+  (close)="closeConfirmSavePopup()"
+>
+  <button
+    modal-btn-left
+    class="btn btn-lg btn-success w-100"
+    (click)="confirmSave()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m8.5 12.5l2 2l5-5"
+        />
+      </g>
+    </svg>
+    <span>{{ isEditMode ? "Update Tax" : "Create Tax" }}</span>
+  </button>
+  <button
+    modal-btn-right
+    class="btn btn-lg btn-outline-dark border-0 w-100"
+    (click)="closeConfirmSavePopup()"
+  >
+    Cancel
+  </button>
+</app-popup>

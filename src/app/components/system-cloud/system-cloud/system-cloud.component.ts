@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 import { BreadcrumbService } from 'app/core/services/system-cloud/breadcrumb.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface FileItem {
   id: string;
@@ -33,7 +35,9 @@ interface storageInfo {
   styleUrl: './system-cloud.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class SystemCloudComponent implements OnInit {
+export class SystemCloudComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   constructor(
     private _systemCloudService: SystemCloudService,
     private toasterService: ToastrService,
@@ -106,20 +110,22 @@ export class SystemCloudComponent implements OnInit {
   // get all system templates 
   getAllSystemTemplates() {
     this.loadData = true;
-    this._systemCloudService.getAllTemplates().subscribe({
-      next: (response) => {
-        this.systemTemplates = response?.data?.object_info || [];
-        this.filteredTemplates = [...this.systemTemplates];
+    this._systemCloudService.getAllTemplates()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.systemTemplates = response?.data?.object_info || [];
+          this.filteredTemplates = [...this.systemTemplates];
 
-      },
-      error: (err) => {
-        console.log(err.error?.details);
+        },
+        error: (err) => {
+          console.log(err.error?.details);
 
-      },
-      complete: () => {
-        this.loadData = false;
-      }
-    });
+        },
+        complete: () => {
+          this.loadData = false;
+        }
+      });
   }
 
   filterTemplates() {
@@ -140,24 +146,26 @@ export class SystemCloudComponent implements OnInit {
       this.loadFiles = true;
     }
 
-    this._systemCloudService.getFoldersFiles().subscribe({
-      next: (response) => {
-        const objects: FileItem[] = response?.data?.object_info ?? [];
-        this.allFiles = this.flattenFilesRecursively(objects);
-        // console.log(this.allFiles);
-        this.dataLoaded = true;
-        this.storageInfo = response?.data?.storage_size_info;
-        // console.log(this.storageInfo);
-        this.updateCurrentFilesView(parentId);
-      },
-      error: (err) => {
-        console.log(err.error?.details);
-      },
-      complete: () => {
-        this.loadFiles = false;
-        this.silentReload = false;
-      }
-    });
+    this._systemCloudService.getFoldersFiles()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const objects: FileItem[] = response?.data?.object_info ?? [];
+          this.allFiles = this.flattenFilesRecursively(objects);
+          // console.log(this.allFiles);
+          this.dataLoaded = true;
+          this.storageInfo = response?.data?.storage_size_info;
+          // console.log(this.storageInfo);
+          this.updateCurrentFilesView(parentId);
+        },
+        error: (err) => {
+          console.log(err.error?.details);
+        },
+        complete: () => {
+          this.loadFiles = false;
+          this.silentReload = false;
+        }
+      });
   }
 
 
@@ -381,47 +389,49 @@ export class SystemCloudComponent implements OnInit {
       formData.append('parent', this.openedFolderId);
     }
 
-    this._systemCloudService.createFolder(formData).subscribe({
-      next: (response) => {
-        this.newFolderName = '';
-        this.errMsg = '';
-        this.closeModalFolder();
-        this.isLoading = false;
+    this._systemCloudService.createFolder(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.newFolderName = '';
+          this.errMsg = '';
+          this.closeModalFolder();
+          this.isLoading = false;
 
-        const newFolder = {
-          ...response?.data?.object_info,
-          parent: this.openedFolderId ?? null
-        };
+          const newFolder = {
+            ...response?.data?.object_info,
+            parent: this.openedFolderId ?? null
+          };
 
-        this.allFiles.push(newFolder);
+          this.allFiles.push(newFolder);
 
-        const exists = this.files.some(file => file.id === newFolder.id);
-        if (!exists) {
-          if (this.openedFolderId === newFolder.parent || (!this.openedFolderId && !newFolder.parent)) {
-            this.files.push(newFolder);
+          const exists = this.files.some(file => file.id === newFolder.id);
+          if (!exists) {
+            if (this.openedFolderId === newFolder.parent || (!this.openedFolderId && !newFolder.parent)) {
+              this.files.push(newFolder);
+            }
           }
-        }
 
-        this.filteredFiles = [...this.files].sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, {
-            numeric: true,
-            sensitivity: 'base'
+          this.filteredFiles = [...this.files].sort((a, b) => {
+            if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+            if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+            return a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
           });
-        });
 
-        // console.log('✅ New folder added:', newFolder);
-      },
-      error: (err) => {
-        if (err?.error?.data?.error_handling?.length > 0) {
-          this.errMsg = err.error.data.error_handling[0].error;
-        } else {
-          this.errMsg = 'An unexpected error occurred.';
+          // console.log('✅ New folder added:', newFolder);
+        },
+        error: (err) => {
+          if (err?.error?.data?.error_handling?.length > 0) {
+            this.errMsg = err.error.data.error_handling[0].error;
+          } else {
+            this.errMsg = 'An unexpected error occurred.';
+          }
+          this.isLoading = false;
         }
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   // upload file
@@ -461,68 +471,70 @@ export class SystemCloudComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    this._systemCloudService.createUploadFile(formData).subscribe({
-      next: (event: HttpEvent<any>) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          if (event.total) {
-            this.uploadProgress = Math.round((event.loaded / event.total) * 100);
+    this._systemCloudService.createUploadFile(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (event: HttpEvent<any>) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            if (event.total) {
+              this.uploadProgress = Math.round((event.loaded / event.total) * 100);
+            }
+          } else if (event.type === HttpEventType.Response) {
+            this.isLoading = false;
+            this.uploadProgress = 0;
+
+            const newFile = {
+              ...event.body?.data?.object_info,
+              parent: this.openedFolderId ?? null
+            };
+
+            this.allFiles.push(newFile);
+
+            if (newFile.parent === this.openedFolderId) {
+              this.files.push(newFile);
+
+              this.filteredFiles = [...this.files].sort((a, b) => {
+                if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+                if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+                return a.name.localeCompare(b.name, undefined, {
+                  numeric: true,
+                  sensitivity: 'base'
+                });
+              });
+            }
+
+            if (this.openedFolderId) {
+              const parentFolder = this.allFiles.find(f => f.id === this.openedFolderId && f.type === 'Folder');
+              if (parentFolder) {
+                if (!Array.isArray(parentFolder.children)) {
+                  parentFolder.children = [];
+                }
+                parentFolder.children.push(newFile);
+              }
+            }
+
           }
-        } else if (event.type === HttpEventType.Response) {
+        },
+        error: (err: any) => {
           this.isLoading = false;
           this.uploadProgress = 0;
 
-          const newFile = {
-            ...event.body?.data?.object_info,
-            parent: this.openedFolderId ?? null
-          };
+          let errorMessage = 'An error occurred';
 
-          this.allFiles.push(newFile);
-
-          if (newFile.parent === this.openedFolderId) {
-            this.files.push(newFile);
-
-            this.filteredFiles = [...this.files].sort((a, b) => {
-              if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-              if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-              return a.name.localeCompare(b.name, undefined, {
-                numeric: true,
-                sensitivity: 'base'
-              });
-            });
+          if (
+            err?.error?.data?.error_handling &&
+            Array.isArray(err.error.data.error_handling) &&
+            err.error.data.error_handling.length > 0 &&
+            err.error.data.error_handling[0].error
+          ) {
+            errorMessage = err.error.data.error_handling[0].error;
+          } else if (err?.message) {
+            errorMessage = err.message;
           }
 
-          if (this.openedFolderId) {
-            const parentFolder = this.allFiles.find(f => f.id === this.openedFolderId && f.type === 'Folder');
-            if (parentFolder) {
-              if (!Array.isArray(parentFolder.children)) {
-                parentFolder.children = [];
-              }
-              parentFolder.children.push(newFile);
-            }
-          }
-
+          this.toasterService.error(errorMessage);
         }
-      },
-      error: (err: any) => {
-        this.isLoading = false;
-        this.uploadProgress = 0;
-
-        let errorMessage = 'An error occurred';
-
-        if (
-          err?.error?.data?.error_handling &&
-          Array.isArray(err.error.data.error_handling) &&
-          err.error.data.error_handling.length > 0 &&
-          err.error.data.error_handling[0].error
-        ) {
-          errorMessage = err.error.data.error_handling[0].error;
-        } else if (err?.message) {
-          errorMessage = err.message;
-        }
-
-        this.toasterService.error(errorMessage);
-      }
-    });
+      });
   }
 
   // get file type
@@ -622,6 +634,8 @@ export class SystemCloudComponent implements OnInit {
 
   closeModalFile() {
     this.createFilePop = false;
+    this.systemFileName = '';
+    this.errMsg = '';
   }
 
 
@@ -644,46 +658,48 @@ export class SystemCloudComponent implements OnInit {
       formData.append('parent', this.openedFolderId);
     }
 
-    this._systemCloudService.createSystemFile(formData).subscribe({
-      next: (response) => {
-        this.systemFileName = '';
-        this.errMsg = '';
-        this.closeModalFile();
-        this.isLoading = false;
+    this._systemCloudService.createSystemFile(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.systemFileName = '';
+          this.errMsg = '';
+          this.closeModalFile();
+          this.isLoading = false;
 
-        const newFile = {
-          ...response?.data?.object_info,
-          parent: this.openedFolderId ?? null
-        };
+          const newFile = {
+            ...response?.data?.object_info,
+            parent: this.openedFolderId ?? null
+          };
 
-        this.allFiles.push(newFile);
+          this.allFiles.push(newFile);
 
-        const exists = this.files.some(file => file.id === newFile.id);
-        if (!exists) {
-          if (this.openedFolderId === newFile.parent || (!this.openedFolderId && !newFile.parent)) {
-            this.files.push(newFile);
+          const exists = this.files.some(file => file.id === newFile.id);
+          if (!exists) {
+            if (this.openedFolderId === newFile.parent || (!this.openedFolderId && !newFile.parent)) {
+              this.files.push(newFile);
+            }
           }
-        }
 
-        this.filteredFiles = [...this.files].sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, {
-            numeric: true,
-            sensitivity: 'base'
+          this.filteredFiles = [...this.files].sort((a, b) => {
+            if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+            if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+            return a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
           });
-        });
 
-      },
-      error: (err) => {
-        if (err?.error?.data?.error_handling?.length > 0) {
-          this.errMsg = err.error.data.error_handling[0].error;
-        } else {
-          this.errMsg = 'An unexpected error occurred.';
+        },
+        error: (err) => {
+          if (err?.error?.data?.error_handling?.length > 0) {
+            this.errMsg = err.error.data.error_handling[0].error;
+          } else {
+            this.errMsg = 'An unexpected error occurred.';
+          }
+          this.isLoading = false;
         }
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
 
@@ -731,46 +747,48 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('name', this.newName);
 
-    this._systemCloudService.renameFile(this.folderIdToRename, formData).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.errMsg = '';
-        this.closeModalrename();
+    this._systemCloudService.renameFile(this.folderIdToRename, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.errMsg = '';
+          this.closeModalrename();
 
-        const updatedName = this.newName;
-        this.newName = '';
+          const updatedName = this.newName;
+          this.newName = '';
 
 
-        const folderInAllFiles = this.allFiles.find(f => f.id === this.folderIdToRename);
-        if (folderInAllFiles) {
-          folderInAllFiles.name = updatedName;
-        }
+          const folderInAllFiles = this.allFiles.find(f => f.id === this.folderIdToRename);
+          if (folderInAllFiles) {
+            folderInAllFiles.name = updatedName;
+          }
 
-        const folderInFiles = this.files.find(f => f.id === this.folderIdToRename);
-        if (folderInFiles) {
-          folderInFiles.name = updatedName;
-        }
+          const folderInFiles = this.files.find(f => f.id === this.folderIdToRename);
+          if (folderInFiles) {
+            folderInFiles.name = updatedName;
+          }
 
-        this.filteredFiles = [...this.files].sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, {
-            numeric: true,
-            sensitivity: 'base'
+          this.filteredFiles = [...this.files].sort((a, b) => {
+            if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+            if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+            return a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
           });
-        });
-        this.renameAction = false;
-      },
-      error: (err) => {
-        if (err?.error?.data?.error_handling?.length > 0) {
-          this.errMsg = err.error.data.error_handling[0].error;
-        } else {
-          this.errMsg = 'An unexpected error occurred.';
+          this.renameAction = false;
+        },
+        error: (err) => {
+          if (err?.error?.data?.error_handling?.length > 0) {
+            this.errMsg = err.error.data.error_handling[0].error;
+          } else {
+            this.errMsg = 'An unexpected error occurred.';
+          }
+          this.isLoading = false;
+          this.renameAction = false;
         }
-        this.isLoading = false;
-        this.renameAction = false;
-      }
-    });
+      });
   }
 
 
@@ -800,30 +818,32 @@ export class SystemCloudComponent implements OnInit {
     this.errMsg = '';
     this.uploadProgress = 0;
     this.closeModalDelete();
-    this._systemCloudService.deleteFile(id).subscribe({
-      next: () => {
-        this.files = this.files.filter(file => file.id !== id);
-        this.filteredFiles = this.filteredFiles.filter(file => file.id !== id);
-        this.allFiles = this.allFiles.filter(file => file.id !== id);
+    this._systemCloudService.deleteFile(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.files = this.files.filter(file => file.id !== id);
+          this.filteredFiles = this.filteredFiles.filter(file => file.id !== id);
+          this.allFiles = this.allFiles.filter(file => file.id !== id);
 
-      },
-      error: (err: any) => {
-        let errorMessage = 'An error occurred';
+        },
+        error: (err: any) => {
+          let errorMessage = 'An error occurred';
 
-        if (
-          err?.error?.data?.error_handling &&
-          Array.isArray(err.error.data.error_handling) &&
-          err.error.data.error_handling.length > 0 &&
-          err.error.data.error_handling[0].error
-        ) {
-          errorMessage = err.error.data.error_handling[0].error;
-        } else if (err?.message) {
-          errorMessage = err.message;
-        }
+          if (
+            err?.error?.data?.error_handling &&
+            Array.isArray(err.error.data.error_handling) &&
+            err.error.data.error_handling.length > 0 &&
+            err.error.data.error_handling[0].error
+          ) {
+            errorMessage = err.error.data.error_handling[0].error;
+          } else if (err?.message) {
+            errorMessage = err.message;
+          }
 
-        this.toasterService.error(errorMessage);
-      },
-    });
+          this.toasterService.error(errorMessage);
+        },
+      });
 
   }
 
@@ -866,39 +886,41 @@ export class SystemCloudComponent implements OnInit {
     this.errMsg = '';
     this.closeModalDublicate();
 
-    this._systemCloudService.duplicateFile(id).subscribe({
-      next: (response) => {
-        const now = new Date();
-        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-        const duplicatedName = `${name}-${timestamp}-copy`;
+    this._systemCloudService.duplicateFile(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const now = new Date();
+          const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+          const duplicatedName = `${name}-${timestamp}-copy`;
 
-        const duplicatedFile = {
-          ...response?.data?.object_info,
-          name: duplicatedName,
-          parent: this.openedFolderId ?? null
-        };
+          const duplicatedFile = {
+            ...response?.data?.object_info,
+            name: duplicatedName,
+            parent: this.openedFolderId ?? null
+          };
 
-        this.allFiles.push(duplicatedFile);
+          this.allFiles.push(duplicatedFile);
 
-        if (this.openedFolderId === duplicatedFile.parent || (!this.openedFolderId && !duplicatedFile.parent)) {
-          this.files.push(duplicatedFile);
-          this.filteredFiles.push(duplicatedFile);
-        }
-
-        if (this.openedFolderId) {
-          const parentFolder = this.allFiles.find(f => f.id === this.openedFolderId && f.type === 'Folder');
-          if (parentFolder) {
-            if (!Array.isArray(parentFolder.children)) {
-              parentFolder.children = [];
-            }
-            parentFolder.children.push(duplicatedFile);
+          if (this.openedFolderId === duplicatedFile.parent || (!this.openedFolderId && !duplicatedFile.parent)) {
+            this.files.push(duplicatedFile);
+            this.filteredFiles.push(duplicatedFile);
           }
+
+          if (this.openedFolderId) {
+            const parentFolder = this.allFiles.find(f => f.id === this.openedFolderId && f.type === 'Folder');
+            if (parentFolder) {
+              if (!Array.isArray(parentFolder.children)) {
+                parentFolder.children = [];
+              }
+              parentFolder.children.push(duplicatedFile);
+            }
+          }
+        },
+        error: () => {
+          this.errMsg = 'Could not duplicate file.';
         }
-      },
-      error: () => {
-        this.errMsg = 'Could not duplicate file.';
-      }
-    });
+      });
   }
 
 
@@ -933,21 +955,23 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('parent', targetFolder.id);
 
-    this._systemCloudService.renameFile(fileId, formData).subscribe({
-      next: (response) => {
-        const updatedFile = { ...response.data.object_info };
+    this._systemCloudService.renameFile(fileId, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const updatedFile = { ...response.data.object_info };
 
-        const indexAll = this.allFiles.findIndex(f => f.id === fileId);
-        if (indexAll !== -1) {
-          this.allFiles[indexAll] = updatedFile;
+          const indexAll = this.allFiles.findIndex(f => f.id === fileId);
+          if (indexAll !== -1) {
+            this.allFiles[indexAll] = updatedFile;
+          }
+
+          this.updateCurrentFilesView(this.openedFolderId);
+        },
+        error: (err) => {
+          console.error(err);
         }
-
-        this.updateCurrentFilesView(this.openedFolderId);
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
+      });
 
     this.draggedFileIdForMove = null;
   }
@@ -982,37 +1006,42 @@ export class SystemCloudComponent implements OnInit {
     const formData = new FormData();
     formData.append('parent', parentId ?? '');
 
-    this._systemCloudService.renameFile(fileId, formData).subscribe({
-      next: () => {
-        const movedFile = this.allFiles.find(f => f.id === fileId);
-        if (!movedFile) return;
+    this._systemCloudService.renameFile(fileId, formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          const movedFile = this.allFiles.find(f => f.id === fileId);
+          if (!movedFile) return;
 
-        movedFile.parent = parentId;
+          movedFile.parent = parentId;
 
-        this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
+          this.allFiles = this.allFiles.map(f => f.id === fileId ? movedFile : f);
 
-        this.files = this.files.filter(f => f.id !== fileId);
+          this.files = this.files.filter(f => f.id !== fileId);
 
-        if (this.openedFolderId === parentId) {
-          this.files = [...this.files, movedFile];
-        }
+          if (this.openedFolderId === parentId) {
+            this.files = [...this.files, movedFile];
+          }
 
-        this.filteredFiles = [...this.files].sort((a, b) => {
-          if (a.type === 'Folder' && b.type !== 'Folder') return -1;
-          if (a.type !== 'Folder' && b.type === 'Folder') return 1;
-          return a.name.localeCompare(b.name, undefined, {
-            numeric: true,
-            sensitivity: 'base'
+          this.filteredFiles = [...this.files].sort((a, b) => {
+            if (a.type === 'Folder' && b.type !== 'Folder') return -1;
+            if (a.type !== 'Folder' && b.type === 'Folder') return 1;
+            return a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
           });
-        });
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
 
     this.draggedFileIdForMove = null;
   }
 
-
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

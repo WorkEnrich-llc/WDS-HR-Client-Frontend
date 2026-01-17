@@ -1,7 +1,8 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { PageHeaderComponent } from 'app/components/shared/page-header/page-header.component';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartOptions } from 'chart.js';
+import { Subscription } from 'rxjs';
 
 import { AdminDashboardService } from 'app/core/services/admin-dashboard/admin-dashboard.service';
 import { DepartmentsService } from 'app/core/services/od/departments/departments.service';
@@ -16,7 +17,8 @@ import { ISystemSetupStepItem, SystemSetupService } from 'app/core/services/main
   styleUrl: './admin-dashboard.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnDestroy {
+  private subscriptions: Subscription[] = [];
   private readonly systemSetupDismissKey = 'system_setup_board_dismissed';
   private readonly systemSetupTourDoneKey = 'system_setup_tour_done';
   private readonly systemSetupTourCompletedKey = 'system_setup_tour_completed_steps';
@@ -213,6 +215,15 @@ export class AdminDashboardComponent {
   }
 
   ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
+    this.subscriptions = [];
+
+    // Remove event listeners
     if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler);
       window.removeEventListener('scroll', this.resizeHandler, true);
@@ -376,7 +387,7 @@ export class AdminDashboardComponent {
 
     this.systemSetupLoading = true;
     this.systemSetupError = null;
-    this.systemSetupService.getSystemSetup().subscribe({
+    const sub = this.systemSetupService.getSystemSetup().subscribe({
       next: (res) => {
         const items = res?.data?.list_items || [];
         // ensure stable ordering by step
@@ -395,6 +406,7 @@ export class AdminDashboardComponent {
         this.systemSetupError = err?.error?.details || 'Failed to load system setup.';
       }
     });
+    this.subscriptions.push(sub);
   }
 
 
@@ -418,7 +430,7 @@ export class AdminDashboardComponent {
 
 
   getDashboardData(): void {
-    this.adminDashboardService.viewDashboard(this.params).subscribe({
+    const sub = this.adminDashboardService.viewDashboard(this.params).subscribe({
       next: (response) => {
         const dashboardData = response.data.object_info;
         dashboardData.forEach((item: any) => {
@@ -801,6 +813,7 @@ export class AdminDashboardComponent {
 
       }
     });
+    this.subscriptions.push(sub);
   }
 
   // empty chart
@@ -842,7 +855,7 @@ export class AdminDashboardComponent {
 
   // get departemnt
   getAllDepartment(pageNumber: number, searchTerm: string = '') {
-    this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
+    const sub = this._DepartmentsService.getAllDepartment(pageNumber, 10000, {
       search: searchTerm || undefined,
     }).subscribe({
       next: (response) => {
@@ -852,11 +865,12 @@ export class AdminDashboardComponent {
         console.error(err.error?.details);
       }
     });
+    this.subscriptions.push(sub);
   }
 
   // get branches
   getAllBranchs(pageNumber: number, searchTerm: string = '') {
-    this._BranchesService.getAllBranches(pageNumber, 10000, {
+    const sub = this._BranchesService.getAllBranches(pageNumber, 10000, {
       search: searchTerm || undefined,
     }).subscribe({
       next: (response) => {
@@ -867,12 +881,13 @@ export class AdminDashboardComponent {
         console.log(err.error?.details);
       }
     });
+    this.subscriptions.push(sub);
   }
 
 
   // get leave balance
   getAllLeaveBalance(): void {
-    this.leaveBalanceService.getAllLeaveBalance({
+    const sub = this.leaveBalanceService.getAllLeaveBalance({
       page: 1,
       per_page: 10000
     }).subscribe({
@@ -884,6 +899,7 @@ export class AdminDashboardComponent {
         console.error(err.error?.details);
       }
     });
+    this.subscriptions.push(sub);
   }
 
   // -----------------------------

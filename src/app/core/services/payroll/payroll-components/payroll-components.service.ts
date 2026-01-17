@@ -54,6 +54,7 @@ export class PayrollComponentsService {
       created_to?: string;
       show_in_payslip?: string;
       component_id?: number;
+      component?: number;
       status?: string;
     }
   ): Observable<any> {
@@ -70,6 +71,7 @@ export class PayrollComponentsService {
       if (filters.show_in_payslip) params = params.set('show_in_payslip', filters.show_in_payslip);
       if (filters.status) params = params.set('status', filters.status);
       if (filters.component_id != null) params = params.set('component_id', filters.component_id.toString());
+      if (filters.component != null) params = params.set('component', filters.component.toString());
     }
 
     return this.http.get(this.url, { params });

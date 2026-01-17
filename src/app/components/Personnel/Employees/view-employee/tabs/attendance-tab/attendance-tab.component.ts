@@ -1,10 +1,10 @@
-import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { DatePipe, NgClass, NgStyle } from '@angular/common';
 import { Employee } from '../../../../../../core/interfaces/employee';
 import { EmployeeService } from '../../../../../../core/services/personnel/employees/employee.service';
 import { AttendanceLogService } from 'app/core/services/attendance/attendance-log/attendance-log.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { IAttendanceFilters } from 'app/core/models/attendance-log';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
@@ -20,12 +20,12 @@ interface AttendanceRecord {
 
 @Component({
   selector: 'app-attendance-tab',
-  imports: [PopupComponent, NgClass, NgStyle, DatePipe],
+  imports: [PopupComponent, NgClass, NgStyle, DatePipe, FormsModule],
   templateUrl: './attendance-tab.component.html',
   providers: [DatePipe],
   styleUrls: ['./../../../../../shared/table/table.component.css', './attendance-tab.component.css']
 })
-export class AttendanceTabComponent implements OnChanges {
+export class AttendanceTabComponent implements OnChanges, OnDestroy {
   @Input() employee: Employee | null = null;
   @Input() date: string | null = '2025-08-06'
   @Input() isEmployeeActive: boolean = false;
@@ -41,6 +41,28 @@ export class AttendanceTabComponent implements OnChanges {
   baseDate: Date = new Date();
   skeletonRows = Array.from({ length: 5 });
   days: { label: string, date: Date, isToday: boolean }[] = [];
+
+  // Modal state for editing logs
+  editModalOpen: boolean = false;
+  editModalType: 'checkin' | 'checkout' | 'log' | null = null;
+  editModalLog: any = null;
+  editModalEmp: any = null;
+  editCheckInValue: string = '';
+  editCheckOutValue: string = '';
+  isAddingCheckIn: boolean = false;
+  isAddingCheckOut: boolean = false;
+  editModalLoading: boolean = false;
+
+  // Deduction confirmation modal state
+  deductionModalOpen: boolean = false;
+  deductionModalLog: any = null;
+  deductionModalEmp: any = null;
+  deductionModalLoading: boolean = false;
+
+  // Action menu state
+  openSubMenu: { mainIndex: number; subIndex: number } | null = null;
+  private outsideClickListener: any;
+  subMenuPosition: { top: string; left: string } = { top: '0px', left: '0px' };
   constructor(private fb: FormBuilder, private employeeService: EmployeeService, private _AttendanceLogService: AttendanceLogService, private datePipe: DatePipe) {
 
     // Initialize dates
@@ -51,6 +73,11 @@ export class AttendanceTabComponent implements OnChanges {
   }
   employees: any[] = [];
   columnWidths: string[] = [];
+
+  toggleCollapse(emp: any) {
+    emp.collapsed = !emp.collapsed;
+  }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       const thElements = this.tableHeader.nativeElement.querySelectorAll('th');
@@ -65,6 +92,19 @@ export class AttendanceTabComponent implements OnChanges {
     this.filterForm = this.fb.group({
       employee: [''],
     });
+
+    // Add outside click listener to close dropdown menu
+    this.outsideClickListener = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const actionMenuBtn = target.closest('.action-menu-btn');
+      const actionMenuDropdown = target.closest('.action-menu-dropdown');
+
+      if (!actionMenuBtn && !actionMenuDropdown && this.openSubMenu) {
+        this.closeSubLogMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', this.outsideClickListener);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -232,7 +272,6 @@ export class AttendanceTabComponent implements OnChanges {
     return this.getFormattedCheckOut(last);
   }
 
-
   getSafeCheckInTime(status: string | undefined, time: string | undefined): string {
     if (!status || !time) return '--';
 
@@ -252,13 +291,12 @@ export class AttendanceTabComponent implements OnChanges {
     return this.formatTimeTo12Hour(normalizedTime);
   }
 
-
   getFormattedCheckIn(log: any): string {
-    return this.getSafeCheckInTime(log?.status, log?.times_object?.actual_check_in);
+    return this.getSafeCheckInTime(log?.status, log?.times_object?.working_check_in);
   }
 
   getFormattedCheckOut(log: any): string {
-    const checkOut = log?.times_object?.actual_check_out;
+    const checkOut = log?.times_object?.working_check_out;
     const finished = log?.working_details?.finished;
 
     if (!checkOut || checkOut === '00:00' || finished === false) {
@@ -272,24 +310,22 @@ export class AttendanceTabComponent implements OnChanges {
     return list?.find(item => item.main_record === true);
   }
 
-
   cancelLog(attendance: any): void {
-    this.isLoading = true;
-    const id = attendance.id ?? attendance.record_id;
+    const id = attendance.record_id ?? attendance.id;
     if (!id) {
       this.toasterService.showError('Attendance log ID not found.');
-      this.isLoading = false;
       return;
     }
     this._AttendanceLogService.cancelAttendanceLogById(id).subscribe({
       next: () => {
         attendance.canceled = true;
-        this.isLoading = false;
         this.toasterService.showSuccess('Attendance log canceled successfully.');
+        // Refresh the attendance log
+        const filters: IAttendanceFilters = this.buildFilters();
+        this.getAllAttendanceLog(filters);
       },
       error: (err: any) => {
         this.toasterService.showError('Failed to cancel attendance log.');
-        this.isLoading = false;
         console.error(err);
       }
     });
@@ -322,6 +358,192 @@ export class AttendanceTabComponent implements OnChanges {
     }
     this.isModalOpen = false;
     this.attendanceToCancel = null;
+  }
+
+  // Check if a record has check-in
+  hasCheckIn(record: any): boolean {
+    return record?.times_object?.working_check_in && record?.times_object?.working_check_in !== '00:00';
+  }
+
+  // Check if a record has check-out
+  hasCheckOut(record: any): boolean {
+    return record?.times_object?.working_check_out && record?.times_object?.working_check_out !== '00:00';
+  }
+
+  // Check if a record has both check-in and check-out
+  hasBothCheckInAndOut(record: any): boolean {
+    return this.hasCheckIn(record) && this.hasCheckOut(record);
+  }
+
+  // Action menu methods
+  openSubLogMenu(mainIdx: number, subIdx: number) {
+    this.openSubMenu = { mainIndex: mainIdx, subIndex: subIdx };
+
+    setTimeout(() => {
+      const button = document.querySelector(`[data-action-btn="${mainIdx}-${subIdx}"]`) as HTMLElement;
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        this.subMenuPosition = {
+          top: (rect.bottom + 80) + 'px',
+          left: (rect.left + 80) + 'px'
+        };
+      }
+    }, 0);
+  }
+
+  closeSubLogMenu() {
+    this.openSubMenu = null;
+  }
+
+  // Edit Check In Modal
+  openEditCheckInModal(log: any, emp: any) {
+    this.editModalType = 'checkin';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    // Check if this is an add scenario (no existing check-in)
+    const hasExistingCheckIn = log?.times_object?.working_check_in && log?.times_object?.working_check_in !== '00:00';
+    this.isAddingCheckIn = !hasExistingCheckIn;
+    this.editCheckInValue = hasExistingCheckIn ? log?.times_object?.working_check_in : '';
+    this.editModalOpen = true;
+  }
+
+  // Edit Check Out Modal
+  openEditCheckOutModal(log: any, emp: any) {
+    this.editModalType = 'checkout';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    // Check if this is an add scenario (no existing check-out)
+    const hasExistingCheckOut = log?.times_object?.working_check_out && log?.times_object?.working_check_out !== '00:00';
+    this.isAddingCheckOut = !hasExistingCheckOut;
+    this.editCheckOutValue = hasExistingCheckOut ? log?.times_object?.working_check_out : '';
+    this.editModalOpen = true;
+  }
+
+  // Edit Log Modal (for adding new log with both check-in and check-out)
+  openEditLogModal(log: any, emp: any) {
+    this.editModalType = 'log';
+    this.editModalLog = log;
+    this.editModalEmp = emp;
+    // Only set initial values if both check-in and check-out exist
+    if (this.hasBothCheckInAndOut(log)) {
+      this.editCheckInValue = log?.times_object?.working_check_in || '';
+      this.editCheckOutValue = log?.times_object?.working_check_out || '';
+    } else {
+      // For add log scenario, start with empty values
+      this.editCheckInValue = '';
+      this.editCheckOutValue = '';
+    }
+    this.editModalOpen = true;
+  }
+
+  closeEditModal() {
+    this.editModalOpen = false;
+    this.editModalType = null;
+    this.isAddingCheckIn = false;
+    this.isAddingCheckOut = false;
+    this.editModalLog = null;
+    this.editModalEmp = null;
+    this.editCheckInValue = '';
+    this.editCheckOutValue = '';
+  }
+
+  updateEditModal() {
+    this.editModalLoading = true;
+    let obs$;
+    let id;
+
+    if (!this.editModalLog) {
+      // For add, use record_id if available, else fallback to employee id and date
+      if (!this.editModalEmp || !this.editModalEmp.employee?.id || !this.editModalEmp.date) {
+        this.toasterService.showError('Employee or date not found.');
+        this.editModalLoading = false;
+        return;
+      }
+      id = this.editModalEmp.record_id || this.editModalEmp.id || this.editModalEmp.employee.id || '';
+    } else {
+      // Prioritize record_id over id for edit operations
+      id = this.editModalLog.record_id ?? this.editModalLog.id;
+      if (!id) {
+        this.editModalLoading = false;
+        return;
+      }
+    }
+
+    // Call different API based on editModalType
+    if (this.editModalType === 'checkin') {
+      obs$ = this._AttendanceLogService.updateCheckIn(id, this.editCheckInValue);
+    } else if (this.editModalType === 'checkout') {
+      obs$ = this._AttendanceLogService.updateCheckOut(id, this.editCheckOutValue);
+    } else {
+      // For 'log' type (add log with both check-in and check-out)
+      obs$ = this._AttendanceLogService.updateLog(id, this.editCheckInValue, this.editCheckOutValue);
+    }
+
+    obs$.subscribe({
+      next: () => {
+        this.closeEditModal();
+        this.editModalLoading = false;
+        const filters: IAttendanceFilters = this.buildFilters();
+        this.getAllAttendanceLog(filters);
+      },
+      error: (err) => {
+        this.closeEditModal();
+        this.editModalLoading = false;
+        this.toasterService.showError('Failed to update attendance log.');
+      }
+    });
+  }
+
+  // Deduction toggle methods
+  toggleDeduction(log: any, emp: any) {
+    this.deductionModalLog = log;
+    this.deductionModalEmp = emp;
+    this.deductionModalOpen = true;
+  }
+
+  closeDeductionModal() {
+    this.deductionModalOpen = false;
+    this.deductionModalLog = null;
+    this.deductionModalEmp = null;
+    this.deductionModalLoading = false;
+  }
+
+  confirmDeductionToggle() {
+    if (!this.deductionModalLog) return;
+    this.handleDeductionToggle(this.deductionModalLog, this.deductionModalEmp, true);
+  }
+
+  handleDeductionToggle(log: any, emp: any, fromModal: boolean = false) {
+    const id = log?.record_id ?? log?.id ?? log?.recordID ?? log?.attendance_id;
+    if (!id) {
+      this.toasterService.showError('Attendance log ID not found. Please contact support.');
+      console.error('Deduction toggle error: log object missing id/record_id:', log);
+      return;
+    }
+    if (!fromModal) {
+      return;
+    }
+    this.deductionModalLoading = true;
+    this._AttendanceLogService.toggleDeduction(id).subscribe({
+      next: () => {
+        this.deductionModalLoading = false;
+        const filters: IAttendanceFilters = this.buildFilters();
+        this.getAllAttendanceLog(filters);
+        this.closeDeductionModal();
+      },
+      error: () => {
+        this.deductionModalLoading = false;
+        this.toasterService.showError('Failed to toggle deduction.');
+      }
+    });
+  }
+
+  // Clean up on destroy
+  ngOnDestroy(): void {
+    if (this.outsideClickListener) {
+      document.removeEventListener('mousedown', this.outsideClickListener);
+      this.outsideClickListener = null;
+    }
   }
 
 }

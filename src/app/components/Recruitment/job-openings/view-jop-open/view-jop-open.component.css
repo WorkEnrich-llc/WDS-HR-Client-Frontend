@@ -354,3 +354,177 @@ button[title="Copy description"]:hover {
 .text-primary {
     color: var(--color-primary-500) !important;
 }
+
+/* Toggle Button Styles */
+.btn-toggle-expand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    color: var(--color-primary-500);
+    font-size: var(--font-size-b3);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-expand:hover {
+    opacity: 0.8;
+}
+
+.btn-toggle-expand:active {
+    opacity: 0.6;
+}
+
+.btn-toggle-expand svg {
+    transition: transform 0.3s ease;
+}
+
+/* Equal height for both cards when content is visible */
+.main-info-card.h-100,
+.job-details-card.h-100 {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Cards without h-100 (when hidden) - no min-height, collapse to header */
+.main-info-card:not(.h-100),
+.job-details-card:not(.h-100) {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    height: auto;
+}
+
+/* Ensure columns stretch to equal height in row */
+.row.align-items-stretch > [class*="col-"] {
+    display: flex;
+}
+
+.row.align-items-stretch > [class*="col-"] > * {
+    width: 100%;
+}
+
+/* Ensure content containers are flex children */
+.main-info-content,
+.job-details-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Main Info Collapsible Section */
+.main-info-collapsible {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+        margin-top 0.3s ease;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.main-info-collapsible.expanded {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 0;
+    gap: 1rem;
+}
+
+.main-info-collapsible .info {
+    animation: fadeInUp 0.3s ease forwards;
+    opacity: 0;
+}
+
+.main-info-collapsible.expanded .info {
+    opacity: 1;
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Job Details Collapsible Section */
+.job-details-collapsible {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+        margin-top 0.3s ease;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.job-details-collapsible.expanded {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 0;
+    gap: 1rem;
+}
+
+.job-details-collapsible .info {
+    animation: fadeInUp 0.3s ease forwards;
+    opacity: 0;
+}
+
+.job-details-collapsible.expanded .info {
+    opacity: 1;
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Stagger animation for collapsible items */
+.main-info-collapsible.expanded .info:nth-child(1),
+.job-details-collapsible.expanded .info:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.main-info-collapsible.expanded .info:nth-child(2),
+.job-details-collapsible.expanded .info:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.main-info-collapsible.expanded .info:nth-child(3),
+.job-details-collapsible.expanded .info:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.main-info-collapsible.expanded .info:nth-child(4),
+.job-details-collapsible.expanded .info:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.main-info-collapsible.expanded .info:nth-child(5),
+.job-details-collapsible.expanded .info:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.main-info-collapsible.expanded .info:nth-child(n + 6),
+.job-details-collapsible.expanded .info:nth-child(n + 6) {
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-toggle-expand {
+        font-size: var(--font-size-b4, 0.75rem);
+        padding: 5px 10px;
+        gap: 6px;
+    }
+}

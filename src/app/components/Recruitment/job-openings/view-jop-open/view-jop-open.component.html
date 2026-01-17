@@ -50,27 +50,68 @@
 <!-- page content -->
 <div class="content-hug d-flex flex-column gap-4">
   <!-- 2 cards -->
-  <div class="row">
+    <div class="row align-items-stretch">
     <div class="col-lg-8">
       <!-- Main Information Section -->
-      <div class="content-box d-flex flex-column gap-3 w-100">
+      <div class="content-box main-info-card d-flex flex-column gap-3 w-100" [class.h-100]="mainInfoExpanded">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Main Information</h2>
-          <button (click)="toggleText()" class="edit-btn d-flex align-items-center justify-content-center gap-1">
-            @if (isExpanded) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <path fill="currentColor" fill-rule="evenodd"
-                d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
-                clip-rule="evenodd" />
-            </svg>
-            } @if (!isExpanded) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
-              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="m19 15l-7-6l-7 6" />
-            </svg>
-            }
-            <span>{{ isExpanded ? "Show" : "Hide" }}</span>
-          </button>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              class="btn-toggle-expand"
+              (click)="toggleShowMore()"
+              [attr.aria-expanded]="showMoreExpanded"
+              [attr.aria-label]="
+                showMoreExpanded
+                  ? 'Show less information'
+                  : 'Show more information'
+              "
+            >
+              <span>{{ showMoreExpanded ? "Show Less" : "Show More" }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                [class.rotated]="showMoreExpanded"
+              >
+                <path
+                  d="M7 10l5 5l5-5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="btn-toggle-expand"
+              (click)="toggleMainInfo()"
+              [attr.aria-expanded]="mainInfoExpanded"
+              [attr.aria-label]="
+                mainInfoExpanded
+                  ? 'Hide information'
+                  : 'Show information'
+              "
+            >
+              <span>{{ mainInfoExpanded ? "Hide" : "Show" }}</span>
+              @if (mainInfoExpanded) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="currentColor" fill-rule="evenodd"
+                  d="M4.43 8.512a.75.75 0 0 1 1.058-.081L12 14.012l6.512-5.581a.75.75 0 0 1 .976 1.138l-7 6a.75.75 0 0 1-.976 0l-7-6a.75.75 0 0 1-.081-1.057"
+                  clip-rule="evenodd" />
+              </svg>
+              } @if (!mainInfoExpanded) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="m19 15l-7-6l-7 6" />
+              </svg>
+              }
+            </button>
+          </div>
         </div>
 
         <!-- Loading skeleton for Main Information -->
@@ -85,8 +126,9 @@
           </div>
           }
         </div>
-        } @if (!mainInfoLoading && !isExpanded) {
-        <div class="d-flex flex-column gap-3">
+        } @if (!mainInfoLoading && mainInfoExpanded) {
+        <div class="d-flex flex-column gap-3 main-info-content">
+          <!-- Always visible fields -->
           <div class="info">
             <h6>Opening ID</h6>
             <span>{{
@@ -101,48 +143,55 @@
             <h6>Branch</h6>
             <span>{{ jobOpening.branch?.name || "N/A" }}</span>
           </div>
-          <div class="info">
-            <h6>CV Limit</h6>
-            <span>{{ jobOpening.cv_limit || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Time Limit</h6>
-            <span>{{ jobOpening.time_limit || "N/A" }} Days</span>
-          </div>
-          <div class="info">
-            <h6>Work Schedule</h6>
-            <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Days on Site</h6>
-            <span>{{ jobOpening.days_on_site ?? "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Employment Type</h6>
-            <span>{{ jobOpening.employment_type?.name || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Status</h6>
-            <span class="badge" [ngClass]="{
-                'bg-success': jobOpening.status === 'Live',
-                'bg-warning': jobOpening.status === 'Draft',
-                'bg-secondary': jobOpening.status === 'Closed'
-              }">{{ jobOpening.status || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Created By</h6>
-            <span>{{ jobOpening.created_by?.name || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Updated By</h6>
-            <span>{{ jobOpening.updated_by?.name || "N/A" }}</span>
+          
+          <!-- Collapsible fields -->
+          <div
+            class="main-info-collapsible"
+            [class.expanded]="showMoreExpanded"
+          >
+            <div class="info">
+              <h6>CV Limit</h6>
+              <span>{{ jobOpening.cv_limit || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Time Limit</h6>
+              <span>{{ jobOpening.time_limit || "N/A" }} Days</span>
+            </div>
+            <div class="info">
+              <h6>Work Schedule</h6>
+              <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Days on Site</h6>
+              <span>{{ jobOpening.days_on_site ?? "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Employment Type</h6>
+              <span>{{ jobOpening.employment_type?.name || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Status</h6>
+              <span class="badge" [ngClass]="{
+                  'bg-success': jobOpening.status === 'Live',
+                  'bg-warning': jobOpening.status === 'Draft',
+                  'bg-secondary': jobOpening.status === 'Closed'
+                }">{{ jobOpening.status || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Created By</h6>
+              <span>{{ jobOpening.created_by?.name || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Updated By</h6>
+              <span>{{ jobOpening.updated_by?.name || "N/A" }}</span>
+            </div>
           </div>
         </div>
         }
       </div>
     </div>
     <div class="col-lg-4">
-      <div class="content-box d-flex flex-column gap-3 w-100">
+      <div class="content-box job-details-card d-flex flex-column gap-3 w-100" [class.h-100]="mainInfoExpanded">
         <div class="d-flex align-items-center justify-content-between">
           <h2>Job details</h2>
         </div>
@@ -159,8 +208,9 @@
           </div>
           }
         </div>
-        } @if (!jobDetailsInfoLoading && !isExpanded) {
-        <div class="d-flex flex-column gap-3">
+        } @if (!jobDetailsInfoLoading && mainInfoExpanded) {
+        <div class="d-flex flex-column gap-3 job-details-content">
+          <!-- Always visible fields -->
           <!-- Job URL Section -->
           <div class="job-url-item position-relative pb-3 border-bottom">
             <h4 style="font-size: 14px; font-weight: 600; color: #2c435d;" class="mb-2">Job URL</h4>
@@ -205,31 +255,38 @@
             <h6>Job title</h6>
             <span>{{ jobOpening.job_title?.name || "N/A" }}</span>
           </div>
-          <div class="info">
-            <h6>Company</h6>
-            <span>{{ jobOpening.company?.name || "N/A" }}</span>
+          
+          <!-- Collapsible fields -->
+          <div
+            class="job-details-collapsible"
+            [class.expanded]="showMoreExpanded"
+          >
+            <div class="info">
+              <h6>Company</h6>
+              <span>{{ jobOpening.company?.name || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Employment Type</h6>
+              <span>{{ jobOpening.employment_type?.name || "N/A" }}</span>
+            </div>
+            <div class="info">
+              <h6>Work Schedule</h6>
+              <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
+            </div>
+            @if (jobOpening.job_title?.employment_type) {
+            <div class="info">
+              <h6>Job type</h6>
+              <span>{{ jobOpening.job_title.employment_type }}</span>
+            </div>
+            }
+            @if (jobOpening.job_title?.salary_ranges) {
+            <div class="info">
+              <h6>Average Salary</h6>
+              <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{
+                jobOpening.job_title.salary_ranges.currency }}</span>
+            </div>
+            }
           </div>
-          <div class="info">
-            <h6>Employment Type</h6>
-            <span>{{ jobOpening.employment_type?.name || "N/A" }}</span>
-          </div>
-          <div class="info">
-            <h6>Work Schedule</h6>
-            <span>{{ jobOpening.work_schedule?.name || "N/A" }}</span>
-          </div>
-          @if (jobOpening.job_title?.employment_type) {
-          <div class="info">
-            <h6>Job type</h6>
-            <span>{{ jobOpening.job_title.employment_type }}</span>
-          </div>
-          }
-          @if (jobOpening.job_title?.salary_ranges) {
-          <div class="info">
-            <h6>Average Salary</h6>
-            <span>{{ jobOpening.job_title.salary_ranges.minimum }} - {{ jobOpening.job_title.salary_ranges.maximum }} {{
-              jobOpening.job_title.salary_ranges.currency }}</span>
-          </div>
-          }
         </div>
         }
       </div>
@@ -547,7 +604,8 @@
     <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
       (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="6" [headerTemplate]="applicantTableHeader"
-      [rowTemplate]="applicantTableRow" [emptyTemplate]="noApplicants"></app-table>
+      [rowTemplate]="applicantTableRow" [skeletonTemplate]="applicantSkeleton"
+      [emptyTemplate]="noApplicants"></app-table>
 
     <ng-template #applicantTableHeader>
       <th (click)="sortBy('name')" style="cursor: pointer">
@@ -582,6 +640,28 @@
       <th>Action</th>
     </ng-template>
 
+    <!-- Skeleton template for applicants table (used when loading) -->
+    <ng-template #applicantSkeleton>
+      <td class="w-30">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-20">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-20">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-15">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-10">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      <td class="w-5">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+    </ng-template>
+
     <ng-template #applicantTableRow let-application let-i="index">
       <td>
         <span class="d-block text-gray-sm">{{
@@ -611,8 +691,11 @@
         </div>
       </td>
       <td>
-        <div class="d-flex align-items-center gap-2">
-          <span>{{ application.email }}</span>
+        <div class="d-flex align-items-center gap-2" style="min-width:0;">
+          <span class="text-truncate"
+            style="max-width:220px;min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            {{ application.email }}
+          </span>
           <button (click)="copyToClipboard(application.email, 'email-' + application.id)" class="copy-icon-btn"
             [attr.title]="'Copy email'" [class.copied]="copiedSectionId === 'email-' + application.id">
             @if (copiedSectionId === 'email-' + application.id) {
@@ -803,13 +886,14 @@
 @let hoveredApplicant = getHoveredApplicant();
 @if (hoveredApplicant && hoveredApplicant.evaluation) {
 <div
-  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; overflow: hidden; width: 660px;"
-  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" data-tooltip-id>
+  style="position: fixed; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 0; z-index: 10000; width: 660px;"
+  [style.left.px]="tooltipPosition?.left" [style.top.px]="tooltipPosition?.top" [style.maxHeight.px]="tooltipMaxHeight"
+  data-tooltip-id [style.overflow]="'auto'">
 
   <!-- Employee Evaluation Header -->
   <div style="background: linear-gradient(135deg, #D4F4DD 0%, #B8ECC7 100%); padding: 20px 24px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Applicant  Evaluation</h2>
+      <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Applicant Evaluation</h2>
       <div style="font-size: 24px; font-weight: 700; color: #1F2937; line-height: 1;">
         {{ hoveredApplicant?.evaluation?.applicantEvaluation?.score?.toFixed(1) || '-' }}<span
           style="font-size: 16px; color: #6B7280;">/{{
@@ -824,7 +908,7 @@
   </div>
 
   <!-- Evaluation Sections -->
-  <div style="padding: 20px 24px 20px 24px;">
+  <div style="padding: 20px 24px 20px 24px; overflow: visible;">
     <!-- Role Fit -->
     <div style="padding: 16px 0; border-bottom: 1px solid #E5E7EB;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">

@@ -391,6 +391,139 @@
     margin-bottom: 4px;
 }
 
+/* Interviews list styling */
+.interviews-list {
+    width: 100%;
+}
+
+.interview-card {
+    padding: 18px;
+    background: #FFFFFF;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.interview-left {
+    flex: 1 1 auto;
+}
+
+.interview-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #1d2433;
+}
+
+.view-link {
+    color: #377AFD;
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.interview-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.status-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+
+    .interview-right .btn.btn-outline-dark.btn-lg {
+        padding: 6px 10px;
+        border-radius: 16px;
+        min-width: 0;
+        height: auto;
+    }
+
+    display: inline-block;
+}
+
+.status-dot.active {
+    background: #DFF4FF;
+    border: 2px solid #377AFD;
+}
+
+.status-dot.inactive {
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+}
+
+.status-text {
+    font-size: 14px;
+    color: #377AFD;
+    font-weight: 600;
+}
+
+.interview-people {
+    margin-top: 8px;
+}
+
+.person-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.role {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.person {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.interview-right {
+    min-width: 160px;
+    max-width: 220px;
+}
+
+.datetime {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Date styles (regular) */
+.datetime .date {
+    color: var(--text-colors-heading-on-light, #1E2E40);
+    /* b3/regular */
+    font-family: var(--font-family-en-font, Poppins);
+    font-size: var(--size-b3, 14px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--line-height-xxs, 16px);
+    /* 114.286% */
+}
+
+/* Time styles (regular with reduced opacity) */
+.datetime .time {
+    color: var(--text-colors-heading-on-light, #1E2E40);
+    /* b3/regular */
+    font-family: var(--font-family-en-font, Poppins);
+    font-size: var(--size-b3, 14px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--line-height-xxs, 16px);
+    /* 114.286% */
+    opacity: var(--text-transparency-subtext, 0.7);
+}
+
+.new-interview-btn {
+    cursor: pointer;
+}
+
 .assignment-status-text {
     font-size: 14px;
     color: #6B7280;
@@ -468,4 +601,102 @@
 
 .btn-review:hover svg {
     stroke: #FFFFFF;
+}
+
+/* Job Offers styling */
+.job-offers-tab {
+    width: 100%;
+}
+
+.job-offer-card {
+    padding: 18px;
+    background: #FFFFFF;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.job-offer-card .offer-left {
+    flex: 1 1 auto;
+}
+
+.job-offer-card .salary {
+    color: var(--text-colors-heading-on-light, #1E2E40);
+
+    /* b2/bold */
+    font-family: var(--font-family-en-font, Poppins);
+    font-size: var(--size-b2, 16px);
+    font-style: normal;
+    font-weight: 600;
+    line-height: var(--line-height-xss, 18px);
+    /* 112.5% */
+}
+
+.view-offer-link {
+    color: #377AFD;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.offer-subtext {
+    margin-top: 8px;
+    color: #6b7280;
+}
+
+.offer-right {
+    min-width: 180px;
+    max-width: 240px;
+}
+
+.offer-datetime {
+    font-size: 16px;
+    color: #1d2433;
+}
+
+.resend-btn {
+    padding: 6px 14px;
+    border-radius: 24px;
+}
+
+.offer-status .status-dot.success {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #D1FAE5;
+    border: 2px solid #10B981;
+    border-radius: 50%;
+}
+
+.offer-status .status-text {
+    font-weight: 600;
+    color: #10B981;
+    margin-left: 8px;
+}
+
+.offer-rejected-block {
+    border-left: 4px solid rgba(220, 38, 38, 0.08);
+    padding-left: 12px;
+}
+
+.offer-rejected-block .rejected-label {
+    color: #b91c1c;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.offer-rejected-block .rejected-date {
+    color: #b91c1c;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.offer-rejected-block .rejection-notes {
+    color: #7f1d1d;
+    line-height: 1.6;
+}
+
+.new-job-offer-btn {
+    cursor: pointer;
 }

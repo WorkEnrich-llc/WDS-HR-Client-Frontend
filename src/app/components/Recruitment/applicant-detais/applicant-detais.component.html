@@ -133,7 +133,7 @@
         <!-- Tab Navigation -->
         <ul class="nav d-flex align-items-center nav-tabs bg-white"
           style="margin-left: -20px; margin-right: -20px; margin-bottom: 24px; border-radius: 1.56rem 1.56rem 0 0;">
-          <li class="nav-item" [ngClass]="{ active: currentTab === 'cv' }" (click)="setCurrentTab('cv')"
+          <li class="nav-item tab-cv" [ngClass]="{ active: currentTab === 'cv' }" (click)="setCurrentTab('cv')"
             style="border-radius: 1.56rem 0 0 0;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path opacity="0.3"
@@ -152,27 +152,32 @@
             <span class="nav-link">CV</span>
           </li>
 
-          <li class="nav-item" [ngClass]="{ active: currentTab === 'feedback' }" (click)="setCurrentTab('feedback')">
+          <!-- <li class="nav-item" [ngClass]="{ active: currentTab === 'feedback' }" (click)="setCurrentTab('feedback')">
+            ...
+          </li> -->
+
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'interviews' }"
+            (click)="setCurrentTab('interviews')">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_1574_10217)">
-                <path opacity="0.3"
-                  d="M15.75 11.9987V7.4987C15.75 5.37738 15.75 4.31672 15.091 3.65771C14.5147 3.08142 13.6313 3.00908 12 3H6C4.36873 3.00908 3.4853 3.08142 2.90901 3.65771C2.25 4.31672 2.25 5.37738 2.25 7.4987V11.9987C2.25 14.12 2.25 15.1807 2.90901 15.8397C3.56802 16.4987 4.62868 16.4987 6.75 16.4987H11.25C13.3713 16.4987 14.432 16.4987 15.091 15.8397C15.75 15.1807 15.75 14.12 15.75 11.9987Z"
-                  fill="#377AFD" />
+              <g clip-path="url(#clip0_1792_18041)">
                 <path
-                  d="M6 2.625C6 2.00368 6.50368 1.5 7.125 1.5H10.875C11.4963 1.5 12 2.00368 12 2.625V3.375C12 3.99632 11.4963 4.5 10.875 4.5H7.125C6.50368 4.5 6 3.99632 6 3.375V2.625Z"
-                  fill="#377AFD" />
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M4.6875 7.875C4.6875 7.56434 4.93934 7.3125 5.25 7.3125H12.75C13.0607 7.3125 13.3125 7.56434 13.3125 7.875C13.3125 8.18566 13.0607 8.4375 12.75 8.4375H5.25C4.93934 8.4375 4.6875 8.18566 4.6875 7.875ZM5.4375 10.5C5.4375 10.1893 5.68934 9.9375 6 9.9375H12C12.3107 9.9375 12.5625 10.1893 12.5625 10.5C12.5625 10.8107 12.3107 11.0625 12 11.0625H6C5.68934 11.0625 5.4375 10.8107 5.4375 10.5ZM6.1875 13.125C6.1875 12.8143 6.43934 12.5625 6.75 12.5625H11.25C11.5607 12.5625 11.8125 12.8143 11.8125 13.125C11.8125 13.4357 11.5607 13.6875 11.25 13.6875H6.75C6.43934 13.6875 6.1875 13.4357 6.1875 13.125Z"
-                  fill="#377AFD" />
+                  d="M5.22004 1.5C5.53318 1.5 5.78704 1.73247 5.78704 2.01923V3.06662C6.28997 3.05769 6.85371 3.05769 7.48802 3.05769H10.512C11.1463 3.05769 11.71 3.05769 12.213 3.06662V2.01923C12.213 1.73247 12.4668 1.5 12.78 1.5C13.0931 1.5 13.347 1.73247 13.347 2.01923V3.11256C14.4351 3.19236 15.1494 3.38818 15.6742 3.86878C16.199 4.34938 16.4129 5.00354 16.5 6V6.75H1.5V6C1.58713 5.00354 1.80097 4.34938 2.32578 3.86878C2.85059 3.38818 3.56493 3.19236 4.65305 3.11256V2.01923C4.65305 1.73247 4.9069 1.5 5.22004 1.5Z"
+                  fill="#4A6D97" />
+                <path opacity="0.3"
+                  d="M16.5 10.5V9C16.5 8.37072 16.4905 7.24895 16.4808 6.75H1.50439C1.49472 7.24895 1.50423 8.37072 1.50423 9V10.5C1.50423 13.3284 1.50423 14.7426 2.38266 15.6213C3.26109 16.5 4.67491 16.5 7.50254 16.5H10.5017C13.3293 16.5 14.7431 16.5 15.6216 15.6213C16.5 14.7426 16.5 13.3284 16.5 10.5Z"
+                  fill="#4A6D97" />
+                <path
+                  d="M13.5 12.375C13.5 12.9963 12.9963 13.5 12.375 13.5C11.7537 13.5 11.25 12.9963 11.25 12.375C11.25 11.7537 11.7537 11.25 12.375 11.25C12.9963 11.25 13.5 11.7537 13.5 12.375Z"
+                  fill="#4A6D97" />
               </g>
               <defs>
-                <clipPath id="clip0_1574_10217">
+                <clipPath id="clip0_1792_18041">
                   <rect width="18" height="18" fill="white" />
                 </clipPath>
               </defs>
             </svg>
 
-            <span class="nav-link">Feedback</span>
+            <span class="nav-link">Interviews</span>
           </li>
 
           <li class="nav-item" [ngClass]="{ active: currentTab === 'assignments' }"
@@ -203,6 +208,17 @@
             </svg>
 
             <span class="nav-link">Assignments</span>
+          </li>
+
+          <li class="nav-item" [ngClass]="{ active: currentTab === 'job-offers' }"
+            (click)="setCurrentTab('job-offers')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12.1838 5.82011L16.0625 1.94141L16.0605 1.93947C15.1701 1.04901 13.4832 1.61131 10.1094 2.73591L6.2474 4.02324C3.52443 4.9309 2.16294 5.38473 1.77604 6.05024C1.40799 6.68334 1.40799 7.46527 1.77604 8.09837C2.16294 8.76388 3.52443 9.21771 6.2474 10.1254C6.58486 10.2379 6.96451 10.1575 7.2172 9.90719L11.3464 5.81622C11.5787 5.58606 11.9536 5.58781 12.1838 5.82011Z" />
+              <path opacity="0.3"
+                d="M13.9768 11.7521L15.2642 7.8901C16.388 4.51878 16.9503 2.83188 16.0626 1.94092L12.1839 5.81962C12.414 6.05192 12.4123 6.42682 12.18 6.65697L8.11743 10.6819C7.83891 10.9578 7.75074 11.3802 7.87472 11.7521C8.78237 14.4751 9.23621 15.8366 9.90171 16.2235C10.5348 16.5915 11.3167 16.5915 11.9499 16.2235C12.6154 15.8366 13.0692 14.4751 13.9768 11.7521Z" />
+            </svg>
+            <span class="nav-link">Job Offers</span>
           </li>
 
           <li class="nav-item" [ngClass]="{ active: currentTab === 'previous-applications' }"
@@ -253,6 +269,121 @@
             <div class="d-flex align-items-center justify-content-center text-muted py-5">
               <span>No CV available.</span>
             </div>
+            }
+          </div>
+          }
+
+          @if (currentTab === 'interviews') {
+          <div class="interviews-tab">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="m-0" style="font-size: 24px; font-weight: 500; color: #1d2433;">Interviews</h2>
+              <a class="d-flex align-items-center gap-2 new-interview-btn" (click)="openCreateInterviewOverlay()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <g fill="none" stroke="#377AFD" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                  </g>
+                </svg>
+                <span style="color:#377AFD; font-weight:500">New Interview</span>
+              </a>
+            </div>
+
+            @if (isInterviewsLoading) {
+            <div class="d-flex flex-column gap-3">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow interview-card d-flex align-items-start justify-content-between" style="padding:18px;">
+                <div class="interview-left" style="flex:1">
+                  <div class="placeholder" style="width:45%; height:20px; border-radius:8px;"></div>
+                  <div class="d-flex gap-3 mt-2">
+                    <div class="placeholder" style="width:140px; height:14px;"></div>
+                    <div class="placeholder" style="width:120px; height:14px;"></div>
+                  </div>
+                  <div class="d-flex gap-2 mt-2">
+                    <div class="placeholder" style="width:90px; height:14px;"></div>
+                  </div>
+                </div>
+                <div class="interview-right text-end" style="min-width:160px;">
+                  <div class="placeholder mb-2" style="width:110px; height:14px; margin-left:auto;"></div>
+                  <div class="d-flex justify-content-end gap-2 mt-3">
+                    <div class="placeholder" style="width:110px; height:36px; border-radius:8px;"></div>
+                    <div class="placeholder" style="width:90px; height:36px; border-radius:8px;"></div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            } @else if (interviews.length > 0) {
+            <div class="interviews-list d-flex flex-column gap-3">
+              @for (item of interviews; track item.id) {
+              <div class="interview-card d-flex align-items-start justify-content-between">
+                <div class="interview-left">
+                  <div class="d-flex align-items-center gap-3 mb-2">
+                    <h3 class="interview-title">{{ item.title || 'Interview' }}</h3>
+                    <!-- <a class="view-link" (click)="viewInterview(item)">View</a> -->
+                  </div>
+
+                  <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="interview-status">
+                      @if (item.is_active) {
+                      <span class="status-dot active"></span>
+                      }
+                      @if (!item.is_active) {
+                      <span class="status-dot inactive"></span>
+                      }
+                      <span class="status-text">{{ item.is_active ? (item.status || 'Active') : (item.status ||
+                        'Inactive') }}</span>
+                    </div>
+                    @if (item.rating) {
+                    <div class="interview-score">
+                      <div class="score-label">{{ item.rating }}/10</div>
+                    </div>
+                    }
+                  </div>
+
+                  <div class="interview-people">
+                    <div class="person-row">
+                      <div class="role">{{ item.interviewer?.name ? 'Interviewer' : 'Interviewer' }}</div>
+                      <div class="person">{{ item.interviewer?.name || '—' }}</div>
+                    </div>
+                    <div class="person-row">
+                      <div class="role">{{ item.interviewee?.name ? 'Interviewee' : 'Interviewee' }}</div>
+                      <div class="person">{{ item.interviewee?.name || '—' }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="interview-right text-end">
+                  <div class="datetime">
+                    <div class="date">{{ (item.date + 'T' + (item.time_from || '00:00:00')) | date:'dd/MM/yyyy' }}</div>
+                    <div class="time">{{ (item.date + 'T' + (item.time_from || '00:00:00')) | date:'h:mm a' }}</div>
+                  </div>
+
+                  <div class="mt-3 d-flex justify-content-end">
+                    <button class="btn btn-outline-dark btn-lg d-flex align-items-center gap-2"
+                      (click)="openFeedbackForInterview(item)">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_1792_21639)">
+                          <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M8.20769 0.9375H9.79231C11.1706 0.937488 12.2624 0.937479 13.1168 1.05235C13.9961 1.17057 14.7078 1.41966 15.2691 1.98093C15.4887 2.2006 15.4887 2.55676 15.2691 2.77643C15.0494 2.9961 14.6932 2.9961 14.4736 2.77643C14.1562 2.45902 13.7214 2.26877 12.9669 2.16732C12.1961 2.0637 11.1801 2.0625 9.75 2.0625H8.25C6.81989 2.0625 5.80388 2.0637 5.03314 2.16732C4.27857 2.26877 3.84384 2.45902 3.52643 2.77643C3.20902 3.09384 3.01877 3.52857 2.91732 4.28314C2.8137 5.05388 2.8125 6.06988 2.8125 7.5V10.5C2.8125 11.9301 2.8137 12.9461 2.91732 13.7169C3.01877 14.4714 3.20902 14.9062 3.52643 15.2236C3.84384 15.541 4.27857 15.7312 5.03314 15.8327C5.80388 15.9363 6.81988 15.9375 8.25 15.9375H9.75C11.1801 15.9375 12.1961 15.9363 12.9669 15.8327C13.7214 15.7312 14.1562 15.541 14.4736 15.2236C14.9955 14.7016 15.1536 13.8906 15.181 11.9919C15.1855 11.6812 15.441 11.4331 15.7516 11.4376C16.0622 11.4421 16.3104 11.6975 16.3059 12.0081C16.2796 13.8287 16.1617 15.1264 15.2691 16.0191C14.7078 16.5803 13.9961 16.8294 13.1168 16.9476C12.2624 17.0625 11.1706 17.0625 9.79231 17.0625H8.20769C6.82937 17.0625 5.73764 17.0625 4.88323 16.9476C4.00392 16.8294 3.2922 16.5803 2.73093 16.0191C2.16966 15.4578 1.92057 14.7461 1.80235 13.8668C1.68748 13.0124 1.68749 11.9206 1.6875 10.5423V7.45769C1.68749 6.07937 1.68748 4.98764 1.80235 4.13323C1.92057 3.25392 2.16966 2.54221 2.73093 1.98093C3.29221 1.41966 4.00392 1.17057 4.88323 1.05235C5.73764 0.937479 6.82937 0.937488 8.20769 0.9375ZM13.5849 5.28417C14.3804 4.48861 15.6703 4.48861 16.4658 5.28417C17.2614 6.07973 17.2614 7.36959 16.4658 8.16514L12.8993 11.7316C12.7053 11.9257 12.574 12.057 12.427 12.1717C12.254 12.3066 12.0669 12.4223 11.8689 12.5167C11.7005 12.5969 11.5244 12.6556 11.264 12.7423L9.70132 13.2632C9.3563 13.3782 8.97591 13.2884 8.71874 13.0313C8.46157 12.7741 8.37178 12.3937 8.48678 12.0487L8.9972 10.5174C9.00074 10.5068 9.00423 10.4963 9.00768 10.486C9.09443 10.2256 9.15312 10.0495 9.23335 9.88114C9.32772 9.68311 9.44339 9.49596 9.5783 9.32299C9.69298 9.17597 9.82427 9.0447 10.0183 8.85069C10.0261 8.84296 10.0339 8.83514 10.0418 8.82722L13.5849 5.28417ZM15.6703 6.07966C15.3141 5.72345 14.7366 5.72345 14.3804 6.07966L14.244 6.216C14.2514 6.24111 14.2599 6.26782 14.2696 6.29589C14.3402 6.49924 14.4741 6.7682 14.7279 7.02207C14.9818 7.27594 15.2508 7.40981 15.4541 7.48036C15.4822 7.4901 15.5089 7.49859 15.534 7.50599L15.6703 7.36965C16.0266 7.01343 16.0266 6.43588 15.6703 6.07966ZM14.6748 8.36516C14.4364 8.23993 14.179 8.06411 13.9324 7.81756C13.6859 7.57102 13.5101 7.31359 13.3848 7.07518L10.8373 9.62271C10.6115 9.84852 10.5323 9.92912 10.4654 10.0149C10.3807 10.1234 10.3081 10.2409 10.2489 10.3651C10.2021 10.4633 10.1655 10.5702 10.0645 10.8732L9.76425 11.7739L9.97615 11.9858L10.8768 11.6855C11.1798 11.5845 11.2867 11.5479 11.3849 11.5011C11.5091 11.4419 11.6266 11.3693 11.7351 11.2846C11.8209 11.2177 11.9015 11.1385 12.1273 10.9127L14.6748 8.36516ZM5.4375 6.75C5.4375 6.43934 5.68934 6.1875 6 6.1875H10.875C11.1857 6.1875 11.4375 6.43934 11.4375 6.75C11.4375 7.06066 11.1857 7.3125 10.875 7.3125H6C5.68934 7.3125 5.4375 7.06066 5.4375 6.75ZM5.4375 9.75C5.4375 9.43934 5.68934 9.1875 6 9.1875H7.875C8.18566 9.1875 8.4375 9.43934 8.4375 9.75C8.4375 10.0607 8.18566 10.3125 7.875 10.3125H6C5.68934 10.3125 5.4375 10.0607 5.4375 9.75ZM5.4375 12.75C5.4375 12.4393 5.68934 12.1875 6 12.1875H7.125C7.43566 12.1875 7.6875 12.4393 7.6875 12.75C7.6875 13.0607 7.43566 13.3125 7.125 13.3125H6C5.68934 13.3125 5.4375 13.0607 5.4375 12.75Z"
+                            fill="#4A6D97" />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_1792_21639">
+                            <rect width="18" height="18" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+
+                      <span>Edit Feedback</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <hr class="m-0" />
+              }
+            </div>
+            } @else {
+            <div class="text-muted text-center py-5">No interviews available.</div>
             }
           </div>
           }
@@ -390,11 +521,9 @@
                       <a [routerLink]="['/assignments', item.assignment?.id]" class="assignment-link-icon">
                         <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
-                            d="M8.0625 1.58656e-07H8.01947C6.28817 -9.4973e-06 4.93139 -1.71438e-05 3.87278 0.14231C2.78923 0.28799 1.93421 0.591995 1.2631 1.2631C0.591995 1.93421 0.28799 2.78923 0.14231 3.87278C-1.71438e-05 4.93139 -9.4973e-06 6.28817 1.58654e-07 8.01947V8.10553C-9.4973e-06 9.83683 -1.71438e-05 11.1936 0.14231 12.2522C0.28799 13.3358 0.591995 14.1908 1.2631 14.8619C1.93421 15.533 2.78923 15.837 3.87278 15.9827C4.9314 16.125 6.28817 16.125 8.01947 16.125H8.10553C9.83683 16.125 11.1936 16.125 12.2522 15.9827C13.3358 15.837 14.1908 15.533 14.8619 14.8619C15.533 14.1908 15.837 13.3358 15.9827 12.2522C16.125 11.1936 16.125 9.83683 16.125 8.10553V8.0625C16.125 7.75184 15.8732 7.5 15.5625 7.5C15.2518 7.5 15 7.75184 15 8.0625C15 9.84617 14.9988 11.1273 14.8677 12.1023C14.7388 13.0611 14.4936 13.6392 14.0664 14.0664C13.6392 14.4936 13.0611 14.7388 12.1023 14.8677C11.1273 14.9988 9.84617 15 8.0625 15C6.27883 15 4.99767 14.9988 4.02268 14.8677C3.06388 14.7388 2.48584 14.4936 2.0586 14.0664C1.63136 13.6392 1.38619 13.0611 1.25728 12.1023C1.12619 11.1273 1.125 9.84617 1.125 8.0625C1.125 6.27883 1.12619 4.99767 1.25728 4.02268C1.38619 3.06388 1.63136 2.48584 2.0586 2.0586C2.48584 1.63136 3.06388 1.38619 4.02268 1.25728C4.99767 1.12619 6.27883 1.125 8.0625 1.125C8.37316 1.125 8.625 0.87316 8.625 0.5625C8.625 0.25184 8.37316 1.58656e-07 8.0625 1.58656e-07Z"
-                            fill="#377AFD" />
+                            d="M8.0625 1.58656e-07H8.01947C6.28817 -9.4973e-06 4.93139 -1.71438e-05 3.87278 0.14231C2.78923 0.28799 1.93421 0.591995 1.2631 1.2631C0.591995 1.93421 0.28799 2.78923 0.14231 3.87278C-1.71438e-05 4.93139 -9.4973e-06 6.28817 1.58654e-07 8.01947V8.10553C-9.4973e-06 9.83683 -1.71438e-05 11.1936 0.14231 12.2522C0.28799 13.3358 0.591995 14.1908 1.2631 14.8619C1.93421 15.533 2.78923 15.837 3.87278 15.9827C4.9314 16.125 6.28817 16.125 8.01947 16.125H8.10553C9.83683 16.125 11.1936 16.125 12.2522 15.9827C13.3358 15.837 14.1908 15.533 14.8619 14.8619C15.533 14.1908 15.837 13.3358 15.9827 12.2522C16.125 11.1936 16.125 9.83683 16.125 8.10553V8.0625C16.125 7.75184 15.8732 7.5 15.5625 7.5C15.2518 7.5 15 7.75184 15 8.0625C15 9.84617 14.9988 11.1273 14.8677 12.1023C14.7388 13.0611 14.4936 13.6392 14.0664 14.0664C13.6392 14.4936 13.0611 14.7388 12.1023 14.8677C11.1273 14.9988 9.84617 15 8.0625 15C6.27883 15 4.99767 14.9988 4.02268 14.8677C3.06388 14.7388 2.48584 14.4936 2.0586 14.0664C1.63136 13.6392 1.38619 13.0611 1.25728 12.1023C1.12619 11.1273 1.125 9.84617 1.125 8.0625C1.125 6.27883 1.12619 4.99767 1.25728 4.02268C1.38619 3.06388 1.63136 2.48584 2.0586 2.0586C2.48584 1.63136 3.06388 1.38619 4.02268 1.25728C4.99767 1.12619 6.27883 1.125 8.0625 1.125C8.37316 1.125 8.625 0.87316 8.625 0.5625C8.625 0.25184 8.37316 1.58656e-07 8.0625 1.58656e-07Z" />
                           <path
-                            d="M8.41475 6.91475C8.19508 7.13442 8.19508 7.49058 8.41475 7.71025C8.63442 7.92992 8.99058 7.92992 9.21025 7.71025L15 1.9205V4.57031C15 4.88097 15.2518 5.13281 15.5625 5.13281C15.8732 5.13281 16.125 4.88097 16.125 4.57031V0.5625C16.125 0.25184 15.8732 1.58656e-07 15.5625 1.58656e-07H11.5547C11.244 1.58656e-07 10.9922 0.25184 10.9922 0.5625C10.9922 0.87316 11.244 1.125 11.5547 1.125H14.2045L8.41475 6.91475Z"
-                            fill="#377AFD" />
+                            d="M8.41475 6.91475C8.19508 7.13442 8.19508 7.49058 8.41475 7.71025C8.63442 7.92992 8.99058 7.92992 9.21025 7.71025L15 1.9205V4.57031C15 4.88097 15.2518 5.13281 15.5625 5.13281C15.8732 5.13281 16.125 4.88097 16.125 4.57031V0.5625C16.125 0.25184 15.8732 1.58656e-07 15.5625 1.58656e-07H11.5547C11.244 1.58656e-07 10.9922 0.25184 10.9922 0.5625C10.9922 0.87316 11.244 1.125 11.5547 1.125H14.2045L8.41475 6.91475Z" />
                         </svg>
 
                       </a>
@@ -473,6 +602,159 @@
           </div>
           }
 
+          @if (currentTab === 'job-offers') {
+          <div class="job-offers-tab">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="m-0" style="font-size: 24px; font-weight: 500; color: #1d2433;">Job Offers</h2>
+              <a class="d-flex align-items-center gap-2 new-job-offer-btn" (click)="openCreateJobOffer()"
+                style="color:#377AFD; text-decoration:none; font-weight:500;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <g fill="none" stroke="#377AFD" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" d="M15 12h-3m0 0H9m3 0V9m0 3v3" />
+                  </g>
+                </svg>
+                <span>New Job Offer</span>
+              </a>
+            </div>
+
+            @if (isJobOffersLoading) {
+            <div class="d-flex flex-column gap-3">
+              @for (i of [1,2,3]; track i) {
+              <div class="placeholder-glow job-offer-card d-flex align-items-start justify-content-between" style="padding:18px;">
+                <div class="offer-left d-flex flex-column" style="flex:1">
+                  <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="placeholder" style="width:110px; height:28px; border-radius:8px;"></div>
+                    <div class="placeholder col-3" style="height:18px;"></div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="placeholder" style="width:140px; height:14px;"></div>
+                    <div class="placeholder" style="width:90px; height:14px;"></div>
+                  </div>
+                </div>
+                <div class="offer-right text-end" style="min-width:160px;">
+                  <div class="placeholder mb-2" style="width:110px; height:14px; margin-left:auto;"></div>
+                  <div class="d-flex justify-content-end gap-2 mt-3">
+                    <div class="placeholder" style="width:110px; height:36px; border-radius:8px;"></div>
+                    <div class="placeholder" style="width:90px; height:36px; border-radius:8px;"></div>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            } @else if (jobOffers.length > 0) {
+            <div class="job-offers-list d-flex flex-column gap-3">
+              @for (offer of jobOffers; track offer.id) {
+              <div class="job-offer-card d-flex align-items-start justify-content-between">
+                <div class="offer-left">
+                  <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="salary">{{ offer.salary | number }} EGP</div>
+                    <a class="view-offer-link d-flex align-items-center gap-2" (click)="viewJobOffer(offer)">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M9 6.1875C7.4467 6.1875 6.1875 7.4467 6.1875 9C6.1875 10.5533 7.4467 11.8125 9 11.8125C10.5533 11.8125 11.8125 10.5533 11.8125 9C11.8125 7.4467 10.5533 6.1875 9 6.1875ZM7.3125 9C7.3125 8.06802 8.06802 7.3125 9 7.3125C9.93198 7.3125 10.6875 8.06802 10.6875 9C10.6875 9.93198 9.93198 10.6875 9 10.6875C8.06802 10.6875 7.3125 9.93198 7.3125 9Z"
+                          fill="#377AFD" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M9 2.4375C5.6144 2.4375 3.33397 4.46565 2.01043 6.18515L1.98656 6.21615C1.68723 6.6049 1.41155 6.96294 1.22452 7.3863C1.02423 7.83965 0.9375 8.33377 0.9375 9C0.9375 9.66623 1.02423 10.1603 1.22452 10.6137C1.41155 11.0371 1.68723 11.3951 1.98656 11.7839L2.01043 11.8149C3.33397 13.5344 5.6144 15.5625 9 15.5625C12.3856 15.5625 14.666 13.5344 15.9896 11.8149L16.0134 11.7839C16.3128 11.3951 16.5885 11.0371 16.7755 10.6137C16.9758 10.1603 17.0625 9.66623 17.0625 9C17.0625 8.33377 16.9758 7.83965 16.7755 7.3863C16.5885 6.96293 16.3128 6.60489 16.0134 6.21613L15.9896 6.18515C14.666 4.46565 12.3856 2.4375 9 2.4375ZM2.90191 6.87135C4.12398 5.28369 6.11277 3.5625 9 3.5625C11.8872 3.5625 13.876 5.28369 15.0981 6.87135C15.427 7.29869 15.6197 7.55404 15.7464 7.84091C15.8649 8.10901 15.9375 8.4367 15.9375 9C15.9375 9.5633 15.8649 9.89099 15.7464 10.1591C15.6197 10.446 15.427 10.7013 15.0981 11.1287C13.876 12.7163 11.8872 14.4375 9 14.4375C6.11277 14.4375 4.12398 12.7163 2.90191 11.1287C2.57298 10.7013 2.3803 10.446 2.25357 10.1591C2.13513 9.89099 2.0625 9.5633 2.0625 9C2.0625 8.4367 2.13513 8.10901 2.25357 7.84091C2.3803 7.55404 2.57298 7.29869 2.90191 6.87135Z"
+                          fill="#377AFD" />
+                      </svg>
+
+                      <span style="color:#377AFD; font-weight:500;">View Offer</span>
+                    </a>
+                  </div>
+
+                  @if (offer.status && (offer.status + '').toLowerCase() === 'accepted') {
+                  <div class="offer-status mb-2">
+                    <div class="badge-success">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                          d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+                        <path fill="currentColor" fill-rule="evenodd"
+                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                          clip-rule="evenodd" />
+                      </svg>
+                      <span>{{ offer.status }}</span>
+                    </div>
+                  </div>
+                  }
+
+                  @if (offer.status && (offer.status + '').toLowerCase() === 'rejected') {
+                  <div class="offer-rejected-block mb-2">
+                    <div class="d-flex align-items-center gap-2 rejected-header">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="currentColor" fill-rule="evenodd"
+                          d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+                        <path fill="currentColor" fill-rule="evenodd"
+                          d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                          clip-rule="evenodd" />
+                      </svg>
+                      <div class="rejected-label">Offer Rejected</div>
+                    </div>
+                    <div class="rejected-date">{{ (offer.rejected_at || offer.created_at) | date:'dd/MM/yyyy' }}</div>
+                    @if (offer.rejection_notes) {
+                    <p class="rejection-notes">{{ offer.rejection_notes }}</p>
+                    }
+                  </div>
+                  }
+
+                  @if (!(offer.status && (offer.status + '').toLowerCase() === 'rejected')) {
+                  <div class="offer-subtext d-flex align-items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clip-path="url(#clip0_1792_18091)">
+                        <g opacity="0.7">
+                          <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+                            fill="#4A6D97" />
+                        </g>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_1792_18091">
+                          <rect width="18" height="18" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    <span class="text-muted">Offer sent to Applicant</span>
+                  </div>
+                  }
+                </div>
+
+                <div class="offer-right text-end">
+                  <div class="offer-datetime">{{ (offer.created_at) | date:'dd/MM/yyyy h:mm a' }}</div>
+                  <div class="mt-3 d-flex justify-content-end">
+                    @if (offer.status && (offer.status + '').toLowerCase() === 'rejected') {
+                    <button class="btn btn-outline-danger btn-lg d-flex align-items-center gap-2" disabled>
+                      <span>Rejected</span>
+                    </button>
+                    } @else {
+                    <button class="btn btn-outline-dark btn-lg d-flex align-items-center gap-2 resend-btn"
+                      (click)="resendJobOffer(offer)">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_1792_18097)">
+                          <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
+                            fill="#4A6D97" />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_1792_18097">
+                            <rect width="18" height="18" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                      <span>Resend Mail</span>
+                    </button>
+                    }
+                  </div>
+                </div>
+              </div>
+              <hr class="m-0" />
+              }
+            </div>
+            } @else {
+            <div class="text-muted text-center py-5">No job offers available.</div>
+            }
+          </div>
+          }
+
           @if (currentTab === 'previous-applications') {
           <div class="previous-applications-tab">
             <h2 class="m-0 mb-3" style="font-size: 24px; font-weight: 500; color: #1d2433;">Previous Applications</h2>
@@ -516,11 +798,9 @@
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_1271_19239)">
                           <path
-                            d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z"
-                            fill="#377AFD" />
+                            d="M9 0.9375H8.95697C7.22567 0.937491 5.86889 0.937483 4.81028 1.07981C3.72673 1.22549 2.87171 1.5295 2.2006 2.2006C1.5295 2.87171 1.22549 3.72673 1.07981 4.81028C0.937483 5.86889 0.937491 7.22567 0.9375 8.95697V9.04303C0.937491 10.7743 0.937483 12.1311 1.07981 13.1897C1.22549 14.2733 1.5295 15.1283 2.2006 15.7994C2.87171 16.4705 3.72673 16.7745 4.81028 16.9202C5.8689 17.0625 7.22567 17.0625 8.95697 17.0625H9.04303C10.7743 17.0625 12.1311 17.0625 13.1897 16.9202C14.2733 16.7745 15.1283 16.4705 15.7994 15.7994C16.4705 15.1283 16.7745 14.2733 16.9202 13.1897C17.0625 12.1311 17.0625 10.7743 17.0625 9.04303V9C17.0625 8.68934 16.8107 8.4375 16.5 8.4375C16.1893 8.4375 15.9375 8.68934 15.9375 9C15.9375 10.7837 15.9363 12.0648 15.8052 13.0398C15.6763 13.9986 15.4311 14.5767 15.0039 15.0039C14.5767 15.4311 13.9986 15.6763 13.0398 15.8052C12.0648 15.9363 10.7837 15.9375 9 15.9375C7.21633 15.9375 5.93517 15.9363 4.96018 15.8052C4.00138 15.6763 3.42334 15.4311 2.9961 15.0039C2.56886 14.5767 2.32369 13.9986 2.19478 13.0398C2.06369 12.0648 2.0625 10.7837 2.0625 9C2.0625 7.21633 2.06369 5.93517 2.19478 4.96018C2.32369 4.00138 2.56886 3.42334 2.9961 2.9961C3.42334 2.56886 4.00138 2.32369 4.96018 2.19478C5.93517 2.06369 7.21633 2.0625 9 2.0625C9.31066 2.0625 9.5625 1.81066 9.5625 1.5C9.5625 1.18934 9.31066 0.9375 9 0.9375Z" />
                           <path
-                            d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z"
-                            fill="#377AFD" />
+                            d="M9.35225 7.85225C9.13258 8.07192 9.13258 8.42808 9.35225 8.64775C9.57192 8.86742 9.92808 8.86742 10.1477 8.64775L15.9375 2.858V5.50781C15.9375 5.81847 16.1893 6.07031 16.5 6.07031C16.8107 6.07031 17.0625 5.81847 17.0625 5.50781V1.5C17.0625 1.18934 16.8107 0.9375 16.5 0.9375H12.4922C12.1815 0.9375 11.9297 1.18934 11.9297 1.5C11.9297 1.81066 12.1815 2.0625 12.4922 2.0625H15.142L9.35225 7.85225Z" />
                         </g>
                         <defs>
                           <clipPath id="clip0_1271_19239">
@@ -784,12 +1064,45 @@
       </div>
     </div>
 
+    <!-- Expiration Date and Time Picker -->
+    <div class="d-flex gap-3 w-100">
+      <!-- Date Input -->
+      <div class="input flex-grow-1">
+        <label for="assignmentExpiry">Expiration Date <span class="text-danger">*</span></label>
+        <div class="form-outline position-relative w-100">
+          <input type="date" id="assignmentExpiry" class="form-control custom-date-input"
+            [(ngModel)]="assignmentExpirationDate" [min]="minExpirationDate"
+            (blur)="assignmentExpirationDateTouched = true">
+        </div>
+        @if (assignmentExpirationDateTouched && !assignmentExpirationDate) {
+        <small class="text-danger">Expiration date is required</small>
+        }
+      </div>
+
+      <!-- Time Input -->
+      <div class="input flex-grow-1">
+        <label for="assignmentExpiry">Expiration Time <span class="text-danger">*</span></label>
+        <div class="form-outline position-relative w-100">
+          <input type="time" id="assignmentExpiryTime" class="form-control custom-date-input"
+            [(ngModel)]="assignmentExpirationTime" (blur)="assignmentExpirationDateTouched = true">
+        </div>
+        @if (assignmentExpirationDateTouched && !assignmentExpirationTime) {
+        <small class="text-danger">Expiration time is required</small>
+        }
+      </div>
+    </div>
+
     <!-- Assignments Table using shared component -->
     <app-table [data]="availableAssignments" [totalItems]="assignmentTotalCount" [currentPage]="assignmentCurrentPage"
       [itemsPerPage]="assignmentPageSize" [isLoading]="availableAssignmentsLoading" [columnsCount]="1"
       [headerTemplate]="assignmentHeaderTemplate" [rowTemplate]="assignmentRowTemplate"
       [emptyTemplate]="assignmentEmptyTemplate" [disablePagination]="true" (pageChange)="changeAssignmentPage($event)">
     </app-table>
+
+    <!-- Assignment Selection Validation Error -->
+    @if (assignmentSelectionTouched && !selectedAssignmentId) {
+    <small class="text-danger">Please select an assignment</small>
+    }
 
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center">
@@ -816,8 +1129,8 @@
 
     <!-- Action Buttons -->
     <div class="d-flex align-items-center gap-3 mt-4">
-      <button type="button" class="btn btn-lg btn-primary w-100"
-        [disabled]="!selectedAssignmentId || isAssignmentSubmitting" (click)="confirmAssignmentSelection()">
+      <button type="button" class="btn btn-lg btn-primary w-100" [disabled]="isAssignmentSubmitting"
+        (click)="confirmAssignmentSelection()">
         @if (!isAssignmentSubmitting) {
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path fill-rule="evenodd" clip-rule="evenodd"
@@ -873,4 +1186,150 @@
       </td>
     </tr>
   </ng-template>
+</app-overlay-filter-box>
+
+<!-- Resend Job Offer Confirmation (uses app-popup component) -->
+<app-popup [title]="'Resend Job Offer?'"
+  [paragraph1]="'Are you sure you want to resend the job offer email to the applicant?'"
+  [isOpen]="resendPopupOpen" (close)="closeResendPopup()">
+  <div class="mb-2">
+    @if (false) {
+    <div class="alert alert-danger mb-0 mt-3" role="alert">
+      <!-- placeholder for potential error messages -->
+    </div>
+    }
+  </div>
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmResend()" [disabled]="isResendLoading">
+    @if (!isResendLoading) {
+    <span>Confirm</span>
+    }
+    @if (isResendLoading) {
+    <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    }
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeResendPopup()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- job offer overlay (copied from interview component) -->
+<app-overlay-filter-box #jobBox [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
+  <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="overlayTitle === 'Offer Details' ? closeAllOverlays() : submitJobOffer()">
+    @if (jobOfferDetailsLoading && overlayTitle === 'Update Job Offer') {
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-6 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="input placeholder-glow">
+      <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
+    </div>
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <div class="btn btn-lg btn-primary w-100 disabled placeholder"></div>
+      <div class="btn btn-lg btn-outline-dark border-0 w-100 disabled placeholder"></div>
+    </div>
+    } @else {
+    <div class="input">
+      <label>Email</label>
+      <input type="email" class="form-control" [value]="applicantDetails?.email || ''" readonly
+        style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation" name="includeProbation" [disabled]="overlayTitle === 'Offer Details'">
+      <label for="probation" class="m-0">Include Probation Period</label>
+    </div>
+    <div class="input">
+      <label for="joinDate">Join Date</label>
+      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
+        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
+        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
+        [disabled]="overlayTitle === 'Offer Details'"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.joinDate) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
+      }
+    </div>
+    <div class="input d-flex align-items-center gap-2">
+      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate" [disabled]="overlayTitle === 'Offer Details'">
+      <label for="withEndDate" class="m-0">With end date</label>
+    </div>
+    @if (withEndDate){
+    <div class="input">
+      <label for="contractEndDate">Contract End Date</label>
+      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate" [disabled]="overlayTitle === 'Offer Details'"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+    </div>
+    }
+    <div class="input">
+      <label for="noticePeriod">Notice Period (in Days)</label>
+      <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
+        placeholder="Enter number of days" [class.is-invalid]="jobOfferValidationErrors.noticePeriod"
+        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()" [disabled]="overlayTitle === 'Offer Details'"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.noticePeriod) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.noticePeriod }}</div>
+      }
+    </div>
+    @if (overlayTitle === 'Update Job Offer') {
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <span class="text-muted">Min. Salary<br><span class="fw-bold">{{ minSalary | number:'1.0-0' }} EGP</span></span>
+      <span class="text-muted">Max. Salary<br><span class="fw-bold">{{ maxSalary | number:'1.0-0' }} EGP</span></span>
+    </div>
+    }
+    <div class="input">
+      <label for="salary">Salary</label>
+      <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
+        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()" [disabled]="overlayTitle === 'Offer Details'"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+      @if (jobOfferValidationErrors.salary) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
+      }
+    </div>
+    <div class="input">
+      <label for="offerDetails">Offer Details</label>
+      <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
+        placeholder="Enter Offer Details" [class.is-invalid]="jobOfferValidationErrors.offerDetails"
+        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()" [disabled]="overlayTitle === 'Offer Details'"
+        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
+      @if (jobOfferValidationErrors.offerDetails && (jobOfferFormSubmitted)) {
+      <div class="text-danger mt-1">{{ jobOfferValidationErrors.offerDetails }}</div>
+      }
+    </div>
+    @if (overlayTitle === 'Offer Details') {
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="button" class="btn btn-lg btn-primary w-100" (click)="closeAllOverlays()">
+        <span>Close</span>
+      </button>
+    </div>
+    } @else {
+    <div class="d-flex align-items-center gap-3 mt-2">
+      <button type="submit" class="btn btn-lg btn-primary w-100" [disabled]="isLoading || !applicationId">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <g fill="none" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2 2l5-5" />
+          </g>
+        </svg>
+        <span>Send Job Offer</span>
+      </button>
+      <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <span>Discard Job Offer</span>
+      </a>
+    </div>
+    }
+    }
+  </form>
 </app-overlay-filter-box>

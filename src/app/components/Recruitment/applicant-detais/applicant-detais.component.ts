@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/job-openings.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
+import { PopupComponent } from 'app/components/shared/popup/popup.component';
 
 @Component({
   selector: 'app-applicant-detais',
@@ -24,7 +25,8 @@ import { NgxDocViewerModule } from 'ngx-doc-viewer';
     DecimalPipe,
     NgClass,
     RouterLink,
-    NgxDocViewerModule
+    NgxDocViewerModule,
+    PopupComponent
   ],
   providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
@@ -35,6 +37,7 @@ export class ApplicantDetaisComponent implements OnInit {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackOverlay') feedbackOverlay!: OverlayFilterBoxComponent;
   @ViewChild('assignmentSelectionOverlay') assignmentSelectionOverlay!: OverlayFilterBoxComponent;
+  @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobOpeningsService = inject(JobOpeningsService);
@@ -54,6 +57,44 @@ export class ApplicantDetaisComponent implements OnInit {
   isApplicationsLoading: boolean = false;
   assignments: any[] = [];
   isAssignmentsLoading: boolean = false;
+  // Interviews
+  interviews: any[] = [];
+  isInterviewsLoading: boolean = false;
+  // Job Offers
+  jobOffers: any[] = [];
+  isJobOffersLoading: boolean = false;
+  // pending resend target
+  pendingResendOfferId: number | null = null;
+  // popup state for resend confirmation
+  resendPopupOpen: boolean = false;
+  isResendLoading: boolean = false;
+  // Job offer overlay state
+  overlayTitle: string = 'Job Offer';
+  // Job offer validation errors
+  jobOfferValidationErrors: {
+    salary?: string;
+    joinDate?: string;
+    offerDetails?: string;
+    noChanges?: string;
+    noticePeriod?: string;
+  } = {};
+  // Job offer form model
+  offerSalary: number | string | null = null;
+  offerJoinDate: string = '';
+  offerDetails: string = '';
+  isEditingJobOffer: boolean = false;
+  jobOfferDetailsLoading: boolean = false;
+  jobOfferFormSubmitted: boolean = false;
+  // Original values for change tracking
+  private originalJobOfferValues: any = { notice_period: null, min_salary: 0, max_salary: 0 };
+  includeProbation: boolean = false;
+  noticePeriod: number | null = null;
+  minSalary: number = 0;
+  maxSalary: number = 0;
+  withEndDate: boolean = false;
+  contractEndDate: string = '';
+  // currently selected interview for feedback or view
+  currentInterviewForFeedback: any = null;
 
   // Assignment Selection
   availableAssignments: any[] = [];
@@ -64,6 +105,20 @@ export class ApplicantDetaisComponent implements OnInit {
   assignmentPageSize: number = 10;
   assignmentTotalCount: number = 0;
   isAssignmentSubmitting: boolean = false;
+  assignmentExpirationDate: string = '';
+  assignmentExpirationTime: string = '';
+  assignmentExpirationDateError: string = '';
+  assignmentExpirationDateTouched: boolean = false;
+  assignmentSelectionTouched: boolean = false;
+
+  // Getter for minimum date (today)
+  get minExpirationDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   // Tab management
   currentTab: string = 'cv';
@@ -106,6 +161,399 @@ export class ApplicantDetaisComponent implements OnInit {
     if (tab === 'assignments') {
       this.fetchAssignments();
     }
+    // Always fetch interviews when interviews tab is opened
+    if (tab === 'interviews') {
+      this.fetchInterviews();
+    }
+    // Always fetch job offers when job-offers tab is opened
+    if (tab === 'job-offers') {
+      this.fetchJobOffers();
+    }
+  }
+
+  // Fetch interviews for current application
+  fetchInterviews(): void {
+    if (!this.applicationId) { this.interviews = []; this.isInterviewsLoading = false; return; }
+    this.isInterviewsLoading = true;
+    this.jobOpeningsService.getInterviews(this.applicationId, 1, 10).subscribe({
+      next: (res) => {
+        const list = res?.data?.list_items ?? res?.list_items ?? [];
+        this.interviews = Array.isArray(list) ? list : [];
+        this.isInterviewsLoading = false;
+      },
+      error: () => {
+        this.interviews = [];
+        this.isInterviewsLoading = false;
+      }
+    });
+  }
+
+  // Fetch job offers for current application
+  fetchJobOffers(): void {
+    if (!this.applicationId) { this.jobOffers = []; this.isJobOffersLoading = false; return; }
+    this.isJobOffersLoading = true;
+    this.jobOpeningsService.getJobOffers(this.applicationId, 1, 10).subscribe({
+      next: (res) => {
+        const list = res?.data?.list_items ?? res?.list_items ?? [];
+        this.jobOffers = Array.isArray(list) ? list : [];
+        this.isJobOffersLoading = false;
+      },
+      error: () => {
+        this.jobOffers = [];
+        this.isJobOffersLoading = false;
+      }
+    });
+  }
+
+  // Open feedback overlay for a specific interview
+  openFeedbackForInterview(interview: any): void {
+    this.currentInterviewForFeedback = interview;
+    // Pre-fill feedbackRating/comment if you have per-interview feedback data
+    this.feedbackRating = 0;
+    this.feedbackComment = '';
+    this.feedbackOverlay?.openOverlay();
+  }
+
+  // Stub: view interview details (could navigate or open modal)
+  viewInterview(interview: any): void {
+    // For now we'll navigate to interview detail if route exists, otherwise open details in overlay
+    // Placeholder: show toast
+    this.toasterService.showInfo('Opening interview details');
+  }
+
+  // Stub: open create interview overlay
+  openCreateInterviewOverlay(): void {
+    this.toasterService.showInfo('Open create interview dialog');
+  }
+
+  // Open create job offer overlay (stub)
+  openCreateJobOffer(): void {
+    this.openJobOfferOverlay();
+  }
+
+  // View job offer details (stub)
+  viewJobOffer(offer: any): void {
+    if (!offer || !offer.id) return;
+    this.resetJobOfferForm();
+    this.overlayTitle = 'Offer Details';
+    this.jobBox?.openOverlay();
+    this.jobOfferDetailsLoading = true;
+
+    this.jobOpeningsService.getJobOffer(offer.id).subscribe({
+      next: (res) => {
+        const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
+        this.offerSalary = jobOffer.salary ?? null;
+        this.offerJoinDate = jobOffer.join_date ? jobOffer.join_date.substring(0, 10) : '';
+        this.offerDetails = jobOffer.offer_details || '';
+        this.noticePeriod = jobOffer.notice_period ?? null;
+        this.minSalary = jobOffer.min_salary ?? jobOffer.salary ?? 0;
+        this.maxSalary = jobOffer.max_salary ?? jobOffer.salary ?? 0;
+        this.withEndDate = !!jobOffer.end_contract;
+        this.contractEndDate = jobOffer.end_contract ? jobOffer.end_contract.substring(0, 10) : '';
+
+        this.originalJobOfferValues = {
+          salary: this.offerSalary,
+          join_date: this.offerJoinDate,
+          offer_details: this.offerDetails,
+          notice_period: this.noticePeriod,
+          min_salary: this.minSalary,
+          max_salary: this.maxSalary
+        };
+
+        this.jobOfferDetailsLoading = false;
+      },
+      error: () => {
+        this.jobOfferDetailsLoading = false;
+      }
+    });
+  }
+
+  // Resend job offer email (stub)
+  resendJobOffer(offer: any): void {
+    if (!offer || !offer.id) return;
+    this.pendingResendOfferId = offer.id;
+    this.resendPopupOpen = true;
+  }
+
+  // Confirm resend and call API
+  confirmResend(): void {
+    if (!this.pendingResendOfferId) return;
+    const offerId = this.pendingResendOfferId;
+    this.isResendLoading = true;
+    this.jobOpeningsService.resendJobOffer(offerId).subscribe({
+      next: () => {
+        this.isResendLoading = false;
+        this.toasterService.showSuccess('Job offer resend initiated');
+        this.pendingResendOfferId = null;
+        this.resendPopupOpen = false;
+        // refresh job offers list
+        this.fetchJobOffers();
+      },
+      error: (err) => {
+        this.isResendLoading = false;
+        const msg = err?.error?.message || 'Failed to resend job offer';
+        this.toasterService.showError(msg);
+        this.pendingResendOfferId = null;
+        this.resendPopupOpen = false;
+      }
+    });
+  }
+
+  closeResendPopup(): void {
+    this.resendPopupOpen = false;
+    this.pendingResendOfferId = null;
+  }
+
+  // Job offer helpers (copied from interview component)
+  private resetJobOfferForm(): void {
+    this.offerSalary = null;
+    this.offerJoinDate = '';
+    this.offerDetails = '';
+    this.jobOfferValidationErrors = {};
+    this.isEditingJobOffer = false;
+    this.jobOfferDetailsLoading = false;
+    this.jobOfferFormSubmitted = false;
+    this.originalJobOfferValues = { notice_period: null, min_salary: 0, max_salary: 0 };
+  }
+
+  openJobOfferOverlay(): void {
+    this.resetJobOfferForm();
+    this.overlayTitle = 'Job Offer';
+    this.jobBox?.openOverlay();
+  }
+
+  openEditJobOfferOverlay(): void {
+    // Set editing mode
+    this.isEditingJobOffer = true;
+    this.overlayTitle = 'Update Job Offer';
+    this.jobBox?.openOverlay();
+    this.jobOfferDetailsLoading = true;
+
+    const jobOfferIdToUse = this.applicationDetails?.additional_info?.job_offer_id || this.applicationId;
+    if (!jobOfferIdToUse) {
+      this.jobOfferDetailsLoading = false;
+      return;
+    }
+    this.jobOpeningsService.getJobOffer(jobOfferIdToUse).subscribe({
+      next: (res) => {
+        const jobOffer = res?.data?.object_info ?? res?.object_info ?? res;
+        this.offerSalary = jobOffer.salary ?? null;
+        this.offerJoinDate = jobOffer.join_date ? jobOffer.join_date.substring(0, 10) : '';
+        this.offerDetails = jobOffer.offer_details || '';
+        this.noticePeriod = jobOffer.notice_period ?? null;
+        this.minSalary = jobOffer.min_salary ?? jobOffer.salary ?? 0;
+        this.maxSalary = jobOffer.max_salary ?? jobOffer.salary ?? 0;
+
+        this.originalJobOfferValues = {
+          salary: this.offerSalary,
+          join_date: this.offerJoinDate,
+          offer_details: this.offerDetails,
+          notice_period: this.noticePeriod,
+          min_salary: this.minSalary,
+          max_salary: this.maxSalary
+        };
+
+        this.jobOfferDetailsLoading = false;
+      },
+      error: () => {
+        this.jobOfferDetailsLoading = false;
+      }
+    });
+  }
+
+  validateJoinDateField(): void {
+    delete this.jobOfferValidationErrors.joinDate;
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      return;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const joinDate = new Date(this.offerJoinDate);
+    joinDate.setHours(0, 0, 0, 0);
+    if (joinDate < today) {
+      this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+    }
+  }
+
+  validateSalaryField(): void {
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.salary) delete this.jobOfferValidationErrors.salary;
+    }
+  }
+
+  onSalaryFocus(): void {
+    if (this.jobOfferValidationErrors.salary) delete this.jobOfferValidationErrors.salary;
+  }
+
+  validateOfferDetailsField(): void {
+    if (this.overlayTitle === 'Update Job Offer') {
+      if (this.jobOfferValidationErrors.offerDetails) delete this.jobOfferValidationErrors.offerDetails;
+      return;
+    }
+    if (!this.offerDetails || !this.offerDetails.trim()) {
+      this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+    } else {
+      if (this.jobOfferValidationErrors.offerDetails) delete this.jobOfferValidationErrors.offerDetails;
+    }
+  }
+
+  onOfferDetailsFocus(): void {
+    if (this.overlayTitle !== 'Update Job Offer') {
+      if (this.jobOfferValidationErrors.offerDetails) delete this.jobOfferValidationErrors.offerDetails;
+    }
+  }
+
+  validateNoticePeriodField(): void {
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+    } else {
+      if (this.jobOfferValidationErrors.noticePeriod) delete this.jobOfferValidationErrors.noticePeriod;
+    }
+  }
+
+  onNoticePeriodFocus(): void {
+    if (this.jobOfferValidationErrors.noticePeriod) delete this.jobOfferValidationErrors.noticePeriod;
+  }
+
+  // Submit job offer (create or update)
+  submitJobOffer(): void {
+    this.jobOfferFormSubmitted = true;
+    this.jobOfferValidationErrors = {};
+    let hasErrors = false;
+    if (!this.applicationId) return;
+
+    if (this.overlayTitle === 'Update Job Offer') {
+      const hasChanges = this.checkJobOfferFormChanges();
+      if (!hasChanges) {
+        this.jobOfferValidationErrors.noChanges = 'You need to update the job offer details';
+        return;
+      }
+    }
+
+    if (
+      this.offerSalary == null ||
+      this.offerSalary === undefined ||
+      String(this.offerSalary).trim() === '' ||
+      isNaN(Number(this.offerSalary))
+    ) {
+      this.jobOfferValidationErrors.salary = 'Salary is required';
+      hasErrors = true;
+    } else if (Number(this.offerSalary) <= 0) {
+      this.jobOfferValidationErrors.salary = 'Salary must be greater than 0';
+      hasErrors = true;
+    }
+
+    if (
+      this.noticePeriod == null ||
+      this.noticePeriod === undefined ||
+      String(this.noticePeriod).trim() === '' ||
+      isNaN(Number(this.noticePeriod))
+    ) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period is required';
+      hasErrors = true;
+    } else if (Number(this.noticePeriod) <= 0) {
+      this.jobOfferValidationErrors.noticePeriod = 'Notice period must be greater than 0';
+      hasErrors = true;
+    }
+
+    if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
+      this.jobOfferValidationErrors.joinDate = 'Please select a join date';
+      hasErrors = true;
+    } else {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const joinDate = new Date(this.offerJoinDate);
+      joinDate.setHours(0, 0, 0, 0);
+      if (joinDate < today) {
+        this.jobOfferValidationErrors.joinDate = 'Join date must be today or in the future';
+        hasErrors = true;
+      }
+    }
+
+    if (this.overlayTitle !== 'Update Job Offer') {
+      if (!this.offerDetails || !this.offerDetails.trim()) {
+        this.jobOfferValidationErrors.offerDetails = 'Offer details is required';
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) return;
+
+    this.isLoading = true;
+
+    if (this.overlayTitle === 'Update Job Offer') {
+      const numericSalary = typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary;
+      const jobOfferId = this.applicationDetails?.additional_info?.job_offer_id;
+      if (typeof jobOfferId !== 'number' || numericSalary == null) {
+        this.isLoading = false;
+        return;
+      }
+      this.jobOpeningsService.updateJobOffer(
+        jobOfferId,
+        numericSalary,
+        this.offerJoinDate,
+        this.offerDetails,
+        this.noticePeriod != null ? Number(this.noticePeriod) : undefined
+      ).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.jobBox?.closeOverlay();
+          this.resetJobOfferForm();
+          this.refreshApplication();
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
+    } else {
+      const payload: any = {
+        application_id: this.applicationId,
+        join_date: this.offerJoinDate,
+        salary: typeof this.offerSalary === 'string' ? Number(this.offerSalary) : this.offerSalary,
+        offer_details: this.offerDetails,
+      };
+      if (this.withEndDate && this.contractEndDate) payload.end_contract = this.contractEndDate;
+      if (this.noticePeriod) payload.notice_period = this.noticePeriod;
+      this.jobOpeningsService.sendJobOfferFull(payload).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.jobBox?.closeOverlay();
+          this.resetJobOfferForm();
+          this.refreshApplication();
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  private checkJobOfferFormChanges(): boolean {
+    const original = this.originalJobOfferValues;
+    if (this.offerSalary !== original.salary) return true;
+    if ((this.offerJoinDate || '') !== (original.join_date || '')) return true;
+    if ((this.offerDetails || '') !== (original.offer_details || '')) return true;
+    if (this.noticePeriod !== original.notice_period) return true;
+    if (this.minSalary !== original.min_salary) return true;
+    if (this.maxSalary !== original.max_salary) return true;
+    return false;
   }
 
   // Get evaluation score
@@ -201,7 +649,7 @@ export class ApplicantDetaisComponent implements OnInit {
     this.rejectionNotes = '';
     this.rejectionMailMessage = '';
     this.rejectValidationErrors = {};
-    this.overlay?.openOverlay();
+    this.filterBox?.openOverlay();
   }
 
   // Clear validation errors when user types
@@ -244,6 +692,7 @@ export class ApplicantDetaisComponent implements OnInit {
 
   closeAllOverlays(): void {
     this.filterBox?.closeOverlay();
+    this.jobBox?.closeOverlay();
   }
 
   ngOnInit(): void {
@@ -547,8 +996,19 @@ export class ApplicantDetaisComponent implements OnInit {
 
   // Confirm assignment selection
   confirmAssignmentSelection(): void {
+    // Mark fields as touched to show validation messages
+    this.assignmentSelectionTouched = true;
+    this.assignmentExpirationDateTouched = true;
+
     if (!this.selectedAssignmentId) {
-      this.toasterService.showWarning('Please select an assignment');
+      return;
+    }
+
+    if (!this.assignmentExpirationDate) {
+      return;
+    }
+
+    if (!this.assignmentExpirationTime) {
       return;
     }
 
@@ -559,20 +1019,25 @@ export class ApplicantDetaisComponent implements OnInit {
 
     this.isAssignmentSubmitting = true;
 
-    // Calculate expiration date (default to 3 days from now)
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 3);
-    const formattedDate = expirationDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    // Combine date and time in the format "YYYY-MM-DD HH:MM"
+    const expirationDateTime = `${this.assignmentExpirationDate} ${this.assignmentExpirationTime}`;
 
     this.jobOpeningsService.assignAssignmentToApplicant(
       this.selectedAssignmentId,
       this.applicationId,
-      formattedDate
+      expirationDateTime
     ).subscribe({
       next: () => {
         this.isAssignmentSubmitting = false;
         this.assignmentSelectionOverlay?.closeOverlay();
         this.toasterService.showSuccess('Assignment sent successfully');
+        // Reset form
+        this.selectedAssignmentId = null;
+        this.assignmentExpirationDate = '';
+        this.assignmentExpirationTime = '';
+        this.assignmentSearchTerm = '';
+        this.assignmentSelectionTouched = false;
+        this.assignmentExpirationDateTouched = false;
         this.fetchAssignments();
       },
       error: () => {
@@ -591,4 +1056,3 @@ export class ApplicantDetaisComponent implements OnInit {
     return `${startItem} from ${this.assignmentTotalCount}`;
   }
 }
-

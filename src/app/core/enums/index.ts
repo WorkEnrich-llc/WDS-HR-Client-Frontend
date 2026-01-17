@@ -1,9 +1,8 @@
 import { KeyValue } from "@angular/common";
 
 export enum ComponentTypes {
-   Recurring = 1,
-   Monthly = 2,
-   Fixed = 3
+   Fixed = 1,
+   Variable = 2
 }
 
 

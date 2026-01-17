@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, CommonModule } from '@angular/common';
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { PageHeaderComponent } from './../../../shared/page-header/page-header.component';
 import { TableComponent } from '../../../shared/table/table.component';
@@ -12,19 +12,37 @@ import { takeUntil, switchMap, distinctUntilChanged, map } from 'rxjs/operators'
 import { EmployeeService } from '../../../../core/services/personnel/employees/employee.service';
 import { Employee } from '../../../../core/interfaces/employee';
 import { PaginationStateService } from 'app/core/services/pagination-state/pagination-state.service';
+import { DepartmentsService } from '../../../../core/services/od/departments/departments.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-all-employees',
-  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe],
+  imports: [PageHeaderComponent, TableComponent, OverlayFilterBoxComponent, RouterLink, FormsModule, ReactiveFormsModule, DatePipe, CommonModule, NgxPaginationModule],
   providers: [DatePipe],
   templateUrl: './all-employees.component.html',
   styleUrl: './all-employees.component.css'
 })
 export class AllEmployeesComponent implements OnInit, OnDestroy {
+  readonly defaultImage: string = './images/profile-defult.jpg';
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage) || 1;
+  }
+  copiedEmailId: number | null = null;
+  copyEmail(email: string, employeeId: number): void {
+    if (!email) return;
+    navigator.clipboard.writeText(email).then(() => {
+      this.copiedEmailId = employeeId;
+      setTimeout(() => {
+        this.copiedEmailId = null;
+      }, 1500);
+    });
+  }
+  selectedView: 'grid' | 'list' = 'list';
   filterForm!: FormGroup;
   private employeeService = inject(EmployeeService);
   private paginationState = inject(PaginationStateService);
   private router = inject(Router);
+  private departmentsService = inject(DepartmentsService);
 
   constructor(private route: ActivatedRoute, private toasterMessageService: ToasterMessageService, private toastr: ToastrService, private fb: FormBuilder) { }
 
@@ -51,6 +69,9 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
   private isChangingItemsPerPage: boolean = false;
   private lastLoadedPage: number = 0; // Initialize to 0 so initial load always happens
   loading: boolean = true;
+  departments: any[] = [];
+  private getAllDepartmentSubscription: any = null;
+  loadingDepartments: boolean = false;
 
 
   ngOnInit(): void {
@@ -61,6 +82,7 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       status: [''],
       contract_end_date: [''],
       contract_start_date: [''],
+      department_id: [''],
     });
 
     // Load state from query params
@@ -97,7 +119,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
               created_from: filters.created_from || '',
               created_to: filters.created_to || '',
               contract_end_date: filters.contract_end_date || '',
-              contract_start_date: filters.contract_start_date || ''
+              contract_start_date: filters.contract_start_date || '',
+              department_id: filters.department_id || ''
             });
           } catch (e) {
             console.error('Error parsing filters from query params:', e);
@@ -112,7 +135,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             created_from: '',
             created_to: '',
             contract_end_date: '',
-            contract_start_date: ''
+            contract_start_date: '',
+            department_id: ''
           });
         }
 
@@ -213,6 +237,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
       });
   }
 
+  setView(view: 'grid' | 'list') {
+    this.selectedView = view;
+  }
+
   // loadEmployees(currentPage: number): void {
   //   this.loading = true;
   //   this.employeeService.getEmployees(currentPage, this.itemsPerPage, this.searchTerm)
@@ -286,7 +314,8 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
         created_from: rawFilters.created_from || null,
         created_to: rawFilters.created_to || null,
         contract_end_date: rawFilters.contract_end_date || null,
-        contract_start_date: rawFilters.contract_start_date || null
+        contract_start_date: rawFilters.contract_start_date || null,
+        department: rawFilters.department_id ? parseInt(rawFilters.department_id, 10) : null
       };
 
       // Reset to page 1 and reset lastLoadedPage to ensure loadEmployees executes
@@ -320,6 +349,25 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
           // The employee data is nested in object_info
           const employee = item.object_info || item;
           const endContract = employee.current_contract?.end_contract;
+          // Prefer signed URL from `picture.generate_signed_url` when available,
+          // otherwise fall back to existing profile image fields (if any).
+          let profileImage = '';
+          if (employee.picture && employee.picture.generate_signed_url && employee.picture.generate_signed_url.toString().trim() !== '') {
+            profileImage = employee.picture.generate_signed_url;
+          } else if (employee.profile_image) {
+            profileImage = employee.profile_image;
+          } else if (employee.contact_info?.profile_image) {
+            profileImage = employee.contact_info.profile_image;
+          }
+          // If no image url available or empty string, use default image
+          if (!profileImage || (typeof profileImage === 'string' && profileImage.trim() === '')) {
+            profileImage = this.defaultImage;
+          }
+          // Build display mobile number with prefix when available
+          const mobileNumber = employee.contact_info?.mobile?.number
+            ? `${employee.contact_info?.mobile?.country?.phone_prefix || ''}${employee.contact_info.mobile.number}`
+            : '';
+
           return {
             id: employee.id,
             code: employee.code || '',
@@ -331,7 +379,10 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
             branch: employee.job_info?.branch?.name || '',
             joinDate: this.formatDate(employee.job_info?.start_contract),
             end_contract: (endContract && typeof endContract === 'string' && endContract.trim() !== '') ? endContract : null,
-            created_at: employee.created_at || ''
+            created_at: employee.created_at || '',
+            profileImage: profileImage,
+            email: employee.contact_info?.email || '',
+            mobile: mobileNumber
           };
         } catch (empError) {
           console.error('Error transforming employee:', empError, item);
@@ -389,6 +440,18 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
     }
 
     return dateStr;
+  }
+
+  // Fallback handler for broken images
+  handleImageError(event: any) {
+    try {
+      const img = event?.target as HTMLImageElement;
+      if (img && img.src !== this.defaultImage) {
+        img.src = this.defaultImage;
+      }
+    } catch (e) {
+      // noop
+    }
   }
 
 
@@ -563,14 +626,90 @@ export class AllEmployeesComponent implements OnInit, OnDestroy {
 
   resetFilterForm(): void {
     this.filterForm.reset();
+    this.filterForm.patchValue({
+      created_from: '',
+      created_to: '',
+      status: '',
+      contract_end_date: '',
+      contract_start_date: '',
+      department_id: ''
+    });
     this.activeFilters = {};
+    this.searchTerm = ''; // Clear search term
     this.currentPage = 1;
+    this.lastLoadedPage = 0; // Reset to force loadEmployees to execute
 
-    // Clear filters from query params
-    this.updateQueryParams({ filters: null, page: 1 });
+    // Set flag to prevent route subscription from firing
+    this.isUpdatingQueryParams = true;
 
-    this.loadEmployees();
-    this.filterBox.closeOverlay();
+    // Clear all filter-related query params (filters and search)
+    const newParams: any = { page: '1' };
+
+    // Navigate with cleaned params (without merge to fully replace query params)
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: newParams
+    }).then(() => {
+      setTimeout(() => {
+        this.isUpdatingQueryParams = false;
+      }, 100);
+
+      // Load employees without filters
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    }).catch((error) => {
+      console.error('Navigation error:', error);
+      this.isUpdatingQueryParams = false;
+      this.loadEmployees();
+      this.filterBox.closeOverlay();
+    });
+  }
+
+  /**
+   * Open filter overlay and load all departments with per_page=10000
+   */
+  openFilterOverlay(): void {
+    // Load departments when opening the filter overlay (only if not already loaded)
+    if (this.departments.length === 0 && !this.loadingDepartments) {
+      this.getAllDepartment(1);
+    }
+    this.overlay.openOverlay();
+  }
+
+  /**
+   * Get all departments with high per_page limit
+   */
+  private getAllDepartment(pageNumber: number): void {
+    this.loadingDepartments = true;
+    this.getAllDepartmentSubscription = this.departmentsService
+      .getAllDepartment(pageNumber, 10000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          try {
+            this.departments = response?.data?.list_items || [];
+            this.loadingDepartments = false;
+          } catch (error) {
+            console.error('Error loading departments:', error);
+            this.loadingDepartments = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching departments:', error);
+          this.loadingDepartments = false;
+        }
+      });
+  }
+
+  /**
+   * Close filter overlay callback
+   */
+  onFilterOverlayClose(): void {
+    // Unsubscribe from department API call when overlay is closed
+    if (this.getAllDepartmentSubscription) {
+      this.getAllDepartmentSubscription.unsubscribe();
+      this.getAllDepartmentSubscription = null as any;
+    }
   }
 
   /**
