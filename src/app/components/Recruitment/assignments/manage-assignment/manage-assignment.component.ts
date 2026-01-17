@@ -114,7 +114,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         const emptyQuestion = {
             id: null,
             question_text: '',
-            question_type: null,
+            question_type: '',
             points: 0,
             is_required: false,
             media: [],
@@ -629,7 +629,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         const newQuestion = {
             id: null,
             question_text: '',
-            question_type: null,
+            question_type: '',
             points: 0,
             is_required: false,
             media: [],
