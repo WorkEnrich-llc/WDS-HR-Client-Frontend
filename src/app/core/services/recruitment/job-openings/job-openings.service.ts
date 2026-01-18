@@ -458,4 +458,15 @@ export class JobOpeningsService {
         };
         return this._HttpClient.post(url, body);
     }
+
+    // resend assignment email
+    resendAssignment(applicantAssignmentId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments/resend`;
+        const body = {
+            request_data: {
+                applicant_assignment_id: applicantAssignmentId
+            }
+        };
+        return this._HttpClient.post(url, body);
+    }
 }

@@ -571,14 +571,23 @@
                     <div class="assignment-date">{{ item.assigned_at | date:'dd/MM/yyyy h:mm a' }}</div>
 
                     @if (item.status === 'Pending' && !item.submitted_at) {
-                    <button type="button" class="btn btn-outline-secondary">
+                    <button type="button" class="btn btn-outline-secondary" (click)="resendAssignment(item)"
+                      [disabled]="isResendAssignmentLoading">
+                      @if (isResendAssignmentLoading && pendingResendAssignmentId === item.id) {
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="loading-bubble"></div>
+                        <div class="loading-bubble"></div>
+                        <div class="loading-bubble"></div>
+                      </div>
+                      <span>Resending...</span>
+                      } @else {
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
                           d="M13.6078 2.72312C12.7303 2.87922 11.5473 3.27196 9.88702 3.82538L6.12856 5.0782C4.79354 5.52321 3.82658 5.84601 3.1436 6.1365C2.42954 6.4402 2.17553 6.65189 2.09304 6.7938C1.83893 7.23089 1.83893 7.77072 2.09304 8.2078C2.17553 8.34971 2.42954 8.5614 3.1436 8.8651C3.82658 9.15559 4.79354 9.47839 6.12856 9.9234C6.14964 9.93043 6.17045 9.93735 6.19101 9.94419C6.47573 10.0389 6.71096 10.1171 6.91648 10.2246L10.909 6.27608C11.1353 6.0523 11.5001 6.05433 11.7239 6.2806C11.9477 6.50688 11.9457 6.87172 11.7194 7.0955L7.74445 11.0266C7.86837 11.2455 7.95225 11.4977 8.05581 11.809C8.06265 11.8295 8.06957 11.8504 8.0766 11.8714C8.52161 13.2065 8.84441 14.1734 9.1349 14.8564C9.43859 15.5705 9.65029 15.8245 9.79219 15.907C10.2293 16.1611 10.7691 16.1611 11.2062 15.907C11.3481 15.8245 11.5598 15.5705 11.8635 14.8564C12.154 14.1734 12.4768 13.2065 12.9218 11.8714L14.1746 8.11299C14.728 6.45272 15.1208 5.2697 15.2769 4.39222C15.4337 3.51056 15.3139 3.13605 15.0889 2.91109C14.864 2.68614 14.4894 2.56628 13.6078 2.72312ZM13.4059 1.58848C14.3826 1.41474 15.2622 1.45456 15.9038 2.09618C16.5454 2.73781 16.5853 3.61742 16.4115 4.59406C16.2388 5.56481 15.8177 6.82811 15.2846 8.42752L14.0059 12.2636C13.572 13.5652 13.2349 14.5765 12.924 15.3075C12.6241 16.0125 12.2912 16.6093 11.7854 16.9033C10.9902 17.3656 10.0082 17.3656 9.21297 16.9033C8.70722 16.6093 8.37425 16.0125 8.07437 15.3075C7.76349 14.5765 7.42638 13.5652 6.99253 12.2636L6.98328 12.2359C6.83129 11.7799 6.78495 11.6562 6.71931 11.5582C6.64585 11.4484 6.55159 11.3542 6.44185 11.2807C6.3438 11.215 6.22011 11.1687 5.76412 11.0167L5.73634 11.0075C4.4348 10.5736 3.42347 10.2365 2.69253 9.92562C1.98747 9.62575 1.39073 9.29278 1.09671 8.78702C0.634431 7.99185 0.634431 7.00976 1.09671 6.21458C1.39073 5.70882 1.98747 5.37585 2.69254 5.07598C3.42348 4.76509 4.43482 4.42798 5.73639 3.99413L9.5725 2.71542C11.1719 2.18227 12.4352 1.76116 13.4059 1.58848Z"
                           fill="#4A6D97" />
                       </svg>
-
-                      Resend Mail
+                      <span>Resend Mail</span>
+                      }
                     </button>
                     } @else if (item.submitted_at) {
                     <button type="button" class="btn btn-review">
@@ -1209,6 +1218,35 @@
     }
   </button>
   <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeResendPopup()">
+    Cancel
+  </button>
+</app-popup>
+
+<!-- Resend Assignment Confirmation (uses app-popup component) -->
+<app-popup [title]="'Resend Assignment?'"
+  [paragraph1]="'Are you sure you want to resend the assignment email to the applicant?'" [isOpen]="resendAssignmentPopupOpen"
+  (close)="closeResendAssignmentPopup()">
+  <div class="mb-2">
+    @if (false) {
+    <div class="alert alert-danger mb-0 mt-3" role="alert">
+      <!-- placeholder for potential error messages -->
+    </div>
+    }
+  </div>
+  <button modal-btn-left class="btn btn-lg btn-dark w-100" (click)="confirmResendAssignment()" [disabled]="isResendAssignmentLoading">
+    @if (!isResendAssignmentLoading) {
+    <span>Confirm</span>
+    }
+    @if (isResendAssignmentLoading) {
+    <div class="d-flex align-items-center gap-2 justify-content-center">
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <span>Resending...</span>
+    </div>
+    }
+  </button>
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeResendAssignmentPopup()" [disabled]="isResendAssignmentLoading">
     Cancel
   </button>
 </app-popup>

@@ -70,6 +70,10 @@ export class ApplicantDetaisComponent implements OnInit {
   // popup state for resend confirmation
   resendPopupOpen: boolean = false;
   isResendLoading: boolean = false;
+  // Assignment resend state
+  pendingResendAssignmentId: number | null = null;
+  resendAssignmentPopupOpen: boolean = false;
+  isResendAssignmentLoading: boolean = false;
   // Job offer overlay state
   overlayTitle: string = 'Job Offer';
   // Job offer validation errors
@@ -1069,5 +1073,43 @@ export class ApplicantDetaisComponent implements OnInit {
     }
     const startItem = (this.assignmentCurrentPage - 1) * this.assignmentPageSize + 1;
     return `${startItem} from ${this.assignmentTotalCount}`;
+  }
+
+  // Resend assignment email
+  resendAssignment(item: any): void {
+    if (!item || !item.id) return;
+    this.pendingResendAssignmentId = item.id;
+    this.resendAssignmentPopupOpen = true;
+  }
+
+  // Confirm resend assignment and call API
+  confirmResendAssignment(): void {
+    if (!this.pendingResendAssignmentId || this.isResendAssignmentLoading) return;
+
+    const assignmentId = this.pendingResendAssignmentId;
+    this.isResendAssignmentLoading = true;
+
+    this.jobOpeningsService.resendAssignment(assignmentId).subscribe({
+      next: () => {
+        this.isResendAssignmentLoading = false;
+        this.pendingResendAssignmentId = null;
+        this.resendAssignmentPopupOpen = false;
+        // Refresh assignments list
+        this.fetchAssignments();
+      },
+      error: (err) => {
+        this.isResendAssignmentLoading = false;
+        const msg = err?.error?.message || 'Failed to resend assignment email';
+        this.toasterService.showError(msg);
+        this.pendingResendAssignmentId = null;
+        this.resendAssignmentPopupOpen = false;
+      }
+    });
+  }
+
+  // Close assignment resend popup
+  closeResendAssignmentPopup(): void {
+    this.resendAssignmentPopupOpen = false;
+    this.pendingResendAssignmentId = null;
   }
 }
