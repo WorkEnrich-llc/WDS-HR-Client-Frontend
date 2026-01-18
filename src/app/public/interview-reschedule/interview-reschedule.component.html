@@ -1,0 +1,172 @@
+<div class="interview-action-container">
+    <!-- Error Banner - If API Error -->
+    @if (errorMessage && !isSubmitted) {
+    <div class="error-banner" role="alert">
+        <svg class="error-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+        <span>{{ errorMessage }}</span>
+    </div>
+    }
+
+    <!-- Form State - Before Submission -->
+    @if (!isSubmitted) {
+    <div class="content-wrapper" role="main">
+        <div class="card-container">
+            <!-- Reschedule SVG Illustration -->
+            <div class="illustration-wrapper">
+                <svg class="illustration" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Interview reschedule">
+                    <!-- Primary Circle Background -->
+                    <circle cx="200" cy="150" r="100" fill="#FEF3C7" opacity="0.5" />
+                    <circle cx="200" cy="150" r="80" fill="#F59E0B" />
+
+                    <!-- Calendar Icon -->
+                    <rect x="160" y="110" width="80" height="70" rx="4" fill="white" />
+                    <rect x="160" y="110" width="80" height="25" rx="4" fill="#F59E0B" />
+                    <line x1="175" y1="145" x2="225" y2="145" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
+                    <line x1="175" y1="155" x2="225" y2="155" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
+                    <line x1="175" y1="165" x2="210" y2="165" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
+
+                    <!-- Clock/Time Icon -->
+                    <circle cx="250" cy="190" r="18" fill="#FBBF24" />
+                    <line x1="250" y1="190" x2="250" y2="180" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+                    <line x1="250" y1="190" x2="257" y2="190" stroke="white" stroke-width="2" stroke-linecap="round" />
+
+                    <!-- Arrow/Reschedule Icon -->
+                    <path d="M 145 150 L 155 145 L 155 148 L 160 148 L 160 152 L 155 152 L 155 155 Z" fill="white" />
+                    <circle cx="260" cy="135" r="10" fill="#FCD34D" opacity="0.9" />
+
+                    <!-- Decorative elements -->
+                    <circle cx="120" cy="80" r="8" fill="#F59E0B" opacity="0.4" />
+                    <circle cx="280" cy="100" r="12" fill="#F59E0B" opacity="0.3" />
+                    <circle cx="100" cy="200" r="10" fill="#F59E0B" opacity="0.4" />
+                    <circle cx="290" cy="220" r="8" fill="#F59E0B" opacity="0.3" />
+                </svg>
+            </div>
+
+            <!-- Title and Description -->
+            <div class="text-content">
+                <h1 class="main-title">Reschedule Interview</h1>
+                <p class="description">
+                    Hello <strong>{{ applicantName }}</strong>, we understand you need to reschedule your interview.
+                </p>
+                <p class="description-secondary">
+                    Please select a new date and time that works better for you. We'll do our best to accommodate your
+                    preferred schedule.
+                </p>
+            </div>
+
+            <!-- Reschedule Form -->
+            <form [formGroup]="rescheduleForm" (ngSubmit)="onSubmit()" class="reschedule-form">
+                <!-- Date Picker Field -->
+                <div class="form-group">
+                    <app-date-picker 
+                        label="New Interview Date"
+                        placeholder="Select a date"
+                        formControlName="rescheduleDate"
+                        [required]="true"
+                        [disableBeforeDate]="true"
+                        [errorMessage]="rescheduleDate?.invalid && rescheduleDate?.touched ? 
+                            (rescheduleDate?.errors?.['required'] ? 'Date is required' : 'Please select a valid date') : null">
+                    </app-date-picker>
+                </div>
+
+                <button type="submit" class="btn btn-submit" [disabled]="isSubmitting"
+                    aria-label="Submit reschedule request">
+                    @if (isSubmitting) {
+                    <div class="bubble-loader">
+                        <span class="bubble"></span>
+                        <span class="bubble"></span>
+                        <span class="bubble"></span>
+                    </div>
+                    <span>Sending...</span>
+                    } @else {
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Submit Reschedule Request</span>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+    }
+
+    <!-- Success State - After Submission -->
+    @if (isSubmitted) {
+    <div class="content-wrapper success-state" role="main">
+        <div class="card-container">
+            <!-- Success SVG Illustration -->
+            <div class="illustration-wrapper">
+                <svg class="illustration success-illustration" viewBox="0 0 400 350" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    role="img" aria-label="Interview rescheduled successfully">
+                    <!-- Success Circle Background -->
+                    <circle cx="200" cy="160" r="110" fill="#D1FAE5" opacity="0.6" />
+                    <circle cx="200" cy="160" r="90" fill="#A7F3D0" opacity="0.8" />
+                    <circle cx="200" cy="160" r="70" fill="#10B981" />
+
+                    <!-- Main Checkmark Icon -->
+                    <path d="M 165 160 L 188 183 L 235 136" stroke="white" stroke-width="14" stroke-linecap="round"
+                        stroke-linejoin="round" fill="none" />
+
+                    <!-- Calendar Success Icon -->
+                    <rect x="245" y="115" width="40" height="35" rx="3" fill="#34D399" opacity="0.9" />
+                    <rect x="245" y="115" width="40" height="12" rx="3" fill="#10B981" />
+                    <line x1="250" y1="135" x2="280" y2="135" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <line x1="250" y1="142" x2="275" y2="142" stroke="white" stroke-width="2" stroke-linecap="round" />
+
+                    <!-- Decorative Floating Elements -->
+                    <circle cx="100" cy="80" r="10" fill="#10B981" opacity="0.5" />
+                    <circle cx="300" cy="90" r="14" fill="#10B981" opacity="0.4" />
+                    <circle cx="90" cy="220" r="12" fill="#10B981" opacity="0.5" />
+                    <circle cx="310" cy="240" r="10" fill="#10B981" opacity="0.4" />
+
+                    <!-- Celebration Stars -->
+                    <path
+                        d="M 120 50 L 123 58 L 131 58 L 125 63 L 128 71 L 120 66 L 112 71 L 115 63 L 109 58 L 117 58 Z"
+                        fill="#10B981" opacity="0.6" />
+                    <path
+                        d="M 280 60 L 283 68 L 291 68 L 285 73 L 288 81 L 280 76 L 272 81 L 275 73 L 269 68 L 277 68 Z"
+                        fill="#10B981" opacity="0.6" />
+                    <path
+                        d="M 320 250 L 323 258 L 331 258 L 325 263 L 328 271 L 320 266 L 312 271 L 315 263 L 309 258 L 317 258 Z"
+                        fill="#10B981" opacity="0.6" />
+
+                    <!-- Sparkles -->
+                    <circle cx="150" cy="280" r="3" fill="#34D399" opacity="0.8" />
+                    <circle cx="250" cy="280" r="3" fill="#34D399" opacity="0.8" />
+                    <circle cx="180" cy="290" r="2.5" fill="#10B981" opacity="0.7" />
+                    <circle cx="220" cy="290" r="2.5" fill="#10B981" opacity="0.7" />
+                </svg>
+            </div>
+
+            <!-- Success Message -->
+            <div class="text-content">
+                <h1 class="main-title success-title">Interview Rescheduled Successfully! 🎉</h1>
+                <p class="description">
+                    Thank you <strong>{{ applicantName }}</strong> for submitting your reschedule request!
+                </p>
+                <p class="description-secondary">
+                    Your request has been received and we'll review it shortly. You will receive a confirmation email with
+                    the updated interview details once it's been processed.
+                </p>
+                <p class="description-secondary">
+                    Please check your email inbox (and spam folder) for further instructions. We look forward to speaking
+                    with you!
+                </p>
+            </div>
+
+            <!-- Success Badge -->
+            <div class="success-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>Request Submitted</span>
+            </div>
+        </div>
+    </div>
+    }
+</div>

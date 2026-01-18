@@ -112,4 +112,21 @@ export class InterviewService {
 
     return this.http.post(`${this.apiBaseUrl}recruiter/feedbacks/interviewer-feedback`, payload);
   }
+
+  /**
+   * Reschedule an interview
+   * @param token The interview token (s parameter from URL)
+   * @param rescheduleAvailableAt The new date and time for the interview (ISO format)
+   * @returns Observable response
+   */
+  rescheduleInterview(token: string, rescheduleAvailableAt: string): Observable<any> {
+    const payload = {
+      request_data: {
+        s: token,
+        reschedule_available_at: rescheduleAvailableAt
+      }
+    };
+
+    return this.http.post(`${this.apiBaseUrl}recruiter/interviews/reschedule`, payload);
+  }
 }
