@@ -391,6 +391,25 @@
     margin-bottom: 4px;
 }
 
+.assignment-status-container {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    gap: 8px;
+}
+
+.assignment-status-icon {
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.assignment-status-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 /* Interviews list styling */
 .interviews-list {
     width: 100%;
@@ -538,23 +557,21 @@
 
 .assignment-status-reviewed {
     font-size: 14px;
-    color: #10B981;
+    color: #377AFD;
     font-weight: 500;
 }
 
 .assignment-questions-count {
     font-size: 13px;
-    color: #9CA3AF;
-    margin-top: 2px;
-    margin-left: 26px;
+    color: #F59E0B;
+    margin: 0;
 }
 
 .assignment-score {
     font-size: 16px;
     font-weight: 600;
-    color: #1F2937;
-    margin-top: 2px;
-    margin-left: 26px;
+    color: #377AFD;
+    margin: 0;
 }
 
 .assignment-date {
