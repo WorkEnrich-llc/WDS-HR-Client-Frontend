@@ -223,7 +223,7 @@
         <label for="value">Default Value</label>
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           <input type="number" id="value" class="form-control custom-date-input" [placeholder]="defaultValuePlaceholder"
-            formControlName="value" [min]="0" [max]="getMaxValue()" (input)="onValueInput($event)" />
+            formControlName="value" [min]="0" (input)="onValueInput($event)" (blur)="createPayrollForm.get('value')?.markAsTouched()" />
         </div>
         @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['min']) {
         <p class="error-msg">Value must be 0 or greater.</p>
@@ -231,9 +231,9 @@
         @if (createPayrollForm.get('value')?.touched && createPayrollForm.get('value')?.errors?.['max']) {
         <p class="error-msg">
           @if (createPayrollForm.get('calculation')?.value == 2) {
-          Maximum value is 31 days.
+          Maximum value is 31 days. Please enter a value between 0 and 31.
           } @else if (createPayrollForm.get('calculation')?.value == 3) {
-          Maximum value is 100%.
+          Maximum value is 100%. Please enter a value between 0 and 100.
           }
         </p>
         }
