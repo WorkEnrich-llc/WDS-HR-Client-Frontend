@@ -865,7 +865,7 @@
                   class="form-control custom-date-input"
                   [(ngModel)]="answer.text"
                   (ngModelChange)="clearAnswerError(i, ansIndex)"
-                  (blur)="answer.touched = true"
+                  (blur)="answer.text = answer.text?.trim() || ''; answer.touched = true"
                   placeholder="Answer Text"
                 />
               </div>
@@ -913,7 +913,7 @@
               </svg>
               Mark as Correct }
             </button>
-            @if ((question.answers || []).length > 1) {
+            @if (canDeleteAnswer(i, ansIndex)) {
             <button
               class="btn btn-sm btn-outline-danger delete-answer-btn"
               (click)="removeAnswer(i, ansIndex)"
@@ -951,7 +951,11 @@
           </div>
           @if (answer.error && (answer.touched || formSubmitted)) {
           <p class="ms-5 mb-3 error-msg">Answer cannot be empty</p>
-          } @if (answer.markAsCorrectError && !answer.error) {
+          } @if (answer.duplicateError && !answer.error && (answer.touched || formSubmitted)) {
+          <p class="ms-5 mb-3 error-msg">
+            This answer cannot be the same as another answer
+          </p>
+          } @if (answer.markAsCorrectError && !answer.error && !answer.duplicateError) {
           <p class="ms-5 mb-3 error-msg">
             The answer must have a value to mark it as correct
           </p>
@@ -1006,7 +1010,7 @@
                   class="form-control custom-date-input"
                   [(ngModel)]="question.answers[0].text"
                   (ngModelChange)="clearAnswerError(i, 0)"
-                  (blur)="question.answers[0].touched = true"
+                  (blur)="question.answers[0].text = question.answers[0].text?.trim() || ''; question.answers[0].touched = true"
                   placeholder="Type Answer"
                 />
               </div>
@@ -1056,6 +1060,9 @@
           @if (question.answers[0].error && (question.answers[0].touched ||
           formSubmitted)) {
           <p class="mb-3 error-msg">Answer cannot be empty</p>
+          } @if (question.answers[0].duplicateError && !question.answers[0].error && (question.answers[0].touched ||
+          formSubmitted)) {
+          <p class="mb-3 error-msg">True and False answers cannot be the same</p>
           }
         </div>
         <div>
@@ -1069,7 +1076,7 @@
                   class="form-control custom-date-input"
                   [(ngModel)]="question.answers[1].text"
                   (ngModelChange)="clearAnswerError(i, 1)"
-                  (blur)="question.answers[1].touched = true"
+                  (blur)="question.answers[1].text = question.answers[1].text?.trim() || ''; question.answers[1].touched = true"
                   placeholder="Type Answer"
                 />
               </div>
@@ -1119,6 +1126,9 @@
           @if (question.answers[1].error && (question.answers[1].touched ||
           formSubmitted)) {
           <p class="mb-3 error-msg">Answer cannot be empty</p>
+          } @if (question.answers[1].duplicateError && !question.answers[1].error && (question.answers[1].touched ||
+          formSubmitted)) {
+          <p class="mb-3 error-msg">True and False answers cannot be the same</p>
           }
         </div>
         @if ((question.correct_answer === null || question.correct_answer ===

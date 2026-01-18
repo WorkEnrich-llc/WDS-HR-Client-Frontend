@@ -152,10 +152,37 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             }
                         }
 
+                        const questionType = this.mapApiQuestionTypeToDropdownValue(q.question_type);
+                        let mappedAnswers = (q.answers || []).map((a: any) => ({
+                            id: a.id,
+                            text: a.text,
+                            is_correct: a.is_correct,
+                            error: false,
+                            touched: false,
+                            markAsCorrectError: false,
+                            duplicateError: false
+                        }));
+
+                        // Ensure MCQ questions have at least 2 answers
+                        if (questionType === 'mcq' && mappedAnswers.length < 2) {
+                            // Add empty answer(s) to meet minimum requirement
+                            while (mappedAnswers.length < 2) {
+                                mappedAnswers.push({
+                                    id: null,
+                                    text: '',
+                                    is_correct: false,
+                                    error: false,
+                                    touched: false,
+                                    markAsCorrectError: false,
+                                    duplicateError: false
+                                });
+                            }
+                        }
+
                         return {
                             id: q.id,
                             question_text: q.question_text,
-                            question_type: this.mapApiQuestionTypeToDropdownValue(q.question_type),
+                            question_type: questionType,
                             points: q.points || 0,
                             is_required: q.is_required || false,
                             media: (q.media || []).map((m: any) => ({
@@ -167,14 +194,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                                 file: null,
                                 document_url: m.document_url // Store original API response for unchanged media
                             })),
-                            answers: (q.answers || []).map((a: any) => ({
-                                id: a.id,
-                                text: a.text,
-                                is_correct: a.is_correct,
-                                error: false,
-                                touched: false,
-                                markAsCorrectError: false
-                            })),
+                            answers: mappedAnswers,
                             deletedAnswers: [], // Track answers that were deleted (for payload)
                             order: questionOrder, // Use order from API response
                             correct_answer: q.answers?.findIndex((a: any) => a.is_correct) ?? null,
@@ -366,7 +386,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             }
 
             if (question.question_type === 'mcq') {
-                if (!question.answers || question.answers.length === 0) {
+                if (!question.answers || question.answers.length < 2) {
                     if (firstErrorQuestionIndex === null) {
                         firstErrorQuestionIndex = i;
                     }
@@ -377,16 +397,21 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
                 // Validate all answers and mark empty ones
                 let hasEmptyAnswer = false;
+                let hasDuplicateAnswer = false;
                 for (let j = 0; j < question.answers.length; j++) {
                     const answer = question.answers[j];
                     if (!answer) continue; // Skip if answer doesn't exist
 
-                    // Ensure error property exists
+                    // Ensure error properties exist
                     if (answer.error === undefined) {
                         answer.error = false;
                     }
+                    if (answer.duplicateError === undefined) {
+                        answer.duplicateError = false;
+                    }
 
-                    if (!answer.text || (answer.text && answer.text.trim() === '')) {
+                    // Check if answer is empty or contains only whitespace
+                    if (!answer.text || !answer.text.trim()) {
                         answer.error = true;
                         answer.markAsCorrectError = false; // Clear mark as correct error on form submission
                         answer.touched = true;
@@ -399,7 +424,36 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     }
                 }
 
-                if (hasEmptyAnswer) {
+                // Check for duplicate answers
+                for (let j = 0; j < question.answers.length; j++) {
+                    const answer = question.answers[j];
+                    if (!answer || !answer.text || !answer.text.trim()) {
+                        continue;
+                    }
+
+                    const answerText = answer.text.trim().toLowerCase();
+                    let isDuplicate = false;
+
+                    question.answers.forEach((otherAnswer: any, otherIndex: number) => {
+                        if (j !== otherIndex && otherAnswer && otherAnswer.text && otherAnswer.text.trim()) {
+                            const otherText = otherAnswer.text.trim().toLowerCase();
+                            if (answerText === otherText && answerText !== '') {
+                                isDuplicate = true;
+                            }
+                        }
+                    });
+
+                    if (isDuplicate) {
+                        answer.duplicateError = true;
+                        answer.touched = true;
+                        hasDuplicateAnswer = true;
+                        if (firstErrorQuestionIndex === null) {
+                            firstErrorQuestionIndex = i;
+                        }
+                    }
+                }
+
+                if (hasEmptyAnswer || hasDuplicateAnswer) {
                     invalidQuestionIndices.push(i);
                     hasValidationError = true;
                 }
@@ -426,16 +480,21 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
                 // Validate all answers and mark empty ones
                 let hasEmptyAnswer = false;
+                let hasDuplicateAnswer = false;
                 for (let j = 0; j < question.answers.length; j++) {
                     const answer = question.answers[j];
                     if (!answer) continue; // Skip if answer doesn't exist
 
-                    // Ensure error property exists
+                    // Ensure error properties exist
                     if (answer.error === undefined) {
                         answer.error = false;
                     }
+                    if (answer.duplicateError === undefined) {
+                        answer.duplicateError = false;
+                    }
 
-                    if (!answer.text || (answer.text && answer.text.trim() === '')) {
+                    // Check if answer is empty or contains only whitespace
+                    if (!answer.text || !answer.text.trim()) {
                         answer.error = true;
                         answer.markAsCorrectError = false; // Clear mark as correct error on form submission
                         answer.touched = true;
@@ -448,10 +507,31 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     }
                 }
 
-                if (hasEmptyAnswer) {
+                // Check for duplicate answers (True and False cannot be the same)
+                if (question.answers.length >= 2 && 
+                    question.answers[0] && question.answers[0].text && question.answers[0].text.trim() &&
+                    question.answers[1] && question.answers[1].text && question.answers[1].text.trim()) {
+                    const answer0Text = question.answers[0].text.trim().toLowerCase();
+                    const answer1Text = question.answers[1].text.trim().toLowerCase();
+                    
+                    if (answer0Text === answer1Text) {
+                        question.answers[0].duplicateError = true;
+                        question.answers[1].duplicateError = true;
+                        question.answers[0].touched = true;
+                        question.answers[1].touched = true;
+                        hasDuplicateAnswer = true;
+                        if (firstErrorQuestionIndex === null) {
+                            firstErrorQuestionIndex = i;
+                        }
+                    }
+                }
+
+                if (hasEmptyAnswer || hasDuplicateAnswer) {
                     invalidQuestionIndices.push(i);
                     hasValidationError = true;
-                    this.toaster.showError('Please fill in all answer options', 'Validation Error');
+                    if (hasEmptyAnswer) {
+                        this.toaster.showError('Please fill in all answer options', 'Validation Error');
+                    }
                 }
 
                 if (question.correct_answer === null || question.correct_answer === undefined) {
@@ -577,7 +657,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             return {
                                 id: answer.id || undefined,
                                 record_type: answer.id ? 'update' : 'create',
-                                text: answer.text,
+                                text: answer.text ? answer.text.trim() : '', // Trim whitespace before sending to backend
                                 order: answerIndex + 1,
                                 is_correct: isCorrect
                             };
@@ -879,13 +959,21 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         // Validate answers based on question type
         if (question.question_type === 'mcq') {
-            if (!question.answers || question.answers.length === 0) {
-                return 'MCQ must have at least one answer';
+            if (!question.answers || question.answers.length < 2) {
+                return 'MCQ must have at least two answers';
             }
             for (let i = 0; i < question.answers.length; i++) {
-                if (!question.answers[i].text || question.answers[i].text.trim() === '') {
+                if (!question.answers[i].text || !question.answers[i].text.trim()) {
                     return `Answer ${i + 1} cannot be empty`;
                 }
+            }
+            // Check for duplicate answers
+            const answerTexts = question.answers
+                .map((a: any) => a.text?.trim().toLowerCase())
+                .filter((text: string) => text && text !== '');
+            const uniqueTexts = new Set(answerTexts);
+            if (answerTexts.length !== uniqueTexts.size) {
+                return 'All answers must be unique';
             }
             // Check if correct answer is selected
             if (question.correct_answer === null || question.correct_answer === undefined) {
@@ -895,11 +983,17 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             if (!question.answers || question.answers.length < 2) {
                 return 'True/False question must have both answers';
             }
-            if (!question.answers[0].text || question.answers[0].text.trim() === '') {
+            if (!question.answers[0].text || !question.answers[0].text.trim()) {
                 return 'True answer cannot be empty';
             }
-            if (!question.answers[1].text || question.answers[1].text.trim() === '') {
+            if (!question.answers[1].text || !question.answers[1].text.trim()) {
                 return 'False answer cannot be empty';
+            }
+            // Check for duplicate answers (True and False cannot be the same)
+            const answer0Text = question.answers[0].text.trim().toLowerCase();
+            const answer1Text = question.answers[1].text.trim().toLowerCase();
+            if (answer0Text === answer1Text) {
+                return 'True and False answers cannot be the same';
             }
             // Check if correct answer is selected
             if (question.correct_answer === null || question.correct_answer === undefined) {
@@ -1084,8 +1178,8 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         const question = this.questions[questionIndex];
         const answer = question.answers[answerIndex];
 
-        // Validation: check if answer is not empty or only spaces
-        if (!answer.text || answer.text.trim() === '') {
+        // Validation: check if answer is not empty or only whitespace
+        if (!answer.text || !answer.text.trim()) {
             // Only show mark as correct error, not the general error
             answer.markAsCorrectError = true;
             answer.error = false; // Clear general error if it was set
@@ -1114,9 +1208,10 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
         answer.error = false;
         answer.markAsCorrectError = false;
+        answer.duplicateError = false; // Clear duplicate error
 
-        // If answer text becomes empty and it was marked as correct, unmark it
-        if (!answer.text || answer.text.trim() === '') {
+        // If answer text becomes empty (or only whitespace) and it was marked as correct, unmark it
+        if (!answer.text || !answer.text.trim()) {
             if (question.correct_answer === answerIndex) {
                 question.correct_answer = null;
                 // Reset is_correct flags
@@ -1124,28 +1219,90 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                     ans.is_correct = false;
                 });
             }
+        } else {
+            // Check for duplicate answers in real-time
+            this.checkDuplicateAnswers(questionIndex, answerIndex);
         }
+    }
+
+    // Check for duplicate answers in a question
+    checkDuplicateAnswers(questionIndex: number, changedAnswerIndex: number): void {
+        const question = this.questions[questionIndex];
+        if (!question.answers || question.answers.length < 2) {
+            return;
+        }
+
+        const changedAnswer = question.answers[changedAnswerIndex];
+        if (!changedAnswer || !changedAnswer.text || !changedAnswer.text.trim()) {
+            return; // Skip if the changed answer is empty
+        }
+
+        const changedText = changedAnswer.text.trim().toLowerCase();
+        
+        // Check all answers for duplicates
+        question.answers.forEach((answer: any, index: number) => {
+            if (!answer || !answer.text || !answer.text.trim()) {
+                answer.duplicateError = false;
+                return;
+            }
+
+            const answerText = answer.text.trim().toLowerCase();
+            let isDuplicate = false;
+
+            // Check if this answer matches any other answer (case-insensitive, ignoring whitespace)
+            question.answers.forEach((otherAnswer: any, otherIndex: number) => {
+                if (index !== otherIndex && otherAnswer && otherAnswer.text && otherAnswer.text.trim()) {
+                    const otherText = otherAnswer.text.trim().toLowerCase();
+                    if (answerText === otherText && answerText !== '') {
+                        isDuplicate = true;
+                    }
+                }
+            });
+
+            answer.duplicateError = isDuplicate;
+        });
     }
 
     // Called when question type changes
     onQuestionTypeChange(questionIndex: number, type: string): void {
         if (type === 'mcq') {
-            // If switching to MCQ and no answers exist, add one default answer
+            // If switching to MCQ and no answers exist, add two default answers (minimum required)
             if (!this.questions[questionIndex].answers || this.questions[questionIndex].answers.length === 0) {
-                this.questions[questionIndex].answers = [{
+                this.questions[questionIndex].answers = [
+                        {
+                            text: '',
+                            is_correct: false,
+                            error: false,
+                            touched: false,
+                            markAsCorrectError: false,
+                            duplicateError: false
+                        },
+                        {
+                            text: '',
+                            is_correct: false,
+                            error: false,
+                            touched: false,
+                            markAsCorrectError: false,
+                            duplicateError: false
+                        }
+                ];
+                this.questions[questionIndex].correct_answer = null;
+            } else if (this.questions[questionIndex].answers.length === 1) {
+                // If there's only one answer, add another one to meet minimum requirement
+                this.questions[questionIndex].answers.push({
                     text: '',
                     is_correct: false,
                     error: false,
                     touched: false,
-                    markAsCorrectError: false
-                }];
-                this.questions[questionIndex].correct_answer = null;
+                    markAsCorrectError: false,
+                    duplicateError: false
+                });
             }
         } else if (type === 'truefalse') {
             // If switching to True/False, initialize with two answers
             this.questions[questionIndex].answers = [
-                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false },
-                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false }
+                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false, duplicateError: false },
+                { text: '', is_correct: false, error: false, touched: false, markAsCorrectError: false, duplicateError: false }
             ];
             this.questions[questionIndex].correct_answer = null;
         } else if (type === 'essay') {
@@ -1186,14 +1343,22 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
 
             // Validate based on question type
             if (question.question_type === 'mcq') {
-                if (!question.answers || question.answers.length === 0) {
+                if (!question.answers || question.answers.length < 2) {
                     return false;
                 }
-                // Check all answers have text
+                // Check all answers have text (ignoring whitespace)
                 for (const answer of question.answers) {
-                    if (!answer.text || answer.text.trim() === '') {
+                    if (!answer.text || !answer.text.trim()) {
                         return false;
                     }
+                }
+                // Check for duplicate answers
+                const answerTexts = question.answers
+                    .map((a: any) => a.text?.trim().toLowerCase())
+                    .filter((text: string) => text && text !== '');
+                const uniqueTexts = new Set(answerTexts);
+                if (answerTexts.length !== uniqueTexts.size) {
+                    return false; // Has duplicates
                 }
                 // Check if correct answer is selected
                 if (question.correct_answer === null || question.correct_answer === undefined) {
@@ -1203,12 +1368,18 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                 if (!question.answers || question.answers.length < 2) {
                     return false;
                 }
-                // Check both true and false answers have text
-                if (!question.answers[0]?.text || question.answers[0].text.trim() === '') {
+                // Check both true and false answers have text (ignoring whitespace)
+                if (!question.answers[0]?.text || !question.answers[0].text.trim()) {
                     return false;
                 }
-                if (!question.answers[1]?.text || question.answers[1].text.trim() === '') {
+                if (!question.answers[1]?.text || !question.answers[1].text.trim()) {
                     return false;
+                }
+                // Check for duplicate answers (True and False cannot be the same)
+                const answer0Text = question.answers[0].text.trim().toLowerCase();
+                const answer1Text = question.answers[1].text.trim().toLowerCase();
+                if (answer0Text === answer1Text) {
+                    return false; // Duplicate values
                 }
                 // Check if correct answer is selected
                 if (question.correct_answer === null || question.correct_answer === undefined) {
@@ -1235,20 +1406,57 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             is_correct: false,
             error: false,
             touched: false,
-            markAsCorrectError: false
+            markAsCorrectError: false,
+            duplicateError: false
         });
     }
 
     // Open delete answer confirmation
     openDeleteAnswerConfirmation(questionIndex: number, answerIndex: number): void {
         const question = this.questions[questionIndex];
-        if (!question.answers || question.answers.length <= 1) {
-            // Cannot remove the last answer - MCQ must have at least one answer
-            return;
+        // For MCQ questions, must have at least 2 answers, and the first two cannot be deleted
+        if (question.question_type === 'mcq') {
+            if (!question.answers || question.answers.length <= 2) {
+                // Cannot remove if there are only 2 answers (minimum required)
+                return;
+            }
+            // Cannot delete the first two answers (indices 0 and 1)
+            if (answerIndex < 2) {
+                return;
+            }
+        } else {
+            // For other question types, must have at least 1 answer
+            if (!question.answers || question.answers.length <= 1) {
+                return;
+            }
         }
         this.pendingDeleteAnswerQuestionIndex = questionIndex;
         this.pendingDeleteAnswerIndex = answerIndex;
         this.showDeleteAnswerConfirmation = true;
+    }
+
+    // Check if an answer can be deleted (for UI display)
+    canDeleteAnswer(questionIndex: number, answerIndex: number): boolean {
+        const question = this.questions[questionIndex];
+        if (!question || !question.answers) {
+            return false;
+        }
+        
+        // For MCQ questions, must have at least 2 answers, and the first two cannot be deleted
+        if (question.question_type === 'mcq') {
+            if (question.answers.length <= 2) {
+                return false; // Cannot delete if there are only 2 answers
+            }
+            if (answerIndex < 2) {
+                return false; // Cannot delete the first two answers
+            }
+        } else {
+            // For other question types, must have at least 1 answer
+            if (question.answers.length <= 1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Close delete answer confirmation
