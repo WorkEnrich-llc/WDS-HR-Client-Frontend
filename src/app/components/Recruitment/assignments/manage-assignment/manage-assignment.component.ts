@@ -978,11 +978,11 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
                             }
                             // Replace the media at the specific index
                             this.questions[questionIndex].media[mediaIndex] = mediaItem;
-                            this.toaster.showSuccess('Media replaced successfully', 'Success');
+                            this.toaster.showSuccess('Media replaced successfully. Don\'t forget to save your changes to keep this update.', 'Media Updated');
                         } else {
                             // Append new media to the array (support multiple media)
                             this.questions[questionIndex].media.push(mediaItem);
-                            this.toaster.showSuccess('Media uploaded successfully', 'Success');
+                            this.toaster.showSuccess('Media uploaded successfully. Don\'t forget to save your changes to keep this media.', 'Media Added');
                         }
                     },
                     error: (error) => {
@@ -1063,7 +1063,7 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             }
             // Remove the specific media item from the array
             this.questions[this.pendingDeleteMediaQuestionIndex].media.splice(this.pendingDeleteMediaIndex, 1);
-            this.toaster.showSuccess('Media deleted successfully', 'Deleted');
+            this.toaster.showSuccess('Media deleted successfully. Don\'t forget to save your changes to confirm this deletion.', 'Media Removed');
         }
         this.closeDeleteMediaConfirmation();
     }
