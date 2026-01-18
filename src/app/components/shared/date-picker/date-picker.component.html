@@ -10,26 +10,14 @@
 
     <div class="date-picker-container" [class.error]="errorMessage" [class.disabled]="disabled">
         <div #dateWrapper class="form-outline w-100 position-relative custom-date-wrapper">
-            <input 
-                #dateInput
-                type="text"
-                [id]="'date-picker-' + label"
-                class="form-control custom-date-input"
-                [placeholder]="placeholder"
-                [value]="displayValue"
-                [disabled]="disabled"
-                [required]="required"
-                (click)="onInputClick()"
-                (change)="onInputChange($event)"
-                (blur)="onBlur()"
-                readonly
-                [attr.aria-required]="required"
-                [attr.aria-invalid]="!!errorMessage"
+            <input #dateInput type="text" [id]="'date-picker-' + label" class="form-control custom-date-input"
+                [placeholder]="placeholder" [value]="displayValue" [disabled]="disabled" [required]="required"
+                (click)="onInputClick($event)" (change)="onInputChange($event)" (blur)="onBlur()" readonly
+                [attr.aria-required]="required" [attr.aria-invalid]="!!errorMessage"
                 [attr.aria-describedby]="errorMessage ? 'date-error-' + label : null"
-                [attr.aria-expanded]="isCalendarOpen.toString()"
-                [attr.aria-haspopup]="true"
-            />
-            <svg class="date-picker-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" (click)="toggleCalendar()">
+                [attr.aria-expanded]="isCalendarOpen.toString()" [attr.aria-haspopup]="true" />
+            <svg class="date-picker-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                (click)="onIconClick($event)">
                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round"
                         d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
@@ -41,28 +29,31 @@
 
         <!-- Calendar Popup -->
         @if (isCalendarOpen) {
-        <div class="calendar-popup" #calendarPopup role="dialog" aria-modal="true" aria-label="Calendar" 
-            [class.position-above]="popupPositionAbove"
-            [style.top]="popupTop" 
-            [style.left]="popupLeft">
+        <div class="calendar-popup" #calendarPopup role="dialog" aria-modal="true" aria-label="Calendar"
+            [class.position-above]="positionAbove">
             <!-- Calendar Header -->
             <div class="calendar-header-wrapper">
                 <div class="calendar-header">
-                    <button type="button" class="calendar-nav-btn" (click)="previousMonth()" aria-label="Previous month">
+                    <button type="button" class="calendar-nav-btn" (click)="previousMonth()"
+                        aria-label="Previous month">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                     <div class="calendar-month-year-container">
-                        <button type="button" class="calendar-month-year-btn" (click)="toggleMonthPicker()" aria-label="Select month" [class.active]="showMonthPicker">
+                        <button type="button" class="calendar-month-year-btn" (click)="toggleMonthPicker()"
+                            aria-label="Select month" [class.active]="showMonthPicker">
                             <span>{{ getMonthName() }}</span>
-                            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
-                        <button type="button" class="calendar-month-year-btn" (click)="toggleYearPicker()" aria-label="Select year" [class.active]="showYearPicker">
+                        <button type="button" class="calendar-month-year-btn" (click)="toggleYearPicker()"
+                            aria-label="Select year" [class.active]="showYearPicker">
                             <span>{{ getCurrentYear() }}</span>
-                            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
@@ -79,12 +70,8 @@
                 <div class="picker-dropdown month-picker">
                     <div class="picker-grid">
                         @for (month of months; track $index) {
-                        <button
-                            type="button"
-                            class="picker-item"
-                            [class.active]="$index === currentMonth"
-                            (click)="selectMonth($index)"
-                            [attr.aria-label]="'Select ' + month">
+                        <button type="button" class="picker-item" [class.active]="$index === currentMonth"
+                            (click)="selectMonth($index)" [attr.aria-label]="'Select ' + month">
                             {{ month }}
                         </button>
                         }
@@ -96,12 +83,8 @@
                 @if (showYearPicker) {
                 <div class="picker-dropdown year-picker">
                     <div class="year-picker-header">
-                        <button 
-                            type="button" 
-                            class="year-nav-btn" 
-                            (click)="previousYearPage()" 
-                            [disabled]="!canGoToPreviousYearPage()"
-                            aria-label="Previous years">
+                        <button type="button" class="year-nav-btn" (click)="previousYearPage()"
+                            [disabled]="!canGoToPreviousYearPage()" aria-label="Previous years">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -109,12 +92,8 @@
                         <div class="year-range">
                             {{ yearPickerStartYear }} - {{ yearPickerEndYear }}
                         </div>
-                        <button 
-                            type="button" 
-                            class="year-nav-btn" 
-                            (click)="nextYearPage()" 
-                            [disabled]="!canGoToNextYearPage()"
-                            aria-label="Next years">
+                        <button type="button" class="year-nav-btn" (click)="nextYearPage()"
+                            [disabled]="!canGoToNextYearPage()" aria-label="Next years">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -122,14 +101,9 @@
                     </div>
                     <div class="picker-grid year-grid">
                         @for (yearData of years; track yearData.year) {
-                        <button
-                            type="button"
-                            class="picker-item"
-                            [class.active]="yearData.year === currentYear"
-                            [class.disabled]="yearData.disabled"
-                            [disabled]="yearData.disabled"
-                            (click)="selectYear(yearData)"
-                            [attr.aria-label]="'Select year ' + yearData.year"
+                        <button type="button" class="picker-item" [class.active]="yearData.year === currentYear"
+                            [class.disabled]="yearData.disabled" [disabled]="yearData.disabled"
+                            (click)="selectYear(yearData)" [attr.aria-label]="'Select year ' + yearData.year"
                             [attr.aria-disabled]="yearData.disabled">
                             {{ yearData.year }}
                         </button>
@@ -149,17 +123,10 @@
             <!-- Calendar Days Grid -->
             <div class="calendar-days">
                 @for (day of calendarDays; track $index) {
-                <button
-                    type="button"
-                    class="calendar-day"
-                    [class.disabled]="day.disabled"
-                    [class.today]="day.isToday"
-                    [class.selected]="day.isSelected"
-                    [class.other-month]="day.isOtherMonth"
-                    [disabled]="day.disabled"
+                <button type="button" class="calendar-day" [class.disabled]="day.disabled" [class.today]="day.isToday"
+                    [class.selected]="day.isSelected" [class.other-month]="day.isOtherMonth" [disabled]="day.disabled"
                     (click)="selectDate(day)"
-                    [attr.aria-label]="day.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })"
-                >
+                    [attr.aria-label]="day.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })">
                     {{ day.date.getDate() }}
                 </button>
                 }

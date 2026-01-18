@@ -291,7 +291,8 @@
             @if (isInterviewsLoading) {
             <div class="d-flex flex-column gap-3">
               @for (i of [1,2,3]; track i) {
-              <div class="placeholder-glow interview-card d-flex align-items-start justify-content-between" style="padding:18px;">
+              <div class="placeholder-glow interview-card d-flex align-items-start justify-content-between"
+                style="padding:18px;">
                 <div class="interview-left" style="flex:1">
                   <div class="placeholder" style="width:45%; height:20px; border-radius:8px;"></div>
                   <div class="d-flex gap-3 mt-2">
@@ -621,7 +622,8 @@
             @if (isJobOffersLoading) {
             <div class="d-flex flex-column gap-3">
               @for (i of [1,2,3]; track i) {
-              <div class="placeholder-glow job-offer-card d-flex align-items-start justify-content-between" style="padding:18px;">
+              <div class="placeholder-glow job-offer-card d-flex align-items-start justify-content-between"
+                style="padding:18px;">
                 <div class="offer-left d-flex flex-column" style="flex:1">
                   <div class="d-flex align-items-center gap-3 mb-2">
                     <div class="placeholder" style="width:110px; height:28px; border-radius:8px;"></div>
@@ -1068,14 +1070,13 @@
     <div class="d-flex gap-3 w-100">
       <!-- Date Input -->
       <div class="input flex-grow-1">
-        <label for="assignmentExpiry">Expiration Date <span class="text-danger">*</span></label>
-        <div class="form-outline position-relative w-100">
-          <input type="date" id="assignmentExpiry" class="form-control custom-date-input"
-            [(ngModel)]="assignmentExpirationDate" [min]="minExpirationDate"
-            (blur)="assignmentExpirationDateTouched = true">
-        </div>
+        <app-date-picker label="Expiration Date" placeholder="Select expiration date" [required]="true"
+          [disableBeforeDate]="true" [minDate]="minExpirationDate" [(ngModel)]="assignmentExpirationDate"
+          [errorMessage]="assignmentExpirationDateTouched && !assignmentExpirationDate ? 'Expiration date is required' : null"
+          (dateChange)="onAssignmentExpirationDateChange($event)">
+        </app-date-picker>
         @if (assignmentExpirationDateTouched && !assignmentExpirationDate) {
-        <small class="text-danger">Expiration date is required</small>
+        <small class="text-danger d-block mt-1">Expiration date is required</small>
         }
       </div>
 
@@ -1190,8 +1191,8 @@
 
 <!-- Resend Job Offer Confirmation (uses app-popup component) -->
 <app-popup [title]="'Resend Job Offer?'"
-  [paragraph1]="'Are you sure you want to resend the job offer email to the applicant?'"
-  [isOpen]="resendPopupOpen" (close)="closeResendPopup()">
+  [paragraph1]="'Are you sure you want to resend the job offer email to the applicant?'" [isOpen]="resendPopupOpen"
+  (close)="closeResendPopup()">
   <div class="mb-2">
     @if (false) {
     <div class="alert alert-danger mb-0 mt-3" role="alert">
@@ -1213,8 +1214,10 @@
 </app-popup>
 
 <!-- job offer overlay (copied from interview component) -->
-<app-overlay-filter-box #jobBox [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
-  <form class="w-100 d-flex flex-column gap-3" (ngSubmit)="overlayTitle === 'Offer Details' ? closeAllOverlays() : submitJobOffer()">
+<app-overlay-filter-box #jobBox
+  [title]="overlayTitle === 'Job Offer' || overlayTitle === 'Update Job Offer' ? overlayTitle : 'Job Offer'">
+  <form class="w-100 d-flex flex-column gap-3"
+    (ngSubmit)="overlayTitle === 'Offer Details' ? closeAllOverlays() : submitJobOffer()">
     @if (jobOfferDetailsLoading && overlayTitle === 'Update Job Offer') {
     <div class="input placeholder-glow">
       <div class="form-control placeholder col-12 mb-2" style="height: 38px;"></div>
@@ -1248,7 +1251,8 @@
         style="width: 100%; border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     <div class="input d-flex align-items-center gap-2">
-      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation" name="includeProbation" [disabled]="overlayTitle === 'Offer Details'">
+      <input type="checkbox" id="probation" class="form-check-input" [(ngModel)]="includeProbation"
+        name="includeProbation" [disabled]="overlayTitle === 'Offer Details'">
       <label for="probation" class="m-0">Include Probation Period</label>
     </div>
     <div class="input">
@@ -1263,13 +1267,15 @@
       }
     </div>
     <div class="input d-flex align-items-center gap-2">
-      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate" [disabled]="overlayTitle === 'Offer Details'">
+      <input type="checkbox" id="withEndDate" class="form-check-input" [(ngModel)]="withEndDate" name="withEndDate"
+        [disabled]="overlayTitle === 'Offer Details'">
       <label for="withEndDate" class="m-0">With end date</label>
     </div>
     @if (withEndDate){
     <div class="input">
       <label for="contractEndDate">Contract End Date</label>
-      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate" [disabled]="overlayTitle === 'Offer Details'"
+      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
+        [disabled]="overlayTitle === 'Offer Details'"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
     </div>
     }
@@ -1277,7 +1283,8 @@
       <label for="noticePeriod">Notice Period (in Days)</label>
       <input type="number" id="noticePeriod" class="form-control" [(ngModel)]="noticePeriod" name="noticePeriod"
         placeholder="Enter number of days" [class.is-invalid]="jobOfferValidationErrors.noticePeriod"
-        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()" [disabled]="overlayTitle === 'Offer Details'"
+        (focus)="onNoticePeriodFocus()" (blur)="validateNoticePeriodField()"
+        [disabled]="overlayTitle === 'Offer Details'"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
       @if (jobOfferValidationErrors.noticePeriod) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.noticePeriod }}</div>
@@ -1292,7 +1299,8 @@
     <div class="input">
       <label for="salary">Salary</label>
       <input type="text" id="salary" class="form-control" [(ngModel)]="offerSalary" name="salary" placeholder="EGP"
-        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()" [disabled]="overlayTitle === 'Offer Details'"
+        [class.is-invalid]="jobOfferValidationErrors.salary" (focus)="onSalaryFocus()" (blur)="validateSalaryField()"
+        [disabled]="overlayTitle === 'Offer Details'"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
       @if (jobOfferValidationErrors.salary) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.salary }}</div>
@@ -1302,7 +1310,8 @@
       <label for="offerDetails">Offer Details</label>
       <textarea id="offerDetails" class="form-control" rows="4" [(ngModel)]="offerDetails" name="offerDetails"
         placeholder="Enter Offer Details" [class.is-invalid]="jobOfferValidationErrors.offerDetails"
-        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()" [disabled]="overlayTitle === 'Offer Details'"
+        (focus)="onOfferDetailsFocus()" (blur)="validateOfferDetailsField()"
+        [disabled]="overlayTitle === 'Offer Details'"
         style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);"></textarea>
       @if (jobOfferValidationErrors.offerDetails && (jobOfferFormSubmitted)) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.offerDetails }}</div>

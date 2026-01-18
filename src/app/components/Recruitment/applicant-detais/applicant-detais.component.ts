@@ -11,6 +11,7 @@ import { JobOpeningsService } from 'app/core/services/recruitment/job-openings/j
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
 import { PopupComponent } from 'app/components/shared/popup/popup.component';
+import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-applicant-detais',
@@ -26,7 +27,8 @@ import { PopupComponent } from 'app/components/shared/popup/popup.component';
     NgClass,
     RouterLink,
     NgxDocViewerModule,
-    PopupComponent
+    PopupComponent,
+    DatePickerComponent
   ],
   providers: [DatePipe],
   templateUrl: './applicant-detais.component.html',
@@ -118,6 +120,19 @@ export class ApplicantDetaisComponent implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  // Handle date change from date picker
+  onAssignmentExpirationDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Extract date part (YYYY-MM-DD) from ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
+      // Handle both ISO format and YYYY-MM-DD format
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.assignmentExpirationDate = dateOnly;
+    } else {
+      this.assignmentExpirationDate = '';
+    }
+    this.assignmentExpirationDateTouched = true;
   }
 
   // Tab management

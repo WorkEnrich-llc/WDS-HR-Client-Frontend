@@ -26,6 +26,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     @Input() maxDate: string | null = null; // Maximum date (ISO format: YYYY-MM-DD)
     @Input() errorMessage: string | null = null;
     @Input() showTime: boolean = false; // For date-time selection
+    @Input() positionAbove: boolean = false; // Position calendar above input instead of below
 
     @Output() dateChange = new EventEmitter<string>();
 
@@ -53,10 +54,6 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     yearPickerEndYear: number = 0;
     yearsPerPage: number = 20; // Number of years to show per page
 
-    // Popup positioning
-    popupTop: string = '0px';
-    popupLeft: string = '0px';
-    popupPositionAbove: boolean = false;
 
     // Month and year lists
     months: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -173,6 +170,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         }
     }
 
+
     private updateMinDate(): void {
         if (this.disableBeforeDate) {
             if (this.minDate) {
@@ -210,7 +208,6 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
             }
             this.showMonthPicker = false;
             this.showYearPicker = false;
-            this.updatePopupPosition();
             this.buildCalendar();
             this.onTouched();
         }
@@ -255,75 +252,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         this.buildCalendar();
     }
 
-    private updatePopupPosition(): void {
-        setTimeout(() => {
-            if (this.dateInput && this.dateInput.nativeElement) {
-                const inputElement = this.dateInput.nativeElement;
-                const inputRect = inputElement.getBoundingClientRect();
-                const computedStyle = window.getComputedStyle(inputElement);
 
-                // Get the computed border and padding values
-                const borderLeftWidth = parseFloat(computedStyle.borderLeftWidth) || 0;
-                const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-
-                // Use wrapper element if available, otherwise use input
-                let containerRect = inputRect;
-                if (this.dateWrapper && this.dateWrapper.nativeElement) {
-                    containerRect = this.dateWrapper.nativeElement.getBoundingClientRect();
-                }
-
-                const spacing = 0; // No spacing - directly adjacent to input
-                const popupHeight = 380; // Approximate height of calendar popup (can be adjusted)
-                const viewportHeight = window.innerHeight;
-
-                // Calculate space below and above the input
-                const spaceBelow = viewportHeight - inputRect.bottom;
-                const spaceAbove = inputRect.top;
-
-                // Check if there's enough space below (popup height + some buffer)
-                const enoughSpaceBelow = spaceBelow >= (popupHeight + 20);
-
-                if (enoughSpaceBelow) {
-                    // Position below input - directly adjacent, no gap
-                    this.popupTop = `${inputRect.bottom}px`;
-                    this.popupPositionAbove = false;
-                } else {
-                    // Position above input - directly adjacent, no gap
-                    this.popupTop = `${inputRect.top - popupHeight}px`;
-                    this.popupPositionAbove = true;
-
-                    // If there's not enough space above either, position below anyway (will scroll)
-                    if (spaceAbove < popupHeight) {
-                        this.popupTop = `${inputRect.bottom}px`;
-                        this.popupPositionAbove = false;
-                    }
-                }
-
-                // Align left edge of popup with left edge of input
-                // Use input's left edge directly for precise alignment
-                this.popupLeft = `${inputRect.left}px`;
-
-                // Adjust if popup would go off-screen to the right
-                const popupWidth = 320; // Approximate width of calendar popup
-                if (inputRect.left + popupWidth > window.innerWidth) {
-                    this.popupLeft = `${window.innerWidth - popupWidth - 16}px`; // 16px margin from edge
-                }
-
-                // Adjust if popup would go off-screen to the left
-                if (inputRect.left < 0) {
-                    this.popupLeft = '16px'; // 16px margin from edge
-                }
-            }
-        }, 0);
-    }
-
-    @HostListener('window:scroll')
-    @HostListener('window:resize')
-    onWindowScrollOrResize(): void {
-        if (this.isCalendarOpen) {
-            this.updatePopupPosition();
-        }
-    }
 
     closeCalendar(): void {
         this.isCalendarOpen = false;
@@ -428,8 +357,20 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
         return `${month}/${day}/${year}`;
     }
 
-    onInputClick(): void {
-        this.toggleCalendar();
+    onInputClick(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.disabled) {
+            this.toggleCalendar();
+        }
+    }
+
+    onIconClick(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.disabled) {
+            this.toggleCalendar();
+        }
     }
 
     onInputChange(event: Event): void {

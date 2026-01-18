@@ -68,6 +68,7 @@
                         formControlName="rescheduleDate"
                         [required]="true"
                         [disableBeforeDate]="true"
+                        [positionAbove]="true"
                         [errorMessage]="rescheduleDate?.invalid && rescheduleDate?.touched ? 
                             (rescheduleDate?.errors?.['required'] ? 'Date is required' : 'Please select a valid date') : null">
                     </app-date-picker>

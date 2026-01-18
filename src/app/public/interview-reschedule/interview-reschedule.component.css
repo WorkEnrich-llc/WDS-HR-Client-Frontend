@@ -133,7 +133,7 @@
     padding-bottom: var(--spacing-lg);
     text-align: center;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
     box-sizing: border-box;
 }
