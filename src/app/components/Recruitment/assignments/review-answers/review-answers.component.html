@@ -245,31 +245,21 @@
           <div class="points-input-wrapper">
             <label for="points-{{ answer.question.id }}" class="points-label">Points</label>
             <div class="form-outline position-relative custom-date-wrapper">
-              <input
-                type="number"
-                id="points-{{ answer.question.id }}"
+              <input type="number" id="points-{{ answer.question.id }}"
                 class="form-control custom-date-input points-input"
                 [class.is-invalid]="getEssayValidationError(answer.question.id)"
                 [ngModel]="getEssayPoints(answer.question.id)"
                 (ngModelChange)="setEssayPoints(answer.question.id, $event, answer.question?.points)"
-                (blur)="validateEssayPoints(answer.question.id, answer.question?.points)"
-                [min]="0"
-                [max]="answer.question?.points || 0"
-                step="0.1"
-                placeholder="Enter points"
-              />
+                (blur)="validateEssayPoints(answer.question.id, answer.question?.points)" [min]="0"
+                [max]="answer.question?.points || 0" step="0.1" placeholder="Enter points" />
               <span class="points-max">/ {{ answer.question?.points || 0 }}</span>
             </div>
             @if (getEssayValidationError(answer.question.id)) {
             <small class="text-danger d-block mt-1">{{ getEssayValidationError(answer.question.id) }}</small>
             }
           </div>
-          <button
-            type="button"
-            class="btn btn-lg btn-primary submit-points-btn"
-            (click)="submitEssayReview(answer)"
-            [disabled]="isEssayLoading(answer.question.id) || !canSubmitEssayPoints(answer.question.id) || !!getEssayValidationError(answer.question.id)"
-          >
+          <button type="button" class="btn btn-lg btn-primary submit-points-btn" (click)="submitEssayReview(answer)"
+            [disabled]="isEssayLoading(answer.question.id) || !canSubmitEssayPoints(answer.question.id) || !!getEssayValidationError(answer.question.id)">
             @if (isEssayLoading(answer.question.id)) {
             <div class="d-flex align-items-center gap-2">
               <div class="loading-bubble"></div>

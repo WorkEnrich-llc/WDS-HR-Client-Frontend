@@ -11,7 +11,7 @@ import { JobItem } from '../../models/job-listing.model';
 @Component({
   selector: 'app-job-details',
   standalone: true,
-  imports: [RouterLink, FormsModule, OverlayFilterBoxComponent],
+  imports: [RouterLink, FormsModule],
   templateUrl: './job-details.component.html',
   styleUrl: './job-details.component.css'
 })
