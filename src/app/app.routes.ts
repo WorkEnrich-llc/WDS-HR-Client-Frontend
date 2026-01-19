@@ -988,6 +988,13 @@ export const routes: Routes = [
                 title: 'View Assignment',
                 canActivate: [SubscriptionGuard],
                 data: { feature: 'Job_Openings' }
+              },
+              {
+                path: 'review-answers/:id',
+                loadComponent: () => import('./components/Recruitment/assignments/review-answers/review-answers.component').then(m => m.ReviewAnswersComponent),
+                title: 'Review Answers',
+                canActivate: [SubscriptionGuard],
+                data: { feature: 'Job_Openings' }
               }
             ]
           },

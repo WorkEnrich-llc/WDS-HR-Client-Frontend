@@ -469,4 +469,22 @@ export class JobOpeningsService {
         };
         return this._HttpClient.post(url, body);
     }
+
+    // get applicant assignment by ID (for review answers)
+    getApplicantAssignmentById(applicantAssignmentId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments/${applicantAssignmentId}/`;
+        return this._HttpClient.get(url);
+    }
+
+    // submit review answer with points
+    submitReviewAnswer(applicantAnswerId: string, earnedPoints: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/applicant-assignments/review-answers`;
+        const body = {
+            request_data: {
+                applicant_answer_id: applicantAnswerId,
+                earned_points: earnedPoints
+            }
+        };
+        return this._HttpClient.put(url, body);
+    }
 }
