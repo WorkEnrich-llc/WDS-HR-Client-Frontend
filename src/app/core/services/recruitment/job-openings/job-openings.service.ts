@@ -245,6 +245,17 @@ export class JobOpeningsService {
         return this._HttpClient.put(url, body);
     }
 
+    // revert application (move from rejected back to candidate)
+    revertApplication(applicationId: number, sendEmail: boolean = true): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/revert/${applicationId}/`;
+        const body = {
+            request_data: {
+                send_email: sendEmail
+            }
+        };
+        return this._HttpClient.put(url, body);
+    }
+
     // create interview for application
     createInterview(
         applicationId: number,

@@ -144,6 +144,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   isQualifiedModalOpen: boolean = false;
   isAcceptOfferModalOpen: boolean = false;
   isDeclineOfferModalOpen: boolean = false;
+  isRevertModalOpen: boolean = false;
 
   // Store current applicant data for job offer component
   currentJobOfferApplicant: any = null;
@@ -950,16 +951,69 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   confirmMakeCandidate(): void {
     if (!this.selectedApplicant?.applicationId) return;
 
+    const applicationId = this.selectedApplicant.applicationId;
+
     // Status 2 = Candidate
-    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 2).subscribe({
+    this.jobOpeningsService.updateApplicationStatus(applicationId, 2).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: () => {
         this.closeCandidateModal();
         this.loadApplicants();
-        this.getJobOpeningDetails(this.jobOpening.id);
+        if (this.jobOpening?.id) {
+          this.getJobOpeningDetails(this.jobOpening.id);
+        }
+        this.toastr.success('Applicant moved to candidate successfully');
       },
       error: (error) => {
         console.error('Error moving applicant to candidate:', error);
+        this.toastr.error('Failed to move applicant to candidate');
         this.closeCandidateModal();
+      }
+    });
+  }
+
+  /**
+   * Open revert confirmation modal
+   */
+  openRevertConfirmation(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.selectedApplicant = applicant;
+    this.isRevertModalOpen = true;
+  }
+
+  /**
+   * Close revert confirmation modal
+   */
+  closeRevertModal(): void {
+    this.isRevertModalOpen = false;
+    this.selectedApplicant = null;
+  }
+
+  /**
+   * Confirm and revert applicant (move from rejected back to candidate)
+   */
+  confirmRevert(): void {
+    if (!this.selectedApplicant?.applicationId) return;
+
+    const applicationId = this.selectedApplicant.applicationId;
+
+    this.jobOpeningsService.revertApplication(applicationId, true).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.closeRevertModal();
+        this.loadApplicants();
+        if (this.jobOpening?.id) {
+          this.getJobOpeningDetails(this.jobOpening.id);
+        }
+        this.toastr.success('Applicant reverted to candidate successfully');
+      },
+      error: (error) => {
+        console.error('Error reverting applicant:', error);
+        this.toastr.error('Failed to revert applicant');
+        this.closeRevertModal();
       }
     });
   }
