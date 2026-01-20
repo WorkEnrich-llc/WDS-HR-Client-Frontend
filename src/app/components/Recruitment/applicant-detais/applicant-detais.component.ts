@@ -240,6 +240,26 @@ export class ApplicantDetaisComponent implements OnInit {
     this.toasterService.showInfo('Opening interview details');
   }
 
+  // Check if interview is completed
+  isInterviewCompleted(interview: any): boolean {
+    return interview?.status === 'Completed' || interview?.status === 'completed' || interview?.is_completed === true;
+  }
+
+  // Check if interview is rejected
+  isInterviewRejected(interview: any): boolean {
+    return interview?.status === 'Rejected' || interview?.status === 'rejected' || interview?.is_rejected === true;
+  }
+
+  // Check if interview is expired
+  isInterviewExpired(interview: any): boolean {
+    return interview?.status === 'Expired' || interview?.status === 'expired' || interview?.is_expired === true;
+  }
+
+  // Check if interview is sent
+  isInterviewSent(interview: any): boolean {
+    return interview?.status === 'Sent' || interview?.status === 'sent';
+  }
+
   // Stub: open create interview overlay
   openCreateInterviewOverlay(): void {
     this.toasterService.showInfo('Open create interview dialog');
