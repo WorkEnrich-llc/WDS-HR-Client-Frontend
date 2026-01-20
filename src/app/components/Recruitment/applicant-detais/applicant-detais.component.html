@@ -602,8 +602,7 @@
                       <span>Resend Mail</span>
                       }
                     </button>
-                    } @else if (item.recruiter_side_status === 'Pending Review' || (item.submitted_at &&
-                    item.recruiter_side_status !== 'Reviewed')) {
+                    }
                     <button type="button" class="btn btn-review"
                       [routerLink]="['/assignments/review-answers', item.id]">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -613,7 +612,6 @@
                       </svg>
                       Review Answers
                     </button>
-                    }
                   </div>
                 </div>
               </div>

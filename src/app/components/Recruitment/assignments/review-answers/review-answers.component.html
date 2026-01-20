@@ -258,6 +258,7 @@
             <small class="text-danger d-block mt-1">{{ getEssayValidationError(answer.question.id) }}</small>
             }
           </div>
+          @if (!hasInitialEarnedPoints(answer)) {
           <button type="button" class="btn btn-lg btn-primary submit-points-btn" (click)="submitEssayReview(answer)"
             [disabled]="isEssayLoading(answer.question.id) || !canSubmitEssayPoints(answer.question.id) || !!getEssayValidationError(answer.question.id)">
             @if (isEssayLoading(answer.question.id)) {
@@ -275,6 +276,7 @@
             <span>Submit Points</span>
             }
           </button>
+          }
         </div>
       </div>
       }

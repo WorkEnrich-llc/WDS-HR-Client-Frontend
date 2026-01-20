@@ -280,6 +280,11 @@ export class ReviewAnswersComponent implements OnInit, OnDestroy {
         return points !== null && points !== undefined && !isNaN(points) && points >= 0;
     }
 
+    // Check if answer has initial earned points (to hide submit button on initial load)
+    hasInitialEarnedPoints(answer: any): boolean {
+        return answer?.earned_points !== null && answer?.earned_points !== undefined && answer?.earned_points !== 0;
+    }
+
     // Submit essay review with points
     submitEssayReview(answer: any): void {
         const questionId = answer.question?.id;
