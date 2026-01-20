@@ -233,6 +233,18 @@ export class JobOpeningsService {
         return this._HttpClient.patch(url, body);
     }
 
+    // update applicant contact status
+    // contactStatus: 0 - No Action, 1 - Called, 2 - Call Again, 3 - Not Interested
+    updateApplicantContactStatus(applicationId: number, contactStatus: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/jobs-openings/applications/contact-status/${applicationId}/`;
+        const body = {
+            request_data: {
+                applicant_contact_status: contactStatus
+            }
+        };
+        return this._HttpClient.put(url, body);
+    }
+
     // create interview for application
     createInterview(
         applicationId: number,
@@ -341,6 +353,14 @@ export class JobOpeningsService {
         const url = `${this.apiBaseUrl}recruiter/job-offers/${jobOfferId}/`;
         const params = new HttpParams().set('application_id', applicationId.toString());
         const body = { request_data: { status: 1 } };
+        return this._HttpClient.patch(url, body, { params });
+    }
+
+    // decline job offer by ID with application_id param
+    declineJobOffer(jobOfferId: number, applicationId: number): Observable<any> {
+        const url = `${this.apiBaseUrl}recruiter/job-offers/${jobOfferId}/`;
+        const params = new HttpParams().set('application_id', applicationId.toString());
+        const body = { request_data: { status: 2 } };
         return this._HttpClient.patch(url, body, { params });
     }
 

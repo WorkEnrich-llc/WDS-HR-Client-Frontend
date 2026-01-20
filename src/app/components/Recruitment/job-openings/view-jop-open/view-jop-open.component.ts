@@ -9,9 +9,13 @@ import { EmployeeService } from '../../../../core/services/personnel/employees/e
 import { DatePipe, NgClass, DecimalPipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 import { PopupComponent } from '../../../shared/popup/popup.component';
 import { OverlayFilterBoxComponent } from '../../../shared/overlay-filter-box/overlay-filter-box.component';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 
 type EvaluationData = {
   label: string;
@@ -35,6 +39,13 @@ type Applicant = {
   email: string;
   status: string;
   statusAt: string;
+  jobOfferInfo?: {
+    offer_status: string; // "Sent", "Accepted", "Rejected", etc.
+    offer_sent_at: string;
+    accepted_at: string | null;
+    rejected_at: string | null;
+    join_date?: string; // Join date from job offer
+  };
   evaluation?: {
     applicantEvaluation: EvaluationData;
     roleFit: EvaluationData;
@@ -58,7 +69,7 @@ type DynamicFieldSection = {
 @Component({
   selector: 'app-view-jop-open',
   standalone: true,
-  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass, OverlayFilterBoxComponent, DecimalPipe],
+  imports: [PageHeaderComponent, TableComponent, RouterLink, FormsModule, PopupComponent, DatePipe, NgClass, OverlayFilterBoxComponent, DecimalPipe, DatePickerComponent],
   providers: [DatePipe],
   templateUrl: './view-jop-open.component.html',
   styleUrl: './view-jop-open.component.css'
@@ -67,6 +78,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   @ViewChild('filterBox') filterBox!: OverlayFilterBoxComponent;
   @ViewChild('jobBox') jobBox!: OverlayFilterBoxComponent;
   @ViewChild('feedbackBox') feedbackBox!: OverlayFilterBoxComponent;
+  @ViewChild('assignmentSelectionOverlay', { static: false }) assignmentSelectionOverlay!: OverlayFilterBoxComponent;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -75,6 +87,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   private branchesService = inject(BranchesService);
   private employeeService = inject(EmployeeService);
   private toastr = inject(ToastrService);
+  private httpClient = inject(HttpClient);
+  private apiBaseUrl: string = environment.apiBaseUrl;
 
   // Job opening data
   jobOpening: any = null;
@@ -93,6 +107,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
 
   // Tab functionality
   activeTab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected' = 'applicant';
+  private readonly TAB_STORAGE_KEY_PREFIX = 'job-opening-active-tab-';
 
   // Applicants data and pagination
   applicantsLoading: boolean = true;
@@ -117,6 +132,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Search functionality
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+  private tabDestroy$ = new Subject<void>(); // For canceling subscriptions on tab switch
 
   // Status change confirmation modals
   isPauseModalOpen: boolean = false;
@@ -126,6 +143,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   isCandidateModalOpen: boolean = false;
   isQualifiedModalOpen: boolean = false;
   isAcceptOfferModalOpen: boolean = false;
+  isDeclineOfferModalOpen: boolean = false;
 
   // Store current applicant data for job offer component
   currentJobOfferApplicant: any = null;
@@ -162,6 +180,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   isRescheduleLoading = false;
   submitting = false;
   validationErrors: any = {};
+  currentInterviewId: number | null = null; // For reschedule functionality
 
   // Job Offer form properties
   jobOfferApplicant: any = null;
@@ -184,11 +203,58 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   feedbackSubmitting = false;
   feedbackValidationErrors: { [key: string]: string } = {};
 
+  // Take Action dropdown state (per application)
+  openDropdownApplicationId: number | null = null;
+
+  // Assignment Selection
+  availableAssignments: any[] = [];
+  availableAssignmentsLoading: boolean = false;
+  selectedAssignmentId: number | null = null;
+  assignmentSearchTerm: string = '';
+  assignmentCurrentPage: number = 1;
+  assignmentPageSize: number = 10;
+  assignmentTotalCount: number = 0;
+  isAssignmentSubmitting: boolean = false;
+  assignmentExpirationDate: string = '';
+  assignmentExpirationTime: string = '';
+  assignmentExpirationDateTouched: boolean = false;
+  assignmentSelectionTouched: boolean = false;
+  selectedApplicationForAssignment: Applicant | null = null;
+
+  // Getter for minimum date (today)
+  get minExpirationDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Mark as Called modal states
+  showMarkAsCalledModal: boolean = false;
+  selectedApplicationForMarkAsCalled: Applicant | null = null;
+
+  // Not Interested modal states
+  showNotInterestedModal: boolean = false;
+  selectedApplicationForNotInterested: Applicant | null = null;
+
+  // Reject modal states
+  showRejectModal: boolean = false;
+  selectedApplicationForReject: Applicant | null = null;
+  rejectionNotes: string = '';
+  rejectionMailMessage: string = '';
+
   ngOnInit(): void {
+    // Load saved tab from session storage
+    this.loadActiveTabFromStorage();
+
     this.loadJobOpeningFromRoute();
 
     // Setup debounced search
-    this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
       this.currentPage = 1; // Reset to first page on search
       this.loadApplicants();
     });
@@ -211,7 +277,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.dynamicFieldsLoading = true;
     this.applicantsLoading = true; // Set applicants loading to true while job details are loading
 
-    this.jobOpeningsService.showJobOpening(jobId).subscribe({
+    this.jobOpeningsService.showJobOpening(jobId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         // Use object_info from the response as it contains the actual job opening data
         this.jobOpening = response.data.object_info;
@@ -241,6 +309,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         this.mainInfoLoading = false;
         this.jobDetailsInfoLoading = false;
         this.dynamicFieldsLoading = false;
+
+        // Load saved tab for this specific job opening (if not already loaded)
+        this.loadActiveTabFromStorage();
 
         // Load applicants for the current tab
         this.loadApplicants();
@@ -275,6 +346,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       status,
       this.searchTerm,
       offerStatus
+    ).pipe(
+      takeUntil(this.tabDestroy$) // Cancel when switching tabs
     ).subscribe({
       next: (response) => {
         if (response.data) {
@@ -288,6 +361,15 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             email: item.email || 'N/A',
             status: item.status || 'N/A',
             statusAt: item.created_at || item.updated_at || 'N/A',
+            applicantContactStatus: item.applicant_contact_status || null, // Contact status: "Called", "Call Again", "Not Interested", etc.
+            intervieweeInfo: item.interviewee_info || null, // Interview info: { key: "upcoming" | "previous", interview_at: "YYYY-MM-DD" }
+            jobOfferInfo: item.job_offer_info ? {
+              offer_status: item.job_offer_info.offer_status || '',
+              offer_sent_at: item.job_offer_info.offer_sent_at || '',
+              accepted_at: item.job_offer_info.accepted_at || null,
+              rejected_at: item.job_offer_info.rejected_at || null,
+              join_date: item.job_offer_info.join_date || null
+            } : null, // Job offer info: { offer_status: "Sent", offer_sent_at: "...", accepted_at: null, rejected_at: null, join_date: "..." }
             // Map evaluation data from API response
             evaluation: item.evaluation ? {
               applicantEvaluation: {
@@ -383,9 +465,50 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   setActiveTab(tab: 'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected') {
+    // Cancel any ongoing subscriptions for the previous tab
+    this.tabDestroy$.next();
+    this.tabDestroy$.complete();
+
+    // Create a new subject for the new tab
+    this.tabDestroy$ = new Subject<void>();
+
     this.activeTab = tab;
+
+    // Save active tab to session storage
+    this.saveActiveTabToStorage(tab);
+
     this.currentPage = 1; // Reset to first page when changing tabs
     this.loadApplicants();
+  }
+
+  /**
+   * Load active tab from session storage
+   */
+  private loadActiveTabFromStorage(): void {
+    try {
+      const savedTab = sessionStorage.getItem(this.TAB_STORAGE_KEY_PREFIX + this.jobOpening.id);
+      if (savedTab) {
+        const validTabs: Array<'applicant' | 'candidate' | 'interviewee' | 'qualified' | 'jobOfferSent' | 'accepted' | 'rejected' | 'offerAccepted' | 'offerRejected'> = [
+          'applicant', 'candidate', 'interviewee', 'qualified', 'jobOfferSent', 'accepted', 'rejected', 'offerAccepted', 'offerRejected'
+        ];
+        if (validTabs.includes(savedTab as any)) {
+          this.activeTab = savedTab as typeof this.activeTab;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load active tab from session storage:', error);
+    }
+  }
+
+  /**
+   * Save active tab to session storage
+   */
+  private saveActiveTabToStorage(tab: string): void {
+    try {
+      sessionStorage.setItem(this.TAB_STORAGE_KEY_PREFIX + this.jobOpening.id, tab);
+    } catch (error) {
+      console.warn('Failed to save active tab to session storage:', error);
+    }
   }
 
   /**
@@ -529,7 +652,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
+    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         // Reload job opening details to get updated status
         this.getJobOpeningDetails(this.jobOpening.id);
@@ -583,7 +708,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
+    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.toastr.success('Job opening paused successfully', 'Updated Successfully');
         this.closePauseModal();
@@ -612,7 +739,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).subscribe({
+    this.jobOpeningsService.updateJobOpeningStatus(this.jobOpening.id, requestBody).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.toastr.success('Job opening is now live', 'Updated Successfully');
         this.closeMakeLiveModal();
@@ -716,6 +845,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     if (!isTooltipClick && !isBadgeClick && this.hoveredApplicantId !== null) {
       this.closeTooltip();
     }
+
+    // Close Take Action dropdown if clicking outside dropdown container
+    // Check if click is inside dropdown menu or inside the position-relative container that has the dropdown
+    const dropdownContainer = target.closest('.position-relative');
+    const isInsideDropdownMenu = target.closest('.take-action-dropdown');
+    const hasDropdown = dropdownContainer?.querySelector('.take-action-dropdown');
+
+    if (!isInsideDropdownMenu && (!hasDropdown || !dropdownContainer?.contains(target))) {
+      this.openDropdownApplicationId = null;
+    }
   }
 
   /**
@@ -791,6 +930,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    * Open candidate confirmation modal
    */
   openCandidateConfirmation(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
     this.isCandidateModalOpen = true;
   }
@@ -823,14 +964,50 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     });
   }
   /**
+   * Toggle Take Action dropdown for a specific application
+   */
+  toggleTakeActionDropdown(application: Applicant, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    // Close dropdown if clicking on the same application, otherwise open for new application
+    if (this.openDropdownApplicationId === application.applicationId) {
+      this.openDropdownApplicationId = null;
+    } else {
+      this.openDropdownApplicationId = application.applicationId;
+    }
+  }
+
+  /**
+   * Close Take Action dropdown
+   */
+  closeTakeActionDropdown(event?: Event): void {
+    if (event && (event.target as HTMLElement).closest('.position-relative')) {
+      return;
+    }
+    this.openDropdownApplicationId = null;
+  }
+
+  /**
+   * Check if dropdown is open for a specific application
+   */
+  isDropdownOpen(applicationId: number): boolean {
+    return this.openDropdownApplicationId === applicationId;
+  }
+
+  /**
    * Open interview modal to schedule interview (no confirmation modal)
    */
   openInterviewModal(applicant: Applicant): void {
     if (!applicant?.applicationId) return;
 
+    // Close dropdown
+    this.openDropdownApplicationId = null;
+
     // Reset form
     this.resetInterviewForm();
     this.overlayTitle = 'Schedule Interview';
+    this.currentInterviewId = null; // Clear interview ID for new interview
 
     // Set application data
     this.currentApplicationId = applicant.applicationId;
@@ -847,6 +1024,444 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Open reschedule interview modal
+   */
+  openRescheduleInterviewModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+
+    // Close dropdown
+    this.openDropdownApplicationId = null;
+
+    // Reset form
+    this.resetInterviewForm();
+    this.overlayTitle = 'Reschedule Interview';
+    this.interviewDetailsLoading = true;
+
+    // Set application data
+    this.currentApplicationId = applicant.applicationId;
+    this.currentApplicationDetails = { application: { job: this.jobOpening?.id } };
+
+    // Fetch interview details to populate the form
+    this.jobOpeningsService.getInterviewDetails(applicant.applicationId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        const interviewData = response.data?.object_info || response.data || response;
+
+        if (interviewData.id) {
+          this.currentInterviewId = interviewData.id;
+        }
+
+        // Populate form with existing interview data
+        if (interviewData.title) {
+          this.interviewTitle = interviewData.title;
+        }
+        if (interviewData.department) {
+          this.department = interviewData.department;
+          this.loadSectionsForDepartment(interviewData.department);
+        }
+        if (interviewData.section) {
+          this.section = interviewData.section;
+          if (this.section) {
+            this.loadEmployeesForSection(interviewData.section);
+          }
+        }
+        if (interviewData.interviewer) {
+          this.interviewer = interviewData.interviewer;
+        }
+        if (interviewData.date) {
+          // Extract date part if it's in ISO format
+          const dateStr = interviewData.date;
+          this.date = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+        }
+        if (interviewData.time_from) {
+          this.time_from = interviewData.time_from;
+        }
+        if (interviewData.time_to) {
+          this.time_to = interviewData.time_to;
+        }
+        if (interviewData.interview_type) {
+          this.interview_type = interviewData.interview_type;
+          if (this.interview_type === 1) {
+            this.loadBranches();
+          }
+        }
+        if (interviewData.location) {
+          this.location = interviewData.location;
+        }
+
+        this.interviewDetailsLoading = false;
+
+        // Load departments and branches
+        this.loadDepartments();
+        if (this.interview_type === 1) {
+          this.loadBranches();
+        }
+
+        // Open the overlay
+        if (this.filterBox) {
+          this.filterBox.openOverlay();
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching interview details:', error);
+        this.interviewDetailsLoading = false;
+        this.toastr.error('Failed to load interview details');
+      }
+    });
+  }
+
+  /**
+   * Open qualify modal (opens confirmation popup)
+   */
+  openQualifyModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.openQualifiedConfirmation(applicant);
+  }
+
+  /**
+   * Open assignment selection overlay
+   */
+  openAssignmentModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.selectedApplicationForAssignment = applicant;
+    this.selectedAssignmentId = null;
+    this.assignmentSearchTerm = '';
+    this.assignmentCurrentPage = 1;
+    this.assignmentExpirationDate = '';
+    this.assignmentExpirationTime = '';
+    this.assignmentExpirationDateTouched = false;
+    this.assignmentSelectionTouched = false;
+    this.fetchAvailableAssignments();
+
+    // Open overlay after ensuring it's initialized
+    if (this.assignmentSelectionOverlay) {
+      this.assignmentSelectionOverlay.openOverlay();
+    } else {
+      // Fallback: try again after a short delay if ViewChild isn't ready
+      setTimeout(() => {
+        if (this.assignmentSelectionOverlay) {
+          this.assignmentSelectionOverlay.openOverlay();
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * Fetch available assignments
+   */
+  fetchAvailableAssignments(): void {
+    this.availableAssignmentsLoading = true;
+    this.jobOpeningsService.getAssignmentsForSelection(
+      this.assignmentCurrentPage,
+      this.assignmentPageSize,
+      this.assignmentSearchTerm
+    ).subscribe({
+      next: (res) => {
+        const list = res?.data?.list_items ?? res?.list_items ?? [];
+        this.availableAssignments = Array.isArray(list) ? list : [];
+        this.assignmentTotalCount = res?.data?.total_items ?? res?.total_items ?? 0;
+        this.availableAssignmentsLoading = false;
+      },
+      error: () => {
+        this.availableAssignments = [];
+        this.availableAssignmentsLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Handle assignment search
+   */
+  onAssignmentSearchInput(): void {
+    this.assignmentCurrentPage = 1;
+    this.fetchAvailableAssignments();
+  }
+
+  /**
+   * Toggle assignment selection (radio button single select)
+   */
+  toggleAssignmentSelection(assignmentId: number): void {
+    // If clicking the same assignment, deselect it
+    if (this.selectedAssignmentId === assignmentId) {
+      this.selectedAssignmentId = null;
+    } else {
+      // If clicking a different assignment, select it (exclusive)
+      this.selectedAssignmentId = assignmentId;
+    }
+  }
+
+  /**
+   * Check if assignment is selected
+   */
+  isAssignmentSelected(assignmentId: number): boolean {
+    return this.selectedAssignmentId === assignmentId;
+  }
+
+  /**
+   * Get total pages for assignments
+   */
+  getAssignmentTotalPages(): number {
+    return Math.ceil(this.assignmentTotalCount / this.assignmentPageSize);
+  }
+
+  /**
+   * Change assignment page
+   */
+  changeAssignmentPage(page: number): void {
+    if (page >= 1 && page <= this.getAssignmentTotalPages()) {
+      this.assignmentCurrentPage = page;
+      this.fetchAvailableAssignments();
+    }
+  }
+
+  /**
+   * Handle date change from date picker
+   */
+  onAssignmentExpirationDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Extract date part (YYYY-MM-DD) from ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
+      // Handle both ISO format and YYYY-MM-DD format
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.assignmentExpirationDate = dateOnly;
+    } else {
+      this.assignmentExpirationDate = '';
+    }
+    this.assignmentExpirationDateTouched = true;
+  }
+
+  /**
+   * Get pagination info for display
+   */
+  getAssignmentPaginationInfo(): string {
+    if (this.availableAssignments.length === 0) {
+      return '0 from 0';
+    }
+    const startItem = (this.assignmentCurrentPage - 1) * this.assignmentPageSize + 1;
+    return `${startItem} from ${this.assignmentTotalCount}`;
+  }
+
+  /**
+   * Confirm assignment selection
+   */
+  confirmAssignmentSelection(): void {
+    // Mark fields as touched to show validation messages
+    this.assignmentSelectionTouched = true;
+    this.assignmentExpirationDateTouched = true;
+
+    if (!this.selectedAssignmentId) {
+      return;
+    }
+
+    if (!this.assignmentExpirationDate) {
+      return;
+    }
+
+    if (!this.assignmentExpirationTime) {
+      return;
+    }
+
+    if (!this.selectedApplicationForAssignment?.applicationId) {
+      this.toastr.error('Application ID not found');
+      return;
+    }
+
+    this.isAssignmentSubmitting = true;
+
+    // Combine date and time in the format "YYYY-MM-DD HH:MM"
+    const expirationDateTime = `${this.assignmentExpirationDate} ${this.assignmentExpirationTime}`;
+
+    this.jobOpeningsService.assignAssignmentToApplicant(
+      this.selectedAssignmentId,
+      this.selectedApplicationForAssignment.applicationId,
+      expirationDateTime
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.isAssignmentSubmitting = false;
+        this.assignmentSelectionOverlay?.closeOverlay();
+        this.toastr.success('Assignment sent successfully');
+        // Reset form
+        this.selectedAssignmentId = null;
+        this.assignmentExpirationDate = '';
+        this.assignmentExpirationTime = '';
+        this.assignmentSearchTerm = '';
+        this.assignmentSelectionTouched = false;
+        this.assignmentExpirationDateTouched = false;
+        this.selectedApplicationForAssignment = null;
+        // Refresh applicants list
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+      },
+      error: (error) => {
+        this.isAssignmentSubmitting = false;
+        const errorMessage = error?.error?.message || error?.message || 'Failed to send assignment';
+        this.toastr.error(errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Open Mark as Called modal
+   */
+  openMarkAsCalledModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.selectedApplicationForMarkAsCalled = applicant;
+    this.showMarkAsCalledModal = true;
+  }
+
+  /**
+   * Close Mark as Called modal
+   */
+  closeMarkAsCalledModal(): void {
+    this.showMarkAsCalledModal = false;
+    this.selectedApplicationForMarkAsCalled = null;
+  }
+
+  /**
+   * Check if applicant contact status is "Called"
+   */
+  isContactStatusCalled(applicant: any): boolean {
+    return applicant?.applicantContactStatus === 'Called';
+  }
+
+  /**
+   * Get the button text for Mark as Called / Call Again
+   */
+  getMarkAsCalledButtonText(applicant: any): string {
+    return this.isContactStatusCalled(applicant) ? 'Call Again' : 'Mark as Called';
+  }
+
+  /**
+   * Confirm Mark as Called / Call Again
+   */
+  confirmMarkAsCalled(): void {
+    if (!this.selectedApplicationForMarkAsCalled?.applicationId) return;
+
+    // If status is already "Called", use status 2 (Call Again), otherwise use status 1 (Called)
+    const contactStatus = this.isContactStatusCalled(this.selectedApplicationForMarkAsCalled) ? 2 : 1;
+    const actionText = contactStatus === 2 ? 'Call Again' : 'Mark as Called';
+
+    this.jobOpeningsService.updateApplicantContactStatus(
+      this.selectedApplicationForMarkAsCalled.applicationId,
+      contactStatus // 1 - Called, 2 - Call Again
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.closeMarkAsCalledModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+        this.toastr.success(`Candidate ${actionText.toLowerCase()} successfully`);
+      },
+      error: (error) => {
+        console.error(`Error ${actionText.toLowerCase()}:`, error);
+        this.toastr.error(`Failed to ${actionText.toLowerCase()}`);
+        this.closeMarkAsCalledModal();
+      }
+    });
+  }
+
+  /**
+   * Open Not Interested modal
+   */
+  openNotInterestedModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.selectedApplicationForNotInterested = applicant;
+    this.showNotInterestedModal = true;
+  }
+
+  /**
+   * Close Not Interested modal
+   */
+  closeNotInterestedModal(): void {
+    this.showNotInterestedModal = false;
+    this.selectedApplicationForNotInterested = null;
+  }
+
+  /**
+   * Confirm Not Interested
+   */
+  confirmNotInterested(): void {
+    if (!this.selectedApplicationForNotInterested?.applicationId) return;
+
+    // Contact Status 3 = Not Interested
+    this.jobOpeningsService.updateApplicantContactStatus(
+      this.selectedApplicationForNotInterested.applicationId,
+      3 // 3 - Not Interested
+    ).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.closeNotInterestedModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+        this.toastr.success('Application marked as not interested');
+      },
+      error: (error) => {
+        console.error('Error marking as not interested:', error);
+        this.toastr.error('Failed to mark as not interested');
+        this.closeNotInterestedModal();
+      }
+    });
+  }
+
+  /**
+   * Open Reject modal
+   */
+  openRejectModal(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+
+    // Close dropdown
+    this.openDropdownApplicationId = null;
+
+    this.selectedApplicationForReject = applicant;
+    this.rejectionNotes = '';
+    this.rejectionMailMessage = '';
+    this.showRejectModal = true;
+  }
+
+  /**
+   * Close Reject modal
+   */
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.selectedApplicationForReject = null;
+    this.rejectionNotes = '';
+    this.rejectionMailMessage = '';
+  }
+
+  /**
+   * Confirm Reject
+   */
+  confirmReject(): void {
+    if (!this.selectedApplicationForReject?.applicationId) return;
+
+    // Contact Status 3 = Not Interested (Reject also uses status 3)
+    this.jobOpeningsService.updateApplicantContactStatus(
+      this.selectedApplicationForReject.applicationId,
+      3 // 3 - Not Interested
+    ).subscribe({
+      next: () => {
+        this.closeRejectModal();
+        this.loadApplicants();
+        this.getJobOpeningDetails(this.jobOpening.id);
+        this.toastr.success('Application rejected successfully');
+      },
+      error: (error) => {
+        console.error('Error rejecting application:', error);
+        this.toastr.error('Failed to reject application');
+        this.closeRejectModal();
+      }
+    });
+  }
+
+  /**
    * Reset interview form
    */
   resetInterviewForm(): void {
@@ -860,6 +1475,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.interview_type = 1;
     this.location = '';
     this.validationErrors = {};
+    this.currentInterviewId = null;
   }
 
   /**
@@ -867,7 +1483,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   loadDepartments(): void {
     this.departmentsLoading = true;
-    this.departmentsService.getAllDepartment(1, 10000).subscribe({
+    this.departmentsService.getAllDepartment(1, 10000).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (res) => {
         const items = res?.data?.list_items ?? res?.list_items ?? [];
         this.departments = Array.isArray(items)
@@ -915,7 +1533,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   private loadSectionsForDepartment(deptId: number): void {
     this.sectionsLoading = true;
-    this.departmentsService.showDepartment(deptId).subscribe({
+    this.departmentsService.showDepartment(deptId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (deptRes) => {
         const deptInfo = deptRes?.data?.object_info ?? deptRes?.object_info ?? {};
         const sectionsList = deptInfo?.sections ?? [];
@@ -940,7 +1560,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   private loadEmployeesForSection(sectionId: number): void {
     this.employeesLoading = true;
-    this.employeeService.getEmployees(1, 10000, '', { section: sectionId }).subscribe({
+    this.employeeService.getEmployees(1, 10000, '', { section: sectionId }).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (empRes) => {
         const items = empRes?.data?.list_items ?? [];
         this.employees = Array.isArray(items)
@@ -970,6 +1592,10 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
     this.sections = [];
     this.employees = [];
 
+    // Clear validation errors for dependent fields
+    this.clearValidationError('section');
+    this.clearValidationError('interviewer');
+
     if (!this.department) {
       return;
     }
@@ -983,6 +1609,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   onSectionChange(): void {
     this.interviewer = '';
     this.employees = [];
+
+    // Clear validation error for interviewer when section changes
+    this.clearValidationError('interviewer');
 
     if (!this.section) {
       return;
@@ -1017,6 +1646,33 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle interview title blur
+   */
+  onInterviewTitleBlur(): void {
+    if (!this.interviewTitle || !this.interviewTitle.trim()) {
+      this.validationErrors.title = 'Interview title is required';
+    } else {
+      this.clearValidationError('title');
+    }
+  }
+
+  /**
+   * Handle interview date change from date picker
+   */
+  onInterviewDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Extract date part (YYYY-MM-DD) from ISO format (YYYY-MM-DDTHH:mm:ss.sssZ) if needed
+      // Handle both ISO format and YYYY-MM-DD format
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.date = dateOnly;
+    } else {
+      this.date = '';
+    }
+    this.clearValidationError('date');
+    this.onInterviewFormChange();
+  }
+
+  /**
    * Submit interview
    */
   submitInterview(): void {
@@ -1030,36 +1686,66 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validate interview title
+    if (!this.interviewTitle || !this.interviewTitle.trim()) {
+      this.validationErrors.title = 'Interview title is required';
+      hasErrors = true;
+    }
+
+    // Validate department
+    if (!this.department) {
+      this.validationErrors.department = 'Please select a department';
+      hasErrors = true;
+    }
+
+    // Validate section
+    if (!this.section) {
+      this.validationErrors.section = 'Please select a section';
+      hasErrors = true;
+    }
+
+    // Validate interviewer
     if (!this.interviewer) {
       this.validationErrors.interviewer = 'Please select an interviewer';
       hasErrors = true;
     }
 
+    // Validate date
     if (!this.date || !this.date.trim()) {
       this.validationErrors.date = 'Please select a date';
       hasErrors = true;
     }
 
+    // Validate time from
     if (!this.time_from || !this.time_from.trim()) {
       this.validationErrors.time_from = 'Please enter start time';
       hasErrors = true;
     }
 
+    // Validate time to
     if (!this.time_to || !this.time_to.trim()) {
       this.validationErrors.time_to = 'Please enter end time';
       hasErrors = true;
     }
 
-    // Only require location for offline interviews
+    // Validate interview type
+    if (!this.interview_type || (this.interview_type !== 1 && this.interview_type !== 2)) {
+      this.validationErrors.interview_type = 'Please select an interview type';
+      hasErrors = true;
+    }
+
+    // Validate location for offline interviews
     if (this.interview_type === 1 && !this.location) {
       this.validationErrors.location = 'Please select a location';
       hasErrors = true;
     }
 
-    // Validate time logic
-    if (this.time_from && this.time_to && this.time_from >= this.time_to) {
-      this.validationErrors.time_to = 'End time must be after start time';
-      hasErrors = true;
+    // Validate time logic (only if both times are provided)
+    if (this.time_from && this.time_to && this.time_from.trim() && this.time_to.trim()) {
+      if (this.time_from >= this.time_to) {
+        this.validationErrors.time_to = 'End time must be after start time';
+        hasErrors = true;
+      }
     }
 
     if (hasErrors) {
@@ -1080,19 +1766,44 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       location: this.interview_type === 2 ? null : this.location!,
     };
 
-    // Create new interview
-    this.jobOpeningsService.createInterview(this.currentApplicationId!, payload).subscribe({
-      next: () => {
-        this.submitting = false;
-        this.closeAllOverlays();
-        this.resetInterviewForm();
-        this.loadApplicants();
-        this.getJobOpeningDetails(this.jobOpening.id);
-      },
-      error: () => {
-        this.submitting = false;
-      }
-    });
+    // Check if this is a reschedule (has currentInterviewId)
+    if (this.currentInterviewId && this.overlayTitle === 'Reschedule Interview') {
+      // Reschedule existing interview
+      this.jobOpeningsService.rescheduleInterview(this.currentInterviewId, payload).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.closeAllOverlays();
+          this.resetInterviewForm();
+          this.currentInterviewId = null;
+          this.loadApplicants();
+          this.getJobOpeningDetails(this.jobOpening.id);
+          this.toastr.success('Interview rescheduled successfully');
+        },
+        error: () => {
+          this.submitting = false;
+          this.toastr.error('Failed to reschedule interview');
+        }
+      });
+    } else {
+      // Create new interview
+      this.jobOpeningsService.createInterview(this.currentApplicationId!, payload).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.closeAllOverlays();
+          this.resetInterviewForm();
+          this.currentInterviewId = null;
+          this.loadApplicants();
+          this.getJobOpeningDetails(this.jobOpening.id);
+        },
+        error: () => {
+          this.submitting = false;
+        }
+      });
+    }
   }
 
   /**
@@ -1215,15 +1926,23 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   confirmMarkQualified(): void {
     if (!this.selectedApplicant?.applicationId) return;
 
+    const applicationId = this.selectedApplicant.applicationId;
+
     // Status 4 = Qualified
-    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 4).subscribe({
+    this.jobOpeningsService.updateApplicationStatus(applicationId, 4).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: () => {
         this.closeQualifiedModal();
         this.loadApplicants();
-        this.getJobOpeningDetails(this.jobOpening.id);
+        if (this.jobOpening?.id) {
+          this.getJobOpeningDetails(this.jobOpening.id);
+        }
+        this.toastr.success('Applicant marked as qualified successfully');
       },
       error: (error) => {
         console.error('Error marking applicant as qualified:', error);
+        this.toastr.error('Failed to mark applicant as qualified');
         this.closeQualifiedModal();
       }
     });
@@ -1234,6 +1953,9 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    */
   openJobOfferModal(applicant: Applicant): void {
     if (!applicant?.applicationId) return;
+
+    // Close dropdown
+    this.openDropdownApplicationId = null;
 
     // Reset job offer form
     this.resetJobOfferForm();
@@ -1364,6 +2086,37 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle join date change from date picker
+   */
+  onJoinDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.offerJoinDate = dateStr;
+      // Clear validation error when date changes
+      delete this.jobOfferValidationErrors.joinDate;
+      // Validate the new date
+      this.validateJoinDateField();
+    } else {
+      this.offerJoinDate = '';
+      delete this.jobOfferValidationErrors.joinDate;
+    }
+  }
+
+  /**
+   * Handle contract end date change from date picker
+   */
+  onContractEndDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.contractEndDate = dateStr;
+    } else {
+      this.contractEndDate = '';
+    }
+  }
+
+  /**
    * Validate join date field
    */
   validateJoinDateField(): void {
@@ -1472,6 +2225,8 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    * Open accept offer confirmation modal
    */
   openAcceptOfferConfirmation(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
     this.selectedApplicant = applicant;
     this.isAcceptOfferModalOpen = true;
   }
@@ -1485,21 +2240,117 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm and accept job offer (move to New Joiner status)
+   * Open decline offer confirmation modal
+   */
+  openDeclineOfferConfirmation(applicant: Applicant): void {
+    if (!applicant?.applicationId) return;
+    this.openDropdownApplicationId = null;
+    this.selectedApplicant = applicant;
+    this.isDeclineOfferModalOpen = true;
+  }
+
+  /**
+   * Close decline offer confirmation modal
+   */
+  closeDeclineOfferModal(): void {
+    this.isDeclineOfferModalOpen = false;
+    this.selectedApplicant = null;
+  }
+
+  /**
+   * Confirm and accept job offer
    */
   confirmAcceptOffer(): void {
     if (!this.selectedApplicant?.applicationId) return;
 
-    // Status 6 = Accepted / New Joiner
-    this.jobOpeningsService.updateApplicationStatus(this.selectedApplicant.applicationId, 6).subscribe({
-      next: () => {
-        this.closeAcceptOfferModal();
-        this.loadApplicants();
-        this.getJobOpeningDetails(this.jobOpening.id);
+    const applicationId = this.selectedApplicant.applicationId;
+
+    // First, get the job offer ID by fetching job offer details
+    this.jobOpeningsService.getJobOffer(applicationId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        const jobOffer = response.data?.object_info || response.data || response;
+        const jobOfferId = jobOffer.id;
+
+        if (!jobOfferId) {
+          this.toastr.error('Job offer not found');
+          this.closeAcceptOfferModal();
+          return;
+        }
+
+        // Accept the job offer (status: 1)
+        this.jobOpeningsService.acceptJobOffer(jobOfferId, applicationId).pipe(
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: () => {
+            this.closeAcceptOfferModal();
+            this.loadApplicants();
+            if (this.jobOpening?.id) {
+              this.getJobOpeningDetails(this.jobOpening.id);
+            }
+            this.toastr.success('Job offer accepted successfully');
+          },
+          error: (error) => {
+            console.error('Error accepting job offer:', error);
+            this.toastr.error('Failed to accept job offer');
+            this.closeAcceptOfferModal();
+          }
+        });
       },
       error: (error) => {
-        console.error('Error accepting job offer:', error);
+        console.error('Error fetching job offer:', error);
+        this.toastr.error('Failed to fetch job offer details');
         this.closeAcceptOfferModal();
+      }
+    });
+  }
+
+  /**
+   * Confirm and decline job offer
+   */
+  confirmDeclineOffer(): void {
+    if (!this.selectedApplicant?.applicationId) return;
+
+    const applicationId = this.selectedApplicant.applicationId;
+
+    // First, get the job offer ID by fetching job offer details
+    this.jobOpeningsService.getJobOffer(applicationId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        const jobOffer = response.data?.object_info || response.data || response;
+        const jobOfferId = jobOffer.id;
+
+        if (!jobOfferId) {
+          this.toastr.error('Job offer not found');
+          this.closeDeclineOfferModal();
+          return;
+        }
+
+        // Decline the job offer (status: 2)
+        this.jobOpeningsService.declineJobOffer(jobOfferId, applicationId).pipe(
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: () => {
+            this.closeDeclineOfferModal();
+            this.loadApplicants();
+            if (this.jobOpening?.id) {
+              this.getJobOpeningDetails(this.jobOpening.id);
+            }
+            this.toastr.success('Job offer declined successfully');
+          },
+          error: (error) => {
+            console.error('Error declining job offer:', error);
+            this.toastr.error('Failed to decline job offer');
+            this.closeDeclineOfferModal();
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching job offer:', error);
+        this.toastr.error('Failed to fetch job offer details');
+        this.closeDeclineOfferModal();
       }
     });
   }
@@ -1554,6 +2405,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Cancel all subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.tabDestroy$.next();
+    this.tabDestroy$.complete();
     this.searchSubject.complete();
   }
 }
