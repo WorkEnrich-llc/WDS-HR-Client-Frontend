@@ -764,3 +764,21 @@ button[title="Copy description"]:hover {
         font-size: 13px;
     }
 }
+
+/* Interview Status Icon Styles */
+.status-icon-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.status-icon-circle svg {
+    width: 18px;
+    height: 18px;
+}

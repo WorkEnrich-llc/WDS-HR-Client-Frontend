@@ -577,7 +577,7 @@
 
     <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="6" [headerTemplate]="applicantTableHeader"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="activeTab === 'interviewee' ? 7 : 6" [headerTemplate]="applicantTableHeader"
       [rowTemplate]="applicantTableRow" [skeletonTemplate]="applicantSkeleton"
       [emptyTemplate]="noApplicants"></app-table>
 
@@ -605,6 +605,9 @@
       <th>Phone number</th>
       <th>Email</th>
       <th>Status</th>
+      @if (activeTab === 'interviewee') {
+      <th>Interview Status</th>
+      }
       <th style="text-align: center;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd"
@@ -629,6 +632,11 @@
       <td class="w-15">
         <div class="skeleton-block h-4 w-full"></div>
       </td>
+      @if (activeTab === 'interviewee') {
+      <td class="w-15">
+        <div class="skeleton-block h-4 w-full"></div>
+      </td>
+      }
       <td class="w-10">
         <div class="skeleton-block h-4 w-full"></div>
       </td>
@@ -853,6 +861,52 @@
         }
         }
       </td>
+      @if (activeTab === 'interviewee') {
+      <td>
+        @if (application.intervieweeInfo?.status) {
+        @let interviewStatusConfig = getInterviewStatusConfig(application.intervieweeInfo.status);
+        <div class="d-flex align-items-center gap-2">
+          <div class="status-icon-circle" [style.background-color]="interviewStatusConfig.bgColor"
+            [style.color]="interviewStatusConfig.color">
+            @if (interviewStatusConfig.icon === 'check-circle') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+            } @else if (interviewStatusConfig.icon === 'times-circle') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+            </svg>
+            } @else if (interviewStatusConfig.icon === 'calendar-alt') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5z" />
+            </svg>
+            } @else if (interviewStatusConfig.icon === 'clock') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+            </svg>
+            } @else if (interviewStatusConfig.icon === 'paper-plane') {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            }
+          </div>
+          <span class="fw-semibold" [style.color]="interviewStatusConfig.color">
+            {{ application.intervieweeInfo.status }}
+          </span>
+        </div>
+        } @else {
+        <span class="text-gray-sm">—</span>
+        }
+      </td>
+      }
       <td style="position: relative; text-align: center;">
         <div
           style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;"

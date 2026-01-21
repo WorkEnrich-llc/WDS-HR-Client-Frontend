@@ -39,6 +39,11 @@ type Applicant = {
   email: string;
   status: string;
   statusAt: string;
+  intervieweeInfo?: {
+    key: string; // "upcoming" | "previous"
+    interview_at: string;
+    status: string; // "Expired", "Completed", "Rejected", "Accepted", "Reschedule", "Sent", etc.
+  };
   jobOfferInfo?: {
     offer_status: string; // "Sent", "Accepted", "Rejected", etc.
     offer_sent_at: string;
@@ -365,7 +370,11 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             status: item.status || 'N/A',
             statusAt: item.created_at || item.updated_at || 'N/A',
             applicantContactStatus: item.applicant_contact_status || null, // Contact status: "Called", "Call Again", "Not Interested", etc.
-            intervieweeInfo: item.interviewee_info || null, // Interview info: { key: "upcoming" | "previous", interview_at: "YYYY-MM-DD" }
+            intervieweeInfo: item.interviewee_info ? {
+              key: item.interviewee_info.key || null,
+              interview_at: item.interviewee_info.interview_at || null,
+              status: item.interviewee_info.status || null
+            } : null, // Interview info: { key: "upcoming" | "previous", interview_at: "YYYY-MM-DD", status: "Expired" | "Completed" | etc. }
             jobOfferInfo: item.job_offer_info ? {
               offer_status: item.job_offer_info.offer_status || '',
               offer_sent_at: item.job_offer_info.offer_sent_at || '',
@@ -2462,6 +2471,58 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         applicant_id: applicant.applicantId
       }
     });
+  }
+
+  /**
+   * Get status icon and color for interview status
+   */
+  getInterviewStatusConfig(status: string): { icon: string; color: string; bgColor: string } {
+    const normalizedStatus = status?.toLowerCase() || '';
+    
+    switch (normalizedStatus) {
+      case 'completed':
+        return {
+          icon: 'check-circle',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      case 'rejected':
+        return {
+          icon: 'times-circle',
+          color: '#EF4444', // Red
+          bgColor: '#FEE2E2'
+        };
+      case 'accepted':
+        return {
+          icon: 'check-circle',
+          color: '#10B981', // Green
+          bgColor: '#D1FAE5'
+        };
+      case 'reschedule':
+        return {
+          icon: 'calendar-alt',
+          color: '#F59E0B', // Orange/Amber
+          bgColor: '#FEF3C7'
+        };
+      case 'expired':
+        return {
+          icon: 'clock',
+          color: '#6B7280', // Gray
+          bgColor: '#F3F4F6'
+        };
+      case 'sent':
+        return {
+          icon: 'paper-plane',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      default:
+        return {
+          icon: 'circle',
+          color: '#6B7280',
+          bgColor: '#F3F4F6'
+        };
+    }
   }
 
   /**
