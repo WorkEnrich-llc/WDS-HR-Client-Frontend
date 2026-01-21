@@ -101,6 +101,8 @@ export class ApplicantDetaisComponent implements OnInit {
   contractEndDate: string = '';
   // currently selected interview for feedback or view
   currentInterviewForFeedback: any = null;
+  // Track expanded feedback items
+  expandedFeedbackInterviews: Set<number> = new Set();
 
   // Assignment Selection
   availableAssignments: any[] = [];
@@ -258,6 +260,124 @@ export class ApplicantDetaisComponent implements OnInit {
   // Check if interview is sent
   isInterviewSent(interview: any): boolean {
     return interview?.status === 'Sent' || interview?.status === 'sent';
+  }
+
+  // Check if interview is accepted
+  isInterviewAccepted(interview: any): boolean {
+    return interview?.status === 'Accepted' || interview?.status === 'accepted';
+  }
+
+  // Check if interview is reschedule
+  isInterviewReschedule(interview: any): boolean {
+    return interview?.status === 'Reschedule' || interview?.status === 'reschedule';
+  }
+
+  /**
+   * Get status icon and color for interview
+   */
+  getInterviewStatusConfig(status: string): { icon: string; color: string; bgColor: string } {
+    const normalizedStatus = status?.toLowerCase() || '';
+    
+    switch (normalizedStatus) {
+      case 'completed':
+        return {
+          icon: 'check-circle',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      case 'rejected':
+        return {
+          icon: 'times-circle',
+          color: '#EF4444', // Red
+          bgColor: '#FEE2E2'
+        };
+      case 'accepted':
+        return {
+          icon: 'check-circle',
+          color: '#10B981', // Green
+          bgColor: '#D1FAE5'
+        };
+      case 'reschedule':
+        return {
+          icon: 'calendar-alt',
+          color: '#F59E0B', // Orange/Amber
+          bgColor: '#FEF3C7'
+        };
+      case 'expired':
+        return {
+          icon: 'clock',
+          color: '#6B7280', // Gray
+          bgColor: '#F3F4F6'
+        };
+      case 'sent':
+        return {
+          icon: 'paper-plane',
+          color: '#3B82F6', // Blue
+          bgColor: '#DBEAFE'
+        };
+      default:
+        return {
+          icon: 'circle',
+          color: '#6B7280',
+          bgColor: '#F3F4F6'
+        };
+    }
+  }
+
+  /**
+   * Calculate overall rating from feedbacks
+   */
+  getOverallRating(feedbacks: any[]): number {
+    if (!feedbacks || feedbacks.length === 0) return 0;
+    const sum = feedbacks.reduce((acc, fb) => acc + (fb.rating || 0), 0);
+    return sum / feedbacks.length;
+  }
+
+  /**
+   * Format date and time for display
+   */
+  formatInterviewDateTime(date: string, timeFrom: string, timeTo: string): string {
+    if (!date) return '';
+    const dateObj = new Date(date);
+    const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    
+    if (timeFrom) {
+      const timeFromFormatted = this.formatTime(timeFrom);
+      const timeToFormatted = timeTo ? this.formatTime(timeTo) : '';
+      return `${formattedDate} ${timeFromFormatted}${timeToFormatted ? ' - ' + timeToFormatted : ''}`;
+    }
+    
+    return formattedDate;
+  }
+
+  /**
+   * Format time string (HH:mm:ss) to readable format
+   */
+  formatTime(timeString: string): string {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  }
+
+  /**
+   * Toggle feedback expansion for an interview
+   */
+  toggleFeedbackExpansion(feedbackId: number): void {
+    if (this.expandedFeedbackInterviews.has(feedbackId)) {
+      this.expandedFeedbackInterviews.delete(feedbackId);
+    } else {
+      this.expandedFeedbackInterviews.add(feedbackId);
+    }
+  }
+
+  /**
+   * Check if feedback is expanded for an interview
+   */
+  isFeedbackExpanded(feedbackId: number): boolean {
+    return this.expandedFeedbackInterviews.has(feedbackId);
   }
 
   // Stub: open create interview overlay

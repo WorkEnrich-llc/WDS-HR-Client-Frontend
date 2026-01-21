@@ -717,3 +717,345 @@
 .new-job-offer-btn {
     cursor: pointer;
 }
+
+/* Interview Section Styles - Redesigned to match Figma */
+.interviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.interview-entry {
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.interview-entry.last-item {
+    border-bottom: none;
+}
+
+/* Interview Header Row */
+.interview-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.interview-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.interview-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.view-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-link:hover {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.view-icon-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    transition: all 0.2s ease;
+}
+
+.view-link:hover .view-icon-circle {
+    background-color: #dbeafe;
+}
+
+.interview-datetime {
+    display: flex;
+    align-items: center;
+}
+
+.date-time-text {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+/* Status Section */
+.interview-status-section {
+    margin-top: 12px;
+}
+
+.status-indicator-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.status-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    box-shadow: none;
+    margin-top: 10px;
+}
+
+.status-icon-circle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.status-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Completed Status Styles */
+.completed-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.overall-rating {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.feedback-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.feedback-item-wrapper {
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.feedback-item-wrapper:last-child {
+    border-bottom: none;
+}
+
+.feedback-toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s ease;
+}
+
+.feedback-toggle-btn:hover {
+    background-color: transparent;
+}
+
+.chevron-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 40px;
+}
+
+.chevron-icon {
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+    transition: transform 0.2s ease;
+    border: none;
+    box-shadow: none;
+}
+
+.chevron-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.feedback-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.feedback-title-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.feedback-interviewer-name {
+    font-size: 14px;
+    color: #111827;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.feedback-rating {
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.feedback-expanded-content {
+    padding: 12px 0 12px 28px;
+    border-top: 1px solid #f3f4f6;
+    margin-top: 8px;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+.feedback-comment {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.feedback-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.edit-feedback-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #3b82f6;
+    border-radius: 6px;
+    color: #3b82f6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.edit-feedback-btn:hover {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.edit-feedback-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Rejected Status Styles */
+.rejected-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rejection-date {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.rejection-message {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+    padding-left: 12px;
+    border-left: 3px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Accepted Status Styles */
+.accepted-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.accepted-date {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Reschedule Status Styles */
+.reschedule-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reschedule-date {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.reschedule-available {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Expired Status Styles */
+.expired-status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.expired-date {
+    font-size: 14px;
+    font-weight: 500;
+}
