@@ -577,7 +577,7 @@
 
     <app-table [data]="applicant" [isLoading]="applicantsLoading" [totalItems]="totalItems"
       [itemsPerPage]="itemsPerPage" [currentPage]="currentPage" (pageChange)="onPageChange($event)"
-      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="activeTab === 'interviewee' ? 7 : 6" [headerTemplate]="applicantTableHeader"
+      (itemsPerPageChange)="onItemsPerPageChange($event)" [columnsCount]="6" [headerTemplate]="applicantTableHeader"
       [rowTemplate]="applicantTableRow" [skeletonTemplate]="applicantSkeleton"
       [emptyTemplate]="noApplicants"></app-table>
 
@@ -605,9 +605,6 @@
       <th>Phone number</th>
       <th>Email</th>
       <th>Status</th>
-      @if (activeTab === 'interviewee') {
-      <th>Interview Status</th>
-      }
       <th style="text-align: center;"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"
           xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd"
@@ -632,11 +629,6 @@
       <td class="w-15">
         <div class="skeleton-block h-4 w-full"></div>
       </td>
-      @if (activeTab === 'interviewee') {
-      <td class="w-15">
-        <div class="skeleton-block h-4 w-full"></div>
-      </td>
-      }
       <td class="w-10">
         <div class="skeleton-block h-4 w-full"></div>
       </td>
@@ -716,158 +708,11 @@
             </span>
           </div>
           } @else if (application.intervieweeInfo.key === 'previous') {
-          <!-- Previous Interview - Green Color -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="#10b981" stroke-width="1.5" style="flex-shrink: 0;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-success fw-semibold">Interviewed at</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-          }
-        </div>
-        } @else if (activeTab === 'qualified') {
-        <!-- Qualified Status Display -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
-            style="flex-shrink: 0;">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.00012 0.9375C7.62933 0.9375 6.49597 1.05824 5.6238 1.2054L5.52266 1.22237C4.76499 1.3492 4.13525 1.45461 3.64284 2.06106C3.32706 2.44998 3.22517 2.87029 3.20168 3.33983L2.83264 3.46284C2.4853 3.5786 2.18086 3.68006 1.93933 3.79242C1.67822 3.91389 1.43893 4.07035 1.256 4.32416C1.07307 4.57797 1.00031 4.85446 0.967653 5.14058C0.937443 5.40525 0.937471 5.72616 0.937502 6.09228L0.937505 6.2012C0.937497 6.50256 0.937489 6.76873 0.959737 6.99135C0.983849 7.23261 1.03725 7.46716 1.17062 7.69383C1.304 7.92051 1.48311 8.08109 1.6823 8.21933C1.8661 8.34688 2.09877 8.47613 2.36221 8.62247L4.34308 9.72298C4.74763 10.5189 5.30336 11.2285 6.06763 11.7411C6.73291 12.1873 7.53135 12.4674 8.47711 12.5423C8.45155 12.6065 8.4375 12.6766 8.4375 12.75V14.0625H7.36486C6.73921 14.0625 6.20054 14.5041 6.07785 15.1176L5.91387 15.9375H4.5C4.18934 15.9375 3.9375 16.1893 3.9375 16.5C3.9375 16.8107 4.18934 17.0625 4.5 17.0625H13.5C13.8107 17.0625 14.0625 16.8107 14.0625 16.5C14.0625 16.1893 13.8107 15.9375 13.5 15.9375H12.0861L11.9222 15.1176C11.7995 14.5041 11.2608 14.0625 10.6352 14.0625H9.5625V12.75C9.5625 12.6766 9.54845 12.6065 9.5229 12.5423C10.4688 12.4674 11.2673 12.1873 11.9326 11.7411C12.6969 11.2285 13.2527 10.5188 13.6573 9.72278L15.6378 8.62247C15.9012 8.47613 16.1339 8.34688 16.3177 8.21933C16.5169 8.08109 16.696 7.92051 16.8293 7.69383C16.9627 7.46716 17.0161 7.23261 17.0402 6.99135C17.0625 6.76874 17.0625 6.50259 17.0625 6.20125L17.0625 6.09229C17.0625 5.72616 17.0625 5.40526 17.0323 5.14058C16.9997 4.85446 16.9269 4.57797 16.744 4.32416C16.561 4.07035 16.3218 3.91389 16.0606 3.79242C15.8191 3.68006 15.5147 3.5786 15.1673 3.46284L14.7986 3.33992C14.7751 2.87035 14.6732 2.45001 14.3574 2.06106C13.865 1.45461 13.2352 1.3492 12.4776 1.22237L12.3764 1.2054C11.5043 1.05824 10.3709 0.9375 9.00012 0.9375ZM10.9389 15.9375L10.819 15.3382C10.8015 15.2506 10.7245 15.1875 10.6352 15.1875H7.36486C7.27548 15.1875 7.19853 15.2506 7.181 15.3382L7.06115 15.9375H10.9389ZM3.21637 4.52079L3.22657 4.51739C3.28026 5.65761 3.40905 6.91782 3.72974 8.09527L2.93047 7.65122C2.6386 7.48906 2.45585 7.38679 2.32372 7.29509C2.20191 7.21056 2.16224 7.16071 2.14022 7.1233C2.11821 7.08589 2.09391 7.02701 2.07916 6.87947C2.06317 6.71944 2.06251 6.51002 2.06251 6.17613L2.0625 6.12174C2.06249 5.71743 2.06334 5.46143 2.0854 5.26817C2.10581 5.08928 2.13923 5.02277 2.16865 4.98195C2.19808 4.94113 2.2506 4.88839 2.41385 4.81245C2.59022 4.7304 2.83281 4.64864 3.21637 4.52079ZM14.7737 4.51747C14.72 5.65762 14.5912 6.91773 14.2705 8.09509L15.0695 7.65122C15.3614 7.48906 15.5441 7.38679 15.6762 7.29509C15.7981 7.21056 15.8377 7.16071 15.8597 7.1233C15.8818 7.08589 15.9061 7.02701 15.9208 6.87947C15.9368 6.71944 15.9375 6.51002 15.9375 6.17613L15.9375 6.12174C15.9375 5.71743 15.9366 5.46143 15.9146 5.26817C15.8942 5.08928 15.8607 5.02277 15.8313 4.98195C15.8019 4.94113 15.7494 4.88839 15.5861 4.81245C15.4098 4.7304 15.1672 4.64864 14.7836 4.52079L14.7737 4.51747ZM5.81097 2.31472C6.6249 2.17739 7.69559 2.0625 9.00012 2.0625C10.3046 2.0625 11.3753 2.17739 12.1893 2.31472C13.0944 2.46744 13.2846 2.52457 13.484 2.77019C13.6806 3.01224 13.6992 3.24117 13.6589 4.25754C13.5916 5.95152 13.3682 7.77955 12.6761 9.16981C12.3345 9.85608 11.8879 10.4165 11.306 10.8068C10.7278 11.1945 9.98192 11.4375 9.00012 11.4375C8.01832 11.4375 7.27242 11.1945 6.69427 10.8068C6.11237 10.4165 5.66574 9.85608 5.32413 9.16981C4.63208 7.77955 4.40861 5.95152 4.34136 4.25754C4.30101 3.24117 4.31967 3.01224 4.51621 2.77019C4.71563 2.52457 4.90578 2.46744 5.81097 2.31472Z"
-              fill="var(--color-primary-500)" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-primary fw-semibold">Qualified Since</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else if (application.jobOfferInfo && application.jobOfferInfo.offer_status === 'Sent') {
-        <!-- Job Offer Sent Status Display -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
-            <path d="M22 2L11 13" stroke="var(--color-primary-500)" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--color-primary-500)" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-primary fw-semibold">Offer sent at</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.jobOfferInfo.offer_sent_at | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else if (activeTab === 'accepted' && application.jobOfferInfo && application.jobOfferInfo.offer_status ===
-        'Accepted') {
-        <!-- Accepted Job Offer Status Display - Joining at -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
-            <path d="M22 2L11 13" stroke="var(--color-primary-500)" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--color-primary-500)" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-primary fw-semibold">Joining at</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ (application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy h:mm
-              a" }}
-            </span>
-          </div>
-        </div>
-        } @else if (activeTab === 'rejected') {
-        <!-- Rejected Status Display -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
-            style="flex-shrink: 0;">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.0001 0.9375C7.03259 0.9375 5.4376 2.53249 5.4376 4.5C5.4376 6.46751 7.03259 8.0625 9.0001 8.0625C10.9676 8.0625 12.5626 6.46751 12.5626 4.5C12.5626 2.53249 10.9676 0.9375 9.0001 0.9375ZM6.5626 4.5C6.5626 3.15381 7.65391 2.0625 9.0001 2.0625C10.3463 2.0625 11.4376 3.15381 11.4376 4.5C11.4376 5.84619 10.3463 6.9375 9.0001 6.9375C7.65391 6.9375 6.5626 5.84619 6.5626 4.5Z"
-              fill="#E04F5F" />
-            <path
-              d="M12.7501 11.4375C12.4394 11.4375 12.1876 11.6893 12.1876 12C12.1876 12.3107 12.4394 12.5625 12.7501 12.5625H14.2501C14.5608 12.5625 14.8126 12.3107 14.8126 12C14.8126 11.6893 14.5608 11.4375 14.2501 11.4375H12.7501Z"
-              fill="#E04F5F" />
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M9.0001 9.1875C9.72644 9.1875 10.4265 9.25654 11.0811 9.38468C11.7164 8.79679 12.5663 8.4375 13.5001 8.4375C15.4676 8.4375 17.0626 10.0325 17.0626 12C17.0626 13.3201 16.3446 14.4724 15.2779 15.0879C14.998 15.695 14.474 16.1772 13.5898 16.5064C12.6075 16.8721 11.1512 17.0625 9.0001 17.0625C7.48077 17.0625 6.31455 16.9672 5.41976 16.7861C4.52746 16.6055 3.86701 16.3321 3.39491 15.9477C2.43564 15.1665 2.4367 14.0729 2.43755 13.2015L2.4376 13.125C2.4376 11.8995 3.31471 10.9047 4.48169 10.2483C5.66629 9.58191 7.26494 9.1875 9.0001 9.1875ZM3.5626 13.125C3.5626 12.4865 4.02863 11.7939 5.03323 11.2288C6.0202 10.6736 7.42156 10.3125 9.0001 10.3125C9.45464 10.3125 9.89557 10.3425 10.3169 10.3987C10.0742 10.8801 9.9376 11.4241 9.9376 12C9.9376 13.792 11.2607 15.2749 12.9832 15.5253C12.1802 15.7775 10.9336 15.9375 9.0001 15.9375C7.51943 15.9375 6.43565 15.8439 5.64294 15.6835C4.84774 15.5225 4.38319 15.3016 4.10529 15.0753C3.59284 14.658 3.5626 14.1059 3.5626 13.125ZM13.5001 9.5625C12.1539 9.5625 11.0626 10.6538 11.0626 12C11.0626 13.3462 12.1539 14.4375 13.5001 14.4375C14.8463 14.4375 15.9376 13.3462 15.9376 12C15.9376 10.6538 14.8463 9.5625 13.5001 9.5625Z"
-              fill="#E04F5F" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-danger fw-semibold">Applicant - Rejected at</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else {
-        <!-- Default Status Display -->
-        @if (application.applicantContactStatus === 'Called') {
-        <!-- Called Status -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
-            <path fill="#10B981"
-              d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
-            <path fill="#10B981" fill-rule="evenodd"
-              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-              clip-rule="evenodd" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-success fw-semibold">Called</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else if (application.applicantContactStatus === 'Call Again') {
-        <!-- Call Again Status -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-            <path d="M1 4v6h6"></path>
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-warning fw-semibold">Call Again</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else if (application.applicantContactStatus === 'Not Interested') {
-        <!-- Not Interested Status -->
-        <div class="d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
-            <path fill="#E04F5F" fill-rule="evenodd"
-              d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
-            <path fill="#E04F5F" fill-rule="evenodd"
-              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
-              clip-rule="evenodd" />
-          </svg>
-          <div class="d-flex flex-column">
-            <span class="d-block text-danger fw-semibold">Not Interested</span>
-            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
-              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-            </span>
-          </div>
-        </div>
-        } @else {
-        <!-- Default Status -->
-        <span class="d-block text-gray-sm">{{ (application.applicantContactStatus && application.applicantContactStatus !== 'No Action') ? application.applicantContactStatus : application.status }}</span>
-        <span class="d-block text-truncate" style="max-width: 200px">
-          {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
-        </span>
-        }
-        }
-      </td>
-      @if (activeTab === 'interviewee') {
-      <td>
-        @if (application.intervieweeInfo?.status) {
-        @let interviewStatusConfig = getInterviewStatusConfig(application.intervieweeInfo.status);
-        <div class="d-flex align-items-center gap-2">
+          <!-- Previous Interview - Show Status -->
+          @if (application.intervieweeInfo?.status) {
+          @let interviewStatusConfig = getInterviewStatusConfig(application.intervieweeInfo.status);
           <div class="status-icon-circle" [style.background-color]="interviewStatusConfig.bgColor"
-            [style.color]="interviewStatusConfig.color">
+            [style.color]="interviewStatusConfig.color" style="flex-shrink: 0;">
             @if (interviewStatusConfig.icon === 'check-circle') {
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path
@@ -898,15 +743,164 @@
             </svg>
             }
           </div>
-          <span class="fw-semibold" [style.color]="interviewStatusConfig.color">
-            {{ application.intervieweeInfo.status }}
-          </span>
+          <div class="d-flex flex-column">
+            <span class="d-block fw-semibold" [style.color]="interviewStatusConfig.color">
+              {{ application.intervieweeInfo.status }}
+            </span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+          } @else {
+          <!-- Fallback if no status -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#10b981" stroke-width="1.5" style="flex-shrink: 0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block text-success fw-semibold">Interviewed at</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.intervieweeInfo.interview_at | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+          }
+          }
         </div>
-        } @else {
-        <span class="text-gray-sm">—</span>
-        }
+        } @else if (activeTab === 'qualified') {
+          <!-- Qualified Status Display -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
+              style="flex-shrink: 0;">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.00012 0.9375C7.62933 0.9375 6.49597 1.05824 5.6238 1.2054L5.52266 1.22237C4.76499 1.3492 4.13525 1.45461 3.64284 2.06106C3.32706 2.44998 3.22517 2.87029 3.20168 3.33983L2.83264 3.46284C2.4853 3.5786 2.18086 3.68006 1.93933 3.79242C1.67822 3.91389 1.43893 4.07035 1.256 4.32416C1.07307 4.57797 1.00031 4.85446 0.967653 5.14058C0.937443 5.40525 0.937471 5.72616 0.937502 6.09228L0.937505 6.2012C0.937497 6.50256 0.937489 6.76873 0.959737 6.99135C0.983849 7.23261 1.03725 7.46716 1.17062 7.69383C1.304 7.92051 1.48311 8.08109 1.6823 8.21933C1.8661 8.34688 2.09877 8.47613 2.36221 8.62247L4.34308 9.72298C4.74763 10.5189 5.30336 11.2285 6.06763 11.7411C6.73291 12.1873 7.53135 12.4674 8.47711 12.5423C8.45155 12.6065 8.4375 12.6766 8.4375 12.75V14.0625H7.36486C6.73921 14.0625 6.20054 14.5041 6.07785 15.1176L5.91387 15.9375H4.5C4.18934 15.9375 3.9375 16.1893 3.9375 16.5C3.9375 16.8107 4.18934 17.0625 4.5 17.0625H13.5C13.8107 17.0625 14.0625 16.8107 14.0625 16.5C14.0625 16.1893 13.8107 15.9375 13.5 15.9375H12.0861L11.9222 15.1176C11.7995 14.5041 11.2608 14.0625 10.6352 14.0625H9.5625V12.75C9.5625 12.6766 9.54845 12.6065 9.5229 12.5423C10.4688 12.4674 11.2673 12.1873 11.9326 11.7411C12.6969 11.2285 13.2527 10.5188 13.6573 9.72278L15.6378 8.62247C15.9012 8.47613 16.1339 8.34688 16.3177 8.21933C16.5169 8.08109 16.696 7.92051 16.8293 7.69383C16.9627 7.46716 17.0161 7.23261 17.0402 6.99135C17.0625 6.76874 17.0625 6.50259 17.0625 6.20125L17.0625 6.09229C17.0625 5.72616 17.0625 5.40526 17.0323 5.14058C16.9997 4.85446 16.9269 4.57797 16.744 4.32416C16.561 4.07035 16.3218 3.91389 16.0606 3.79242C15.8191 3.68006 15.5147 3.5786 15.1673 3.46284L14.7986 3.33992C14.7751 2.87035 14.6732 2.45001 14.3574 2.06106C13.865 1.45461 13.2352 1.3492 12.4776 1.22237L12.3764 1.2054C11.5043 1.05824 10.3709 0.9375 9.00012 0.9375ZM10.9389 15.9375L10.819 15.3382C10.8015 15.2506 10.7245 15.1875 10.6352 15.1875H7.36486C7.27548 15.1875 7.19853 15.2506 7.181 15.3382L7.06115 15.9375H10.9389ZM3.21637 4.52079L3.22657 4.51739C3.28026 5.65761 3.40905 6.91782 3.72974 8.09527L2.93047 7.65122C2.6386 7.48906 2.45585 7.38679 2.32372 7.29509C2.20191 7.21056 2.16224 7.16071 2.14022 7.1233C2.11821 7.08589 2.09391 7.02701 2.07916 6.87947C2.06317 6.71944 2.06251 6.51002 2.06251 6.17613L2.0625 6.12174C2.06249 5.71743 2.06334 5.46143 2.0854 5.26817C2.10581 5.08928 2.13923 5.02277 2.16865 4.98195C2.19808 4.94113 2.2506 4.88839 2.41385 4.81245C2.59022 4.7304 2.83281 4.64864 3.21637 4.52079ZM14.7737 4.51747C14.72 5.65762 14.5912 6.91773 14.2705 8.09509L15.0695 7.65122C15.3614 7.48906 15.5441 7.38679 15.6762 7.29509C15.7981 7.21056 15.8377 7.16071 15.8597 7.1233C15.8818 7.08589 15.9061 7.02701 15.9208 6.87947C15.9368 6.71944 15.9375 6.51002 15.9375 6.17613L15.9375 6.12174C15.9375 5.71743 15.9366 5.46143 15.9146 5.26817C15.8942 5.08928 15.8607 5.02277 15.8313 4.98195C15.8019 4.94113 15.7494 4.88839 15.5861 4.81245C15.4098 4.7304 15.1672 4.64864 14.7836 4.52079L14.7737 4.51747ZM5.81097 2.31472C6.6249 2.17739 7.69559 2.0625 9.00012 2.0625C10.3046 2.0625 11.3753 2.17739 12.1893 2.31472C13.0944 2.46744 13.2846 2.52457 13.484 2.77019C13.6806 3.01224 13.6992 3.24117 13.6589 4.25754C13.5916 5.95152 13.3682 7.77955 12.6761 9.16981C12.3345 9.85608 11.8879 10.4165 11.306 10.8068C10.7278 11.1945 9.98192 11.4375 9.00012 11.4375C8.01832 11.4375 7.27242 11.1945 6.69427 10.8068C6.11237 10.4165 5.66574 9.85608 5.32413 9.16981C4.63208 7.77955 4.40861 5.95152 4.34136 4.25754C4.30101 3.24117 4.31967 3.01224 4.51621 2.77019C4.71563 2.52457 4.90578 2.46744 5.81097 2.31472Z"
+                fill="var(--color-primary-500)" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-primary fw-semibold">Qualified Since</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else if (application.jobOfferInfo && application.jobOfferInfo.offer_status === 'Sent') {
+          <!-- Job Offer Sent Status Display -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
+              <path d="M22 2L11 13" stroke="var(--color-primary-500)" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--color-primary-500)" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-primary fw-semibold">Offer sent at</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.jobOfferInfo.offer_sent_at | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else if (activeTab === 'accepted' && application.jobOfferInfo && application.jobOfferInfo.offer_status ===
+          'Accepted') {
+          <!-- Accepted Job Offer Status Display - Joining at -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="var(--color-primary-500)" stroke-width="1.5" style="flex-shrink: 0;">
+              <path d="M22 2L11 13" stroke="var(--color-primary-500)" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--color-primary-500)" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-primary fw-semibold">Joining at</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ (application.jobOfferInfo.join_date || application.jobOfferInfo.accepted_at) | date : "dd/MM/yyyy
+                h:mm
+                a" }}
+              </span>
+            </div>
+          </div>
+          } @else if (activeTab === 'rejected') {
+          <!-- Rejected Status Display -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"
+              style="flex-shrink: 0;">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.0001 0.9375C7.03259 0.9375 5.4376 2.53249 5.4376 4.5C5.4376 6.46751 7.03259 8.0625 9.0001 8.0625C10.9676 8.0625 12.5626 6.46751 12.5626 4.5C12.5626 2.53249 10.9676 0.9375 9.0001 0.9375ZM6.5626 4.5C6.5626 3.15381 7.65391 2.0625 9.0001 2.0625C10.3463 2.0625 11.4376 3.15381 11.4376 4.5C11.4376 5.84619 10.3463 6.9375 9.0001 6.9375C7.65391 6.9375 6.5626 5.84619 6.5626 4.5Z"
+                fill="#E04F5F" />
+              <path
+                d="M12.7501 11.4375C12.4394 11.4375 12.1876 11.6893 12.1876 12C12.1876 12.3107 12.4394 12.5625 12.7501 12.5625H14.2501C14.5608 12.5625 14.8126 12.3107 14.8126 12C14.8126 11.6893 14.5608 11.4375 14.2501 11.4375H12.7501Z"
+                fill="#E04F5F" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.0001 9.1875C9.72644 9.1875 10.4265 9.25654 11.0811 9.38468C11.7164 8.79679 12.5663 8.4375 13.5001 8.4375C15.4676 8.4375 17.0626 10.0325 17.0626 12C17.0626 13.3201 16.3446 14.4724 15.2779 15.0879C14.998 15.695 14.474 16.1772 13.5898 16.5064C12.6075 16.8721 11.1512 17.0625 9.0001 17.0625C7.48077 17.0625 6.31455 16.9672 5.41976 16.7861C4.52746 16.6055 3.86701 16.3321 3.39491 15.9477C2.43564 15.1665 2.4367 14.0729 2.43755 13.2015L2.4376 13.125C2.4376 11.8995 3.31471 10.9047 4.48169 10.2483C5.66629 9.58191 7.26494 9.1875 9.0001 9.1875ZM3.5626 13.125C3.5626 12.4865 4.02863 11.7939 5.03323 11.2288C6.0202 10.6736 7.42156 10.3125 9.0001 10.3125C9.45464 10.3125 9.89557 10.3425 10.3169 10.3987C10.0742 10.8801 9.9376 11.4241 9.9376 12C9.9376 13.792 11.2607 15.2749 12.9832 15.5253C12.1802 15.7775 10.9336 15.9375 9.0001 15.9375C7.51943 15.9375 6.43565 15.8439 5.64294 15.6835C4.84774 15.5225 4.38319 15.3016 4.10529 15.0753C3.59284 14.658 3.5626 14.1059 3.5626 13.125ZM13.5001 9.5625C12.1539 9.5625 11.0626 10.6538 11.0626 12C11.0626 13.3462 12.1539 14.4375 13.5001 14.4375C14.8463 14.4375 15.9376 13.3462 15.9376 12C15.9376 10.6538 14.8463 9.5625 13.5001 9.5625Z"
+                fill="#E04F5F" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-danger fw-semibold">Applicant - Rejected at</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else {
+          <!-- Default Status Display -->
+          @if (application.applicantContactStatus === 'Called') {
+          <!-- Called Status -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
+              <path fill="#10B981"
+                d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+              <path fill="#10B981" fill-rule="evenodd"
+                d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                clip-rule="evenodd" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-success fw-semibold">Called</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else if (application.applicantContactStatus === 'Call Again') {
+          <!-- Call Again Status -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="M1 4v6h6"></path>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-warning fw-semibold">Call Again</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else if (application.applicantContactStatus === 'Not Interested') {
+          <!-- Not Interested Status -->
+          <div class="d-flex align-items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
+              <path fill="#E04F5F" fill-rule="evenodd"
+                d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+              <path fill="#E04F5F" fill-rule="evenodd"
+                d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+                clip-rule="evenodd" />
+            </svg>
+            <div class="d-flex flex-column">
+              <span class="d-block text-danger fw-semibold">Not Interested</span>
+              <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+                {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+              </span>
+            </div>
+          </div>
+          } @else {
+          <!-- Default Status -->
+          <span class="d-block text-gray-sm">{{ (application.applicantContactStatus &&
+            application.applicantContactStatus
+            !== 'No Action') ? application.applicantContactStatus : application.status }}</span>
+          <span class="d-block text-truncate" style="max-width: 200px">
+            {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+          </span>
+          }
+          }
       </td>
-      }
       <td style="position: relative; text-align: center;">
         <div
           style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;"
@@ -1775,8 +1769,7 @@
 </app-popup>
 
 <!-- Mark as Called / Call Again confirmation popup -->
-<app-popup
-  [title]="selectedContactStatus === 2 ? 'Call Again' : 'Mark as Called'"
+<app-popup [title]="selectedContactStatus === 2 ? 'Call Again' : 'Mark as Called'"
   [paragraph1]="selectedContactStatus === 2 ? 'Are you sure you want to call this candidate again?' : 'Are you sure you want to mark this candidate as called?'"
   [paragraph2]="selectedContactStatus === 2 ? 'This will mark them as needing to be called again.' : 'This action will mark them as called.'"
   [isOpen]="showMarkAsCalledModal" (close)="closeMarkAsCalledModal()">
