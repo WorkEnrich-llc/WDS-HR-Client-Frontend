@@ -186,10 +186,7 @@ export class ApplicantDetaisComponent implements OnInit {
     if (tab === 'interviews') {
       this.fetchInterviews();
     }
-    // Always fetch job offers when job-offers tab is opened
-    if (tab === 'job-offers') {
-      this.fetchJobOffers();
-    }
+    // Job offers are only fetched after sending a new job offer, not when tab opens
   }
 
   // Fetch interviews for current application
@@ -520,6 +517,37 @@ export class ApplicantDetaisComponent implements OnInit {
     });
   }
 
+  /**
+   * Handle join date change from date picker
+   */
+  onJoinDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.offerJoinDate = dateStr;
+      // Clear validation error when date changes
+      delete this.jobOfferValidationErrors.joinDate;
+      // Validate the new date
+      this.validateJoinDateField();
+    } else {
+      this.offerJoinDate = '';
+      delete this.jobOfferValidationErrors.joinDate;
+    }
+  }
+
+  /**
+   * Handle contract end date change from date picker
+   */
+  onContractEndDateChange(dateValue: string): void {
+    if (dateValue) {
+      // Parse the date value (could be in different formats)
+      const dateStr = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.contractEndDate = dateStr;
+    } else {
+      this.contractEndDate = '';
+    }
+  }
+
   validateJoinDateField(): void {
     delete this.jobOfferValidationErrors.joinDate;
     if (!this.offerJoinDate || !this.offerJoinDate.trim()) {
@@ -676,6 +704,8 @@ export class ApplicantDetaisComponent implements OnInit {
           this.jobBox?.closeOverlay();
           this.resetJobOfferForm();
           this.refreshApplication();
+          // Refresh job offers list after updating
+          this.fetchJobOffers();
         },
         error: () => {
           this.isLoading = false;
@@ -696,6 +726,8 @@ export class ApplicantDetaisComponent implements OnInit {
           this.jobBox?.closeOverlay();
           this.resetJobOfferForm();
           this.refreshApplication();
+          // Refresh job offers list after sending
+          this.fetchJobOffers();
         },
         error: () => {
           this.isLoading = false;

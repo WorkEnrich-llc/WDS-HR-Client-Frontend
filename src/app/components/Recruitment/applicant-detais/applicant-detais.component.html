@@ -1430,12 +1430,12 @@
       <label for="probation" class="m-0">Include Probation Period</label>
     </div>
     <div class="input">
-      <label for="joinDate">Join Date</label>
-      <input type="date" id="joinDate" class="form-control" [(ngModel)]="offerJoinDate" name="joinDate"
-        placeholder="dd/mm/yyyy" [class.is-invalid]="jobOfferValidationErrors.joinDate"
-        (focus)="validateJoinDateField()" (blur)="validateJoinDateField()" (ngModelChange)="validateJoinDateField()"
+      <app-date-picker label="Join Date" placeholder="Select join date" [required]="true" [disableBeforeDate]="true"
+        [(ngModel)]="offerJoinDate" [ngModelOptions]="{standalone: true}"
+        [errorMessage]="jobOfferValidationErrors.joinDate || null" 
         [disabled]="overlayTitle === 'Offer Details'"
-        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+        (dateChange)="onJoinDateChange($event)" (blur)="validateJoinDateField()">
+      </app-date-picker>
       @if (jobOfferValidationErrors.joinDate) {
       <div class="text-danger mt-1">{{ jobOfferValidationErrors.joinDate }}</div>
       }
@@ -1447,10 +1447,11 @@
     </div>
     @if (withEndDate){
     <div class="input">
-      <label for="contractEndDate">Contract End Date</label>
-      <input type="date" id="contractEndDate" class="form-control" [(ngModel)]="contractEndDate" name="contractEndDate"
+      <app-date-picker label="Contract End Date" placeholder="Select contract end date" [required]="false"
+        [disableBeforeDate]="true" [(ngModel)]="contractEndDate" [ngModelOptions]="{standalone: true}"
         [disabled]="overlayTitle === 'Offer Details'"
-        style="border-radius: var(--inputs-corner-default, 16px); border: 1px solid var(--inputs-colors-inactive-outline, #93A7C1); box-shadow: none; padding: var(--inputs-spacing-lg-padding, 16px);">
+        (dateChange)="onContractEndDateChange($event)">
+      </app-date-picker>
     </div>
     }
     <div class="input">
