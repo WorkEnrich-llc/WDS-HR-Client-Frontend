@@ -795,10 +795,62 @@
         </div>
         } @else {
         <!-- Default Status Display -->
-        <span class="d-block text-gray-sm">{{ application.status }}</span>
+        @if (application.applicantContactStatus === 'Called') {
+        <!-- Called Status -->
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
+            <path fill="#10B981"
+              d="M16.03 10.03a.75.75 0 1 0-1.06-1.06l-4.47 4.47l-1.47-1.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.06 0z" />
+            <path fill="#10B981" fill-rule="evenodd"
+              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+              clip-rule="evenodd" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block text-success fw-semibold">Called</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else if (application.applicantContactStatus === 'Call Again') {
+        <!-- Call Again Status -->
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+            <path d="M1 4v6h6"></path>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block text-warning fw-semibold">Call Again</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else if (application.applicantContactStatus === 'Not Interested') {
+        <!-- Not Interested Status -->
+        <div class="d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;">
+            <path fill="#E04F5F" fill-rule="evenodd"
+              d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
+            <path fill="#E04F5F" fill-rule="evenodd"
+              d="M12 1.25C6.063 1.25 1.25 6.063 1.25 12S6.063 22.75 12 22.75S22.75 17.937 22.75 12S17.937 1.25 12 1.25M2.75 12a9.25 9.25 0 1 1 18.5 0a9.25 9.25 0 0 1-18.5 0"
+              clip-rule="evenodd" />
+          </svg>
+          <div class="d-flex flex-column">
+            <span class="d-block text-danger fw-semibold">Not Interested</span>
+            <span class="d-block text-truncate text-gray-sm" style="max-width: 200px">
+              {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
+            </span>
+          </div>
+        </div>
+        } @else {
+        <!-- Default Status -->
+        <span class="d-block text-gray-sm">{{ (application.applicantContactStatus && application.applicantContactStatus !== 'No Action') ? application.applicantContactStatus : application.status }}</span>
         <span class="d-block text-truncate" style="max-width: 200px">
           {{ application.statusAt | date : "dd/MM/yyyy h:mm a" }}
         </span>
+        }
         }
       </td>
       <td style="position: relative; text-align: center;">
@@ -918,7 +970,7 @@
 
               <!-- Mark as Called -->
               <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
-                (click)="openMarkAsCalledModal(application)">
+                (click)="openMarkAsCalledModal(application, 1)">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fill-rule="evenodd" clip-rule="evenodd"
                     d="M3.53827 2.31909C4.45791 1.35089 5.97907 1.53229 6.73927 2.60747L7.68501 3.94509C8.29306 4.80509 8.24169 6.00072 7.51601 6.76472L7.33237 6.95806C7.33186 6.95939 7.33132 6.96084 7.33077 6.96241C7.32106 6.98968 7.29653 7.07652 7.32068 7.24133C7.37074 7.58298 7.63447 8.27725 8.70522 9.40454C9.77933 10.5354 10.4308 10.8019 10.7327 10.8509C10.863 10.8721 10.9311 10.8537 10.9528 10.8461L11.2593 10.5234C11.9146 9.83345 12.9364 9.69753 13.7603 10.1717L15.1931 10.9965C16.4178 11.7014 16.7029 13.4258 15.7241 14.4562L14.6587 15.5779C14.3262 15.928 13.8728 16.2268 13.3125 16.2821C11.9446 16.4171 8.77574 16.2413 5.4537 12.7438C2.35383 9.48019 1.76495 6.64152 1.6905 5.2546L2.19008 5.22779L1.6905 5.2546C1.65372 4.56935 1.95918 3.98158 2.36107 3.55847L3.53827 2.31909ZM5.82068 3.25695C5.43641 2.71346 4.74609 2.68103 4.35396 3.09387L3.17676 4.33324C2.92822 4.59491 2.79781 4.89483 2.81389 5.1943C2.87467 6.32667 3.3623 8.90838 6.26939 11.969C9.31753 15.1781 12.1257 15.2688 13.202 15.1625C13.4148 15.1415 13.6337 15.0234 13.843 14.8031L14.9084 13.6814C15.368 13.1976 15.2476 12.3259 14.6319 11.9715L13.199 11.1467C12.8145 10.9254 12.3641 10.9938 12.075 11.2982L11.7334 11.6578L11.338 11.2822C11.7334 11.6578 11.7329 11.6583 11.7324 11.6589L11.7313 11.66L11.7291 11.6623L11.7243 11.6671L11.7136 11.6777C11.7058 11.6852 11.6969 11.6935 11.6868 11.7023C11.6667 11.72 11.6417 11.7401 11.6118 11.7614C11.5517 11.804 11.4717 11.8509 11.3705 11.8908C11.1635 11.9724 10.8901 12.0162 10.5524 11.9614C9.89426 11.8545 9.03167 11.3818 7.88953 10.1793C6.74401 8.9733 6.3056 8.07351 6.20756 7.40443C6.15766 7.06387 6.1976 6.79118 6.27087 6.58525C6.30691 6.48398 6.34946 6.40323 6.3887 6.34191C6.40826 6.31134 6.42691 6.28573 6.4434 6.2649C6.45164 6.25448 6.45935 6.24526 6.46637 6.23719L6.47636 6.22595L6.48093 6.22097L6.48311 6.21864L6.48417 6.21752C6.48469 6.21697 6.4852 6.21643 6.88396 6.59516L6.48521 6.21642L6.70032 5.98995C7.03447 5.63815 7.08302 5.04236 6.76642 4.59456L5.82068 3.25695Z"
@@ -930,8 +982,24 @@
                     d="M10.1146 3.99716C10.1999 3.69846 10.5112 3.52549 10.8099 3.61084L10.6554 4.1517C10.8099 3.61084 10.8102 3.61091 10.8105 3.61099L10.811 3.61115L10.8122 3.61148L10.8147 3.61221L10.8205 3.61395L10.8353 3.61857C10.8466 3.62218 10.8608 3.62689 10.8776 3.63287C10.9113 3.64482 10.9558 3.66182 11.0104 3.68522C11.1197 3.73205 11.269 3.80437 11.4524 3.9129C11.8195 4.13016 12.3206 4.49104 12.9093 5.07977C13.4981 5.6685 13.8589 6.16964 14.0762 6.53674C14.1847 6.72012 14.257 6.86942 14.3039 6.97868C14.3273 7.03329 14.3443 7.07781 14.3562 7.11149C14.3622 7.12833 14.3669 7.14245 14.3705 7.15376L14.3751 7.1686L14.3769 7.17441L14.3776 7.17692L14.3779 7.17806L14.3781 7.17861C14.3782 7.17888 14.3783 7.17914 13.8374 7.33368L14.3783 7.17914C14.4636 7.47785 14.2906 7.78919 13.9919 7.87453C13.6958 7.95915 13.3872 7.78983 13.2988 7.49579L13.296 7.4877C13.292 7.47643 13.2837 7.45425 13.2698 7.42184C13.2421 7.35709 13.1918 7.25117 13.108 7.10973C12.9408 6.82717 12.6388 6.40023 12.1138 5.87527C11.5889 5.3503 11.1619 5.04827 10.8794 4.88105C10.7379 4.79734 10.632 4.74701 10.5672 4.71926C10.5348 4.70537 10.5127 4.6971 10.5014 4.6931L10.4933 4.69033C10.1993 4.60192 10.0299 4.29334 10.1146 3.99716Z"
                     fill="#4A6D97" />
                 </svg>
+                <span>Mark as Called</span>
+              </button>
 
-                <span>{{ getMarkAsCalledButtonText(application) }}</span>
+              <!-- Call Again -->
+              <button type="button" class="dropdown-item text-primary d-flex align-items-center gap-2"
+                (click)="openMarkAsCalledModal(application, 2)">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M3.53827 2.31909C4.45791 1.35089 5.97907 1.53229 6.73927 2.60747L7.68501 3.94509C8.29306 4.80509 8.24169 6.00072 7.51601 6.76472L7.33237 6.95806C7.33186 6.95939 7.33132 6.96084 7.33077 6.96241C7.32106 6.98968 7.29653 7.07652 7.32068 7.24133C7.37074 7.58298 7.63447 8.27725 8.70522 9.40454C9.77933 10.5354 10.4308 10.8019 10.7327 10.8509C10.863 10.8721 10.9311 10.8537 10.9528 10.8461L11.2593 10.5234C11.9146 9.83345 12.9364 9.69753 13.7603 10.1717L15.1931 10.9965C16.4178 11.7014 16.7029 13.4258 15.7241 14.4562L14.6587 15.5779C14.3262 15.928 13.8728 16.2268 13.3125 16.2821C11.9446 16.4171 8.77574 16.2413 5.4537 12.7438C2.35383 9.48019 1.76495 6.64152 1.6905 5.2546L2.19008 5.22779L1.6905 5.2546C1.65372 4.56935 1.95918 3.98158 2.36107 3.55847L3.53827 2.31909ZM5.82068 3.25695C5.43641 2.71346 4.74609 2.68103 4.35396 3.09387L3.17676 4.33324C2.92822 4.59491 2.79781 4.89483 2.81389 5.1943C2.87467 6.32667 3.3623 8.90838 6.26939 11.969C9.31753 15.1781 12.1257 15.2688 13.202 15.1625C13.4148 15.1415 13.6337 15.0234 13.843 14.8031L14.9084 13.6814C15.368 13.1976 15.2476 12.3259 14.6319 11.9715L13.199 11.1467C12.8145 10.9254 12.3641 10.9938 12.075 11.2982L11.7334 11.6578L11.338 11.2822C11.7334 11.6578 11.7329 11.6583 11.7324 11.6589L11.7313 11.66L11.7291 11.6623L11.7243 11.6671L11.7136 11.6777C11.7058 11.6852 11.6969 11.6935 11.6868 11.7023C11.6667 11.72 11.6417 11.7401 11.6118 11.7614C11.5517 11.804 11.4717 11.8509 11.3705 11.8908C11.1635 11.9724 10.8901 12.0162 10.5524 11.9614C9.89426 11.8545 9.03167 11.3818 7.88953 10.1793C6.74401 8.9733 6.3056 8.07351 6.20756 7.40443C6.15766 7.06387 6.1976 6.79118 6.27087 6.58525C6.30691 6.48398 6.34946 6.40323 6.3887 6.34191C6.40826 6.31134 6.42691 6.28573 6.4434 6.2649C6.45164 6.25448 6.45935 6.24526 6.46637 6.23719L6.47636 6.22595L6.48093 6.22097L6.48311 6.21864L6.48417 6.21752C6.48469 6.21697 6.4852 6.21643 6.88396 6.59516L6.48521 6.21642L6.70032 5.98995C7.03447 5.63815 7.08302 5.04236 6.76642 4.59456L5.82068 3.25695Z"
+                    fill="#4A6D97" />
+                  <path
+                    d="M9.94462 1.41006C9.99426 1.10339 10.2842 0.895358 10.5908 0.945006C10.6098 0.94864 10.6709 0.960055 10.7029 0.967182C10.7669 0.981435 10.8562 1.00338 10.9675 1.0358C11.1901 1.10063 11.501 1.20743 11.8742 1.37854C12.6214 1.7211 13.6158 2.32035 14.6476 3.3522C15.6795 4.38405 16.2787 5.37841 16.6213 6.12562C16.7924 6.49883 16.8992 6.80979 16.964 7.03237C16.9965 7.14368 17.0184 7.23295 17.0327 7.29694C17.0398 7.32895 17.045 7.35464 17.0486 7.37362L17.0529 7.39702C17.1026 7.70369 16.8964 8.00557 16.5898 8.05522C16.284 8.10473 15.9959 7.8977 15.945 7.59247C15.9435 7.58428 15.9392 7.56226 15.9346 7.5415C15.9253 7.49996 15.9093 7.43409 15.8839 7.34698C15.8332 7.17272 15.745 6.91372 15.5987 6.59447C15.3063 5.95674 14.7805 5.0761 13.8521 4.1477C12.9237 3.2193 12.0431 2.69356 11.4054 2.40118C11.0861 2.25482 10.8271 2.16667 10.6529 2.11591C10.5657 2.09054 10.4563 2.06541 10.4147 2.05615C10.1095 2.00529 9.89511 1.71585 9.94462 1.41006Z"
+                    fill="#4A6D97" />
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M10.1146 3.99716C10.1999 3.69846 10.5112 3.52549 10.8099 3.61084L10.6554 4.1517C10.8099 3.61084 10.8102 3.61091 10.8105 3.61099L10.811 3.61115L10.8122 3.61148L10.8147 3.61221L10.8205 3.61395L10.8353 3.61857C10.8466 3.62218 10.8608 3.62689 10.8776 3.63287C10.9113 3.64482 10.9558 3.66182 11.0104 3.68522C11.1197 3.73205 11.269 3.80437 11.4524 3.9129C11.8195 4.13016 12.3206 4.49104 12.9093 5.07977C13.4981 5.6685 13.8589 6.16964 14.0762 6.53674C14.1847 6.72012 14.257 6.86942 14.3039 6.97868C14.3273 7.03329 14.3443 7.07781 14.3562 7.11149C14.3622 7.12833 14.3669 7.14245 14.3705 7.15376L14.3751 7.1686L14.3769 7.17441L14.3776 7.17692L14.3779 7.17806L14.3781 7.17861C14.3782 7.17888 14.3783 7.17914 13.8374 7.33368L14.3783 7.17914C14.4636 7.47785 14.2906 7.78919 13.9919 7.87453C13.6958 7.95915 13.3872 7.78983 13.2988 7.49579L13.296 7.4877C13.292 7.47643 13.2837 7.45425 13.2698 7.42184C13.2421 7.35709 13.1918 7.25117 13.108 7.10973C12.9408 6.82717 12.6388 6.40023 12.1138 5.87527C11.5889 5.3503 11.1619 5.04827 10.8794 4.88105C10.7379 4.79734 10.632 4.74701 10.5672 4.71926C10.5348 4.70537 10.5127 4.6971 10.5014 4.6931L10.4933 4.69033C10.1993 4.60192 10.0299 4.29334 10.1146 3.99716Z"
+                    fill="#4A6D97" />
+                </svg>
+                <span>Call Again</span>
               </button>
 
               <!-- Divider -->
@@ -1654,14 +1722,19 @@
 
 <!-- Mark as Called / Call Again confirmation popup -->
 <app-popup
-  [title]="selectedApplicationForMarkAsCalled && isContactStatusCalled(selectedApplicationForMarkAsCalled) ? 'Call Again' : 'Mark as Called'"
-  [paragraph1]="selectedApplicationForMarkAsCalled && isContactStatusCalled(selectedApplicationForMarkAsCalled) ? 'Are you sure you want to call this candidate again?' : 'Are you sure you want to mark this candidate as called?'"
-  [paragraph2]="selectedApplicationForMarkAsCalled && isContactStatusCalled(selectedApplicationForMarkAsCalled) ? 'This will mark them as needing to be called again.' : 'This action will mark them as called.'"
+  [title]="selectedContactStatus === 2 ? 'Call Again' : 'Mark as Called'"
+  [paragraph1]="selectedContactStatus === 2 ? 'Are you sure you want to call this candidate again?' : 'Are you sure you want to mark this candidate as called?'"
+  [paragraph2]="selectedContactStatus === 2 ? 'This will mark them as needing to be called again.' : 'This action will mark them as called.'"
   [isOpen]="showMarkAsCalledModal" (close)="closeMarkAsCalledModal()">
-  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmMarkAsCalled()">
+  <button modal-btn-left class="btn btn-lg btn-primary text-white w-100" (click)="confirmMarkAsCalled()"
+    [disabled]="isMarkAsCalledLoading">
+    @if (isMarkAsCalledLoading) {
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    }
     Confirm
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeMarkAsCalledModal()">
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeMarkAsCalledModal()"
+    [disabled]="isMarkAsCalledLoading">
     Cancel
   </button>
 </app-popup>
@@ -1670,10 +1743,15 @@
 <app-popup [title]="'Not Interested'" [paragraph1]="'Are you sure you want to mark this candidate as not interested?'"
   [paragraph2]="'This action will mark them as not interested.'" [isOpen]="showNotInterestedModal"
   (close)="closeNotInterestedModal()">
-  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmNotInterested()">
+  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmNotInterested()"
+    [disabled]="isNotInterestedLoading">
+    @if (isNotInterestedLoading) {
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    }
     Confirm
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeNotInterestedModal()">
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeNotInterestedModal()"
+    [disabled]="isNotInterestedLoading">
     Cancel
   </button>
 </app-popup>

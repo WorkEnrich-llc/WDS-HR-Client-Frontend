@@ -234,10 +234,12 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   // Mark as Called modal states
   showMarkAsCalledModal: boolean = false;
   selectedApplicationForMarkAsCalled: Applicant | null = null;
+  isMarkAsCalledLoading: boolean = false;
 
   // Not Interested modal states
   showNotInterestedModal: boolean = false;
   selectedApplicationForNotInterested: Applicant | null = null;
+  isNotInterestedLoading: boolean = false;
 
   // Reject modal states
   showRejectModal: boolean = false;
@@ -1361,12 +1363,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   /**
    * Open Mark as Called modal
    */
-  openMarkAsCalledModal(applicant: Applicant): void {
+  openMarkAsCalledModal(applicant: Applicant, contactStatus: number = 1): void {
     if (!applicant?.applicationId) return;
     this.openDropdownApplicationId = null;
     this.selectedApplicationForMarkAsCalled = applicant;
+    this.selectedContactStatus = contactStatus; // 1 for "Called", 2 for "Call Again"
     this.showMarkAsCalledModal = true;
   }
+
+  // Store selected contact status for modal
+  selectedContactStatus: number = 1;
 
   /**
    * Close Mark as Called modal
@@ -1374,6 +1380,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeMarkAsCalledModal(): void {
     this.showMarkAsCalledModal = false;
     this.selectedApplicationForMarkAsCalled = null;
+    this.isMarkAsCalledLoading = false;
   }
 
   /**
@@ -1394,11 +1401,12 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
    * Confirm Mark as Called / Call Again
    */
   confirmMarkAsCalled(): void {
-    if (!this.selectedApplicationForMarkAsCalled?.applicationId) return;
+    if (!this.selectedApplicationForMarkAsCalled?.applicationId || this.isMarkAsCalledLoading) return;
 
-    // If status is already "Called", use status 2 (Call Again), otherwise use status 1 (Called)
-    const contactStatus = this.isContactStatusCalled(this.selectedApplicationForMarkAsCalled) ? 2 : 1;
+    const contactStatus = this.selectedContactStatus; // Use the selected status from button click
     const actionText = contactStatus === 2 ? 'Call Again' : 'Mark as Called';
+
+    this.isMarkAsCalledLoading = true;
 
     this.jobOpeningsService.updateApplicantContactStatus(
       this.selectedApplicationForMarkAsCalled.applicationId,
@@ -1407,12 +1415,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.isMarkAsCalledLoading = false;
         this.closeMarkAsCalledModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
         this.toastr.success(`Candidate ${actionText.toLowerCase()} successfully`);
       },
       error: (error) => {
+        this.isMarkAsCalledLoading = false;
         console.error(`Error ${actionText.toLowerCase()}:`, error);
         this.toastr.error(`Failed to ${actionText.toLowerCase()}`);
         this.closeMarkAsCalledModal();
@@ -1436,13 +1446,16 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   closeNotInterestedModal(): void {
     this.showNotInterestedModal = false;
     this.selectedApplicationForNotInterested = null;
+    this.isNotInterestedLoading = false;
   }
 
   /**
    * Confirm Not Interested
    */
   confirmNotInterested(): void {
-    if (!this.selectedApplicationForNotInterested?.applicationId) return;
+    if (!this.selectedApplicationForNotInterested?.applicationId || this.isNotInterestedLoading) return;
+
+    this.isNotInterestedLoading = true;
 
     // Contact Status 3 = Not Interested
     this.jobOpeningsService.updateApplicantContactStatus(
@@ -1452,12 +1465,14 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.isNotInterestedLoading = false;
         this.closeNotInterestedModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
         this.toastr.success('Application marked as not interested');
       },
       error: (error) => {
+        this.isNotInterestedLoading = false;
         console.error('Error marking as not interested:', error);
         this.toastr.error('Failed to mark as not interested');
         this.closeNotInterestedModal();
