@@ -1212,14 +1212,18 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
         });
     }
 
-    // Clear error when user types in answer input
-    clearAnswerError(questionIndex: number, answerIndex: number): void {
+    // Handle answer text change - clear errors and validate
+    onAnswerTextChange(questionIndex: number, answerIndex: number, value: string): void {
         const question = this.questions[questionIndex];
         const answer = question.answers[answerIndex];
 
+        // Update the answer text
+        answer.text = value || '';
+
+        // Clear errors
         answer.error = false;
         answer.markAsCorrectError = false;
-        answer.duplicateError = false; // Clear duplicate error
+        answer.duplicateError = false;
 
         // If answer text becomes empty (or only whitespace) and it was marked as correct, unmark it
         if (!answer.text || !answer.text.trim()) {

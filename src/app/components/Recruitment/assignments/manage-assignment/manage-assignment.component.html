@@ -864,7 +864,7 @@
                   type="text"
                   class="form-control custom-date-input"
                   [(ngModel)]="answer.text"
-                  (ngModelChange)="clearAnswerError(i, ansIndex)"
+                  (ngModelChange)="onAnswerTextChange(i, ansIndex, $event)"
                   (blur)="answer.text = answer.text?.trim() || ''; answer.touched = true"
                   placeholder="Answer Text"
                 />
@@ -1009,7 +1009,7 @@
                   type="text"
                   class="form-control custom-date-input"
                   [(ngModel)]="question.answers[0].text"
-                  (ngModelChange)="clearAnswerError(i, 0)"
+                  (ngModelChange)="onAnswerTextChange(i, 0, $event)"
                   (blur)="question.answers[0].text = question.answers[0].text?.trim() || ''; question.answers[0].touched = true"
                   placeholder="Type Answer"
                 />
@@ -1063,6 +1063,10 @@
           } @if (question.answers[0].duplicateError && !question.answers[0].error && (question.answers[0].touched ||
           formSubmitted)) {
           <p class="mb-3 error-msg">True and False answers cannot be the same</p>
+          } @if (question.answers[0].markAsCorrectError && !question.answers[0].error && !question.answers[0].duplicateError) {
+          <p class="mb-3 error-msg">
+            The answer must have a value to mark it as correct
+          </p>
           }
         </div>
         <div>
@@ -1075,7 +1079,7 @@
                   type="text"
                   class="form-control custom-date-input"
                   [(ngModel)]="question.answers[1].text"
-                  (ngModelChange)="clearAnswerError(i, 1)"
+                  (ngModelChange)="onAnswerTextChange(i, 1, $event)"
                   (blur)="question.answers[1].text = question.answers[1].text?.trim() || ''; question.answers[1].touched = true"
                   placeholder="Type Answer"
                 />
@@ -1129,6 +1133,10 @@
           } @if (question.answers[1].duplicateError && !question.answers[1].error && (question.answers[1].touched ||
           formSubmitted)) {
           <p class="mb-3 error-msg">True and False answers cannot be the same</p>
+          } @if (question.answers[1].markAsCorrectError && !question.answers[1].error && !question.answers[1].duplicateError) {
+          <p class="mb-3 error-msg">
+            The answer must have a value to mark it as correct
+          </p>
           }
         </div>
         @if ((question.correct_answer === null || question.correct_answer ===
