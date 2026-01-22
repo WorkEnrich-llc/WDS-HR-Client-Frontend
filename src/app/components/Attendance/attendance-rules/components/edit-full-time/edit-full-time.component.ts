@@ -942,6 +942,36 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
   }
 
   // Save function
+  // Helper function to build occurrences with sequential indices across all occurrences
+  private buildOccurrencesWithSequentialIndices(occurrences: LatenessOccurrence[] | EarlyLeaveOccurrence[]): any[] {
+    let globalRuleIndex = 1; // Start from 1 for sequential indices across all occurrences
+
+    return occurrences.map((occurrence, occurrenceIndex) => {
+      // Filter out empty rules (where all fields are null)
+      const validRules = occurrence.deductionRules.filter(rule =>
+        rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
+        rule.deductionValue !== null && rule.deductionValue !== undefined &&
+        rule.deductionBase !== null && rule.deductionBase !== undefined
+      );
+
+      // Map rules with sequential indices
+      const rulesWithIndices = validRules.map((rule) => {
+        const ruleData = {
+          index: globalRuleIndex++,
+          minutes: rule.thresholdTime,
+          value: rule.deductionValue,
+          salary_portion_index: rule.deductionBase
+        };
+        return ruleData;
+      });
+
+      return {
+        index: occurrenceIndex + 1,
+        list: rulesWithIndices
+      };
+    }).filter(occurrence => occurrence.list.length > 0);
+  }
+
   saveChanges() {
     if (this.isSaving) {
       return;
@@ -985,42 +1015,8 @@ export class EditFullTimeComponent implements OnInit, OnDestroy {
       request_data: {
         settings: {
           full_time: {
-            lateness: this.latenessOccurrences.map((occurrence, occurrenceIndex) => {
-              // Filter out empty rules (where all fields are null)
-              const validRules = occurrence.deductionRules.filter(rule =>
-                rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
-                rule.deductionValue !== null && rule.deductionValue !== undefined &&
-                rule.deductionBase !== null && rule.deductionBase !== undefined
-              );
-
-              return {
-                index: occurrenceIndex + 1,
-                list: validRules.map((rule, ruleIndex) => ({
-                  index: ruleIndex + 1,
-                  minutes: rule.thresholdTime,
-                  value: rule.deductionValue,
-                  salary_portion_index: rule.deductionBase
-                }))
-              };
-            }).filter(occurrence => occurrence.list.length > 0),
-            early_leave: this.earlyLeaveOccurrences.map((occurrence, occurrenceIndex) => {
-              // Filter out empty rules (where all fields are null)
-              const validRules = occurrence.deductionRules.filter(rule =>
-                rule.thresholdTime !== null && rule.thresholdTime !== undefined &&
-                rule.deductionValue !== null && rule.deductionValue !== undefined &&
-                rule.deductionBase !== null && rule.deductionBase !== undefined
-              );
-
-              return {
-                index: occurrenceIndex + 1,
-                list: validRules.map((rule, ruleIndex) => ({
-                  index: ruleIndex + 1,
-                  minutes: rule.thresholdTime,
-                  value: rule.deductionValue,
-                  salary_portion_index: rule.deductionBase
-                }))
-              };
-            }).filter(occurrence => occurrence.list.length > 0),
+            lateness: this.buildOccurrencesWithSequentialIndices(this.latenessOccurrences),
+            early_leave: this.buildOccurrencesWithSequentialIndices(this.earlyLeaveOccurrences),
             absence: this.absenceEntries.map((entry, index) => ({
               index: index + 1,
               value: entry.value || 0,
