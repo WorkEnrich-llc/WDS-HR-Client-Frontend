@@ -382,12 +382,7 @@
                     <div class="status-content-wrapper">
                       <div class="status-header-row">
                         <div class="status-text" [style.color]="statusConfig.color">
-                          {{ item.status === 'Completed' ? 'Interview Completed' : 
-                             item.status === 'Rejected' ? 'Interview Rejected' : 
-                             item.status === 'Accepted' ? 'Interview Accepted' :
-                             item.status === 'Reschedule' ? 'Interview Rescheduled' :
-                             item.status === 'Expired' ? 'Interview Expired' :
-                             item.status === 'Sent' ? 'Interview Sent' : item.status }}
+                          {{ item.status }}
                         </div>
                         <!-- Edit Feedback Button - Only for Completed status, aligned right -->
                         @if (item.status === 'Completed' && item.feedbacks && item.feedbacks.length > 0) {
@@ -658,7 +653,7 @@
                           fill="#4A6D97" />
                       </svg>
 
-                      <span class="assignment-status-text">Assignment sent to Applicant</span>
+                      <span class="assignment-status-text">{{ item.recruiter_side_status }}</span>
                     </div>
                     } @else if (item.recruiter_side_status === 'Pending Review' || (item.submitted_at &&
                     item.total_score === 0)) {
@@ -672,7 +667,7 @@
                       </svg>
 
                       <div class="d-flex flex-column assignment-status-text-container">
-                        <span class="assignment-status-pending">Pending Review</span>
+                        <span class="assignment-status-pending">{{ item.recruiter_side_status }}</span>
                         @if (item.must_review_questions > 0) {
                         <div class="assignment-questions-count">
                           {{ item.must_review_questions }} {{ item.must_review_questions === 1 ? 'Question' :
@@ -691,7 +686,7 @@
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                       </svg>
                       <div class="d-flex flex-column assignment-status-text-container">
-                        <span class="assignment-status-reviewed">Assignment Reviewed</span>
+                        <span class="assignment-status-reviewed">{{ item.recruiter_side_status }}</span>
                         <div class="assignment-score">
                           {{ item.total_score }}/{{ item.max_score }}
                         </div>
