@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 import { PopupComponent } from '../../../shared/popup/popup.component';
@@ -81,8 +81,19 @@ export class ManageAssignmentComponent implements OnInit, OnDestroy {
             code: [''],
             name: ['', [Validators.required]],
             duration_minutes: ['', [Validators.required, Validators.min(1)]],
-            instructions: ['', [Validators.required]]
+            instructions: ['', [Validators.required, this.noWhitespaceValidator]]
         });
+    }
+
+    // Custom validator to ignore empty spaces
+    private noWhitespaceValidator = (control: AbstractControl): ValidationErrors | null => {
+        if (control.value && typeof control.value === 'string') {
+            const trimmedValue = control.value.trim();
+            if (trimmedValue === '') {
+                return { required: true };
+            }
+        }
+        return null;
     }
 
     private formatToday(): void {
