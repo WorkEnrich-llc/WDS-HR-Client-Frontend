@@ -85,9 +85,15 @@ export class JobCreationDataService {
 
     updateDynamicFields(fields: any): void {
         const currentData = this.jobDataSubject.value;
+        // Merge with existing recruiter_dynamic_fields instead of replacing
+        const existingFields = currentData.recruiter_dynamic_fields || {};
+        const mergedFields = {
+            ...existingFields,
+            ...fields
+        };
         this.jobDataSubject.next({
             ...currentData,
-            recruiter_dynamic_fields: fields
+            recruiter_dynamic_fields: mergedFields
         });
     }
 

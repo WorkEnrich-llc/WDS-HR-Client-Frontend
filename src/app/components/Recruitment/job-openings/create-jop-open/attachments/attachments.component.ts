@@ -23,12 +23,12 @@ export class AttachmentsComponent implements OnInit, OnDestroy {
   @Input() isUpdateMode = false;
   @Input() jobId: number | null = null;
 
-  links: Array<{ value: string | null }> = [
-    { value: null }
-  ];
-  Documents: Array<{ value: string | null }> = [
-    { value: 'CV' }
-  ];
+  links: Array<{ value: string | null }> = [];
+  Documents: Array<{ value: string | null }> = [];
+
+  // Track if initial data has been loaded (to prevent overwriting user changes)
+  private initialDataLoaded = false;
+  hasUserMadeChanges = false;
 
   // Validation state
   validationErrors: {
@@ -46,44 +46,87 @@ export class AttachmentsComponent implements OnInit, OnDestroy {
   @Output() prevTab = new EventEmitter<void>();
 
   ngOnInit(): void {
-    // Subscribe to service data to load existing attachments (for update mode)
+    // Subscribe to service data changes FIRST to catch existing data
     this.jobCreationDataService.jobData$.subscribe(data => {
-      if (data.recruiter_dynamic_fields?.['Attachments']) {
-        const attachments = data.recruiter_dynamic_fields['Attachments'];
-
-        // Load links
-        if (attachments.links && attachments.links.length > 0) {
-          this.links = attachments.links.map((link: any) => ({ value: link.value }));
-          // Initialize validation errors for loaded links
-          this.validationErrors.links = new Array(this.links.length).fill('');
-        }
-
-        // Load files/documents
-        if (attachments.files && attachments.files.length > 0) {
-          this.Documents = attachments.files.map((file: any) => ({ value: file.value }));
-          // Ensure CV is first if it exists, otherwise add it
-          const cvIndex = this.Documents.findIndex((doc: any) => doc.value === 'CV');
-          if (cvIndex === -1) {
-            this.Documents.unshift({ value: 'CV' });
-          } else if (cvIndex > 0) {
-            // Move CV to first position
-            const cv = this.Documents.splice(cvIndex, 1)[0];
-            this.Documents.unshift(cv);
-          }
-          // Initialize validation errors for loaded documents
-          this.validationErrors.documents = new Array(this.Documents.length).fill('');
-        }
-      }
+      this.loadAttachmentsFromService();
     });
 
-    // Initialize validation errors arrays (default values are already set in property initialization)
-    this.validationErrors.links = new Array(this.links.length).fill('');
-    this.validationErrors.documents = new Array(this.Documents.length).fill('');
+    // Load initial data immediately
+    this.loadAttachmentsFromService();
+
+    // In update mode, keep trying to load data with delays
+    if (this.isUpdateMode) {
+      const attempts = [50, 100, 200, 300, 500, 1000, 2000, 3000];
+      attempts.forEach(delay => {
+        setTimeout(() => {
+          this.loadAttachmentsFromService();
+        }, delay);
+      });
+    }
+
+    // Initialize validation errors arrays if not already set
+    if (this.validationErrors.links.length === 0) {
+      this.validationErrors.links = new Array(this.links.length).fill('');
+    }
+    if (this.validationErrors.documents.length === 0) {
+      this.validationErrors.documents = new Array(this.Documents.length).fill('');
+    }
 
     // Subscribe to trigger create/update from header button
     this.createUpdateSubscription = this.jobCreationDataService.triggerCreateUpdate$.subscribe(() => {
       this.createJobOpening();
     });
+  }
+
+  private loadAttachmentsFromService(): void {
+    // Don't overwrite if user has made changes
+    if (this.hasUserMadeChanges) {
+      return;
+    }
+
+    const data = this.jobCreationDataService.getCurrentData();
+    
+    // Check if Attachments data exists
+    if (data?.recruiter_dynamic_fields?.['Attachments']) {
+      const attachments = data.recruiter_dynamic_fields['Attachments'];
+
+      // Load links - FORCE load if arrays are empty
+      if (attachments.links && Array.isArray(attachments.links) && attachments.links.length > 0 && this.links.length === 0) {
+        this.links = attachments.links.map((link: any) => ({ 
+          value: link.value ?? link.name ?? ''
+        }));
+        this.validationErrors.links = new Array(this.links.length).fill('');
+        this.initialDataLoaded = true;
+      }
+
+      // Load files/documents - FORCE load if arrays are empty
+      if (attachments.files && Array.isArray(attachments.files) && attachments.files.length > 0 && this.Documents.length === 0) {
+        this.Documents = attachments.files.map((file: any) => ({ 
+          value: file.value ?? file.name ?? ''
+        }));
+        
+        // Ensure CV is first
+        const cvIndex = this.Documents.findIndex((doc: any) => 
+          doc.value && doc.value.toLowerCase() === 'cv'
+        );
+        if (cvIndex === -1) {
+          this.Documents.unshift({ value: 'CV' });
+        } else if (cvIndex > 0) {
+          const cv = this.Documents.splice(cvIndex, 1)[0];
+          this.Documents.unshift(cv);
+        }
+        
+        this.validationErrors.documents = new Array(this.Documents.length).fill('');
+        this.initialDataLoaded = true;
+      }
+    } else if (!this.isUpdateMode && this.links.length === 0 && this.Documents.length === 0) {
+      // Default values for create mode
+      this.links = [{ value: null }];
+      this.validationErrors.links = [''];
+      this.Documents = [{ value: 'CV' }];
+      this.validationErrors.documents = [''];
+      this.initialDataLoaded = true;
+    }
   }
 
   ngOnDestroy(): void {
@@ -96,18 +139,21 @@ export class AttachmentsComponent implements OnInit, OnDestroy {
     this.links.push({ value: null });
     // Add empty error for new link
     this.validationErrors.links.push('');
+    this.hasUserMadeChanges = true;
   }
 
   removeLink(index: number) {
     if (this.links.length > 1) {
       this.links.splice(index, 1);
       this.validationErrors.links.splice(index, 1);
+      this.hasUserMadeChanges = true;
     }
   }
   addDocument() {
     this.Documents.push({ value: null });
     // Add empty error for new document
     this.validationErrors.documents.push('');
+    this.hasUserMadeChanges = true;
   }
 
   removeDocument(index: number) {
@@ -118,6 +164,7 @@ export class AttachmentsComponent implements OnInit, OnDestroy {
     if (this.Documents.length > 1) {
       this.Documents.splice(index, 1);
       this.validationErrors.documents.splice(index, 1);
+      this.hasUserMadeChanges = true;
     }
   }
 
