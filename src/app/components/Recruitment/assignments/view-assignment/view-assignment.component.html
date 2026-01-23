@@ -294,8 +294,8 @@
       </div>
       }
 
-      <!-- Answer Options (MCQ) -->
-      @if (question.question_type?.name === 'MCQ' && question.answers &&
+      <!-- Answer Options (MCQ & True/False) -->
+      @if ((question.question_type?.name === 'MCQ' || question.question_type?.name === 'True & False') && question.answers &&
       question.answers.length > 0) {
       <div class="question-answers">
         @for (answer of question.answers | slice: 0:4; let ansIndex = $index;
