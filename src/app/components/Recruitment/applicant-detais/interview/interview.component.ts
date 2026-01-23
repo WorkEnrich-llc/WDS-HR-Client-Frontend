@@ -1146,7 +1146,7 @@ export class InterviewComponent implements OnChanges {
     });
   }
 
-  revertToJobOffer(): void {
+  revertToCandidate(): void {
     this.isRevertModalOpen = true;
   }
 
@@ -1157,8 +1157,8 @@ export class InterviewComponent implements OnChanges {
   confirmRevert(): void {
     if (!this.applicationId) return;
     this.submitting = true;
-    // Status 5 = Job Offer Sent
-    this.svc.updateApplicationStatus(this.applicationId, 5).subscribe({
+    // Status 2 = Candidate
+    this.svc.updateApplicationStatus(this.applicationId, 2).subscribe({
       next: () => {
         this.submitting = false;
         this.isRevertModalOpen = false;

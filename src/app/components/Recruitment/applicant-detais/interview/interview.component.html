@@ -159,12 +159,12 @@
 
   <!-- Show Revert button if Rejected -->
   @if (isStatus('Rejected')) {
-  <button class="btn btn-primary btn-lg w-100" (click)="revertToJobOffer()">
+  <button class="btn btn-primary btn-lg w-100" (click)="revertToCandidate()">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
       <path fill="currentColor"
         d="M3.5 12a8.5 8.5 0 0 1 15.262-3.5H14a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 .75-.75V3a.75.75 0 0 0-1.5 0v4.262A10 10 0 1 0 21 12a.75.75 0 0 0-1.5 0A8.5 8.5 0 0 1 3.5 12Z" />
     </svg>
-    <span>Revert to Job Offer</span>
+    <span>Revert to Candidate</span>
   </button>
   }
 
@@ -173,10 +173,10 @@
   <ng-container></ng-container>
   }
 
-  <!-- Revert to Job Offer confirmation popup -->
-  <app-popup [title]="'Revert to Job Offer Sent'"
-    [paragraph1]="'Are you sure you want to revert this applicant to Job Offer Sent status?'"
-    [paragraph2]="'This will change the applicant status back to Job Offer Sent.'" [isOpen]="isRevertModalOpen"
+  <!-- Revert to Candidate confirmation popup -->
+  <app-popup [title]="'Revert to Candidate'"
+    [paragraph1]="'Are you sure you want to revert this applicant to Candidate status?'"
+    [paragraph2]="'This will change the applicant status back to Candidate.'" [isOpen]="isRevertModalOpen"
     (close)="closeRevertModal()">
     <button modal-btn-left class="btn btn-lg btn-primary w-100" (click)="confirmRevert()" [disabled]="submitting">
       @if (submitting) {
