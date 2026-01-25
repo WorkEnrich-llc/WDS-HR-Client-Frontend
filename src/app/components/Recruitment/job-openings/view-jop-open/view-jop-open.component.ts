@@ -34,6 +34,7 @@ type Applicant = {
   id: number; // table row id display (application or applicant code)
   applicantId: number; // actual applicant id
   applicationId: number; // application id to be used in routing/API
+  interviewId?: number | null; // from additional_info.interview_id (for interview details API)
   name: string;
   phoneNumber: string;
   email: string;
@@ -365,6 +366,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
             id: item.application_id ?? item.id ?? 0, // For display in table
             applicantId: item.id ?? 0, // Actual applicant id
             applicationId: item.application_id ?? 0, // Application id for navigation
+            interviewId: item.additional_info?.interview_id ?? null,
             name: item.name || 'N/A',
             phoneNumber: item.phone ? item.phone.toString() : 'N/A',
             email: item.email || 'N/A',
@@ -1090,91 +1092,78 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Open reschedule interview modal
+   * Open reschedule interview modal.
+   * Same flow as applicant-details interview overlay: load departments + branches first,
+   * then getInterviewDetails (same API), open overlay immediately with loading state.
    */
   openRescheduleInterviewModal(applicant: Applicant): void {
     if (!applicant?.applicationId) return;
 
-    // Close dropdown
     this.openDropdownApplicationId = null;
-
-    // Reset form
     this.resetInterviewForm();
     this.overlayTitle = 'Reschedule Interview';
     this.interviewDetailsLoading = true;
 
-    // Set application data
     this.currentApplicationId = applicant.applicationId;
     this.currentApplicationDetails = { application: { job: this.jobOpening?.id } };
 
-    // Fetch interview details to populate the form
-    this.jobOpeningsService.getInterviewDetails(applicant.applicationId).pipe(
+    // Same as applicant-details: load departments and branches first, then fetch interview details
+    this.loadDepartments();
+    this.loadBranches();
+
+    const interviewIdToUse = applicant.interviewId ?? null;
+    const fetch$ = interviewIdToUse != null
+      ? this.jobOpeningsService.getInterviewById(interviewIdToUse)
+      : this.jobOpeningsService.getInterviewDetails(applicant.applicationId);
+
+    fetch$.pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (response) => {
-        const interviewData = response.data?.object_info || response.data || response;
+      next: (res) => {
+        const interview = res?.data?.object_info ?? res?.object_info ?? res;
+        const interviewDept = interview.department?.id ?? interview.department ?? null;
+        const interviewSection = interview.section?.id ?? interview.section ?? null;
+        const interviewInterviewer = interview.interviewer?.id ?? interview.interviewer ?? null;
+        const interviewType = interview.interview_type?.id ?? interview.interview_type ?? 1;
+        const interviewLocation = interview.location?.id ?? interview.location ?? null;
 
-        if (interviewData.id) {
-          this.currentInterviewId = interviewData.id;
+        if (interview.id) {
+          this.currentInterviewId = interview.id;
         }
 
-        // Populate form with existing interview data
-        if (interviewData.title) {
-          this.interviewTitle = interviewData.title;
+        this.interviewTitle = interview.title ?? '';
+        this.date = interview.date ?? '';
+        this.time_from = interview.time_from ? String(interview.time_from).substring(0, 5) : '';
+        this.time_to = interview.time_to ? String(interview.time_to).substring(0, 5) : '';
+        this.interview_type = interviewType;
+
+        if (interviewDept) {
+          this.department = interviewDept;
+          this.loadSectionsForDepartment(interviewDept);
         }
-        if (interviewData.department) {
-          this.department = interviewData.department;
-          this.loadSectionsForDepartment(interviewData.department);
+        if (interviewSection) {
+          this.section = interviewSection;
+          this.loadEmployeesForSection(interviewSection);
         }
-        if (interviewData.section) {
-          this.section = interviewData.section;
-          if (this.section) {
-            this.loadEmployeesForSection(interviewData.section);
-          }
+        if (interviewInterviewer) {
+          this.interviewer = interviewInterviewer;
         }
-        if (interviewData.interviewer) {
-          this.interviewer = interviewData.interviewer;
-        }
-        if (interviewData.date) {
-          // Extract date part if it's in ISO format
-          const dateStr = interviewData.date;
-          this.date = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
-        }
-        if (interviewData.time_from) {
-          this.time_from = interviewData.time_from;
-        }
-        if (interviewData.time_to) {
-          this.time_to = interviewData.time_to;
-        }
-        if (interviewData.interview_type) {
-          this.interview_type = interviewData.interview_type;
-          if (this.interview_type === 1) {
-            this.loadBranches();
-          }
-        }
-        if (interviewData.location) {
-          this.location = interviewData.location;
+        if (interviewLocation) {
+          this.location = interviewLocation;
         }
 
         this.interviewDetailsLoading = false;
-
-        // Load departments and branches
-        this.loadDepartments();
-        if (this.interview_type === 1) {
-          this.loadBranches();
-        }
-
-        // Open the overlay
-        if (this.filterBox) {
-          this.filterBox.openOverlay();
-        }
       },
-      error: (error) => {
-        console.error('Error fetching interview details:', error);
+      error: (err) => {
+        console.error('Failed to fetch interview details', err);
         this.interviewDetailsLoading = false;
         this.toastr.error('Failed to load interview details');
       }
     });
+
+    if (this.filterBox) {
+      this.filterBox.openOverlay();
+    }
   }
 
   /**
