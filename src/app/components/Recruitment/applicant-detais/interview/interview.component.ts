@@ -10,10 +10,11 @@ import { BranchesService } from 'app/core/services/od/branches/branches.service'
 import { EmployeeService } from 'app/core/services/personnel/employees/employee.service';
 import { ToasterMessageService } from 'app/core/services/tostermessage/tostermessage.service';
 import { DecimalPipe } from '@angular/common';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-interview',
-  imports: [FormsModule, OverlayFilterBoxComponent, PopupComponent, DecimalPipe],
+  imports: [FormsModule, OverlayFilterBoxComponent, PopupComponent, DecimalPipe, DatePickerComponent],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.css',
 })
@@ -97,6 +98,8 @@ export class InterviewComponent implements OnChanges {
 
   // Validation errors
   validationErrors: {
+    department?: string;
+    section?: string;
     interviewer?: string;
     date?: string;
     time_from?: string;
@@ -465,6 +468,8 @@ export class InterviewComponent implements OnChanges {
     this.sections = [];
     this.interviewer = null;
     this.employees = [];
+    this.clearValidationError('section');
+    this.clearValidationError('interviewer');
 
     if (!this.department) {
       return;
@@ -495,6 +500,7 @@ export class InterviewComponent implements OnChanges {
     // Clear interviewer when section changes
     this.interviewer = null;
     this.employees = [];
+    this.clearValidationError('interviewer');
 
     if (!this.section) {
       return;
@@ -566,6 +572,16 @@ export class InterviewComponent implements OnChanges {
         this.validationErrors.noChanges = 'You need to update the interview details';
         return;
       }
+    }
+
+    if (!this.department) {
+      this.validationErrors.department = 'Please select a department';
+      hasErrors = true;
+    }
+
+    if (!this.section) {
+      this.validationErrors.section = 'Please select a section';
+      hasErrors = true;
     }
 
     if (!this.interviewer) {
@@ -703,6 +719,17 @@ export class InterviewComponent implements OnChanges {
     if (this.validationErrors.noChanges) {
       delete this.validationErrors.noChanges;
     }
+  }
+
+  onInterviewDateChange(dateValue: string): void {
+    if (dateValue) {
+      const dateOnly = dateValue.includes('T') ? dateValue.split('T')[0] : dateValue;
+      this.date = dateOnly;
+    } else {
+      this.date = '';
+    }
+    this.clearValidationError('date');
+    this.onInterviewFormChange();
   }
 
   onInterviewTypeChange(): void {

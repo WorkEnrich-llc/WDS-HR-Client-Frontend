@@ -261,7 +261,7 @@
       </div>
     </div>
     <div class="input">
-      <label for="Department">Department</label>
+      <label for="Department">Department <span class="text-danger">*</span></label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           @if (departmentsLoading) {
@@ -270,7 +270,8 @@
           </div>
           } @else {
           <select id="Department" class="form-select" [(ngModel)]="department" name="department"
-            (change)="onDepartmentChange(); onInterviewFormChange()">
+            [class.is-invalid]="validationErrors.department"
+            (change)="clearValidationError('department'); onDepartmentChange(); onInterviewFormChange()">
             <option value="" selected disabled hidden>Select Department</option>
             @for (dept of departments; track dept.id) {
             <option [value]="dept.id">{{ dept.name }}</option>
@@ -279,13 +280,16 @@
           }
         </div>
       </div>
+      @if (validationErrors.department) {
+      <small class="text-danger mt-1 d-block">{{ validationErrors.department }}</small>
+      }
     </div>
     <div class="input">
-      <label for="Section">Section</label>
+      <label for="Section">Section <span class="text-danger">*</span></label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           @if (!department) {
-          <select id="Section" class="form-select" disabled>
+          <select id="Section" class="form-select" [class.is-invalid]="validationErrors.section" disabled>
             <option value="" selected>Please select a department first</option>
           </select>
           } @else if (sectionsLoading) {
@@ -294,7 +298,8 @@
           </div>
           } @else {
           <select id="Section" class="form-select" [(ngModel)]="section" name="section"
-            (change)="onSectionChange(); onInterviewFormChange()">
+            [class.is-invalid]="validationErrors.section"
+            (change)="clearValidationError('section'); onSectionChange(); onInterviewFormChange()">
             <option value="" selected disabled hidden>Select Section</option>
             @for (sec of sections; track sec.id) {
             <option [value]="sec.id">{{ sec.name }}</option>
@@ -306,9 +311,12 @@
       @if (!department) {
       <small class="text-muted mt-1 d-block">Please select a department first to view available sections</small>
       }
+      @if (validationErrors.section) {
+      <small class="text-danger mt-1 d-block">{{ validationErrors.section }}</small>
+      }
     </div>
     <div class="input">
-      <label for="Interviewer">Interviewer</label>
+      <label for="Interviewer">Interviewer <span class="text-danger">*</span></label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           @if (!section) {
@@ -343,34 +351,21 @@
       }
     </div>
     <div class="input">
-      <label for="Date">Date</label>
-      <div class="d-flex align-items-center gap-4">
-        <div class="form-outline w-100 position-relative custom-date-wrapper">
-          @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
-          <div class="placeholder-glow w-100">
-            <input type="date" class="form-control custom-date-input placeholder" disabled style="height: 38px;" />
-          </div>
-          } @else {
-          <input type="date" id="Date" class="form-control custom-date-input" [class.is-invalid]="validationErrors.date"
-            placeholder="Min-Max" [(ngModel)]="date" name="date"
-            (change)="clearValidationError('date'); onInterviewFormChange()" />
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <g fill="none" stroke-width="1.5">
-              <path stroke-linecap="round"
-                d="M22 14v-2c0-3.771 0-5.657-1.172-6.828S17.771 4 14 4h-4C6.229 4 4.343 4 3.172 5.172S2 8.229 2 12v2c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4M7 4V2.5M17 4V2.5" />
-              <circle cx="18" cy="18" r="3" />
-              <path stroke-linecap="round" d="M20.5 20.5L22 22M2.5 9h19" />
-            </g>
-          </svg>
-          }
-        </div>
+      @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
+      <label class="date-picker-label">Date <span class="text-danger">*</span></label>
+      <div class="placeholder-glow w-100">
+        <div class="form-control custom-date-input placeholder" style="height: 38px;"></div>
       </div>
-      @if (validationErrors.date) {
-      <small class="text-danger mt-1 d-block">{{ validationErrors.date }}</small>
+      } @else {
+      <app-date-picker label="Date" placeholder="Select date" [required]="true" [disableBeforeDate]="true"
+        [(ngModel)]="date" name="date"
+        [errorMessage]="validationErrors.date || null"
+        (dateChange)="onInterviewDateChange($event)">
+      </app-date-picker>
       }
     </div>
     <div class="input">
-      <label for="Time">Time</label>
+      <label for="Time">Time <span class="text-danger">*</span></label>
       <div class="d-flex align-items-start justify-content-between gap-3">
         <div class="w-100">
           <div class="form-outline w-100 position-relative custom-date-wrapper">
@@ -411,7 +406,7 @@
       </div>
     </div>
     <div class="input mb-1">
-      <label for="type">Interview Type</label>
+      <label for="type">Interview Type <span class="text-danger">*</span></label>
       <div class="d-flex align-items-center justify-content-between gap-3">
         @if (interviewDetailsLoading && overlayTitle === 'Reschedule Interview') {
         <div class="placeholder-glow w-100">
@@ -447,7 +442,7 @@
 
     @if (interview_type === 1) {
     <div class="input">
-      <label for="Branch">Interview Location</label>
+      <label for="Branch">Interview Location <span class="text-danger">*</span></label>
       <div class="d-flex align-items-center gap-4">
         <div class="form-outline w-100 position-relative custom-date-wrapper">
           @if (branchesLoading || (interviewDetailsLoading && overlayTitle === 'Reschedule Interview')) {
