@@ -1961,9 +1961,6 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.feedbackSubmitting = false;
-          this.toastr.error(
-            error.error?.message || 'Failed to submit feedback'
-          );
         },
       });
   }

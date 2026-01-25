@@ -1431,7 +1431,7 @@ export class ApplyFormComponent implements OnInit {
           this.applicationForm.enable();
           console.error('Error submitting application:', error);
 
-          const errorMessage = error.error?.message || 'Failed to submit application. Please try again.';
+          const errorMessage = error.error?.message;
           this.formErrorsAnnouncement = errorMessage;
           this.announceToScreenReader(errorMessage);
           // Interceptor will handle showing the error message, so don't show it twice

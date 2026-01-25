@@ -319,7 +319,6 @@ export class JobDetailsComponent implements OnInit {
       },
       error: (error) => {
         this.submitting = false;
-        this.toastr.error(error.error?.message || 'Failed to submit feedback');
       }
     });
   }

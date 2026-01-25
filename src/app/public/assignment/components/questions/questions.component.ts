@@ -1146,8 +1146,6 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
             const errorMessages = errorHandling.map(err => err.error || err.message).filter(Boolean);
             const errorMessage = errorMessages.join('. ') || 'An error occurred';
             this.toastr.error(errorMessage);
-          } else {
-            this.toastr.error(error.error?.message || error.message || 'Failed to submit answer');
           }
           console.error('Error submitting answer:', error);
         }
@@ -1310,7 +1308,7 @@ export class AssignmentQuestionsComponent implements OnInit, OnDestroy, AfterVie
             const errorMessage = errorMessages.join('. ') || 'An error occurred';
             this.toastr.error(errorMessage);
           } else {
-            this.toastr.error(error.error?.message || error.message || 'Failed to submit assignment');
+            this.toastr.error(error.error?.message || error.message);
           }
           console.error('Error submitting assignment:', error);
         }

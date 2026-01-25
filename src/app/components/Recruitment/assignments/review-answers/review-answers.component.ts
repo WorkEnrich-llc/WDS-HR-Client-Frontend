@@ -335,7 +335,7 @@ export class ReviewAnswersComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     this.essayLoading.set(questionId, false);
-                    const errorMessage = error?.error?.message || error?.message || 'Failed to submit points';
+                    const errorMessage = error?.error?.message || error?.message;
                     this.toasterMessageService.showError(errorMessage, 'Error');
                 }
             });
