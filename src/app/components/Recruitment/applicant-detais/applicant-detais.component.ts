@@ -1098,6 +1098,7 @@ export class ApplicantDetaisComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.isRejectSubmitting = false;
+        this.toasterService.showSuccess('Applicant rejected successfully');
         this.closeAllOverlays();
         this.refreshApplication();
       },

@@ -1817,10 +1817,22 @@
       [(ngModel)]="rejectionMailMessage"
       placeholder="Custom rejection email message to send to the candidate..."></textarea>
   </div>
-  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()">
+  <button modal-btn-left class="btn btn-lg btn-danger text-white w-100" (click)="confirmReject()"
+    [disabled]="isRejectSubmitting">
+    @if (!isRejectSubmitting) {
     Confirm Reject
+    }
+    @if (isRejectSubmitting) {
+    <div class="d-flex align-items-center gap-2">
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+      <div class="loading-bubble"></div>
+    </div>
+    <span>Rejecting</span>
+    }
   </button>
-  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeRejectModal()">
+  <button modal-btn-right class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeRejectModal()"
+    [disabled]="isRejectSubmitting">
     Cancel
   </button>
 </app-popup>

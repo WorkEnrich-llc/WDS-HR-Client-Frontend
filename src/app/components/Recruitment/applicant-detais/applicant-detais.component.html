@@ -1174,6 +1174,7 @@
     <div class="d-flex flex-column gap-2 mt-3">
       <div class="d-flex align-items-center gap-3">
         <button type="submit" class="btn btn-lg btn-danger w-100" [disabled]="isRejectSubmitting || !applicationId">
+          @if (!isRejectSubmitting) {
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
             <path fill="currentColor"
               d="M10.03 8.97a.75.75 0 0 0-1.06 1.06L10.94 12l-1.97 1.97a.75.75 0 1 0 1.06 1.06L12 13.06l1.97 1.97a.75.75 0 0 0 1.06-1.06L13.06 12l1.97-1.97a.75.75 0 1 0-1.06-1.06L12 10.94z" />
@@ -1182,10 +1183,20 @@
               clip-rule="evenodd" />
           </svg>
           <span>Reject Applicant</span>
+          }
+          @if (isRejectSubmitting) {
+          <div class="d-flex align-items-center gap-2">
+            <div class="loading-bubble"></div>
+            <div class="loading-bubble"></div>
+            <div class="loading-bubble"></div>
+          </div>
+          <span>Rejecting</span>
+          }
         </button>
-        <a class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()">
+        <button type="button" class="btn btn-lg btn-outline-dark border-0 w-100" (click)="closeAllOverlays()"
+          [disabled]="isRejectSubmitting">
           <span>Keep Applicant</span>
-        </a>
+        </button>
       </div>
     </div>
 

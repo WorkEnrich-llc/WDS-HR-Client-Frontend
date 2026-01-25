@@ -251,6 +251,7 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   selectedApplicationForReject: Applicant | null = null;
   rejectionNotes: string = '';
   rejectionMailMessage: string = '';
+  isRejectSubmitting: boolean = false;
 
   ngOnInit(): void {
     // Load saved tab from session storage
@@ -1520,20 +1521,23 @@ export class ViewJopOpenComponent implements OnInit, OnDestroy {
   confirmReject(): void {
     if (!this.selectedApplicationForReject?.applicationId) return;
 
+    this.isRejectSubmitting = true;
+
     // Contact Status 3 = Not Interested (Reject also uses status 3)
     this.jobOpeningsService.updateApplicantContactStatus(
       this.selectedApplicationForReject.applicationId,
       3 // 3 - Not Interested
     ).subscribe({
       next: () => {
+        this.isRejectSubmitting = false;
+        this.toastr.success('Application rejected successfully');
         this.closeRejectModal();
         this.loadApplicants();
         this.getJobOpeningDetails(this.jobOpening.id);
-        this.toastr.success('Application rejected successfully');
       },
       error: (error) => {
         console.error('Error rejecting application:', error);
-        this.toastr.error('Failed to reject application');
+        this.isRejectSubmitting = false;
         this.closeRejectModal();
       }
     });
