@@ -73,9 +73,23 @@ export class AssignmentComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Detect mobile/touch devices. Popup flow (window.open, close, etc.) causes
+   * broken behavior on mobile (tabs, blank screen, close fails); skip it.
+   */
+  private isMobile(): boolean {
+    if (typeof navigator === 'undefined' || !navigator.userAgent) return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+  }
+
+  /**
    * Check if page is opened in main window and redirect to popup window
    */
   private checkAndOpenInPopup(): void {
+    // Skip popup flow on mobile: window.open/close causes blank tabs, focus issues, etc.
+    if (this.isMobile()) {
+      return;
+    }
+
     // Prevent multiple checks
     if (this.popupRedirectChecked) {
       return;
