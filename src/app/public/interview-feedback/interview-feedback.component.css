@@ -246,6 +246,8 @@
 }
 
 .star-rating {
+    --star-size: 32px;
+    --star-offset: 4px;
     display: flex;
     gap: var(--spacing-xs);
     justify-content: center;
@@ -255,10 +257,12 @@
 .star-btn {
     background: none;
     border: none;
-    padding: 4px;
+    padding: var(--star-offset, 4px);
     cursor: pointer;
     transition: transform var(--transition-fast);
     position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
 }
 
 .star-btn:hover {
@@ -270,8 +274,9 @@
 }
 
 .star-icon {
-    width: 32px;
-    height: 32px;
+    width: var(--star-size, 32px);
+    height: var(--star-size, 32px);
+    display: block;
     color: var(--color-border);
     transition: color var(--transition-fast);
 }
@@ -298,10 +303,10 @@
 .star-btn.half-hover::after {
     content: '';
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 32px;
-    height: 32px;
+    top: var(--star-offset, 4px);
+    left: var(--star-offset, 4px);
+    width: var(--star-size, 32px);
+    height: var(--star-size, 32px);
     background-color: #FEF3C7;
     clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
     -webkit-clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
@@ -311,6 +316,8 @@
     -webkit-mask-size: contain;
     mask-repeat: no-repeat;
     -webkit-mask-repeat: no-repeat;
+    mask-position: 0 0;
+    -webkit-mask-position: 0 0;
     pointer-events: none;
     z-index: 1;
 }
@@ -327,10 +334,10 @@
 .star-btn.half::after {
     content: '';
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 32px;
-    height: 32px;
+    top: var(--star-offset, 4px);
+    left: var(--star-offset, 4px);
+    width: var(--star-size, 32px);
+    height: var(--star-size, 32px);
     background-color: #FCD34D;
     clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
     -webkit-clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
@@ -340,6 +347,8 @@
     -webkit-mask-size: contain;
     mask-repeat: no-repeat;
     -webkit-mask-repeat: no-repeat;
+    mask-position: 0 0;
+    -webkit-mask-position: 0 0;
     pointer-events: none;
     z-index: 1;
 }
@@ -604,9 +613,8 @@
         font-size: 0.9375rem;
     }
 
-    .star-icon {
-        width: 28px;
-        height: 28px;
+    .star-rating {
+        --star-size: 28px;
     }
 
     .content-wrapper {
@@ -692,12 +700,9 @@
         margin-bottom: 0;
     }
 
-    .star-icon {
-        width: 24px;
-        height: 24px;
-    }
-
     .star-rating {
+        --star-size: 24px;
+        --star-offset: 4px;
         gap: 2px;
     }
 
