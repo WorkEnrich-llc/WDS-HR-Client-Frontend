@@ -627,6 +627,7 @@ export class InterviewComponent implements OnChanges {
           this.closeAllOverlays();
           this.resetInterviewForm();
           this.applicationRefreshed.emit();
+          this.toasterService.showSuccess('Interview rescheduled successfully');
         },
         error: () => {
           this.submitting = false;
